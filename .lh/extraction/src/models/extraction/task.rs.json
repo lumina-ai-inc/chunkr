@@ -1,0 +1,18 @@
+{
+    "sourceFile": "extraction/src/models/extraction/task.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1724533889728,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1724533889728,
+            "name": "Commit-0",
+            "content": "use chrono::{DateTime, Utc};\nuse postgres_types::{FromSql, ToSql};\nuse serde::{Deserialize, Serialize};\nuse super::extraction::Model;\nuse strum_macros::{EnumString, Display};\n\n#[derive(Debug, Serialize, Deserialize, Clone)]\npub struct TaskResponse {\n    pub task_id: String,\n    pub status: Status,\n    pub created_at: DateTime<Utc>,\n    pub finished_at: Option<String>,\n    pub expiration_time: Option<DateTime<Utc>>,\n    pub message: String,\n    pub file_url: Option<String>,\n    pub task_url: Option<String>,\n    pub model: Model,\n}\n\n#[derive(Debug, Clone, Serialize, Deserialize, ToSql, FromSql, PartialEq, Eq, EnumString, Display)]\npub enum Status {\n    Starting,\n    Processing,\n    Succeeded,\n    Failed,\n    Canceled,\n}\n\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "extraction/cmd.sh",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1724530827814,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1724530827814,
+            "name": "Commit-0",
+            "content": "curl -v --request POST \\\n--url http://localhost:8000/task \\\n-H \"x-api-key: lu_QzLYxyvbNbA_5HC3tdae7FNYaBsSgjhayzaWeBr4idPtQ\" \\\n-F file=@./examples/sample.pdf \\\n-F file=@./examples/sample.pdf\n\n\ncurl -X POST https://rrq.lumina.sh/produce \\\n-H \"Content-Type: application/json\" \\\n-d '[\n  {\n    \"max_attempts\": 3,\n    \"queue_name\": \"xml\",\n    \"publish_channel\": null,\n    \"payload\": {\"input_location\": \"s3://lumina-tests/example.pdf\", \"output_location\": \"s3://lumina-tests/example.xml\", \"expiration\": \"1h\", \"task_id\": \"pp\", \"file_id\": \"poopoo\"},\n    \"item_id\": \"b5b759cc-bc40-4da9-af5d-c0530954a648\"\n  }\n]'\n\ncurl -v --request GET \\\n  --url https://ingest.lumina.sh/health\n\ncurl -v --request POST \\\n--url https://ingest.lumina.sh/task \\\n-H \"x-api-key: lu_QzLYxyvbNbA_5HC3tdae7FNYaBsSgjhayzaWeBr4idPtQ\" \\\n-F file=@./examples/sample.pdf\n\ncurl -v --request GET \\\n--url https://ingest.lumina.sh/task/1426b9c5-29c4-4935-bda4-56d5e9cc5d5e \\\n-H \"x-api-key: lu_QzLYxyvbNbA_5HC3tdae7FNYaBsSgjhayzaWeBr4idPtQ\"\n\n\ncurl -X POST -F 'file=@./examples/sample.pdf' -F \"fast=true\" localhost:5060\n\n\ncurl -X POST http://localhost:8080/upload \\\n  -H \"Content-Type: multipart/form-data\" \\\n  -F \"metadata={\\\"model\\\":\\\"Fast\\\"}\" \\\n  -F \"files[0].file_id=file1\" \\\n  -F \"files[0].file=@./examples/sample.pdf\" \\\n  -F \"files[1].file_id=file2\" \\\n  -F \"files[1].file=@./examples/sample.pdf\"\n\n"
+        }
+    ]
+}

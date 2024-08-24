@@ -1,0 +1,38 @@
+{
+    "sourceFile": "extraction/src/main.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 5,
+            "patches": [
+                {
+                    "date": 1724530993925,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724533056101,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,9 @@\n-use actix_web::{ web, App, HttpServer };\n-use shared::deadpool_postgres::create_pool;\n mod lib;\n mod routes;\n mod models;\n mod utils;\n-use middleware::api_key::ApiKeyMiddlewareFactory;\n+use actix_web::{ web, App, HttpServer };\n use actix_multipart::form::MultipartFormConfig;\n use actix_multipart::MultipartError;\n use actix_web::Error;\n use actix_web::HttpRequest;\n@@ -13,8 +11,10 @@\n use routes::extract::extract_files;\n use routes::task::get_task_status;\n use env_logger::Env;\n use actix_web::middleware::Logger;\n+use crate::utils::deadpool_postgres::create_pool;\n+use crate::middleware::api_key::ApiKeyMiddlewareFactory;\n \n #[actix_web::main]\n async fn main() -> std::io::Result<()> {\n     let pool = create_pool(); // create pool and put it in app data\n"
+                },
+                {
+                    "date": 1724533134447,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,7 @@\n mod lib;\n mod routes;\n mod models;\n-mod utils;\n use actix_web::{ web, App, HttpServer };\n use actix_multipart::form::MultipartFormConfig;\n use actix_multipart::MultipartError;\n use actix_web::Error;\n"
+                },
+                {
+                    "date": 1724533220565,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,6 @@\n mod lib;\n mod routes;\n-mod models;\n use actix_web::{ web, App, HttpServer };\n use actix_multipart::form::MultipartFormConfig;\n use actix_multipart::MultipartError;\n use actix_web::Error;\n"
+                },
+                {
+                    "date": 1724533596270,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,9 +10,9 @@\n use routes::task::get_task_status;\n use env_logger::Env;\n use actix_web::middleware::Logger;\n use crate::utils::deadpool_postgres::create_pool;\n-use crate::middleware::api_key::ApiKeyMiddlewareFactory;\n+use middleware::api_key::ApiKeyMiddlewareFactory;\n \n #[actix_web::main]\n async fn main() -> std::io::Result<()> {\n     let pool = create_pool(); // create pool and put it in app data\n"
+                },
+                {
+                    "date": 1724533609954,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,9 +9,9 @@\n use routes::extract::extract_files;\n use routes::task::get_task_status;\n use env_logger::Env;\n use actix_web::middleware::Logger;\n-use crate::utils::deadpool_postgres::create_pool;\n+use utils::deadpool_postgres::create_pool;\n use middleware::api_key::ApiKeyMiddlewareFactory;\n \n #[actix_web::main]\n async fn main() -> std::io::Result<()> {\n"
+                }
+            ],
+            "date": 1724530993925,
+            "name": "Commit-0",
+            "content": "use actix_web::{ web, App, HttpServer };\nuse shared::deadpool_postgres::create_pool;\nmod lib;\nmod routes;\nmod models;\nmod utils;\nuse middleware::api_key::ApiKeyMiddlewareFactory;\nuse actix_multipart::form::MultipartFormConfig;\nuse actix_multipart::MultipartError;\nuse actix_web::Error;\nuse actix_web::HttpRequest;\nuse routes::health::health_check;\nuse routes::extract::extract_files;\nuse routes::task::get_task_status;\nuse env_logger::Env;\nuse actix_web::middleware::Logger;\n\n#[actix_web::main]\nasync fn main() -> std::io::Result<()> {\n    let pool = create_pool(); // create pool and put it in app data\n\n    fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {\n        println!(\"Multipart error: {}\", err);\n        return Error::from(err);\n    }\n    let max_size: usize = std::env\n        ::var(\"MAX_TOTAL_LIMIT\")\n        .unwrap_or_else(|_| \"10485760\".to_string()) // Default to 10 MB if not set\n        .parse()\n        .expect(\"MAX_TOTAL_LIMIT must be a valid usize\");\n    let max_memory_size: usize = std::env\n        ::var(\"MAX_MEMORY_LIMIT\")\n        .unwrap_or_else(|_| \"10485760\".to_string()) // Default to 10 MB if not set\n        .parse()\n        .expect(\"MAX_MEMORY_LIMIT must be a valid usize\");\n    println!(\"Max size: {}\", max_size);\n\n    let timeout: usize = std::env\n        ::var(\"TIMEOUT\")\n        .unwrap_or_else(|_| \"600\".to_string())\n        .parse()\n        .expect(\"TIMEOUT must be a valid usize\");\n    let timeout = std::time::Duration::from_secs(timeout.try_into().unwrap());\n\n    env_logger::init_from_env(Env::default().default_filter_or(\"info\"));\n\n    HttpServer::new(move || {\n        App::new()\n            .wrap(Logger::default())\n            .wrap(Logger::new(\"%a %{User-Agent}i\"))\n            .app_data(web::Data::new(pool.clone()))\n            .app_data(\n                MultipartFormConfig::default()\n                    .total_limit(max_size)\n                    .memory_limit(max_memory_size)\n                    .error_handler(handle_multipart_error)\n            )\n            .route(\"/\", web::get().to(health_check))\n            .route(\"/health\", web::get().to(health_check))\n            .service(\n                web\n                    ::scope(\"/api\")\n                    .wrap(ApiKeyMiddlewareFactory)\n                    .route(\"/extract\", web::post().to(extract_files))\n                    .route(\"/task/{task_id}\", web::get().to(get_task_status))\n            )\n    })\n        .bind(\"0.0.0.0:8000\")?\n        .keep_alive(timeout)\n        .run().await\n}\n"
+        }
+    ]
+}

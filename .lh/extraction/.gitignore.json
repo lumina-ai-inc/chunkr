@@ -1,0 +1,22 @@
+{
+    "sourceFile": "extraction/.gitignore",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1724532954436,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724532956193,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,8 +5,9 @@\n examples\n annotated\n annotated-gpu\n sample\n+\n # Ignore Rust build artifacts\n target/\n **/*.rs.bk\n \n"
+                }
+            ],
+            "date": 1724532954436,
+            "name": "Commit-0",
+            "content": "output\ntest\noutput-gpu\nstaging\nexamples\nannotated\nannotated-gpu\nsample\n# Ignore Rust build artifacts\ntarget/\n**/*.rs.bk\n\n# Ignore environment variable files\n.env\n\n# Ignore specific IDE/editor files\n.idea/\n.vscode/\n*.swp\n\n# Ignore compiled libraries\n*.rlib\n\n# Ignore Cargo.lock if it's a library\nCargo.lock\n\n# Ignore backup files\n*.bak\n*.tmp\n\n.lh"
+        }
+    ]
+}

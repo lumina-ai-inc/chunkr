@@ -1,0 +1,34 @@
+{
+    "sourceFile": "extraction/Cargo.toml",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 4,
+            "patches": [
+                {
+                    "date": 1724532985227,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724533724187,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,8 +22,19 @@\n quick-xml = \"0.36.1\"\n futures-util = \"0.3.30\"\n env_logger = \"0.11.5\"\n tempdir = \"0.3.7\"\n+serde = { version = \"1.0.204\", features = [\"derive\"] }\n+serde_json = \"1.0.68\"\n+chrono = { version = \"0.4\", features = [\"serde\"] }\n+uuid = { version = \"1.8.0\", features = [\"v4\", \"v5\"] }\n+humantime = \"2.1.0\"\n+humantime-serde = \"1.1.1\"\n+postgres-types = { version = \"0.2.7\", features = [\"derive\"] }\n+strum = \"0.26.3\"\n+strum_macros = \"0.26.4\"\n+bytes = \"1.4.0\"\n+tokio-postgres = \"0.7.11\"\n \n [[bin]]\n name = \"main\"\n path = \"src/main.rs\"\n"
+                },
+                {
+                    "date": 1724533732490,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -24,9 +24,8 @@\n env_logger = \"0.11.5\"\n tempdir = \"0.3.7\"\n serde = { version = \"1.0.204\", features = [\"derive\"] }\n serde_json = \"1.0.68\"\n-chrono = { version = \"0.4\", features = [\"serde\"] }\n uuid = { version = \"1.8.0\", features = [\"v4\", \"v5\"] }\n humantime = \"2.1.0\"\n humantime-serde = \"1.1.1\"\n postgres-types = { version = \"0.2.7\", features = [\"derive\"] }\n"
+                },
+                {
+                    "date": 1724533764830,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,11 +22,8 @@\n quick-xml = \"0.36.1\"\n futures-util = \"0.3.30\"\n env_logger = \"0.11.5\"\n tempdir = \"0.3.7\"\n-serde = { version = \"1.0.204\", features = [\"derive\"] }\n-serde_json = \"1.0.68\"\n-uuid = { version = \"1.8.0\", features = [\"v4\", \"v5\"] }\n humantime = \"2.1.0\"\n humantime-serde = \"1.1.1\"\n postgres-types = { version = \"0.2.7\", features = [\"derive\"] }\n strum = \"0.26.3\"\n"
+                },
+                {
+                    "date": 1724533780194,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,9 +22,8 @@\n quick-xml = \"0.36.1\"\n futures-util = \"0.3.30\"\n env_logger = \"0.11.5\"\n tempdir = \"0.3.7\"\n-humantime = \"2.1.0\"\n humantime-serde = \"1.1.1\"\n postgres-types = { version = \"0.2.7\", features = [\"derive\"] }\n strum = \"0.26.3\"\n strum_macros = \"0.26.4\"\n"
+                }
+            ],
+            "date": 1724532985227,
+            "name": "Commit-0",
+            "content": "[package]\nname = \"extraction\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\ntokio = { version = \"1.28.0\", features = [\"full\"] }\nserde = { version = \"1.0.204\", features = [\"derive\"] }\nserde_json = \"1.0.68\"\ndotenvy = \"=0.15.7\"\nconfig = \"0.14.0\"\nchrono = { version = \"0.4.38\", features = [\"serde\"] }\nonce_cell = \"1.19.0\"\nuuid = { version = \"1.8.0\", features = [\"v4\", \"v5\"] }\nactix-web = \"4.8.0\"\npdf = \"0.9.0\"\nlopdf = \"0.33.0\"\nhumantime = \"2.1.0\"\nreqwest = { version = \"0.12.5\",  features = [\"blocking\", \"json\", \"multipart\"]}\nactix-multipart = \"0.7.2\"   \ntempfile = \"3.10.1\"\nquick-xml = \"0.36.1\"\nfutures-util = \"0.3.30\"\nenv_logger = \"0.11.5\"\ntempdir = \"0.3.7\"\n\n[[bin]]\nname = \"main\"\npath = \"src/main.rs\"\n\n[[bin]]\nname = \"load_file_ids\"\npath = \"src/bin/load_file_ids.rs\"\n\n[[bin]]\nname = \"load_metadata_trieve\"\npath = \"src/bin/load_metadata_trieve.rs\"\n\n[[bin]]\nname = \"load_pagination\"\npath = \"src/bin/load_pagination.rs\"\n\n[[bin]]\nname = \"xml\"\npath = \"src/bin/xml.rs\"\n\n[[bin]]\nname = \"extraction\"\npath = \"src/bin/extraction/main.rs\"\n"
+        }
+    ]
+}
