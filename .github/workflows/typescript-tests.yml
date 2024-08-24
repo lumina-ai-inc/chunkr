@@ -7,7 +7,7 @@ concurrency:
 on: pull_request
 
 jobs:
-  build-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,7 +17,7 @@ jobs:
         run: pnpm i
       - name: Running Build
         run: pnpm build
-  tests:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
