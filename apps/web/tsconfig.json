@@ -1,0 +1,4 @@
+{
+  "extends": "@chunkmydocs/typescript-config/vite.json",
+  "include": ["src"]
+}
