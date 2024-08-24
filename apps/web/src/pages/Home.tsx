@@ -1,4 +1,3 @@
 export const Home = () => {
-
-  return (<div>Hello Home</div>)
+  return <div>Hello Home</div>;
 };
