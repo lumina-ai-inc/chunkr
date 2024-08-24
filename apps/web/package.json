@@ -10,13 +10,21 @@
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
-    "@chunkmydocs/ui": "workspace:*"
+    "@chunkmydocs/ui": "workspace:*",
+    "@solidjs/router": "^0.14.3",
+    "solid-icons": "^1.1.0",
+    "solid-js": "^1.8.21"
   },
   "devDependencies": {
     "@chunkmydocs/eslint-config": "workspace:*",
     "@chunkmydocs/typescript-config": "workspace:*",
+    "autoprefixer": "^10.4.20",
     "eslint": "^9.9.1",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
     "typescript": "^5.3.3",
-    "vite": "^5.1.4"
+    "vite": "^5.1.4",
+    "vite-plugin-runtime-env": "^0.1.1",
+    "vite-plugin-solid": "^2.10.2"
   }
 }

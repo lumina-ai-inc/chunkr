@@ -8,6 +8,8 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "noEmit": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true
