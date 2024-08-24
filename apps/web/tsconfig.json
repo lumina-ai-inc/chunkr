@@ -1,7 +1,7 @@
 {
-  "extends": "@chunkmydocs/typescript-config/vite.json",
-  "compilerOptions": {
-    "noUnusedLocals": false
-  },
-  "include": ["src"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }
