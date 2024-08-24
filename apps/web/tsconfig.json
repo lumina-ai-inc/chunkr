@@ -1,4 +1,7 @@
 {
   "extends": "@chunkmydocs/typescript-config/vite.json",
+  "compilerOptions": {
+    "noUnusedLocals": false
+  },
   "include": ["src"]
 }
