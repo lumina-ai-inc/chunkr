@@ -10,3 +10,5 @@ annotated
 annotated-gpu
 sample
 input
+.whisper
+.env

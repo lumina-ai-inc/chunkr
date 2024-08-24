@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1724528969458,
@@ -12,6 +12,10 @@
                 {
                     "date": 1724528988012,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,5 +7,6 @@\n staging\n examples\n annotated\n annotated-gpu\n-sample\n\\ No newline at end of file\n+sample\n+input\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1724529143837,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,5 +8,7 @@\n examples\n annotated\n annotated-gpu\n sample\n-input\n\\ No newline at end of file\n+input\n+.whisper\n+.env\n"
                 }
             ],
             "date": 1724528969458,
