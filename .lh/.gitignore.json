@@ -1,0 +1,22 @@
+{
+    "sourceFile": ".gitignore",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1724528969458,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724528988012,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,5 +7,6 @@\n staging\n examples\n annotated\n annotated-gpu\n-sample\n\\ No newline at end of file\n+sample\n+input\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1724528969458,
+            "name": "Commit-0",
+            "content": ".env\n.venv\nvenv\noutput\ntest\noutput-gpu\nstaging\nexamples\nannotated\nannotated-gpu\nsample"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+.env
+.venv
+venv
+output
+test
+output-gpu
+staging
+examples
+annotated
+annotated-gpu
+sample
+input
