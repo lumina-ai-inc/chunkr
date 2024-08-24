@@ -1,0 +1,30 @@
+name: Typescript SDK test suite
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installing pnpm
+        run: npm i -g pnpm
+      - name: Install dependencies
+        run: pnpm i
+      - name: Running Build
+        run: pnpm build
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installing pnpm
+        run: npm i -g pnpm
+      - name: Install dependencies
+        run: pnpm i
+      - name: Running lint
+        run: pnpm lint
