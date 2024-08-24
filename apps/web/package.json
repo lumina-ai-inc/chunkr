@@ -1,0 +1,22 @@
+{
+  "name": "web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --clearScreen false",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@chunkmydocs/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@chunkmydocs/eslint-config": "workspace:*",
+    "@chunkmydocs/typescript-config": "workspace:*",
+    "eslint": "^9.9.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4"
+  }
+}
