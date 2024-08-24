@@ -7,15 +7,6 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-<<<<<<< HEAD
-    "eslint": "^8.57.0",
-    "prettier": "^3.2.5",
-    "turbo": "^2.0.3"
-  },
-  "packageManager": "pnpm@8.15.6",
-  "name": "with-vite"
-}
-=======
     "eslint": "^9.9.1",
     "prettier": "^3.2.5",
     "turbo": "^2.0.14"
@@ -23,4 +14,3 @@
   "packageManager": "pnpm@9.8.0",
   "name": "with-vite"
 }
->>>>>>> d83741c (skeleton: add turbo monorepo structure)
