@@ -5,14 +5,6 @@ import { Viewer } from "./pages/Viewer.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-declare global {
-  interface Window {
-    plausible: any;
-  }
-}
-
-window.plausible = window.plausible || {};
-
 const router = createBrowserRouter([
   {
     path: "/",
