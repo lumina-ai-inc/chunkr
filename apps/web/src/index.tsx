@@ -23,5 +23,5 @@ render(
     </Router>
   ),
 
-  root!
+  root!,
 );
