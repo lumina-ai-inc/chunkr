@@ -1,0 +1,22 @@
+{
+    "sourceFile": "extraction/src/lib/get_task.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1724533237592,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724533262409,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,11 @@\n use chrono::{ DateTime, Utc };\n use dotenvy::dotenv;\n-use crate::models::extraction::{ Status, TaskResponse, ModelInternal };\n use reqwest::Client as HttpClient;\n use serde_json::json;\n-use shared::deadpool_postgres::{ Client, Pool };\n use std::env;\n+use crate::utils::deadpool_postgres::{ Client, Pool };\n+use crate::models::extraction::{ Status, TaskResponse, ModelInternal };\n \n pub async fn get_task(\n     pool: &Pool,\n     task_id: String\n"
+                }
+            ],
+            "date": 1724533237592,
+            "name": "Commit-0",
+            "content": "use chrono::{ DateTime, Utc };\nuse dotenvy::dotenv;\nuse crate::models::extraction::{ Status, TaskResponse, ModelInternal };\nuse reqwest::Client as HttpClient;\nuse serde_json::json;\nuse shared::deadpool_postgres::{ Client, Pool };\nuse std::env;\n\npub async fn get_task(\n    pool: &Pool,\n    task_id: String\n) -> Result<TaskResponse, Box<dyn std::error::Error>> {\n    dotenv().ok();\n    println!(\"Getting task with id: {}\", task_id);\n    let storage_url = env::var(\"STORAGE__URL\").expect(\"STORAGE__URL must be set\");\n    let client: Client = pool.get().await?;\n    let http_client = HttpClient::new();\n\n    let task_and_files = client.query(\n        \"SELECT t.status AS task_status, t.expiration_time, t.created_at, t.finished_at, t.url AS task_url, t.model, t.message,\n                f.file_id, f.status AS file_status, f.input_location, f.output_location\n         FROM ingestion_tasks t\n         LEFT JOIN ingestion_files f ON t.task_id = f.task_id\n         WHERE t.task_id = $1\",\n        &[&task_id]\n    ).await?;\n\n    if task_and_files.is_empty() {\n        return Err(\"Task not found\".into());\n    }\n\n    let first_row = &task_and_files[0];\n    let task_status: Status = first_row\n        .get::<_, Option<String>>(\"task_status\")\n        .and_then(|m| m.parse().ok())\n        .ok_or(\"Invalid status\")?;\n\n    let expiration_time: Option<DateTime<Utc>> = first_row.get(\"expiration_time\");\n\n    if expiration_time.is_some() && expiration_time.as_ref().unwrap() < &Utc::now() {\n        return Err(\"Task expired\".into());\n    }\n\n    let created_at: DateTime<Utc> = first_row.get(\"created_at\");\n    let finished_at: Option<String> = first_row.get(\"finished_at\");\n    let task_url: Option<String> = first_row.get(\"task_url\");\n    let model: ModelInternal = first_row\n        .get::<_, Option<String>>(\"model\")\n        .and_then(|m| m.parse().ok())\n        .ok_or(\"Invalid model\")?;\n    let message = first_row.get::<_, Option<String>>(\"message\").unwrap_or_default();\n\n    let mut file_url = None;\n\n    let output_location: String = first_row.get(\"output_location\");\n\n    if task_status == Status::Succeeded {\n        let download_payload =\n            json!({\n            \"location\": output_location,\n            \"expires_in\": \"10min\"\n        });\n\n        println!(\"Download payload: {:?}\", download_payload);\n\n        let response = http_client\n            .post(format!(\"{}/download\", storage_url))\n            .json(&download_payload)\n            .send().await?\n            .error_for_status();\n\n        file_url = match response {\n            Ok(response) => { response.text().await.ok() }\n            Err(e) => {\n                println!(\"Error downloading file: {}\", e);\n                return Err(\"Error downloading file\".into());\n            }\n        };\n    }\n\n    Ok(TaskResponse {\n        task_id,\n        status: task_status,\n        created_at,\n        finished_at,\n        message,\n        file_url,\n        task_url,\n        expiration_time,\n        model: model.to_external(),\n    })\n}\n"
+        }
+    ]
+}

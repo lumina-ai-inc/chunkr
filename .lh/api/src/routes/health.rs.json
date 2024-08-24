@@ -1,0 +1,26 @@
+{
+    "sourceFile": "api/src/routes/health.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1724529761578,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724529782221,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,10 @@\n use actix_web::HttpResponse;\n use std::env;\n+use extract::extraction_config::Config;\n \n pub async fn health_check() -> HttpResponse {\n+    let config = Config::from_env().unwrap();\n     let version = env::var(\"APP_VERSION\").unwrap_or_else(|_| \"unknown\".to_string());\n     let message = format!(\"OK - Version {}\", version);\n     HttpResponse::Ok().body(message)\n }\n"
+                },
+                {
+                    "date": 1724529808885,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,8 +3,8 @@\n use extract::extraction_config::Config;\n \n pub async fn health_check() -> HttpResponse {\n     let config = Config::from_env().unwrap();\n-    let version = env::var(\"APP_VERSION\").unwrap_or_else(|_| \"unknown\".to_string());\n+    let version = config.version;\n     let message = format!(\"OK - Version {}\", version);\n     HttpResponse::Ok().body(message)\n }\n"
+                }
+            ],
+            "date": 1724529761578,
+            "name": "Commit-0",
+            "content": "use actix_web::HttpResponse;\nuse std::env;\n\npub async fn health_check() -> HttpResponse {\n    let version = env::var(\"APP_VERSION\").unwrap_or_else(|_| \"unknown\".to_string());\n    let message = format!(\"OK - Version {}\", version);\n    HttpResponse::Ok().body(message)\n}\n"
+        }
+    ]
+}

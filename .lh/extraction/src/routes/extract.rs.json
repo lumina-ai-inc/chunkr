@@ -1,0 +1,30 @@
+{
+    "sourceFile": "extraction/src/routes/extract.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1724531159460,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724531171847,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,11 @@\n-use crate::lib::create_task::create_task;\n use actix_web::{ Error, HttpRequest, HttpResponse, web };\n use actix_multipart::form::MultipartForm;\n use shared::deadpool_postgres::Pool;\n+use uuid::Uuid;\n+use crate::lib::create_task::create_task;\n use crate::models::extraction::UploadForm;\n use crate::middleware::api_key::ApiInfo;\n-use uuid::Uuid;\n \n pub async fn extract_files(\n     req: HttpRequest,\n     form: MultipartForm<UploadForm>,\n"
+                },
+                {
+                    "date": 1724531747768,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n use actix_web::{ Error, HttpRequest, HttpResponse, web };\n use actix_multipart::form::MultipartForm;\n-use shared::deadpool_postgres::Pool;\n use uuid::Uuid;\n+use crate::utils::deadpool_postgres::Pool;\n use crate::lib::create_task::create_task;\n use crate::models::extraction::UploadForm;\n use crate::middleware::api_key::ApiInfo;\n \n"
+                },
+                {
+                    "date": 1724533470500,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n use actix_web::{ Error, HttpRequest, HttpResponse, web };\n use actix_multipart::form::MultipartForm;\n use uuid::Uuid;\n use crate::utils::deadpool_postgres::Pool;\n-use crate::lib::create_task::create_task;\n+use crate::utils::server::create_task::create_task;\n use crate::models::extraction::UploadForm;\n use crate::middleware::api_key::ApiInfo;\n \n pub async fn extract_files(\n"
+                }
+            ],
+            "date": 1724531159460,
+            "name": "Commit-0",
+            "content": "use crate::lib::create_task::create_task;\nuse actix_web::{ Error, HttpRequest, HttpResponse, web };\nuse actix_multipart::form::MultipartForm;\nuse shared::deadpool_postgres::Pool;\nuse crate::models::extraction::UploadForm;\nuse crate::middleware::api_key::ApiInfo;\nuse uuid::Uuid;\n\npub async fn extract_files(\n    req: HttpRequest,\n    form: MultipartForm<UploadForm>,\n    api_info: web::ReqData<ApiInfo>\n) -> Result<HttpResponse, Error> {\n    let pool = req.app_data::<web::Data<Pool>>().unwrap();\n    let api_key = api_info.api_key.clone();\n    let user_id = api_info.user_id.clone();\n    let task_id = Uuid::new_v4().to_string();\n    \n    // Process files\n    let file_data = &form.file;\n    \n    // Call create_task function\n    let model = form.model.to_internal();\n    let result = create_task(&pool, file_data, task_id, user_id, &api_key.to_string(), model).await;\n\n    // Delete temporary files after create_task has finished\n    if let Err(e) = std::fs::remove_file(file_data.file.path()) {\n        eprintln!(\"Error deleting temporary file: {:?}\", e);\n    }\n\n    match result {\n        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),\n        Err(e) => {\n            eprintln!(\"Error creating task: {:?}\", e);\n            Ok(HttpResponse::InternalServerError().body(\"Failed to create task\"))\n        }\n    }\n}\n"
+        }
+    ]
+}

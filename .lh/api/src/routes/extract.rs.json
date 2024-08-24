@@ -1,0 +1,22 @@
+{
+    "sourceFile": "api/src/routes/extract.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1724529740677,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724530006764,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n use crate::lib::create_task::create_task;\n use actix_web::{ Error, HttpRequest, HttpResponse, web };\n use actix_multipart::form::MultipartForm;\n use shared::deadpool_postgres::Pool;\n-use models::api::extraction::UploadForm;\n+use models::extraction::UploadForm;\n use middleware::api_key::ApiInfo;\n use uuid::Uuid;\n \n pub async fn extract_files(\n@@ -27,10 +27,8 @@\n     if let Err(e) = std::fs::remove_file(file_data.file.path()) {\n         eprintln!(\"Error deleting temporary file: {:?}\", e);\n     }\n \n-    println!(\"Task created\");\n-\n     match result {\n         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),\n         Err(e) => {\n             eprintln!(\"Error creating task: {:?}\", e);\n"
+                }
+            ],
+            "date": 1724529740677,
+            "name": "Commit-0",
+            "content": "use crate::lib::create_task::create_task;\nuse actix_web::{ Error, HttpRequest, HttpResponse, web };\nuse actix_multipart::form::MultipartForm;\nuse shared::deadpool_postgres::Pool;\nuse models::api::extraction::UploadForm;\nuse middleware::api_key::ApiInfo;\nuse uuid::Uuid;\n\npub async fn extract_files(\n    req: HttpRequest,\n    form: MultipartForm<UploadForm>,\n    api_info: web::ReqData<ApiInfo>\n) -> Result<HttpResponse, Error> {\n    let pool = req.app_data::<web::Data<Pool>>().unwrap();\n    let api_key = api_info.api_key.clone();\n    let user_id = api_info.user_id.clone();\n    let task_id = Uuid::new_v4().to_string();\n    \n    // Process files\n    let file_data = &form.file;\n    \n    // Call create_task function\n    let model = form.model.to_internal();\n    let result = create_task(&pool, file_data, task_id, user_id, &api_key.to_string(), model).await;\n\n    // Delete temporary files after create_task has finished\n    if let Err(e) = std::fs::remove_file(file_data.file.path()) {\n        eprintln!(\"Error deleting temporary file: {:?}\", e);\n    }\n\n    println!(\"Task created\");\n\n    match result {\n        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),\n        Err(e) => {\n            eprintln!(\"Error creating task: {:?}\", e);\n            Ok(HttpResponse::InternalServerError().body(\"Failed to create task\"))\n        }\n    }\n}\n"
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "sourceFile": "extraction/src/models/rrq/consume.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1724533857970,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724533867443,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n use serde::{ Deserialize, Serialize };\n-use queue::QueuePayload;\n+use super::queue::QueuePayload;\n \n #[derive(Debug, Deserialize, Serialize, Clone)]\n pub struct ConsumePayload {\n     pub consumer_id: String,\n"
+                }
+            ],
+            "date": 1724533857970,
+            "name": "Commit-0",
+            "content": "use serde::{ Deserialize, Serialize };\nuse queue::QueuePayload;\n\n#[derive(Debug, Deserialize, Serialize, Clone)]\npub struct ConsumePayload {\n    pub consumer_id: String,\n    pub queue_name: String,\n    pub item_count: i64,\n    pub expiration_seconds: Option<u64>\n}\n\n#[derive(Debug, Deserialize, Serialize, Clone)]\npub struct ConsumeResponse {\n    pub queue_item: QueuePayload,\n    pub item_index: i64,\n    pub consumed_at: chrono::DateTime<chrono::Utc>,\n}"
+        }
+    ]
+}
