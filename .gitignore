@@ -12,3 +12,4 @@ sample
 input
 .whisper
 .env
+__pycache__
