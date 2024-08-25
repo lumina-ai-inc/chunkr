@@ -1,0 +1,26 @@
+.button-resting {
+  background-color: var(--cyan-12);
+  border: none;
+  color: rgba(222, 247, 249, 0.5);
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 0px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.button-resting:hover {
+  background-color: var(--cyan-9);
+  color: var(--cyan-3);
+  outline: none;
+}
+
+.button-active {
+  background-color: var(--cyan-9);
+  color: var(--cyan-3);
+  outline: none;
+}
