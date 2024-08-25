@@ -1,4 +1,4 @@
-use crate::models::api::api_key::{ApiKey, ApiKeyLimit, ApiKeyUsage, ApiRequest};
+use crate::models::api::api_key::{ApiKey, ApiKeyLimit, ApiKeyUsage, ApiRequest, ServiceType};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use actix_web::{web, Error, HttpResponse};
 use prefixed_api_key::PrefixedApiKeyController;
@@ -11,30 +11,42 @@ pub async fn create_api_key(
     request_payload: web::Json<ApiRequest>,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, Error> {
+    println!("Creating API key");
     let request = request_payload.into_inner();
-    let new_key = create_api_key_query(request, &pool).await?;
-    Ok(HttpResponse::Ok().json(new_key))
+    println!("Creating API key: {:?}", request);
+    match create_api_key_query(request, &pool).await {
+        Ok(new_key) => Ok(HttpResponse::Ok().json(new_key)),
+        Err(e) => {
+            println!("Error creating API key: {:?}", e);
+            Ok(HttpResponse::InternalServerError().json(format!("Error: {:?}", e)))
+        }
+    }
 }
 
 pub async fn create_api_key_query(
     request: ApiRequest,
     pool: &Pool,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let mut pg_client: Client = pool.get().await?;
+    println!("start");
 
+    let mut pg_client: Client = pool.get().await?;
+    println!("pg");
+
+    let service_type = request.service_type.unwrap_or(ServiceType::EXTRACTION);
+    println!("service type");
     let controller: PrefixedApiKeyController<OsRng, Sha256> = PrefixedApiKeyController::configure()
         .prefix("lu".to_owned())
         .finalize()?;
-
+    println!("Generating API key");
     let (pak, _hash) = controller.try_generate_key_and_hash()?;
     let key = pak.to_string();
-
+    let email = request.email;
     let api_key = ApiKey {
         key: key.clone(),
-        user_id: request.user_id,
+        user_id: Some(request.user_id),
         dataset_id: None,
         org_id: None,
-        access_level: request.access_level,
+        access_level: Some(request.access_level),
         active: Some(true),
         deleted: Some(false),
         created_at: Some(Utc::now()),
@@ -49,6 +61,7 @@ pub async fn create_api_key_query(
         usage: request.initial_usage,
         usage_type: request.usage_type.clone(),
         created_at: Some(Utc::now()),
+        service_type: Some(service_type.clone()),
     };
 
     let api_key_limit = ApiKeyLimit {
@@ -57,6 +70,7 @@ pub async fn create_api_key_query(
         usage_limit: request.usage_limit,
         usage_type: request.usage_type,
         created_at: Some(Utc::now()),
+        service_type: Some(service_type),
     };
 
     let transaction = pg_client.transaction().await?;
@@ -67,12 +81,17 @@ pub async fn create_api_key_query(
     "#;
 
     let insert_api_key_usage = r#"
-    INSERT INTO api_key_usage (api_key, usage, usage_type, created_at)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO api_key_usage (api_key, usage, usage_type, created_at, service)
+    VALUES ($1, $2, $3, $4, $5)
     "#;
 
     let insert_api_key_limit = r#"
-    INSERT INTO api_key_limit (api_key, usage_limit, usage_type, created_at)
+    INSERT INTO api_key_limit (api_key, usage_limit, usage_type, created_at, service)
+    VALUES ($1, $2, $3, $4, $5)
+    "#;
+
+    let insert_user = r#"
+    INSERT INTO api_users (key, user_id, email, created_at)
     VALUES ($1, $2, $3, $4)
     "#;
 
@@ -103,6 +122,7 @@ pub async fn create_api_key_query(
                 &api_key_usage.usage,
                 &api_key_usage.usage_type.as_ref().map(|ut| ut.to_string()),
                 &api_key_usage.created_at,
+                &api_key_usage.service_type.as_ref().map(|st| st.to_string()),
             ],
         )
         .await?;
@@ -115,7 +135,14 @@ pub async fn create_api_key_query(
                 &api_key_limit.usage_limit,
                 &api_key_limit.usage_type.as_ref().map(|ut| ut.to_string()),
                 &api_key_limit.created_at,
+                &api_key_limit.service_type.as_ref().map(|st| st.to_string()),
             ],
+        )
+        .await?;
+    transaction
+        .execute(
+            insert_user,
+            &[&api_key.key, &api_key.user_id, &email, &api_key.created_at],
         )
         .await?;
 

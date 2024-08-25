@@ -106,13 +106,13 @@ pub fn main() -> std::io::Result<()> {
                 )
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
+                .route("/api_key", web::post().to(create_api_key))
                 .route("/health", web::get().to(health_check))
                 .service(
                     web::scope("/api")
                         .wrap(ApiKeyMiddlewareFactory)
                         .route("/task", web::post().to(create_extraction_task))
-                        .route("/task/{task_id}", web::get().to(get_task_status))
-                        .route("/api_key", web::post().to(create_api_key)),
+                        .route("/task/{task_id}", web::get().to(get_task_status)),
                 )
         })
         .bind("0.0.0.0:8000")?
