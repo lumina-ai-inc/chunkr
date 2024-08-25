@@ -1,5 +1,5 @@
 import { useEffect, useId } from "react";
-// import pdfjs from "pdfjs-dist";
+import * as pdfjs from 'pdfjs-dist';
 
 export const PDF = () => {
     const url = 'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/examples/learning/helloworld.pdf'
@@ -12,7 +12,12 @@ export const PDF = () => {
     }, []);
 
     const initDocument = async () => {
-        // const pdf = await pdfjs.getDocument(url).promise;
+        console.log("prepdf");
+
+        pdfjs.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+        const pdf = await pdfjs.getDocument(url).promise;
+        console.log("pdf");
+
         // const pageNumber = 1;
         // const page = await pdf.getPage(pageNumber);
         //
