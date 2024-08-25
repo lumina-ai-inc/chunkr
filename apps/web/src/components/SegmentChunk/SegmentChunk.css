@@ -18,50 +18,43 @@ h3 {
 
 .AccordionItem:first-child {
   margin-top: 0;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-}
-
-.AccordionItem:last-child {
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
 }
 
 .AccordionItem:focus-within {
   position: relative;
   z-index: 1;
-  box-shadow: 0 0 0 2px var(--cyan-12);
 }
 
 .AccordionHeader {
   display: flex;
   background-color: #061d23;
+  border: 2px solid var(--Colors-Cyan-4, #caf1f6);
+  border-bottom: none;
 }
 
 .AccordionTrigger {
   font-family: inherit;
-  background-color: transparent;
-  padding: 0 20px;
-  height: 40px;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 15px;
   line-height: 1;
   color: var(--cyan-11);
-  box-shadow: 0 1px 0 var(--cyan-6);
+  padding: 16px 18px;
+  border-bottom: 2px solid var(--Colors-Cyan-4, #caf1f6);
+  transition: background-color 0.2s;
 }
 
 .AccordionTrigger:hover {
-  background-color: var(--cyan-2);
+  background-color: rgba(13, 60, 72, 0.7);
 }
 
 .AccordionContent {
   overflow: hidden;
-  font-size: 15px;
+  border: 2px solid var(--Colors-Cyan-4, #caf1f6);
+  border-top: none;
   color: var(--cyan-11);
-  background-color: var(--cyan-2);
+  background-color: #061d23;
 }
 .AccordionContent[data-state="open"] {
   animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
@@ -71,7 +64,7 @@ h3 {
 }
 
 .AccordionContentText {
-  padding: 15px 20px;
+  padding: 20px 24px;
 }
 
 .AccordionChevron {
