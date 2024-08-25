@@ -1,5 +1,5 @@
 import { Text } from "@radix-ui/themes";
-import BetterButton from "../components/BetterButton";
+import BetterButton from "../components/BetterButton/BetterButton";
 
 export const Home = () => {
   return (
