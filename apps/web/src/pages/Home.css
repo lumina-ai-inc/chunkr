@@ -41,6 +41,18 @@
   letter-spacing: -0.01em !important;
 }
 
+.credit-button {
+  border-radius: 8px;
+  border: 1px solid var(--cyan-4);
+  background-color: #061d22;
+  padding: 12px 18px;
+  transition: background-color 0.2s ease;
+}
+
+.credit-button:hover {
+  background-color: var(--cyan-12);
+}
+
 @media (max-width: 1236px) {
   .hero-title {
     font-size: 56px !important;

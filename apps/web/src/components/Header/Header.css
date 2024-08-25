@@ -1,3 +1,24 @@
+.logo {
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.logo:hover .logo-title,
+.logo:hover .logo-path {
+  color: var(--cyan-8);
+  fill: var(--cyan-8);
+}
+
+.logo-title {
+  color: var(--cyan-2);
+  transition: color 0.2s ease;
+}
+
+.logo-path {
+  fill: var(--cyan-2);
+  transition: fill 0.2s ease;
+}
+
 .nav-item {
   transition: color 0.2s ease-in-out;
   cursor: pointer;
