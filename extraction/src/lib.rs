@@ -1,5 +1,6 @@
 use actix_multipart::form::MultipartFormConfig;
 use actix_multipart::MultipartError;
+use actix_web::get;
 use actix_web::middleware::Logger;
 use actix_web::Error;
 use actix_web::HttpRequest;
@@ -13,10 +14,57 @@ pub mod routes;
 pub mod utils;
 
 use middleware::api_key::ApiKeyMiddlewareFactory;
-use routes::extract::extract_files;
 use routes::health::health_check;
-use routes::task::get_task_status;
+use routes::task::{create_extraction_task, get_task_status};
 use utils::db::deadpool_postgres;
+use utoipa::OpenApi;
+use utoipa_redoc::{Redoc, Servable};
+
+#[derive(OpenApi)]
+#[openapi(
+    info(
+        title = "ChunkMyDocs API",
+        description = "API service for document layout analysis and chunking to convert document into RAG/LLM-ready data.", 
+        contact(
+            name = "Trieve x Lumina Teams",
+            url = "https://trieve.ai",
+            email = "developers@trieve.ai",
+        ),
+        license(
+            name = "MIT",
+            url = "https://github.com/lumina-ai-inc/chunk-my-docs/blob/main/LICENSE.txt",
+        ),
+        version = "0.0.0",
+    ),
+    servers(
+        (url = "https://chunkmydocs.com",
+        description = "Production server"),
+        (url = "http://localhost:8000",
+        description = "Local development server"),
+    ),
+    paths(
+        routes::health::health_check,
+        routes::task::create_extraction_task,
+        routes::task::get_task_status,
+    ),
+    components(
+        schemas(
+            models::extraction::extract::UploadForm,
+            models::extraction::task::TaskResponse,
+            models::extraction::task::Status,
+            models::extraction::extract::Model,
+        ),
+    ),
+    tags(
+        (name = "health", description = "Endpoint for checking the health of the service."),
+    ),
+)]
+pub struct ApiDoc;
+
+#[get("/openapi.json")]
+pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
+    web::Json(ApiDoc::openapi())
+}
 
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
@@ -55,12 +103,13 @@ pub fn main() -> std::io::Result<()> {
                         .memory_limit(max_memory_size)
                         .error_handler(handle_multipart_error),
                 )
+                .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check))
                 .service(
                     web::scope("/api")
                         .wrap(ApiKeyMiddlewareFactory)
-                        .route("/extract", web::post().to(extract_files))
+                        .route("/task", web::post().to(create_extraction_task))
                         .route("/task/{task_id}", web::get().to(get_task_status)),
                 )
         })

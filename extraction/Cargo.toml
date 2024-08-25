@@ -34,6 +34,13 @@ deadpool-postgres = { version = "0.14.0", features = ["serde"] }
 deadpool-redis = { version = "0.16.0", features = ["serde"] }
 image = "0.25.2"
 poppler = "0.5.1"
+utoipa = { version = "4.2", features = [
+  "actix_extras",
+  "uuid",
+  "chrono",
+  "debug",
+] }
+utoipa-redoc = { version = "4.0", features = ["actix-web"] }
 
 [[bin]]
 name = "task-processor"
