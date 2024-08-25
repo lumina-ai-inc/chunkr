@@ -1,0 +1,10 @@
+/Users/ishaankapoor/chunk-my-docs/extraction/target/debug/deps/libbitstream_io-3026516ce7978069.rmeta: /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/lib.rs /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/huffman.rs /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/read.rs /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/write.rs
+
+/Users/ishaankapoor/chunk-my-docs/extraction/target/debug/deps/libbitstream_io-3026516ce7978069.rlib: /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/lib.rs /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/huffman.rs /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/read.rs /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/write.rs
+
+/Users/ishaankapoor/chunk-my-docs/extraction/target/debug/deps/bitstream_io-3026516ce7978069.d: /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/lib.rs /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/huffman.rs /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/read.rs /Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/write.rs
+
+/Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/lib.rs:
+/Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/huffman.rs:
+/Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/read.rs:
+/Users/ishaankapoor/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bitstream-io-2.5.3/src/write.rs:

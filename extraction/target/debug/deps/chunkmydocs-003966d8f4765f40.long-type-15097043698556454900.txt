@@ -1,0 +1,1 @@
+fn(actix_web::web::Json<ApiRequest>, actix_web::web::Data<{type error}>) -> impl futures_util::Future<Output = impl Responder> {create_api_key}
