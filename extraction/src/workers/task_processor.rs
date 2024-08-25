@@ -15,6 +15,7 @@ use diesel::pg;
 use chunkmydocs::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chunkmydocs::utils::storage::config_s3::create_client;
 use humantime::format_duration;
+use reqwest::Client;
 use serde_json::json;
 use std::{fs, path::PathBuf};
 use uuid::Uuid;
@@ -56,6 +57,8 @@ pub async fn log_task(
 }
 
 async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
+    let s3_client = create_client().await?;
+    let reqwest_client = reqwest::Client::new();
     let extraction_item: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_item.task_id.clone();
     let file_id = extraction_item.file_id.clone();
@@ -82,9 +85,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
     .await?;
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
-        let temp_file = download_to_tempfile(&extraction_item.input_location).await?;
-        println!("Downloaded file to {:?}", temp_file.path());
-
+        let temp_file = download_to_tempfile(&s3_client, &reqwest_client, &extraction_item.input_location, None).await?;
         let output_path: PathBuf;
         let chunks: Vec<Chunk>;
 
