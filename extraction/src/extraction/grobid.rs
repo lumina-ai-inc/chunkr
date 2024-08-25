@@ -52,14 +52,12 @@ async fn call_grobid(
         .text("teiCoordinates", "head")
         .text("teiCoordinates", "title");
 
-    let response = client
+    client
         .post(url)
         .multipart(form)
         .send()
         .await?
-        .error_for_status();
-
-    response
+        .error_for_status()
 }
 
 fn clean_xml(xml: &str) -> Result<String, Box<dyn std::error::Error>> {

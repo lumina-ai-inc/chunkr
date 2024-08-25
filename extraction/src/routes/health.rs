@@ -1,4 +1,4 @@
-use crate::utils::extraction_config::extraction_config::Config;
+use crate::utils::configs::extraction_config::Config;
 use actix_web::HttpResponse;
 pub async fn health_check() -> HttpResponse {
     let config = Config::from_env().unwrap();

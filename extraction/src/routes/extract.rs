@@ -1,5 +1,5 @@
 use crate::models::extraction::api::ApiInfo;
-use crate::models::extraction::extraction::UploadForm;
+use crate::models::extraction::extract::UploadForm;
 use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::create_task::create_task;
 use actix_multipart::form::MultipartForm;
@@ -22,7 +22,7 @@ pub async fn extract_files(
     // Call create_task function
     let model = form.model.to_internal();
     let result = create_task(
-        &pool,
+        pool,
         file_data,
         task_id,
         user_id,
