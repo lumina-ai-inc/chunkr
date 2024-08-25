@@ -46,6 +46,7 @@ export const Viewer = () => {
           type="always"
           style={{
             height: "calc(100vh - 90px)",
+            padding: "20px"
           }}
           ref={scrollAreaRef}
         >

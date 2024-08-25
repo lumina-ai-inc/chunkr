@@ -41,6 +41,9 @@ importers:
       '@react-pdf/renderer':
         specifier: ^3.4.4
         version: 3.4.4(react@18.3.1)
+      '@wojtekmaj/react-hooks':
+        specifier: ^1.21.0
+        version: 1.21.0(@types/react@18.3.4)(react@18.3.1)
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.41)
@@ -52,7 +55,7 @@ importers:
         version: 10.8.2
       pdfjs-dist:
         specifier: ^4.4.168
-        version: 4.5.136
+        version: 4.4.168
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1345,6 +1348,15 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0
 
+  '@wojtekmaj/react-hooks@1.21.0':
+    resolution: {integrity: sha512-lxZgdVbnFROsaNa3y6nqYFwoajnC5kN41+UdbnTyRyc1O7l30/nH4kgslPQjTPBYxBq+PRT4lYg3fFYVdipD2Q==}
+    peerDependencies:
+      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
   abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
 
@@ -2513,10 +2525,6 @@ packages:
 
   pdfjs-dist@4.4.168:
     resolution: {integrity: sha512-MbkAjpwka/dMHaCfQ75RY1FXX3IewBVu6NGZOcxerRFlaBiIkZmUoR0jotX5VUzYZEXAGzSFtknWs5xRKliXPA==}
-    engines: {node: '>=18'}
-
-  pdfjs-dist@4.5.136:
-    resolution: {integrity: sha512-V1BALcAN/FmxBEShLxoP73PlQZAZtzlaNfRbRhJrKvXzjLC5VaIlBAQUJuWP8iaYUmIdmdLHmt3E2TBglxOm3w==}
     engines: {node: '>=18'}
 
   picocolors@1.0.1:
@@ -4525,6 +4533,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@wojtekmaj/react-hooks@1.21.0(@types/react@18.3.4)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.4
+
   abbrev@1.1.1:
     optional: true
 
@@ -5763,14 +5777,6 @@ snapshots:
     optional: true
 
   pdfjs-dist@4.4.168:
-    optionalDependencies:
-      canvas: 2.11.2
-      path2d: 0.2.1
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  pdfjs-dist@4.5.136:
     optionalDependencies:
       canvas: 2.11.2
       path2d: 0.2.1
