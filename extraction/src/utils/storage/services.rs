@@ -1,4 +1,4 @@
-use aws_sdk_s3::{Client as S3Client, presigning::PresigningConfig, primitives::ByteStream};
+use aws_sdk_s3::{ Client as S3Client, presigning::PresigningConfig, primitives::ByteStream };
 use once_cell::sync::Lazy;
 use regex::Regex;
 use reqwest::Client;
@@ -11,7 +11,9 @@ static S3_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"^s3://[a-zA-Z0-9.\-_]{3,63}/.*$").unwrap()
 });
 
-pub fn extract_bucket_and_key(s3_path: &str) -> Result<(String, String), Box<dyn std::error::Error>> {
+pub fn extract_bucket_and_key(
+    s3_path: &str
+) -> Result<(String, String), Box<dyn std::error::Error>> {
     let parts: Vec<&str> = s3_path.trim_start_matches("s3://").splitn(2, '/').collect();
     match parts.len() != 2 {
         true => Err("Invalid S3 path format".into()),
@@ -29,8 +31,10 @@ pub fn validate_s3_path(s3_path: &str) -> Result<(), Box<dyn std::error::Error>>
 pub async fn generate_presigned_url(
     s3_client: &S3Client,
     location: &str,
-    expires_in: Duration
+    expires_in: Option<Duration>
 ) -> Result<String, Box<dyn std::error::Error>> {
+    let expiration = expires_in.unwrap_or(Duration::from_secs(3600));
+
     // Extract bucket and key from the S3 path
     let (bucket, key) = extract_bucket_and_key(location)?;
 
@@ -39,7 +43,7 @@ pub async fn generate_presigned_url(
         .get_object()
         .bucket(bucket)
         .key(key)
-        .presigned(PresigningConfig::expires_in(expires_in)?).await?;
+        .presigned(PresigningConfig::expires_in(expiration)?).await?;
     Ok(presigned_request.uri().to_string())
 }
 
@@ -72,9 +76,7 @@ pub async fn download_to_tempfile(
     location: &str,
     expires_in: Option<Duration>
 ) -> Result<NamedTempFile, Box<dyn std::error::Error>> {
-    let expiration = expires_in.unwrap_or(Duration::from_secs(3600));
-
-    let unsigned_url = generate_presigned_url(s3_client, location, expiration).await?;
+    let unsigned_url = generate_presigned_url(s3_client, location, expires_in).await?;
 
     let mut temp_file = NamedTempFile::new()?;
     let content = reqwest_client.get(&unsigned_url).send().await?.bytes().await?;

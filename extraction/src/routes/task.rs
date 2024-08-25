@@ -1,3 +1,4 @@
+use aws_sdk_s3::Client as S3Client;
 use crate::models::extraction::api::ApiInfo;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
@@ -24,6 +25,7 @@ use uuid::Uuid;
 )]
 pub async fn get_task_status(
     pool: web::Data<Pool>,
+    s3_client: web::Data<S3Client>,
     task_id: web::Path<String>,
     _req: HttpRequest,
 ) -> Result<HttpResponse, Error> {
@@ -34,7 +36,7 @@ pub async fn get_task_status(
         return Ok(HttpResponse::BadRequest().body("Invalid task ID format"));
     }
 
-    match get_task(&pool, task_id).await {
+    match get_task(&pool, &s3_client, task_id).await {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
             eprintln!("Error getting task status: {:?}", e);
@@ -63,6 +65,7 @@ pub async fn create_extraction_task(
     api_info: web::ReqData<ApiInfo>,
 ) -> Result<HttpResponse, Error> {
     let pool = req.app_data::<web::Data<Pool>>().unwrap();
+    let s3_client = req.app_data::<web::Data<S3Client>>().unwrap();
     let api_key = api_info.api_key.clone();
     let user_id = api_info.user_id.clone();
     let task_id = Uuid::new_v4().to_string();
@@ -74,6 +77,7 @@ pub async fn create_extraction_task(
     let model = form.model.to_internal();
     let result = create_task(
         pool,
+        s3_client,
         file_data,
         task_id,
         user_id,

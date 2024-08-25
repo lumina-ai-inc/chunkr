@@ -50,10 +50,10 @@ services:
       mc config host add myminio http://s3:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
       mc alias set myminio http://s3:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
 
-      mc admin user add myminio ${S3_ACCESS_KEY} ${S3_SECRET_KEY};
-      mc admin policy attach myminio readwrite --user ${S3_ACCESS_KEY};
+      mc admin user add myminio ${AWS__ACCESS_KEY} ${AWS__SECRET_KEY};
+      mc admin policy attach myminio readwrite --user ${AWS__ACCESS_KEY};
 
-      mc mb myminio/${S3_BUCKET};
+      mc mb myminio/${EXTRACTION__S3_BUCKET};
 
 
       exit 0;

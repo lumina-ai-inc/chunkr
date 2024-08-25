@@ -19,6 +19,7 @@ use routes::auth::create_api_key;
 use routes::health::health_check;
 use routes::task::{create_extraction_task, get_task_status};
 use utils::db::deadpool_postgres;
+use utils::storage::config_s3::create_client;
 use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
 
@@ -83,7 +84,8 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
         let pg_pool = deadpool_postgres::create_pool();
-        // run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
+        let s3_client = create_client().await.expect("Failed to create S3 client");
+        run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
 
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
             println!("Multipart error: {}", err);
@@ -112,6 +114,7 @@ pub fn main() -> std::io::Result<()> {
                 .wrap(Logger::default())
                 .wrap(Logger::new("%a %{User-Agent}i"))
                 .app_data(web::Data::new(pg_pool.clone()))
+                .app_data(web::Data::new(s3_client.clone()))
                 .app_data(
                     MultipartFormConfig::default()
                         .total_limit(max_size)

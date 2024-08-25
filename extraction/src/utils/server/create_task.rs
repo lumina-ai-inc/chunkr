@@ -6,15 +6,12 @@ use crate::models::{
 use crate::utils::db::deadpool_postgres::{ Client, Pool };
 use crate::utils::rrq::service::produce;
 use crate::utils::storage::services::upload_to_s3;
+use crate::utils::configs::extraction_config::Config;
 use aws_sdk_s3::Client as S3Client;
 use actix_multipart::form::tempfile::TempFile;
 use chrono::{ DateTime, Utc };
-use dotenvy::dotenv;
-use humantime;
 use lopdf::Document;
-use std::env;
 use std::error::Error;
-use std::time::Duration;
 use uuid::Uuid;
 
 fn is_valid_pdf(buffer: &[u8]) -> Result<bool, lopdf::Error> {
@@ -27,9 +24,7 @@ fn is_valid_pdf(buffer: &[u8]) -> Result<bool, lopdf::Error> {
 async fn produce_extraction_payloads(
     extraction_payload: ExtractionPayload
 ) -> Result<(), Box<dyn Error>> {
-    let document_extraction_queue = env
-        ::var("EXTRACTION__QUEUE")
-        .expect("EXTRACTION__QUEUE must be set");
+    let document_extraction_queue = Config::from_env()?.extraction_queue;
 
     let produce_payload = ProducePayload {
         queue_name: document_extraction_queue.clone(),
@@ -53,19 +48,16 @@ pub async fn create_task(
     api_key: &String,
     model: ModelInternal
 ) -> Result<TaskResponse, Box<dyn Error>> {
-    dotenv().ok();
     let mut client: Client = pool.get().await?;
-    let expiration = env::var("INGEST_SERVER__EXPIRATION").ok().or(None);
+    let config = Config::from_env()?;
+    let expiration = config.task_expiration;
     let created_at: DateTime<Utc> = Utc::now();
-    let expiration_time: Option<DateTime<Utc>> = expiration.clone().map(|exp| {
-        let std_duration: Duration = humantime::parse_duration(&exp).unwrap();
-        Utc::now() + std_duration
-    });
+    let expiration_time: Option<DateTime<Utc>> = expiration.map(|exp| Utc::now() + exp);
 
-    let bucket_name = env::var("INGEST_SERVER__BUCKET").expect("INGEST_SERVER__BUCKET must be set");
-    let ingest_batch_size = env::var("INGEST_BATCH_SIZE").expect("INGEST_BATCH_SIZE must be set");
-    let ingest_server_url = env::var("INGEST_SERVER__URL").expect("INGEST_SERVER__URL must be set");
-    let task_url = format!("{}/task/{}", ingest_server_url, task_id);
+    let bucket_name = config.s3_bucket;
+    let ingest_batch_size = config.batch_size;
+    let base_url = config.base_url;
+    let task_url = format!("{}/task/{}", base_url, task_id);
 
     let file_id = Uuid::new_v4().to_string();
     let buffer: Vec<u8> = std::fs::read(file.file.path())?;
@@ -86,7 +78,7 @@ pub async fn create_task(
             user_id,
             task_id,
             file_id,
-            file_name.clone()
+            file_name
         );
         let output_extension = model.get_extension();
         let output_s3_path = s3_path.replace(".pdf", &format!(".{}", output_extension));
@@ -107,7 +99,7 @@ pub async fn create_task(
                         &created_at,
                         &None::<String>,
                         &api_key,
-                        &format!("{}/task/{}", ingest_server_url, task_id),
+                        &task_url,
                         &Status::Starting.to_string(),
                         &model.to_string(),
                         &expiration_time,
@@ -139,7 +131,7 @@ pub async fn create_task(
                     input_location: s3_path,
                     output_location: output_s3_path,
                     expiration: None,
-                    batch_size: Some(ingest_batch_size.parse::<i32>().unwrap()),
+                    batch_size: Some(ingest_batch_size),
                     file_id,
                     task_id: task_id.clone(),
                 };
