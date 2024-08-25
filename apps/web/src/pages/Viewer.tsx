@@ -38,7 +38,11 @@ export const Viewer = () => {
         width="100%"
         style={{ borderTop: "2px solid var(--cyan-12)" }}
       >
-        <Flex width="100%" direction="column">
+        <Flex
+          width="100%"
+          direction="column"
+          style={{ borderRight: "2px solid var(--cyan-12)" }}
+        >
           <PDF />
         </Flex>
         <ScrollArea
@@ -46,7 +50,6 @@ export const Viewer = () => {
           type="always"
           style={{
             height: "calc(100vh - 90px)",
-            padding: "20px"
           }}
           ref={scrollAreaRef}
         >
