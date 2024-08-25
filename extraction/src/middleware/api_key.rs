@@ -90,8 +90,6 @@ where
 }
 
 async fn validator(api_key: &str, client: Client) -> Result<ApiInfo, Error> {
-    println!("Api key: {}", api_key);
-
     if api_key.is_empty() {
         return Err(actix_web::error::ErrorUnauthorized("API key is missing"));
     }
