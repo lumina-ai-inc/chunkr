@@ -1,3 +1,3 @@
 export const Viewer = () => {
-  return <div>Hello Viewer</div>;
+  return <div className="text-red-500">Hello Viewer</div>;
 };
