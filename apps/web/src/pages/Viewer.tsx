@@ -1,3 +1,5 @@
+import StyledButton from "../components/StyledButton";
+
 export const Viewer = () => {
-  return <div className="text-red-500">Hello Viewer</div>;
+  return <StyledButton>Hello Viewer</StyledButton>;
 };

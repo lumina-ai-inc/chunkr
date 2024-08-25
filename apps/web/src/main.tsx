@@ -22,7 +22,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Theme
       scaling="100%"
-      appearance="dark"
       accentColor="cyan"
       panelBackground="solid"
       style={{ height: "100%", width: "100%", backgroundColor: "#061d23" }}
