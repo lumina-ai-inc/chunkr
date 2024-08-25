@@ -1,15 +1,19 @@
-use serde::{Serialize, Deserialize};
-use strum_macros::{ Display, EnumString };
+use serde::{Deserialize, Serialize};
+use strum_macros::{Display, EnumString};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display)]
 pub enum SegmentType {
     Caption,
     Footnote,
     Formula,
+    #[serde(rename = "List item")]
     ListItem,
+    #[serde(rename = "Page footer")]
     PageFooter,
+    #[serde(rename = "Page header")]
     PageHeader,
     Picture,
+    #[serde(rename = "Section header")]
     SectionHeader,
     Table,
     Text,
@@ -28,4 +32,10 @@ pub struct Segment {
     pub text: String,
     #[serde(rename = "type")]
     pub segment_type: SegmentType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Chunk {
+    pub segments: Vec<Segment>,
+    pub markdown: String,
 }
