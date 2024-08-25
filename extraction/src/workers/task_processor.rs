@@ -15,7 +15,6 @@ use diesel::pg;
 use chunkmydocs::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chunkmydocs::utils::storage::config_s3::create_client;
 use humantime::format_duration;
-use reqwest::Client;
 use serde_json::json;
 use std::{fs, path::PathBuf};
 use uuid::Uuid;
