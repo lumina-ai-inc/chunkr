@@ -35,15 +35,31 @@ impl fmt::Display for UsageType {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ServiceType {
+    EXTRACTION,
+    SEARCH,
+}
+
+impl fmt::Display for ServiceType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ServiceType::EXTRACTION => write!(f, "EXTRACTION"),
+            ServiceType::SEARCH => write!(f, "SEARCH"),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ApiRequest {
-    pub user_id: Option<String>,
-    pub email: Option<String>,
-    pub access_level: Option<AccessLevel>,
+    pub user_id: String,
+    pub email: String,
+    pub access_level: AccessLevel,
     pub expires_at: Option<DateTime<Utc>>,
     pub initial_usage: Option<i32>,
     pub usage_limit: Option<i32>,
     pub usage_type: Option<UsageType>,
+    pub service_type: Option<ServiceType>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -68,6 +84,7 @@ pub struct ApiKeyUsage {
     pub usage: Option<i32>,
     pub usage_type: Option<UsageType>,
     pub created_at: Option<DateTime<Utc>>,
+    pub service_type: Option<ServiceType>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -77,4 +94,5 @@ pub struct ApiKeyLimit {
     pub usage_limit: Option<i32>,
     pub usage_type: Option<UsageType>,
     pub created_at: Option<DateTime<Utc>>,
+    pub service_type: Option<ServiceType>,
 }
