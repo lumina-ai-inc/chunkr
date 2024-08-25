@@ -9,9 +9,8 @@ const StyledButton = styled.button<{ padding: string }>`
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
+  border-radius: 0px;
   cursor: pointer;
-  border-radius: 4px;
   transition:
     background-color 0.2s,
     color 0.2s;
@@ -30,7 +29,7 @@ const StyledButton = styled.button<{ padding: string }>`
 
 export default function BetterButton({
   children,
-  padding = "15px 32px",
+  padding = "4px 12px",
 }: {
   children: React.ReactNode;
   padding?: string;
