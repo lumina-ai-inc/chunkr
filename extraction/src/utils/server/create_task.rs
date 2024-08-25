@@ -1,6 +1,6 @@
 use crate::models::rrq::produce::ProducePayload;
 use crate::models::{
-    extraction::extraction::{ExtractionPayload, ModelInternal},
+    extraction::extract::{ExtractionPayload, ModelInternal},
     extraction::task::{Status, TaskResponse},
 };
 use crate::utils::db::deadpool_postgres::{Client, Pool};
@@ -52,10 +52,7 @@ pub async fn create_task(
 ) -> Result<TaskResponse, Box<dyn Error>> {
     dotenv().ok();
     let mut client: Client = pool.get().await?;
-    let expiration = env::var("INGEST_SERVER__EXPIRATION")
-        .ok()
-        .map(|val| val)
-        .or(None);
+    let expiration = env::var("INGEST_SERVER__EXPIRATION").ok().or(None);
     let created_at: DateTime<Utc> = Utc::now();
     let expiration_time: Option<DateTime<Utc>> = expiration.clone().map(|exp| {
         let std_duration: Duration = humantime::parse_duration(&exp).unwrap();
@@ -79,11 +76,7 @@ pub async fn create_task(
             }
         };
 
-        let file_name = file
-            .file_name
-            .as_ref()
-            .map(String::as_str)
-            .unwrap_or("unknown.pdf");
+        let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
         let s3_path = format!(
             "s3://{}/{}/{}/{}/{}",
             bucket_name, user_id, task_id, file_id, file_name
@@ -143,9 +136,9 @@ pub async fn create_task(
                 task_id: task_id.clone(),
             };
 
-            let _ = produce_extraction_payloads(extraction_payload).await?;
+            produce_extraction_payloads(extraction_payload).await?;
 
-            return Ok(TaskResponse {
+            Ok(TaskResponse {
                 task_id: task_id.clone(),
                 status: Status::Starting,
                 created_at,
@@ -155,11 +148,11 @@ pub async fn create_task(
                 task_url: Some(task_url),
                 message: "Extraction started".to_string(),
                 model: model.to_external(),
-            });
+            })
         } else {
-            return Err("Failed to upload file".into());
+            Err("Failed to upload file".into())
         }
     } else {
-        return Err("Not a valid PDF".into());
+        Err("Not a valid PDF".into())
     }
 }

@@ -1,22 +1,17 @@
 use chrono::Utc;
-use extraction::models::extraction::extraction::ExtractionPayload;
-use extraction::models::extraction::extraction::ModelInternal;
-use extraction::models::extraction::task::Status;
-use extraction::models::rrq::{produce::ProducePayload, queue::QueuePayload};
-use extraction::utils::rrq::{consumer::consumer, service::produce};
-use extraction::utils::storage_service::services::{download_to_tempfile, upload_to_s3};
+use chunkmydocs::extraction::grobid::grobid_extraction;
+use chunkmydocs::extraction::pdla::pdla_extraction;
+use chunkmydocs::models::extraction::extract::ExtractionPayload;
+use chunkmydocs::models::extraction::extract::ModelInternal;
+use chunkmydocs::models::extraction::task::Status;
+use chunkmydocs::models::rrq::{produce::ProducePayload, queue::QueuePayload};
+use chunkmydocs::utils::configs::extraction_config;
+use chunkmydocs::utils::rrq::{consumer::consumer, service::produce};
+use chunkmydocs::utils::storage_service::services::{download_to_tempfile, upload_to_s3};
 use humantime::format_duration;
 use serde_json::json;
 use std::{fs, path::PathBuf};
 use uuid::Uuid;
-
-mod extraction_config;
-mod grobid;
-mod pdf;
-mod pdla;
-use crate::grobid::grobid_extraction;
-use crate::pdla::pdla_extraction;
-use extraction_config::Config;
 
 pub async fn log_task(
     task_id: String,
@@ -25,7 +20,7 @@ pub async fn log_task(
     message: Option<String>,
     finished_at: Option<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let config = Config::from_env()?;
+    let config = extraction_config::Config::from_env()?;
 
     println!("Prepared status: {:?}", status);
     println!("Prepared task_id: {}", task_id);
@@ -160,7 +155,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = Config::from_env()?;
+    let config = extraction_config::Config::from_env()?;
     consumer(process, config.extraction_queue, 1, 600).await?;
     Ok(())
 }

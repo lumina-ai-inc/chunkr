@@ -1,4 +1,4 @@
-use crate::models::extraction::extraction::ModelInternal;
+use crate::models::extraction::extract::ModelInternal;
 use crate::models::extraction::task::{Status, TaskResponse};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use chrono::{DateTime, Utc};

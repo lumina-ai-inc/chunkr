@@ -45,7 +45,7 @@ where
 
     forward_ready!(service);
 
-    fn call(&self, mut req: ServiceRequest) -> Self::Future {
+    fn call(&self, req: ServiceRequest) -> Self::Future {
         let srv = self.service.clone();
 
         Box::pin(async move {
@@ -55,9 +55,7 @@ where
                 .and_then(|value| value.to_str().ok());
 
             if api_key.is_none() {
-                return Err(Error::from(actix_web::error::ErrorUnauthorized(
-                    "API key is missing",
-                )));
+                actix_web::error::ErrorUnauthorized("API key is missing");
             }
 
             let pool = match req.app_data::<web::Data<Pool>>() {

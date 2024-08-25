@@ -1,6 +1,7 @@
+use crate::models::extraction::extract::ModelInternal;
+
 use super::extraction_config::Config;
 use super::pdf::split_pdf;
-use crate::models::extraction::extraction::ModelInternal;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde_json::Value;
 use std::{
@@ -80,9 +81,9 @@ async fn process_file(
 
     for temp_file in &temp_files {
         let json_output = if model == ModelInternal::PdlaFast {
-            handle_fast_requests(&temp_file).await?
+            handle_fast_requests(temp_file).await?
         } else if model == ModelInternal::Pdla {
-            handle_high_quality_requests(&temp_file).await?
+            handle_high_quality_requests(temp_file).await?
         } else {
             return Err(format!("Invalid model: {}", model).into());
         };
