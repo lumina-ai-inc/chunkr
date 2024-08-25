@@ -11,15 +11,22 @@
 }
 
 .pulsing-background {
-  background: linear-gradient(
-    90deg,
-    #104957 0%,
-    #08242b 19.28%,
-    #061d23 38.56%,
-    #061d23 57.84%,
-    #061d23 77.12%,
-    #061d23 96.4%
-  );
+  background: linear-gradient(90deg, #0a2d36 0%, #061d22 37.5%);
   background-size: 110% 100%;
   animation: pulseGradient 15s ease infinite;
+}
+
+.hero-container {
+  margin-top: 64px;
+
+  padding-left: 80px;
+  padding-right: 80px;
+}
+
+.text-container {
+  flex: 1;
+}
+
+.module-container {
+  flex: 1;
 }
