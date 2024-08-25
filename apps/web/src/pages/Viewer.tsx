@@ -1,4 +1,5 @@
 import { Text } from "@radix-ui/themes";
+import BetterButton from "../components/BetterButton";
 
 export const Viewer = () => <div className="flex border-t border-cyan-6 w-full justify-between">
   <div className="border-l w-full h-full">
@@ -9,17 +10,21 @@ export const Viewer = () => <div className="flex border-t border-cyan-6 w-full j
 
       return (
         <div className="border-2">
-
-          <div className="flex border-b-2 justify-between">
-            <Text> Header 2x </Text>
-            <div className="flex">
-              <Text> Markdown </Text>
-              <Text> Json</Text>
+          <div className="flex h-16 border-b-2 justify-between px-6 items-center">
+            <Text size="6" className="cyan-3"> Header 2x </Text>
+            <div className="flex space-x-6">
+              <BetterButton>
+                <Text>Markdown </Text>
+              </BetterButton>
+              <BetterButton>
+                <Text>JSON</Text>
+              </BetterButton>
             </div>
           </div>
-
           <div className="p-40">
-            <Text> What is up bro, I'ma chunk </Text>
+            <Text className="font-cyan-6" style={{color: "rgba(222, 247, 249, 0.5);" }}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+            </Text>
           </div>
         </div>
       );
