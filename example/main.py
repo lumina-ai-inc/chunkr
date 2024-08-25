@@ -75,3 +75,23 @@ if __name__ == "__main__":
     dir_path = os.path.join(current_dir, "input")
     model = Model.HighQuality
     extract_and_annotate_dir(dir_path, model)
+
+
+    print("Running annotation on output files...")
+    output_dir = os.path.join(current_dir, "output")
+    for subdir in os.listdir(output_dir):
+        subdir_path = os.path.join(output_dir, subdir)
+        if os.path.isdir(subdir_path):
+            json_path = os.path.join(subdir_path, "bounding_boxes.json")
+            pdf_path = os.path.join(current_dir, "input", f"{subdir.split('-')[0]}.pdf")
+            output_path = os.path.join(subdir_path, "annotated.pdf")
+            
+            if os.path.exists(json_path) and os.path.exists(pdf_path):
+                try:
+                    draw_bounding_boxes(pdf_path, json_path, output_path)
+                    print(f"Successfully annotated: {subdir}")
+                except Exception as e:
+                    print(f"Failed to annotate {subdir}: {str(e)}")
+            else:
+                print(f"Skipping {subdir}: Missing required files")
+    print("Annotation complete")

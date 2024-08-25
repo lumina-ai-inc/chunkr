@@ -83,7 +83,7 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
         let pg_pool = deadpool_postgres::create_pool();
-        run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
+        // run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
 
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
             println!("Multipart error: {}", err);
