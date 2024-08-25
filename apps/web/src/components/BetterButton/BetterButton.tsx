@@ -9,7 +9,7 @@ export default function BetterButton({
   children: React.ReactNode;
   padding?: string;
   active?: boolean;
-  onClick?: () => void;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <button
