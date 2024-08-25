@@ -1,11 +1,12 @@
 import { Text } from "@radix-ui/themes";
 import { SegmentChunk } from "../components/SegmentChunk/SegmentChunk";
+import { PDF } from "../components/PDF/PDF";
 
 export const Viewer = () => {
   return (
     <div className="flex border-t border-cyan-6 w-full justify-between">
       <div className="border-l w-full h-full">
-        <Text>I'm pdf bro</Text>
+        <PDF/>
       </div>
       <div className="border-l w-full p-4 space-y-4">
         {[0, 1, 2, 3, 4].map(() => {
