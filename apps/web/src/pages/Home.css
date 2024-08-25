@@ -11,7 +11,7 @@
 }
 
 .pulsing-background {
-  background: linear-gradient(90deg, #0a2d36 0%, #061d22 37.5%);
+  background: linear-gradient(90deg, #0a2d36 6%, #061d22 37.5%);
   background-size: 110% 100%;
   animation: pulseGradient 15s ease infinite;
 }

@@ -15,7 +15,18 @@ export default function Upload() {
         boxShadow: "0px 0px 16px 0px rgba(12, 12, 12, 0.25)",
       }}
     >
-      <Text>Upload</Text>
+      <Flex
+        direction="column"
+        py="10px"
+        px="12px"
+        style={{
+          border: "1px dashed var(--Colors-Cyan-6, #9DDDE7)",
+        }}
+      >
+        <Text size="6" weight="bold" className="cyan-1">
+          Upload Documents
+        </Text>
+      </Flex>
     </Flex>
   );
 }
