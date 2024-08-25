@@ -10,9 +10,9 @@ static INIT: Once = Once::new();
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    aws_access_key: String,
-    aws_secret_key: String,
-    aws_region: Option<String>,
+    access_key: String,
+    secret_key: String,
+    region: Option<String>,
 }
 
 impl Config {
@@ -22,7 +22,7 @@ impl Config {
         });
 
         ConfigTrait::builder()
-            .add_source(config::Environment::default().separator("__"))
+            .add_source(config::Environment::default().prefix("AWS").separator("__"))
             .build()?
             .try_deserialize()
     }
@@ -42,8 +42,8 @@ impl Config {
 
 pub async fn create_client() -> Result<Client, ConfigError> {
     let config = Config::from_env()?;
-    let creds = Credentials::from_keys(config.aws_access_key, config.aws_secret_key, None);
-    let region = config.aws_region.unwrap_or_else(|| "us-west-1".to_string());
+    let creds = Credentials::from_keys(config.access_key, config.secret_key, None);
+    let region = config.region.unwrap_or_else(|| "us-west-1".to_string());
     let config = S3Config::builder()
         .credentials_provider(creds)
         .region(Region::new(region))
