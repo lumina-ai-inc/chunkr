@@ -2,10 +2,8 @@ use crate::models::api::api_key::{ApiKey, ApiKeyLimit, ApiKeyUsage, ApiRequest, 
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use actix_web::{web, Error, HttpResponse};
 use prefixed_api_key::PrefixedApiKeyController;
-use sha2::Sha256;
 
 use chrono::Utc;
-use rand::rngs::OsRng;
 
 pub async fn create_api_key(
     request_payload: web::Json<ApiRequest>,
