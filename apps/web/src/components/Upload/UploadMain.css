@@ -1,0 +1,32 @@
+.toggle-container {
+  filter: drop-shadow(0px 2px 3px rgba(0, 0, 51, 0.06))
+    drop-shadow(0px 3px 12px rgba(0, 0, 0, 0.1))
+    drop-shadow(0px 4px 16px rgba(0, 0, 0, 0.1));
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  background: var(--cyan-12);
+  color: rgba(250, 253, 254, 0.5);
+  cursor: pointer;
+  transition:
+    background 0.2s ease-in-out,
+    color 0.2s ease-in-out;
+}
+
+.toggle-active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  background: var(--cyan-8);
+  color: var(--cyan-1);
+}
+
+.toggle:hover {
+  background: var(--cyan-10);
+  color: var(--cyan-3);
+}
