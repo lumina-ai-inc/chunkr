@@ -22,7 +22,11 @@ impl Config {
         });
 
         ConfigTrait::builder()
+<<<<<<< HEAD
             .add_source(config::Environment::default().prefix("AWS").separator("__"))
+=======
+            .add_source(config::Environment::default().separator("__"))
+>>>>>>> 35f1168 (done with s3 config)
             .build()?
             .try_deserialize()
     }
@@ -42,8 +46,13 @@ impl Config {
 
 pub async fn create_client() -> Result<Client, ConfigError> {
     let config = Config::from_env()?;
+<<<<<<< HEAD
     let creds = Credentials::from_keys(config.access_key, config.secret_key, None);
     let region = config.region.unwrap_or_else(|| "us-west-1".to_string());
+=======
+    let creds = Credentials::from_keys(config.aws_access_key, config.aws_secret_key, None);
+    let region = config.aws_region.unwrap_or_else(|| "us-west-1".to_string());
+>>>>>>> 35f1168 (done with s3 config)
     let config = S3Config::builder()
         .credentials_provider(creds)
         .region(Region::new(region))
