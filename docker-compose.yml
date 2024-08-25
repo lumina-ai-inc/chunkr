@@ -88,7 +88,7 @@ services:
       - API_KEY=${REDIS_PASSWORD}
       - VERSION=${RRQ_VERSION}
     ports:
-      - "8000:8000"
+      - "8010:8000"
 
 networks:
   app-network:

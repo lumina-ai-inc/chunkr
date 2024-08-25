@@ -5,6 +5,7 @@ use actix_web::middleware::Logger;
 use actix_web::Error;
 use actix_web::HttpRequest;
 use actix_web::{web, App, HttpServer};
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use env_logger::Env;
 
 pub mod extraction;
@@ -20,6 +21,18 @@ use routes::task::{create_extraction_task, get_task_status};
 use utils::db::deadpool_postgres;
 use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
+
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
+
+fn run_migrations(url: &str) {
+    use diesel::prelude::*;
+
+    let mut conn = diesel::pg::PgConnection::establish(url).expect("Failed to connect to database");
+    conn.run_pending_migrations(MIGRATIONS)
+        .expect("Failed to run migrations");
+
+    println!("Migrations run successfully");
+}
 
 #[derive(OpenApi)]
 #[openapi(
@@ -69,7 +82,8 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
-        let pool = deadpool_postgres::create_pool(); // create pool and put it in app data
+        let pg_pool = deadpool_postgres::create_pool();
+        run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
 
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
             println!("Multipart error: {}", err);
@@ -97,7 +111,7 @@ pub fn main() -> std::io::Result<()> {
             App::new()
                 .wrap(Logger::default())
                 .wrap(Logger::new("%a %{User-Agent}i"))
-                .app_data(web::Data::new(pool.clone()))
+                .app_data(web::Data::new(pg_pool.clone()))
                 .app_data(
                     MultipartFormConfig::default()
                         .total_limit(max_size)
