@@ -48,8 +48,8 @@ importers:
         specifier: ^10.8.2
         version: 10.8.2
       pdfjs-dist:
-        specifier: ^4.5.136
-        version: 4.5.136
+        specifier: ^3.4.120
+        version: 3.11.174
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2153,12 +2153,12 @@ packages:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
 
-  path2d@0.2.1:
-    resolution: {integrity: sha512-Fl2z/BHvkTNvkuBzYTpTuirHZg6wW9z8+4SND/3mDTEcYbbNKWAy21dz9D3ePNNwrrK8pqZO5vLPZ1hLF6T7XA==}
-    engines: {node: '>=6'}
+  path2d-polyfill@2.0.1:
+    resolution: {integrity: sha512-ad/3bsalbbWhmBo0D6FZ4RNMwsLsPpL6gnvhuSaU5Vm7b06Kr5ubSltQQ0T7YKsiJQO+g22zJ4dJKNTXIyOXtA==}
+    engines: {node: '>=8'}
 
-  pdfjs-dist@4.5.136:
-    resolution: {integrity: sha512-V1BALcAN/FmxBEShLxoP73PlQZAZtzlaNfRbRhJrKvXzjLC5VaIlBAQUJuWP8iaYUmIdmdLHmt3E2TBglxOm3w==}
+  pdfjs-dist@3.11.174:
+    resolution: {integrity: sha512-TdTZPf1trZ8/UFu5Cx/GXB7GZM30LT+wWUNfsi6Bq8ePLnb+woNKtDymI2mxZYBpMbonNFqKmiz684DIfnd8dA==}
     engines: {node: '>=18'}
 
   picocolors@1.0.1:
@@ -4666,13 +4666,13 @@ snapshots:
 
   path-type@4.0.0: {}
 
-  path2d@0.2.1:
+  path2d-polyfill@2.0.1:
     optional: true
 
-  pdfjs-dist@4.5.136:
+  pdfjs-dist@3.11.174:
     optionalDependencies:
       canvas: 2.11.2
-      path2d: 0.2.1
+      path2d-polyfill: 2.0.1
     transitivePeerDependencies:
       - encoding
       - supports-color
