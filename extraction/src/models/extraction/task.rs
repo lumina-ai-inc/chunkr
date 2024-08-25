@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
-use super::extraction::Model;
+use super::extract::Model;
 use strum_macros::{EnumString, Display};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

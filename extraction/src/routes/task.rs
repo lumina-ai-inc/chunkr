@@ -6,7 +6,7 @@ use uuid::Uuid;
 pub async fn get_task_status(
     pool: web::Data<Pool>,
     task_id: web::Path<String>,
-    req: HttpRequest,
+    _req: HttpRequest,
 ) -> Result<HttpResponse, Error> {
     let task_id = task_id.into_inner();
 

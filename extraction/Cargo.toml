@@ -1,6 +1,6 @@
 [package]
-name = "extraction"
-version = "0.1.0"
+name = "chunkmydocs"
+version = "0.0.0"
 edition = "2021"
 
 [dependencies]
@@ -15,8 +15,8 @@ uuid = { version = "1.8.0", features = ["v4", "v5"] }
 actix-web = "4.8.0"
 pdf = "0.9.0"
 lopdf = "0.33.0"
-reqwest = { version = "0.12.5",  features = ["blocking", "json", "multipart"]}
-actix-multipart = "0.7.2"   
+reqwest = { version = "0.12.5", features = ["blocking", "json", "multipart"] }
+actix-multipart = "0.7.2"
 tempfile = "3.10.1"
 quick-xml = "0.36.1"
 futures-util = "0.3.30"
@@ -35,25 +35,5 @@ image = "0.25.2"
 poppler = "0.5.1"
 
 [[bin]]
-name = "main"
-path = "src/main.rs"
-
-[[bin]]
-name = "load_file_ids"
-path = "src/bin/load_file_ids.rs"
-
-[[bin]]
-name = "load_metadata_trieve"
-path = "src/bin/load_metadata_trieve.rs"
-
-[[bin]]
-name = "load_pagination"
-path = "src/bin/load_pagination.rs"
-
-[[bin]]
-name = "xml"
-path = "src/bin/xml.rs"
-
-[[bin]]
-name = "extraction"
-path = "src/bin/extraction/main.rs"
+name = "task-processor"
+path = "src/workers/task_processor.rs"
