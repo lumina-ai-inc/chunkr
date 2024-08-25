@@ -14,6 +14,7 @@ pub mod routes;
 pub mod utils;
 
 use middleware::api_key::ApiKeyMiddlewareFactory;
+use routes::auth::create_api_key;
 use routes::health::health_check;
 use routes::task::{create_extraction_task, get_task_status};
 use utils::db::deadpool_postgres;
@@ -110,7 +111,8 @@ pub fn main() -> std::io::Result<()> {
                     web::scope("/api")
                         .wrap(ApiKeyMiddlewareFactory)
                         .route("/task", web::post().to(create_extraction_task))
-                        .route("/task/{task_id}", web::get().to(get_task_status)),
+                        .route("/task/{task_id}", web::get().to(get_task_status))
+                        .route("/api_key", web::post().to(create_api_key)),
                 )
         })
         .bind("0.0.0.0:8000")?
