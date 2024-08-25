@@ -1,3 +1,9 @@
+import { Text } from "@radix-ui/themes";
+
 export const Home = () => {
-  return <div>Hello Home</div>;
+  return (
+    <Text size="9" weight="medium">
+      Hello Home
+    </Text>
+  );
 };
