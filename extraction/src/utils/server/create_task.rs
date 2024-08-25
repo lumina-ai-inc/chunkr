@@ -6,18 +6,10 @@ use crate::models::{
 use crate::utils::db::deadpool_postgres::{ Client, Pool };
 use crate::utils::rrq::service::produce;
 use crate::utils::storage::services::upload_to_s3;
-<<<<<<< HEAD
 use crate::utils::configs::extraction_config::Config;
 use aws_sdk_s3::Client as S3Client;
 use actix_multipart::form::tempfile::TempFile;
 use chrono::{ DateTime, Utc };
-=======
-use aws_sdk_s3::Client as S3Client;
-use actix_multipart::form::tempfile::TempFile;
-use chrono::{ DateTime, Utc };
-use dotenvy::dotenv;
-use humantime;
->>>>>>> 35f1168 (done with s3 config)
 use lopdf::Document;
 use std::error::Error;
 use uuid::Uuid;
@@ -32,13 +24,7 @@ fn is_valid_pdf(buffer: &[u8]) -> Result<bool, lopdf::Error> {
 async fn produce_extraction_payloads(
     extraction_payload: ExtractionPayload
 ) -> Result<(), Box<dyn Error>> {
-<<<<<<< HEAD
     let document_extraction_queue = Config::from_env()?.extraction_queue;
-=======
-    let document_extraction_queue = env
-        ::var("EXTRACTION__QUEUE")
-        .expect("EXTRACTION__QUEUE must be set");
->>>>>>> 35f1168 (done with s3 config)
 
     let produce_payload = ProducePayload {
         queue_name: document_extraction_queue.clone(),
@@ -92,11 +78,7 @@ pub async fn create_task(
             user_id,
             task_id,
             file_id,
-<<<<<<< HEAD
             file_name
-=======
-            file_name.clone()
->>>>>>> 35f1168 (done with s3 config)
         );
         let output_extension = model.get_extension();
         let output_s3_path = s3_path.replace(".pdf", &format!(".{}", output_extension));
@@ -117,11 +99,7 @@ pub async fn create_task(
                         &created_at,
                         &None::<String>,
                         &api_key,
-<<<<<<< HEAD
                         &task_url,
-=======
-                        &format!("{}/task/{}", ingest_server_url, task_id),
->>>>>>> 35f1168 (done with s3 config)
                         &Status::Starting.to_string(),
                         &model.to_string(),
                         &expiration_time,
