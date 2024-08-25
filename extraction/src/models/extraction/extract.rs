@@ -1,9 +1,10 @@
-use actix_multipart::form::{ tempfile::TempFile, MultipartForm, text::Text };
-use serde::{ Serialize, Deserialize };
+use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use strum_macros::{ Display, EnumString };
+use strum_macros::{Display, EnumString};
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct ExtractionPayload {
     pub model: ModelInternal,
     pub input_location: String,
@@ -22,26 +23,26 @@ pub enum ModelInternal {
     Pdla,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub enum Model {
     Research,
     Fast,
     HighQuality,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub enum TableOcr {
     HTML,
     JSON,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub enum TableOcrModel {
     EasyOcr,
     Tesseract,
 }
 
-#[derive(Debug, MultipartForm)]
+#[derive(Debug, MultipartForm, ToSchema)]
 pub struct UploadForm {
     pub file: TempFile,
     pub model: Text<Model>,
@@ -76,4 +77,3 @@ impl ModelInternal {
         }
     }
 }
-
