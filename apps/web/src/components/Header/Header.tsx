@@ -1,9 +1,15 @@
-import { Flex, Text } from "@radix-ui/themes";
+import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
 import "./Header.css";
 
 export default function Header() {
   return (
-    <Flex direction="row" justify="between" py="48px" px="80px">
+    <Flex
+      direction="row"
+      justify="between"
+      py="48px"
+      px="80px"
+      className="header"
+    >
       <Flex className="logo" direction="row" gap="4" align="center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -11,6 +17,7 @@ export default function Header() {
           height="40"
           viewBox="0 0 40 40"
           fill="none"
+          className="logo-icon"
         >
           <rect width="40" height="40" fill="white" fill-opacity="0.01" />
           <path
@@ -20,7 +27,7 @@ export default function Header() {
             fill="#F2FAFB"
           />
         </svg>
-        <Text size="7" weight="medium" className="cyan-2">
+        <Text size="7" weight="medium" className="logo-title cyan-2">
           Chunk My Docs
         </Text>
       </Flex>
@@ -34,6 +41,24 @@ export default function Header() {
         <Text size="5" weight="medium" className="cyan-2 nav-item">
           Docs
         </Text>
+        <div className="dropdown-container">
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              <Button>Menu</Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item>
+                <Text>Test</Text>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item>
+                <Text>Pricing</Text>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item>
+                <Text>Docs</Text>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        </div>
       </Flex>
     </Flex>
   );

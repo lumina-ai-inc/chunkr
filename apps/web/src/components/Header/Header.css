@@ -6,3 +6,34 @@
 .nav-item:hover {
   color: var(--cyan-8);
 }
+
+.dropdown-container {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .dropdown-container {
+    display: block;
+  }
+
+  .nav-item {
+    display: none;
+  }
+}
+
+@media (max-width: 552px) {
+  .logo-title {
+    font-size: 24px !important;
+  }
+
+  .header {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+}
+
+@media (max-width: 384px) {
+  .logo-title {
+    display: none;
+  }
+}
