@@ -1,0 +1,8 @@
+.nav-item {
+  transition: color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  color: var(--cyan-8);
+}
