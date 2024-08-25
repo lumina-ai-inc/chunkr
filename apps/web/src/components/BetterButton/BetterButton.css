@@ -7,6 +7,7 @@
   display: inline-block;
   font-size: 16px;
   border-radius: 0px;
+  border-radius: 4px;
   cursor: pointer;
   box-shadow:
     0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
@@ -16,6 +17,10 @@
   transition:
     background-color 0.2s,
     color 0.2s;
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .button-resting:hover {

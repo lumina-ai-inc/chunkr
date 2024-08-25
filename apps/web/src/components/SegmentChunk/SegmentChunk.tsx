@@ -8,7 +8,6 @@ import "./SegmentChunk.css";
 
 export const SegmentChunk = ({ segment }: { segment: Segment }) => {
   const [markdownSelected, setMarkdownSelected] = useState<boolean>(true);
-  // const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
     <Accordion.Root
@@ -23,7 +22,7 @@ export const SegmentChunk = ({ segment }: { segment: Segment }) => {
             <Flex
               justify="between"
               align="center"
-              className="w-full px-6 h-16 border-b-2 AccordionTriggerFlex"
+              className="w-full AccordionTriggerFlex"
             >
               <Flex align="center" gap="4">
                 <ChevronDownIcon
@@ -62,7 +61,7 @@ export const SegmentChunk = ({ segment }: { segment: Segment }) => {
             </Flex>
           </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Content className="AccordionContent px-6 py-6">
+        <Accordion.Content className="AccordionContent">
           <div className="AccordionContentText">
             {markdownSelected ? (
               <Text className="text-[#e5e7eb]">{segment.text}</Text>
@@ -75,39 +74,3 @@ export const SegmentChunk = ({ segment }: { segment: Segment }) => {
     </Accordion.Root>
   );
 };
-
-/* <div className="border-2">
-<div className="flex h-16 border-b-2 justify-between px-6 items-center">
-  <Text size="5" weight="medium" className="cyan-3">
-    {segment.type}
-  </Text>
-  <Flex gap="5">
-    <BetterButton
-      active={markdownSelected}
-      onClick={() => {
-        setMarkdownSelected(true);
-      }}
-    >
-      <Text size="3" weight="regular">
-        Markdown{" "}
-      </Text>
-    </BetterButton>
-    <BetterButton
-      active={!markdownSelected}
-      onClick={() => {
-        setMarkdownSelected(false);
-      }}
-    >
-      <Text size="3" weight="regular">
-        JSON
-      </Text>
-    </BetterButton>
-  </Flex>
-</div>
-<div className="px-6 py-6">
-  {markdownSelected && (
-    <Text className="text-[#e5e7eb]">{segment.text}</Text>
-  )}
-  {!markdownSelected && <Text className="text-[#e5e7eb]">JSON VIEW</Text>}
-</div>
-</div> */
