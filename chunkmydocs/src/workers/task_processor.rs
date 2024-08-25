@@ -172,37 +172,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub async fn process_bounding_boxes(
-    file_path: &str,
-    target_size: usize,
-) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
-    println!("Processing file: {}", file_path);
-    let file_content = tokio::fs::read_to_string(file_path).await?;
-    println!("File content loaded, length: {}", file_content.len());
 
-    let mut segments: Vec<Segment> = serde_json::from_str(&file_content)?;
-    println!("Parsed {} segments", segments.len());
-    println!("Segment types processed");
-    chunk_and_add_markdown(segments, target_size).await
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::path::PathBuf;
-
-    #[tokio::test]
-    async fn test_process_bounding_boxes() -> Result<(), Box<dyn std::error::Error>> {
-        // Load the bounding_boxes.json file
-        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.push(
-            "/Users/ishaankapoor/chunk-my-docs/example/output/00c08086-9837-5551-8133-4e22ac28c6a5-HighQuality/bounding_boxes.json",
-        );
-        let file_path = path.to_str().unwrap();
-
-        // Process the bounding boxes
-        let chunks = process_bounding_boxes(file_path, 512).await?;
-
-        println!("{:?}", chunks);
-        Ok(())
-    }
-}
