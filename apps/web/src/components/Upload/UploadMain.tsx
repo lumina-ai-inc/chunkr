@@ -19,6 +19,7 @@ export default function UploadMain() {
           height="100%"
           justify="center"
           className="toggle-active"
+          style={{ borderTopLeftRadius: "4px", borderBottomLeftRadius: "4px" }}
         >
           <Text size="4" weight="medium">
             Fast
@@ -29,6 +30,10 @@ export default function UploadMain() {
           height="100%"
           justify="center"
           className="toggle"
+          style={{
+            borderTopRightRadius: "4px",
+            borderBottomRightRadius: "4px",
+          }}
         >
           <Text size="4" weight="medium">
             High Quality
