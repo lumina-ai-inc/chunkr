@@ -20,6 +20,8 @@
     "pdfjs-dist": "^4.5.136",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-json-view": "^1.21.3",
+    "react-markdown": "^9.0.1",
     "react-router": "^6.26.1",
     "react-router-dom": "^6.26.1",
     "styled-components": "^6.1.12"

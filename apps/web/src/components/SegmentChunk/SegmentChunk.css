@@ -6,7 +6,6 @@ h3 {
 
 .AccordionRoot {
   border-radius: 0px;
-  width: 100%;
   background-color: #061d23;
   box-shadow: 0 2px 10px var(--black-a4);
 }
@@ -39,10 +38,10 @@ h3 {
   align-items: center;
   justify-content: space-between;
   line-height: 1;
-  color: var(--cyan-11);
   padding: 16px 18px;
   border-bottom: 2px solid var(--Colors-Cyan-4, #caf1f6);
   transition: background-color 0.2s;
+  gap: 16px;
 }
 
 .AccordionTrigger:hover {
@@ -55,6 +54,7 @@ h3 {
   border-top: none;
   color: var(--cyan-11);
   background-color: #061d23;
+  height: 416px;
 }
 .AccordionContent[data-state="open"] {
   animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
