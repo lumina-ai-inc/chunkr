@@ -1,13 +1,13 @@
-use deadpool_postgres::{Runtime, Config as PgConfig};
+use config::{Config as ConfigTrait, ConfigError};
+pub use deadpool_postgres::{Client, Pool};
+use deadpool_postgres::{Config as PgConfig, Runtime};
 use dotenvy::dotenv;
 use serde::Deserialize;
-use config::{Config as ConfigTrait, ConfigError};
-pub use deadpool_postgres::{Pool, Client};
 pub use tokio_postgres::{Error, NoTls};
 
 #[derive(Debug, Deserialize)]
-struct Config {
-    pg: PgConfig,
+pub struct Config {
+    pub pg: PgConfig,
 }
 
 impl Config {
@@ -22,6 +22,7 @@ impl Config {
 pub fn create_pool() -> Pool {
     dotenv().ok();
     let cfg = Config::from_env().unwrap();
+
     cfg.pg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap()
 }
 
@@ -43,7 +44,10 @@ mod tests {
 
         // Try to get a connection from the pool
         let client = pool.get().await.expect("Failed to get client from pool");
-        let result = client.query_one("SELECT 1", &[]).await.expect("Query failed");
+        let result = client
+            .query_one("SELECT 1", &[])
+            .await
+            .expect("Query failed");
         assert_eq!(result.get::<_, i32>(0), 1);
     }
 }
