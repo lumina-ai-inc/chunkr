@@ -1,22 +1,16 @@
+use aws_sdk_s3::Client as S3Client;
 use crate::models::extraction::extract::ModelInternal;
 use crate::models::extraction::task::{Status, TaskResponse};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::utils::storage::services::generate_presigned_url;
 use chrono::{DateTime, Utc};
-use dotenvy::dotenv;
-use reqwest::Client as HttpClient;
-use serde_json::json;
-use std::env;
 
 pub async fn get_task(
     pool: &Pool,
+    s3_client: &S3Client,
     task_id: String,
 ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
-    dotenv().ok();
-    println!("Getting task with id: {}", task_id);
-    let storage_url = env::var("STORAGE__URL").expect("STORAGE__URL must be set");
     let client: Client = pool.get().await?;
-    let http_client = HttpClient::new();
-
     let task_and_files = client.query(
         "SELECT t.status AS task_status, t.expiration_time, t.created_at, t.finished_at, t.url AS task_url, t.model, t.message,
                 f.file_id, f.status AS file_status, f.input_location, f.output_location
@@ -58,22 +52,9 @@ pub async fn get_task(
     let output_location: String = first_row.get("output_location");
 
     if task_status == Status::Succeeded {
-        let download_payload = json!({
-            "location": output_location,
-            "expires_in": "10min"
-        });
-
-        println!("Download payload: {:?}", download_payload);
-
-        let response = http_client
-            .post(format!("{}/download", storage_url))
-            .json(&download_payload)
-            .send()
-            .await?
-            .error_for_status();
-
-        file_url = match response {
-            Ok(response) => response.text().await.ok(),
+        
+        file_url = match generate_presigned_url(&s3_client, &output_location, None).await {
+            Ok(response) => Some(response),
             Err(e) => {
                 println!("Error downloading file: {}", e);
                 return Err("Error downloading file".into());

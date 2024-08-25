@@ -22,11 +22,9 @@ WORKDIR /app
 RUN cd src; git clone https://github.com/facebookresearch/detectron2;
 RUN cd src/detectron2; git checkout 70f454304e1a38378200459dd2dbca0f0f4a5ab4; python setup.py build develop
 
-RUN mkdir -p ./models
-
 COPY ./src/. ./src
-# Copy models if the directory exists, otherwise create an empty directory
-RUN python src/download_models.py
+COPY ./models/. ./models/
+RUN python src/download_models.pyRUN python src/download_models.py
 
 ENV PYTHONPATH "${PYTHONPATH}:/app/src"
 ENV TRANSFORMERS_VERBOSITY=error

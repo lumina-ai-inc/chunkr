@@ -115,13 +115,9 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         }
 
         upload_to_s3(
+            &s3_client,
             &extraction_item.output_location,
-            output_path.clone().to_str().unwrap(),
-            fs::read(output_path)?,
-            extraction_item
-                .expiration
-                .map(|d| format_duration(d).to_string())
-                .as_deref(),
+            &output_path
         )
         .await?;
 
