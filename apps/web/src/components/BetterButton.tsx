@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const Button = styled.button`
+const StyledButton = styled.button`
   background-color: var(--cyan-12);
   border: none;
   color: rgba(222, 247, 249, 0.5);
@@ -28,10 +28,10 @@ const Button = styled.button`
   }
 `;
 
-export default function StyledButton({
+export default function BetterButton({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <Button>{children}</Button>;
+  return <StyledButton>{children}</StyledButton>;
 }
