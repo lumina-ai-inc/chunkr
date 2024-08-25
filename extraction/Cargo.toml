@@ -51,7 +51,10 @@ diesel = { version = "2.2.3", features = [
   "postgres",
 ] }
 diesel_migrations = { version = "2.2.0", features = ["postgres"] }
-
+aws-sdk-s3 = { version = "1.29.0", features = ["behavior-version-latest"] }
+aws-config = { version ="1.4.0", features = ["behavior-version-latest"] }
+aws-credential-types = { version = "1.2.0", features = ["hardcoded-credentials"] }
+regex = "1.10.5"
 
 [[bin]]
 name = "task-processor"
