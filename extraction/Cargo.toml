@@ -44,6 +44,13 @@ utoipa-redoc = { version = "4.0", features = ["actix-web"] }
 prefixed-api-key = { version = "0.3.0", features = ["sha2"] }
 rand = "0.8.5"
 futures = "0.3.30"
+diesel = { version = "2.2.3", features = [
+  "uuid",
+  "chrono",
+  "serde_json",
+  "postgres",
+] }
+diesel_migrations = { version = "2.2.0", features = ["postgres"] }
 
 
 [[bin]]
