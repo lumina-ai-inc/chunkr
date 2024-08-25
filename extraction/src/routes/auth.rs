@@ -34,12 +34,15 @@ pub async fn create_api_key_query(
 
     let service_type = request.service_type.unwrap_or(ServiceType::EXTRACTION);
     println!("service type");
-    let controller: PrefixedApiKeyController<OsRng, Sha256> = PrefixedApiKeyController::configure()
+
+    let controller = PrefixedApiKeyController::configure()
         .prefix("lu".to_owned())
+        .seam_defaults()
         .finalize()?;
-    println!("Generating API key");
-    let (pak, _hash) = controller.try_generate_key_and_hash()?;
+
+    let (pak, _hash) = controller.generate_key_and_hash();
     let key = pak.to_string();
+
     let email = request.email;
     let api_key = ApiKey {
         key: key.clone(),
