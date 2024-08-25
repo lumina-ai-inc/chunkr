@@ -4,7 +4,7 @@ import { Text } from "@radix-ui/themes";
 export const Viewer = () => {
   return (
     <BetterButton>
-      <Text size="9" weight="medium" className="cyan-8">
+      <Text size="9" weight="medium">
         Hello Viewer
       </Text>
     </BetterButton>
