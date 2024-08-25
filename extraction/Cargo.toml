@@ -2,6 +2,7 @@
 name = "chunkmydocs"
 version = "0.0.0"
 edition = "2021"
+default-run = "chunkmydocs"
 
 [dependencies]
 tokio = { version = "1.28.0", features = ["full"] }
