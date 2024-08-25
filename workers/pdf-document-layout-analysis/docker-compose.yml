@@ -1,0 +1,8 @@
+services:
+  pdf-document-layout-analysis:
+    image: akhilesh99/pdla:latest
+    entrypoint: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:5060", "--timeout", "10000"]
+    init: true
+    restart: unless-stopped
+    ports:
+      - "5060:5060"
