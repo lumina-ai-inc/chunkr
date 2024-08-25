@@ -1,10 +1,10 @@
 import { Text } from "@radix-ui/themes";
-import StyledButton from "../components/StyledButton";
+import BetterButton from "../components/BetterButton";
 
 export const Home = () => {
   return (
     <Text size="9" weight="medium" style={{ color: "var(--cyan-3)" }}>
-      <StyledButton>Hello</StyledButton>
+      <BetterButton>Hello</BetterButton>
     </Text>
   );
 };

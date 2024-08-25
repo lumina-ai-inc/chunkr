@@ -70,3 +70,51 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.cyan-1 {
+  color: var(--cyan-1);
+}
+
+.cyan-2 {
+  color: var(--cyan-2);
+}
+
+.cyan-3 {
+  color: var(--cyan-3);
+}
+
+.cyan-4 {
+  color: var(--cyan-4);
+}
+
+.cyan-5 {
+  color: var(--cyan-5);
+}
+
+.cyan-6 {
+  color: var(--cyan-6);
+}
+
+.cyan-7 {
+  color: var(--cyan-7);
+}
+
+.cyan-8 {
+  color: var(--cyan-8);
+}
+
+.cyan-9 {
+  color: var(--cyan-9);
+}
+
+.cyan-10 {
+  color: var(--cyan-10);
+}
+
+.cyan-11 {
+  color: var(--cyan-11);
+}
+
+.cyan-12 {
+  color: var(--cyan-12);
+}
