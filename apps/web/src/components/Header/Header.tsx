@@ -1,15 +1,14 @@
 import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
 import "./Header.css";
 
-export default function Header() {
+interface HeaderProps {
+  py?: string;
+  px?: string;
+}
+
+export default function Header({ py = "40px", px = "80px" }: HeaderProps) {
   return (
-    <Flex
-      direction="row"
-      justify="between"
-      py="48px"
-      px="80px"
-      className="header"
-    >
+    <Flex direction="row" justify="between" py={py} px={px} className="header">
       <Flex className="logo" direction="row" gap="4" align="center">
         <svg
           xmlns="http://www.w3.org/2000/svg"

@@ -118,3 +118,7 @@ button:focus-visible {
 .cyan-12 {
   color: var(--cyan-12);
 }
+
+.rt-ScrollAreaThumb {
+  background-color: var(--cyan-12) !important;
+}
