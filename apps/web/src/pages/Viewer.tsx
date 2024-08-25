@@ -1,6 +1,5 @@
 import { Text } from "@radix-ui/themes";
-import BetterButton from "../components/BetterButton/BetterButton";
-// import { useState } from "react";
+import { SegmentChunk } from "../components/SegmentChunk/SegmentChunk";
 
 export const Viewer = () => {
   return (
@@ -10,42 +9,21 @@ export const Viewer = () => {
       </div>
       <div className="border-l w-full p-4 space-y-4">
         {[0, 1, 2, 3, 4].map(() => {
-          return <div> </div>;
+          return (
+            <SegmentChunk segment={{
+              left: "HI",
+              top: "HI",
+              width: "HI",
+              height: "HI",
+              page_number: 0,
+              page_width: "HI",
+              page_height: "HI",
+              text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+              type: "Caption"
+            }}
+            />
+          );
         })}
-      </div>
-    </div>
-  );
-};
-
-export const Chunk = () => {
-  // const [markdownSelected, markdownNotSelected] = useState<boolean>(true);
-  //
-  return (
-    <div className="border-2">
-      <div className="flex h-16 border-b-2 justify-between px-6 items-center">
-        <Text size="6" className="cyan-3">
-          {" "}
-          Header 2x{" "}
-        </Text>
-        <div className="flex space-x-2">
-          <BetterButton>
-            <Text>Markdown </Text>
-          </BetterButton>
-          <BetterButton>
-            <Text>JSON</Text>
-          </BetterButton>
-        </div>
-      </div>
-      <div className="px-6 py-6">
-        <Text className="font-cyan-6 text-[#e5e7eb]">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum
-        </Text>
       </div>
     </div>
   );
