@@ -1,7 +1,6 @@
 import { Text } from "@radix-ui/themes";
 import BetterButton from "../components/BetterButton/BetterButton";
 // import { useState } from "react";
-import BetterButton from "../components/BetterButton";
 
 export const Viewer = () => {
   return (
