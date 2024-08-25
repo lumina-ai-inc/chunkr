@@ -30,6 +30,18 @@ pub async fn create_api_key_query(
     let mut pg_client: Client = pool.get().await?;
     println!("pg");
 
+    let existing_key_query = r#"
+    SELECT key FROM api_users WHERE email = $1 AND key IS NOT NULL AND key != ''
+    "#;
+
+    if let Some(row) = pg_client
+        .query_opt(existing_key_query, &[&request.email])
+        .await?
+    {
+        let existing_key: String = row.get(0);
+        return Ok(existing_key);
+    }
+
     let service_type = request.service_type.unwrap_or(ServiceType::EXTRACTION);
     println!("service type");
 
