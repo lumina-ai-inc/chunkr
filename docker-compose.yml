@@ -1,0 +1,100 @@
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: chunkmydocs
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  s3:
+    image: minio/minio:RELEASE.2023-09-27T15-22-50Z
+    ports:
+      - 9000:9000
+      - 42625:42625
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://s3:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - s3-data:/data
+    command: server --console-address ":42625" /data
+    networks:
+      - app-network
+
+  s3-client:
+    image: minio/mc
+    depends_on:
+      s3:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - app-network
+    entrypoint: >
+      /bin/sh -c "
+      mc config host add myminio http://s3:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      mc alias set myminio http://s3:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+
+      mc admin user add myminio ${S3_ACCESS_KEY} ${S3_SECRET_KEY};
+      mc admin policy attach myminio readwrite --user ${S3_ACCESS_KEY};
+
+      mc mb myminio/${S3_BUCKET};
+
+
+      exit 0;
+      "
+  
+  redis:
+    image: redis:7.2.2
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
+  rrq:
+    image: luminainc/rrq:a11fcf8
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - app-network
+    environment:
+      - REDIS__URL=redis://redis:6379
+      - API_KEY=${REDIS_PASSWORD}
+      - VERSION=${RRQ_VERSION}
+    ports:
+      - "8000:8000"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  s3-data:
+  redis-data:
