@@ -29,15 +29,7 @@ const StyledButton = styled.button<{ padding: string }>`
 
 export default function BetterButton({
   children,
-<<<<<<< HEAD
-<<<<<<< HEAD
   padding = "4px 12px",
-=======
-  padding = "15px 32px",
->>>>>>> 01514ad (Padding passed as prop for button)
-=======
-  padding = "4px 12px",
->>>>>>> e5b1cb7 (Fixed up button a bit)
 }: {
   children: React.ReactNode;
   padding?: string;
