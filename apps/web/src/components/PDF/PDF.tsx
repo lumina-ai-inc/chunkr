@@ -50,40 +50,36 @@ export function PDF() {
   }
 
   return (
-    <div>
-      <div>
-        <div ref={setContainerRef}>
-          <Document file={file} onLoadSuccess={onDocumentLoadSuccess} options={options}>
-            <ScrollArea
-              scrollbars='both'
-              type='always'
-              style={{
-                height: "calc(100vh - 90px)",
-                padding: "24px",
-                maxWidth: "calc(100% - 2em)"
-              }}
-            >
-              <div className='flex flex-col'
-                style={{
-                  height: "calc(100vh - 90px)",
-                  padding: "24px",
-                  maxWidth: "calc(100% - 2em)"
-                }}>
-                {Array.from(new Array(numPages), (_el, index) => (
-                  <Page
-                    key={`page_${index + 1}`}
-                    pageNumber={index + 1}
-                    width={containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth}
-                    onClick={(event) => {
-                      console.log("hi", event)
-                    }}
-                  />
-                ))}
-              </div>
-            </ScrollArea>
-          </Document>
-        </div>
-      </div>
+    <div ref={setContainerRef}>
+      <Document file={file} onLoadSuccess={onDocumentLoadSuccess} options={options}>
+        <ScrollArea
+          scrollbars='both'
+          type='always'
+          style={{
+            height: "calc(100vh - 90px)",
+            padding: "24px",
+            maxWidth: "calc(100% - 2em)"
+          }}
+        >
+          <div className='flex flex-col'
+            style={{
+              height: "calc(100vh - 90px)",
+              padding: "24px",
+              maxWidth: "calc(100% - 2em)"
+            }}>
+            {Array.from(new Array(numPages), (_el, index) => (
+              <Page
+                key={`page_${index + 1}`}
+                pageNumber={index + 1}
+                width={containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth}
+                onClick={(event) => {
+                  console.log("hi", event)
+                }}
+              />
+            ))}
+          </div>
+        </ScrollArea>
+      </Document>
     </div>
   );
 }
