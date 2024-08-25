@@ -18,11 +18,16 @@ export const Home = () => {
       <Flex className="hero-container" direction="row">
         <Flex className="text-container" direction="column" gap="4">
           <Text
-            className="cyan-1"
+            className="cyan-2"
             size="9"
             weight="bold"
             trim="both"
-            style={{ maxWidth: "542px", fontSize: "72px", lineHeight: "96px" }}
+            style={{
+              maxWidth: "542px",
+              fontSize: "72px",
+              lineHeight: "96px",
+              letterSpacing: "-0.01em",
+            }}
           >
             Open Source Data Ingestion for LLMs & RAG
           </Text>
