@@ -55,6 +55,7 @@ where
             );
 
             let mut payloads = Vec::new();
+            println!("Processing queue item2");
             match process_fn(consume_payload.queue_item).await {
                 Ok(_) => {
                     status_payload.result = StatusResult::Success;

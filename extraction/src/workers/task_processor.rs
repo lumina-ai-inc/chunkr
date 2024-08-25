@@ -7,8 +7,11 @@ use chunkmydocs::models::extraction::segment::{Chunk, Segment, SegmentType};
 use chunkmydocs::models::extraction::task::Status;
 use chunkmydocs::models::rrq::{produce::ProducePayload, queue::QueuePayload};
 use chunkmydocs::utils::configs::extraction_config;
+use chunkmydocs::utils::db::deadpool_postgres;
+use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
 use chunkmydocs::utils::rrq::{consumer::consumer, service::produce};
 use chunkmydocs::utils::storage_service::services::{download_to_tempfile, upload_to_s3};
+use diesel::pg;
 use humantime::format_duration;
 use serde_json::json;
 use std::{fs, path::PathBuf};
@@ -20,12 +23,15 @@ pub async fn log_task(
     status: Status,
     message: Option<String>,
     finished_at: Option<String>,
+    pool: &Pool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let config = extraction_config::Config::from_env()?;
 
     println!("Prepared status: {:?}", status);
     println!("Prepared task_id: {}", task_id);
     println!("Prepared file_id: {}", file_id);
+
+    let mut client: Client = pool.get().await?;
 
     let task_query = format!(
         "UPDATE ingestion_tasks SET status = '{:?}', message = '{}', finished_at = '{:?}' WHERE task_id = '{}'",
@@ -35,29 +41,14 @@ pub async fn log_task(
         task_id
     );
 
+    client.execute(&task_query, &[]).await?;
+
     let files_query = format!(
         "UPDATE ingestion_files SET status = '{:?}' WHERE task_id = '{}' AND file_id = '{}'",
         status, task_id, file_id
     );
 
-    let payloads = vec![
-        ProducePayload {
-            queue_name: config.extraction_queue.clone(),
-            publish_channel: None,
-            payload: json!(task_query),
-            max_attempts: Some(3),
-            item_id: Uuid::new_v4().to_string(),
-        },
-        ProducePayload {
-            queue_name: config.extraction_queue.clone(),
-            publish_channel: None,
-            payload: json!(files_query),
-            max_attempts: Some(3),
-            item_id: Uuid::new_v4().to_string(),
-        },
-    ];
-
-    produce(payloads).await?;
+    client.execute(&files_query, &[]).await?;
 
     Ok(())
 }
@@ -137,8 +128,14 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
     let task_id = extraction_item.task_id.clone();
     let file_id = extraction_item.file_id.clone();
 
-    println!("{:?}", extraction_item.clone());
+    let pg_pool = deadpool_postgres::create_pool();
 
+    println!("{:?}", extraction_item.clone());
+    // Import the necessary types if they're not already imported at the top of the file
+
+    // Get the database pool from the configuration
+
+    // Pass the pool to the log_task function
     log_task(
         task_id.clone(),
         file_id.clone(),
@@ -148,6 +145,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             payload.attempt, payload.max_attempts
         )),
         None,
+        &pg_pool,
     )
     .await?;
 
@@ -214,6 +212,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                 Status::Succeeded,
                 Some("Task succeeded".to_string()),
                 Some(Utc::now().to_string()),
+                &pg_pool,
             )
             .await?;
             println!("Task succeeded");
@@ -228,6 +227,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                     Status::Failed,
                     Some(e.to_string()),
                     Some(Utc::now().to_string()),
+                    &pg_pool,
                 )
                 .await?;
                 println!("Task failed");
