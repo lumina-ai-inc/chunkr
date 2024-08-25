@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
-const StyledButton = styled.button`
+const StyledButton = styled.button<{ padding: string }>`
   background-color: var(--cyan-12);
   border: none;
   color: rgba(222, 247, 249, 0.5);
-  padding: 15px 32px;
+  padding: ${(props: { padding: string }) => props.padding};
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -30,8 +30,10 @@ const StyledButton = styled.button`
 
 export default function BetterButton({
   children,
+  padding = "15px 32px",
 }: {
   children: React.ReactNode;
+  padding?: string;
 }) {
-  return <StyledButton>{children}</StyledButton>;
+  return <StyledButton padding={padding}>{children}</StyledButton>;
 }
