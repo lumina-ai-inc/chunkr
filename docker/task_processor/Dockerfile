@@ -10,10 +10,10 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
-RUN cargo chef cook --release --recipe-path recipe.json --bin "task_processor"
+RUN cargo chef cook --release --recipe-path recipe.json --bin "task-processor"
 # Build application
 COPY chunkmydocs/ .
-RUN cargo build --release --bin "task_processor"
+RUN cargo build --release --bin "task-processor"
 
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
