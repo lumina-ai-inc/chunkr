@@ -6,16 +6,22 @@ export async function extractFile(payload: ExtractPayload): Promise<any> {
 
   const formData = new FormData();
   formData.append("file", payload.file);
-  formData.append("model", payload.model);
 
-  if (payload.tableOcr) {
-    formData.append("table_ocr", payload.tableOcr);
-  }
+  // Create a separate object for JSON data
+  const jsonData = {
+    model: payload.model,
+    table_ocr: payload.tableOcr,
+    table_ocr_model: payload.tableOcrModel,
+  };
 
-  if (payload.tableOcrModel) {
-    formData.append("table_ocr_model", payload.tableOcrModel);
-  }
-
+  // Append the JSON data as a blob
+  formData.append(
+    "json",
+    new Blob([JSON.stringify(jsonData)], {
+      type: "application/json",
+    })
+  );
+  console.log(formData);
   try {
     const response = await axios.post(url, formData, {
       headers: {
