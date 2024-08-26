@@ -66,7 +66,7 @@ export function PDF() {
             style={{
               height: "calc(100vh - 90px)",
               padding: "24px",
-              maxWidth: "calc(100% - 2em)"
+              maxWidth: "800px"
             }}>
             {Array.from(new Array(numPages), (_el, index) => {
               return <CP index={index} segments={segments}/>;
