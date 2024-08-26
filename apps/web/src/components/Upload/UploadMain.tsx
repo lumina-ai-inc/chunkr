@@ -1,30 +1,66 @@
 import { Flex, Text } from "@radix-ui/themes";
+import { useState } from "react";
 import Upload from "./Upload";
 import "./UploadMain.css";
 import BetterButton from "../BetterButton/BetterButton";
+import { Model, ExtractPayload } from "../../models/extract.model";
 
 export default function UploadMain() {
-  const handleFileUpload = (file: File) => {
-    // Handle the uploaded file here
-    console.log("Uploaded file:", file);
-    // You can now send this file to a server or process it as needed
+  const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState("");
+  const [model, setModel] = useState<Model>(Model.Fast);
+
+  const handleFileUpload = (uploadedFile: File) => {
+    setFile(uploadedFile);
+    setFileName(uploadedFile.name);
+    console.log("Uploaded file:", uploadedFile);
+  };
+
+  const handleFileRemove = () => {
+    setFile(null);
+    setFileName("");
+  };
+
+  const handleModelToggle = () => {
+    setModel(model === Model.Fast ? Model.HighQuality : Model.Fast);
+  };
+
+  const handleRun = () => {
+    if (!file) {
+      console.error("No file uploaded");
+      return;
+    }
+
+    const payload: ExtractPayload = {
+      file,
+      model,
+    };
+
+    console.log("Payload:", payload);
+    // Here you would typically send the payload to your API
   };
 
   return (
     <Flex direction="column" width="100%">
-      <Upload onFileUpload={handleFileUpload} />
+      <Upload
+        onFileUpload={handleFileUpload}
+        onFileRemove={handleFileRemove}
+        isUploaded={!!file}
+        fileName={fileName}
+      />
       <Flex
         direction="row"
         height="64px"
         width="100%"
         mt="40px"
         className="toggle-container"
+        onClick={handleModelToggle}
       >
         <Flex
           direction="column"
           height="100%"
           justify="center"
-          className="toggle-active"
+          className={model === Model.Fast ? "toggle-active" : "toggle"}
           style={{ borderTopLeftRadius: "4px", borderBottomLeftRadius: "4px" }}
         >
           <Text size="4" weight="medium">
@@ -35,7 +71,7 @@ export default function UploadMain() {
           direction="column"
           height="100%"
           justify="center"
-          className="toggle"
+          className={model === Model.HighQuality ? "toggle-active" : "toggle"}
           style={{
             borderTopRightRadius: "4px",
             borderBottomRightRadius: "4px",
@@ -47,7 +83,7 @@ export default function UploadMain() {
         </Flex>
       </Flex>
       <Flex direction="row" width="100%" mt="32px">
-        <BetterButton padding="16px 64px">
+        <BetterButton padding="16px 64px" onClick={handleRun} active={!!file}>
           <Text size="4" weight="medium">
             Run
           </Text>
