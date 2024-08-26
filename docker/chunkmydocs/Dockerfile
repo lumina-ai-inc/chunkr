@@ -1,12 +1,12 @@
 FROM rust:1.80-slim-bookworm AS planner
-RUN apt-get update -y && apt-get -y install pkg-config libssl-dev libpq-dev g++ curl
+RUN apt-get update -y && apt-get -y install pkg-config libssl-dev libpq-dev g++ curl libglib2.0-dev
 RUN cargo install cargo-chef
 WORKDIR /app
 COPY chunkmydocs/ .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM rust:1.80-slim-bookworm AS builder
-RUN apt-get update -y && apt-get -y install pkg-config libssl-dev libpq-dev g++ curl
+RUN apt-get update -y && apt-get -y install pkg-config libssl-dev libpq-dev g++ curl libglib2.0-dev
 RUN cargo install cargo-chef
 WORKDIR /app
 COPY --from=planner /app/recipe.json recipe.json
