@@ -3,7 +3,9 @@ import { useState } from "react";
 import Upload from "./Upload";
 import "./UploadMain.css";
 import BetterButton from "../BetterButton/BetterButton";
-import { Model, ExtractPayload } from "../../models/extract.model";
+import { Model, UploadForm } from "../../models/upload.model";
+import uploadFile from "../../services/uploadFileApi";
+// import { extractFile } from "../../services/extractFileApi";
 
 export default function UploadMain() {
   const [file, setFile] = useState<File | null>(null);
@@ -31,12 +33,14 @@ export default function UploadMain() {
       return;
     }
 
-    const payload: ExtractPayload = {
+    const payload: UploadForm = {
       file,
       model,
     };
+    console.log("Component Payload:", payload);
 
-    console.log("Payload:", payload);
+    const task = uploadFile(payload);
+    console.log("Task:", task);
   };
 
   return (
