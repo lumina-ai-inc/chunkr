@@ -1,7 +1,7 @@
 FROM rust:1.80-slim-bookworm AS chef
 RUN apt-get update -y && apt-get -y install pkg-config libssl-dev libpq-dev g++ curl libglib2.0-dev
 RUN cargo install cargo-chef
-WORKDIR app
+WORKDIR /app
 
 FROM chef AS planner
 COPY chunkmydocs/ .
