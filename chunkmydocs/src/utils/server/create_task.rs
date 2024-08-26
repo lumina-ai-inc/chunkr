@@ -1,15 +1,15 @@
 use crate::models::rrq::produce::ProducePayload;
 use crate::models::{
-    extraction::extract::{ ExtractionPayload, ModelInternal },
-    extraction::task::{ Status, TaskResponse },
+    extraction::extract::{ExtractionPayload, ModelInternal},
+    extraction::task::{Status, TaskResponse},
 };
-use crate::utils::db::deadpool_postgres::{ Client, Pool };
+use crate::utils::configs::extraction_config::Config;
+use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::rrq::service::produce;
 use crate::utils::storage::services::upload_to_s3;
-use crate::utils::configs::extraction_config::Config;
-use aws_sdk_s3::Client as S3Client;
 use actix_multipart::form::tempfile::TempFile;
-use chrono::{ DateTime, Utc };
+use aws_sdk_s3::Client as S3Client;
+use chrono::{DateTime, Utc};
 use lopdf::Document;
 use std::error::Error;
 use uuid::Uuid;
@@ -22,7 +22,7 @@ fn is_valid_pdf(buffer: &[u8]) -> Result<bool, lopdf::Error> {
 }
 
 async fn produce_extraction_payloads(
-    extraction_payload: ExtractionPayload
+    extraction_payload: ExtractionPayload,
 ) -> Result<(), Box<dyn Error>> {
     let document_extraction_queue = Config::from_env()?.extraction_queue;
 
@@ -46,7 +46,7 @@ pub async fn create_task(
     task_id: String,
     user_id: String,
     api_key: &String,
-    model: ModelInternal
+    model: ModelInternal,
 ) -> Result<TaskResponse, Box<dyn Error>> {
     let mut client: Client = pool.get().await?;
     let config = Config::from_env()?;
@@ -74,11 +74,7 @@ pub async fn create_task(
         let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
         let s3_path = format!(
             "s3://{}/{}/{}/{}/{}",
-            bucket_name,
-            user_id,
-            task_id,
-            file_id,
-            file_name
+            bucket_name, user_id, task_id, file_id, file_name
         );
         let output_extension = model.get_extension();
         let output_s3_path = s3_path.replace(".pdf", &format!(".{}", output_extension));
@@ -150,7 +146,7 @@ pub async fn create_task(
                     model: model.to_external(),
                 })
             }
-            Err(e) => Err(e.into()),
+            Err(e) => Err(e),
         }
     } else {
         Err("Not a valid PDF".into())

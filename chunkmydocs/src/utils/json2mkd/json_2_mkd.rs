@@ -65,7 +65,7 @@ pub async fn process_bounding_boxes(
     let file_content = tokio::fs::read_to_string(file_path).await?;
     println!("File content loaded, length: {}", file_content.len());
 
-    let mut segments: Vec<Segment> = serde_json::from_str(&file_content)?;
+    let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
     println!("Parsed {} segments", segments.len());
     println!("Segment types processed");
     chunk_and_add_markdown(segments, target_size).await
@@ -73,16 +73,15 @@ pub async fn process_bounding_boxes(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
     use std::fs;
+    use std::path::PathBuf;
 
     #[tokio::test]
     async fn test_process_bounding_boxes() -> Result<(), Box<dyn std::error::Error>> {
         // Load the bounding_boxes.json file
         let mut input_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        input_path.push(
-            "/Users/ishaankapoor/chunk-my-docs/example/input/no_chunk_bounding_boxes.json",
-        );
+        input_path
+            .push("/Users/ishaankapoor/chunk-my-docs/example/input/no_chunk_bounding_boxes.json");
         let input_file_path = input_path.to_str().unwrap();
 
         // Process the bounding boxes

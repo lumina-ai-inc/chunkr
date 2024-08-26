@@ -63,7 +63,7 @@ services:
     image: redis:7.2.2
     restart: always
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -73,7 +73,7 @@ services:
       - redis-data:/data
     networks:
       - app-network
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server
 
   rrq:
     image: luminainc/rrq:a11fcf8
@@ -84,11 +84,19 @@ services:
     networks:
       - app-network
     environment:
-      - REDIS__URL=redis://redis:6379
-      - API_KEY=${REDIS_PASSWORD}
+      - REDIS__URL=${RRQ_REDIS_URL}
+      - API_KEY=${RRQ_API_KEY}
       - VERSION=${RRQ_VERSION}
     ports:
       - "8010:8000"
+
+  pdla:
+    image: luminainc/pdla:7bd05a1
+    restart: on-failure
+    networks:
+      - app-network
+    ports:
+      - "8011:8000"
 
 networks:
   app-network:

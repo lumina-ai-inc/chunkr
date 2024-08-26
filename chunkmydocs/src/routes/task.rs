@@ -37,7 +37,9 @@ pub async fn get_task_status(
     }
 
     match get_task(&pool, &s3_client, task_id).await {
-        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
+        Ok(task_response) => {
+            Ok(HttpResponse::Ok().json(task_response))
+        },
         Err(e) => {
             eprintln!("Error getting task status: {:?}", e);
             Ok(HttpResponse::InternalServerError().body(e.to_string()))
