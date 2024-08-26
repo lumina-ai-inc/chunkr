@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: task-processor
-  namespace: task-processor
+  namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: task-processor
 spec:
@@ -11,7 +11,7 @@ spec:
       app.kubernetes.io/name: task-processor
   template:
     metadata:
-      namespace: task-processor
+      namespace: chunkmydocs
       labels:
         app.kubernetes.io/name: task-processor
     spec:
