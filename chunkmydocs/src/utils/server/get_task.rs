@@ -1,8 +1,8 @@
-use aws_sdk_s3::Client as S3Client;
 use crate::models::extraction::extract::ModelInternal;
 use crate::models::extraction::task::{Status, TaskResponse};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::storage::services::generate_presigned_url;
+use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
 
 pub async fn get_task(
@@ -52,8 +52,7 @@ pub async fn get_task(
     let output_location: String = first_row.get("output_location");
 
     if task_status == Status::Succeeded {
-        
-        file_url = match generate_presigned_url(&s3_client, &output_location, None).await {
+        file_url = match generate_presigned_url(s3_client, &output_location, None).await {
             Ok(response) => Some(response),
             Err(e) => {
                 println!("Error downloading file: {}", e);

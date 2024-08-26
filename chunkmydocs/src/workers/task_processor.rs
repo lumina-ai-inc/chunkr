@@ -3,21 +3,17 @@ use chunkmydocs::extraction::grobid::grobid_extraction;
 use chunkmydocs::extraction::pdla::pdla_extraction;
 use chunkmydocs::models::extraction::extract::ExtractionPayload;
 use chunkmydocs::models::extraction::extract::ModelInternal;
-use chunkmydocs::models::extraction::segment::{Chunk, Segment, SegmentType};
+use chunkmydocs::models::extraction::segment::{Chunk, Segment};
 use chunkmydocs::models::extraction::task::Status;
-use chunkmydocs::models::rrq::{produce::ProducePayload, queue::QueuePayload};
+use chunkmydocs::models::rrq::queue::QueuePayload;
 use chunkmydocs::utils::configs::extraction_config;
 use chunkmydocs::utils::db::deadpool_postgres;
 use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
-use chunkmydocs::utils::json2mkd::json2mkd::chunk_and_add_markdown;
-use chunkmydocs::utils::rrq::{consumer::consumer, service::produce};
-use diesel::pg;
-use chunkmydocs::utils::storage::services::{download_to_tempfile, upload_to_s3};
+use chunkmydocs::utils::json2mkd::json_2_mkd::chunk_and_add_markdown;
+use chunkmydocs::utils::rrq::consumer::consumer;
 use chunkmydocs::utils::storage::config_s3::create_client;
-use humantime::format_duration;
-use serde_json::json;
-use std::{fs, path::PathBuf};
-use uuid::Uuid;
+use chunkmydocs::utils::storage::services::{download_to_tempfile, upload_to_s3};
+use std::path::PathBuf;
 
 pub async fn log_task(
     task_id: String,
@@ -27,13 +23,11 @@ pub async fn log_task(
     finished_at: Option<String>,
     pool: &Pool,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let config = extraction_config::Config::from_env()?;
-
     println!("Prepared status: {:?}", status);
     println!("Prepared task_id: {}", task_id);
     println!("Prepared file_id: {}", file_id);
 
-    let mut client: Client = pool.get().await?;
+    let client: Client = pool.get().await?;
 
     let task_query = format!(
         "UPDATE ingestion_tasks SET status = '{:?}', message = '{}', finished_at = '{:?}' WHERE task_id = '{}'",
@@ -84,7 +78,13 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
     .await?;
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
-        let temp_file = download_to_tempfile(&s3_client, &reqwest_client, &extraction_item.input_location, None).await?;
+        let temp_file = download_to_tempfile(
+            &s3_client,
+            &reqwest_client,
+            &extraction_item.input_location,
+            None,
+        )
+        .await?;
         let output_path: PathBuf;
         let chunks: Vec<Chunk>;
 
@@ -115,12 +115,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             return Err("Invalid model".into());
         }
 
-        upload_to_s3(
-            &s3_client,
-            &extraction_item.output_location,
-            &output_path
-        )
-        .await?;
+        upload_to_s3(&s3_client, &extraction_item.output_location, &output_path).await?;
 
         if temp_file.path().exists() {
             if let Err(e) = std::fs::remove_file(temp_file.path()) {
@@ -171,5 +166,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     consumer(process, config.extraction_queue, 1, 600).await?;
     Ok(())
 }
-
-
