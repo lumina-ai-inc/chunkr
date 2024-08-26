@@ -21,13 +21,9 @@ spec:
       - name: rrq
         image: luminainc/rrq:dd468f6
         imagePullPolicy: Always
-        env:
-        - name: REDIS__URL
-          value: "redis://redis.chunkmydocs.svc.cluster.local:6379"
-        - name: APP_VERSION
-          value: "1.0.5"
-        - name: API_KEY
-          value: "1234567890"
+        envFrom::
+        - secretRef:
+              name: rrq-secrets
         ports:
         - containerPort: 8000
 ---
