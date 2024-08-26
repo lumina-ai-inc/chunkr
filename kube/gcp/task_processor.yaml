@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-processor
+  namespace: task-processor
+  labels:
+    app.kubernetes.io/name: task-processor
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: task-processor
+  template:
+    metadata:
+      namespace: task-processor
+      labels:
+        app.kubernetes.io/name: task-processor
+    spec:
+      containers:
+      - name: task-processor
+        image: luminainc/task-processor:961e6c6
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["SYS_ADMIN"]
+---   
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-processor-service
+  namespace: task-processor
+  labels:
+    app.kubernetes.io/name: task-processor
+spec:
+  selector:
+    app.kubernetes.io/name: task-processor
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: task-processor-ingress
+  namespace: task-processor
+  labels:
+    app: task-processor
+  annotations:
+    kubernetes.io/ingress.class: gce
+spec:
+  ingressClassName: gce
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: task-processor-service
+            port:
+              number: 8000
