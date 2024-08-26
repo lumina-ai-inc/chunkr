@@ -14,7 +14,7 @@ export enum TableOcrModel {
   Tesseract = "Tesseract",
 }
 
-export interface ExtractPayload {
+export interface UploadForm {
   file: File;
   model: Model;
   tableOcr?: TableOcr;
