@@ -15,7 +15,7 @@ export const Home = () => {
       className="pulsing-background"
     >
       <ScrollArea>
-        <Header py="40px" />
+        <Header py="40px" home={true} />
         <Flex className="hero-container">
           <Flex className="text-container" direction="column">
             <Text
