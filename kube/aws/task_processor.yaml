@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: task-processor
-  namespace: task-processor
+  namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: task-processor
 spec:
@@ -11,11 +11,12 @@ spec:
       app.kubernetes.io/name: task-processor
   template:
     metadata:
-      namespace: task-processor
+      namespace: chunkmydocs
       labels:
         app.kubernetes.io/name: task-processor
       annotations:
         vpc.amazonaws.com/resource-limits: '{"vpc-cni-network-config": "true"}'
+    spec:
       containers:
       - name: task-processor
         image: luminainc/task-processor:961e6c6
