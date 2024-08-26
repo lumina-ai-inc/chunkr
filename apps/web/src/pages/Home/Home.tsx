@@ -1,7 +1,7 @@
 import { Flex, ScrollArea, Text } from "@radix-ui/themes";
 import "./Home.css";
-import Header from "../components/Header/Header";
-import UploadMain from "../components/Upload/UploadMain";
+import Header from "../../components/Header/Header";
+import UploadMain from "../../components/Upload/UploadMain";
 
 export const Home = () => {
   return (

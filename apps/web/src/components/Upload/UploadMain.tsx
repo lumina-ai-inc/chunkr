@@ -4,9 +4,15 @@ import "./UploadMain.css";
 import BetterButton from "../BetterButton/BetterButton";
 
 export default function UploadMain() {
+  const handleFileUpload = (file: File) => {
+    // Handle the uploaded file here
+    console.log("Uploaded file:", file);
+    // You can now send this file to a server or process it as needed
+  };
+
   return (
     <Flex direction="column" width="100%">
-      <Upload />
+      <Upload onFileUpload={handleFileUpload} />
       <Flex
         direction="row"
         height="64px"
