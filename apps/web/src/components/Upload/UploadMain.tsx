@@ -4,8 +4,7 @@ import Upload from "./Upload";
 import "./UploadMain.css";
 import BetterButton from "../BetterButton/BetterButton";
 import { Model, UploadForm } from "../../models/upload.model";
-import { uploadFile } from "../../services/uploadFileApi";
-// import { extractFile } from "../../services/extractFileApi";
+import { processFileUpload } from "../../services/chunkMyDocs";
 
 export default function UploadMain() {
   const [file, setFile] = useState<File | null>(null);
@@ -27,7 +26,7 @@ export default function UploadMain() {
     setModel(model === Model.Fast ? Model.HighQuality : Model.Fast);
   };
 
-  const handleRun = () => {
+  const handleRun = async () => {
     if (!file) {
       console.error("No file uploaded");
       return;
@@ -39,8 +38,8 @@ export default function UploadMain() {
     };
     console.log("Component Payload:", payload);
 
-    const task = uploadFile(payload);
-    console.log("Task:", task);
+    const fileContent = await processFileUpload(payload);
+    console.log("File Content:", fileContent);
   };
 
   return (
