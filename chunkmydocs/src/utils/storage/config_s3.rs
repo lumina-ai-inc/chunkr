@@ -1,7 +1,7 @@
 use aws_credential_types::Credentials;
-use aws_sdk_s3::{ Config as S3Config, Client };
 use aws_sdk_s3::config::Region;
-use config::{ Config as ConfigTrait, ConfigError };
+use aws_sdk_s3::{Client, Config as S3Config};
+use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv;
 use serde::Deserialize;
 use std::sync::Once;
@@ -12,6 +12,7 @@ static INIT: Once = Once::new();
 pub struct Config {
     access_key: String,
     secret_key: String,
+    endpoint: Option<String>,
     region: Option<String>,
 }
 
@@ -28,26 +29,22 @@ impl Config {
     }
 }
 
-// pub async fn create_client() -> Result<Client, ConfigError> {
-//     let config = Config::from_env()?;
-//     let creds = Credentials::from_keys(config.aws_access_key, config.aws_secret_key, None);
-//     let region_provider = RegionProviderChain::first_try("us-west-1");
-//     let config = S3Config::builder()
-//         .credentials_provider(creds)
-//         .region(region_provider.region().await.unwrap())
-//         .build();
-//     let client = aws_sdk_s3::Client::from_conf(config);
-//     Ok(client)
-// }
-
 pub async fn create_client() -> Result<Client, ConfigError> {
     let config = Config::from_env()?;
     let creds = Credentials::from_keys(config.access_key, config.secret_key, None);
-    let region = config.region.unwrap_or_else(|| "us-west-1".to_string());
-    let config = S3Config::builder()
-        .credentials_provider(creds)
-        .region(Region::new(region))
-        .build();
-    let client = aws_sdk_s3::Client::from_conf(config);
+    let config_region = config.region.unwrap_or_else(|| "us-west-1".to_string());
+    let aws_config = if let Some(endpoint) = config.endpoint {
+        S3Config::builder()
+            .credentials_provider(creds)
+            .region(Region::new(config_region))
+            .endpoint_url(endpoint)
+            .build()
+    } else {
+        S3Config::builder()
+            .credentials_provider(creds)
+            .region(Region::new(config_region))
+            .build()
+    };
+    let client = aws_sdk_s3::Client::from_conf(aws_config);
     Ok(client)
 }

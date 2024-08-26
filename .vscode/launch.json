@@ -7,10 +7,22 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug",
-      "program": "${workspaceFolder}/<executable file>",
+      "name": "Debug executable 'chunkmydocs'",
+      "cargo": {
+        "args": [
+          "+nightly",
+          "build",
+          "--manifest-path=./chunkmydocs/Cargo.toml",
+          "--bin=chunkmydocs",
+          "--package=chunkmydocs"
+        ],
+        "filter": {
+          "name": "chunkmydocs",
+          "kind": "bin"
+        }
+      },
       "args": [],
-      "cwd": "${workspaceFolder}"
-    }
+      "cwd": "${workspaceFolder}/chunkmydocs"
+    },
   ]
 }
