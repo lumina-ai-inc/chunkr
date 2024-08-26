@@ -1,9 +1,7 @@
 import { UploadForm } from "../models/upload.model";
 import { TaskResponse } from "../models/task.model";
 
-export default async function uploadFile(
-  payload: UploadForm
-): Promise<TaskResponse> {
+export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   const url = `http://localhost:8000/api/task`;
 
   console.log("API Payload:", payload);
@@ -31,4 +29,10 @@ export default async function uploadFile(
   const data = await response.json();
   console.log("API Response:", data);
   return data;
+}
+
+export async function healthCheck() {
+  const url = `http://localhost:8000/health`;
+  const response = await fetch(url);
+  return response.json();
 }
