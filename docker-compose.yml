@@ -58,7 +58,7 @@ services:
 
       exit 0;
       "
-  
+
   redis:
     image: redis:7.2.2
     restart: always
@@ -97,6 +97,19 @@ services:
       - app-network
     ports:
       - "8011:8000"
+    command:
+      [
+        "gunicorn",
+        "-k",
+        "uvicorn.workers.UvicornWorker",
+        "--chdir",
+        "./src",
+        "app:app",
+        "--bind",
+        "0.0.0.0:8000",
+        "--timeout",
+        "10000",
+      ]
 
 networks:
   app-network:
