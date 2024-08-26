@@ -1,39 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chunkmydocs
+  name: rrq
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: chunkmydocs
+    app.kubernetes.io/name: rrq
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: chunkmydocs
+      app.kubernetes.io/name: rrq
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: chunkmydocs
+        app.kubernetes.io/name: rrq
       annotations:
         vpc.amazonaws.com/resource-limits: '{"vpc-cni-network-config": "true"}'
     spec:
       containers:
-      - name: chunkmydocs
-        image: akhilesh99/chunkmydocs:961e6c6
+      - name: rrq
+        image: luminainc/rrq:dd468f6
         imagePullPolicy: Always
+        env:
+        - name: REDIS__URL
+          value: "redis://redis.chunkmydocs.svc.cluster.local:6379"
+        - name: APP_VERSION
+          value: "1.0.5"
+        - name: API_KEY
+          value: "1234567890"
         ports:
         - containerPort: 8000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: chunkmydocs-service
+  name: rrq-service
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: chunkmydocs
+    app.kubernetes.io/name: rrq
 spec:
   selector:
-    app.kubernetes.io/name: chunkmydocs
+    app.kubernetes.io/name: rrq
   type: ClusterIP
   ports:
   - port: 8000
@@ -43,10 +50,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: chunkmydocs-ingress
+  name: rrq-ingress
   namespace: chunkmydocs
   labels:
-    app: chunkmydocs
+    app: rrq
   annotations:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/target-type: ip
@@ -60,6 +67,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: chunkmydocs-service
+            name: rrq-service
             port:
               number: 8000
