@@ -21,7 +21,7 @@ spec:
       - name: rrq
         image: luminainc/rrq:dd468f6
         imagePullPolicy: Always
-        envFrom::
+        envFrom:
         - secretRef:
               name: rrq-secrets
         ports:
