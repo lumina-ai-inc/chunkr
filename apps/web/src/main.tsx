@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Home } from "./pages/Home.tsx";
+import { Home } from "./pages/Home/Home.tsx";
 import { Viewer } from "./pages/Viewer.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
