@@ -19,41 +19,9 @@ spec:
       - name: chunkmydocs
         image: luminainc/chunkmydocs:961e6c6
         imagePullPolicy: Always
-        env:
-        - name: PG__URL
-          value: 'postgresql://postgres:password@postgres-service.chunkmydocs.svc.cluster.local:5432/chunkmydocs'
-        - name: PG__POOL__MAX_SIZE
-          value: '1'
-        - name: RRQ__URL
-          value: 'http://rrq-service.chunkmydocs.svc.cluster.local'
-        - name: EXTRACTION__VERSION
-          value: '1.0.0'
-        - name: EXTRACTION__EXTRACTION_QUEUE
-          value: 'extraction-002'
-        - name: EXTRACTION__GROBID_URL
-          value: ''
-        - name: EXTRACTION__PDLA_URL
-          value: 'http://pdla-service.chunkmydocs.svc.cluster.local'
-        - name: EXTRACTION__PDLA_FAST_URL
-          value: 'http://pdla-service.chunkmydocs.svc.cluster.local'
-        - name: EXTRACTION__TABLE_OCR_URL
-          value: ''
-        - name: EXTRACTION__TASK_EXPIRATION
-          value: '3600'
-        - name: EXTRACTION__S3_BUCKET
-          value: 'lumina-user-ingestion'
-        - name: EXTRACTION__BATCH_SIZE
-          value: '10'
-        - name: EXTRACTION__BASE_URL
-          value: 'http://chunkmydocs-service.chunkmydocs.svc.cluster.local/api'
-        - name: AWS__ENDPOINT
-          value: 'http://127.0.0.1:9000'
-        - name: AWS__ACCESS_KEY
-          value: 'accesskey'
-        - name: AWS__SECRET_KEY
-          value: 'secretkey'
-        - name: AWS__REGION
-          value: 'foo'
+        envFrom:
+        - secretRef:
+            name: chunkmydocs-secrets
         ports:
         - containerPort: 8000
         securityContext:
