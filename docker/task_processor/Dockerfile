@@ -28,7 +28,7 @@ RUN apt-get update -y; \
     ; \
     mkdir -p /app/tmp
 
-COPY --from=builder /app/target/release/task_processor /app/task_processor
+COPY --from=builder /app/target/release/task-processor /app/task-processor
 
 EXPOSE 8000
-ENTRYPOINT ["/app/task_processor"]
+ENTRYPOINT ["/app/task-processor"]
