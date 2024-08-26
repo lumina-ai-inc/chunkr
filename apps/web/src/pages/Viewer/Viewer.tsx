@@ -1,10 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Flex, ScrollArea } from "@radix-ui/themes";
-import { SegmentChunk } from "../components/SegmentChunk/SegmentChunk";
-import { PDF } from "../components/PDF/PDF";
-import Header from "../components/Header/Header";
-import boundingBoxes from "../../bounding_boxes.json";
-import { BoundingBoxes, Chunk } from "../models/chunk.model";
+import { SegmentChunk } from "../../components/SegmentChunk/SegmentChunk";
+import { PDF } from "../../components/PDF/PDF";
+import Header from "../../components/Header/Header";
+import boundingBoxes from "../../../bounding_boxes.json";
+import { BoundingBoxes, Chunk } from "../../models/chunk.model";
+import "./Viewer.css";
 
 export const Viewer = () => {
   const typedBoundingBoxes: BoundingBoxes = boundingBoxes as BoundingBoxes;
@@ -58,7 +59,7 @@ export const Viewer = () => {
         direction="column"
         style={{ boxShadow: "0px 12px 12px 0px rgba(0, 0, 0, 0.12)" }}
       >
-        <Header py="24px" px="24px" />
+        <Header py="24px" px="24px" download={true} home={false} />
       </Flex>
       <Flex
         direction="row"
@@ -99,7 +100,7 @@ export const Viewer = () => {
             width: `${100 - pdfWidth}%`,
           }}
         >
-          <Flex width="100%" height="100%" direction="column" p="24px" gap="7">
+          <Flex width="70%" height="100%" direction="column" p="24px" gap="9">
             {typedBoundingBoxes.map((chunk: Chunk, index: number) => (
               <SegmentChunk
                 key={index}

@@ -37,7 +37,6 @@ export default function UploadMain() {
     };
 
     console.log("Payload:", payload);
-    // Here you would typically send the payload to your API
   };
 
   return (
