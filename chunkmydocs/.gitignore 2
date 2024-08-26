@@ -1,31 +1,3 @@
-.lh
-.env
-.venv
-venv
-output
-test
-output-gpu
-staging
-examples
-annotated
-annotated-gpu
-sample
-input
-.whisper
-.env
-__pycache__
-.DS_Store
-node_modules
-.turbo
-*.log
-dist
-dist-ssr
-*.local
-.env
-.cache
-server/dist
-public/dist
-
 output
 test
 output-gpu
@@ -58,5 +30,3 @@ Cargo.lock
 *.tmp
 
 .lh
-
-*secret.yaml
