@@ -4,7 +4,7 @@ import { useDropzone } from "react-dropzone";
 import "./Upload.css";
 
 interface UploadProps {
-  onFileUpload: (file: File) => void;
+  onFileUpload: (file: File, fileContent: ArrayBuffer) => void;
   onFileRemove: () => void;
   isUploaded: boolean;
   fileName: string;
@@ -20,7 +20,13 @@ export default function Upload({
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
-        onFileUpload(file);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target && event.target.result instanceof ArrayBuffer) {
+            onFileUpload(file, event.target.result);
+          }
+        };
+        reader.readAsArrayBuffer(file);
       }
     },
     [onFileUpload]
