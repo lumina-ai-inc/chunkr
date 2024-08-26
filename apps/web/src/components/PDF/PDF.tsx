@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useResizeObserver } from '@wojtekmaj/react-hooks';
+import { useEffect, useRef, useState } from 'react';
 import { pdfjs, Document, Page } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
@@ -20,7 +19,7 @@ const options = {
 const maxWidth = 800;
 
 type PDFFile = string | File | null;
-
+type SegmentType = "Text" | "Title" | "Table" | "Section header" | "Picture" | "Page footer" | "Page header" | "List item" | "Formula" | "Footnote" | "Caption";
 
 export function PDF() {
   const [file, setFile] = useState<PDFFile>('example.pdf');
@@ -95,24 +94,55 @@ function CurrentPage({
         onClick={(event) => {
           console.log("hi", event);
         }}>
-        {thingsToRender.map((segment, j: number) => {
-          const scaleX = `${containerWidth / segment.page_width}`;
-          console.log(scaleX)
-
+        {thingsToRender.map((segment: any, j: number) => {
           const scaledLeft = `${(segment.left / segment.page_width) * 100}%`;
           const scaledTop = `${(segment.top / segment.page_height) * 100}%`;
           const scaledHeight = `${(segment.height / segment.page_height) * 100}%`;
           const scaledWidth = `${(segment.width / segment.page_width) * 100}%`;
 
+          let color;
+          const t: SegmentType= segment.type;
+
+          if (t == "Text") {
+            color = "--teal-10"
+          } else if (t == "Table") {
+            color = "--orange-9"
+          } else if (t == "Title") {
+            color = "--amber-8"
+          } else if (t == "Picture") {
+            color = "--pink-10"
+          } else if (t == "Formula") {
+            color = "--cyan-8"
+          } else if (t == "Caption") {
+            color = "--jade-10"
+          } else if (t == "Footnote") {
+            color = "--pink-10"
+          } else if (t == "List item") {
+            color = "--bronze-10"
+          } else if (t == "Page footer") {
+            color = "--red-12"
+          } else if (t == "Page header") {
+            color = "--violet-8"
+          } else if (t == "Section header") {
+            color = "--yellow-7"
+          } else {
+            color = "border-black"
+          }
+
+          const [hovered, setHovered] = useState(false);
           return (
-            <div className='absolute z-50 border-2 border-red-500' style={{
+            <div 
+              className='page visible absolute z-50 border-2' style={{
               width: scaledWidth,
               height: scaledHeight,
               left: scaledLeft,
-              top: scaledTop
+              top: scaledTop,
+              borderColor: `var(${color})`
             }}
               key={j}
             >
+              <div className='w-full h-full bg-red-500 hidden'>
+              </div>
             </div>
           );
         })}
