@@ -2,7 +2,13 @@ import { UploadForm } from "../models/upload.model";
 import { TaskResponse } from "../models/task.model";
 
 export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
-  const url = `http://localhost:8000/api/task`;
+  const hostname = import.meta.env.VITE_API_URL;
+  const key = import.meta.env.VITE_API_KEY;
+  const url = `${hostname}/api/task`;
+  const apiKey = `${key}`;
+
+  console.log("API Key:", apiKey);
+  console.log("API URL:", url);
 
   console.log("API Payload:", payload);
   const formData = new FormData();
@@ -18,7 +24,7 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
     method: "POST",
     body: formData,
     headers: {
-      "x-api-key": "lu_H5kAE78qF4z_K1KCH1vcNZjN6gMeeuAJU9TD7crQChzwv",
+      "x-api-key": apiKey,
     },
   });
 
@@ -29,10 +35,4 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   const data = await response.json();
   console.log("API Response:", data);
   return data;
-}
-
-export async function healthCheck() {
-  const url = `http://localhost:8000/health`;
-  const response = await fetch(url);
-  return response.json();
 }
