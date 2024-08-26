@@ -111,6 +111,30 @@ services:
         "10000",
       ]
 
+  chunkmydocs:
+    image: luminainc/chunkmydocs:latest
+    restart: on-failure
+    environment:
+      - PG__URL=${PG__URL}
+      - PG__POOL__MAX_SIZE=${PG__POOL__MAX_SIZE}
+      - RRQ__URL=${RRQ__URL}
+      - EXTRACTION__VERSION=${EXTRACTION__VERSION}
+      - EXTRACTION__EXTRACTION_QUEUE=${EXTRACTION__EXTRACTION_QUEUE}
+      - EXTRACTION__GROBID_URL=${EXTRACTION__GROBID_URL}
+      - EXTRACTION__PDLA_URL=${EXTRACTION__PDLA_URL}
+      - EXTRACTION__PDLA_FAST_URL=${EXTRACTION__PDLA_FAST_URL}
+      - EXTRACTION__TABLE_OCR_URL=${EXTRACTION__TABLE_OCR_URL}
+      - EXTRACTION__TASK_EXPIRATION=${EXTRACTION__TASK_EXPIRATION}
+      - EXTRACTION__S3_BUCKET=${EXTRACTION__S3_BUCKET}
+      - EXTRACTION__BATCH_SIZE=${EXTRACTION__BATCH_SIZE}
+      - EXTRACTION__BASE_URL=${EXTRACTION__BASE_URL}
+      - AWS__ENDPOINT_URL=${AWS__ENDPOINT_URL}
+      - AWS__ACCESS_KEY=${AWS__ACCESS_KEY}
+      - AWS__SECRET_KEY=${AWS__SECRET_KEY}
+      - AWS__REGION=${AWS__REGION}
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge

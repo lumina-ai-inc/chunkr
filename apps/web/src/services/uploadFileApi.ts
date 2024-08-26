@@ -7,9 +7,6 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   const url = `${hostname}/api/task`;
   const apiKey = `${key}`;
 
-  console.log("API Key:", apiKey);
-  console.log("API URL:", url);
-
   console.log("API Payload:", payload);
   const formData = new FormData();
   for (const [key, value] of Object.entries(payload)) {
@@ -34,5 +31,42 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
 
   const data = await response.json();
   console.log("API Response:", data);
+  return data;
+}
+
+export async function getTask(taskId: string): Promise<TaskResponse> {
+  const hostname = import.meta.env.VITE_API_URL;
+  const key = import.meta.env.VITE_API_KEY;
+  const url = `${hostname}/api/task/${taskId}`;
+  console.log("Task URL:", url);
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": key,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log("API Status Response:", data);
+  return data;
+}
+
+export async function getFile(fileUrl: string): Promise<string> {
+  const url = `${fileUrl}`;
+  console.log("File URL:", url);
+  const response = await fetch(url, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log("File Data:", data);
   return data;
 }
