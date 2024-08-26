@@ -42,13 +42,9 @@ fn run_migrations(url: &str) {
         title = "ChunkMyDocs API",
         description = "API service for document layout analysis and chunking to convert document into RAG/LLM-ready data.", 
         contact(
-            name = "Trieve x Lumina Teams",
-            url = "https://trieve.ai",
-            email = "developers@trieve.ai",
-        ),
-        license(
-            name = "MIT",
-            url = "https://github.com/lumina-ai-inc/chunk-my-docs/blob/main/LICENSE.txt",
+            name = "Lumina",
+            url = "https://lumina.sh",
+            email = "ishaan@lumina.sh",
         ),
         version = "0.0.0",
     ),
