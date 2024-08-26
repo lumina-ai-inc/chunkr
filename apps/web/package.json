@@ -27,6 +27,8 @@
     "react-pdf": "^9.1.0",
     "react-router": "^6.26.1",
     "react-router-dom": "^6.26.1",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
     "styled-components": "^6.1.12"
   },
   "devDependencies": {

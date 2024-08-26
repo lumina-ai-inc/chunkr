@@ -4,8 +4,52 @@ h3 {
   all: unset;
 }
 
+h1 {
+  font-size: 28px !important;
+  line-height: 36px !important;
+  color: var(--cyan-7);
+  margin-bottom: 24px !important;
+}
+
+h2 {
+  font-size: 24px !important;
+  line-height: 32px !important;
+  color: var(--cyan-5);
+  margin-bottom: 16px !important;
+}
+
+h3 {
+  font-size: 20px !important;
+  line-height: 28px !important;
+  color: var(--cyan-7);
+}
+
+h4 {
+  font-size: 16px !important;
+  line-height: 24px !important;
+  color: var(--cyan-7);
+}
+
+h5 {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  color: var(--cyan-7);
+}
+
+h6 {
+  font-size: 12px !important;
+  line-height: 16px !important;
+  color: var(--cyan-7);
+}
+
+p {
+  font-size: 16px !important;
+  line-height: 24px !important;
+  color: var(--cyan-1);
+  margin-bottom: 16px !important;
+}
+
 .AccordionRoot {
-  border-radius: 0px;
   background-color: #061d23;
   box-shadow: 0 2px 10px var(--black-a4);
 }

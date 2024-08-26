@@ -4,6 +4,9 @@ import { Text, Flex, ScrollArea } from "@radix-ui/themes";
 import BetterButton from "../BetterButton/BetterButton";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
+import Badge from "../Badge";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import "./SegmentChunk.css";
 
 import ReactMarkdown from "react-markdown";
@@ -27,10 +30,14 @@ export const SegmentChunk = ({
     return counts;
   }, [chunk.segments]);
 
-  const segmentTypeString = useMemo(() => {
-    return Object.entries(segmentTypeCounts)
-      .map(([type, count]) => `${type} x${count}`)
-      .join("\u00A0\u00A0|\u00A0\u00A0");
+  const segmentTypeBadges = useMemo(() => {
+    return Object.entries(segmentTypeCounts).map(([type, count]) => (
+      <Badge key={type}>
+        <Text size="1" weight="medium" className="cyan-11">
+          {`${type} x${count}`}
+        </Text>
+      </Badge>
+    ));
   }, [segmentTypeCounts]);
 
   return (
@@ -54,9 +61,9 @@ export const SegmentChunk = ({
                   className="AccordionChevron"
                   aria-hidden
                 ></ChevronDownIcon>
-                <Text size="4" weight="medium" className="cyan-5">
-                  {segmentTypeString}
-                </Text>
+                <Flex gap="4" wrap="wrap">
+                  {segmentTypeBadges}
+                </Flex>
               </Flex>
 
               <Flex gap="5">
@@ -67,7 +74,7 @@ export const SegmentChunk = ({
                     setMarkdownSelected(true);
                   }}
                 >
-                  <Text size="3" weight="regular">
+                  <Text size="2" weight="regular">
                     Markdown
                   </Text>
                 </BetterButton>
@@ -78,7 +85,7 @@ export const SegmentChunk = ({
                     setMarkdownSelected(false);
                   }}
                 >
-                  <Text size="3" weight="regular">
+                  <Text size="2" weight="regular">
                     JSON
                   </Text>
                 </BetterButton>
@@ -90,7 +97,11 @@ export const SegmentChunk = ({
           <ScrollArea>
             <div className="AccordionContentText">
               {markdownSelected ? (
-                <ReactMarkdown className="cyan-2">
+                <ReactMarkdown
+                  className="cyan-2"
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
+                >
                   {chunk.markdown}
                 </ReactMarkdown>
               ) : (
