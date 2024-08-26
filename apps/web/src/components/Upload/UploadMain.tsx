@@ -4,7 +4,8 @@ import Upload from "./Upload";
 import "./UploadMain.css";
 import BetterButton from "../BetterButton/BetterButton";
 import { Model, UploadForm } from "../../models/upload.model";
-import uploadFile from "../../services/uploadFileApi";
+import { uploadFile, healthCheck } from "../../services/uploadFileApi";
+
 // import { extractFile } from "../../services/extractFileApi";
 
 export default function UploadMain() {
@@ -40,7 +41,9 @@ export default function UploadMain() {
     console.log("Component Payload:", payload);
 
     const task = uploadFile(payload);
+    const healthCheck = healthCheck();
     console.log("Task:", task);
+    console.log("Health Check:", healthCheck);
   };
 
   return (
