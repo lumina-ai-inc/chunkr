@@ -1,33 +1,45 @@
 import { Flex, Text } from "@radix-ui/themes";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import "./Upload.css";
 
 interface UploadProps {
   onFileUpload: (file: File) => void;
+  onFileRemove: () => void;
+  isUploaded: boolean;
+  fileName: string;
 }
 
-export default function Upload({ onFileUpload }: UploadProps) {
-  const [isUploaded, setIsUploaded] = useState(false);
-  const [fileName, setFileName] = useState("");
-
+export default function Upload({
+  onFileUpload,
+  onFileRemove,
+  isUploaded,
+  fileName,
+}: UploadProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0 && !isUploaded) {
+      if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
         onFileUpload(file);
-        setFileName(file.name);
-        setIsUploaded(true);
       }
     },
-    [onFileUpload, isUploaded]
+    [onFileUpload]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: { "application/pdf": [".pdf"] },
     multiple: false,
-    disabled: isUploaded,
+    noClick: true, // Prevent opening file dialog on click
   });
+
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (isUploaded) {
+      onFileRemove();
+    }
+    open(); // Open file dialog
+  };
 
   return (
     <Flex
@@ -37,20 +49,9 @@ export default function Upload({ onFileUpload }: UploadProps) {
       height="302px"
       align="center"
       justify="center"
-      style={{
-        backgroundColor: "#061D22",
-        borderRadius: "8px",
-        border: `4px solid ${
-          isUploaded
-            ? "var(--cyan-8)"
-            : isDragActive
-              ? "var(--cyan-7)"
-              : "var(--cyan-5)"
-        }`,
-        boxShadow: "0px 0px 16px 0px rgba(12, 12, 12, 0.25)",
-        cursor: isUploaded ? "default" : "pointer",
-        opacity: isUploaded ? 0.7 : 1,
-      }}
+      className="upload-container"
+      style={{ cursor: "pointer" }}
+      onClick={handleClick}
     >
       <input {...getInputProps()} />
       <Flex
