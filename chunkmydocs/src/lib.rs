@@ -1,9 +1,11 @@
+use actix_cors::Cors;
 use actix_multipart::form::MultipartFormConfig;
 use actix_multipart::MultipartError;
 use actix_web::get;
 use actix_web::middleware::Logger;
 use actix_web::Error;
 use actix_web::HttpRequest;
+use actix_web::http::header;
 use actix_web::{web, App, HttpServer};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use env_logger::Env;
@@ -110,6 +112,18 @@ pub fn main() -> std::io::Result<()> {
         env_logger::init_from_env(Env::default().default_filter_or("info"));
 
         HttpServer::new(move || {
+            let cors = Cors::default()
+            .allowed_origin("http://localhost:5173")
+            .allowed_origin("http://localhost:5174")
+            .allowed_origin("https://www.chunkmydocs.com")
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_headers(vec![
+                header::CONTENT_TYPE,
+                header::AUTHORIZATION,
+                header::HeaderName::from_static("x-api-key"),
+            ])
+            .max_age(3600);
+
             App::new()
                 .wrap(Logger::default())
                 .wrap(Logger::new("%a %{User-Agent}i"))
