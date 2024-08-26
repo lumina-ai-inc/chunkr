@@ -9,13 +9,13 @@ export enum Status {
 }
 
 export interface TaskResponse {
-  taskId: string;
+  task_id: string;
   status: Status;
-  createdAt: Date;
-  finishedAt: string | null;
-  expirationTime: Date | null;
+  created_at: Date;
+  finished_at: string | null;
+  expiration_time: Date | null;
   message: string;
-  fileUrl: string | null;
-  taskUrl: string | null;
+  file_url: string | null;
+  task_url: string | null;
   model: Model;
 }
