@@ -58,12 +58,6 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
     let pg_pool = deadpool_postgres::create_pool();
 
-    println!("{:?}", extraction_item.clone());
-    // Import the necessary types if they're not already imported at the top of the file
-
-    // Get the database pool from the configuration
-
-    // Pass the pool to the log_task function
     log_task(
         task_id.clone(),
         file_id.clone(),
@@ -101,14 +95,11 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             )
             .await?;
 
-            // Read the PDLA output file
             let file_content = tokio::fs::read_to_string(&output_path).await?;
             let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
 
-            // Apply chunk_and_add_markdown
             chunks = chunk_and_add_markdown(segments, 512).await?;
 
-            // Write the chunked and markdown-added content back to the file
             let chunked_content = serde_json::to_string(&chunks)?;
             tokio::fs::write(&output_path, chunked_content).await?;
         } else {
@@ -128,7 +119,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
     .await;
 
     match result {
-        Ok(_) => n{
+        Ok(_) => {
             log_task(
                 task_id.clone(),
                 file_id.clone(),
