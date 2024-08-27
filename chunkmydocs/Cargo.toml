@@ -56,8 +56,6 @@ aws-sdk-s3 = { version = "1.29.0", features = ["behavior-version-latest"] }
 aws-config = { version ="1.4.0", features = ["behavior-version-latest"] }
 aws-credential-types = { version = "1.2.0", features = ["hardcoded-credentials"] }
 regex = "1.10.5"
-tokio-postgres-rustls = "0.12.0"
-rustls = "0.23.12"
 anyhow = "1.0.86"
 openssl = "0.10.66"
 postgres-openssl = "0.5.0"
