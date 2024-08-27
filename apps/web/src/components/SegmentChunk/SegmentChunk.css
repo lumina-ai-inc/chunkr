@@ -51,7 +51,7 @@ p {
 
 .AccordionRoot {
   background-color: #061d23;
-  box-shadow: 0 2px 10px var(--black-a4);
+  box-shadow: 0 6px 16px var(--black-a4);
 }
 
 .AccordionItem {
@@ -71,7 +71,7 @@ p {
 .AccordionHeader {
   display: flex;
   background-color: #061d23;
-  border: 2px solid var(--Colors-Cyan-4, #caf1f6);
+  border: 2px solid var(--cyan-12);
   border-bottom: none;
 }
 
@@ -83,7 +83,7 @@ p {
   justify-content: space-between;
   line-height: 1;
   padding: 16px 18px;
-  border-bottom: 2px solid var(--Colors-Cyan-4, #caf1f6);
+  border-bottom: 2px solid var(--cyan-12);
   transition: background-color 0.2s;
   gap: 16px;
 }
@@ -94,7 +94,7 @@ p {
 
 .AccordionContent {
   overflow: hidden;
-  border: 2px solid var(--Colors-Cyan-4, #caf1f6);
+  border: 2px solid var(--cyan-12);
   border-top: none;
   color: var(--cyan-11);
   background-color: #061d23;
