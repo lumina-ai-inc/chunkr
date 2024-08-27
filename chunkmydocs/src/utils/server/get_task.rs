@@ -47,16 +47,25 @@ pub async fn get_task(
         .get::<_, Option<String>>("message")
         .unwrap_or_default();
 
-    let mut file_url = None;
+    let mut output_file_url = None;
 
+    let input_location: String = first_row.get("input_location");
     let output_location: String = first_row.get("output_location");
 
+    let input_file_url =  match generate_presigned_url(s3_client, &input_location, None).await {
+        Ok(response) => Some(response),
+        Err(e) => {
+            println!("Error getting input file url: {}", e);
+            return Err("Error getting input file url".into());
+        }
+    };
+
     if task_status == Status::Succeeded {
-        file_url = match generate_presigned_url(s3_client, &output_location, None).await {
+        output_file_url = match generate_presigned_url(s3_client, &output_location, None).await {
             Ok(response) => Some(response),
             Err(e) => {
-                println!("Error downloading file: {}", e);
-                return Err("Error downloading file".into());
+                println!("Error getting output file url: {}", e);
+                return Err("Error getting output file url".into());
             }
         };
     }
@@ -67,7 +76,8 @@ pub async fn get_task(
         created_at,
         finished_at,
         message,
-        file_url,
+        output_file_url,
+        input_file_url,
         task_url,
         expiration_time,
         model: model.to_external(),

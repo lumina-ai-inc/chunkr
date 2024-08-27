@@ -13,7 +13,8 @@ pub struct TaskResponse {
     pub finished_at: Option<String>,
     pub expiration_time: Option<DateTime<Utc>>,
     pub message: String,
-    pub file_url: Option<String>,
+    pub output_file_url: Option<String>,
+    pub input_file_url: Option<String>,
     pub task_url: Option<String>,
     pub model: Model,
 }
