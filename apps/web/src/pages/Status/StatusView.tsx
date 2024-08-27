@@ -84,7 +84,7 @@ export default function StatusView() {
           </Text>
         </Flex>
       </Flex>
-      <Flex className="logo" direction="row" gap="4" align="center">
+      <Flex className="logo-status" direction="row" gap="4" align="center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="40"

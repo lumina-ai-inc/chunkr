@@ -49,6 +49,20 @@
   transition: background-color 0.2s ease;
 }
 
+.credit-dp {
+  border-radius: 50%;
+  border: none;
+  box-shadow:
+    0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
+    0px 3px 12px -4px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
+    0px 2px 3px -2px var(--Colors-Neutral-Neutral-Alpha-3, rgba(0, 0, 51, 0.06));
+  transition: border 0.2s ease-in-out;
+}
+
+.credit-dp:hover {
+  border: 2px solid var(--cyan-4);
+}
+
 .credit-button:hover {
   background-color: var(--cyan-12);
 }
