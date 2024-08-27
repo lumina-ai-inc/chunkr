@@ -32,7 +32,7 @@
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1066px) {
   .dropdown-container {
     display: block;
   }

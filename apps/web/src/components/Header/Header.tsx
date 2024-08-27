@@ -101,6 +101,24 @@ export default function Header({
               <DropdownMenu.Item>
                 <Text>Docs</Text>
               </DropdownMenu.Item>
+              <a
+                href="https://github.com/lumina-ai-inc/chunk-my-docs"
+                target="_blank"
+              >
+                <DropdownMenu.Item>
+                  <Text>Github</Text>
+                </DropdownMenu.Item>
+              </a>
+              <a href="https://twitter.com/lumina_ai_inc" target="_blank">
+                <DropdownMenu.Item>
+                  <Text>Twitter</Text>
+                </DropdownMenu.Item>
+              </a>
+              <a href="https://twitter.com/lumina_ai_inc" target="_blank">
+                <DropdownMenu.Item>
+                  <Text>Contact</Text>
+                </DropdownMenu.Item>
+              </a>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </div>
