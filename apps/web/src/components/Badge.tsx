@@ -5,7 +5,7 @@ export default function Badge({ children }: { children: React.ReactNode }) {
     <Flex
       py="8px"
       px="12px"
-      style={{ backgroundColor: "var(--cyan-4)", borderRadius: "4px" }}
+      style={{ backgroundColor: "var(--cyan-12)", borderRadius: "4px" }}
     >
       {children}
     </Flex>

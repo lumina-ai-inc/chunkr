@@ -59,6 +59,26 @@ export default function Header({
         <Text size="5" weight="medium" className="cyan-2 nav-item">
           Docs
         </Text>
+        <a
+          href="https://github.com/lumina-ai-inc/chunk-my-docs"
+          target="_blank"
+        >
+          <Text size="5" weight="medium" className="cyan-2 nav-item">
+            Github
+          </Text>
+        </a>
+
+        <a href="https://twitter.com/lumina_ai_inc" target="_blank">
+          <Text size="5" weight="medium" className="cyan-2 nav-item">
+            Twitter
+          </Text>
+        </a>
+
+        <a href="https://twitter.com/lumina_ai_inc" target="_blank">
+          <Text size="5" weight="medium" className="cyan-2 nav-item">
+            Contact
+          </Text>
+        </a>
         <div className="dropdown-container">
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
