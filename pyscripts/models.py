@@ -28,7 +28,8 @@ class TaskResponse(BaseModel):
     finished_at: Optional[str] = None
     expiration_time: Optional[datetime] = None
     message: Optional[str] = None
-    file_url: Optional[str] = None
+    input_file_url: Optional[str] = None
+    output_file_url: Optional[str] = None
     task_url: Optional[str] = None
     model: Model
 
