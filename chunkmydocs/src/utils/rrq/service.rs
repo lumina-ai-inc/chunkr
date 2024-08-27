@@ -74,8 +74,6 @@ pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::
         responses.push(body);
     }
 
-    println!("Produced {} items", items.len());
-
     Ok(responses.join("\n"))
 }
 
@@ -146,6 +144,5 @@ pub async fn complete(payloads: Vec<StatusPayload>) -> Result<String, Box<dyn st
     let body = response.text().await?;
     responses.push(body);
 
-    println!("All batches processed for {} items", payloads.len());
     Ok(responses.join("\n"))
 }

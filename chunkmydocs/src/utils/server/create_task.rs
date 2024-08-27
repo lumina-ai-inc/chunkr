@@ -24,10 +24,10 @@ fn is_valid_pdf(buffer: &[u8]) -> Result<bool, lopdf::Error> {
 async fn produce_extraction_payloads(
     extraction_payload: ExtractionPayload,
 ) -> Result<(), Box<dyn Error>> {
-    let document_extraction_queue = Config::from_env()?.extraction_queue;
+    let config = Config::from_env()?;
 
     let produce_payload = ProducePayload {
-        queue_name: document_extraction_queue.clone(),
+        queue_name: config.extraction_queue,
         publish_channel: None,
         payload: serde_json::to_value(extraction_payload).unwrap(),
         max_attempts: None,

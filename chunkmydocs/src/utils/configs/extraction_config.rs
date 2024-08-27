@@ -1,10 +1,7 @@
 use config::{ Config as ConfigTrait, ConfigError };
-use dotenvy::dotenv;
+use dotenvy::dotenv_override;
 use serde::{ Deserialize, Serialize };
-use std::sync::Once;
 use std::time::Duration;
-
-static INIT: Once = Once::new();
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -44,9 +41,7 @@ mod duration_seconds {
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
-        INIT.call_once(|| {
-            dotenv().ok();
-        });
+        dotenv_override().ok();
 
         ConfigTrait::builder()
             .add_source(config::Environment::default().prefix("EXTRACTION").separator("__"))
