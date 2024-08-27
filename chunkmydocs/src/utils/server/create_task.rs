@@ -80,9 +80,10 @@ pub async fn create_task(
     let mut client: Client = pool.get().await?;
     let config = Config::from_env()?;
     let expiration = config.task_expiration;
+    println!("expiration: {:?}", expiration.clone());
     let created_at: DateTime<Utc> = Utc::now();
     let expiration_time: Option<DateTime<Utc>> = expiration.map(|exp| Utc::now() + exp);
-
+    println!("expiration_time: {:?}", expiration_time.clone());
     let bucket_name = config.s3_bucket;
     let ingest_batch_size = config.batch_size;
     let base_url = config.base_url;
