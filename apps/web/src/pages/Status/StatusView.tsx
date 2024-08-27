@@ -100,7 +100,7 @@ export default function StatusView() {
             fill="var(--cyan-6)"
           />
         </svg>
-        <Text size="8" weight="medium" className="logo-title cyan-6">
+        <Text size="8" weight="medium" className="cyan-6">
           Chunk My Docs
         </Text>
       </Flex>
