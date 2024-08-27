@@ -72,18 +72,18 @@ def extract_and_annotate_dir(dir_path: str, model: Model, max_workers=4):
 
 if __name__ == "__main__":
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    dir_path = os.path.join(current_dir, "input")
+    dir_path = os.path.join(current_dir, "sample")
     model = Model.Fast
     extract_and_annotate_dir(dir_path, model)
 
-
     print("Running annotation on output files...")
     output_dir = os.path.join(current_dir, "output")
+    os.makedirs(output_dir, exist_ok=True)
     for subdir in os.listdir(output_dir):
         subdir_path = os.path.join(output_dir, subdir)
         if os.path.isdir(subdir_path):
             json_path = os.path.join(subdir_path, "bounding_boxes.json")
-            pdf_path = os.path.join(current_dir, "input", f"{subdir.split('-')[0]}.pdf")
+            pdf_path = os.path.join(dir_path, f"{subdir.split('-')[0]}.pdf")
             output_path = os.path.join(subdir_path, "annotated.pdf")
             
             if os.path.exists(json_path) and os.path.exists(pdf_path):
