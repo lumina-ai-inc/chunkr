@@ -23,7 +23,8 @@ mod duration_seconds {
     use std::time::Duration;
 
     pub fn serialize<S>(duration: &Option<Duration>, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer
+    where
+        S: Serializer,
     {
         match duration {
             Some(d) => serializer.serialize_u64(d.as_secs()),
@@ -32,10 +33,18 @@ mod duration_seconds {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Duration>, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
-        let seconds: Option<u64> = Option::deserialize(deserializer)?;
-        Ok(seconds.map(Duration::from_secs))
+        let value: Option<String> = Option::deserialize(deserializer)?;
+        match value {
+            Some(s) if !s.is_empty() => {
+                s.parse::<u64>()
+                    .map(|secs| Some(Duration::from_secs(secs)))
+                    .map_err(serde::de::Error::custom)
+            }
+            _ => Ok(None),
+        }
     }
 }
 
