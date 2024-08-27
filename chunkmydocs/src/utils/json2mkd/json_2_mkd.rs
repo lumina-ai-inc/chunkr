@@ -37,7 +37,6 @@ pub async fn chunk_and_add_markdown(
 
 fn generate_markdown(segments: &[Segment]) -> String {
     let mut markdown = String::new();
-    println!("test");
     for segment in segments {
         let segment_type = &segment.segment_type;
 
@@ -61,13 +60,8 @@ pub async fn process_bounding_boxes(
     file_path: &str,
     target_size: usize,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
-    println!("Processing file: {}", file_path);
     let file_content = tokio::fs::read_to_string(file_path).await?;
-    println!("File content loaded, length: {}", file_content.len());
-
     let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
-    println!("Parsed {} segments", segments.len());
-    println!("Segment types processed");
     chunk_and_add_markdown(segments, target_size).await
 }
 #[cfg(test)]
