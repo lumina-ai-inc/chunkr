@@ -1,6 +1,5 @@
 use crate::models::extraction::extract::ModelInternal;
-
-use super::extraction_config::Config;
+use crate::utils::configs::extraction_config::Config;
 use super::pdf::split_pdf;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde_json::Value;

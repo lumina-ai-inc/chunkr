@@ -1,4 +1,4 @@
-use super::extraction_config::Config;
+use crate::utils::configs::extraction_config::Config;
 use quick_xml::events::{BytesStart, Event};
 use quick_xml::reader::Reader;
 use quick_xml::writer::Writer;
