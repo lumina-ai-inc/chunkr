@@ -72,7 +72,7 @@ def extract_and_annotate_dir(dir_path: str, model: Model, max_workers=4):
 
 if __name__ == "__main__":
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    dir_path = os.path.join(current_dir, "sample")
+    dir_path = os.path.join(current_dir, "input")
     model = Model.Fast
     extract_and_annotate_dir(dir_path, model)
 

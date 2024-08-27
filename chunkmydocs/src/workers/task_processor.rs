@@ -23,10 +23,6 @@ pub async fn log_task(
     finished_at: Option<String>,
     pool: &Pool,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    println!("Prepared status: {:?}", status);
-    println!("Prepared task_id: {}", task_id);
-    println!("Prepared file_id: {}", file_id);
-
     let client: Client = pool.get().await?;
 
     let task_query = format!(
