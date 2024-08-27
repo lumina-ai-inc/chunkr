@@ -16,8 +16,7 @@ where
     F: Fn(QueuePayload) -> Fut + Sync + 'static,
     Fut: std::future::Future<Output = Result<(), Box<dyn std::error::Error>>>,
 {
-    let result = health().await?;
-    println!("Health check result: {}", result);
+    let _ = health().await?;
 
     let consumer_payload = ConsumePayload {
         consumer_id: uuid::Uuid::new_v4().to_string(),
@@ -25,11 +24,6 @@ where
         item_count,
         expiration_seconds: Some(expiration_seconds),
     };
-
-    println!(
-        "Starting consumer with id: {}",
-        consumer_payload.consumer_id
-    );
 
     loop {
         let consume_payloads: Vec<ConsumeResponse> = consume(consumer_payload.clone()).await?;
@@ -49,13 +43,7 @@ where
                 message: None,
             };
 
-            println!(
-                "Processing queue item: {}",
-                consume_payload.queue_item.item_id
-            );
-
             let mut payloads = Vec::new();
-            println!("Processing queue item2");
             match process_fn(consume_payload.queue_item).await {
                 Ok(_) => {
                     status_payload.result = StatusResult::Success;
@@ -68,8 +56,6 @@ where
             }
             payloads.push(status_payload);
 
-            println!("Payloads: {:?}", payloads);
-
             match complete(payloads.clone()).await {
                 Ok(_) => (),
                 Err(e) => {
@@ -77,7 +63,6 @@ where
                     payloads.iter_mut().for_each(|p| {
                         p.result = StatusResult::Success;
                     });
-                    // Retry once
                     match complete(payloads).await {
                         Ok(_) => println!("Retry successful"),
                         Err(retry_e) => println!("Retry failed: {}", retry_e),

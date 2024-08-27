@@ -9,9 +9,7 @@ pub async fn create_api_key(
     request_payload: web::Json<ApiRequest>,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, Error> {
-    println!("Creating API key");
     let request = request_payload.into_inner();
-    println!("Creating API key: {:?}", request);
     match create_api_key_query(request, &pool).await {
         Ok(new_key) => Ok(HttpResponse::Ok().json(new_key)),
         Err(e) => {
@@ -25,10 +23,7 @@ pub async fn create_api_key_query(
     request: ApiRequest,
     pool: &Pool,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    println!("start");
-
     let mut pg_client: Client = pool.get().await?;
-    println!("pg");
 
     let existing_key_query = r#"
     SELECT key FROM api_users WHERE email = $1 AND key IS NOT NULL AND key != ''
@@ -43,7 +38,6 @@ pub async fn create_api_key_query(
     }
 
     let service_type = request.service_type.unwrap_or(ServiceType::EXTRACTION);
-    println!("service type");
 
     let controller = PrefixedApiKeyController::configure()
         .prefix("lu".to_owned())
