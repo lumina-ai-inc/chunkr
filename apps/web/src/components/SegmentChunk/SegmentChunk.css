@@ -118,6 +118,46 @@ p {
 .AccordionTrigger[data-state="open"] .AccordionChevron {
   transform: rotate(180deg);
 }
+
+.segment-badge {
+  border-width: 1px;
+  border-style: solid;
+}
+
+.segment-badge.text {
+  border-color: var(--teal-10);
+}
+.segment-badge.table {
+  border-color: var(--orange-9);
+}
+.segment-badge.title {
+  border-color: var(--amber-8);
+}
+.segment-badge.picture {
+  border-color: var(--pink-10);
+}
+.segment-badge.formula {
+  border-color: var(--cyan-8);
+}
+.segment-badge.caption {
+  border-color: var(--jade-10);
+}
+.segment-badge.footnote {
+  border-color: var(--pink-10);
+}
+.segment-badge.list-item {
+  border-color: var(--bronze-10);
+}
+.segment-badge.page-footer {
+  border-color: var(--red-12);
+}
+.segment-badge.page-header {
+  border-color: var(--violet-8);
+}
+.segment-badge.section-header {
+  border-color: var(--yellow-7);
+}
+
 @keyframes slideDown {
   from {
     height: 0;
