@@ -6,7 +6,7 @@ use crate::models::{
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::rrq::service::produce;
-use crate::utils::storage::services::upload_to_s3;
+use crate::utils::storage::services::{upload_to_s3, generate_presigned_url};
 use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
@@ -72,14 +72,14 @@ pub async fn create_task(
         };
 
         let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
-        let s3_path = format!(
+        let input_location = format!(
             "s3://{}/{}/{}/{}/{}",
             bucket_name, user_id, task_id, file_id, file_name
         );
         let output_extension = model.get_extension();
-        let output_s3_path = s3_path.replace(".pdf", &format!(".{}", output_extension));
+        let output_location = input_location.replace(".pdf", &format!(".{}", output_extension));
 
-        match upload_to_s3(s3_client, &s3_path, file.file.path()).await {
+        match upload_to_s3(s3_client, &input_location, file.file.path()).await {
             Ok(_) => {
                 let tx = client.transaction().await?;
 
@@ -114,8 +114,8 @@ pub async fn create_task(
                         &page_count,
                         &created_at,
                         &Status::Starting.to_string(),
-                        &s3_path,
-                        &output_s3_path,
+                        &input_location,
+                        &output_location,
                         &model.to_string(),
                     ]
                 ).await?;
@@ -124,8 +124,8 @@ pub async fn create_task(
 
                 let extraction_payload = ExtractionPayload {
                     model: model.clone(),
-                    input_location: s3_path,
-                    output_location: output_s3_path,
+                    input_location: input_location.clone(),
+                    output_location,
                     expiration: None,
                     batch_size: Some(ingest_batch_size),
                     file_id,
@@ -134,13 +134,22 @@ pub async fn create_task(
 
                 produce_extraction_payloads(extraction_payload).await?;
 
+                let input_file_url = match generate_presigned_url(s3_client, &input_location, None).await {
+                    Ok(response) => Some(response),
+                    Err(e) => {
+                        println!("Error getting input file url: {}", e);
+                        return Err("Error getting input file url".into());
+                    }
+                };
+
                 Ok(TaskResponse {
                     task_id: task_id.clone(),
                     status: Status::Starting,
                     created_at,
                     finished_at: None,
                     expiration_time,
-                    file_url: None,
+                    output_file_url: None,
+                    input_file_url,
                     task_url: Some(task_url),
                     message: "Task queued".to_string(),
                     model: model.to_external(),
