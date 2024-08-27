@@ -2,8 +2,9 @@ import { Progress, Text, Flex, Code } from "@radix-ui/themes";
 import "./Statusview.css";
 import { TaskResponse, Status } from "../../models/task.model";
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { checkTaskStatus } from "../../services/chunkMyDocs";
+import Loader from "../Loader/Loader";
 
 export default function StatusView() {
   const [searchParams] = useSearchParams();
@@ -65,12 +66,48 @@ export default function StatusView() {
     }
   }, [searchParams, navigate]);
 
+  const handleRetry = () => {
+    navigate("/");
+  };
+
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100vw",
+        }}
+      >
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <div
+            style={{
+              color: "var(--red-9)",
+              padding: "8px 12px",
+              border: "2px solid var(--red-12)",
+              borderRadius: "4px",
+              backgroundColor: "var(--red-7)",
+              cursor: "pointer",
+              transition: "background-color 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = "var(--red-8)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "var(--red-7)")
+            }
+          >
+            {error}
+          </div>
+        </Link>
+      </div>
+    );
   }
 
   if (!task) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (
@@ -80,11 +117,19 @@ export default function StatusView() {
         style={{ height: "88px", borderRadius: "0px", color: "var(--cyan-3)" }}
       />
       <Flex direction="column" gap="4" className="status-title">
-        <Flex direction="column" className="status-title-badge">
-          <Text size="6" weight="medium" className="cyan-2 ">
-            {task.model}
-          </Text>
-        </Flex>
+        {task.status === Status.Failed ? (
+          <Flex className="retry-button" onClick={handleRetry}>
+            <Text size="6" weight="medium">
+              Retry
+            </Text>
+          </Flex>
+        ) : (
+          <Flex direction="column" className="status-title-badge">
+            <Text size="6" weight="medium" className="cyan-2">
+              {task.model}
+            </Text>
+          </Flex>
+        )}
         <Text
           size="9"
           weight="bold"
