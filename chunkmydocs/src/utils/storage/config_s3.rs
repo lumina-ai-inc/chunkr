@@ -28,7 +28,6 @@ pub async fn create_client() -> Result<Client, ConfigError> {
     let creds = Credentials::from_keys(config.access_key, config.secret_key, None);
     let config_region = config.region.unwrap_or_else(|| "us-west-1".to_string());
     let aws_config = if let Some(endpoint) = config.endpoint {
-        println!("endpoint: {:?}", endpoint.clone());
         S3Config::builder()
             .credentials_provider(creds)
             .region(Region::new(config_region))
