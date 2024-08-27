@@ -50,3 +50,25 @@ CREATE TABLE IF NOT EXISTS INGESTION_FILES (
     model TEXT,
     FOREIGN KEY (task_id) REFERENCES INGESTION_TASKS(task_id) ON DELETE CASCADE
 );
+
+-- Add a unique constraint to the api_key_usage table
+ALTER TABLE public.api_key_usage
+ADD CONSTRAINT api_key_usage_unique UNIQUE (api_key, usage_type, service);
+
+CREATE OR REPLACE FUNCTION update_api_key_usage() RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'INSERT') OR (TG_OP = 'UPDATE' AND NEW.status = 'Succeeded') THEN
+        INSERT INTO public.api_key_usage (api_key, usage, usage_type, service)
+        VALUES (NEW.api_key, NEW.total_pages, 'FREE', 'EXTRACTION')
+        ON CONFLICT (api_key, usage_type, service)
+        DO UPDATE SET usage = public.api_key_usage.usage + EXCLUDED.usage;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to update API key usage after inserting or updating an ingestion task
+CREATE TRIGGER update_api_key_usage_trigger
+AFTER INSERT OR UPDATE ON INGESTION_TASKS
+FOR EACH ROW
+EXECUTE FUNCTION update_api_key_usage();

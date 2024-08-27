@@ -6,13 +6,42 @@ use crate::models::{
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::rrq::service::produce;
-use crate::utils::storage::services::{upload_to_s3, generate_presigned_url};
+use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
 use lopdf::Document;
 use std::error::Error;
 use uuid::Uuid;
+
+async fn validate_usage(
+    client: &Client,
+    api_key: &String,
+    page_count: i32,
+) -> Result<(), Box<dyn Error>> {
+    // Check current usage and limit
+    let usage_row = client.query_one(
+        "SELECT COALESCE(SUM(usage), 0) as total_usage FROM public.api_key_usage WHERE api_key = $1 AND usage_type = 'FREE' AND service = 'EXTRACTION'",
+        &[&api_key]
+    ).await?;
+    let current_usage: i64 = usage_row.get("total_usage");
+
+    let limit_row = client.query_opt(
+        "SELECT usage_limit FROM public.api_key_limit WHERE api_key = $1 AND usage_type = 'FREE' AND service = 'EXTRACTION' LIMIT 1",
+        &[&api_key]
+    ).await?;
+    let usage_limit: i32 = limit_row.map(|row| row.get("usage_limit")).unwrap_or(0);
+
+    if current_usage + i64::from(page_count) > i64::from(usage_limit) {
+        let exceeded_by = (current_usage + i64::from(page_count)) - i64::from(usage_limit);
+        return Err(Box::new(actix_web::error::ErrorTooManyRequests(format!(
+            "Adding a task with {} pages would exceed the usage limit of {} pages by {} pages.",
+            page_count, usage_limit, exceeded_by
+        ))));
+    }
+
+    Ok(())
+}
 
 fn is_valid_pdf(buffer: &[u8]) -> Result<bool, lopdf::Error> {
     match Document::load_mem(buffer) {
@@ -70,6 +99,8 @@ pub async fn create_task(
                 return Err("Unable to count pages".into());
             }
         };
+
+        validate_usage(&client, &api_key, page_count).await?;
 
         let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
         let input_location = format!(
@@ -134,13 +165,14 @@ pub async fn create_task(
 
                 produce_extraction_payloads(extraction_payload).await?;
 
-                let input_file_url = match generate_presigned_url(s3_client, &input_location, None).await {
-                    Ok(response) => Some(response),
-                    Err(e) => {
-                        println!("Error getting input file url: {}", e);
-                        return Err("Error getting input file url".into());
-                    }
-                };
+                let input_file_url =
+                    match generate_presigned_url(s3_client, &input_location, None).await {
+                        Ok(response) => Some(response),
+                        Err(e) => {
+                            println!("Error getting input file url: {}", e);
+                            return Err("Error getting input file url".into());
+                        }
+                    };
 
                 Ok(TaskResponse {
                     task_id: task_id.clone(),
