@@ -45,6 +45,11 @@
   position: absolute;
   bottom: 74px;
   left: 80px;
+  cursor: auto;
+}
+
+.logo-title:hover {
+  color: inherit;
 }
 
 @keyframes pulse {
