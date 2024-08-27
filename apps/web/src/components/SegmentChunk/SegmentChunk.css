@@ -98,7 +98,7 @@ p {
   border-top: none;
   color: var(--cyan-11);
   background-color: #061d23;
-  height: 416px;
+  height: 480px;
 }
 .AccordionContent[data-state="open"] {
   animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
