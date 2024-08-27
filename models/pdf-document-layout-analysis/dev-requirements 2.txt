@@ -1,4 +1,0 @@
--r requirements.txt
-pytest==8.2.2
-black==24.4.2
-pip-upgrader==1.4.15

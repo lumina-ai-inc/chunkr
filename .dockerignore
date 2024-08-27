@@ -33,3 +33,5 @@ Cargo.lock
 .lh
 
 .venv
+
+*secret.yaml
