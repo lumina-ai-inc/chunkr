@@ -69,7 +69,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         file_id.clone(),
         Status::Processing,
         Some(format!(
-            "Task processing | Retry ({}/{})",
+            "Task processing | Tries ({}/{})",
             payload.attempt, payload.max_attempts
         )),
         None,
@@ -128,7 +128,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
     .await;
 
     match result {
-        Ok(_) => {
+        Ok(_) => n{
             log_task(
                 task_id.clone(),
                 file_id.clone(),
@@ -138,7 +138,6 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                 &pg_pool,
             )
             .await?;
-            println!("Task succeeded");
             Ok(())
         }
         Err(e) => {
@@ -148,12 +147,11 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                     task_id.clone(),
                     file_id.clone(),
                     Status::Failed,
-                    Some(e.to_string()),
+                    Some("Task failed".to_string()),
                     Some(Utc::now().to_string()),
                     &pg_pool,
                 )
                 .await?;
-                println!("Task failed");
             }
             Err(e)
         }
