@@ -142,7 +142,7 @@ pub async fn create_task(
                     expiration_time,
                     file_url: None,
                     task_url: Some(task_url),
-                    message: "Extraction started".to_string(),
+                    message: "Task queued".to_string(),
                     model: model.to_external(),
                 })
             }
