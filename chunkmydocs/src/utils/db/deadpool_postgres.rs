@@ -4,6 +4,8 @@ use deadpool_postgres::{Config as PgConfig, Runtime};
 use dotenvy::dotenv;
 use serde::Deserialize;
 pub use tokio_postgres::{Error, NoTls};
+use tokio_postgres::config::SslMode;
+use tokio_postgres_rustls::{MakeRustlsConnect, RustlsConfig};
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -23,7 +25,13 @@ pub fn create_pool() -> Pool {
     dotenv().ok();
     let cfg = Config::from_env().unwrap();
 
-    cfg.pg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap()
+    // cfg.pg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap()
+     // Create a RustlsConfig
+     let rustls_config = RustlsConfig::default();
+     let tls = MakeRustlsConnect::new(rustls_config);
+ 
+     // Update the pool creation to use SSL
+     cfg.pg.create_pool(Some(Runtime::Tokio1), tls).unwrap()
 }
 
 #[cfg(test)]
