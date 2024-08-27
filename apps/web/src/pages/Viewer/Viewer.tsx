@@ -5,6 +5,7 @@ import { PDF } from "../../components/PDF/PDF";
 import Header from "../../components/Header/Header";
 import boundingBoxes from "../../../bounding_boxes.json";
 import { BoundingBoxes, Chunk } from "../../models/chunk.model";
+import { retrieveFileContent } from "../../services/chunkMyDocs";
 import "./Viewer.css";
 
 export const Viewer = () => {
@@ -13,6 +14,7 @@ export const Viewer = () => {
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
   const [pdfWidth, setPdfWidth] = useState<number>(50); // Initial width percentage
   const isDraggingRef = useRef<boolean>(false);
+  const [pdfContent, setPdfContent] = useState<string | null>(null);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -29,6 +31,23 @@ export const Viewer = () => {
       window.removeEventListener("resize", updateWidth);
     };
   }, [pdfWidth]);
+
+  useEffect(() => {
+    const fetchPdfContent = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const fileUrl = urlParams.get("file_url");
+      if (fileUrl) {
+        try {
+          const content = await retrieveFileContent(fileUrl);
+          setPdfContent(content);
+        } catch (error) {
+          console.error("Error fetching PDF content:", error);
+        }
+      }
+    };
+
+    fetchPdfContent();
+  }, []);
 
   const handleMouseDown = () => {
     isDraggingRef.current = true;
@@ -51,6 +70,12 @@ export const Viewer = () => {
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
+
+  if (!pdfContent) {
+    return <div>Loading...</div>;
+  }
+
+  console.log(pdfContent);
 
   return (
     <Flex direction="column" width="100%">
@@ -76,7 +101,7 @@ export const Viewer = () => {
           }}
           ref={scrollAreaRef}
         >
-          <PDF />
+          <PDF content={pdfContent} />
           <div
             style={{
               position: "absolute",

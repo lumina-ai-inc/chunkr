@@ -7,7 +7,6 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   const url = `${hostname}/api/task`;
   const apiKey = `${key}`;
 
-  console.log("API Payload:", payload);
   const formData = new FormData();
   for (const [key, value] of Object.entries(payload)) {
     if (value instanceof File) {
@@ -30,7 +29,7 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   }
 
   const data = await response.json();
-  console.log("API Response:", data);
+
   return data;
 }
 
@@ -51,13 +50,13 @@ export async function getTask(taskId: string): Promise<TaskResponse> {
   }
 
   const data = await response.json();
-  console.log("API Status Response:", data);
+
   return data;
 }
 
 export async function getFile(fileUrl: string): Promise<string> {
   const url = `${fileUrl}`;
-  console.log("File URL:", url);
+
   const response = await fetch(url, {
     method: "GET",
   });
@@ -67,6 +66,6 @@ export async function getFile(fileUrl: string): Promise<string> {
   }
 
   const data = await response.json();
-  console.log("File Data:", data);
+
   return data;
 }

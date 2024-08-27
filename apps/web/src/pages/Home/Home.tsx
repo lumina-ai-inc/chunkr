@@ -80,13 +80,13 @@ export const Home = () => {
                     </Text>
                   </Flex>
                 </a>
-                <Flex direction="row" gap="24px">
+                <Flex direction="row" gap="16px">
                   <a
                     href="https://github.com/skeptrunedev"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Flex height="40px" width="40px" className="credit-dp">
+                    <Flex height="32px" width="32px" className="credit-dp">
                       <img
                         src="src/assets/Nick.jpeg"
                         alt="Nick from Trieve"
@@ -99,7 +99,7 @@ export const Home = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Flex height="40px" width="40px" className="credit-dp">
+                    <Flex height="32px" width="32px" className="credit-dp">
                       <img
                         src="src/assets/Denzell.png"
                         alt="Denzell from Trieve"

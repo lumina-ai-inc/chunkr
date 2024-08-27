@@ -1,20 +1,22 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Upload from "./Upload";
 import "./UploadMain.css";
 import BetterButton from "../BetterButton/BetterButton";
 import { Model, UploadForm } from "../../models/upload.model";
-import { processFileUpload } from "../../services/chunkMyDocs";
+import { uploadFileStep } from "../../services/chunkMyDocs";
 
 export default function UploadMain() {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
   const [model, setModel] = useState<Model>(Model.Fast);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleFileUpload = (uploadedFile: File) => {
     setFile(uploadedFile);
     setFileName(uploadedFile.name);
-    console.log("Uploaded file:", uploadedFile);
   };
 
   const handleFileRemove = () => {
@@ -32,14 +34,24 @@ export default function UploadMain() {
       return;
     }
 
+    setIsLoading(true);
     const payload: UploadForm = {
       file,
       model,
     };
     console.log("Component Payload:", payload);
 
-    const fileContent = await processFileUpload(payload);
-    console.log("File Content:", fileContent);
+    try {
+      const taskResponse = await uploadFileStep(payload);
+      console.log("Task Response:", taskResponse);
+      // Navigate to the StatusView page with the task ID as a search parameter
+      navigate(`/status?taskId=${taskResponse.task_id}`);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      // Handle error (e.g., show an error message to the user)
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -85,9 +97,13 @@ export default function UploadMain() {
         </Flex>
       </Flex>
       <Flex direction="row" width="100%" mt="32px">
-        <BetterButton padding="16px 64px" onClick={handleRun} active={!!file}>
+        <BetterButton
+          padding="16px 64px"
+          onClick={handleRun}
+          active={!!file && !isLoading}
+        >
           <Text size="4" weight="medium">
-            Run
+            {isLoading ? "Uploading..." : "Run"}
           </Text>
         </BetterButton>
       </Flex>

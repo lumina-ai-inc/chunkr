@@ -1,32 +1,88 @@
 import { Progress, Text, Flex, Code } from "@radix-ui/themes";
 import "./Statusview.css";
 import { TaskResponse, Status } from "../../models/task.model";
-import { Model } from "../../models/upload.model";
-
-// Dummy TaskResponse object
-const dummyTask: TaskResponse = {
-  task_id: "wedgd-fgfhgsbbskka-ahddd",
-  status: Status.Processing,
-  created_at: new Date("2024-05-01T12:00:00Z"),
-  finished_at: null,
-  expiration_time: new Date("2024-05-01T13:00:00Z"),
-  message: "Retrying...",
-  file_url: null,
-  task_url: null,
-  model: Model.Fast,
-};
+import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { checkTaskStatus } from "../../services/chunkMyDocs";
 
 export default function StatusView() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [task, setTask] = useState<TaskResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [progressValue, setProgressValue] = useState(0);
+
+  useEffect(() => {
+    const taskId = searchParams.get("taskId");
+    if (taskId) {
+      const fetchTaskStatus = async () => {
+        try {
+          const taskResponse = await checkTaskStatus(taskId);
+          setTask(taskResponse);
+
+          // Calculate progress value based on task status
+          let progress = 0;
+          switch (taskResponse.status) {
+            case Status.Starting:
+              progress = 10;
+              break;
+            case Status.Processing:
+              progress = 50;
+              break;
+            case Status.Succeeded:
+            case Status.Failed:
+              progress = 95;
+              break;
+          }
+          setProgressValue(progress);
+
+          if (taskResponse.status === Status.Succeeded) {
+            // Navigate to Viewer.tsx with file_url as a search parameter
+            navigate(
+              `/viewer?file_url=${encodeURIComponent(taskResponse.file_url || "")}`
+            );
+            return true; // Signal to stop the interval
+          } else if (taskResponse.status === Status.Failed) {
+            return true; // Signal to stop the interval
+          }
+        } catch (error) {
+          console.error("Error fetching task data:", error);
+          setError("Failed to fetch task status. Please try again later.");
+          return true; // Signal to stop the interval on error
+        }
+        return false; // Continue polling
+      };
+
+      const pollInterval = setInterval(async () => {
+        const shouldStop = await fetchTaskStatus();
+        if (shouldStop) {
+          clearInterval(pollInterval);
+        }
+      }, 1000); // Poll every 1 second
+
+      // Clear the interval when the component unmounts
+      return () => clearInterval(pollInterval);
+    }
+  }, [searchParams, navigate]);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!task) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Flex direction="column">
       <Progress
-        value={50}
+        value={progressValue}
         style={{ height: "88px", borderRadius: "0px", color: "var(--cyan-3)" }}
       />
       <Flex direction="column" gap="4" className="status-title">
         <Flex direction="column" className="status-title-badge">
           <Text size="6" weight="medium" className="cyan-2 ">
-            {dummyTask.model}
+            {task.model}
           </Text>
         </Flex>
         <Text
@@ -35,12 +91,12 @@ export default function StatusView() {
           className="pulsing-text status-title-text"
           trim="both"
         >
-          {dummyTask.status}
+          {task.status}
         </Text>
       </Flex>
       <Flex direction="column" gap="48px" className="message-container">
         <Code size="5" weight="medium">
-          {dummyTask.message}
+          {task.message}
         </Code>
       </Flex>
       <Flex direction="column" gap="48px" className="status-items">
@@ -54,7 +110,7 @@ export default function StatusView() {
             Task ID
           </Text>
           <Text size="4" weight="regular" className="cyan-8" trim="both">
-            {dummyTask.task_id}
+            {task.task_id}
           </Text>
         </Flex>
         <Flex direction="row" gap="4" className="status-item" wrap="wrap">
@@ -67,7 +123,7 @@ export default function StatusView() {
             Created
           </Text>
           <Text size="4" weight="regular" className="cyan-8" trim="both">
-            {dummyTask.created_at.toLocaleString()}
+            {task.created_at.toLocaleString()}
           </Text>
         </Flex>
         <Flex direction="row" gap="4" className="status-item" wrap="wrap">
@@ -80,7 +136,7 @@ export default function StatusView() {
             Expires
           </Text>
           <Text size="4" weight="regular" className="cyan-8" trim="both">
-            {dummyTask.expiration_time?.toLocaleString() || "N/A"}
+            {task.expiration_time?.toLocaleString() || "N/A"}
           </Text>
         </Flex>
       </Flex>

@@ -68,7 +68,7 @@
   animation: pulse 3s infinite;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1064px) {
   .status-title {
     position: absolute;
     bottom: 80px;
@@ -84,7 +84,7 @@
     align-self: flex-start;
   }
 
-  .logo {
+  .logo-status {
     display: none;
   }
 
