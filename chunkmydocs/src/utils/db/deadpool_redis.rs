@@ -4,7 +4,7 @@ pub use deadpool_redis::{
     Connection, Pool,
 };
 use deadpool_redis::{Config as RedisConfig, Runtime};
-use dotenvy::dotenv;
+use dotenvy::dotenv_override;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -14,6 +14,7 @@ struct Config {
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
+        dotenv_override().ok();
         ConfigTrait::builder()
             .add_source(config::Environment::default().separator("__"))
             .build()?
@@ -22,7 +23,6 @@ impl Config {
 }
 
 pub fn create_pool() -> Pool {
-    dotenv().ok();
     let cfg = Config::from_env().unwrap();
     cfg.redis.create_pool(Some(Runtime::Tokio1)).unwrap()
 }

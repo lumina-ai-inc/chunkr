@@ -1,9 +1,6 @@
 use config::{Config as ConfigTrait, ConfigError};
-use dotenvy::dotenv;
+use dotenvy::dotenv_override;
 use serde::Deserialize;
-use std::sync::Once;
-
-static INIT: Once = Once::new();
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Config {
@@ -17,9 +14,7 @@ pub struct Config {
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
-        INIT.call_once(|| {
-            dotenv().ok();
-        });
+        dotenv_override().ok();
 
         ConfigTrait::builder()
             .add_source(
