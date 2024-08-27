@@ -32,7 +32,10 @@ export const SegmentChunk = ({
 
   const segmentTypeBadges = useMemo(() => {
     return Object.entries(segmentTypeCounts).map(([type, count]) => (
-      <Badge key={type}>
+      <Badge
+        key={type}
+        className={`segment-badge ${type.toLowerCase().replace(" ", "-")}`}
+      >
         <Text size="1" weight="medium" className="cyan-4">
           {`${type} x${count}`}
         </Text>

@@ -3,18 +3,16 @@ import { Flex, ScrollArea } from "@radix-ui/themes";
 import { SegmentChunk } from "../../components/SegmentChunk/SegmentChunk";
 import { PDF } from "../../components/PDF/PDF";
 import Header from "../../components/Header/Header";
-import boundingBoxes from "../../../bounding_boxes.json";
-import { BoundingBoxes, Chunk } from "../../models/chunk.model";
+import { Chunk } from "../../models/chunk.model";
 import { retrieveFileContent } from "../../services/chunkMyDocs";
 import "./Viewer.css";
 
 export const Viewer = () => {
-  const typedBoundingBoxes: BoundingBoxes = boundingBoxes as BoundingBoxes;
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
   const [pdfWidth, setPdfWidth] = useState<number>(50); // Initial width percentage
   const isDraggingRef = useRef<boolean>(false);
-  const [pdfContent, setPdfContent] = useState<string | null>(null);
+  const [pdfContent, setPdfContent] = useState<Chunk[]>([]);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -126,7 +124,7 @@ export const Viewer = () => {
           }}
         >
           <Flex width="70%" height="100%" direction="column" p="24px" gap="9">
-            {typedBoundingBoxes.map((chunk: Chunk, index: number) => (
+            {pdfContent.map((chunk: Chunk, index: number) => (
               <SegmentChunk
                 key={index}
                 chunk={chunk}
