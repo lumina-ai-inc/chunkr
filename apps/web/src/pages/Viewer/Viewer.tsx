@@ -5,7 +5,9 @@ import { PDF } from "../../components/PDF/PDF";
 import Header from "../../components/Header/Header";
 import { Chunk } from "../../models/chunk.model";
 import { retrieveFileContent } from "../../services/chunkMyDocs";
+import { Link } from "react-router-dom";
 import "./Viewer.css";
+import Loader from "../Loader/Loader";
 
 export const Viewer = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -13,6 +15,35 @@ export const Viewer = () => {
   const [pdfWidth, setPdfWidth] = useState<number>(50); // Initial width percentage
   const isDraggingRef = useRef<boolean>(false);
   const [pdfContent, setPdfContent] = useState<Chunk[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPdfContent = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const fileUrl = urlParams.get("file_url");
+      if (fileUrl) {
+        try {
+          setIsLoading(true);
+          const content = await retrieveFileContent(fileUrl);
+          setPdfContent(content);
+          setIsLoading(false);
+        } catch (error) {
+          console.error(error);
+          if (String(error).includes("403")) {
+            setError(
+              "Timeout Error: Failed to fetch file - try uploading again"
+            );
+          } else {
+            setError(`${error}`);
+          }
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchPdfContent();
+  }, []);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -29,23 +60,6 @@ export const Viewer = () => {
       window.removeEventListener("resize", updateWidth);
     };
   }, [pdfWidth]);
-
-  useEffect(() => {
-    const fetchPdfContent = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const fileUrl = urlParams.get("file_url");
-      if (fileUrl) {
-        try {
-          const content = await retrieveFileContent(fileUrl);
-          setPdfContent(content);
-        } catch (error) {
-          console.error("Error fetching PDF content:", error);
-        }
-      }
-    };
-
-    fetchPdfContent();
-  }, []);
 
   const handleMouseDown = () => {
     isDraggingRef.current = true;
@@ -123,14 +137,50 @@ export const Viewer = () => {
             width: `${100 - pdfWidth}%`,
           }}
         >
-          <Flex width="70%" height="100%" direction="column" p="24px" gap="9">
-            {pdfContent.map((chunk: Chunk, index: number) => (
-              <SegmentChunk
-                key={index}
-                chunk={chunk}
-                containerWidth={scrollAreaWidth}
-              />
-            ))}
+          <Flex
+            width="100%"
+            height="100%"
+            direction="column"
+            p="24px"
+            gap="9"
+            align="center"
+            justify="center"
+          >
+            {isLoading ? (
+              <Loader />
+            ) : error ? (
+              <Link to="/" style={{ textDecoration: "none" }}>
+                <div
+                  style={{
+                    color: "var(--red-9)",
+                    padding: "8px 12px",
+                    border: "2px solid var(--red-12)",
+                    borderRadius: "4px",
+                    backgroundColor: "var(--red-7)",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s ease",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "var(--red-8)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "var(--red-7)")
+                  }
+                >
+                  {error}
+                </div>
+              </Link>
+            ) : pdfContent.length === 0 ? (
+              <div>No content available for this PDF.</div>
+            ) : (
+              pdfContent.map((chunk: Chunk, index: number) => (
+                <SegmentChunk
+                  key={index}
+                  chunk={chunk}
+                  containerWidth={scrollAreaWidth}
+                />
+              ))
+            )}
           </Flex>
         </ScrollArea>
       </Flex>
