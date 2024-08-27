@@ -11,7 +11,6 @@ spec:
       app.kubernetes.io/name: task-processor
   template:
     metadata:
-      namespace: chunkmydocs
       labels:
         app.kubernetes.io/name: task-processor
       annotations:
