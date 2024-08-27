@@ -74,7 +74,7 @@ pub async fn create_api_key_query(
     let api_key_limit = ApiKeyLimit {
         id: None,
         api_key: key.clone(),
-        usage_limit: request.usage_limit,
+        usage_limit: Some(100 as i32),
         usage_type: request.usage_type,
         created_at: Some(Utc::now()),
         service_type: Some(service_type),
