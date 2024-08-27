@@ -6,6 +6,7 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
+import StatusView from "./pages/Status/StatusView.tsx";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
   {
     path: "/viewer",
     element: <Viewer />,
+  },
+  {
+    path: "/status",
+    element: <StatusView />,
   },
 ]);
 
