@@ -2,11 +2,8 @@ use aws_credential_types::Credentials;
 use aws_sdk_s3::config::Region;
 use aws_sdk_s3::{Client, Config as S3Config};
 use config::{Config as ConfigTrait, ConfigError};
-use dotenvy::dotenv;
+use dotenvy::dotenv_override;
 use serde::Deserialize;
-use std::sync::Once;
-
-static INIT: Once = Once::new();
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -18,10 +15,7 @@ pub struct Config {
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
-        INIT.call_once(|| {
-            dotenv().ok();
-        });
-
+        dotenv_override().ok();
         ConfigTrait::builder()
             .add_source(config::Environment::default().prefix("AWS").separator("__"))
             .build()?
@@ -34,6 +28,7 @@ pub async fn create_client() -> Result<Client, ConfigError> {
     let creds = Credentials::from_keys(config.access_key, config.secret_key, None);
     let config_region = config.region.unwrap_or_else(|| "us-west-1".to_string());
     let aws_config = if let Some(endpoint) = config.endpoint {
+        println!("endpoint: {:?}", endpoint.clone());
         S3Config::builder()
             .credentials_provider(creds)
             .region(Region::new(config_region))
