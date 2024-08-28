@@ -159,19 +159,21 @@ export default function StatusView() {
             {task?.created_at.toLocaleString()}
           </Text>
         </Flex>
-        <Flex direction="row" gap="4" className="status-item" wrap="wrap">
-          <Text
-            size="8"
-            weight="bold"
-            className="cyan-4 status-item-title"
-            trim="both"
-          >
-            Expires
-          </Text>
-          <Text size="4" weight="regular" className="cyan-8" trim="both">
-            {task?.expiration_time?.toLocaleString() || "N/A"}
-          </Text>
-        </Flex>
+        {task?.expiration_time && (
+          <Flex direction="row" gap="4" className="status-item" wrap="wrap">
+            <Text
+              size="8"
+              weight="bold"
+              className="cyan-4 status-item-title"
+              trim="both"
+            >
+              Expires
+            </Text>
+            <Text size="4" weight="regular" className="cyan-8" trim="both">
+              {task?.expiration_time?.toLocaleString() || "N/A"}
+            </Text>
+          </Flex>
+        )}
       </Flex>
       <Flex className="logo-status" direction="row" gap="4" align="center">
         <svg
