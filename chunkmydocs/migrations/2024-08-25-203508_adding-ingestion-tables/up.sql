@@ -55,13 +55,32 @@ CREATE TABLE IF NOT EXISTS INGESTION_FILES (
 ALTER TABLE public.api_key_usage
 ADD CONSTRAINT api_key_usage_unique UNIQUE (api_key, usage_type, service);
 
+-- Add a unique constraint to the api_users table
+ALTER TABLE public.api_users
+ADD CONSTRAINT api_users_unique UNIQUE (key, user_id);
+
 CREATE OR REPLACE FUNCTION update_api_key_usage() RETURNS TRIGGER AS $$
+DECLARE
+    v_user_id TEXT;
 BEGIN
     IF (TG_OP = 'INSERT') OR (TG_OP = 'UPDATE' AND NEW.status = 'Succeeded') THEN
+        -- Get the user_id for the given api_key
+        SELECT user_id INTO v_user_id FROM public.api_keys WHERE key = NEW.api_key;
+
+        -- Update api_key_usage table
         INSERT INTO public.api_key_usage (api_key, usage, usage_type, service)
         VALUES (NEW.api_key, NEW.total_pages, 'FREE', 'EXTRACTION')
         ON CONFLICT (api_key, usage_type, service)
         DO UPDATE SET usage = public.api_key_usage.usage + EXCLUDED.usage;
+
+        -- Update api_users table
+        INSERT INTO public.api_users (key, user_id, usage_type, usage_limit, service)
+        VALUES (NEW.api_key, v_user_id, 'FREE', NEW.total_pages, 'EXTRACTION')
+        ON CONFLICT (key, user_id)
+        DO UPDATE SET 
+            usage_limit = public.api_users.usage_limit + EXCLUDED.usage_limit,
+            usage_type = EXCLUDED.usage_type,
+            service = EXCLUDED.service;
     END IF;
     RETURN NEW;
 END;
