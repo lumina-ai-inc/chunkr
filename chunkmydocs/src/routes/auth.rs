@@ -98,8 +98,8 @@ pub async fn create_api_key_query(
     "#;
 
     let insert_user = r#"
-    INSERT INTO api_users (key, user_id, email, created_at)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO api_users (key, user_id, email, created_at, usage_type, usage_limit, service)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     "#;
 
     transaction
@@ -149,7 +149,15 @@ pub async fn create_api_key_query(
     transaction
         .execute(
             insert_user,
-            &[&api_key.key, &api_key.user_id, &email, &api_key.created_at],
+            &[
+                &api_key.key,
+                &api_key.user_id,
+                &email,
+                &api_key.created_at,
+                &api_key_usage.usage_type.as_ref().map(|ut| ut.to_string()),
+                &api_key_limit.usage_limit,
+                &api_key_usage.service_type.as_ref().map(|st| st.to_string()),
+            ],
         )
         .await?;
 

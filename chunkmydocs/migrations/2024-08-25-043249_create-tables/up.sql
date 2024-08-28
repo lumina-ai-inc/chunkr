@@ -55,7 +55,10 @@ CREATE TABLE
     key text NOT NULL,
     user_id text NULL,
     email text NULL,
-    created_at timestamp with time zone NULL
+    created_at timestamp with time zone NULL,
+    usage_type text NULL,
+    usage_limit integer NULL,
+    service text NULL
   );
 
 ALTER TABLE
