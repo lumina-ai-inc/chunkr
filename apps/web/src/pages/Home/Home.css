@@ -17,7 +17,7 @@
 }
 
 .hero-container {
-  margin-top: 64px;
+  margin-top: 52px;
   padding-left: 80px;
   padding-right: 80px;
   gap: 32px;
@@ -39,6 +39,10 @@
   font-size: 72px !important;
   line-height: 88px !important;
   letter-spacing: -0.01em !important;
+}
+
+.credit-main-container {
+  gap: 80px;
 }
 
 .credit-button {
@@ -82,6 +86,11 @@
   .hero-container {
     flex-direction: column;
     gap: 48px;
+  }
+
+  .credit-main-container {
+    flex-direction: column !important;
+    gap: 0px;
   }
 }
 
