@@ -11,7 +11,6 @@ export default function StatusView() {
   const navigate = useNavigate();
   const [task, setTask] = useState<TaskResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [progressValue, setProgressValue] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -24,20 +23,6 @@ export default function StatusView() {
           setIsLoading(false);
 
           // Calculate progress value based on task status
-          let progress = 0;
-          switch (taskResponse.status) {
-            case Status.Starting:
-              progress = 10;
-              break;
-            case Status.Processing:
-              progress = 50;
-              break;
-            case Status.Succeeded:
-            case Status.Failed:
-              progress = 95;
-              break;
-          }
-          setProgressValue(progress);
 
           if (taskResponse.status === Status.Succeeded) {
             navigate(
@@ -116,7 +101,7 @@ export default function StatusView() {
   return (
     <Flex direction="column">
       <Progress
-        value={progressValue}
+        duration="10s"
         style={{ height: "88px", borderRadius: "0px", color: "var(--cyan-3)" }}
       />
       <Flex direction="column" gap="4" className="status-title">
