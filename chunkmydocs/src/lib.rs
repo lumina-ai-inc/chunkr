@@ -19,6 +19,7 @@ use middleware::api_key::ApiKeyMiddlewareFactory;
 use routes::auth::create_api_key;
 use routes::health::health_check;
 use routes::task::{create_extraction_task, get_task_status};
+use routes::usage::get_usage;
 use utils::db::deadpool_postgres;
 use utils::storage::config_s3::create_client;
 use utoipa::OpenApi;
@@ -127,7 +128,8 @@ pub fn main() -> std::io::Result<()> {
                     web::scope("/api")
                         .wrap(ApiKeyMiddlewareFactory)
                         .route("/task", web::post().to(create_extraction_task))
-                        .route("/task/{task_id}", web::get().to(get_task_status)),
+                        .route("/task/{task_id}", web::get().to(get_task_status))
+                        .route("/usage", web::get().to(get_usage)),
                 )
         })
         .bind("0.0.0.0:8000")?

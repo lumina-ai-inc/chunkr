@@ -2,7 +2,7 @@ use crate::models::extraction::segment::{Chunk, Segment, SegmentType};
 
 pub async fn chunk_and_add_markdown(
     segments: Vec<Segment>,
-    target_length: usize,
+    target_length: Option<i32>,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let mut chunks: Vec<Chunk> = Vec::new();
     let mut current_chunk: Vec<Segment> = Vec::new();
@@ -11,7 +11,9 @@ pub async fn chunk_and_add_markdown(
     for segment in segments {
         let segment_word_count = segment.text.split_whitespace().count();
 
-        if current_word_count + segment_word_count > target_length && !current_chunk.is_empty() {
+        if current_word_count + segment_word_count as i32 > target_length.unwrap_or(0)
+            && !current_chunk.is_empty()
+        {
             chunks.push(Chunk {
                 segments: current_chunk.clone(),
                 markdown: generate_markdown(&current_chunk),
@@ -21,7 +23,7 @@ pub async fn chunk_and_add_markdown(
         }
 
         current_chunk.push(segment);
-        current_word_count += segment_word_count;
+        current_word_count += segment_word_count as i32;
     }
 
     // Add the last chunk if it's not empty
@@ -62,7 +64,7 @@ pub async fn process_bounding_boxes(
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let file_content = tokio::fs::read_to_string(file_path).await?;
     let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
-    chunk_and_add_markdown(segments, target_size).await
+    chunk_and_add_markdown(segments, Some(target_size as i32)).await
 }
 #[cfg(test)]
 mod tests {

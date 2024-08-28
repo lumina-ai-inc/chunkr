@@ -1,10 +1,10 @@
-use aws_sdk_s3::Client as S3Client;
 use crate::models::extraction::api::ApiInfo;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
 use crate::{models::extraction::extract::UploadForm, utils::db::deadpool_postgres::Pool};
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
+use aws_sdk_s3::Client as S3Client;
 use uuid::Uuid;
 
 /// Get Extraction Task Status
@@ -37,9 +37,7 @@ pub async fn get_task_status(
     }
 
     match get_task(&pool, &s3_client, task_id).await {
-        Ok(task_response) => {
-            Ok(HttpResponse::Ok().json(task_response))
-        },
+        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
             eprintln!("Error getting task status: {:?}", e);
             Ok(HttpResponse::InternalServerError().body(e.to_string()))
@@ -66,12 +64,17 @@ pub async fn create_extraction_task(
     form: MultipartForm<UploadForm>,
     api_info: web::ReqData<ApiInfo>,
 ) -> Result<HttpResponse, Error> {
+    let mut form = form.into_inner();
     let pool = req.app_data::<web::Data<Pool>>().unwrap();
     let s3_client = req.app_data::<web::Data<S3Client>>().unwrap();
     let api_key = api_info.api_key.clone();
     let user_id = api_info.user_id.clone();
     let task_id = Uuid::new_v4().to_string();
-
+    let target_chunk_length = form
+        .target_chunk_length
+        .as_mut()
+        .map(|t| t.0)
+        .unwrap_or(512) as i32;
     // Process files
     let file_data = &form.file;
 
@@ -85,6 +88,7 @@ pub async fn create_extraction_task(
         user_id,
         &api_key.to_string(),
         model,
+        target_chunk_length,
     )
     .await;
 
