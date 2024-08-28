@@ -1,12 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Home } from "./pages/Home/Home.tsx";
-import { Viewer } from "./pages/Viewer/Viewer.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
-import StatusView from "./pages/Status/StatusView.tsx";
+import Task from "./pages/Task/Task.tsx";
 
 const router = createBrowserRouter([
   {
@@ -14,12 +13,8 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/viewer",
-    element: <Viewer />,
-  },
-  {
-    path: "/status",
-    element: <StatusView />,
+    path: "/task/:taskId",
+    element: <Task />,
   },
 ]);
 

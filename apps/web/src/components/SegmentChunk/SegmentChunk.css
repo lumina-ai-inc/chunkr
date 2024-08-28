@@ -70,7 +70,7 @@ p {
 
 .AccordionHeader {
   display: flex;
-  background-color: #061d23;
+  background-color: #04161a;
   border: 2px solid var(--cyan-12);
   border-bottom: none;
 }
@@ -97,7 +97,7 @@ p {
   border: 2px solid var(--cyan-12);
   border-top: none;
   color: var(--cyan-11);
-  background-color: #061d23;
+  background-color: #04161a;
   height: 480px;
 }
 .AccordionContent[data-state="open"] {

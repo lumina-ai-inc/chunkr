@@ -9,7 +9,12 @@ import { Link } from "react-router-dom";
 import "./Viewer.css";
 import Loader from "../Loader/Loader";
 
-export const Viewer = () => {
+interface ViewerProps {
+  outputFileUrl: string;
+  inputFileUrl: string;
+}
+
+export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
   const [pdfWidth, setPdfWidth] = useState<number>(50); // Initial width percentage
@@ -21,10 +26,6 @@ export const Viewer = () => {
 
   useEffect(() => {
     const fetchContent = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const outputFileUrl = urlParams.get("output_file_url");
-      const inputFileUrl = urlParams.get("input_file_url");
-
       setIsLoading(true);
       try {
         if (outputFileUrl) {
@@ -51,7 +52,7 @@ export const Viewer = () => {
     };
 
     fetchContent();
-  }, []);
+  }, [outputFileUrl, inputFileUrl]);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -109,8 +110,6 @@ export const Viewer = () => {
     return <Loader />;
   }
 
-  console.log(pdfContent);
-
   return (
     <Flex direction="column" width="100%">
       <Flex
@@ -166,7 +165,7 @@ export const Viewer = () => {
             height="100%"
             direction="column"
             p="24px"
-            gap="9"
+            gap="8"
             align="center"
             justify="center"
           >

@@ -1,103 +1,14 @@
 import { Progress, Text, Flex, Code } from "@radix-ui/themes";
 import "./Statusview.css";
 import { TaskResponse, Status } from "../../models/task.model";
-import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import Loader from "../Loader/Loader";
-import { getTask } from "../../services/uploadFileApi";
+import { useNavigate } from "react-router-dom";
 
-export default function StatusView() {
-  const [searchParams] = useSearchParams();
+export default function StatusView(task: TaskResponse) {
   const navigate = useNavigate();
-  const [task, setTask] = useState<TaskResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const taskId = searchParams.get("taskId");
-    if (taskId) {
-      const fetchTaskStatus = async () => {
-        try {
-          const taskResponse = await getTask(taskId);
-          setTask(taskResponse);
-          setIsLoading(false);
-
-          // Calculate progress value based on task status
-
-          if (taskResponse.status === Status.Succeeded) {
-            navigate(
-              `/viewer?output_file_url=${encodeURIComponent(taskResponse.output_file_url || "")}&input_file_url=${encodeURIComponent(taskResponse.input_file_url || "")}`
-            );
-            return true;
-          } else if (taskResponse.status === Status.Failed) {
-            return true;
-          }
-        } catch (error) {
-          console.error("Error fetching task data:", error);
-          setError("Failed to fetch task status. Please try again later.");
-          setIsLoading(false);
-          return true;
-        } finally {
-          setIsLoading(false);
-        }
-        return false;
-      };
-
-      const pollInterval = setInterval(async () => {
-        const shouldStop = await fetchTaskStatus();
-        if (shouldStop) {
-          clearInterval(pollInterval);
-        }
-      }, 1000);
-
-      return () => clearInterval(pollInterval);
-    }
-  }, [searchParams, navigate]);
 
   const handleRetry = () => {
     navigate("/");
   };
-
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  if (error) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100vw",
-        }}
-      >
-        <Link to="/" style={{ textDecoration: "none" }}>
-          <div
-            style={{
-              color: "var(--red-9)",
-              padding: "8px 12px",
-              border: "2px solid var(--red-12)",
-              borderRadius: "4px",
-              backgroundColor: "var(--red-7)",
-              cursor: "pointer",
-              transition: "background-color 0.2s ease",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "var(--red-8)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "var(--red-7)")
-            }
-          >
-            {error}
-          </div>
-        </Link>
-      </div>
-    );
-  }
-  console.log("Task:", task);
   return (
     <Flex direction="column">
       <Progress
