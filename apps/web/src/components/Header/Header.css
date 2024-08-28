@@ -10,18 +10,19 @@
 }
 
 .logo-title {
-  color: var(--cyan-2);
+  color: var(--cyan-4);
   transition: color 0.2s ease;
 }
 
 .logo-path {
-  fill: var(--cyan-2);
+  fill: var(--cyan-4);
   transition: fill 0.2s ease;
 }
 
 .nav-item {
   transition: color 0.2s ease-in-out;
   cursor: pointer;
+  color: var(--cyan-4);
 }
 
 .nav-item:hover {
