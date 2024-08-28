@@ -13,7 +13,7 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/task/:taskId",
+    path: "/task/:taskId/:pageCount",
     element: <Task />,
   },
 ]);
