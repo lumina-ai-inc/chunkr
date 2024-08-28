@@ -94,7 +94,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             let file_content = tokio::fs::read_to_string(&output_path).await?;
             let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
 
-            chunks = chunk_and_add_markdown(segments, 512).await?;
+            chunks = chunk_and_add_markdown(segments, extraction_item.target_chunk_length).await?;
 
             let chunked_content = serde_json::to_string(&chunks)?;
             tokio::fs::write(&output_path, chunked_content).await?;

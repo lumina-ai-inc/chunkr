@@ -76,6 +76,7 @@ pub async fn create_task(
     user_id: String,
     api_key: &String,
     model: ModelInternal,
+    target_chunk_length: i32,
 ) -> Result<TaskResponse, Box<dyn Error>> {
     let mut client: Client = pool.get().await?;
     let config = Config::from_env()?;
@@ -162,6 +163,7 @@ pub async fn create_task(
                     batch_size: Some(ingest_batch_size),
                     file_id,
                     task_id: task_id.clone(),
+                    target_chunk_length: Some(target_chunk_length),
                 };
 
                 produce_extraction_payloads(extraction_payload).await?;

@@ -14,6 +14,7 @@ pub struct ExtractionPayload {
     pub batch_size: Option<i32>,
     #[serde(with = "humantime_serde")]
     pub expiration: Option<Duration>,
+    pub target_chunk_length: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq)]
@@ -48,6 +49,7 @@ pub struct UploadForm {
     pub model: Text<Model>,
     pub table_ocr: Option<Text<TableOcr>>,
     pub table_ocr_model: Option<Text<TableOcrModel>>,
+    pub target_chunk_length: Option<Text<i32>>,
 }
 
 impl Model {
