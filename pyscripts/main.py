@@ -33,16 +33,16 @@ def extract_and_annotate_file(file_path: str, model: Model):
 
     print("Processing file...")
     task = process_file(file_path, model)
-    task_url = task.file_url
+    output_url = task.output_file_url
     print("File processed")
 
-    if task_url is None:
+    if output_url is None:
         raise Exception("File URL not found")
 
     os.makedirs(output_dir, exist_ok=True)
 
     print("Downloading bounding boxes...")
-    json_path = download_file(task_url, output_json_path)
+    json_path = download_file(output_url, output_json_path)
     print("Downloaded bounding boxes")
 
     print("Annotating file...")
