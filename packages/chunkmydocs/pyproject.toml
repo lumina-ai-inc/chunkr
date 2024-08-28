@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "chunkmydocs"
+version = "1.0.0"
+description = "A self-hostable solution for extracting structured information from PDFs using state-of-the-art vision models."
+authors = ["Lumina"]
+homepage = "https://lumina.sh"
+repository = "https://github.com/lumina-ai-inc/chunkmydocs"
+license = "BSL"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+

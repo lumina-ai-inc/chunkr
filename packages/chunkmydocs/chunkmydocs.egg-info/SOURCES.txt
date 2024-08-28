@@ -1,0 +1,6 @@
+pyproject.toml
+chunkmydocs/__init__.py
+chunkmydocs.egg-info/PKG-INFO
+chunkmydocs.egg-info/SOURCES.txt
+chunkmydocs.egg-info/dependency_links.txt
+chunkmydocs.egg-info/top_level.txt
