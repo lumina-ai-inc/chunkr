@@ -3,8 +3,8 @@ import { Flex, ScrollArea } from "@radix-ui/themes";
 import { SegmentChunk } from "../../components/SegmentChunk/SegmentChunk";
 import { PDF } from "../../components/PDF/PDF";
 import Header from "../../components/Header/Header";
-import { Chunk } from "../../models/chunk.model";
-import { retrieveFileContent } from "../../services/chunkMyDocs";
+import { BoundingBoxes, Chunk } from "../../models/chunk.model";
+import { fetchPdfFile, retrieveFileContent } from "../../services/chunkMyDocs";
 import { Link } from "react-router-dom";
 import "./Viewer.css";
 import Loader from "../Loader/Loader";
@@ -14,35 +14,43 @@ export const Viewer = () => {
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
   const [pdfWidth, setPdfWidth] = useState<number>(50); // Initial width percentage
   const isDraggingRef = useRef<boolean>(false);
-  const [pdfContent, setPdfContent] = useState<Chunk[]>([]);
+  const [pdfContent, setPdfContent] = useState<BoundingBoxes>([]);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPdfContent = async () => {
+    const fetchContent = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const fileUrl = urlParams.get("file_url");
-      if (fileUrl) {
-        try {
-          setIsLoading(true);
-          const content = await retrieveFileContent(fileUrl);
+      const outputFileUrl = urlParams.get("output_file_url");
+      const inputFileUrl = urlParams.get("input_file_url");
+
+      setIsLoading(true);
+      try {
+        if (outputFileUrl) {
+          const content = await retrieveFileContent(outputFileUrl);
           setPdfContent(content);
-          setIsLoading(false);
-        } catch (error) {
-          console.error(error);
-          if (String(error).includes("403")) {
-            setError(
-              "Timeout Error: Failed to fetch file - try uploading again"
-            );
-          } else {
-            setError(`${error}`);
-          }
-          setIsLoading(false);
         }
+
+        if (inputFileUrl) {
+          const pdfData = await fetchPdfFile(inputFileUrl);
+          setPdfFile(pdfData);
+        }
+      } catch (error) {
+        console.error(error);
+        if (String(error).includes("403")) {
+          setError("Timeout Error: Failed to fetch file - try uploading again");
+        } else if (String(error).includes("Invalid JSON")) {
+          setError(`Server returned invalid data: ${error}`);
+        } else {
+          setError(`${error}`);
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchPdfContent();
+    fetchContent();
   }, []);
 
   useEffect(() => {
@@ -53,10 +61,20 @@ export const Viewer = () => {
       }
     };
 
+    // Initial update
     updateWidth();
+
+    // Schedule additional updates
+    const timeouts = [100, 500, 1000].map((delay) =>
+      setTimeout(updateWidth, delay)
+    );
+
+    // Add resize event listener
     window.addEventListener("resize", updateWidth);
 
     return () => {
+      // Clear timeouts and remove event listener on cleanup
+      timeouts.forEach(clearTimeout);
       window.removeEventListener("resize", updateWidth);
     };
   }, [pdfWidth]);
@@ -83,8 +101,12 @@ export const Viewer = () => {
     };
   }, []);
 
+  if (isLoading) {
+    return <Loader />;
+  }
+
   if (!pdfContent) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   console.log(pdfContent);
@@ -113,7 +135,9 @@ export const Viewer = () => {
           }}
           ref={scrollAreaRef}
         >
-          <PDF content={pdfContent} />
+          {pdfFile && pdfContent && (
+            <PDF content={pdfContent} pdfFile={pdfFile} />
+          )}
           <div
             style={{
               position: "absolute",

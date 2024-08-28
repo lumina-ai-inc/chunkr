@@ -15,7 +15,8 @@ export interface TaskResponse {
   finished_at: string | null;
   expiration_time: Date | null;
   message: string;
-  file_url: string | null;
+  input_file_url: string | null;
+  output_file_url: string | null;
   task_url: string | null;
   model: Model;
 }
