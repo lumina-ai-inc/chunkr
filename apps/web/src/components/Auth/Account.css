@@ -1,0 +1,7 @@
+.account-module-container {
+  border: 4px solid var(--cyan-5);
+  background: #061d22;
+  border-radius: 4px;
+  padding: 20px;
+  width: fit-content;
+}

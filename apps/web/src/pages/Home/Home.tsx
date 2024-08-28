@@ -2,6 +2,7 @@ import { Flex, ScrollArea, Text } from "@radix-ui/themes";
 import "./Home.css";
 import Header from "../../components/Header/Header";
 import UploadMain from "../../components/Upload/UploadMain";
+import Account from "../../components/Auth/Account";
 
 export const Home = () => {
   return (
@@ -182,6 +183,10 @@ export const Home = () => {
           <Flex className="module-container" direction="column" gap="4">
             <UploadMain />
           </Flex>
+
+          <div className="account-container">
+            <Account />
+          </div>
         </Flex>
       </ScrollArea>
     </Flex>
