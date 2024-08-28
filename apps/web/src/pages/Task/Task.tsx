@@ -11,7 +11,6 @@ export default function Task() {
     taskId: string;
     pageCount: string;
   }>();
-  console.log(pageCount);
 
   const [taskResponse, setTaskResponse] = useState<TaskResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
