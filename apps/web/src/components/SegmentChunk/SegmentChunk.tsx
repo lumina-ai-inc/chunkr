@@ -69,7 +69,7 @@ export const SegmentChunk = ({
                 </Flex>
               </Flex>
 
-              <Flex gap="5">
+              <Flex gap="4">
                 <BetterButton
                   active={markdownSelected}
                   onClick={(e) => {

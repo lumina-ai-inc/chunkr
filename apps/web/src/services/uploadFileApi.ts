@@ -38,7 +38,7 @@ export async function getTask(taskId: string): Promise<TaskResponse> {
   const hostname = import.meta.env.VITE_API_URL;
   const key = import.meta.env.VITE_API_KEY;
   const url = `${hostname}/api/task/${taskId}`;
-  console.log("Task URL:", url);
+
   const response = await fetch(url, {
     method: "GET",
     headers: {
