@@ -41,12 +41,10 @@ export default function UploadMain() {
       file,
       model,
     };
-    console.log("Component Payload:", payload);
 
     try {
       const taskResponse = await uploadFileStep(payload);
-      console.log("Task Response:", taskResponse);
-      navigate(`/status?taskId=${taskResponse.task_id}`);
+      navigate(`/task/${taskResponse.task_id}`);
     } catch (error) {
       console.error("Error uploading file:", error);
       setError("Failed to upload file. Please try again later.");
