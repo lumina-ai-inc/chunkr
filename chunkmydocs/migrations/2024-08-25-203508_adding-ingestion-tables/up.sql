@@ -74,11 +74,11 @@ BEGIN
         DO UPDATE SET usage = public.api_key_usage.usage + EXCLUDED.usage;
 
         -- Update api_users table
-        INSERT INTO public.api_users (key, user_id, usage_type, usage_limit, service)
+        INSERT INTO public.api_users (key, user_id, usage_type, usage, service)
         VALUES (NEW.api_key, v_user_id, 'FREE', NEW.total_pages, 'EXTRACTION')
         ON CONFLICT (key, user_id)
         DO UPDATE SET 
-            usage_limit = public.api_users.usage_limit + EXCLUDED.usage_limit,
+            usage = public.api_users.usage + EXCLUDED.usage,
             usage_type = EXCLUDED.usage_type,
             service = EXCLUDED.service;
     END IF;

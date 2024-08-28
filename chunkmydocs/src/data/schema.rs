@@ -44,6 +44,9 @@ diesel::table! {
         user_id -> Nullable<Text>,
         email -> Nullable<Text>,
         created_at -> Nullable<Timestamptz>,
+        usage_type -> Nullable<Text>,
+        usage_limit -> Nullable<Int4>,
+        service -> Nullable<Text>,
     }
 }
 
