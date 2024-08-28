@@ -36,7 +36,7 @@ export default function Header({
               className="logo-path"
             />
           </svg>
-          <Text size="7" weight="medium" className="logo-title cyan-2">
+          <Text size="7" weight="medium" className="logo-title">
             Chunk My Docs
           </Text>
         </Flex>
@@ -44,38 +44,38 @@ export default function Header({
 
       <Flex className="nav" direction="row" gap="40px" align="center">
         {download && (
-          <Text size="5" weight="medium" className="cyan-2 nav-item">
+          <Text size="4" weight="medium" className=" nav-item">
             Download JSON
           </Text>
         )}
         {home && (
-          <Text size="5" weight="medium" className="cyan-2 nav-item">
+          <Text size="4" weight="medium" className="nav-item">
             Demo PDF
           </Text>
         )}
-        <Text size="5" weight="medium" className="cyan-2 nav-item">
+        <Text size="4" weight="medium" className=" nav-item">
           Pricing
         </Text>
-        <Text size="5" weight="medium" className="cyan-2 nav-item">
+        <Text size="4" weight="medium" className=" nav-item">
           Docs
         </Text>
         <a
           href="https://github.com/lumina-ai-inc/chunk-my-docs"
           target="_blank"
         >
-          <Text size="5" weight="medium" className="cyan-2 nav-item">
+          <Text size="4" weight="medium" className=" nav-item">
             Github
           </Text>
         </a>
 
         <a href="https://twitter.com/lumina_ai_inc" target="_blank">
-          <Text size="5" weight="medium" className="cyan-2 nav-item">
+          <Text size="4" weight="medium" className=" nav-item">
             Twitter
           </Text>
         </a>
 
         <a href="https://twitter.com/lumina_ai_inc" target="_blank">
-          <Text size="5" weight="medium" className="cyan-2 nav-item">
+          <Text size="4" weight="medium" className=" nav-item">
             Contact
           </Text>
         </a>

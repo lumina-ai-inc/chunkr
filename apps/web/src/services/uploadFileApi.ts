@@ -1,5 +1,6 @@
 import { UploadForm } from "../models/upload.model";
 import { TaskResponse } from "../models/task.model";
+import { BoundingBoxes } from "../models/chunk.model";
 
 export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   const hostname = import.meta.env.VITE_API_URL;
@@ -54,7 +55,7 @@ export async function getTask(taskId: string): Promise<TaskResponse> {
   return data;
 }
 
-export async function getFile(fileUrl: string): Promise<string> {
+export async function getFile(fileUrl: string): Promise<BoundingBoxes> {
   const url = `${fileUrl}`;
 
   const response = await fetch(url, {
@@ -68,4 +69,20 @@ export async function getFile(fileUrl: string): Promise<string> {
   const data = await response.json();
 
   return data;
+}
+
+export async function getPDF(fileUrl: string): Promise<File> {
+  const url = `${fileUrl}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.blob();
+
+  return new File([data], "document.pdf", { type: data.type });
 }

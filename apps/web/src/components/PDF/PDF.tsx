@@ -18,8 +18,6 @@ const options = {
 };
 
 const maxWidth = 800;
-
-type PDFFile = string | File | null;
 type SegmentType =
   | "Text"
   | "Title"
@@ -33,8 +31,8 @@ type SegmentType =
   | "Footnote"
   | "Caption";
 
-export function PDF({ content }: { content: Chunk[] }) {
-  const [file, setFile] = useState<PDFFile>("example.pdf");
+export function PDF({ content, pdfFile }: { content: Chunk[]; pdfFile: File }) {
+  const file = pdfFile;
   const [numPages, setNumPages] = useState<number>();
 
   const segments = content;

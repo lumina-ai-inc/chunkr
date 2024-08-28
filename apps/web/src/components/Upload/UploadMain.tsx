@@ -1,6 +1,6 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Upload from "./Upload";
 import "./UploadMain.css";
 import BetterButton from "../BetterButton/BetterButton";
@@ -12,6 +12,7 @@ export default function UploadMain() {
   const [fileName, setFileName] = useState("");
   const [model, setModel] = useState<Model>(Model.Fast);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleFileUpload = (uploadedFile: File) => {
@@ -35,6 +36,7 @@ export default function UploadMain() {
     }
 
     setIsLoading(true);
+    setError(null); // Clear any previous errors
     const payload: UploadForm = {
       file,
       model,
@@ -44,15 +46,50 @@ export default function UploadMain() {
     try {
       const taskResponse = await uploadFileStep(payload);
       console.log("Task Response:", taskResponse);
-      // Navigate to the StatusView page with the task ID as a search parameter
       navigate(`/status?taskId=${taskResponse.task_id}`);
     } catch (error) {
       console.error("Error uploading file:", error);
-      // Handle error (e.g., show an error message to the user)
+      setError("Failed to upload file. Please try again later.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (error) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <div
+            style={{
+              color: "var(--red-9)",
+              padding: "8px 12px",
+              border: "2px solid var(--red-12)",
+              borderRadius: "4px",
+              backgroundColor: "var(--red-7)",
+              cursor: "pointer",
+              transition: "background-color 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = "var(--red-8)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "var(--red-7)")
+            }
+          >
+            {error}
+          </div>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <Flex direction="column" width="100%">
