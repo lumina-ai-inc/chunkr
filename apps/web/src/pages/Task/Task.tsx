@@ -7,7 +7,12 @@ import StatusView from "../Status/StatusView";
 import { Viewer } from "../Viewer/Viewer";
 
 export default function Task() {
-  const { taskId } = useParams<{ taskId: string }>();
+  const { taskId, pageCount } = useParams<{
+    taskId: string;
+    pageCount: string;
+  }>();
+  console.log(pageCount);
+
   const [taskResponse, setTaskResponse] = useState<TaskResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,7 +67,9 @@ export default function Task() {
   }
 
   if (taskResponse.status !== Status.Succeeded) {
-    return <StatusView {...taskResponse} />;
+    return (
+      <StatusView task={taskResponse} pageCount={Number(pageCount) || 10} />
+    );
   }
 
   return taskResponse.output_file_url && taskResponse.input_file_url ? (

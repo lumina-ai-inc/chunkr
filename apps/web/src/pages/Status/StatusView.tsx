@@ -3,16 +3,30 @@ import "./Statusview.css";
 import { TaskResponse, Status } from "../../models/task.model";
 import { useNavigate } from "react-router-dom";
 
-export default function StatusView(task: TaskResponse) {
+interface StatusViewProps {
+  task: TaskResponse;
+  pageCount: number;
+}
+
+export default function StatusView({ task, pageCount }: StatusViewProps) {
   const navigate = useNavigate();
 
   const handleRetry = () => {
     navigate("/");
   };
+
+  const isHighQuality = task?.model === "HighQuality";
+  const pagesPerSecond = isHighQuality ? 1 : 7;
+  const calculatedDuration = Math.max(1, Math.ceil(pageCount / pagesPerSecond));
+  const durationInSeconds = isHighQuality
+    ? Math.max(12, calculatedDuration)
+    : calculatedDuration;
+  const durationString = `${durationInSeconds}s` as const;
+
   return (
     <Flex direction="column">
       <Progress
-        duration="10s"
+        duration={durationString}
         style={{ height: "88px", borderRadius: "0px", color: "var(--cyan-3)" }}
       />
       <Flex direction="column" gap="4" className="status-title">

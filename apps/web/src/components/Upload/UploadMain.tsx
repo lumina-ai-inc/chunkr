@@ -6,18 +6,36 @@ import "./UploadMain.css";
 import BetterButton from "../BetterButton/BetterButton";
 import { Model, UploadForm } from "../../models/upload.model";
 import { uploadFileStep } from "../../services/chunkMyDocs";
+import * as pdfjsLib from "pdfjs-dist";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export default function UploadMain() {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
+  const [pageCount, setPageCount] = useState<number | null>(null);
   const [model, setModel] = useState<Model>(Model.Fast);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleFileUpload = (uploadedFile: File) => {
+  const handleFileUpload = async (uploadedFile: File) => {
     setFile(uploadedFile);
     setFileName(uploadedFile.name);
+
+    if (uploadedFile.type === "application/pdf") {
+      try {
+        const arrayBuffer = await uploadedFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        setPageCount(pdf.numPages);
+      } catch (error) {
+        console.error("Error reading PDF:", error);
+        setPageCount(null);
+      }
+    } else {
+      setPageCount(null);
+    }
   };
 
   const handleFileRemove = () => {
@@ -36,7 +54,7 @@ export default function UploadMain() {
     }
 
     setIsLoading(true);
-    setError(null); // Clear any previous errors
+    setError(null);
     const payload: UploadForm = {
       file,
       model,
@@ -44,7 +62,7 @@ export default function UploadMain() {
 
     try {
       const taskResponse = await uploadFileStep(payload);
-      navigate(`/task/${taskResponse.task_id}`);
+      navigate(`/task/${taskResponse.task_id}/${pageCount}`);
     } catch (error) {
       console.error("Error uploading file:", error);
       setError("Failed to upload file. Please try again later.");
