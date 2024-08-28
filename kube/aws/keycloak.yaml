@@ -8,7 +8,7 @@ metadata:
 spec:
   ports:
     - name: http
-      port: 80
+      port: 8080
       targetPort: 8080
   selector:
     app: keycloak
@@ -37,7 +37,7 @@ spec:
           args: ["start-dev", "--import-realm"]
           envFrom:
           - secretRef:
-              name: chunkmydocs-secrets
+              name: keycloak-secrets
           ports:
             - name: http
               containerPort: 8080
@@ -57,7 +57,7 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
 spec:
   rules:
-  - host: k8s-chunkmyd-keycloak-5c393ffca7-1320552447.us-west-1.elb.amazonaws.com
+  - host: auth.chunkmydocs.com
     http:
       paths:
       - pathType: Prefix
