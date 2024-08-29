@@ -3,25 +3,36 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider, AuthProviderProps } from "react-oidc-context";
 import { Home } from "./pages/Home/Home.tsx";
 import Task from "./pages/Task/Task.tsx";
-import { initializeKeycloak, keycloak } from "./auth/KeycloakProvider";
 import AuthGuard from "./auth/AuthGuard.tsx";
 
-initializeKeycloak()
-  .then()
-  .catch((error) => {
-    console.error("Failed to initialize Keycloak:", error);
-  });
+// initializeKeycloak()
+//   .then()
+//   .catch((error) => {
+//     console.error("Failed to initialize Keycloak:", error);
+//   });
+
+const oidcConfig: AuthProviderProps = {
+  authority: import.meta.env.VITE_KEYCLOAK_URL,
+  client_id: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
+  redirect_uri: import.meta.env.VITE_KEYCLOAK_REDIRECT_URI,
+  post_logout_redirect_uri: import.meta.env.VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI,
+  onSigninCallback: () => {
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    )
+  },
+};
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <>
-      <button style={{ backgroundColor: 'blue' }} onClick={() => { keycloak.login(); }}>Login</button>
-      <button style={{ backgroundColor: 'red' }} onClick={() => { keycloak.logout(); }}>Logout</button>
-      <Home />
-    </>,
+    element: <Home />,
   },
   {
     path: "/task/:taskId/:pageCount",
@@ -44,6 +55,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       backgroundColor: "hsl(192, 70%, 5%)",
     }}
   >
-    <RouterProvider router={router} />
+    <AuthProvider {...oidcConfig}>
+      <RouterProvider router={router} />
+    </AuthProvider>
+    <Toaster />
   </Theme>
 );
