@@ -26,6 +26,7 @@ export default function Task() {
         if (response.status !== Status.Succeeded) {
           setTimeout(() => pollTask(), 1000);
         }
+        // If status is Succeeded, we don't set up another timeout
       } catch (err) {
         setError("Failed to fetch task status");
         console.error(err);
@@ -73,8 +74,8 @@ export default function Task() {
 
   return taskResponse.output_file_url && taskResponse.input_file_url ? (
     <Viewer
-      outputFileUrl={taskResponse?.output_file_url}
-      inputFileUrl={taskResponse?.input_file_url}
+      outputFileUrl={taskResponse.output_file_url}
+      inputFileUrl={taskResponse.input_file_url}
     />
   ) : (
     <Link to="/" style={{ textDecoration: "none" }}>

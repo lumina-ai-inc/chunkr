@@ -51,42 +51,40 @@ export default function Header({
       </Link>
 
       <Flex className="nav" direction="row" gap="40px" align="center">
-        {download && (
-          <Text size="4" weight="medium" className=" nav-item">
+        {download && !home && (
+          <Text size="4" weight="medium" className="cyan-9 nav-item">
             Download JSON
           </Text>
         )}
-        {home && (
+
+        <a href="https://twitter.com/lumina_ai_inc" target="_blank">
           <Text size="4" weight="medium" className="nav-item">
-            Demo PDF
-          </Text>
-        )}
-        <Text size="4" weight="medium" className=" nav-item">
-          Pricing
-        </Text>
-        <Text size="4" weight="medium" className=" nav-item">
-          Docs
-        </Text>
-        <a
-          href="https://github.com/lumina-ai-inc/chunk-my-docs"
-          target="_blank"
-        >
-          <Text size="4" weight="medium" className=" nav-item">
-            Github
+            Contact
           </Text>
         </a>
 
         <a href="https://twitter.com/lumina_ai_inc" target="_blank">
-          <Text size="4" weight="medium" className=" nav-item">
+          <Text size="4" weight="medium" className="nav-item">
             Twitter
           </Text>
         </a>
 
-        <a href="https://twitter.com/lumina_ai_inc" target="_blank">
-          <Text size="4" weight="medium" className=" nav-item">
-            Contact
+        <a
+          href="https://github.com/lumina-ai-inc/chunk-my-docs"
+          target="_blank"
+        >
+          <Text size="4" weight="medium" className="nav-item">
+            Github
           </Text>
         </a>
+
+        <Text size="4" weight="medium" className="nav-item">
+          Plans
+        </Text>
+
+        <Text size="4" weight="medium" className="nav-item">
+          Docs
+        </Text>
 
         <Text
           size="4"
@@ -107,11 +105,6 @@ export default function Header({
               {download && (
                 <DropdownMenu.Item>
                   <Text>Download JSON</Text>
-                </DropdownMenu.Item>
-              )}
-              {home && (
-                <DropdownMenu.Item>
-                  <Text>Demo PDF</Text>
                 </DropdownMenu.Item>
               )}
               <DropdownMenu.Item>

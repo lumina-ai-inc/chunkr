@@ -21,3 +21,12 @@
 .upload-container.is-drag-active {
   border-color: var(--cyan-7);
 }
+
+.hover-cyan-6:hover {
+  color: var(--Colors-Cyan-6, #9ddde7);
+}
+
+.demo-pdf-link-container {
+  position: relative;
+  top: -40px;
+}
