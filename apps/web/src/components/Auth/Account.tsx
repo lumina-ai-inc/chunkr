@@ -54,7 +54,7 @@ export default function Account({ onClose }: { onClose: () => void }) {
           <Text size="2" weight="bold" className="cyan-1">
             ACCOUNT
           </Text>
-          <Text size="7" weight="bold" className="cyan-8">
+          <Text size="6" weight="bold" className="cyan-8">
             m-chadd100@gmail.com
           </Text>
         </Flex>
