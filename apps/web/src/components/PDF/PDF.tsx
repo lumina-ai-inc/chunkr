@@ -23,7 +23,6 @@ const options = {
   standardFontDataUrl: "/standard_fonts/",
 };
 
-const maxWidth = 800;
 type SegmentType =
   | "Text"
   | "Title"
@@ -39,7 +38,6 @@ type SegmentType =
 
 export function PDF({ content, inputFileUrl }: { content: Chunk[]; inputFileUrl: string }) {
   const [numPages, setNumPages] = useState<number>();
-  console.log(inputFileUrl)
   const segments = content;
 
   function onDocumentLoadSuccess(document: pdfjs.PDFDocumentProxy): void {
