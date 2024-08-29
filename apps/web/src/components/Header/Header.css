@@ -4,13 +4,35 @@
 }
 
 .logo:hover .logo-title,
-.logo:hover .logo-path {
-  color: var(--cyan-8);
-  fill: var(--cyan-8);
+.logo:hover .logo-container {
+  color: var(--cyan-5) !important;
+  fill: var(--cyan-5);
+}
+
+.logo-container path:last-child {
+  fill: var(--cyan-2);
+  transition: fill 0.2s ease;
+}
+
+.logo:hover .logo-container path:last-child {
+  fill: var(--cyan-5);
+}
+
+.logo-container {
+  width: 40px;
+  height: 40px;
+  outline: 2px solid var(--cyan-2);
+  border-radius: 4px;
+  transition: outline 0.2s ease;
+}
+
+.logo:hover .logo-container {
+  outline: 2px solid var(--cyan-5);
 }
 
 .logo-title {
-  color: var(--cyan-4);
+  color: var(--cyan-2) !important;
+  background-color: unset !important;
   transition: color 0.2s ease;
 }
 

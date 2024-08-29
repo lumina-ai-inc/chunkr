@@ -11,17 +11,27 @@
 }
 
 .pulsing-background {
-  background: linear-gradient(90deg, #0a2d36 0%, #061d22 37.5%);
+  background: linear-gradient(
+    90deg,
+    hsl(192, 69%, 8%) 0%,
+    hsl(193, 69%, 5%) 37.5%
+  );
   background-size: 110% 100%;
   animation: pulseGradient 15s ease infinite;
 }
 
 .hero-container {
-  margin-top: 52px;
+  margin-top: 64px;
   padding-left: 80px;
   padding-right: 80px;
   gap: 32px;
   flex-direction: row;
+}
+
+@media (min-width: 1564px) {
+  .hero-container {
+    margin-top: 102px;
+  }
 }
 
 .text-container {
@@ -37,7 +47,7 @@
 .hero-title {
   max-width: 542px !important;
   font-size: 72px !important;
-  line-height: 88px !important;
+  line-height: 80px !important;
   letter-spacing: -0.01em !important;
 }
 

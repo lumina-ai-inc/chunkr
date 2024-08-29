@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { getTask } from "../../services/uploadFileApi";
 import { TaskResponse, Status } from "../../models/task.model";
 import Loader from "../Loader/Loader";
-import StatusView from "../Status/StatusView";
-import { Viewer } from "../Viewer/Viewer";
+import StatusView from "../../components/Status/StatusView";
+import { Viewer } from "../../components/Viewer/Viewer";
 
 export default function Task() {
   const { taskId, pageCount } = useParams<{
