@@ -1,9 +1,15 @@
 import { Flex, ScrollArea, Text } from "@radix-ui/themes";
+import { useAuth } from "react-oidc-context";
 import "./Home.css";
 import Header from "../../components/Header/Header";
 import UploadMain from "../../components/Upload/UploadMain";
 
 export const Home = () => {
+  const auth = useAuth();
+
+  console.log(auth.isAuthenticated);
+  console.log(auth.user);
+
   return (
     <Flex
       direction="column"
@@ -15,6 +21,11 @@ export const Home = () => {
       className="pulsing-background"
     >
       <ScrollArea>
+
+        <button style={{ backgroundColor: "blue" }} onClick={() => auth.signinRedirect()}>Login</button>
+          <button style={{ backgroundColor: "red" }} onClick={() => auth.signoutRedirect()}>Logout</button>
+        <button style={{ backgroundColor: "cyan" }}>{auth.isAuthenticated ? "true" : "false"}</button>
+
         <div style={{ maxWidth: "1564px", margin: "0 auto" }}>
           <Header py="40px" home={true} />
           <Flex className="hero-container">
