@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
 import "./Header.css";
+import Account from "../Auth/Account";
 
 interface HeaderProps {
   py?: string;
@@ -15,6 +17,8 @@ export default function Header({
   download = false,
   home = false,
 }: HeaderProps) {
+  const [showAccount, setShowAccount] = useState(false);
+
   return (
     <Flex direction="row" justify="between" py={py} px={px} className="header">
       <Link to="/" style={{ textDecoration: "none" }}>
@@ -79,6 +83,17 @@ export default function Header({
             Contact
           </Text>
         </a>
+
+        <Text
+          size="4"
+          weight="medium"
+          className="nav-item"
+          onClick={() => setShowAccount(!showAccount)}
+          style={{ cursor: "pointer" }}
+        >
+          Account
+        </Text>
+
         <div className="dropdown-container">
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
@@ -123,6 +138,7 @@ export default function Header({
           </DropdownMenu.Root>
         </div>
       </Flex>
+      {showAccount && <Account onClose={() => setShowAccount(false)} />}
     </Flex>
   );
 }

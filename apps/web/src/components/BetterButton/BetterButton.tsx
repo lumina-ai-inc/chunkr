@@ -14,7 +14,7 @@ export default function BetterButton({
   return (
     <button
       className={`button-resting ${active ? "button-active" : ""}`}
-      style={{ padding }}
+      style={{ padding, width: "fit-content" }}
       onClick={onClick}
     >
       {children}
