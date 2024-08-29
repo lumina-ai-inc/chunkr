@@ -50,8 +50,7 @@ p {
 }
 
 .AccordionRoot {
-  background-color: #061d23;
-  box-shadow: 0 6px 16px var(--black-a4);
+  background-color: hsl(192, 71%, 5%);
 }
 
 .AccordionItem {
@@ -70,9 +69,11 @@ p {
 
 .AccordionHeader {
   display: flex;
-  background-color: #04161a;
+  background-color: hsl(191, 73%, 5%);
   border: 2px solid var(--cyan-12);
   border-bottom: none;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
 }
 
 .AccordionTrigger {
@@ -86,10 +87,12 @@ p {
   border-bottom: 2px solid var(--cyan-12);
   transition: background-color 0.2s;
   gap: 16px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
 }
 
 .AccordionTrigger:hover {
-  background-color: rgba(13, 60, 72, 0.7);
+  background-color: rgba(13, 60, 72, 0.1);
 }
 
 .AccordionContent {
@@ -97,8 +100,10 @@ p {
   border: 2px solid var(--cyan-12);
   border-top: none;
   color: var(--cyan-11);
-  background-color: #04161a;
-  height: 480px;
+  background-color: hsl(191, 73%, 4.5%);
+  height: 492px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 .AccordionContent[data-state="open"] {
   animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
@@ -108,7 +113,7 @@ p {
 }
 
 .AccordionContentText {
-  padding: 20px 24px;
+  padding: 24px 16px;
 }
 
 .AccordionChevron {

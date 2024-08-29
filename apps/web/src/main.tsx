@@ -16,6 +16,10 @@ const router = createBrowserRouter([
     path: "/task/:taskId/:pageCount",
     element: <Task />,
   },
+  // {
+  //   path: "/pricing",
+  //   element: <Pricing />,
+  // },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -24,7 +28,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       scaling="100%"
       accentColor="cyan"
       panelBackground="solid"
-      style={{ height: "100%", width: "100%", backgroundColor: "#061d23" }}
+      style={{
+        height: "100%",
+        width: "100%",
+        backgroundColor: "hsl(192, 70%, 5%)",
+      }}
     >
       <RouterProvider router={router} />
     </Theme>
