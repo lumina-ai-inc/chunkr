@@ -28,12 +28,8 @@
     "install": "^0.13.0",
     "keycloak-js": "^25.0.4",
     "npm": "^10.8.2",
-<<<<<<< HEAD
-    "pdfjs-dist": "^4.5.136",
-=======
     "oidc-client-ts": "^3.0.1",
     "pdfjs-dist": "^4.4.168",
->>>>>>> e3dfb8b (auth working)
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
