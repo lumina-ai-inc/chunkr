@@ -27,12 +27,7 @@ export const Home = () => {
           <Header py="40px" home={true} />
           <Flex className="hero-container">
             <Flex className="text-container" direction="column">
-              <Text
-                size="9"
-                weight="medium"
-                trim="both"
-                className="cyan-2 hero-title"
-              >
+              <Text size="9" weight="medium" trim="both" className="hero-title">
                 Open Source Data Ingestion for LLMs & RAG
               </Text>
               <Text

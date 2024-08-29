@@ -49,6 +49,17 @@
   font-size: 72px !important;
   line-height: 80px !important;
   letter-spacing: -0.01em !important;
+  background: linear-gradient(
+    to top,
+    var(--cyan-8) 0%,
+    var(--cyan-6) 1%,
+    var(--cyan-5) 2%,
+    var(--cyan-4) 4%,
+    var(--cyan-2) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .credit-main-container {
