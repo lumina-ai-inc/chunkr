@@ -1,0 +1,27 @@
+#cloud-config
+manage-resolv-conf: true
+resolv_conf:
+  nameservers:
+    - "8.8.8.8"
+    - "8.8.4.4"
+
+groups:
+  - ec2-user: [root]
+  - dev: [root]
+  - docker
+
+system_info:
+  default_user:
+    groups: [dev]
+
+users:
+  - default
+  - name: dev
+    homedir: /home/dev
+    shell: /bin/bash
+    primary_group: dev
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: [docker, dev]
+    lock_passwd: false
+    ssh-authorized-keys:
+      - ${ssh_key}
