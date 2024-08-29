@@ -71,8 +71,6 @@ export const SegmentChunk = ({
                       width="24"
                       height="24"
                       transform="matrix(-1 0 0 -1 24 24)"
-                      fill="white"
-                      fill-opacity="0.01"
                     />
                     <path
                       fill-rule="evenodd"
