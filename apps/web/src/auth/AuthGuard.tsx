@@ -3,7 +3,6 @@ import toast from 'react-hot-toast';
 import { useAuth } from "react-oidc-context";
 import { useNavigate } from "react-router-dom";
 
-
 interface AuthGuardProps {
   children: ReactNode;
 }
