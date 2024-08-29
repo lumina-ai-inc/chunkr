@@ -13,10 +13,9 @@ import { Chunk } from "../../models/chunk.model";
 //   "pdfjs-dist/build/pdf.worker.min.mjs",
 //   import.meta.url
 // ).toString();
-// pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136//pdf.min.mjs`; 
+// pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136//pdf.min.mjs`;
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 // pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/+esm`;
-
 
 const options = {
   cMapUrl: "/cmaps/",
@@ -36,14 +35,20 @@ type SegmentType =
   | "Footnote"
   | "Caption";
 
-export function PDF({ content, inputFileUrl }: { content: Chunk[]; inputFileUrl: string }) {
+export function PDF({
+  content,
+  inputFileUrl,
+}: {
+  content: Chunk[];
+  inputFileUrl: string;
+}) {
   const [numPages, setNumPages] = useState<number>();
   const segments = content;
 
   function onDocumentLoadSuccess(document: pdfjs.PDFDocumentProxy): void {
     setNumPages(document.numPages);
   }
-  
+
   return (
     <Document
       file={inputFileUrl}
@@ -59,7 +64,9 @@ export function PDF({ content, inputFileUrl }: { content: Chunk[]; inputFileUrl:
       >
         <div className="flex flex-col items-center space-y-2" style={{}}>
           {Array.from(new Array(numPages), (_el, index) => {
-            return <CurrentPage key={index} index={index} segments={segments} />;
+            return (
+              <CurrentPage key={index} index={index} segments={segments} />
+            );
           })}
         </div>
       </ScrollArea>
@@ -83,7 +90,8 @@ function CurrentPage({ index, segments }: { index: number; segments: any }) {
 
   useEffect(() => {
     if (!pageRef.current) return;
-    const pageDiv = pageRef.current.querySelector<HTMLDivElement>(".react-pdf__Page");
+    const pageDiv =
+      pageRef.current.querySelector<HTMLDivElement>(".react-pdf__Page");
     if (pageDiv) {
       setContainerWidth(pageDiv.offsetWidth);
     }
