@@ -22,7 +22,6 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
   const [pdfContent, setPdfContent] = useState<BoundingBoxes>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-console.log(inputFileUrl)
   useEffect(() => {
     const fetchContent = async () => {
       setIsLoading(true);
