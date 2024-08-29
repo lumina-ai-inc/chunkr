@@ -78,9 +78,11 @@ export default function Header({
           </Text>
         </a>
 
-        <Text size="4" weight="medium" className="nav-item">
-          Plans
-        </Text>
+        <Link to="/pricing" style={{ textDecoration: "none" }}>
+          <Text size="4" weight="medium" className="nav-item">
+            Pricing
+          </Text>
+        </Link>
 
         <Text size="4" weight="medium" className="nav-item">
           Docs
