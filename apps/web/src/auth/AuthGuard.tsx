@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
-import { keycloak } from './KeycloakProvider';
+import toast from 'react-hot-toast';
+import { useAuth } from "react-oidc-context";
+import { useNavigate } from "react-router-dom";
 
 
 interface AuthGuardProps {
@@ -7,10 +9,23 @@ interface AuthGuardProps {
 }
 
 export default function AuthGuard({ children }: AuthGuardProps) {
-  const isAuthenticated = keycloak.authenticated;
+  const auth = useAuth();
+  const navigate = useNavigate();
 
-  if (!isAuthenticated) {
-    keycloak.login();
+  if (auth.isLoading) {
+    // TODO: Add loader
+    return <div>Loading...</div>;
+  }
+
+  if (auth.error) {
+    console.log(auth.error);
+    toast.error("Error signing in");
+    navigate("/");
+    return null;
+  }
+
+  if (!auth.isAuthenticated) {
+    auth.signinRedirect();
     return null;
   }
 
