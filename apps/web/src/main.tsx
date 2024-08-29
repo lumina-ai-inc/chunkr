@@ -9,12 +9,6 @@ import { Home } from "./pages/Home/Home.tsx";
 import Task from "./pages/Task/Task.tsx";
 import AuthGuard from "./auth/AuthGuard.tsx";
 
-// initializeKeycloak()
-//   .then()
-//   .catch((error) => {
-//     console.error("Failed to initialize Keycloak:", error);
-//   });
-
 const oidcConfig: AuthProviderProps = {
   authority: import.meta.env.VITE_KEYCLOAK_URL,
   client_id: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
