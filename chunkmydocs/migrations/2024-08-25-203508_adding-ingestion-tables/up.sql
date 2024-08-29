@@ -62,20 +62,36 @@ ADD CONSTRAINT api_users_unique UNIQUE (key, user_id);
 CREATE OR REPLACE FUNCTION update_api_key_usage() RETURNS TRIGGER AS $$
 DECLARE
     v_user_id TEXT;
+    v_usage_type TEXT;
+    v_service TEXT;
 BEGIN
     IF (TG_OP = 'INSERT') OR (TG_OP = 'UPDATE' AND NEW.status = 'Succeeded') THEN
         -- Get the user_id for the given api_key
         SELECT user_id INTO v_user_id FROM public.api_keys WHERE key = NEW.api_key;
 
+        -- Determine the usage type
+        IF NEW.total_pages > 1000 THEN
+            v_usage_type := 'PAID';
+        ELSE
+            v_usage_type := 'FREE';
+        END IF;
+
+        -- Determine the service type
+        IF NEW.model = 'extraction_model' THEN
+            v_service := 'EXTRACTION';
+        ELSE
+            v_service := 'SEARCH';
+        END IF;
+
         -- Update api_key_usage table
         INSERT INTO public.api_key_usage (api_key, usage, usage_type, service)
-        VALUES (NEW.api_key, NEW.total_pages, 'FREE', 'EXTRACTION')
+        VALUES (NEW.api_key, NEW.total_pages, v_usage_type, v_service)
         ON CONFLICT (api_key, usage_type, service)
         DO UPDATE SET usage = public.api_key_usage.usage + EXCLUDED.usage;
 
         -- Update api_users table
         INSERT INTO public.api_users (key, user_id, usage_type, usage, service)
-        VALUES (NEW.api_key, v_user_id, 'FREE', NEW.total_pages, 'EXTRACTION')
+        VALUES (NEW.api_key, v_user_id, v_usage_type, NEW.total_pages, v_service)
         ON CONFLICT (key, user_id)
         DO UPDATE SET 
             usage = public.api_users.usage + EXCLUDED.usage,
@@ -91,3 +107,5 @@ CREATE TRIGGER update_api_key_usage_trigger
 AFTER INSERT OR UPDATE ON INGESTION_TASKS
 FOR EACH ROW
 EXECUTE FUNCTION update_api_key_usage();
+
+
