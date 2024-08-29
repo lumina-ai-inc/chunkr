@@ -131,7 +131,10 @@ export default function UploadMain() {
           style={{ borderTopLeftRadius: "4px", borderBottomLeftRadius: "4px" }}
         >
           <Text size="5" weight="medium">
-            Fast
+            Fast{"  "}
+            <Text size="3" weight="light" style={{ opacity: "0.8" }}>
+              (7 pages/s)
+            </Text>
           </Text>
         </Flex>
         <Flex
@@ -145,7 +148,10 @@ export default function UploadMain() {
           }}
         >
           <Text size="5" weight="medium">
-            High Quality
+            High Quality{" "}
+            <Text size="3" weight="light" style={{ opacity: "0.8" }}>
+              (1 page/s)
+            </Text>
           </Text>
         </Flex>
       </Flex>

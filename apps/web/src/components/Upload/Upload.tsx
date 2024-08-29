@@ -1,6 +1,7 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { useNavigate } from "react-router-dom";
 import "./Upload.css";
 
 interface UploadProps {
@@ -39,50 +40,70 @@ export default function Upload({
     noClick: true, // Prevent opening file dialog on click
   });
 
-  const handleClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
+  const navigate = useNavigate();
+
+  const handleContainerClick = () => {
     if (isUploaded) {
       onFileRemove();
     }
     open(); // Open file dialog
   };
 
-  return (
-    <Flex
-      {...getRootProps()}
-      direction="row"
-      width="100%"
-      height="302px"
-      align="center"
-      justify="center"
-      className="upload-container"
-      style={{ cursor: "pointer" }}
-      onClick={handleClick}
-    >
-      <input {...getInputProps()} />
-      <Flex
-        direction="column"
-        py="10px"
-        px="12px"
-        style={{ border: "1px dashed var(--Colors-Cyan-6, #9DDDE7)" }}
+  const DemoPdfLink = () => (
+    <div className="demo-pdf-link-container">
+      <Text
+        size="3"
+        weight="medium"
+        className="cyan-3 hover-cyan-6"
+        style={{
+          cursor: "pointer",
+        }}
+        onClick={() => navigate("/task/da91192d-efd0-4924-9e1f-c973ebc3c31d/8")}
       >
-        <Text size="6" weight="bold" className="cyan-1">
-          {isUploaded
-            ? "File Uploaded"
-            : isDragActive
-              ? "Drop PDF here"
-              : "Upload Document"}
-        </Text>
-        {isUploaded ? (
-          <Text size="2" className="cyan-3" style={{ marginTop: "8px" }}>
-            {fileName}
+        Click here for demo PDF
+      </Text>
+    </div>
+  );
+
+  return (
+    <Flex direction="column" align="center" width="100%">
+      <Flex
+        {...getRootProps()}
+        direction="row"
+        width="100%"
+        height="302px"
+        align="center"
+        justify="center"
+        className="upload-container"
+        style={{ cursor: "pointer" }}
+        onClick={handleContainerClick}
+      >
+        <input {...getInputProps()} />
+        <Flex
+          direction="column"
+          py="10px"
+          px="12px"
+          style={{ border: "1px dashed var(--Colors-Cyan-6, #9DDDE7)" }}
+        >
+          <Text size="6" weight="bold" className="cyan-1">
+            {isUploaded
+              ? "File Uploaded"
+              : isDragActive
+                ? "Drop PDF here"
+                : "Upload Document"}
           </Text>
-        ) : (
-          <Text size="2" className="cyan-3" style={{ marginTop: "8px" }}>
-            Drag and drop a PDF or click to select
-          </Text>
-        )}
+          {isUploaded ? (
+            <Text size="2" className="cyan-3" style={{ marginTop: "8px" }}>
+              {fileName}
+            </Text>
+          ) : (
+            <Text size="2" className="cyan-3" style={{ marginTop: "8px" }}>
+              Drag and drop a PDF or click to select
+            </Text>
+          )}
+        </Flex>
       </Flex>
+      {!isUploaded && <DemoPdfLink />}
     </Flex>
   );
 }
