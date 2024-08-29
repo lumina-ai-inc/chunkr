@@ -1,7 +1,7 @@
 .account-module-container {
   border: 2px solid var(--cyan-5);
   background: hsl(191, 70%, 5%);
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 32px;
   padding-bottom: 30px;
   width: fit-content;
