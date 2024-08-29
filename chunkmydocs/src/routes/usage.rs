@@ -1,4 +1,3 @@
-use crate::models::api::api_key::{ApiKey, ApiKeyLimit, ApiKeyUsage, ApiRequest, ServiceType};
 use crate::models::extraction::api::ApiInfo;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use actix_web::{web, Error, HttpResponse};
@@ -36,7 +35,7 @@ pub async fn get_usage(
     let user_id = api_info.user_id.clone();
     let api_key = api_info.api_key.clone();
 
-    let mut client: Client = pool.get().await.map_err(|e| {
+    let client: Client = pool.get().await.map_err(|e| {
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
