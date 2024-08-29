@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "copy-pdf-worker": "node copyPdfWorker.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

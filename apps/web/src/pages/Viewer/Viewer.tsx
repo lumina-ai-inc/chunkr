@@ -4,7 +4,7 @@ import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
 import Header from "../Header/Header";
 import { BoundingBoxes, Chunk } from "../../models/chunk.model";
-import { fetchPdfFile, retrieveFileContent } from "../../services/chunkMyDocs";
+import { retrieveFileContent } from "../../services/chunkMyDocs";
 import { Link } from "react-router-dom";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
@@ -20,7 +20,6 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
   const [pdfWidth, setPdfWidth] = useState<number>(50); // Initial width percentage
   const isDraggingRef = useRef<boolean>(false);
   const [pdfContent, setPdfContent] = useState<BoundingBoxes>([]);
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,11 +30,6 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
         if (outputFileUrl) {
           const content = await retrieveFileContent(outputFileUrl);
           setPdfContent(content);
-        }
-
-        if (inputFileUrl) {
-          const pdfData = await fetchPdfFile(inputFileUrl);
-          setPdfFile(pdfData);
         }
       } catch (error) {
         console.error(error);
@@ -134,8 +128,8 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
           }}
           ref={scrollAreaRef}
         >
-          {pdfFile && pdfContent && (
-            <PDF content={pdfContent} pdfFile={pdfFile} />
+          {inputFileUrl && pdfContent && (
+            <PDF content={pdfContent} inputFileUrl={inputFileUrl} />
           )}
           <div
             style={{
