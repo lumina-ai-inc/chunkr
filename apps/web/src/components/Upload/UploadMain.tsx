@@ -130,7 +130,7 @@ export default function UploadMain() {
           className={model === Model.Fast ? "toggle-active" : "toggle"}
           style={{ borderTopLeftRadius: "4px", borderBottomLeftRadius: "4px" }}
         >
-          <Text size="4" weight="medium">
+          <Text size="5" weight="medium">
             Fast
           </Text>
         </Flex>
@@ -144,7 +144,7 @@ export default function UploadMain() {
             borderBottomRightRadius: "4px",
           }}
         >
-          <Text size="4" weight="medium">
+          <Text size="5" weight="medium">
             High Quality
           </Text>
         </Flex>
@@ -155,7 +155,7 @@ export default function UploadMain() {
           onClick={handleRun}
           active={!!file && !isLoading}
         >
-          <Text size="4" weight="medium">
+          <Text size="5" weight="medium">
             {isLoading ? "Uploading..." : "Run"}
           </Text>
         </BetterButton>

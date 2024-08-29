@@ -3,7 +3,6 @@ import { Chunk } from "../../models/chunk.model";
 import { Text, Flex, ScrollArea } from "@radix-ui/themes";
 import BetterButton from "../BetterButton/BetterButton";
 import * as Accordion from "@radix-ui/react-accordion";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
 import Badge from "../Badge";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -60,10 +59,29 @@ export const SegmentChunk = ({
               className="w-full AccordionTriggerFlex"
             >
               <Flex align="center" gap="4">
-                <ChevronDownIcon
-                  className="AccordionChevron"
-                  aria-hidden
-                ></ChevronDownIcon>
+                <div className="AccordionChevron" aria-hidden>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <rect
+                      width="24"
+                      height="24"
+                      transform="matrix(-1 0 0 -1 24 24)"
+                      fill="white"
+                      fill-opacity="0.01"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M18.9836 9.85285C18.6814 9.53051 18.1751 9.51419 17.8528 9.81637L11.9999 15.3034L6.14715 9.81637C5.82475 9.51419 5.31851 9.53051 5.01627 9.85285C4.71419 10.1752 4.73051 10.6815 5.05275 10.9836L11.4528 16.9836C11.7605 17.2721 12.2394 17.2721 12.5471 16.9836L18.9471 10.9836C19.2694 10.6815 19.2858 10.1752 18.9836 9.85285Z"
+                      fill="#0D3C48"
+                    />
+                  </svg>
+                </div>
                 <Flex gap="4" wrap="wrap">
                   {segmentTypeBadges}
                 </Flex>
@@ -72,23 +90,25 @@ export const SegmentChunk = ({
               <Flex gap="4">
                 <BetterButton
                   active={markdownSelected}
+                  padding="6px 12px"
                   onClick={(e) => {
                     e.stopPropagation();
                     setMarkdownSelected(true);
                   }}
                 >
-                  <Text size="2" weight="regular">
+                  <Text size="1" weight="regular">
                     Markdown
                   </Text>
                 </BetterButton>
                 <BetterButton
                   active={!markdownSelected}
+                  padding="6px 12px"
                   onClick={(e) => {
                     e.stopPropagation();
                     setMarkdownSelected(false);
                   }}
                 >
-                  <Text size="2" weight="regular">
+                  <Text size="1" weight="regular">
                     JSON
                   </Text>
                 </BetterButton>
