@@ -13,6 +13,7 @@ class BoundingBox(BaseModel):
     width: float
     height: float
     page_number: int
+    bb_id: str
 
 class ConversionResponse(BaseModel):
     png_pages: List[Dict[str, str]]
@@ -36,5 +37,5 @@ async def convert_pdf_to_png(
                 pix = page.get_pixmap(clip=rect)
                 png_data = pix.tobytes("png")
                 base64_png = base64.b64encode(png_data).decode()
-                png_pages.append({"bounding_box": json.dumps(bounding_box.dict()), "base64_png": base64_png})
+                png_pages.append({"bb_id": bounding_box.bb_id, "base64_png": base64_png})
     return {"png_pages": png_pages}
