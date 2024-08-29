@@ -147,7 +147,7 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
               cursor: "col-resize",
               borderRadius: "4px",
               backgroundColor: "var(--cyan-5)",
-              zIndex: 100,
+              zIndex: 10,
             }}
             onMouseDown={handleMouseDown}
           />
