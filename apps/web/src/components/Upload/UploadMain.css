@@ -30,3 +30,21 @@
   background: var(--cyan-10);
   color: var(--cyan-3);
 }
+
+@media (max-width: 718px) {
+  .toggle-container {
+    width: 100%;
+    flex-direction: column;
+    height: 124px;
+  }
+
+  .toggle {
+    width: 100%;
+    border-radius: 0px;
+  }
+
+  .toggle-active {
+    width: 100%;
+    border-radius: 0px;
+  }
+}

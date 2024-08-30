@@ -47,7 +47,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     panelBackground="solid"
     style={{
       height: "100%",
-      width: "100%",
       backgroundColor: "hsl(192, 70%, 5%)",
     }}
   >
