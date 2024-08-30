@@ -1,5 +1,22 @@
 -- Your SQL goes here
 CREATE TABLE
+  public.users (
+    user_id text NULL,
+    email text NULL,
+    created_at timestamp with time zone NULL,
+    usage_tier text NULL,
+    usage_limit integer NULL,
+    service text NULL,
+    usage integer NULL
+  );
+
+ALTER TABLE
+  public.users
+ADD
+  CONSTRAINT users_pkey PRIMARY KEY (user_id);
+
+
+CREATE TABLE
   public.api_keys (
     key text NOT NULL,
     user_id text NULL,
@@ -18,51 +35,3 @@ ALTER TABLE
   public.api_keys
 ADD
   CONSTRAINT api_keys_pkey PRIMARY KEY (key);
-
-CREATE TABLE
-  public.api_key_usage (
-    id serial NOT NULL,
-    api_key text NULL,
-    usage integer NULL,
-    usage_type text NULL,
-    created_at timestamp with time zone NULL DEFAULT CURRENT_TIMESTAMP,
-    service text NULL
-  );
-
-ALTER TABLE
-  public.api_key_usage
-ADD
-  CONSTRAINT api_key_usage_pkey PRIMARY KEY (id);
-
-
-CREATE TABLE
-  public.api_key_limit (
-    id serial NOT NULL,
-    api_key text NULL,
-    usage_limit integer NULL,
-    usage_type text NULL,
-    created_at timestamp with time zone NULL DEFAULT CURRENT_TIMESTAMP,
-    service text NULL
-  );
-
-ALTER TABLE
-  public.api_key_limit
-ADD
-  CONSTRAINT api_key_limit_pkey PRIMARY KEY (id);
-
-CREATE TABLE
-  public.api_users (
-    key text NOT NULL,
-    user_id text NULL,
-    email text NULL,
-    created_at timestamp with time zone NULL,
-    usage_type text NULL,
-    usage_limit integer NULL,
-    service text NULL,
-    usage integer NULL
-  );
-
-ALTER TABLE
-  public.api_users
-ADD
-  CONSTRAINT api_users_pkey PRIMARY KEY (key);

@@ -1,4 +1,5 @@
-use crate::models::server::{auth::UserInfo, extract::UploadForm};
+use crate::models::server::extract::UploadForm;
+use crate::models::auth::auth::UserInfo;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
 use crate::utils::db::deadpool_postgres::Pool;
@@ -86,7 +87,7 @@ pub async fn create_extraction_task(
         file_data,
         task_id,
         user_id,
-        &api_key.to_string(),
+        api_key,
         model,
         target_chunk_length,
     )

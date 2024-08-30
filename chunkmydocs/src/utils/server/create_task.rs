@@ -16,19 +16,19 @@ use uuid::Uuid;
 
 async fn validate_usage(
     client: &Client,
-    api_key: &String,
+    user_id: &String,
     page_count: i32,
 ) -> Result<(), Box<dyn Error>> {
     // Check current usage and limit
     let usage_row = client.query_one(
-        "SELECT COALESCE(SUM(usage), 0) as total_usage FROM public.api_key_usage WHERE api_key = $1 AND usage_type = 'FREE' AND service = 'EXTRACTION'",
-        &[&api_key]
+        "SELECT usage FROM api_users WHERE user_id = $1 AND usage_type = 'FREE' AND service = 'EXTRACTION'",
+        &[&user_id]
     ).await?;
-    let current_usage: i64 = usage_row.get("total_usage");
+    let current_usage: i64 = usage_row.get("usage");
 
     let limit_row = client.query_opt(
-        "SELECT usage_limit FROM public.api_key_limit WHERE api_key = $1 AND usage_type = 'FREE' AND service = 'EXTRACTION' LIMIT 1",
-        &[&api_key]
+        "SELECT usage_limit FROM api_users WHERE user_id = $1 AND usage_type = 'FREE' AND service = 'EXTRACTION' LIMIT 1",
+        &[&user_id]
     ).await?;
     let usage_limit: i32 = limit_row.map(|row| row.get("usage_limit")).unwrap_or(0);
 
@@ -74,7 +74,7 @@ pub async fn create_task(
     file: &TempFile,
     task_id: String,
     user_id: String,
-    api_key: &String,
+    api_key: Option<String>,
     model: ModelInternal,
     target_chunk_length: i32,
 ) -> Result<TaskResponse, Box<dyn Error>> {
@@ -102,7 +102,7 @@ pub async fn create_task(
             }
         };
 
-        validate_usage(&client, &api_key, page_count).await?;
+        validate_usage(&client, &user_id, page_count).await?;
 
         let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
         let input_location = format!(
