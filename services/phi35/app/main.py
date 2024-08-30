@@ -9,7 +9,7 @@ import requests
 
 app = FastAPI()
 
-model_id = "microsoft/Phi-3.5-vision-instruct"
+model_id = "yifeihu/TB-OCR-preview-0.1"
 
 # Note: set _attn_implementation='eager' if you don't have flash_attn installed
 model = AutoModelForCausalLM.from_pretrained(
