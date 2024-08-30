@@ -11,7 +11,7 @@ from transformers import AutoModelForCausalLM, AutoProcessor, BitsAndBytesConfig
 from PIL import Image
 import requests
 app = FastAPI()
-model_dir = "models/unquantized"
+model_dir = "models"
 
 # Load the model and processor
 model = AutoModelForCausalLM.from_pretrained(
