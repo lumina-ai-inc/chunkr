@@ -1,4 +1,4 @@
-use crate::models::api::auth::UserInfo;
+use crate::models::auth::auth::UserInfo;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use actix_web::{web, Error, HttpResponse};
 use serde::{Deserialize, Serialize};
