@@ -14,15 +14,13 @@ app = FastAPI()
 model_dir = "models/unquantized"
 
 # Load the model and processor
-model_id = "microsoft/Phi-3.5-vision-instruct"
 model = AutoModelForCausalLM.from_pretrained(
     model_dir,
     device_map="cuda",
     trust_remote_code=True,
     torch_dtype="auto",
-    _attn_implementation='flash_attention_2',
-    quantization_config=BitsAndBytesConfig(load_in_4bit=True) # Optional: Load model in 4-bit mode to save memory
-
+    _attn_implementation='flash_attention_2'
+    # quantization_config=BitsAndBytesConfig(load_in_4bit=True) # Optional: Load model in 4-bit mode to save memory
 )
 processor = AutoProcessor.from_pretrained(model_dir, trust_remote_code=True, num_crops=16)
 
