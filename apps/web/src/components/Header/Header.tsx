@@ -82,13 +82,11 @@ export default function Header({
           </Text>
         </a>
 
-        {isAuthenticated && (
-          <Link to="/pricing" style={{ textDecoration: "none" }}>
-            <Text size="4" weight="medium" className="nav-item">
-              Pricing
-            </Text>
-          </Link>
-        )}
+        <Link to="/pricing" style={{ textDecoration: "none" }}>
+          <Text size="4" weight="medium" className="nav-item">
+            Pricing
+          </Text>
+        </Link>
 
         <Text size="4" weight="medium" className="nav-item">
           Docs
@@ -147,13 +145,11 @@ export default function Header({
                   <Text>Github</Text>
                 </a>
               </DropdownMenu.Item>
-              {isAuthenticated && (
-                <DropdownMenu.Item asChild>
-                  <Link to="/pricing">
-                    <Text>Pricing</Text>
-                  </Link>
-                </DropdownMenu.Item>
-              )}
+              <DropdownMenu.Item asChild>
+                <Link to="/pricing">
+                  <Text>Pricing</Text>
+                </Link>
+              </DropdownMenu.Item>
               <DropdownMenu.Item>
                 <Text>Docs</Text>
               </DropdownMenu.Item>
