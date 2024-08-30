@@ -1,32 +1,30 @@
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
 from typing import List
 from transformers import AutoModelForCausalLM, AutoProcessor
 import torch
 from PIL import Image
 import io
-import torch
-from transformers import AutoModelForCausalLM, AutoProcessor, BitsAndBytesConfig
-from PIL import Image
 import requests
+
 app = FastAPI()
-model_dir = "models"
 
-# Load the model and processor
+model_id = "microsoft/Phi-3.5-vision-instruct"
+
+# Note: set _attn_implementation='eager' if you don't have flash_attn installed
 model = AutoModelForCausalLM.from_pretrained(
-    model_dir,
-    device_map="cuda",
-    trust_remote_code=True,
-    torch_dtype="auto",
-    _attn_implementation='flash_attention_2'
-    # quantization_config=BitsAndBytesConfig(load_in_4bit=True) # Optional: Load model in 4-bit mode to save memory
+    model_id, 
+    device_map="cuda", 
+    trust_remote_code=True, 
+    torch_dtype="auto", 
+    _attn_implementation='flash_attention_2'    
 )
-processor = AutoProcessor.from_pretrained(model_dir, trust_remote_code=True, num_crops=16)
 
-class ChatMessage(BaseModel):
-    role: str
-    content: str
+# for best performance, use num_crops=4 for multi-frame, num_crops=16 for single-frame.
+processor = AutoProcessor.from_pretrained(model_id, 
+    trust_remote_code=True, 
+    num_crops=4
+) 
 
 @app.post("/generate")
 async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)):
@@ -53,18 +51,28 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
     
     # Stream the response
     async def generate_stream():
-        for token in model.generate(
+        generation_args = { 
+            "max_new_tokens": 1000, 
+            "temperature": 0.0, 
+            "do_sample": False, 
+        } 
+        
+        generate_ids = model.generate(
             **inputs,
-            max_new_tokens=1000,
-            temperature=0.7,
-            do_sample=True,
-            pad_token_id=processor.tokenizer.eos_token_id,
             eos_token_id=processor.tokenizer.eos_token_id,
-            streamer=None  # We'll implement our own streaming logic
-        )[0]:  # Get the first sequence of generated tokens
-            yield processor.tokenizer.decode([token], skip_special_tokens=True)
+            **generation_args
+        )
+        
+        # remove input tokens 
+        generate_ids = generate_ids[:, inputs['input_ids'].shape[1]:]
+        response = processor.batch_decode(generate_ids, 
+            skip_special_tokens=True, 
+            clean_up_tokenization_spaces=False)[0]
+        
+        yield response
 
     return StreamingResponse(generate_stream(), media_type="text/plain")
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Phi-3.5 Vision API"}
