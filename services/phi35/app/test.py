@@ -25,7 +25,7 @@ def test_phi_generate():
         "images": ("example.png", image_data, "image/png")
     }
     data = {
-        "prompt": "Describe this image in detail. And extract important values in json format."
+        "prompt": "Describe this image in detail. Extract values and put it in markdown table."
     }
 
     try:
