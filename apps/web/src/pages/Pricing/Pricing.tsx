@@ -1,5 +1,6 @@
 import { Flex, Text, Separator, ScrollArea } from "@radix-ui/themes";
 import { keyframes } from "@emotion/react";
+import { useAuth } from "react-oidc-context";
 
 import "./Pricing.css";
 
@@ -26,6 +27,7 @@ interface PricingCardProps {
   features: string[];
   active: boolean;
   enterprise: boolean;
+  auth?: boolean;
 }
 
 const PricingCard = ({
@@ -34,11 +36,15 @@ const PricingCard = ({
   features,
   active,
   enterprise,
+  auth,
 }: PricingCardProps) => {
+  // Determine if the card should be active
+  const isActive = auth && active;
+
   return (
     <Flex
       direction="column"
-      className={active ? "card-container-selected" : "card-container"}
+      className={isActive ? "card-container-selected" : "card-container"}
     >
       <Text size="6" weight="bold" className="cyan-4">
         {tier}
@@ -77,9 +83,15 @@ const PricingCard = ({
         ))}
       </Flex>
       <Flex mt="24px">
-        <Badge className={active ? "active-badge" : "inactive-badge"}>
+        <Badge className={isActive ? "active-badge" : "inactive-badge"}>
           <Text size="2" weight="medium">
-            {active ? "Current Plan" : enterprise ? "Contact" : "Upgrade"}
+            {isActive
+              ? "Current Plan"
+              : enterprise
+                ? "Book a Call"
+                : auth
+                  ? "Upgrade"
+                  : "Login"}
           </Text>
         </Badge>
       </Flex>
@@ -88,6 +100,7 @@ const PricingCard = ({
 };
 
 export default function Pricing() {
+  const auth = useAuth();
   return (
     <Flex
       direction="column"
@@ -96,85 +109,107 @@ export default function Pricing() {
         height: "100%",
         width: "100%",
         backgroundColor: "hsl(192, 70%, 5%)",
-        maxWidth: "1564px",
         margin: "0 auto",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <ScrollArea>
-        <Header />
-
-        <Flex
-          direction="column"
-          align="center"
-          justify="center"
-          mt="48px"
-          px="4"
-        >
-          <Text size="8" weight="bold" className="cyan-4">
-            Pricing
-          </Text>
-          <AnimatedSeparator
-            size="2"
-            style={{
-              backgroundColor: "var(--cyan-12)",
-              width: "100%",
-              maxWidth: "50%",
-              marginTop: "24px",
-              height: "3px",
-            }}
-          />
-          <Text
-            size="4"
-            weight="medium"
-            className="cyan-8"
-            style={{
-              marginTop: "16px",
-              padding: "0 12px",
-              textAlign: "center",
-              textWrap: "balance",
-            }}
+        <div style={{ maxWidth: "1564px", margin: "0 auto" }}>
+          <Header />
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            px="4"
+            className="pricing-container"
           >
-            From solo devs to enterprise teams - we've got you covered
-          </Text>
-        </Flex>
-        <Flex
-          direction="row"
-          align="center"
-          justify="center"
-          mt="64px"
-          gap="48px"
-          wrap="wrap"
-          px="16px"
-        >
-          <PricingCard
-            tier="Free"
-            price="0"
-            features={["100 pages/month", "Basic chunking", "Standard support"]}
-            active={true}
-            enterprise={false}
-          />
-          <PricingCard
-            tier="Dev"
-            price="30"
-            features={["100 pages/month", "Basic chunking", "Standard support"]}
-            active={false}
-            enterprise={false}
-          />
-          <PricingCard
-            tier="Enterprise"
-            price="Custom"
-            features={["100 pages/month", "Basic chunking", "Standard support"]}
-            active={false}
-            enterprise={true}
-          />
-          <PricingCard
-            tier="Self-host"
-            price="License"
-            features={["100 pages/month", "Basic chunking", "Standard support"]}
-            active={false}
-            enterprise={true}
-          />
-        </Flex>
+            <Text size="8" weight="bold" className="cyan-4">
+              Pricing
+            </Text>
+            <AnimatedSeparator
+              size="2"
+              style={{
+                backgroundColor: "var(--cyan-12)",
+                width: "100%",
+                maxWidth: "50%",
+                marginTop: "24px",
+                height: "3px",
+              }}
+            />
+            <Text
+              size="4"
+              weight="medium"
+              className="cyan-8"
+              style={{
+                marginTop: "16px",
+                padding: "0 12px",
+                textAlign: "center",
+                textWrap: "balance",
+              }}
+            >
+              From solo devs to enterprise teams - we've got you covered
+            </Text>
+          </Flex>
+          <Flex
+            direction="row"
+            align="center"
+            justify="center"
+            mt="64px"
+            wrap="wrap"
+            px="16px"
+            className="pricing-cards-container"
+          >
+            <PricingCard
+              tier="Free"
+              price="0"
+              features={[
+                "100 pages/month",
+                "Basic chunking",
+                "Standard support",
+              ]}
+              active={true}
+              enterprise={false}
+              auth={auth.isAuthenticated}
+            />
+            <PricingCard
+              tier="Dev"
+              price="30"
+              features={[
+                "100 pages/month",
+                "Basic chunking",
+                "Standard support",
+              ]}
+              active={false}
+              enterprise={false}
+              auth={auth.isAuthenticated}
+            />
+            <PricingCard
+              tier="Enterprise"
+              price="Custom"
+              features={[
+                "100 pages/month",
+                "Basic chunking",
+                "Standard support",
+              ]}
+              active={false}
+              enterprise={true}
+              auth={auth.isAuthenticated}
+            />
+            <PricingCard
+              tier="Self-host"
+              price="License"
+              features={[
+                "100 pages/month",
+                "Basic chunking",
+                "Standard support",
+              ]}
+              active={false}
+              enterprise={true}
+              auth={auth.isAuthenticated}
+            />
+          </Flex>
+        </div>
       </ScrollArea>
     </Flex>
   );
