@@ -3,6 +3,7 @@ import { DropdownMenu, Flex, Text, Button, Code } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
 import "./Header.css";
 import Account from "../Auth/Account";
+import { useAuth } from "react-oidc-context";
 
 interface HeaderProps {
   py?: string;
@@ -18,6 +19,9 @@ export default function Header({
   home = false,
 }: HeaderProps) {
   const [showAccount, setShowAccount] = useState(false);
+  const auth = useAuth();
+
+  const isAuthenticated = auth.isAuthenticated;
 
   return (
     <Flex direction="row" justify="between" py={py} px={px} className="header">
@@ -78,25 +82,41 @@ export default function Header({
           </Text>
         </a>
 
-        <Link to="/pricing" style={{ textDecoration: "none" }}>
-          <Text size="4" weight="medium" className="nav-item">
-            Pricing
-          </Text>
-        </Link>
+        {isAuthenticated && (
+          <Link to="/pricing" style={{ textDecoration: "none" }}>
+            <Text size="4" weight="medium" className="nav-item">
+              Pricing
+            </Text>
+          </Link>
+        )}
 
         <Text size="4" weight="medium" className="nav-item">
           Docs
         </Text>
 
-        <Text
-          size="4"
-          weight="medium"
-          className="nav-item"
-          onClick={() => setShowAccount(!showAccount)}
-          style={{ cursor: "pointer" }}
-        >
-          Account
-        </Text>
+        {isAuthenticated && (
+          <Text
+            size="4"
+            weight="medium"
+            className="nav-item"
+            onClick={() => setShowAccount(!showAccount)}
+            style={{ cursor: "pointer" }}
+          >
+            Account
+          </Text>
+        )}
+
+        {!isAuthenticated && (
+          <Text
+            size="4"
+            weight="medium"
+            className="nav-item"
+            onClick={() => auth.signinRedirect()}
+            style={{ cursor: "pointer" }}
+          >
+            Login
+          </Text>
+        )}
 
         <div className="dropdown-container">
           <DropdownMenu.Root>
@@ -104,35 +124,50 @@ export default function Header({
               <Button>Menu</Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-              {download && (
+              {download && !home && (
                 <DropdownMenu.Item>
                   <Text>Download JSON</Text>
                 </DropdownMenu.Item>
               )}
-              <DropdownMenu.Item>
-                <Text>Pricing</Text>
+              <DropdownMenu.Item asChild>
+                <a href="https://twitter.com/lumina_ai_inc" target="_blank">
+                  <Text>Contact</Text>
+                </a>
               </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <a href="https://twitter.com/lumina_ai_inc" target="_blank">
+                  <Text>Twitter</Text>
+                </a>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <a
+                  href="https://github.com/lumina-ai-inc/chunk-my-docs"
+                  target="_blank"
+                >
+                  <Text>Github</Text>
+                </a>
+              </DropdownMenu.Item>
+              {isAuthenticated && (
+                <DropdownMenu.Item asChild>
+                  <Link to="/pricing">
+                    <Text>Pricing</Text>
+                  </Link>
+                </DropdownMenu.Item>
+              )}
               <DropdownMenu.Item>
                 <Text>Docs</Text>
               </DropdownMenu.Item>
-              <a
-                href="https://github.com/lumina-ai-inc/chunk-my-docs"
-                target="_blank"
-              >
-                <DropdownMenu.Item>
-                  <Text>Github</Text>
+              {isAuthenticated ? (
+                <DropdownMenu.Item
+                  onSelect={() => setShowAccount(!showAccount)}
+                >
+                  <Text>Account</Text>
                 </DropdownMenu.Item>
-              </a>
-              <a href="https://twitter.com/lumina_ai_inc" target="_blank">
-                <DropdownMenu.Item>
-                  <Text>Twitter</Text>
+              ) : (
+                <DropdownMenu.Item onSelect={() => auth.signinRedirect()}>
+                  <Text>Login</Text>
                 </DropdownMenu.Item>
-              </a>
-              <a href="https://twitter.com/lumina_ai_inc" target="_blank">
-                <DropdownMenu.Item>
-                  <Text>Contact</Text>
-                </DropdownMenu.Item>
-              </a>
+              )}
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </div>

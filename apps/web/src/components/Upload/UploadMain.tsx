@@ -10,7 +10,11 @@ import * as pdfjsLib from "pdfjs-dist";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-export default function UploadMain() {
+export default function UploadMain({
+  isAuthenticated,
+}: {
+  isAuthenticated: boolean;
+}) {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
   const [pageCount, setPageCount] = useState<number | null>(null);
@@ -108,64 +112,74 @@ export default function UploadMain() {
   }
 
   return (
-    <Flex direction="column" width="100%">
+    <Flex direction="column" width="100%" align="center">
       <Upload
         onFileUpload={handleFileUpload}
         onFileRemove={handleFileRemove}
         isUploaded={!!file}
         fileName={fileName}
+        isAuthenticated={isAuthenticated}
       />
-      <Flex
-        direction="row"
-        height="64px"
-        width="100%"
-        mt="40px"
-        className="toggle-container"
-        onClick={handleModelToggle}
-      >
-        <Flex
-          direction="column"
-          height="100%"
-          justify="center"
-          className={model === Model.Fast ? "toggle-active" : "toggle"}
-          style={{ borderTopLeftRadius: "4px", borderBottomLeftRadius: "4px" }}
-        >
-          <Text size="5" weight="medium">
-            Fast{"  "}
-            <Text size="3" weight="light" style={{ opacity: "0.8" }}>
-              (7 pages/s)
-            </Text>
-          </Text>
-        </Flex>
-        <Flex
-          direction="column"
-          height="100%"
-          justify="center"
-          className={model === Model.HighQuality ? "toggle-active" : "toggle"}
-          style={{
-            borderTopRightRadius: "4px",
-            borderBottomRightRadius: "4px",
-          }}
-        >
-          <Text size="5" weight="medium">
-            High Quality{" "}
-            <Text size="3" weight="light" style={{ opacity: "0.8" }}>
-              (1 page/s)
-            </Text>
-          </Text>
-        </Flex>
-      </Flex>
-      <Flex direction="row" width="100%" mt="32px">
-        <BetterButton
-          padding="16px 64px"
-          onClick={handleRun}
-          active={!!file && !isLoading}
-        >
-          <Text size="5" weight="medium">
-            {isLoading ? "Uploading..." : "Run"}
-          </Text>
-        </BetterButton>
-      </Flex>
+      {isAuthenticated && (
+        <>
+          <Flex
+            direction="row"
+            height="64px"
+            width="100%"
+            mt="40px"
+            className="toggle-container"
+            onClick={handleModelToggle}
+          >
+            <Flex
+              direction="column"
+              height="100%"
+              justify="center"
+              className={model === Model.Fast ? "toggle-active" : "toggle"}
+              style={{
+                borderTopLeftRadius: "4px",
+                borderBottomLeftRadius: "4px",
+              }}
+            >
+              <Text size="5" weight="medium">
+                Fast{"  "}
+                <Text size="3" weight="light" style={{ opacity: "0.8" }}>
+                  (7 pages/s)
+                </Text>
+              </Text>
+            </Flex>
+            <Flex
+              direction="column"
+              height="100%"
+              justify="center"
+              className={
+                model === Model.HighQuality ? "toggle-active" : "toggle"
+              }
+              style={{
+                borderTopRightRadius: "4px",
+                borderBottomRightRadius: "4px",
+              }}
+            >
+              <Text size="5" weight="medium">
+                High Quality{" "}
+                <Text size="3" weight="light" style={{ opacity: "0.8" }}>
+                  (1 page/s)
+                </Text>
+              </Text>
+            </Flex>
+          </Flex>
+          <Flex direction="row" width="100%" mt="32px">
+            <BetterButton
+              padding="16px 64px"
+              onClick={handleRun}
+              active={!!file && !isLoading}
+            >
+              <Text size="5" weight="medium">
+                {isLoading ? "Uploading..." : "Run"}
+              </Text>
+            </BetterButton>
+          </Flex>
+        </>
+      )}
     </Flex>
   );
 }
