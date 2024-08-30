@@ -11,7 +11,7 @@ from transformers import AutoModelForCausalLM, AutoProcessor, BitsAndBytesConfig
 from PIL import Image
 import requests
 app = FastAPI()
-model_dir = "models/quantized"
+model_dir = "models/unquantized"
 
 # Load the model and processor
 model_id = "microsoft/Phi-3.5-vision-instruct"
@@ -21,8 +21,10 @@ model = AutoModelForCausalLM.from_pretrained(
     trust_remote_code=True,
     torch_dtype="auto",
     _attn_implementation='flash_attention_2',
+    quantization_config=BitsAndBytesConfig(load_in_4bit=True) # Optional: Load model in 4-bit mode to save memory
+
 )
-processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True, num_crops=16)
+processor = AutoProcessor.from_pretrained(model_dir, trust_remote_code=True, num_crops=16)
 
 class ChatMessage(BaseModel):
     role: str
