@@ -2,6 +2,7 @@ import { Flex, Text } from "@radix-ui/themes";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "react-oidc-context";
 import "./Upload.css";
 
 interface UploadProps {
@@ -9,6 +10,7 @@ interface UploadProps {
   onFileRemove: () => void;
   isUploaded: boolean;
   fileName: string;
+  isAuthenticated: boolean;
 }
 
 export default function Upload({
@@ -16,6 +18,7 @@ export default function Upload({
   onFileRemove,
   isUploaded,
   fileName,
+  isAuthenticated,
 }: UploadProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -41,12 +44,17 @@ export default function Upload({
   });
 
   const navigate = useNavigate();
+  const auth = useAuth();
 
   const handleContainerClick = () => {
-    if (isUploaded) {
-      onFileRemove();
+    if (isAuthenticated) {
+      if (isUploaded) {
+        onFileRemove();
+      }
+      open(); // Open file dialog
+    } else {
+      auth.signinRedirect(); // Redirect to login when not authenticated
     }
-    open(); // Open file dialog
   };
 
   const DemoPdfLink = () => (
@@ -66,19 +74,21 @@ export default function Upload({
   );
 
   return (
-    <Flex direction="column" align="center" width="100%">
+    <>
       <Flex
-        {...getRootProps()}
+        {...(isAuthenticated ? getRootProps() : {})}
         direction="row"
         width="100%"
         height="302px"
         align="center"
         justify="center"
-        className="upload-container"
+        className={`upload-container ${!isAuthenticated ? "inactive" : ""}`}
         style={{ cursor: "pointer" }}
-        onClick={handleContainerClick}
+        onClick={
+          isAuthenticated ? handleContainerClick : () => auth.signinRedirect()
+        }
       >
-        <input {...getInputProps()} />
+        {isAuthenticated && <input {...getInputProps()} />}
         <Flex
           direction="column"
           py="10px"
@@ -86,24 +96,22 @@ export default function Upload({
           style={{ border: "1px dashed var(--Colors-Cyan-6, #9DDDE7)" }}
         >
           <Text size="6" weight="bold" className="cyan-1">
-            {isUploaded
-              ? "File Uploaded"
-              : isDragActive
-                ? "Drop PDF here"
-                : "Upload Document"}
+            {!isAuthenticated
+              ? "Log In"
+              : isUploaded
+                ? "File Uploaded"
+                : isDragActive
+                  ? "Drop PDF here"
+                  : "Upload Document"}
           </Text>
-          {isUploaded ? (
+          {isAuthenticated && (
             <Text size="2" className="cyan-3" style={{ marginTop: "8px" }}>
-              {fileName}
-            </Text>
-          ) : (
-            <Text size="2" className="cyan-3" style={{ marginTop: "8px" }}>
-              Drag and drop a PDF or click to select
+              {isUploaded ? fileName : "Drag and drop a PDF or click to select"}
             </Text>
           )}
         </Flex>
       </Flex>
-      {!isUploaded && <DemoPdfLink />}
-    </Flex>
+      <DemoPdfLink />
+    </>
   );
 }

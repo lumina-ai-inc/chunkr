@@ -1,0 +1,57 @@
+.active-badge {
+  color: var(--cyan-11);
+  border: 1px solid var(--cyan-11);
+}
+
+.inactive-badge {
+  color: var(--cyan-4);
+  border: 1px solid var(--cyan-4);
+}
+
+.card-container {
+  background-color: hsl(191, 73%, 5%);
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
+  border: 2px solid var(--cyan-5);
+  border-radius: 8px;
+  padding: 32px;
+  width: 324px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.card-container:hover {
+  background-color: var(--cyan-12);
+  border-color: var(--cyan-8);
+}
+
+.card-container-selected {
+  background-color: hsl(191, 73%, 5%);
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
+  border: 2px solid var(--cyan-5);
+  border-radius: 8px;
+  padding: 32px;
+  width: 324px;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.pricing-container {
+  margin-top: 32px;
+}
+
+.pricing-cards-container {
+  gap: 48px;
+}
+
+@media (min-width: 1564px) {
+  .pricing-container {
+    margin-top: 64px;
+  }
+
+  .pricing-cards-container {
+    gap: 64px;
+  }
+}
