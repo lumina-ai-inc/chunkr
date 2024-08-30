@@ -61,11 +61,10 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
             pad_token_id=processor.tokenizer.eos_token_id,
             eos_token_id=processor.tokenizer.eos_token_id,
             streamer=None  # We'll implement our own streaming logic
-        ):
+        )[0]:  # Get the first sequence of generated tokens
             yield processor.tokenizer.decode([token], skip_special_tokens=True)
 
     return StreamingResponse(generate_stream(), media_type="text/plain")
-
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Phi-3.5 Vision API"}
