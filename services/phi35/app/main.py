@@ -6,17 +6,21 @@ from transformers import AutoModelForCausalLM, AutoProcessor
 import torch
 from PIL import Image
 import io
-
+import torch
+from transformers import AutoModelForCausalLM, AutoProcessor, BitsAndBytesConfig
+from PIL import Image
+import requests
 app = FastAPI()
+model_dir = "models/quantized"
 
 # Load the model and processor
 model_id = "microsoft/Phi-3.5-vision-instruct"
 model = AutoModelForCausalLM.from_pretrained(
-    model_id,
+    model_dir,
     device_map="cuda",
     trust_remote_code=True,
     torch_dtype="auto",
-    _attn_implementation='flash_attention_2'
+    _attn_implementation='flash_attention_2',
 )
 processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True, num_crops=16)
 

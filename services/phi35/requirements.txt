@@ -1,4 +1,6 @@
 wheel
+accelerate
+fastmlx
 fastapi
 pydantic
 fitz
@@ -14,3 +16,5 @@ torchvision==0.18.0
 transformers==4.43.0
 accelerate==0.30.0
 packaging==24.0
+huggingface_hub
+bitsandbytes==0.42.1
