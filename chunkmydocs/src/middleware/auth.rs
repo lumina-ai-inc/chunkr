@@ -10,7 +10,33 @@ use actix_web::{
 use futures_util::future::LocalBoxFuture;
 use std::future::{ ready, Ready };
 use std::rc::Rc;
+use jsonwebtoken::{decode, decode_header, DecodingKey, Validation, Algorithm};
+use lazy_static::lazy_static;
+use reqwest::Client;
+use tokio::sync::OnceCell;
+use std::sync::Arc;
+use serde_json::Value;
 
+lazy_static! {
+    static ref DECODING_KEY: Arc<OnceCell<DecodingKey>> = Arc::new(OnceCell::new());
+}
+
+async fn get_decoding_key() -> &'static DecodingKey {
+    DECODING_KEY.get_or_init(|| async {
+        let config = Config::from_env().expect("Failed to load auth config");
+        let client = Client::new();
+        let url = format!("{}/realms/{}/protocol/openid-connect/certs", config.keycloak_url, config.keycloak_realm);
+        
+        let response = client.get(url).send().await.expect("Failed to fetch JWKS")
+            .json::<Value>().await.expect("Failed to parse JWKS response");
+
+        // Extract the RSA public key components
+        let jwk = &response["keys"][1];
+
+        DecodingKey::from_rsa_components(jwk["n"].as_str().unwrap(), jwk["e"].as_str().unwrap())
+            .expect("Invalid RSA public key")
+    }).await
+}
 
 pub struct ApiKeyMiddlewareFactory;
 
@@ -57,6 +83,11 @@ impl<S, B> Service<ServiceRequest>
         let srv = self.service.clone();
 
         Box::pin(async move {
+            // don't validate CORS pre-flight requests
+            if req.method() == "OPTIONS" {
+                let res = srv.call(req).await?;
+                return Ok(res);
+            }
             let authorization = req
                 .headers()
                 .get("Authorization")
@@ -77,7 +108,6 @@ impl<S, B> Service<ServiceRequest>
                     Err(e) => Err(e),
                 }
             } else {
-                
                 match api_key_validator(authorization.unwrap_or_default(), &req).await {
                     Ok(user_info) => {
                         req.extensions_mut().insert(user_info);
@@ -91,13 +121,52 @@ impl<S, B> Service<ServiceRequest>
     }
 }
 
+
 async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
-    let config = Config::from_env().unwrap();
-    let user_id = "1234".to_string();
-    Ok(UserInfo {
-        api_key: None,
-        user_id,
-    })
+    let config = Config::from_env().expect("Failed to load auth config");
+    let header = decode_header(&token);
+
+    match header {
+        Ok(ref value) => {
+            println!("HEADER: {:?}", value);
+        },
+        Err(e) => {
+            eprintln!("Error decoding header: {:?}", e);
+            return Err(actix_web::error::ErrorUnauthorized("Invalid token header"));
+        }
+    }
+
+    let mut validation = Validation::new(Algorithm::RS256);
+    validation.set_audience(&[config.client_id]);
+    validation.validate_aud = false;
+
+    let decoding_key = get_decoding_key().await;
+
+    match decode::<Value>(token, decoding_key, &validation) {
+        Ok(data) => {
+            println!("Decoded token data: {:?}", data);
+            let user_info = UserInfo {
+                api_key: None,
+                user_id: "1234".to_string(),
+            };
+            Ok(user_info)
+        },
+        Err(err) => {
+            eprintln!("Token validation error: {:?}", err);
+            // Log the token structure for debugging (be careful with sensitive data)
+            eprintln!("Token structure: {}", token.split('.').count());
+            match err.kind() {
+                jsonwebtoken::errors::ErrorKind::InvalidToken => Err(actix_web::error::ErrorUnauthorized("Invalid token structure")),
+                jsonwebtoken::errors::ErrorKind::InvalidSignature => Err(actix_web::error::ErrorUnauthorized("Invalid token signature")),
+                jsonwebtoken::errors::ErrorKind::ExpiredSignature => Err(actix_web::error::ErrorUnauthorized("Token has expired")),
+                jsonwebtoken::errors::ErrorKind::Json(json_error) => {
+                    eprintln!("JSON error in token: {:?}", json_error);
+                    Err(actix_web::error::ErrorUnauthorized("Invalid token payload"))
+                },
+                _ => Err(actix_web::error::ErrorUnauthorized("Token validation failed")),
+            }
+        },
+    }
 }
 
 async fn api_key_validator(api_key: &str, req: &ServiceRequest) -> Result<UserInfo, Error> {
@@ -109,18 +178,14 @@ async fn api_key_validator(api_key: &str, req: &ServiceRequest) -> Result<UserIn
         Some(pool) => pool.clone(),
         None => {
             println!("Database pool not found");
-            return Err(
-                actix_web::error::ErrorInternalServerError("Database pool not found")
-            );
+            return Err(actix_web::error::ErrorInternalServerError("Database pool not found"));
         }
     };
     let client = match pool.get().await {
         Ok(client) => client,
         Err(e) => {
             eprintln!("Error getting Postgres client from pool: {:?}", e);
-            return Err(
-                actix_web::error::ErrorInternalServerError("Failed to get client")
-            );
+            return Err(actix_web::error::ErrorInternalServerError("Failed to get client"));
         }
     };
 

@@ -6,8 +6,7 @@ use dotenvy::dotenv_override;
 pub struct Config {
     pub keycloak_url: String,
     pub keycloak_realm: String,
-    pub client_id: String,
-    pub client_secret: String,
+    pub client_id: String
 }
 
 impl Config {
@@ -15,7 +14,7 @@ impl Config {
         dotenv_override().ok();
 
         ConfigTrait::builder()
-            .add_source(config::Environment::default().prefix("Auth").separator("__"))
+            .add_source(config::Environment::default().prefix("AUTH").separator("__"))
             .build()?
             .try_deserialize()
     }
