@@ -8,7 +8,8 @@ def test_phi_generate():
     url = "http://localhost:8040/generate"
 
     # Path to the test PNG file
-    test_png_path = "/app/test_phi/test.png"
+    script_dir = os.path.dirname(__file__)
+    test_png_path = os.path.join(script_dir, "test_phi/test.png")
 
     # Check if the file exists
     if not os.path.exists(test_png_path):
@@ -43,4 +44,3 @@ def test_phi_generate():
 
 if __name__ == "__main__":
     test_phi_generate()
-
