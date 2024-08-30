@@ -1,4 +1,4 @@
-use crate::models::extraction::segment::{Chunk, Segment, SegmentType};
+use crate::models::server::segment::{Chunk, Segment, SegmentType};
 
 pub async fn chunk_and_add_markdown(
     segments: Vec<Segment>,

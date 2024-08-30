@@ -1,10 +1,10 @@
 use chrono::Utc;
 use chunkmydocs::extraction::grobid::grobid_extraction;
 use chunkmydocs::extraction::pdla::pdla_extraction;
-use chunkmydocs::models::extraction::extract::ExtractionPayload;
-use chunkmydocs::models::extraction::extract::ModelInternal;
-use chunkmydocs::models::extraction::segment::{Chunk, Segment};
-use chunkmydocs::models::extraction::task::Status;
+use chunkmydocs::models::server::extract::ExtractionPayload;
+use chunkmydocs::models::server::extract::ModelInternal;
+use chunkmydocs::models::server::segment::{Chunk, Segment};
+use chunkmydocs::models::server::task::Status;
 use chunkmydocs::models::rrq::queue::QueuePayload;
 use chunkmydocs::utils::configs::extraction_config;
 use chunkmydocs::utils::db::deadpool_postgres;

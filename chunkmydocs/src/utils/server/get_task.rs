@@ -1,5 +1,5 @@
-use crate::models::extraction::extract::ModelInternal;
-use crate::models::extraction::task::{Status, TaskResponse};
+use crate::models::server::extract::ModelInternal;
+use crate::models::server::task::{Status, TaskResponse};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::storage::services::generate_presigned_url;
 use aws_sdk_s3::Client as S3Client;

@@ -15,7 +15,7 @@ pub mod models;
 pub mod routes;
 pub mod utils;
 
-use middleware::api_key::ApiKeyMiddlewareFactory;
+use middleware::auth::ApiKeyMiddlewareFactory;
 use routes::auth::create_api_key;
 use routes::health::health_check;
 use routes::task::{create_extraction_task, get_task_status};
@@ -62,10 +62,10 @@ fn run_migrations(url: &str) {
     ),
     components(
         schemas(
-            models::extraction::extract::UploadForm,
-            models::extraction::task::TaskResponse,
-            models::extraction::task::Status,
-            models::extraction::extract::Model,
+            models::server::extract::UploadForm,
+            models::server::task::TaskResponse,
+            models::server::task::Status,
+            models::server::extract::Model,
         ),
     ),
     tags(

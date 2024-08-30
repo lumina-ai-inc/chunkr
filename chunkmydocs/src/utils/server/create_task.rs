@@ -1,7 +1,7 @@
 use crate::models::rrq::produce::ProducePayload;
 use crate::models::{
-    extraction::extract::{ExtractionPayload, ModelInternal},
-    extraction::task::{Status, TaskResponse},
+    server::extract::{ExtractionPayload, ModelInternal},
+    server::task::{Status, TaskResponse},
 };
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{Client, Pool};

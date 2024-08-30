@@ -1,4 +1,4 @@
-use crate::models::extraction::extract::ModelInternal;
+use crate::models::server::extract::ModelInternal;
 use crate::utils::configs::extraction_config::Config;
 use super::pdf::split_pdf;
 use reqwest::{multipart, Client as ReqwestClient};
