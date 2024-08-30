@@ -1,7 +1,7 @@
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import StreamingResponse
 from typing import List
-from transformers import AutoModelForCausalLM, AutoProcessor
+from transformers import AutoModelForCausalLM, AutoProcessor, BitsAndBytesConfig
 import torch
 from PIL import Image
 import io
@@ -17,7 +17,7 @@ model = AutoModelForCausalLM.from_pretrained(
     device_map="cuda", 
     trust_remote_code=True, 
     torch_dtype="auto", 
-    _attn_implementation='flash_attention_2' 
+    _attn_implementation='flash_attention_2',
     quantization_config=BitsAndBytesConfig(load_in_4bit=True) # Optional: Load model in 4-bit mode to save memory
 )
 
