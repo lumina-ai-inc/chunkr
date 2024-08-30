@@ -1,4 +1,5 @@
 use crate::models::auth::auth::{ UserInfo, Claims };
+use crate::utils::configs::auth_config::Config;
 use crate::utils::db::deadpool_postgres::Pool;
 use actix_web::{
     dev::{ forward_ready, Service, ServiceRequest, ServiceResponse, Transform },
@@ -9,7 +10,7 @@ use actix_web::{
 use futures_util::future::LocalBoxFuture;
 use std::future::{ ready, Ready };
 use std::rc::Rc;
-use jsonwebtoken::{ decode, DecodingKey, Validation };
+
 
 pub struct ApiKeyMiddlewareFactory;
 
@@ -91,16 +92,8 @@ impl<S, B> Service<ServiceRequest>
 }
 
 async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
-    let token = decode::<Claims>(
-        &token,
-        &DecodingKey::from_secret("secret".as_ref()),
-        &Validation::default()
-    );
-    if let Err(_e) = token {
-        return Err(actix_web::error::ErrorUnauthorized("Invalid token"));
-    }
-    println!("{:?}", token);
-    let user_id = token.unwrap().claims.sub;
+    let config = Config::from_env().unwrap();
+    let user_id = "1234".to_string();
     Ok(UserInfo {
         api_key: None,
         user_id,
