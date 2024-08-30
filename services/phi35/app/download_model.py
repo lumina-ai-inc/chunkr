@@ -14,22 +14,17 @@ if __name__ == "__main__":
         #    token=access_token,
     )
 
-    # Configure quantization
-    from transformers import BitsAndBytesConfig
-    quantization_config = BitsAndBytesConfig(load_in_4bit=True)
-
-    # Load and quantize the model
+    # Load the model without quantization
     from transformers import AutoModelForCausalLM
     model = AutoModelForCausalLM.from_pretrained(
         "models",
         device_map="auto",
         trust_remote_code=True,
         torch_dtype="auto",
-        _attn_implementation='flash_attention_2',
-        quantization_config=quantization_config
+        _attn_implementation='flash_attention_2'
     )
 
-    # Save the quantized model
-    model.save_pretrained("models/quantized", safe_serialization=False)
+    # Save the unquantized model
+    model.save_pretrained("models/unquantized", safe_serialization=False)
 
-    print("4-bit quantized model downloaded and saved to models/quantized")
+    print("Unquantized model downloaded and saved to models/unquantized")
