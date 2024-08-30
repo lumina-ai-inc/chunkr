@@ -1,5 +1,5 @@
 use crate::models::auth::auth::{ UserInfo, Claims };
-use crate::utils::db::deadpool_postgres::{ Client, Pool };
+use crate::utils::db::deadpool_postgres::Pool;
 use actix_web::{
     dev::{ forward_ready, Service, ServiceRequest, ServiceResponse, Transform },
     web,
@@ -62,7 +62,7 @@ impl<S, B> Service<ServiceRequest>
                 .and_then(|value| value.to_str().ok());
 
             if authorization.is_none() {
-                actix_web::error::ErrorUnauthorized("Authorization header is missing");
+                return Err(actix_web::error::ErrorUnauthorized("Authorization header is missing"));
             }
 
             if authorization.unwrap().starts_with("Bearer ") {
@@ -96,7 +96,7 @@ async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
         &DecodingKey::from_secret("secret".as_ref()),
         &Validation::default()
     );
-    if let Err(e) = token {
+    if let Err(_e) = token {
         return Err(actix_web::error::ErrorUnauthorized("Invalid token"));
     }
     println!("{:?}", token);
