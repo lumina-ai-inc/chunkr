@@ -22,10 +22,12 @@
 
 .hero-container {
   margin-top: 64px;
+  margin-bottom: 64px;
   padding-left: 80px;
   padding-right: 80px;
   gap: 32px;
   flex-direction: row;
+  align-items: center;
 }
 
 @media (min-width: 1564px) {
@@ -41,7 +43,6 @@
 
 .module-container {
   flex: 1;
-  margin-bottom: 64px;
 }
 
 .hero-title {
@@ -107,6 +108,14 @@
   .hero-container {
     flex-direction: column;
     gap: 48px;
+  }
+
+  .text-container {
+    width: 100%;
+  }
+
+  .module-container {
+    width: 100%;
   }
 
   .credit-main-container {

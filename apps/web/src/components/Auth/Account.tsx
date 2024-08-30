@@ -2,9 +2,14 @@ import { useRef, useEffect } from "react";
 import { Text, Flex, Separator } from "@radix-ui/themes";
 import "./Account.css";
 import BetterButton from "../BetterButton/BetterButton";
+import { useAuth } from "react-oidc-context";
 
 export default function Account({ onClose }: { onClose: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const auth = useAuth();
+  const user = auth.user;
+
+  console.log(user);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -114,11 +119,18 @@ export default function Account({ onClose }: { onClose: () => void }) {
               Free
             </Text>
           </div>
-          <BetterButton>
-            <Text size="2" weight="medium" className="cyan-1">
-              Manage Plan
-            </Text>
-          </BetterButton>
+          <Flex direction="row" gap="16px">
+            <BetterButton>
+              <Text size="2" weight="medium" className="cyan-1">
+                Manage Plan
+              </Text>
+            </BetterButton>
+            <BetterButton onClick={() => auth.signoutRedirect()}>
+              <Text size="2" weight="medium" className="cyan-1">
+                Logout
+              </Text>
+            </BetterButton>
+          </Flex>
         </Flex>
 
         {/* <Flex direction="row" gap="72px" mt="80px" wrap="wrap">
