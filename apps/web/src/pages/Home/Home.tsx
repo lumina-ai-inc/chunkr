@@ -4,7 +4,7 @@ import "./Home.css";
 import Header from "../../components/Header/Header";
 import UploadMain from "../../components/Upload/UploadMain";
 
-export const Home = () => {
+const Home = () => {
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
 
@@ -188,3 +188,6 @@ export const Home = () => {
     </Flex>
   );
 };
+
+
+export default Home;
