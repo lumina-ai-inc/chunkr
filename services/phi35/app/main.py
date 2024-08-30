@@ -17,13 +17,14 @@ model = AutoModelForCausalLM.from_pretrained(
     device_map="cuda", 
     trust_remote_code=True, 
     torch_dtype="auto", 
-    _attn_implementation='flash_attention_2'    
+    _attn_implementation='flash_attention_2' 
+    quantization_config=BitsAndBytesConfig(load_in_4bit=True) # Optional: Load model in 4-bit mode to save memory
 )
 
 # for best performance, use num_crops=4 for multi-frame, num_crops=16 for single-frame.
 processor = AutoProcessor.from_pretrained(model_id, 
     trust_remote_code=True, 
-    num_crops=4
+    num_crops=16
 ) 
 
 @app.post("/generate")
