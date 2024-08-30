@@ -30,6 +30,6 @@ if __name__ == "__main__":
     )
 
     # Save the quantized model
-    model.save_pretrained("models/quantized")
+    model.save_pretrained("models/quantized", safe_serialization=False)
 
     print("4-bit quantized model downloaded and saved to models/quantized")
