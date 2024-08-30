@@ -1,4 +1,4 @@
-use crate::models::extraction::api::ApiInfo;
+use crate::models::api::auth::UserInfo;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use actix_web::{web, Error, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -30,7 +30,7 @@ struct UsageResponse {
 )]
 pub async fn get_usage(
     pool: web::Data<Pool>,
-    api_info: web::ReqData<ApiInfo>,
+    api_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let user_id = api_info.user_id.clone();
     let api_key = api_info.api_key.clone();

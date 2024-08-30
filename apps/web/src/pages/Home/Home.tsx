@@ -6,7 +6,7 @@ import UploadMain from "../../components/Upload/UploadMain";
 
 export const Home = () => {
   const auth = useAuth();
-
+  console.log(auth.user)
   return (
     <Flex
       direction="column"
