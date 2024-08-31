@@ -153,18 +153,7 @@ async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
         },
         Err(err) => {
             eprintln!("Token validation error: {:?}", err);
-            // Log the token structure for debugging (be careful with sensitive data)
-            eprintln!("Token structure: {}", token.split('.').count());
-            match err.kind() {
-                jsonwebtoken::errors::ErrorKind::InvalidToken => Err(actix_web::error::ErrorUnauthorized("Invalid token structure")),
-                jsonwebtoken::errors::ErrorKind::InvalidSignature => Err(actix_web::error::ErrorUnauthorized("Invalid token signature")),
-                jsonwebtoken::errors::ErrorKind::ExpiredSignature => Err(actix_web::error::ErrorUnauthorized("Token has expired")),
-                jsonwebtoken::errors::ErrorKind::Json(json_error) => {
-                    eprintln!("JSON error in token: {:?}", json_error);
-                    Err(actix_web::error::ErrorUnauthorized("Invalid token payload"))
-                },
-                _ => Err(actix_web::error::ErrorUnauthorized("Token validation failed")),
-            }
+            Err(actix_web::error::ErrorUnauthorized("Invalid token payload"))
         },
     }
 }

@@ -88,12 +88,14 @@ pub async fn create_task(
     let output_extension = model.get_extension();
     let output_location = input_location.replace(".pdf", &format!(".{}", output_extension));
 
+    let message = "Task queued".to_string();
+
     match upload_to_s3(s3_client, &input_location, file.file.path()).await {
         Ok(_) => {
             let tx = client.transaction().await?;
 
             tx.execute(
-                "INSERT INTO ingestion_tasks (task_id, file_count, total_size, total_pages, created_at, finished_at, api_key, url, status, model, expiration_time) 
+                "INSERT INTO ingestion_tasks (task_id, file_count, total_size, total_pages, created_at, finished_at, api_key, url, status, model, expiration_time, message) 
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
                     ON CONFLICT (task_id) DO NOTHING",
                 &[
@@ -108,6 +110,7 @@ pub async fn create_task(
                     &Status::Starting.to_string(),
                     &model.to_string(),
                     &expiration_time,
+                    &message
                 ]
             ).await?;
 
@@ -163,7 +166,7 @@ pub async fn create_task(
                 output_file_url: None,
                 input_file_url,
                 task_url: Some(task_url),
-                message: "Task queued".to_string(),
+                message,
                 model: model.to_external(),
             })
         }
