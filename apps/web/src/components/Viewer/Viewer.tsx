@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Flex, ScrollArea } from "@radix-ui/themes";
 import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
@@ -32,6 +32,25 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
     isLoading,
     error,
   } = useSelector((state: RootState) => state.pdfContent);
+
+  const chunkRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const scrollToSegment = useCallback((chunkIndex: number) => {
+    const chunkElement = chunkRefs.current[chunkIndex];
+    if (chunkElement) {
+      const container = chunkElement.closest(".rt-ScrollAreaViewport");
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const chunkRect = chunkElement.getBoundingClientRect();
+        const scrollTop =
+          chunkRect.top - containerRect.top + container.scrollTop - 24;
+        container.scrollTo({
+          top: scrollTop,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -141,7 +160,11 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
           ref={scrollAreaRef}
         >
           {inputFileUrl && pdfContent && (
-            <PDF content={pdfContent} inputFileUrl={inputFileUrl} />
+            <PDF
+              content={pdfContent}
+              inputFileUrl={inputFileUrl}
+              onSegmentClick={scrollToSegment}
+            />
           )}
           <div
             style={{
@@ -202,11 +225,13 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
             ) : pdfContent.length === 0 ? (
               <div>No content available for this PDF.</div>
             ) : (
-              pdfContent.map((chunk: Chunk, index: number) => (
+              pdfContent.map((chunk: Chunk, chunkIndex: number) => (
                 <SegmentChunk
-                  key={index}
+                  key={chunkIndex}
                   chunk={chunk}
+                  chunkIndex={chunkIndex}
                   containerWidth={scrollAreaWidth}
+                  ref={(el) => (chunkRefs.current[chunkIndex] = el)}
                 />
               ))
             )}
