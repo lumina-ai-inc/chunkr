@@ -93,8 +93,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       pdfjs-dist:
-        specifier: ^4.4.168
-        version: 4.5.136
+        specifier: ^2.6.347
+        version: 2.6.347
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -3107,6 +3107,9 @@ packages:
   path2d@0.2.1:
     resolution: {integrity: sha512-Fl2z/BHvkTNvkuBzYTpTuirHZg6wW9z8+4SND/3mDTEcYbbNKWAy21dz9D3ePNNwrrK8pqZO5vLPZ1hLF6T7XA==}
     engines: {node: '>=6'}
+
+  pdfjs-dist@2.6.347:
+    resolution: {integrity: sha512-QC+h7hG2su9v/nU1wEI3SnpPIrqJODL7GTDFvR74ANKGq1AFJW16PH8VWnhpiTi9YcLSFV9xLeWSgq+ckHLdVQ==}
 
   pdfjs-dist@4.4.168:
     resolution: {integrity: sha512-MbkAjpwka/dMHaCfQ75RY1FXX3IewBVu6NGZOcxerRFlaBiIkZmUoR0jotX5VUzYZEXAGzSFtknWs5xRKliXPA==}
@@ -7098,6 +7101,8 @@ snapshots:
 
   path2d@0.2.1:
     optional: true
+
+  pdfjs-dist@2.6.347: {}
 
   pdfjs-dist@4.4.168:
     optionalDependencies:
