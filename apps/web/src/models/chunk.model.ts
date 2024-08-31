@@ -1,3 +1,16 @@
+export type SegmentType =
+  | "Text"
+  | "Title"
+  | "Table"
+  | "Section header"
+  | "Picture"
+  | "Page footer"
+  | "Page header"
+  | "List item"
+  | "Formula"
+  | "Footnote"
+  | "Caption";
+
 // Define the structure for a single segment
 export interface Segment {
   left: number;
@@ -8,7 +21,7 @@ export interface Segment {
   page_width: number;
   page_height: number;
   text: string;
-  type: string;
+  type: SegmentType;
 }
 
 // Define the structure for a chunk, which includes segments and markdown
