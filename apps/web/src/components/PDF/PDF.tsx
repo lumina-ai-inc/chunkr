@@ -14,7 +14,7 @@ const options = {
 };
 
 const segmentColors: Record<SegmentType, string> = {
-  Text: "--teal-10",
+  Text: "--jade-10",
   Table: "--orange-9",
   Title: "--blue-9",
   Picture: "--pink-10",
@@ -28,7 +28,7 @@ const segmentColors: Record<SegmentType, string> = {
 };
 
 const segmentLightColors: Record<SegmentType, string> = {
-  Text: "--teal-4",
+  Text: "--jade-4",
   Table: "--orange-4",
   Title: "--blue-4",
   Picture: "--pink-4",
