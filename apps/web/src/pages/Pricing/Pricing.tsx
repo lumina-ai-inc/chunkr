@@ -46,11 +46,11 @@ const PricingCard = ({
       direction="column"
       className={isActive ? "card-container-selected" : "card-container"}
     >
-      <Text size="6" weight="bold" className="cyan-4">
+      <Text size="5" weight="bold" className="cyan-4">
         {tier}
       </Text>
       <Text
-        size="9"
+        size="8"
         weight="bold"
         className="cyan-2"
         style={{ marginTop: "16px" }}
@@ -124,7 +124,7 @@ export default function Pricing() {
             px="4"
             className="pricing-container"
           >
-            <Text size="8" weight="bold" className="cyan-4">
+            <Text size="9" weight="medium" className="cyan-4">
               Pricing
             </Text>
             <AnimatedSeparator
@@ -138,7 +138,7 @@ export default function Pricing() {
               }}
             />
             <Text
-              size="4"
+              size="5"
               weight="medium"
               className="cyan-8"
               style={{
