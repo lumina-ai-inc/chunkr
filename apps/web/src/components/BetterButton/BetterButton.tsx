@@ -2,7 +2,7 @@ import "./BetterButton.css";
 
 export default function BetterButton({
   children,
-  padding = "4px 12px",
+  padding = "4px 10px",
   active = false,
   onClick,
 }: {
@@ -14,7 +14,7 @@ export default function BetterButton({
   return (
     <button
       className={`button-resting ${active ? "button-active" : ""}`}
-      style={{ padding, width: "fit-content" }}
+      style={{ padding, width: "fit-content", fontSize: "12px" }}
       onClick={onClick}
     >
       {children}
