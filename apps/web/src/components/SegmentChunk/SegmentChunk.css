@@ -130,22 +130,22 @@ p {
 }
 
 .segment-badge.text {
-  border-color: var(--teal-10);
+  border-color: var(--jade-10);
 }
 .segment-badge.table {
   border-color: var(--orange-9);
 }
 .segment-badge.title {
-  border-color: var(--amber-8);
+  border-color: var(--blue-9);
 }
 .segment-badge.picture {
   border-color: var(--pink-10);
 }
 .segment-badge.formula {
-  border-color: var(--cyan-8);
+  border-color: var(--amber-8);
 }
 .segment-badge.caption {
-  border-color: var(--jade-10);
+  border-color: var(--crimson-8);
 }
 .segment-badge.footnote {
   border-color: var(--pink-10);
@@ -157,10 +157,10 @@ p {
   border-color: var(--red-12);
 }
 .segment-badge.page-header {
-  border-color: var(--violet-8);
+  border-color: var(--violet-9);
 }
 .segment-badge.section-header {
-  border-color: var(--yellow-7);
+  border-color: var(--cyan-8);
 }
 
 @keyframes slideDown {
