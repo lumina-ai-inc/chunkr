@@ -32,7 +32,7 @@ const segmentLightColors: Record<SegmentType, string> = {
   Table: "--orange-4",
   Title: "--blue-4",
   Picture: "--pink-4",
-  Formula: "--amber-4",
+  Formula: "--amber-3",
   Caption: "--crimson-2",
   Footnote: "--pink-4",
   "List item": "--bronze-4",
