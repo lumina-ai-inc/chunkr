@@ -69,7 +69,7 @@ export default function Header({
           <Text
             size="4"
             weight="medium"
-            className="cyan-9 nav-item"
+            className="nav-item-download"
             onClick={handleDownloadJSON}
             style={{ cursor: "pointer" }}
           >
@@ -105,7 +105,7 @@ export default function Header({
         </Link>
 
         <Text size="4" weight="medium" className="nav-item">
-          Docs
+          API Docs
         </Text>
 
         {isAuthenticated && (

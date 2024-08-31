@@ -94,21 +94,17 @@ export const SegmentChunk = ({
                     setMarkdownSelected(true);
                   }}
                 >
-                  <Text size="1" weight="regular">
-                    Markdown
-                  </Text>
+                  Markdown
                 </BetterButton>
                 <BetterButton
                   active={!markdownSelected}
-                  padding="6px 12px"
+                  padding="8px 12px"
                   onClick={(e) => {
                     e.stopPropagation();
                     setMarkdownSelected(false);
                   }}
                 >
-                  <Text size="1" weight="regular">
-                    JSON
-                  </Text>
+                  JSON
                 </BetterButton>
               </Flex>
             </Flex>

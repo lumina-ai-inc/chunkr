@@ -51,6 +51,16 @@
   color: var(--cyan-8);
 }
 
+.nav-item-download {
+  transition: color 0.2s ease-in-out;
+  cursor: pointer;
+  color: var(--cyan-6);
+}
+
+.nav-item-download:hover {
+  color: var(--cyan-8);
+}
+
 .dropdown-container {
   display: none;
 }
