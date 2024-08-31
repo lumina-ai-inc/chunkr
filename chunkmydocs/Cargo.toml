@@ -59,6 +59,8 @@ regex = "1.10.5"
 anyhow = "1.0.86"
 openssl = "0.10.66"
 postgres-openssl = "0.5.0"
+jsonwebtoken = "9.3.0"
+lazy_static = "1.5.0"
 base64 = "0.22.1"
 
 [[bin]]

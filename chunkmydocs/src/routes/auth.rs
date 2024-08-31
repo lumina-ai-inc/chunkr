@@ -1,4 +1,4 @@
-use crate::models::api::api_key::{ApiKey, ApiKeyLimit, ApiKeyUsage, ApiRequest, ServiceType};
+use crate::models::auth::api_key::{ApiKey, ApiKeyLimit, ApiKeyUsage, ApiRequest, ServiceType};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use actix_web::{web, Error, HttpResponse};
 use prefixed_api_key::PrefixedApiKeyController;

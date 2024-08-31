@@ -1,15 +1,16 @@
 import ReactDOM from "react-dom/client";
-import "./index.css";
+import { Provider } from "react-redux";
+import { Toaster } from "react-hot-toast";
+import { AuthProvider, AuthProviderProps } from "react-oidc-context";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
-import { Toaster } from "react-hot-toast";
-import { AuthProvider, AuthProviderProps } from "react-oidc-context";
-import { Home } from "./pages/Home/Home.tsx";
+import "./index.css";
+import Auth from "./auth/Auth.tsx";
+import Home from "./pages/Home/Home.tsx";
 import Task from "./pages/Task/Task.tsx";
 import AuthGuard from "./auth/AuthGuard.tsx";
 import Pricing from "./pages/Pricing/Pricing.tsx";
-import { Provider } from "react-redux";
 import store from "./store/store";
 
 const oidcConfig: AuthProviderProps = {
@@ -54,7 +55,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   >
     <AuthProvider {...oidcConfig}>
       <Provider store={store}>
-        <RouterProvider router={router} />
+        <Auth>
+          <RouterProvider router={router} />
+        </Auth>
       </Provider>
     </AuthProvider>
     <Toaster />
