@@ -44,9 +44,11 @@ const segmentLightColors: Record<SegmentType, string> = {
 export function PDF({
   content,
   inputFileUrl,
+  onSegmentClick,
 }: {
   content: Chunk[];
   inputFileUrl: string;
+  onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
 }) {
   const [numPages, setNumPages] = useState<number>();
 
@@ -67,7 +69,12 @@ export function PDF({
       >
         <div className="flex flex-col items-center space-y-2">
           {Array.from(new Array(numPages), (_, index) => (
-            <CurrentPage key={index} index={index} segments={content} />
+            <CurrentPage
+              key={index}
+              index={index}
+              segments={content}
+              onSegmentClick={onSegmentClick}
+            />
           ))}
         </div>
       </ScrollArea>
@@ -78,34 +85,47 @@ export function PDF({
 function CurrentPage({
   index,
   segments,
+  onSegmentClick,
 }: {
   index: number;
   segments: Chunk[];
+  onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
 }) {
   const pageNumber = index + 1;
-  const thingsToRender = segments.flatMap((segment) =>
-    segment.segments.filter((chunk) => chunk.page_number === pageNumber)
+  const thingsToRender = segments.flatMap((chunk, chunkIndex) =>
+    chunk.segments
+      .filter((segment) => segment.page_number === pageNumber)
+      .map((segment, segmentIndex) => ({ segment, chunkIndex, segmentIndex }))
   );
 
   const pageRef = useRef<HTMLDivElement>(null);
 
   return (
     <div ref={pageRef} className="flex relative items-center">
-      <Page
-        key={`page_${pageNumber}`}
-        pageNumber={pageNumber}
-        width={800}
-        onClick={(event) => console.log("Page clicked", event)}
-      >
-        {thingsToRender.map((segment, j) => (
-          <SegmentOverlay key={j} segment={segment} />
+      <Page key={`page_${pageNumber}`} pageNumber={pageNumber} width={800}>
+        {thingsToRender.map(({ segment, chunkIndex, segmentIndex }) => (
+          <SegmentOverlay
+            key={`${chunkIndex}-${segmentIndex}`}
+            segment={segment}
+            onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
+            chunkIndex={chunkIndex}
+            segmentIndex={segmentIndex}
+          />
         ))}
       </Page>
     </div>
   );
 }
 
-function SegmentOverlay({ segment }: { segment: Segment }) {
+function SegmentOverlay({
+  segment,
+  onClick,
+}: {
+  segment: Segment;
+  onClick: () => void;
+  chunkIndex: number;
+  segmentIndex: number;
+}) {
   const scaledLeft = `${(segment.left / segment.page_width) * 100}%`;
   const scaledTop = `${(segment.top / segment.page_height) * 100}%`;
   const scaledHeight = `${(segment.height / segment.page_height) * 100}%`;
@@ -126,6 +146,7 @@ function SegmentOverlay({ segment }: { segment: Segment }) {
         top: scaledTop,
         borderColor: `var(${baseColor})`,
       }}
+      onClick={onClick}
     >
       <div className="w-full h-full bg-red-500 hidden"></div>
       <div
