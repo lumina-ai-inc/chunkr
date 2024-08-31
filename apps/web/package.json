@@ -28,6 +28,7 @@
     "@wojtekmaj/react-hooks": "^1.21.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.5",
+    "clsx": "^2.1.1",
     "i": "^0.3.7",
     "install": "^0.13.0",
     "keycloak-js": "^25.0.4",
@@ -49,7 +50,8 @@
     "recharts": "^2.12.7",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
-    "styled-components": "^6.1.12"
+    "styled-components": "^6.1.12",
+    "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
