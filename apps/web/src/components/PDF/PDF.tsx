@@ -3,7 +3,7 @@ import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import { ScrollArea } from "@radix-ui/themes";
-import { Chunk } from "../../models/chunk.model";
+import { Chunk, Segment } from "../../models/chunk.model";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -103,7 +103,7 @@ function CurrentPage({
   );
 }
 
-function SegmentOverlay({ segment }: { segment: any }) {
+function SegmentOverlay({ segment }: { segment: Segment }) {
   const scaledLeft = `${(segment.left / segment.page_width) * 100}%`;
   const scaledTop = `${(segment.top / segment.page_height) * 100}%`;
   const scaledHeight = `${(segment.height / segment.page_height) * 100}%`;
