@@ -30,7 +30,8 @@ export default function UploadMain({
     if (uploadedFile.type === "application/pdf") {
       try {
         const arrayBuffer = await uploadedFile.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
 
         setPageCount(pdf.numPages);
       } catch (error) {
