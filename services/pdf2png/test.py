@@ -2,28 +2,28 @@ import os
 import json
 import requests
 import base64
-
+import uuid
 def test_pdf_conversion():
     # Define the bounding boxes
-    bounding_boxes = [
-        {
-            "left": 317.0,
-            "top": 561.0,
-            "width": 240.0,
-            "height": 11.0,
-            "page_number": 1
-        },
-        {
-            "left": 317.0,
-            "top": 583.0,
-            "width": 248.0,
-            "height": 116.0,
-            "page_number": 1
-        }
-    ]
+    # Read bounding boxes from JSON file
+    with open('/Users/ishaankapoor/chunk-my-docs/services/pdf2png/output/test.json', 'r') as f:
+        json_data = json.load(f)
+
+    bounding_boxes = []
+    for page in json_data:
+        for segment in page['segments']:
+            if segment['type'] in ['Table', 'Picture']:
+                bounding_boxes.append({
+                    'left': segment['left'],
+                    'top': segment['top'],
+                    'width': segment['width'],
+                    'height': segment['height'],
+                    'page_number': segment['page_number'],
+                    "bb_id": str(uuid.uuid4())
+                })
 
     # Define the PDF file path
-    pdf_file_path = "/Users/ishaankapoor/chunk-my-docs/services/pdf2png/input/00c08086-9837-5551-8133-4e22ac28c6a5.pdf"
+    pdf_file_path = "/Users/ishaankapoor/chunk-my-docs/services/pdf2png/input/test.pdf"
 
     # Convert PDF to PNG
     url = "http://localhost:8000/convert"
