@@ -1,2 +1,18 @@
-.page: hover {
+.segment {
+  cursor: pointer;
+}
+
+.segment-overlay {
+  display: none;
+  position: absolute;
+  top: -34px;
+  left: -2px;
+  padding: 6px 12px;
+  width: max-content;
+  height: fit-content;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.segment:hover .segment-overlay {
+  display: block;
 }
