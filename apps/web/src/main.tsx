@@ -10,6 +10,8 @@ import Home from "./pages/Home/Home.tsx";
 import Task from "./pages/Task/Task.tsx";
 import AuthGuard from "./auth/AuthGuard.tsx";
 import Pricing from "./pages/Pricing/Pricing.tsx";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 const oidcConfig: AuthProviderProps = {
   authority: import.meta.env.VITE_KEYCLOAK_URL,
@@ -53,7 +55,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   >
     <AuthProvider {...oidcConfig}>
       <Auth>
-        <RouterProvider router={router} />
+        <Provider store={store}>
+          <RouterProvider router={router} />
+        </Provider>
       </Auth>
     </AuthProvider>
     <Toaster />

@@ -1,13 +1,20 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Flex, ScrollArea } from "@radix-ui/themes";
 import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
 import Header from "../Header/Header";
-import { BoundingBoxes, Chunk } from "../../models/chunk.model";
+import { Chunk } from "../../models/chunk.model";
 import { retrieveFileContent } from "../../services/chunkMyDocs";
 import { Link } from "react-router-dom";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
+import { useSelector, useDispatch } from "react-redux"; // Add useDispatch here
+import {
+  setPdfContent,
+  setLoading,
+  setError,
+} from "../../store/pdfContentSlice";
+import { RootState } from "../../store/store";
 
 interface ViewerProps {
   outputFileUrl: string;
@@ -19,33 +26,58 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
   const [pdfWidth, setPdfWidth] = useState<number>(50); // Initial width percentage
   const isDraggingRef = useRef<boolean>(false);
-  const [pdfContent, setPdfContent] = useState<BoundingBoxes>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch(); // Use useDispatch hook
+  const {
+    content: pdfContent,
+    isLoading,
+    error,
+  } = useSelector((state: RootState) => state.pdfContent);
+
+  const chunkRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const scrollToSegment = useCallback((chunkIndex: number) => {
+    const chunkElement = chunkRefs.current[chunkIndex];
+    if (chunkElement) {
+      const container = chunkElement.closest(".rt-ScrollAreaViewport");
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const chunkRect = chunkElement.getBoundingClientRect();
+        const scrollTop =
+          chunkRect.top - containerRect.top + container.scrollTop - 24;
+        container.scrollTo({
+          top: scrollTop,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const fetchContent = async () => {
-      setIsLoading(true);
+      dispatch(setLoading(true));
       try {
         if (outputFileUrl) {
           const content = await retrieveFileContent(outputFileUrl);
-          setPdfContent(content);
+          dispatch(setPdfContent(content));
         }
       } catch (error) {
         console.error(error);
         if (String(error).includes("403")) {
-          setError("Timeout Error: Failed to fetch file - try uploading again");
+          dispatch(
+            setError(
+              "Timeout Error: Failed to fetch file - try uploading again"
+            )
+          );
         } else if (String(error).includes("Invalid JSON")) {
-          setError(`Server returned invalid data: ${error}`);
+          dispatch(setError(`Server returned invalid data: ${error}`));
         } else {
-          setError(`${error}`);
+          dispatch(setError(`${error}`));
         }
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchContent();
-  }, [outputFileUrl, inputFileUrl]);
+  }, [outputFileUrl, inputFileUrl, dispatch]);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -128,7 +160,11 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
           ref={scrollAreaRef}
         >
           {inputFileUrl && pdfContent && (
-            <PDF content={pdfContent} inputFileUrl={inputFileUrl} />
+            <PDF
+              content={pdfContent}
+              inputFileUrl={inputFileUrl}
+              onSegmentClick={scrollToSegment}
+            />
           )}
           <div
             style={{
@@ -189,11 +225,13 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
             ) : pdfContent.length === 0 ? (
               <div>No content available for this PDF.</div>
             ) : (
-              pdfContent.map((chunk: Chunk, index: number) => (
+              pdfContent.map((chunk: Chunk, chunkIndex: number) => (
                 <SegmentChunk
-                  key={index}
+                  key={chunkIndex}
                   chunk={chunk}
+                  chunkIndex={chunkIndex}
                   containerWidth={scrollAreaWidth}
+                  ref={(el) => (chunkRefs.current[chunkIndex] = el)}
                 />
               ))
             )}

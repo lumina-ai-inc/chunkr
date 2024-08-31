@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { DropdownMenu, Flex, Text, Button, Code } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 import "./Header.css";
 import Account from "../Auth/Account";
 import { useAuth } from "react-oidc-context";
+import { downloadJSON } from "../../utils/utils";
 
 interface HeaderProps {
   py?: string;
@@ -20,8 +23,15 @@ export default function Header({
 }: HeaderProps) {
   const [showAccount, setShowAccount] = useState(false);
   const auth = useAuth();
-
   const isAuthenticated = auth.isAuthenticated;
+  const { content } = useSelector((state: RootState) => state.pdfContent);
+  console.log(content);
+
+  const handleDownloadJSON = () => {
+    if (content) {
+      downloadJSON(content, "pdf_content.json");
+    }
+  };
 
   return (
     <Flex direction="row" justify="between" py={py} px={px} className="header">
@@ -55,8 +65,14 @@ export default function Header({
       </Link>
 
       <Flex className="nav" direction="row" gap="40px" align="center">
-        {download && !home && (
-          <Text size="4" weight="medium" className="cyan-9 nav-item">
+        {download && !home && content && (
+          <Text
+            size="4"
+            weight="medium"
+            className="nav-item-download"
+            onClick={handleDownloadJSON}
+            style={{ cursor: "pointer" }}
+          >
             Download JSON
           </Text>
         )}
@@ -89,7 +105,7 @@ export default function Header({
         </Link>
 
         <Text size="4" weight="medium" className="nav-item">
-          Docs
+          API Docs
         </Text>
 
         {isAuthenticated && (

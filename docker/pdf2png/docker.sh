@@ -16,7 +16,7 @@ echo $SHA
 echo "------------------------"
 
 # Build the Docker image with the SHA tag, using the correct path for the Dockerfile
-docker build --platform linux/amd64 -t $DOCKER_IMAGE_NAME:$SHA -f services/pdf2png/Dockerfile .
+docker build --platform linux/amd64 -t $DOCKER_IMAGE_NAME:$SHA -f $CURRENT_DIR/Dockerfile .
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then

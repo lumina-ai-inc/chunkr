@@ -1,49 +1,56 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import { ScrollArea } from "@radix-ui/themes";
-import { Chunk } from "../../models/chunk.model";
+import { Chunk, Segment, SegmentType } from "../../models/chunk.model";
+import "./Pdf.css";
 
-// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-//   `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`,
-//   import.meta.url
-// ).toString();
-// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-//   "pdfjs-dist/build/pdf.worker.min.mjs",
-//   import.meta.url
-// ).toString();
-// pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136//pdf.min.mjs`;
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-// pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/+esm`;
 
 const options = {
   cMapUrl: "/cmaps/",
   standardFontDataUrl: "/standard_fonts/",
 };
 
-type SegmentType =
-  | "Text"
-  | "Title"
-  | "Table"
-  | "Section header"
-  | "Picture"
-  | "Page footer"
-  | "Page header"
-  | "List item"
-  | "Formula"
-  | "Footnote"
-  | "Caption";
+const segmentColors: Record<SegmentType, string> = {
+  Text: "--jade-10",
+  Table: "--orange-9",
+  Title: "--blue-9",
+  Picture: "--pink-10",
+  Formula: "--amber-8",
+  Caption: "--crimson-8",
+  Footnote: "--pink-10",
+  "List item": "--bronze-10",
+  "Page footer": "--red-12",
+  "Page header": "--violet-9",
+  "Section header": "--cyan-8",
+};
+
+const segmentLightColors: Record<SegmentType, string> = {
+  Text: "--jade-4",
+  Table: "--orange-4",
+  Title: "--blue-4",
+  Picture: "--pink-4",
+  Formula: "--amber-3",
+  Caption: "--crimson-2",
+  Footnote: "--pink-4",
+  "List item": "--bronze-4",
+  "Page footer": "--red-4",
+  "Page header": "--violet-4",
+  "Section header": "--cyan-2",
+};
 
 export function PDF({
   content,
   inputFileUrl,
+  onSegmentClick,
 }: {
   content: Chunk[];
   inputFileUrl: string;
+  onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
 }) {
   const [numPages, setNumPages] = useState<number>();
-  const segments = content;
 
   function onDocumentLoadSuccess(document: pdfjs.PDFDocumentProxy): void {
     setNumPages(document.numPages);
@@ -58,107 +65,101 @@ export function PDF({
       <ScrollArea
         scrollbars="both"
         type="always"
-        style={{
-          height: "calc(100vh - 90px)",
-        }}
+        style={{ height: "calc(100vh - 90px)" }}
       >
-        <div className="flex flex-col items-center space-y-2" style={{}}>
-          {Array.from(new Array(numPages), (_el, index) => {
-            return (
-              <CurrentPage key={index} index={index} segments={segments} />
-            );
-          })}
+        <div className="flex flex-col items-center space-y-2">
+          {Array.from(new Array(numPages), (_, index) => (
+            <CurrentPage
+              key={index}
+              index={index}
+              segments={content}
+              onSegmentClick={onSegmentClick}
+            />
+          ))}
         </div>
       </ScrollArea>
     </Document>
   );
 }
 
-function CurrentPage({ index, segments }: { index: number; segments: any }) {
-  // Get all segments for this page
+function CurrentPage({
+  index,
+  segments,
+  onSegmentClick,
+}: {
+  index: number;
+  segments: Chunk[];
+  onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
+}) {
   const pageNumber = index + 1;
-  const thingsToRender = segments.flatMap((segment) => {
-    const inSegmentChunks = segment.segments.filter((chunk) => {
-      return chunk.page_number == pageNumber;
-    });
-
-    return inSegmentChunks;
-  });
+  const thingsToRender = segments.flatMap((chunk, chunkIndex) =>
+    chunk.segments
+      .filter((segment) => segment.page_number === pageNumber)
+      .map((segment, segmentIndex) => ({ segment, chunkIndex, segmentIndex }))
+  );
 
   const pageRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
 
-  useEffect(() => {
-    if (!pageRef.current) return;
-    const pageDiv =
-      pageRef.current.querySelector<HTMLDivElement>(".react-pdf__Page");
-    if (pageDiv) {
-      setContainerWidth(pageDiv.offsetWidth);
-    }
-  }, [pageRef]);
   return (
     <div ref={pageRef} className="flex relative items-center">
-      <Page
-        key={`page_${index + 1}`}
-        pageNumber={index + 1}
-        // width={containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth}
-        width={800}
-        onClick={(event) => {
-          console.log("hi", event);
+      <Page key={`page_${pageNumber}`} pageNumber={pageNumber} width={800}>
+        {thingsToRender.map(({ segment, chunkIndex, segmentIndex }) => (
+          <SegmentOverlay
+            key={`${chunkIndex}-${segmentIndex}`}
+            segment={segment}
+            onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
+            chunkIndex={chunkIndex}
+            segmentIndex={segmentIndex}
+          />
+        ))}
+      </Page>
+    </div>
+  );
+}
+
+function SegmentOverlay({
+  segment,
+  onClick,
+}: {
+  segment: Segment;
+  onClick: () => void;
+  chunkIndex: number;
+  segmentIndex: number;
+}) {
+  const scaledLeft = `${(segment.left / segment.page_width) * 100}%`;
+  const scaledTop = `${(segment.top / segment.page_height) * 100}%`;
+  const scaledHeight = `${(segment.height / segment.page_height) * 100}%`;
+  const scaledWidth = `${(segment.width / segment.page_width) * 100}%`;
+
+  const baseColor =
+    segmentColors[segment.type as SegmentType] || "--border-black";
+  const lightColor =
+    segmentLightColors[segment.type as SegmentType] || "--border-black";
+
+  return (
+    <div
+      className="segment visible absolute z-50 border-2"
+      style={{
+        width: scaledWidth,
+        height: scaledHeight,
+        left: scaledLeft,
+        top: scaledTop,
+        borderColor: `var(${baseColor})`,
+      }}
+      onClick={onClick}
+    >
+      <div className="w-full h-full bg-red-500 hidden"></div>
+      <div
+        className="segment-overlay"
+        style={{
+          border: `2px solid var(${baseColor})`,
+          backgroundColor: `var(${lightColor})`,
+          color: `var(${baseColor})`,
+          fontSize: "12px",
         }}
       >
-        {thingsToRender.map((segment: any, j: number) => {
-          const scaledLeft = `${(segment.left / segment.page_width) * 100}%`;
-          const scaledTop = `${(segment.top / segment.page_height) * 100}%`;
-          const scaledHeight = `${(segment.height / segment.page_height) * 100}%`;
-          const scaledWidth = `${(segment.width / segment.page_width) * 100}%`;
-
-          let color;
-          const t: SegmentType = segment.type;
-
-          if (t == "Text") {
-            color = "--teal-10";
-          } else if (t == "Table") {
-            color = "--orange-9";
-          } else if (t == "Title") {
-            color = "--amber-8";
-          } else if (t == "Picture") {
-            color = "--pink-10";
-          } else if (t == "Formula") {
-            color = "--cyan-8";
-          } else if (t == "Caption") {
-            color = "--jade-10";
-          } else if (t == "Footnote") {
-            color = "--pink-10";
-          } else if (t == "List item") {
-            color = "--bronze-10";
-          } else if (t == "Page footer") {
-            color = "--red-12";
-          } else if (t == "Page header") {
-            color = "--violet-8";
-          } else if (t == "Section header") {
-            color = "--yellow-7";
-          } else {
-            color = "border-black";
-          }
-
-          return (
-            <div
-              className="page visible absolute z-50 border-2"
-              style={{
-                width: scaledWidth,
-                height: scaledHeight,
-                left: scaledLeft,
-                top: scaledTop,
-                borderColor: `var(${color})`,
-              }}
-              key={j}
-            >
-              <div className="w-full h-full bg-red-500 hidden"></div>
-            </div>
-          );
-        })}
-      </Page>
+        {segment.type}
+      </div>
     </div>
   );
 }
