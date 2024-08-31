@@ -65,8 +65,8 @@ def process_file(file_path: str, model: Model) -> TaskResponse:
 
 if __name__ == "__main__":
     # file_path = r"/Users/akhileshsharma/Documents/Lumina/backend/example-scripts/Extraction/input/apple_file_stamped_complaint_3.21.24.pdf"
-    file_path = r"/Users/ishaankapoor/chunk-my-docs/pyscripts/input/00c08086-9837-5551-8133-4e22ac28c6a5.pdf"
+    file_path = r"/Users/ishaankapoor/chunk-my-docs/pyscripts/input/test.pdf"
 
-    model = Model.Fast
+    model = Model.HighQuality
     task = process_file(file_path, model)
     print(task)
