@@ -13,7 +13,7 @@ def process_image(image_path, url):
         "images": (os.path.basename(image_path), image_data, "image/png")
     }
     data = {
-        "prompt": "Describe this image in detail. Extract values and put it in markdown table. Extrapolate expected values from any graph and estimate."
+        "prompt": "First detect what type of image it is. It can either by <type>Table</type> or <type>Graph</type> <type>Infograph</type>  If it is a table, extract the table in markdown format that i can then render later. put markdown in <markdown></markdown> tabs, along with a description in <description></description> tabs. If it is a picture or graph , describe the picture in detail."
     }
 
     try:
