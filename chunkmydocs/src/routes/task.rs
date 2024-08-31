@@ -1,7 +1,8 @@
-use crate::models::extraction::api::ApiInfo;
+use crate::models::server::extract::UploadForm;
+use crate::models::auth::auth::UserInfo;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
-use crate::{models::extraction::extract::UploadForm, utils::db::deadpool_postgres::Pool};
+use crate::utils::db::deadpool_postgres::Pool;
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use aws_sdk_s3::Client as S3Client;
@@ -62,7 +63,7 @@ pub async fn get_task_status(
 pub async fn create_extraction_task(
     req: HttpRequest,
     form: MultipartForm<UploadForm>,
-    api_info: web::ReqData<ApiInfo>,
+    api_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let mut form = form.into_inner();
     let pool = req.app_data::<web::Data<Pool>>().unwrap();
@@ -86,7 +87,7 @@ pub async fn create_extraction_task(
         file_data,
         task_id,
         user_id,
-        &api_key.to_string(),
+        api_key,
         model,
         target_chunk_length,
     )
