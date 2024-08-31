@@ -2,45 +2,51 @@ import requests
 import os
 from PIL import Image
 import io
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-def test_phi_generate():
-    # URL of the /generate endpoint
-    url = "http://localhost:8040/generate"
-
-    # Path to the test PNG file
-    script_dir = os.path.dirname(__file__)
-    test_png_path = os.path.join(script_dir, "test_phi/test.png")
-
-    # Check if the file exists
-    if not os.path.exists(test_png_path):
-        print(f"Error: Test image not found at {test_png_path}")
-        return
-
-    # Open and prepare the image
-    with open(test_png_path, "rb") as image_file:
+def process_image(image_path, url):
+    with open(image_path, "rb") as image_file:
         image_data = image_file.read()
 
     # Prepare the request
     files = {
-        "images": ("example.png", image_data, "image/png")
+        "images": (os.path.basename(image_path), image_data, "image/png")
     }
     data = {
         "prompt": "Describe this image in detail. Extract values and put it in markdown table. Extrapolate expected values from any graph and estimate."
     }
 
     try:
-        # Send the POST request
         response = requests.post(url, files=files, data=data)
         response.raise_for_status()
-
-        # Print the streaming response
-        print("Response from Phi-3.5 Vision API:")
-        for chunk in response.iter_content(chunk_size=1024):
-            if chunk:
-                print(chunk.decode(), end='', flush=True)
-
+        return f"Response for {os.path.basename(image_path)}:\n" + response.text
     except requests.exceptions.RequestException as e:
-        print(f"Error occurred while making the request: {e}")
+        return f"Error processing {os.path.basename(image_path)}: {e}"
+
+def test_phi_generate():
+    url = "http://localhost:8040/generate"
+    script_dir = os.path.dirname(__file__)
+    test_phi_dir = os.path.join(script_dir, "test_phi")
+
+    if not os.path.exists(test_phi_dir):
+        print(f"Error: Test directory not found at {test_phi_dir}")
+        return
+
+    image_files = [os.path.join(test_phi_dir, f) for f in os.listdir(test_phi_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+
+    if not image_files:
+        print(f"No image files found in {test_phi_dir}")
+        return
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        future_to_image = {executor.submit(process_image, image, url): image for image in image_files}
+        for future in as_completed(future_to_image):
+            image = future_to_image[future]
+            try:
+                result = future.result()
+                print(result)
+            except Exception as exc:
+                print(f'{image} generated an exception: {exc}')
 
 if __name__ == "__main__":
     test_phi_generate()
