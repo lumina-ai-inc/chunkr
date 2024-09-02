@@ -10,7 +10,7 @@ use actix_web::{
 use futures_util::future::LocalBoxFuture;
 use std::future::{ ready, Ready };
 use std::rc::Rc;
-use jsonwebtoken::{decode, decode_header, DecodingKey, Validation, Algorithm};
+use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
 use lazy_static::lazy_static;
 use reqwest::Client;
 use tokio::sync::OnceCell;
@@ -123,31 +123,16 @@ impl<S, B> Service<ServiceRequest>
 
 
 async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
-    let config = Config::from_env().expect("Failed to load auth config");
-    let header = decode_header(&token);
-
-    match header {
-        Ok(ref value) => {
-            println!("HEADER: {:?}", value);
-        },
-        Err(e) => {
-            eprintln!("Error decoding header: {:?}", e);
-            return Err(actix_web::error::ErrorUnauthorized("Invalid token header"));
-        }
-    }
-
     let mut validation = Validation::new(Algorithm::RS256);
-    validation.set_audience(&[config.client_id]);
     validation.validate_aud = false;
 
     let decoding_key = get_decoding_key().await;
 
     match decode::<Value>(token, decoding_key, &validation) {
         Ok(data) => {
-            println!("Decoded token data: {:?}", data);
             let user_info = UserInfo {
                 api_key: None,
-                user_id: "1234".to_string(),
+                user_id: data.claims["sub"].to_string(),
             };
             Ok(user_info)
         },
