@@ -9,7 +9,7 @@ CREATE TABLE
     created_at timestamp with time zone NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp with time zone NULL DEFAULT CURRENT_TIMESTAMP,
     tier text NULL DEFAULT 'Free',
-    service text NULL,
+    service text NULL
   );
 
 ALTER TABLE
