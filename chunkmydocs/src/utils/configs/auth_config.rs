@@ -5,8 +5,7 @@ use dotenvy::dotenv_override;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub keycloak_url: String,
-    pub keycloak_realm: String,
-    pub client_id: String
+    pub keycloak_realm: String
 }
 
 impl Config {
