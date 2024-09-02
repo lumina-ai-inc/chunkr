@@ -1,0 +1,130 @@
+-- Your SQL goes here
+CREATE TABLE IF NOT EXISTS TASKS (
+    task_id TEXT PRIMARY KEY,
+    user_id TEXT,
+    api_key TEXT,
+    file_name TEXT,
+    file_size BIGINT,
+    page_count INTEGER,
+    segment_count INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    finished_at TIMESTAMP WITH TIME ZONE,
+    status TEXT,
+    task_url TEXT,
+    input_location TEXT,
+    output_location TEXT,
+    configuration JSONB,
+    message TEXT
+);
+
+CREATE TABLE IF NOT EXISTS USAGE (
+    user_id TEXT,
+    usage INTEGER,
+    usage_limit INTEGER,
+    usage_type TEXT,
+    unit TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+);
+
+CREATE OR REPLACE FUNCTION update_usage() RETURNS TRIGGER AS $$
+DECLARE
+    v_usage INTEGER;
+    v_usage_type TEXT;
+    v_segment_usage INTEGER;
+BEGIN
+    IF TG_OP = 'UPDATE' AND NEW.status = 'Succeeded' THEN
+        -- Update for Fast or HighQuality
+        IF NEW.configuration->>'model' = 'Fast' THEN
+            v_usage_type := 'Fast';
+        ELSIF NEW.configuration->>'model' = 'HighQuality' THEN
+            v_usage_type := 'HighQuality';
+        ELSE
+            RAISE EXCEPTION 'Unknown model type in configuration';
+        END IF;
+
+        SELECT usage INTO v_usage
+        FROM USAGE
+        WHERE user_id = NEW.user_id AND usage_type = v_usage_type;
+
+        UPDATE USAGE
+        SET usage = COALESCE(v_usage, 0) + NEW.page_count,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = NEW.user_id AND usage_type = v_usage_type;
+
+        -- Insert a new row if it doesn't exist
+        IF NOT FOUND THEN
+            INSERT INTO USAGE (user_id, usage, usage_type)
+            VALUES (NEW.user_id, NEW.page_count, v_usage_type);
+        END IF;
+
+        -- Update for segments if useVisionOCR is true
+        IF NEW.configuration->>'useVisionOCR' = 'true' THEN
+            SELECT usage INTO v_segment_usage
+            FROM USAGE
+            WHERE user_id = NEW.user_id AND usage_type = 'Segments';
+
+            UPDATE USAGE
+            SET usage = COALESCE(v_segment_usage, 0) + NEW.segment_count,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = NEW.user_id AND usage_type = 'Segments';
+
+            -- Insert a new row if it doesn't exist
+            IF NOT FOUND THEN
+                INSERT INTO USAGE (user_id, usage, usage_type)
+                VALUES (NEW.user_id, NEW.segment_count, 'Segments');
+            END IF;
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION validate_usage() RETURNS TRIGGER AS $$
+DECLARE
+    v_page_usage INTEGER;
+    v_page_limit INTEGER;
+    v_segment_usage INTEGER;
+    v_segment_limit INTEGER;
+    v_usage_type TEXT;
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        -- Determine usage type based on model
+        IF NEW.configuration->>'model' = 'Fast' THEN
+            v_usage_type := 'Fast';
+        ELSIF NEW.configuration->>'model' = 'HighQuality' THEN
+            v_usage_type := 'HighQuality';
+        ELSE
+            RAISE EXCEPTION 'Unknown model type in configuration';
+        END IF;
+
+        -- Check page count usage
+        SELECT usage, usage_limit INTO v_page_usage, v_page_limit 
+        FROM USAGE 
+        WHERE user_id = NEW.user_id AND usage_type = v_usage_type;
+
+        IF COALESCE(v_page_usage, 0) + NEW.page_count > COALESCE(v_page_limit, 0) THEN
+            RAISE EXCEPTION 'Page usage limit exceeded';
+        END IF;
+
+        -- Check segment count usage if useVisionOCR is true
+        IF NEW.configuration->>'useVisionOCR' = 'true' THEN
+            SELECT usage, usage_limit INTO v_segment_usage, v_segment_limit 
+            FROM USAGE 
+            WHERE user_id = NEW.user_id AND usage_type = 'Segments';
+
+            IF COALESCE(v_segment_usage, 0) + NEW.segment_count > COALESCE(v_segment_limit, 0) THEN
+                RAISE EXCEPTION 'Segment usage limit exceeded';
+            END IF;
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER validate_usage_trigger
+BEFORE INSERT ON TASKS
+FOR EACH ROW
+EXECUTE FUNCTION validate_usage();
