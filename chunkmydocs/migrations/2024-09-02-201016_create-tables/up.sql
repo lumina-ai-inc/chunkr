@@ -8,8 +8,7 @@ CREATE TABLE
     last_name text NULL,
     created_at timestamp with time zone NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp with time zone NULL DEFAULT CURRENT_TIMESTAMP,
-    tier text NULL DEFAULT 'Free',
-    service text NULL
+    tier text NULL DEFAULT 'Free'
   );
 
 ALTER TABLE
