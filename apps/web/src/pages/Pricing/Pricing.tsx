@@ -1,12 +1,11 @@
-import { Flex, Text, Separator, ScrollArea } from "@radix-ui/themes";
+import { Flex, Text, Separator, ScrollArea, Table } from "@radix-ui/themes";
 import { keyframes } from "@emotion/react";
-import { useAuth } from "react-oidc-context";
 
 import "./Pricing.css";
 
 import styled from "@emotion/styled";
-import Badge from "../../components/Badge";
 import Header from "../../components/Header/Header";
+import Calculator from "./Calculator";
 
 const drawLine = keyframes`
   from {
@@ -21,86 +20,63 @@ const AnimatedSeparator = styled(Separator)`
   animation: ${drawLine} 1s ease-out forwards;
 `;
 
-interface PricingCardProps {
-  tier: string;
-  price: string;
-  features: string[];
-  active: boolean;
-  enterprise: boolean;
-  auth?: boolean;
-}
-
-const PricingCard = ({
-  tier,
-  price,
-  features,
-  active,
-  enterprise,
-  auth,
-}: PricingCardProps) => {
-  // Determine if the card should be active
-  const isActive = auth && active;
-
+const PricingTable = () => {
   return (
     <Flex
       direction="column"
-      className={isActive ? "card-container-selected" : "card-container"}
+      width="100%"
+      p="8"
+      style={{
+        border: "3px solid var(--cyan-5)",
+        borderRadius: "8px",
+        boxShadow: "0px 0px 20px 0px rgba(0, 0, 0, 0.2)",
+      }}
     >
-      <Text size="5" weight="bold" className="cyan-4">
-        {tier}
+      <Text weight="bold" size="6" className="cyan-2" mb="4">
+        High Volume Plans
       </Text>
-      <Text
-        size="8"
-        weight="bold"
-        className="cyan-2"
-        style={{ marginTop: "16px" }}
-      >
-        {enterprise ? price : `$${price}`}
-      </Text>
-      <Text
-        size="3"
-        weight="medium"
-        className="cyan-8"
-        style={{ marginTop: "8px" }}
-      >
-        {enterprise ? "Contact us" : "per month"}
-      </Text>
-      <AnimatedSeparator
-        size="2"
-        style={{
-          backgroundColor: "var(--cyan-12)",
-          width: "100%",
-          height: "2px",
-          marginTop: "24px",
-          marginBottom: "24px",
-        }}
-      />
-      <Flex direction="column" gap="16px">
-        {features.map((feature, index) => (
-          <Text key={index} size="3" weight="medium" className="cyan-2">
-            ✓ {feature}
-          </Text>
-        ))}
-      </Flex>
-      <Flex mt="24px">
-        <Badge className={isActive ? "active-badge" : "inactive-badge"}>
-          <Text size="2" weight="medium">
-            {isActive
-              ? "Current Plan"
-              : enterprise
-                ? "Book a Call"
-                : auth
-                  ? "Upgrade"
-                  : "Login"}
-          </Text>
-        </Badge>
-      </Flex>
+      <Table.Root>
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeaderCell>Plan</Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell>Price</Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell>Description</Table.ColumnHeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>Basic</Table.Cell>
+            <Table.Cell>$10/month</Table.Cell>
+            <Table.Cell>100 pages/month, basic chunking</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>Pro</Table.Cell>
+            <Table.Cell>$50/month</Table.Cell>
+            <Table.Cell>
+              500 pages/month, advanced chunking, priority support
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>Enterprise</Table.Cell>
+            <Table.Cell>Custom</Table.Cell>
+            <Table.Cell>
+              Unlimited pages, custom features, dedicated support
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>Self-host</Table.Cell>
+            <Table.Cell>License</Table.Cell>
+            <Table.Cell>
+              On-premise deployment, customizable features
+            </Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table.Root>
     </Flex>
   );
 };
 
 export default function Pricing() {
-  const auth = useAuth();
   return (
     <Flex
       direction="column"
@@ -109,106 +85,79 @@ export default function Pricing() {
         height: "100%",
         width: "100%",
         backgroundColor: "hsl(192, 70%, 5%)",
-        margin: "0 auto",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
       <ScrollArea>
-        <div style={{ maxWidth: "1564px", margin: "0 auto" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
           <Header />
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            px="4"
-            className="pricing-container"
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+              padding: "0 80px",
+              marginBottom: "72px",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            <Text size="9" weight="medium" className="cyan-4">
-              Pricing
-            </Text>
-            <AnimatedSeparator
-              size="2"
-              style={{
-                backgroundColor: "var(--cyan-12)",
-                width: "100%",
-                maxWidth: "50%",
-                marginTop: "24px",
-                height: "3px",
-              }}
-            />
-            <Text
-              size="5"
-              weight="medium"
-              className="cyan-8"
-              style={{
-                marginTop: "16px",
-                padding: "0 12px",
-                textAlign: "center",
-                textWrap: "balance",
-              }}
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              px="4"
+              className="pricing-container"
             >
-              From solo devs to enterprise teams - we've got you covered
-            </Text>
-          </Flex>
-          <Flex
-            direction="row"
-            align="center"
-            justify="center"
-            mt="64px"
-            wrap="wrap"
-            px="16px"
-            className="pricing-cards-container"
-          >
-            <PricingCard
-              tier="Free"
-              price="0"
-              features={[
-                "100 pages/month",
-                "Basic chunking",
-                "Standard support",
-              ]}
-              active={true}
-              enterprise={false}
-              auth={auth.isAuthenticated}
-            />
-            <PricingCard
-              tier="Dev"
-              price="30"
-              features={[
-                "100 pages/month",
-                "Basic chunking",
-                "Standard support",
-              ]}
-              active={false}
-              enterprise={false}
-              auth={auth.isAuthenticated}
-            />
-            <PricingCard
-              tier="Enterprise"
-              price="Custom"
-              features={[
-                "100 pages/month",
-                "Basic chunking",
-                "Standard support",
-              ]}
-              active={false}
-              enterprise={true}
-              auth={auth.isAuthenticated}
-            />
-            <PricingCard
-              tier="Self-host"
-              price="License"
-              features={[
-                "100 pages/month",
-                "Basic chunking",
-                "Standard support",
-              ]}
-              active={false}
-              enterprise={true}
-              auth={auth.isAuthenticated}
-            />
-          </Flex>
+              <Text size="9" weight="medium" className="cyan-4">
+                Pricing
+              </Text>
+              <AnimatedSeparator
+                size="2"
+                style={{
+                  backgroundColor: "var(--cyan-12)",
+                  width: "100%",
+                  maxWidth: "50%",
+                  marginTop: "24px",
+                  height: "3px",
+                }}
+              />
+              <Text
+                size="5"
+                weight="medium"
+                className="cyan-8"
+                style={{
+                  marginTop: "16px",
+                  padding: "0 12px",
+                  textAlign: "center",
+                  textWrap: "balance",
+                }}
+              >
+                From solo devs to enterprise teams - we've got you covered
+              </Text>
+            </Flex>
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              mt="64px"
+              gap="64px"
+              wrap="wrap"
+              width="100%"
+            >
+              <Calculator />
+              <PricingTable />
+            </Flex>
+          </div>
         </div>
       </ScrollArea>
     </Flex>
