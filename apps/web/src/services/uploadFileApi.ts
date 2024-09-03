@@ -31,3 +31,4 @@ export async function getPDF(fileUrl: string): Promise<File> {
   const { data } = await axiosInstance.get(fileUrl, { responseType: "blob" });
   return new File([data], "document.pdf", { type: data.type });
 }
+

@@ -5,6 +5,7 @@ use actix_web::{ web, HttpResponse, Error };
 use prefixed_api_key::PrefixedApiKeyController;
 use std::collections::HashMap;
 use chrono::Utc;
+use std::str::FromStr;
 
 /// Get User
 ///
@@ -30,6 +31,7 @@ pub async fn get_or_create_user(
     let user = match get_user(user_id, &pool).await {
         Ok(user) => user,
         Err(e) => {
+            println!("Error: {}", e);
             let user = create_user(user_info, &pool).await?;
             return Ok(HttpResponse::Ok().json(user));
         }
@@ -49,20 +51,20 @@ async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::err
         u.email,
         u.first_name,
         u.last_name,
-        array_agg(ak.key) as api_keys,
+        array_agg(DISTINCT ak.key) as api_keys,
         u.tier,
         u.created_at,
         u.updated_at,
-       json_agg(
+        json_agg(
             json_build_object(
                 'usage', COALESCE(us.usage, 0),
                 'usage_limit', COALESCE(us.usage_limit, 0),
-                'usage_type', ut.usage_type,
-                'unit', COALESCE(us.unit, ut.usage_type),
-                'created_at', COALESCE(us.created_at, u.created_at),
-                'updated_at', COALESCE(us.updated_at, u.updated_at)
+                'usage_type', us.usage_type,
+                'unit', us.unit,
+                'created_at', us.created_at,
+                'updated_at', us.created_at
             )
-        ) AS usages
+        )::text AS usages
     FROM 
         users u
     LEFT JOIN 
@@ -91,12 +93,14 @@ async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::err
         first_name: row.get("first_name"),
         last_name: row.get("last_name"),
         api_keys: row.get("api_keys"),
-        tier: row.get("tier"),
+        tier: row.get::<_, Option<String>>("tier")
+            .and_then(|t| Tier::from_str(&t).ok())
+            .unwrap_or(Tier::Free),
         created_at: row.get("created_at"),
         updated_at: row.get("updated_at"),
-        usages: serde_json::from_str(row.get("usages")).unwrap_or(vec![]),
+        usages: serde_json::from_str(&row.get::<_, String>("usages")).unwrap_or_default(),
     };
-    
+
     Ok(user)
 }
 
@@ -173,7 +177,10 @@ async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<dyn s
         first_name: user_row.get("first_name"),
         last_name: user_row.get("last_name"),
         api_keys: vec![key],
-        tier: user_row.get("tier"),
+        tier: user_row
+            .get::<_, Option<String>>("tier")
+            .and_then(|t| Tier::from_str(&t).ok())
+            .unwrap_or(Tier::Free),
         created_at: user_row.get("created_at"),
         updated_at: user_row.get("updated_at"),
         usages: usage_limits_clone
