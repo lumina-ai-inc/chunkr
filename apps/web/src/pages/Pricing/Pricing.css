@@ -11,10 +11,10 @@
 .card-container {
   background-color: hsl(191, 73%, 5%);
   box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
-  border: 2px solid var(--cyan-5);
+  border: 6px solid var(--cyan-5);
   border-radius: 8px;
-  padding: 32px;
-  width: 324px;
+  padding: 48px;
+  width: calc(50% - 24px);
   cursor: pointer;
   transition:
     background-color 0.3s,

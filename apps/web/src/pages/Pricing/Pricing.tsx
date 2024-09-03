@@ -1,4 +1,4 @@
-import { Flex, Text, Separator, ScrollArea, Table } from "@radix-ui/themes";
+import { Flex, Text, Separator, ScrollArea } from "@radix-ui/themes";
 import { keyframes } from "@emotion/react";
 
 import "./Pricing.css";
@@ -6,6 +6,7 @@ import "./Pricing.css";
 import styled from "@emotion/styled";
 import Header from "../../components/Header/Header";
 import Calculator from "./Calculator";
+import PricingCard from "./PricingCard";
 
 const drawLine = keyframes`
   from {
@@ -19,62 +20,6 @@ const drawLine = keyframes`
 const AnimatedSeparator = styled(Separator)`
   animation: ${drawLine} 1s ease-out forwards;
 `;
-
-const PricingTable = () => {
-  return (
-    <Flex
-      direction="column"
-      width="100%"
-      p="8"
-      style={{
-        border: "3px solid var(--cyan-5)",
-        borderRadius: "8px",
-        boxShadow: "0px 0px 20px 0px rgba(0, 0, 0, 0.2)",
-      }}
-    >
-      <Text weight="bold" size="6" className="cyan-2" mb="4">
-        High Volume Plans
-      </Text>
-      <Table.Root>
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeaderCell>Plan</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Price</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Description</Table.ColumnHeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>Basic</Table.Cell>
-            <Table.Cell>$10/month</Table.Cell>
-            <Table.Cell>100 pages/month, basic chunking</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>Pro</Table.Cell>
-            <Table.Cell>$50/month</Table.Cell>
-            <Table.Cell>
-              500 pages/month, advanced chunking, priority support
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>Enterprise</Table.Cell>
-            <Table.Cell>Custom</Table.Cell>
-            <Table.Cell>
-              Unlimited pages, custom features, dedicated support
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>Self-host</Table.Cell>
-            <Table.Cell>License</Table.Cell>
-            <Table.Cell>
-              On-premise deployment, customizable features
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table.Root>
-    </Flex>
-  );
-};
 
 export default function Pricing() {
   return (
@@ -155,7 +100,35 @@ export default function Pricing() {
               width="100%"
             >
               <Calculator />
-              <PricingTable />
+              <Flex width="100%" justify="center" gap="64px">
+                <PricingCard
+                  tier="Managed Instance"
+                  price="High Volume"
+                  features={[
+                    "Up to 5 projects",
+                    "10GB storage",
+                    "Basic support",
+                    "API access",
+                  ]}
+                  active={false}
+                  enterprise={true}
+                  auth={true}
+                />
+                <PricingCard
+                  tier="Self-hosted"
+                  price="License"
+                  features={[
+                    "Unlimited projects",
+                    "50GB storage",
+                    "Priority support",
+                    "Advanced API access",
+                    "Team collaboration",
+                  ]}
+                  active={false}
+                  enterprise={true}
+                  auth={true}
+                />
+              </Flex>
             </Flex>
           </div>
         </div>
