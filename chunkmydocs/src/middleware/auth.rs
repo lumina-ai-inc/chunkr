@@ -133,6 +133,9 @@ async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
             let user_info = UserInfo {
                 api_key: None,
                 user_id: data.claims["sub"].to_string(),
+                email: Some(data.claims["email"].to_string()),
+                first_name: Some(data.claims["given_name"].to_string()),
+                last_name: Some(data.claims["family_name"].to_string()),
             };
             Ok(user_info)
         },
@@ -166,20 +169,20 @@ async fn api_key_validator(api_key: &str, req: &ServiceRequest) -> Result<UserIn
     // Query the database for the API key
     let row = match
         client.query_opt(
-            "SELECT user_id FROM API_KEYS WHERE key = $1 AND active = true AND deleted = false",
+            "SELECT u.user_id, u.email, u.first_name, u.last_name FROM API_KEYS AS ak LEFT JOIN USERS AS u ON ak.user_id = u.user_id WHERE ak.key = $1 AND ak.active = true AND ak.deleted = false",
             &[&api_key]
         ).await
     {
         Ok(row) => row,
         Err(e) => {
-            eprintln!("Error querying API key: {:?}", e);
+            eprintln!("Failed to find API key: {:?}", e);
             return Err(actix_web::error::ErrorInternalServerError("Failed to find API key"));
         }
     };
 
     // Check if the API key is valid and retrieve the user_id
-    let user_id = match row {
-        Some(row) => row.get::<_, String>("user_id"),
+    let row = match row {
+        Some(row) => row,
         None => {
             eprintln!("Error: Invalid or inactive API key");
             return Err(actix_web::error::ErrorUnauthorized("Invalid or inactive API key"));
@@ -189,7 +192,10 @@ async fn api_key_validator(api_key: &str, req: &ServiceRequest) -> Result<UserIn
     // Attach the user_id to the request
     let user_info = UserInfo {
         api_key: Some(api_key.to_string()),
-        user_id,
+        user_id: row.get::<_, String>("user_id"),
+        email: Some(row.get::<_, String>("email")),
+        first_name: Some(row.get::<_, String>("first_name")),
+        last_name: Some(row.get::<_, String>("last_name")),
     };
 
     Ok(user_info)
