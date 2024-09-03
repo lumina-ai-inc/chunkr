@@ -17,6 +17,5 @@ export enum TableOcrModel {
 export interface UploadForm {
   file: File;
   model: Model;
-  tableOcr?: TableOcr;
-  tableOcrModel?: TableOcrModel;
+  target_chunk_length?: number;
 }
