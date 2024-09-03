@@ -31,7 +31,7 @@ export default function Calculator() {
     >
       <Flex direction="column" width="55%" p="8">
         <Text weight="bold" size="6" className="cyan-4">
-          API Calculator
+          API
         </Text>
 
         <Flex direction="column" mt="6" mb="5" gap="2">
