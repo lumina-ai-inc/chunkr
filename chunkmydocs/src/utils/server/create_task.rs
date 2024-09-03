@@ -1,8 +1,9 @@
 use crate::models::rrq::produce::ProducePayload;
 use crate::models::{
-    server::extract::{ ExtractionPayload, ModelInternal },
+    server::extract::{ ExtractionPayload, Configuration },
     server::task::{ Status, TaskResponse },
 };
+use crate::models::auth::auth::UserInfo;
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{ Client, Pool };
 use crate::utils::rrq::service::produce;
@@ -43,24 +44,28 @@ pub async fn create_task(
     pool: &Pool,
     s3_client: &S3Client,
     file: &TempFile,
-    task_id: String,
-    user_id: String,
-    api_key: Option<String>,
-    model: ModelInternal,
-    target_chunk_length: i32
+    user_info: &UserInfo,
+    configuration: &Configuration,
 ) -> Result<TaskResponse, Box<dyn Error>> {
-    let mut client: Client = pool.get().await?;
+
+    let task_id = Uuid::new_v4().to_string();
+
+    let user_id = user_info.user_id.clone();
+    let api_key = user_info.api_key.clone();
+    let model = configuration.model.clone();
+    let model_internal = model.to_internal();
+    let target_chunk_length = configuration.target_chunk_length.unwrap_or(512);
+
+    let client: Client = pool.get().await?;
     let config = Config::from_env()?;
     let expiration = config.task_expiration;
-    println!("expiration: {:?}", expiration.clone());
     let created_at: DateTime<Utc> = Utc::now();
     let expiration_time: Option<DateTime<Utc>> = expiration.map(|exp| Utc::now() + exp);
-    println!("expiration_time: {:?}", expiration_time.clone());
     let bucket_name = config.s3_bucket;
     let ingest_batch_size = config.batch_size;
     let base_url = config.base_url;
     let task_url = format!("{}/task/{}", base_url, task_id);
-
+    
     let file_id = Uuid::new_v4().to_string();
     let buffer: Vec<u8> = std::fs::read(file.file.path())?;
 
@@ -85,57 +90,43 @@ pub async fn create_task(
         file_id,
         file_name
     );
-    let output_extension = model.get_extension();
+    let output_extension = model_internal.get_extension();
     let output_location = input_location.replace(".pdf", &format!(".{}", output_extension));
 
     let message = "Task queued".to_string();
 
     match upload_to_s3(s3_client, &input_location, file.file.path()).await {
         Ok(_) => {
-            let tx = client.transaction().await?;
-
-            tx.execute(
-                "INSERT INTO ingestion_tasks (task_id, file_count, total_size, total_pages, created_at, finished_at, api_key, url, status, model, expiration_time, message) 
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
-                    ON CONFLICT (task_id) DO NOTHING",
+            let configuration_json = serde_json::to_string(configuration)?;
+            client.execute(
+                "INSERT INTO TASKS (
+                    task_id, user_id, api_key, file_name, file_size, 
+                    page_count, segment_count, expires_at,
+                    status, task_url, input_location, output_location, 
+                    configuration, message
+                ) VALUES (
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                ) ON CONFLICT (task_id) DO NOTHING",
                 &[
                     &task_id,
-                    &1i32,
+                    &user_id,
+                    &api_key,
+                    &file_name,
                     &(file_size as i64),
                     &page_count,
-                    &created_at,
-                    &None::<String>,
-                    &api_key,
-                    &task_url,
-                    &Status::Starting.to_string(),
-                    &model.to_string(),
+                    &0i32,
                     &expiration_time,
+                    &Status::Starting.to_string(),
+                    &task_url,
+                    &input_location,
+                    &output_location,
+                    &configuration_json,
                     &message
                 ]
             ).await?;
 
-            tx.execute(
-                "INSERT INTO ingestion_files (file_id, task_id, file_name, file_size, page_count, created_at, status, input_location, output_location, model) 
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
-                    ON CONFLICT (file_id) DO NOTHING",
-                &[
-                    &file_id,
-                    &task_id,
-                    &file.file_name,
-                    &(file_size as i64),
-                    &page_count,
-                    &created_at,
-                    &Status::Starting.to_string(),
-                    &input_location,
-                    &output_location,
-                    &model.to_string(),
-                ]
-            ).await?;
-
-            tx.commit().await?;
-
             let extraction_payload = ExtractionPayload {
-                model: model.clone(),
+                model: model_internal,
                 input_location: input_location.clone(),
                 output_location,
                 expiration: None,
@@ -167,7 +158,7 @@ pub async fn create_task(
                 input_file_url,
                 task_url: Some(task_url),
                 message,
-                model: model.to_external(),
+                model: model.clone(),
             })
         }
         Err(e) => Err(e),

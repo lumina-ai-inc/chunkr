@@ -2,8 +2,9 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use chrono::{DateTime, Utc};
 use postgres_types::{FromSql, ToSql};
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Display, EnumString, FromSql, ToSql)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Display, EnumString, FromSql, ToSql, ToSchema)]
 #[postgres(name = "tier")]
 pub enum Tier {
     Free,
@@ -11,7 +12,7 @@ pub enum Tier {
     Enterprise
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Display, EnumString, Hash)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Display, EnumString, Hash, ToSchema)]
 pub enum UsageType {
     Fast,
     HighQuality,
@@ -29,7 +30,7 @@ impl UsageType {
 }
 
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema)]
 pub struct User {
     pub user_id: String,
     pub customer_id: Option<String>,
@@ -43,7 +44,7 @@ pub struct User {
     pub usages: Vec<Usage>
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema)]
 pub struct Usage {
     pub usage: i32,
     pub usage_limit: i32,

@@ -50,15 +50,21 @@ fn run_migrations(url: &str) {
     ),
     paths(
         routes::health::health_check,
+        routes::user::get_or_create_user,
         routes::task::create_extraction_task,
         routes::task::get_task_status
     ),
     components(
         schemas(
             models::server::extract::UploadForm,
+            models::server::extract::Configuration,
             models::server::task::TaskResponse,
             models::server::task::Status,
-            models::server::extract::Model
+            models::server::extract::Model,
+            models::server::user::User,
+            models::server::user::Tier, 
+            models::server::user::Usage,
+            models::server::user::UsageType
         )
     ),
     tags((name = "health", description = "Endpoint for checking the health of the service."))

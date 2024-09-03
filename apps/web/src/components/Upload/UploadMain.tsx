@@ -5,8 +5,8 @@ import Upload from "./Upload";
 import "./UploadMain.css";
 import BetterButton from "../BetterButton/BetterButton";
 import { Model, UploadForm } from "../../models/upload.model";
-import { uploadFileStep } from "../../services/chunkMyDocs";
 import * as pdfjsLib from "pdfjs-dist";
+import { uploadFile } from "../../services/uploadFileApi";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -62,11 +62,11 @@ export default function UploadMain({
     setError(null);
     const payload: UploadForm = {
       file,
-      model,
+      model
     };
 
     try {
-      const taskResponse = await uploadFileStep(payload);
+      const taskResponse = await uploadFile(payload);
       navigate(`/task/${taskResponse.task_id}/${pageCount}`);
     } catch (error) {
       console.error("Error uploading file:", error);

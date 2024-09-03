@@ -1,8 +1,9 @@
-use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
-use serde::{Deserialize, Serialize};
+use actix_multipart::form::{ tempfile::TempFile, text::Text, MultipartForm };
+use serde::{ Deserialize, Serialize };
 use std::time::Duration;
-use strum_macros::{Display, EnumString};
+use strum_macros::{ Display, EnumString };
 use utoipa::ToSchema;
+use postgres_types::{ FromSql, ToSql };
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct ExtractionPayload {
@@ -17,14 +18,14 @@ pub struct ExtractionPayload {
     pub target_chunk_length: Option<i32>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq, ToSql, FromSql)]
 pub enum ModelInternal {
     Grobid,
     PdlaFast,
     Pdla,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, ToSql, FromSql)]
 pub enum Model {
     Research,
     Fast,
@@ -47,9 +48,13 @@ pub enum TableOcrModel {
 pub struct UploadForm {
     pub file: TempFile,
     pub model: Text<Model>,
-    pub table_ocr: Option<Text<TableOcr>>,
-    pub table_ocr_model: Option<Text<TableOcrModel>>,
     pub target_chunk_length: Option<Text<i32>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSql, FromSql, ToSchema)]
+pub struct Configuration {
+    pub model: Model,
+    pub target_chunk_length: Option<i32>,
 }
 
 impl Model {

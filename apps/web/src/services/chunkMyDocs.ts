@@ -1,13 +1,5 @@
-import { UploadForm } from "../models/upload.model";
-import { TaskResponse } from "../models/task.model";
-import { uploadFile, getFile, getPDF } from "./uploadFileApi";
+import { getFile, getPDF } from "./uploadFileApi";
 import { BoundingBoxes } from "../models/chunk.model";
-
-export async function uploadFileStep(
-  payload: UploadForm
-): Promise<TaskResponse> {
-  return await uploadFile(payload);
-}
 
 export async function retrieveFileContent(
   fileUrl: string
