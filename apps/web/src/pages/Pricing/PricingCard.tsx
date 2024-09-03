@@ -62,14 +62,14 @@ export default function PricingCard({
           marginBottom: "24px",
         }}
       />
-      <Flex direction="column" gap="16px">
+      <Flex direction="column" gap="20px">
         {features.map((feature, index) => (
-          <Text key={index} size="3" weight="medium" className="cyan-2">
+          <Text key={index} size="4" weight="medium" className="cyan-2">
             ✓ {feature}
           </Text>
         ))}
       </Flex>
-      <Flex mt="24px">
+      <Flex mt="32px">
         <Badge
           className={isActive ? "active-badge" : "inactive-badge"}
           style={{ padding: "8px 16px" }}

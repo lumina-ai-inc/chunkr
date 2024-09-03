@@ -63,7 +63,7 @@ export default function Pricing() {
               px="4"
               className="pricing-container"
             >
-              <Text size="9" weight="medium" className="cyan-4">
+              <Text size="9" weight="medium" className="cyan-3">
                 Pricing
               </Text>
               <AnimatedSeparator
@@ -71,7 +71,7 @@ export default function Pricing() {
                 style={{
                   backgroundColor: "var(--cyan-12)",
                   width: "100%",
-                  maxWidth: "50%",
+
                   marginTop: "24px",
                   height: "3px",
                 }}
@@ -79,7 +79,7 @@ export default function Pricing() {
               <Text
                 size="5"
                 weight="medium"
-                className="cyan-8"
+                className="cyan-4"
                 style={{
                   marginTop: "16px",
                   padding: "0 12px",
