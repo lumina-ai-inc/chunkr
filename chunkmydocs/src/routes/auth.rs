@@ -1,8 +1,9 @@
 use crate::models::auth::auth::UserInfo;
+use crate::models::server::user::{ User, Tier, UsageType, Usage };
 use crate::utils::db::deadpool_postgres::{ Client, Pool };
-use actix_web::{ web, HttpResponse };
+use actix_web::{ web, HttpResponse, Error };
 use prefixed_api_key::PrefixedApiKeyController;
-
+use std::collections::HashMap;
 use chrono::Utc;
 
 /// Get User
@@ -23,26 +24,84 @@ pub async fn get_or_create_user(
     user_info: web::ReqData<UserInfo>,
     pool: web::Data<Pool>
 ) -> Result<HttpResponse, Error> {
-    
+    let user_info = user_info.into_inner();
+    let user_id = user_info.clone().user_id;
+
+    let user = match get_user(user_id, &pool).await {
+        Ok(user) => user,
+        Err(e) => {
+            let user = create_user(user_info, &pool).await?;
+            return Ok(HttpResponse::Ok().json(user));
+        }
+    };
+
+    Ok(HttpResponse::Ok().json(user))
 }
 
-pub async fn create_api_key_query(
-    request: ApiRequest,
-    pool: &Pool
-) -> Result<String, Box<dyn std::error::Error>> {
-    let mut pg_client: Client = pool.get().await?;
+async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {
+    let client: Client = pool.get().await?;
 
-    let existing_key_query =
+    let query =
         r#"
-    SELECT key FROM api_users WHERE email = $1 AND key IS NOT NULL AND key != ''
+    SELECT 
+        u.user_id,
+        u.customer_id,
+        u.email,
+        u.first_name,
+        u.last_name,
+        array_agg(ak.key) as api_keys,
+        u.tier,
+        u.created_at,
+        u.updated_at,
+       json_agg(
+            json_build_object(
+                'usage', COALESCE(us.usage, 0),
+                'usage_limit', COALESCE(us.usage_limit, 0),
+                'usage_type', ut.usage_type,
+                'unit', COALESCE(us.unit, ut.usage_type),
+                'created_at', COALESCE(us.created_at, u.created_at),
+                'updated_at', COALESCE(us.updated_at, u.updated_at)
+            )
+        ) AS usages
+    FROM 
+        users u
+    LEFT JOIN 
+        USAGE us ON u.user_id = us.user_id
+    LEFT JOIN
+        API_KEYS ak ON u.user_id = ak.user_id
+    WHERE 
+        u.user_id = $1
+    GROUP BY 
+        u.user_id;
     "#;
 
-    if let Some(row) = pg_client.query_opt(existing_key_query, &[&request.email]).await? {
-        let existing_key: String = row.get(0);
-        return Ok(existing_key);
-    }
+    let row = client
+        .query_opt(query, &[&user_id]).await?
+        .ok_or_else(||
+            std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("User with id {} not found", user_id)
+            )
+        )?;
 
-    let service_type = request.service_type.unwrap_or(ServiceType::EXTRACTION);
+    let user = User {
+        user_id: row.get("user_id"),
+        customer_id: row.get("customer_id"),
+        email: row.get("email"),
+        first_name: row.get("first_name"),
+        last_name: row.get("last_name"),
+        api_keys: row.get("api_keys"),
+        tier: row.get("tier"),
+        created_at: row.get("created_at"),
+        updated_at: row.get("updated_at"),
+        usages: serde_json::from_str(row.get("usages")).unwrap_or(vec![]),
+    };
+    
+    Ok(user)
+}
+
+async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {
+    let mut client: Client = pool.get().await?;
 
     let controller = PrefixedApiKeyController::configure()
         .prefix("lu".to_owned())
@@ -52,118 +111,83 @@ pub async fn create_api_key_query(
     let (pak, _hash) = controller.generate_key_and_hash();
     let key = pak.to_string();
 
-    let email = request.email;
-    let api_key = ApiKey {
-        key: key.clone(),
-        user_id: Some(request.user_id),
-        dataset_id: None,
-        org_id: None,
-        access_level: Some(request.access_level),
-        active: Some(true),
-        deleted: Some(false),
-        created_at: Some(Utc::now()),
-        expires_at: request.expires_at,
-        deleted_at: None,
-        deleted_by: None,
-    };
+    // Create usage limits
+    let usage_limits: HashMap<UsageType, i32> = HashMap::from([
+        (UsageType::Fast, 1000),
+        (UsageType::HighQuality, 500),
+        (UsageType::Segment, 250),
+    ]);
+    let usage_limits_clone = usage_limits.clone();
 
-    let api_key_usage = ApiKeyUsage {
-        id: None,
-        api_key: key.clone(),
-        usage: request.initial_usage,
-        usage_type: request.usage_type.clone(),
-        created_at: Some(Utc::now()),
-        service_type: Some(service_type.clone()),
-    };
+    let transaction = client.transaction().await?;
 
-    let api_key_limit = ApiKeyLimit {
-        id: None,
-        api_key: key.clone(),
-        usage_limit: Some(100 as i32),
-        usage_type: request.usage_type,
-        created_at: Some(Utc::now()),
-        service_type: Some(service_type),
-    };
-
-    let transaction = pg_client.transaction().await?;
-
-    let insert_api_key =
+    // Insert into users table
+    let user_query =
         r#"
-    INSERT INTO api_keys (key, user_id, dataset_id, org_id, access_level, active, deleted, created_at, expires_at, deleted_at, deleted_by)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    INSERT INTO users (user_id, email, first_name, last_name, tier)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *
     "#;
 
-    let insert_api_key_usage =
+    let user_row = transaction.query_one(
+        user_query,
+        &[
+            &user_info.user_id,
+            &user_info.email,
+            &user_info.first_name,
+            &user_info.last_name,
+            &Tier::Free.to_string(),
+        ]
+    ).await?;
+
+    // Insert into api_keys table
+    let api_key_query =
         r#"
-    INSERT INTO api_key_usage (api_key, usage, usage_type, created_at, service)
+    INSERT INTO api_keys (key, user_id, access_level, active)
+    VALUES ($1, $2, $3, $4)
+    "#;
+
+    transaction.execute(api_key_query, &[&key, &user_info.user_id, &"user", &true]).await?;
+
+    // Insert into USAGE table
+    let usage_query =
+        r#"
+    INSERT INTO USAGE (user_id, usage, usage_limit, usage_type, unit)
     VALUES ($1, $2, $3, $4, $5)
     "#;
 
-    let insert_api_key_limit =
-        r#"
-    INSERT INTO api_key_limit (api_key, usage_limit, usage_type, created_at, service)
-    VALUES ($1, $2, $3, $4, $5)
-    "#;
-
-    let insert_user =
-        r#"
-    INSERT INTO api_users (key, user_id, email, created_at, usage_type, usage_limit, service, usage)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    "#;
-
-    transaction.execute(
-        insert_api_key,
-        &[
-            &api_key.key,
-            &api_key.user_id,
-            &api_key.dataset_id,
-            &api_key.org_id,
-            &api_key.access_level.as_ref().map(|al| al.to_string()),
-            &api_key.active,
-            &api_key.deleted,
-            &api_key.created_at,
-            &api_key.expires_at,
-            &api_key.deleted_at,
-            &api_key.deleted_by,
-        ]
-    ).await?;
-
-    transaction.execute(
-        insert_api_key_usage,
-        &[
-            &api_key_usage.api_key,
-            &api_key_usage.usage,
-            &api_key_usage.usage_type.as_ref().map(|ut| ut.to_string()),
-            &api_key_usage.created_at,
-            &api_key_usage.service_type.as_ref().map(|st| st.to_string()),
-        ]
-    ).await?;
-
-    transaction.execute(
-        insert_api_key_limit,
-        &[
-            &api_key_limit.api_key,
-            &api_key_limit.usage_limit,
-            &api_key_limit.usage_type.as_ref().map(|ut| ut.to_string()),
-            &api_key_limit.created_at,
-            &api_key_limit.service_type.as_ref().map(|st| st.to_string()),
-        ]
-    ).await?;
-    transaction.execute(
-        insert_user,
-        &[
-            &api_key.key,
-            &api_key.user_id,
-            &email,
-            &api_key.created_at,
-            &api_key_usage.usage_type.as_ref().map(|ut| ut.to_string()),
-            &api_key_limit.usage_limit,
-            &api_key_usage.service_type.as_ref().map(|st| st.to_string()),
-            &api_key_usage.usage,
-        ]
-    ).await?;
+    for (usage_type, limit) in usage_limits {
+        transaction.execute(
+            usage_query,
+            &[&user_info.user_id, &0i32, &limit, &usage_type.to_string(), &usage_type.get_unit()]
+        ).await?;
+    }
 
     transaction.commit().await?;
 
-    Ok(key)
+    // Construct and return the User object
+    let user = User {
+        user_id: user_row.get("user_id"),
+        customer_id: user_row.get("customer_id"),
+        email: user_row.get("email"),
+        first_name: user_row.get("first_name"),
+        last_name: user_row.get("last_name"),
+        api_keys: vec![key],
+        tier: user_row.get("tier"),
+        created_at: user_row.get("created_at"),
+        updated_at: user_row.get("updated_at"),
+        usages: usage_limits_clone
+            .into_iter()
+            .map(|(usage_type, limit)| Usage {
+                usage: 0,
+                usage_limit: limit,
+                usage_type: usage_type.to_string(),
+                unit: usage_type.get_unit(),
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+            })
+            .collect(),
+    };
+
+    Ok(user)
 }

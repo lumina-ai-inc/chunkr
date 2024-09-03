@@ -55,25 +55,25 @@ BEGIN
 
         -- Insert a new row if it doesn't exist
         IF NOT FOUND THEN
-            INSERT INTO USAGE (user_id, usage, usage_type)
-            VALUES (NEW.user_id, NEW.page_count, v_usage_type);
+            INSERT INTO USAGE (user_id, usage, usage_type, unit)
+            VALUES (NEW.user_id, NEW.page_count, v_usage_type, 'Page');
         END IF;
 
         -- Update for segments if useVisionOCR is true
         IF NEW.configuration->>'useVisionOCR' = 'true' THEN
             SELECT usage INTO v_segment_usage
             FROM USAGE
-            WHERE user_id = NEW.user_id AND usage_type = 'Segments';
+            WHERE user_id = NEW.user_id AND usage_type = 'Segment';
 
             UPDATE USAGE
             SET usage = COALESCE(v_segment_usage, 0) + NEW.segment_count,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE user_id = NEW.user_id AND usage_type = 'Segments';
+            WHERE user_id = NEW.user_id AND usage_type = 'Segment';
 
             -- Insert a new row if it doesn't exist
             IF NOT FOUND THEN
-                INSERT INTO USAGE (user_id, usage, usage_type)
-                VALUES (NEW.user_id, NEW.segment_count, 'Segments');
+                INSERT INTO USAGE (user_id, usage, usage_type, unit)
+                VALUES (NEW.user_id, NEW.segment_count, 'Segment', 'Segment');
             END IF;
         END IF;
     END IF;
