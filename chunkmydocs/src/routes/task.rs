@@ -1,4 +1,4 @@
-use crate::models::server::extract::UploadForm;
+use crate::models::server::extract::{Configuration, UploadForm};
 use crate::models::auth::auth::UserInfo;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
@@ -63,33 +63,23 @@ pub async fn get_task_status(
 pub async fn create_extraction_task(
     req: HttpRequest,
     form: MultipartForm<UploadForm>,
-    api_info: web::ReqData<UserInfo>,
+    user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
-    let mut form = form.into_inner();
+    let form = form.into_inner();
     let pool = req.app_data::<web::Data<Pool>>().unwrap();
     let s3_client = req.app_data::<web::Data<S3Client>>().unwrap();
-    let api_key = api_info.api_key.clone();
-    let user_id = api_info.user_id.clone();
-    let task_id = Uuid::new_v4().to_string();
-    let target_chunk_length = form
-        .target_chunk_length
-        .as_mut()
-        .map(|t| t.0)
-        .unwrap_or(512) as i32;
-    // Process files
     let file_data = &form.file;
+    let configuration = Configuration {
+        model: form.model.into_inner(),
+        target_chunk_length: form.target_chunk_length.map(|t| t.into_inner()),
+    };
 
-    // Call create_task function
-    let model = form.model.to_internal();
     let result = create_task(
         pool,
         s3_client,
         file_data,
-        task_id,
-        user_id,
-        api_key,
-        model,
-        target_chunk_length,
+        &user_info,
+        &configuration,
     )
     .await;
 

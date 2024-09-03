@@ -15,11 +15,14 @@ use std::str::FromStr;
     path = "/user",
     context_path = "",
     tag = "user",
-    responses((
-        status = 200,
-        description = "Get user information, if it's the first time the user is logging in, create a new user",
-        body = UserResponse,
-    ))
+    responses(
+        (
+            status = 200,
+            description = "Get user information, if it's the first time the user is logging in, create a new user",
+            body = User,
+        ),
+        (status = 500, description = "Internal server error", body = String)
+    )
 )]
 pub async fn get_or_create_user(
     user_info: web::ReqData<UserInfo>,
@@ -31,9 +34,12 @@ pub async fn get_or_create_user(
     let user = match get_user(user_id, &pool).await {
         Ok(user) => user,
         Err(e) => {
-            println!("Error: {}", e);
-            let user = create_user(user_info, &pool).await?;
-            return Ok(HttpResponse::Ok().json(user));
+            if e.to_string().contains("not found") {
+                let user = create_user(user_info, &pool).await?;
+                return Ok(HttpResponse::Ok().json(user));
+            } else {
+                return Err(e.into());
+            }
         }
     };
 
@@ -93,7 +99,8 @@ async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::err
         first_name: row.get("first_name"),
         last_name: row.get("last_name"),
         api_keys: row.get("api_keys"),
-        tier: row.get::<_, Option<String>>("tier")
+        tier: row
+            .get::<_, Option<String>>("tier")
             .and_then(|t| Tier::from_str(&t).ok())
             .unwrap_or(Tier::Free),
         created_at: row.get("created_at"),

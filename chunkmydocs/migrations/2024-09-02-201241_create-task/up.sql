@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS TASKS (
     task_url TEXT,
     input_location TEXT,
     output_location TEXT,
-    configuration JSONB,
+    configuration TEXT,
     message TEXT
 );
 
@@ -33,12 +33,16 @@ DECLARE
     v_usage INTEGER;
     v_usage_type TEXT;
     v_segment_usage INTEGER;
+    v_config JSONB;
 BEGIN
     IF TG_OP = 'UPDATE' AND NEW.status = 'Succeeded' THEN
+        -- Parse configuration string to JSONB
+        v_config := NEW.configuration::JSONB;
+
         -- Update for Fast or HighQuality
-        IF NEW.configuration->>'model' = 'Fast' THEN
+        IF v_config->>'model' = 'Fast' THEN
             v_usage_type := 'Fast';
-        ELSIF NEW.configuration->>'model' = 'HighQuality' THEN
+        ELSIF v_config->>'model' = 'HighQuality' THEN
             v_usage_type := 'HighQuality';
         ELSE
             RAISE EXCEPTION 'Unknown model type in configuration';
@@ -60,7 +64,7 @@ BEGIN
         END IF;
 
         -- Update for segments if useVisionOCR is true
-        IF NEW.configuration->>'useVisionOCR' = 'true' THEN
+        IF v_config->>'useVisionOCR' = 'true' THEN
             SELECT usage INTO v_segment_usage
             FROM USAGE
             WHERE user_id = NEW.user_id AND usage_type = 'Segment';
@@ -89,12 +93,16 @@ DECLARE
     v_segment_usage INTEGER;
     v_segment_limit INTEGER;
     v_usage_type TEXT;
+    v_config JSONB;
 BEGIN
     IF TG_OP = 'INSERT' THEN
+        -- Parse configuration string to JSONB
+        v_config := NEW.configuration::JSONB;
+
         -- Determine usage type based on model
-        IF NEW.configuration->>'model' = 'Fast' THEN
+        IF v_config->>'model' = 'Fast' THEN
             v_usage_type := 'Fast';
-        ELSIF NEW.configuration->>'model' = 'HighQuality' THEN
+        ELSIF v_config->>'model' = 'HighQuality' THEN
             v_usage_type := 'HighQuality';
         ELSE
             RAISE EXCEPTION 'Unknown model type in configuration';
@@ -110,7 +118,7 @@ BEGIN
         END IF;
 
         -- Check segment count usage if useVisionOCR is true
-        IF NEW.configuration->>'useVisionOCR' = 'true' THEN
+        IF v_config->>'useVisionOCR' = 'true' THEN
             SELECT usage, usage_limit INTO v_segment_usage, v_segment_limit 
             FROM USAGE 
             WHERE user_id = NEW.user_id AND usage_type = 'Segments';
