@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS USAGE (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE OR REPLACE FUNCTION update_usage() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION update_usage_on_success() RETURNS TRIGGER AS $$
 DECLARE
     v_usage INTEGER;
     v_usage_type TEXT;
@@ -128,3 +128,10 @@ CREATE TRIGGER validate_usage_trigger
 BEFORE INSERT ON TASKS
 FOR EACH ROW
 EXECUTE FUNCTION validate_usage();
+
+
+CREATE TRIGGER update_usage_on_success_trigger
+AFTER UPDATE ON TASKS
+FOR EACH ROW
+WHEN (NEW.status = 'Succeeded')
+EXECUTE FUNCTION update_usage_on_success();

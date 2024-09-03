@@ -5,8 +5,8 @@ use actix_web::get;
 use actix_web::middleware::Logger;
 use actix_web::Error;
 use actix_web::HttpRequest;
-use actix_web::{web, App, HttpServer};
-use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use actix_web::{ web, App, HttpServer };
+use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
 use env_logger::Env;
 
 pub mod extraction;
@@ -16,14 +16,14 @@ pub mod routes;
 pub mod utils;
 
 use middleware::auth::ApiKeyMiddlewareFactory;
-use routes::auth::create_api_key;
+use routes::user::get_or_create_user;
 use routes::health::health_check;
-use routes::task::{create_extraction_task, get_task_status};
+use routes::task::{ create_extraction_task, get_task_status };
 use routes::usage::get_usage;
 use utils::db::deadpool_postgres;
 use utils::storage::config_s3::create_client;
 use utoipa::OpenApi;
-use utoipa_redoc::{Redoc, Servable};
+use utoipa_redoc::{ Redoc, Servable };
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
@@ -31,8 +31,7 @@ fn run_migrations(url: &str) {
     use diesel::prelude::*;
 
     let mut conn = diesel::pg::PgConnection::establish(url).expect("Failed to connect to database");
-    conn.run_pending_migrations(MIGRATIONS)
-        .expect("Failed to run migrations");
+    conn.run_pending_migrations(MIGRATIONS).expect("Failed to run migrations");
 
     println!("Migrations run successfully");
 }
@@ -41,36 +40,28 @@ fn run_migrations(url: &str) {
 #[openapi(
     info(
         title = "ChunkMyDocs API",
-        description = "API service for document layout analysis and chunking to convert document into RAG/LLM-ready data.", 
-        contact(
-            name = "Lumina",
-            url = "https://lumina.sh",
-            email = "ishaan@lumina.sh",
-        ),
-        version = "0.0.0",
+        description = "API service for document layout analysis and chunking to convert document into RAG/LLM-ready data.",
+        contact(name = "Lumina", url = "https://lumina.sh", email = "ishaan@lumina.sh"),
+        version = "0.0.0"
     ),
     servers(
-        (url = "https://chunkmydocs.com",
-        description = "Production server"),
-        (url = "http://localhost:8000",
-        description = "Local development server"),
+        (url = "https://chunkmydocs.com", description = "Production server"),
+        (url = "http://localhost:8000", description = "Local development server")
     ),
     paths(
         routes::health::health_check,
         routes::task::create_extraction_task,
-        routes::task::get_task_status,
+        routes::task::get_task_status
     ),
     components(
         schemas(
             models::server::extract::UploadForm,
             models::server::task::TaskResponse,
             models::server::task::Status,
-            models::server::extract::Model,
-        ),
+            models::server::extract::Model
+        )
     ),
-    tags(
-        (name = "health", description = "Endpoint for checking the health of the service."),
-    ),
+    tags((name = "health", description = "Endpoint for checking the health of the service."))
 )]
 pub struct ApiDoc;
 
@@ -89,17 +80,20 @@ pub fn main() -> std::io::Result<()> {
             println!("Multipart error: {}", err);
             Error::from(err)
         }
-        let max_size: usize = std::env::var("MAX_TOTAL_LIMIT")
+        let max_size: usize = std::env
+            ::var("MAX_TOTAL_LIMIT")
             .unwrap_or_else(|_| "10485760".to_string()) // Default to 10 MB if not set
             .parse()
             .expect("MAX_TOTAL_LIMIT must be a valid usize");
-        let max_memory_size: usize = std::env::var("MAX_MEMORY_LIMIT")
+        let max_memory_size: usize = std::env
+            ::var("MAX_MEMORY_LIMIT")
             .unwrap_or_else(|_| "10485760".to_string()) // Default to 10 MB if not set
             .parse()
             .expect("MAX_MEMORY_LIMIT must be a valid usize");
         println!("Max size: {}", max_size);
 
-        let timeout: usize = std::env::var("TIMEOUT")
+        let timeout: usize = std::env
+            ::var("TIMEOUT")
             .unwrap_or_else(|_| "600".to_string())
             .parse()
             .expect("TIMEOUT must be a valid usize");
@@ -118,23 +112,23 @@ pub fn main() -> std::io::Result<()> {
                     MultipartFormConfig::default()
                         .total_limit(max_size)
                         .memory_limit(max_memory_size)
-                        .error_handler(handle_multipart_error),
+                        .error_handler(handle_multipart_error)
                 )
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
-                .route("/api_key", web::post().to(create_api_key))
                 .route("/health", web::get().to(health_check))
                 .service(
-                    web::scope("/api")
+                    web
+                        ::scope("/api")
                         .wrap(ApiKeyMiddlewareFactory)
+                        .route("/user", web::get().to(get_or_create_user))
                         .route("/task", web::post().to(create_extraction_task))
                         .route("/task/{task_id}", web::get().to(get_task_status))
-                        .route("/usage", web::get().to(get_usage)),
+                        .route("/usage", web::get().to(get_usage))
                 )
         })
-        .bind("0.0.0.0:8000")?
-        .keep_alive(timeout)
-        .run()
-        .await
+            .bind("0.0.0.0:8000")?
+            .keep_alive(timeout)
+            .run().await
     })
 }
