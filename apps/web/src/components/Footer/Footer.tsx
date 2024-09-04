@@ -61,7 +61,7 @@ export default function Footer() {
         className="footer-bottom"
       >
         <Text size="1" className="cyan-6">
-          Chunk My Docs is a product of Lumina AI Inc.
+          Chunk My Docs is maintained by Lumina AI Inc.
         </Text>
         <Flex direction="row" gap="5" align="center">
           <a
