@@ -132,10 +132,10 @@ async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
         Ok(data) => {
             let user_info = UserInfo {
                 api_key: None,
-                user_id: data.claims["sub"].to_string(),
-                email: Some(data.claims["email"].to_string()),
-                first_name: Some(data.claims["given_name"].to_string()),
-                last_name: Some(data.claims["family_name"].to_string()),
+                user_id: data.claims["sub"].as_str().unwrap_or_default().to_string(),
+                email: data.claims["email"].as_str().map(|s| s.to_string()),
+                first_name: data.claims["given_name"].as_str().map(|s| s.to_string()),
+                last_name: data.claims["family_name"].as_str().map(|s| s.to_string()),
             };
             Ok(user_info)
         },

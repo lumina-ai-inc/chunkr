@@ -11,7 +11,6 @@ pub struct ExtractionPayload {
     pub input_location: String,
     pub output_location: String,
     pub task_id: String,
-    pub file_id: String,
     pub batch_size: Option<i32>,
     #[serde(with = "humantime_serde")]
     pub expiration: Option<Duration>,
@@ -20,14 +19,12 @@ pub struct ExtractionPayload {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq, ToSql, FromSql)]
 pub enum ModelInternal {
-    Grobid,
     PdlaFast,
     Pdla,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema, ToSql, FromSql)]
 pub enum Model {
-    Research,
     Fast,
     HighQuality,
 }
@@ -60,7 +57,6 @@ pub struct Configuration {
 impl Model {
     pub fn to_internal(&self) -> ModelInternal {
         match self {
-            Model::Research => ModelInternal::Grobid,
             Model::Fast => ModelInternal::PdlaFast,
             Model::HighQuality => ModelInternal::Pdla,
         }
@@ -70,7 +66,6 @@ impl Model {
 impl ModelInternal {
     pub fn to_external(&self) -> Model {
         match self {
-            ModelInternal::Grobid => Model::Research,
             ModelInternal::PdlaFast => Model::Fast,
             ModelInternal::Pdla => Model::HighQuality,
         }
@@ -78,7 +73,6 @@ impl ModelInternal {
 
     pub fn get_extension(&self) -> &str {
         match self {
-            ModelInternal::Grobid => "xml",
             ModelInternal::PdlaFast => "json",
             ModelInternal::Pdla => "json",
         }
