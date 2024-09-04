@@ -23,15 +23,15 @@ export default function Calculator() {
       width="100%"
       gap="8"
       style={{
-        border: "6px solid var(--cyan-5)",
+        border: "3px solid var(--cyan-5)",
         borderRadius: "8px",
 
         boxShadow: "0px 0px 20px 0px rgba(0, 0, 0, 1)",
       }}
     >
       <Flex direction="column" width="55%" p="8">
-        <Text weight="bold" size="6" className="cyan-4">
-          API
+        <Text weight="medium" size="6" className="cyan-4" trim="start">
+          API Calculator
         </Text>
 
         <Flex direction="column" mt="6" mb="5" gap="2">

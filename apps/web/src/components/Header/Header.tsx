@@ -16,8 +16,6 @@ interface HeaderProps {
 }
 
 export default function Header({
-  py = "40px",
-  px = "80px",
   download = false,
   home = false,
 }: HeaderProps) {
@@ -34,9 +32,15 @@ export default function Header({
   };
 
   return (
-    <Flex direction="row" justify="between" py={py} px={px} className="header">
+    <Flex
+      direction="row"
+      justify="between"
+      py="40px"
+      px="80px"
+      className="header"
+    >
       <Link to="/" style={{ textDecoration: "none" }}>
-        <Flex className="logo" direction="row" gap="4" align="center">
+        <Flex className="logo" direction="row" gap="3" align="center">
           <div className="logo-container">
             <svg
               xmlns="http://www.w3.org/2000/svg"
