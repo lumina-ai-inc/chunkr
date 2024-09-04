@@ -8,14 +8,15 @@ use chrono::{ DateTime, Utc };
 pub async fn get_task(
     pool: &Pool,
     s3_client: &S3Client,
-    task_id: String
+    task_id: String,
+    user_id: String
 ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
     let task_and_files = client.query(
         "SELECT status, created_at, finished_at, expires_at, message, input_location, output_location, task_url, configuration
          FROM TASKS
-         WHERE task_id = $1",
-        &[&task_id]
+         WHERE task_id = $1 AND user_id = $2",
+        &[&task_id, &user_id]
     ).await?;
 
     if task_and_files.is_empty() {
