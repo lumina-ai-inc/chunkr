@@ -31,4 +31,4 @@ export interface Chunk {
 }
 
 // Define the overall structure of the bounding boxes JSON
-export type BoundingBoxes = Chunk[];
+export type Chunks = Chunk[];

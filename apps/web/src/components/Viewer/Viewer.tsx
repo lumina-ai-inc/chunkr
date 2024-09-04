@@ -4,7 +4,7 @@ import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
 import Header from "../Header/Header";
 import { Chunk } from "../../models/chunk.model";
-import { retrieveFileContent } from "../../services/chunkMyDocs";
+import { getChunks } from "../../services/chunkMyDocs";
 import { Link } from "react-router-dom";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
@@ -57,7 +57,7 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
       dispatch(setLoading(true));
       try {
         if (outputFileUrl) {
-          const content = await retrieveFileContent(outputFileUrl);
+          const content = await getChunks(outputFileUrl);
           dispatch(setPdfContent(content));
         }
       } catch (error) {

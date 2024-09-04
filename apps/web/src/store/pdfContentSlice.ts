@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { BoundingBoxes } from "../models/chunk.model";
+import { Chunks } from "../models/chunk.model";
 
 interface PdfContentState {
-  content: BoundingBoxes;
+  content: Chunks;
   isLoading: boolean;
   error: string | null;
 }
@@ -17,7 +17,7 @@ const pdfContentSlice = createSlice({
   name: "pdfContent",
   initialState,
   reducers: {
-    setPdfContent: (state, action: PayloadAction<BoundingBoxes>) => {
+    setPdfContent: (state, action: PayloadAction<Chunks>) => {
       state.content = action.payload;
       state.isLoading = false;
       state.error = null;
