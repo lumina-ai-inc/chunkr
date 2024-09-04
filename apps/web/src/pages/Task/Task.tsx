@@ -5,7 +5,7 @@ import { Status } from "../../models/task.model";
 import Loader from "../Loader/Loader";
 import StatusView from "../../components/Status/StatusView";
 import { Viewer } from "../../components/Viewer/Viewer";
-import { useTaskQuery } from "../../hooks/usePollTask";
+import { useTaskQuery } from "../../hooks/useTaskQuery";
 
 export default function Task() {
   const { taskId, pageCount } = useParams<{
