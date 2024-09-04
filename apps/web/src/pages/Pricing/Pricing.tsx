@@ -5,8 +5,9 @@ import "./Pricing.css";
 
 import styled from "@emotion/styled";
 import Header from "../../components/Header/Header";
-import Calculator from "./Calculator";
-import PricingCard from "./PricingCard";
+import Calculator from "../../components/PriceCalculator/Calculator";
+import PricingCard from "../../components/PricingCard";
+import ModelTable from "../../components/ModelTable/ModelTable";
 
 const drawLine = keyframes`
   from {
@@ -29,19 +30,13 @@ export default function Pricing() {
         position: "fixed",
         height: "100%",
         width: "100%",
-        backgroundColor: "hsl(192, 70%, 5%)",
-        justifyContent: "center",
-        alignItems: "center",
       }}
     >
       <ScrollArea>
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
+            maxWidth: "1564px",
+            margin: "0 auto",
           }}
         >
           <Header />
@@ -50,7 +45,6 @@ export default function Pricing() {
               display: "flex",
               flexDirection: "column",
               width: "100%",
-              padding: "0 80px",
               marginBottom: "72px",
               alignItems: "center",
               justifyContent: "center",
@@ -71,15 +65,14 @@ export default function Pricing() {
                 style={{
                   backgroundColor: "var(--cyan-12)",
                   width: "100%",
-
                   marginTop: "24px",
                   height: "3px",
                 }}
               />
               <Text
-                size="5"
+                size="6"
                 weight="medium"
-                className="cyan-4"
+                className="cyan-3"
                 style={{
                   marginTop: "16px",
                   padding: "0 12px",
@@ -87,43 +80,45 @@ export default function Pricing() {
                   textWrap: "balance",
                 }}
               >
-                From solo devs to enterprise teams - we've got you covered
+                Flexible pricing for every stage of your journey - get started
+                for free
+              </Text>
+              <Text
+                size="4"
+                weight="medium"
+                className="cyan-5"
+                mt="16px"
+                style={{ textAlign: "center", fontStyle: "italic" }}
+              >
+                We offer pay-as-you-go, self-hosted, and custom high-volume
+                plans.
               </Text>
             </Flex>
             <Flex
               direction="column"
               align="center"
               justify="center"
+              px="80px"
               mt="64px"
               gap="64px"
               wrap="wrap"
               width="100%"
             >
               <Calculator />
+              <ModelTable />
               <Flex width="100%" justify="center" gap="64px">
                 <PricingCard
-                  tier="Managed Instance"
-                  price="High Volume"
-                  features={[
-                    "Up to 5 projects",
-                    "10GB storage",
-                    "Basic support",
-                    "API access",
-                  ]}
+                  tier="Self-hosted"
+                  price="License"
+                  text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
                   active={false}
                   enterprise={true}
                   auth={true}
                 />
                 <PricingCard
-                  tier="Self-hosted"
-                  price="License"
-                  features={[
-                    "Unlimited projects",
-                    "50GB storage",
-                    "Priority support",
-                    "Advanced API access",
-                    "Team collaboration",
-                  ]}
+                  tier="Managed Instance"
+                  price="High Volume"
+                  text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
                   active={false}
                   enterprise={true}
                   auth={true}

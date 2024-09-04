@@ -1,0 +1,44 @@
+.rt-TableRoot {
+  background-color: rgb(4, 18, 22) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+table {
+  background-color: rgb(4, 18, 22) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+thead {
+  margin-bottom: 32px !important;
+}
+
+tr {
+  background-color: hsl(193, 69%, 5%) !important;
+  color: var(--cyan-2) !important;
+}
+
+th {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+}
+
+.sub-header {
+  font-weight: 500 !important;
+  font-size: 20px !important;
+  color: var(--cyan-6) !important;
+  padding-top: 32px !important;
+  padding-bottom: 32px !important;
+  border-bottom: 1px solid var(--cyan-12) !important;
+}
+
+td {
+  font-size: 16px !important;
+  border-bottom: 1px solid var(--cyan-12) !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding-top: 32px !important;
+  padding-bottom: 32px !important;
+  color: var(--cyan-3) !important;
+}
