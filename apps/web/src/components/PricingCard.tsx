@@ -63,12 +63,7 @@ export default function PricingCard({
         }}
       />
       <Flex direction="column" gap="20px">
-        <Text
-          size="4"
-          weight="regular"
-          className="cyan-6"
-          style={{ fontStyle: "italic" }}
-        >
+        <Text size="4" weight="regular" className="cyan-6">
           {text}
         </Text>
       </Flex>
