@@ -179,7 +179,7 @@ export default function Calculator() {
         style={{
           paddingRight: "40px",
           paddingLeft: "16px",
-          paddingTop: "106px",
+          paddingTop: "112px",
         }}
       >
         <ExplanationSection
