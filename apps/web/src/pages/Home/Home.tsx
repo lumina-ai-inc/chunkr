@@ -20,7 +20,7 @@ const Home = () => {
     >
       <ScrollArea>
         <div style={{ maxWidth: "1564px", margin: "0 auto" }}>
-          <Header py="40px" home={true} />
+          <Header px="0px" home={true} />
           <Flex className="hero-container">
             <Flex className="text-container" direction="column">
               <Text size="9" weight="medium" trim="both" className="hero-title">
@@ -188,6 +188,5 @@ const Home = () => {
     </Flex>
   );
 };
-
 
 export default Home;
