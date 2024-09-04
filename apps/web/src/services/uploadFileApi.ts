@@ -12,7 +12,7 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
       formData.append(key, value);
     }
   }
-
+  console.log(formData);
   const { data } = await axiosInstance.post("/api/task", formData);
   return data;
 }
@@ -31,4 +31,3 @@ export async function getPDF(fileUrl: string): Promise<File> {
   const { data } = await axiosInstance.get(fileUrl, { responseType: "blob" });
   return new File([data], "document.pdf", { type: data.type });
 }
-
