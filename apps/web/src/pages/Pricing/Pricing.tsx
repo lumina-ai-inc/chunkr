@@ -40,7 +40,7 @@ export default function Pricing() {
             flexDirection: "column",
             maxWidth: "1564px",
             margin: "0 auto",
-            marginBottom: "232px",
+            marginBottom: "168px",
           }}
         >
           <Header />
@@ -137,7 +137,7 @@ export default function Pricing() {
               align="center"
               justify="center"
               px="80px"
-              mt="88px"
+              mt="72px"
               gap="88px"
               wrap="wrap"
               width="100%"
