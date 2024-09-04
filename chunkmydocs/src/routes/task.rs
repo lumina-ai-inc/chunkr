@@ -28,6 +28,7 @@ pub async fn get_task_status(
     pool: web::Data<Pool>,
     s3_client: web::Data<S3Client>,
     task_id: web::Path<String>,
+    user_info: web::ReqData<UserInfo>,
     _req: HttpRequest,
 ) -> Result<HttpResponse, Error> {
     let task_id = task_id.into_inner();
@@ -37,7 +38,9 @@ pub async fn get_task_status(
         return Ok(HttpResponse::BadRequest().body("Invalid task ID format"));
     }
 
-    match get_task(&pool, &s3_client, task_id).await {
+    let user_id = user_info.user_id.clone();
+
+    match get_task(&pool, &s3_client, task_id, user_id).await {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
             eprintln!("Error getting task status: {:?}", e);
