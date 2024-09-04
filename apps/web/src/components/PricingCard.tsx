@@ -41,14 +41,14 @@ export default function PricingCard({
       direction="column"
       className={isActive ? "card-container-selected" : "card-container"}
     >
-      <Text size="5" weight="medium" className="cyan-4" trim="start">
+      <Text size="4" weight="medium" className="cyan-4" trim="start">
         {tier}
       </Text>
       <Text
         size="8"
-        weight="medium"
+        weight="bold"
         className="cyan-2"
-        style={{ marginTop: "24px" }}
+        style={{ marginTop: "16px" }}
       >
         {enterprise ? price : `$${price}`}
       </Text>
@@ -77,7 +77,7 @@ export default function PricingCard({
           className={isActive ? "active-badge" : "inactive-badge"}
           style={{ padding: "8px 16px" }}
         >
-          <Text size="4" weight="medium">
+          <Text size="2" weight="medium">
             {isActive
               ? "Current Plan"
               : enterprise

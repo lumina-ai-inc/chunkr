@@ -87,17 +87,7 @@ export default function Header({
           className="nav-item"
         >
           <Text size="4" weight="medium" className="nav-item">
-            Contact
-          </Text>
-        </a>
-
-        <a
-          href="https://twitter.com/lumina_ai_inc"
-          target="_blank"
-          className="nav-item"
-        >
-          <Text size="4" weight="medium" className="nav-item">
-            Twitter
+            Discord
           </Text>
         </a>
 

@@ -13,8 +13,8 @@
 .pulsing-background {
   background: linear-gradient(
     90deg,
-    hsl(192, 69%, 8%) 0%,
-    hsl(193, 69%, 5%) 37.5%
+    hsl(192, 69%, 7%) 0%,
+    hsl(192, 71%, 4%) 37.5%
   );
   background-size: 110% 100%;
   animation: pulseGradient 15s ease infinite;
@@ -22,7 +22,7 @@
 
 .hero-container {
   margin-top: 64px;
-  margin-bottom: 64px;
+  margin-bottom: 72px;
   padding-left: 80px;
   padding-right: 80px;
   gap: 32px;
