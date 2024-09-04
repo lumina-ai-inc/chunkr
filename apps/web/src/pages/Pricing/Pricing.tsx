@@ -86,16 +86,51 @@ export default function Pricing() {
                 Flexible pricing for every stage of your journey - get started
                 for free
               </Text>
-              <Text
-                size="4"
-                weight="medium"
-                className="cyan-5"
-                mt="16px"
-                style={{ textAlign: "center", fontStyle: "italic" }}
-              >
-                We offer pay-as-you-go, self-hosted, and custom high-volume
-                plans.
-              </Text>
+              <Flex direction="row" gap="4" py="4px" align="center" mt="1">
+                <Text
+                  size="4"
+                  weight="medium"
+                  className="cyan-5"
+                  mt="16px"
+                  style={{ textAlign: "center" }}
+                >
+                  Metered API
+                </Text>
+                <Separator
+                  size="2"
+                  orientation="vertical"
+                  style={{
+                    backgroundColor: "var(--cyan-12)",
+                    marginTop: "16px",
+                  }}
+                />
+                <Text
+                  size="4"
+                  weight="medium"
+                  className="cyan-5"
+                  mt="16px"
+                  style={{ textAlign: "center" }}
+                >
+                  Managed Instance
+                </Text>
+                <Separator
+                  size="2"
+                  orientation="vertical"
+                  style={{
+                    backgroundColor: "var(--cyan-12)",
+                    marginTop: "16px",
+                  }}
+                />
+                <Text
+                  size="4"
+                  weight="medium"
+                  className="cyan-5"
+                  mt="16px"
+                  style={{ textAlign: "center" }}
+                >
+                  Self-hosted
+                </Text>
+              </Flex>
             </Flex>
             <Flex
               direction="column"
@@ -110,16 +145,16 @@ export default function Pricing() {
               <Calculator />
               <Flex width="100%" justify="between">
                 <PricingCard
-                  tier="Self-hosted"
-                  price="License"
+                  tier="Managed Instance"
+                  price="High Volume"
                   text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
                   active={false}
                   enterprise={true}
                   auth={true}
                 />
                 <PricingCard
-                  tier="Managed Instance"
-                  price="High Volume"
+                  tier="Self-hosted"
+                  price="License"
                   text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
                   active={false}
                   enterprise={true}

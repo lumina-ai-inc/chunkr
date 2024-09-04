@@ -224,11 +224,11 @@ function ExplanationSection({
           border: "2px solid var(--cyan-11)",
         }}
       >
-        <Text size="2" weight="medium" className="cyan-4">
+        <Text size="3" weight="medium" className="cyan-4">
           {title}
         </Text>
       </Flex>
-      <Text size="8" weight="bold" className="cyan-4">
+      <Text size="8" weight="bold" className="cyan-1">
         ${price}
       </Text>
       <Text
