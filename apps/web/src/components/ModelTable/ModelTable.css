@@ -1,11 +1,11 @@
 .rt-TableRoot {
-  background-color: rgb(4, 18, 22) !important;
+  background-color: unset !important;
   border: none !important;
   box-shadow: none !important;
 }
 
 table {
-  background-color: rgb(4, 18, 22) !important;
+  background-color: unset !important;
   border: none !important;
   box-shadow: none !important;
 }
@@ -15,7 +15,7 @@ thead {
 }
 
 tr {
-  background-color: hsl(193, 69%, 5%) !important;
+  background-color: unset !important;
   color: var(--cyan-2) !important;
 }
 

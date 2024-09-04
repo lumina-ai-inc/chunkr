@@ -3,6 +3,8 @@ import { useAuth } from "react-oidc-context";
 import "./Home.css";
 import Header from "../../components/Header/Header";
 import UploadMain from "../../components/Upload/UploadMain";
+import ModelTable from "../../components/ModelTable/ModelTable";
+import Footer from "../../components/Footer/Footer";
 
 const Home = () => {
   const auth = useAuth();
@@ -19,7 +21,13 @@ const Home = () => {
       className="pulsing-background"
     >
       <ScrollArea>
-        <div style={{ maxWidth: "1564px", margin: "0 auto" }}>
+        <div
+          style={{
+            maxWidth: "1564px",
+            margin: "0 auto",
+            marginBottom: "152px",
+          }}
+        >
           <Header px="0px" home={true} />
           <Flex className="hero-container">
             <Flex className="text-container" direction="column">
@@ -183,7 +191,11 @@ const Home = () => {
               <UploadMain isAuthenticated={isAuthenticated} />
             </Flex>
           </Flex>
+          <Flex p="80px">
+            <ModelTable />
+          </Flex>
         </div>
+        <Footer />
       </ScrollArea>
     </Flex>
   );
