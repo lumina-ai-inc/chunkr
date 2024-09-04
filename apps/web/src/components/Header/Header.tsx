@@ -23,7 +23,6 @@ export default function Header({
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
   const { content } = useSelector((state: RootState) => state.pdfContent);
-  console.log(content);
 
   const handleDownloadJSON = () => {
     if (content) {
@@ -35,7 +34,7 @@ export default function Header({
     <Flex
       direction="row"
       justify="between"
-      py="40px"
+      py="32px"
       px="80px"
       className="header"
     >

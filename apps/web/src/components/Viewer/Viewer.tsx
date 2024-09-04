@@ -142,7 +142,7 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
         direction="column"
         style={{ boxShadow: "0px 12px 12px 0px rgba(0, 0, 0, 0.12)" }}
       >
-        <Header py="24px" px="24px" download={true} home={false} />
+        <Header download={true} home={false} />
       </Flex>
       <Flex
         direction="row"
