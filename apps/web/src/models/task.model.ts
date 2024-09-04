@@ -13,10 +13,15 @@ export interface TaskResponse {
   status: Status;
   created_at: Date;
   finished_at: string | null;
-  expiration_time: Date | null;
+  expires_at: Date | null;
   message: string;
   input_file_url: string | null;
   output_file_url: string | null;
   task_url: string | null;
+  configuration: Configuration;
+}
+
+export interface Configuration {
   model: Model;
+  target_chunk_length: number | null;
 }

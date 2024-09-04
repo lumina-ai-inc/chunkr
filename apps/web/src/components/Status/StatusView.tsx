@@ -15,7 +15,7 @@ export default function StatusView({ task, pageCount }: StatusViewProps) {
     navigate("/");
   };
 
-  const isHighQuality = task?.model === "HighQuality";
+  const isHighQuality = task?.configuration.model === "HighQuality";
   const pagesPerSecond = isHighQuality ? 1 : 7;
   const calculatedDuration = Math.max(1, Math.ceil(pageCount / pagesPerSecond));
   const durationInSeconds = isHighQuality
@@ -39,7 +39,7 @@ export default function StatusView({ task, pageCount }: StatusViewProps) {
         ) : (
           <Flex direction="column" className="status-title-badge">
             <Text size="6" weight="medium" className="cyan-2">
-              {task?.model}
+              {task?.configuration.model}
             </Text>
           </Flex>
         )}
@@ -84,7 +84,7 @@ export default function StatusView({ task, pageCount }: StatusViewProps) {
             {task?.created_at.toLocaleString()}
           </Text>
         </Flex>
-        {task?.expiration_time && (
+        {task?.expires_at && (
           <Flex direction="row" gap="4" className="status-item" wrap="wrap">
             <Text
               size="8"
@@ -95,7 +95,7 @@ export default function StatusView({ task, pageCount }: StatusViewProps) {
               Expires
             </Text>
             <Text size="4" weight="regular" className="cyan-8" trim="both">
-              {task?.expiration_time?.toLocaleString() || "N/A"}
+              {task?.expires_at?.toLocaleString() || "N/A"}
             </Text>
           </Flex>
         )}

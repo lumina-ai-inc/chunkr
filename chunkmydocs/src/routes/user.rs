@@ -1,6 +1,7 @@
 use crate::models::auth::auth::UserInfo;
 use crate::models::server::user::{ User, Tier, UsageType, Usage };
 use crate::utils::db::deadpool_postgres::{ Client, Pool };
+use crate::utils::configs::user_config::Config as UserConfig;
 use actix_web::{ web, HttpResponse, Error };
 use prefixed_api_key::PrefixedApiKeyController;
 use std::collections::HashMap;
@@ -113,6 +114,7 @@ async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::err
 
 async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {
     let mut client: Client = pool.get().await?;
+    let user_config = UserConfig::from_env().unwrap();
 
     let controller = PrefixedApiKeyController::configure()
         .prefix("lu".to_owned())
@@ -122,17 +124,21 @@ async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<dyn s
     let (pak, _hash) = controller.generate_key_and_hash();
     let key = pak.to_string();
 
-    // Create usage limits
+    let tier: Tier = match user_config.self_hosted {
+        true => Tier::SelfHosted,
+        false => Tier::Free,
+    };
+    
     let usage_limits: HashMap<UsageType, i32> = HashMap::from([
-        (UsageType::Fast, 1000),
-        (UsageType::HighQuality, 500),
-        (UsageType::Segment, 250),
+        (UsageType::Fast, UsageType::Fast.get_usage_limit(&tier)),
+        (UsageType::HighQuality, UsageType::HighQuality.get_usage_limit(&tier)),
+        (UsageType::Segment, UsageType::Segment.get_usage_limit(&tier)),
     ]);
+
     let usage_limits_clone = usage_limits.clone();
 
     let transaction = client.transaction().await?;
 
-    // Insert into users table
     let user_query =
         r#"
     INSERT INTO users (user_id, email, first_name, last_name, tier)
@@ -147,11 +153,10 @@ async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<dyn s
             &user_info.email,
             &user_info.first_name,
             &user_info.last_name,
-            &Tier::Free.to_string(),
+            &tier.to_string(),
         ]
     ).await?;
 
-    // Insert into api_keys table
     let api_key_query =
         r#"
     INSERT INTO api_keys (key, user_id, access_level, active)
@@ -160,7 +165,6 @@ async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<dyn s
 
     transaction.execute(api_key_query, &[&key, &user_info.user_id, &"user", &true]).await?;
 
-    // Insert into USAGE table
     let usage_query =
         r#"
     INSERT INTO USAGE (user_id, usage, usage_limit, usage_type, unit)
@@ -176,7 +180,6 @@ async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<dyn s
 
     transaction.commit().await?;
 
-    // Construct and return the User object
     let user = User {
         user_id: user_row.get("user_id"),
         customer_id: user_row.get("customer_id"),
