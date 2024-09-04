@@ -14,7 +14,7 @@
   border: 3px solid var(--cyan-5);
   border-radius: 8px;
   padding: 48px;
-  width: calc(50% - 24px);
+  width: calc(50% - 48px);
   cursor: pointer;
   transition:
     background-color 0.3s,
@@ -39,12 +39,8 @@
 }
 
 .pricing-container {
-  margin-top: 32px;
+  margin-top: 64px;
   cursor: default;
-}
-
-.pricing-cards-container {
-  gap: 48px;
 }
 
 @media (min-width: 1564px) {

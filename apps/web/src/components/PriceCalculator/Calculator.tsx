@@ -4,7 +4,7 @@ import { useState } from "react";
 export default function Calculator() {
   const [fastPages, setFastPages] = useState(0);
   const [highQualityPages, setHighQualityPages] = useState(0);
-  const [llmSegments, setLlmSegments] = useState(0);
+  // const [llmSegments, setLlmSegments] = useState(0);
 
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -13,8 +13,8 @@ export default function Calculator() {
   const calculateTotalCost = () => {
     const fastCost = fastPages * 0.002;
     const highQualityCost = highQualityPages * 0.01;
-    const llmCost = llmSegments * 0.012;
-    return (fastCost + highQualityCost + llmCost).toFixed(2);
+    // const llmCost = llmSegments * 0.012;
+    return (fastCost + highQualityCost).toFixed(2);
   };
 
   return (
@@ -25,7 +25,7 @@ export default function Calculator() {
       style={{
         border: "3px solid var(--cyan-5)",
         borderRadius: "8px",
-
+        backgroundColor: "hsl(191, 73%, 5%)",
         boxShadow: "0px 0px 20px 0px rgba(0, 0, 0, 1)",
       }}
     >
@@ -130,7 +130,7 @@ export default function Calculator() {
             </Flex>
           </Flex>
 
-          <Flex direction="column" width="100%">
+          {/* <Flex direction="column" width="100%">
             <Flex direction="column" gap="4" width="100%" mt="4">
               <Flex direction="column">
                 <Text size="3" weight="bold" className="cyan-3">
@@ -167,7 +167,7 @@ export default function Calculator() {
                 1M
               </Text>
             </Flex>
-          </Flex>
+          </Flex> */}
         </Flex>
       </Flex>
       <Flex
@@ -175,11 +175,11 @@ export default function Calculator() {
         width="45%"
         py="8"
         align="center"
-        justify="between"
+        gap="9"
         style={{
           paddingRight: "40px",
           paddingLeft: "16px",
-          paddingTop: "116px",
+          paddingTop: "106px",
         }}
       >
         <ExplanationSection
@@ -192,11 +192,11 @@ export default function Calculator() {
           price="0.01 / page"
           description="Enhanced processing for complex documents. Perfect for when accuracy and detail are crucial."
         />
-        <ExplanationSection
+        {/* <ExplanationSection
           title="LLM Add-ons"
           price="0.012 / segment"
           description="Advanced AI-powered analysis and insights. Unlock deeper understanding of your documents."
-        />
+        /> */}
       </Flex>
     </Flex>
   );
@@ -221,7 +221,6 @@ function ExplanationSection({
         py="4px"
         style={{
           borderRadius: "4px",
-          backgroundColor: "var(--cyan-10)",
           border: "2px solid var(--cyan-11)",
         }}
       >
@@ -229,14 +228,15 @@ function ExplanationSection({
           {title}
         </Text>
       </Flex>
-      <Text size="6" weight="bold" className="cyan-4">
+      <Text size="8" weight="bold" className="cyan-4">
         ${price}
       </Text>
       <Text
-        size="4"
+        size="5"
         weight="light"
         className="cyan-4"
         trim="both"
+        mt="1"
         style={{ fontStyle: "italic" }}
       >
         {description}

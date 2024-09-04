@@ -7,7 +7,7 @@ import styled from "@emotion/styled";
 import Header from "../../components/Header/Header";
 import Calculator from "../../components/PriceCalculator/Calculator";
 import PricingCard from "../../components/PricingCard";
-import ModelTable from "../../components/ModelTable/ModelTable";
+import Footer from "../../components/Footer/Footer";
 
 const drawLine = keyframes`
   from {
@@ -30,13 +30,17 @@ export default function Pricing() {
         position: "fixed",
         height: "100%",
         width: "100%",
+        backgroundColor: "hsl(192, 71%, 4%)",
       }}
     >
       <ScrollArea>
         <div
           style={{
+            display: "flex",
+            flexDirection: "column",
             maxWidth: "1564px",
             margin: "0 auto",
+            marginBottom: "232px",
           }}
         >
           <Header />
@@ -45,7 +49,6 @@ export default function Pricing() {
               display: "flex",
               flexDirection: "column",
               width: "100%",
-              marginBottom: "72px",
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -99,14 +102,13 @@ export default function Pricing() {
               align="center"
               justify="center"
               px="80px"
-              mt="64px"
-              gap="64px"
+              mt="88px"
+              gap="88px"
               wrap="wrap"
               width="100%"
             >
               <Calculator />
-              <ModelTable />
-              <Flex width="100%" justify="center" gap="64px">
+              <Flex width="100%" justify="between">
                 <PricingCard
                   tier="Self-hosted"
                   price="License"
@@ -127,6 +129,7 @@ export default function Pricing() {
             </Flex>
           </div>
         </div>
+        <Footer />
       </ScrollArea>
     </Flex>
   );
