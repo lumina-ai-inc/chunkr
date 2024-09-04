@@ -62,7 +62,7 @@ export default function UploadMain({
     setError(null);
     const payload: UploadForm = {
       file,
-      model
+      model,
     };
 
     try {
