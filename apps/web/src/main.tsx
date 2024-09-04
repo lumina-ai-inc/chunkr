@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider, AuthProviderProps } from "react-oidc-context";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Theme } from "@radix-ui/themes";
+import { QueryClient, QueryClientProvider } from "react-query";
 import "@radix-ui/themes/styles.css";
 import "./index.css";
 import Auth from "./auth/Auth.tsx";
@@ -43,6 +44,8 @@ const router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient();
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Theme
     scaling="100%"
@@ -53,13 +56,15 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       backgroundColor: "hsl(192, 70%, 5%)",
     }}
   >
-    <AuthProvider {...oidcConfig}>
-      <Provider store={store}>
-        <Auth>
-          <RouterProvider router={router} />
-        </Auth>
-      </Provider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider {...oidcConfig}>
+        <Provider store={store}>
+          <Auth>
+            <RouterProvider router={router} />
+          </Auth>
+        </Provider>
+      </AuthProvider>
+    </QueryClientProvider>
     <Toaster />
   </Theme>
 );

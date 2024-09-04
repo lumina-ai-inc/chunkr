@@ -1,10 +1,11 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getTask } from "../../services/uploadFileApi";
-import { TaskResponse, Status } from "../../models/task.model";
+// import { useEffect, useState } from "react";
+// import { getTask } from "../../services/uploadFileApi";
+import { Status } from "../../models/task.model";
 import Loader from "../Loader/Loader";
 import StatusView from "../../components/Status/StatusView";
 import { Viewer } from "../../components/Viewer/Viewer";
+import { useTaskQuery } from "../../hooks/usePollTask";
 
 export default function Task() {
   const { taskId, pageCount } = useParams<{
@@ -12,31 +13,11 @@ export default function Task() {
     pageCount: string;
   }>();
 
-  const [taskResponse, setTaskResponse] = useState<TaskResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { data: taskResponse, error, isLoading } = useTaskQuery(taskId);
 
-  useEffect(() => {
-    const pollTask = async () => {
-      if (!taskId) return;
-
-      try {
-        await getTask(taskId).then((response) => {
-          setTaskResponse(response);
-
-          if (response.status !== Status.Succeeded) {
-            setTimeout(() => pollTask(), 1000);
-          }
-
-        })
-        .catch((e) => console.error(e));
-      } catch (err) {
-        setError("Failed to fetch task status");
-        console.error(err);
-      }
-    };
-
-    pollTask();
-  }, [taskId]);
+  if (isLoading) {
+    return <Loader />;
+  }
 
   if (!taskResponse) {
     return <Loader />;
@@ -62,7 +43,7 @@ export default function Task() {
             (e.currentTarget.style.backgroundColor = "var(--red-7)")
           }
         >
-          {error}
+          {error.message}
         </div>
       </Link>
     );
