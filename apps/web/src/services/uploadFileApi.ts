@@ -11,7 +11,7 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
       formData.append(key, value);
     }
   }
-
+  console.log(formData);
   const { data } = await axiosInstance.post("/api/task", formData);
   return data;
 }
@@ -28,4 +28,3 @@ export async function fetchFileFromSignedUrl(signedUrl: string): Promise<Blob> {
   }
   return await response.blob();
 }
-

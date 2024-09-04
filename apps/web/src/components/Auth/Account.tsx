@@ -122,7 +122,7 @@ export default function Account({ onClose }: { onClose: () => void }) {
           <Flex direction="row" gap="16px">
             <BetterButton>
               <Text size="2" weight="medium" className="cyan-1">
-                Manage Plan
+                Manage Payment
               </Text>
             </BetterButton>
             <BetterButton onClick={() => auth.signoutRedirect()}>
@@ -132,43 +132,6 @@ export default function Account({ onClose }: { onClose: () => void }) {
             </BetterButton>
           </Flex>
         </Flex>
-
-        {/* <Flex direction="row" gap="72px" mt="80px" wrap="wrap">
-          <Flex direction="column" className="pricing-container-active">
-            <Text size="9" weight="bold" mt="16px">
-              $0
-            </Text>
-            <Text size="4" weight="medium" mt="8px">
-              100 pages/month
-            </Text>
-          </Flex>
-          <Flex direction="column" className="pricing-container">
-            <div className="badge-container">
-              <Text size="2" weight="medium">
-                Dev
-              </Text>
-            </div>
-            <Text size="9" weight="bold" mt="16px">
-              $12
-            </Text>
-            <Text size="4" weight="medium" mt="8px">
-              1000 pages/month
-            </Text>
-          </Flex>
-          <Flex direction="column" className="pricing-container">
-            <div className="badge-container">
-              <Text size="2" weight="medium">
-                Enterprise
-              </Text>
-            </div>
-            <Text size="9" weight="bold" mt="16px">
-              Custom
-            </Text>
-            <Text size="4" weight="medium" mt="8px">
-              High volume | Self-host
-            </Text>
-          </Flex>
-        </Flex> */}
       </div>
     </div>
   );

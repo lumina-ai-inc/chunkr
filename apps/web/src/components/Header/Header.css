@@ -1,3 +1,7 @@
+.header {
+  width: 100%;
+}
+
 .logo {
   transition: color 0.2s ease;
   cursor: pointer;

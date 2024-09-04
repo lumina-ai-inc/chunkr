@@ -16,8 +16,6 @@ interface HeaderProps {
 }
 
 export default function Header({
-  py = "40px",
-  px = "80px",
   download = false,
   home = false,
 }: HeaderProps) {
@@ -34,9 +32,15 @@ export default function Header({
   };
 
   return (
-    <Flex direction="row" justify="between" py={py} px={px} className="header">
+    <Flex
+      direction="row"
+      justify="between"
+      py="40px"
+      px="80px"
+      className="header"
+    >
       <Link to="/" style={{ textDecoration: "none" }}>
-        <Flex className="logo" direction="row" gap="4" align="center">
+        <Flex className="logo" direction="row" gap="3" align="center">
           <div className="logo-container">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -77,28 +81,31 @@ export default function Header({
           </Text>
         )}
 
-        <a href="https://twitter.com/lumina_ai_inc" target="_blank">
+        <a
+          href="https://twitter.com/lumina_ai_inc"
+          target="_blank"
+          className="nav-item"
+        >
           <Text size="4" weight="medium" className="nav-item">
-            Contact
-          </Text>
-        </a>
-
-        <a href="https://twitter.com/lumina_ai_inc" target="_blank">
-          <Text size="4" weight="medium" className="nav-item">
-            Twitter
+            Discord
           </Text>
         </a>
 
         <a
           href="https://github.com/lumina-ai-inc/chunk-my-docs"
           target="_blank"
+          className="nav-item"
         >
           <Text size="4" weight="medium" className="nav-item">
             Github
           </Text>
         </a>
 
-        <Link to="/pricing" style={{ textDecoration: "none" }}>
+        <Link
+          to="/pricing"
+          style={{ textDecoration: "none" }}
+          className="nav-item"
+        >
           <Text size="4" weight="medium" className="nav-item">
             Pricing
           </Text>
