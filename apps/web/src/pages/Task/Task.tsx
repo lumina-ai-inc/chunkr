@@ -20,13 +20,15 @@ export default function Task() {
       if (!taskId) return;
 
       try {
-        const response = await getTask(taskId);
-        setTaskResponse(response);
+        await getTask(taskId).then((response) => {
+          setTaskResponse(response);
 
-        if (response.status !== Status.Succeeded) {
-          setTimeout(() => pollTask(), 1000);
-        }
-        // If status is Succeeded, we don't set up another timeout
+          if (response.status !== Status.Succeeded) {
+            setTimeout(() => pollTask(), 1000);
+          }
+
+        })
+        .catch((e) => console.error(e));
       } catch (err) {
         setError("Failed to fetch task status");
         console.error(err);

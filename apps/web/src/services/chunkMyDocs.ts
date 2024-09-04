@@ -1,14 +1,11 @@
-import { getFile, getPDF } from "./uploadFileApi";
-import { BoundingBoxes } from "../models/chunk.model";
+import { Chunks } from "../models/chunk.model";
+import { fetchFileFromSignedUrl } from "./uploadFileApi";
 
-export async function retrieveFileContent(
+export async function getChunks(
   fileUrl: string
-): Promise<BoundingBoxes> {
-  const fileContent = await getFile(fileUrl);
-  return fileContent;
-}
-
-export async function fetchPdfFile(fileUrl: string): Promise<File> {
-  const fileContent = await getPDF(fileUrl);
+): Promise<Chunks> {
+  const fileBlob = await fetchFileFromSignedUrl(fileUrl);
+  const fileText = await fileBlob.text();
+  const fileContent: Chunks = JSON.parse(fileText);
   return fileContent;
 }
