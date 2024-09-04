@@ -51,7 +51,7 @@ pub struct UploadForm {
     pub target_chunk_length: Option<Text<i32>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSql, FromSql, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 pub struct Configuration {
     pub model: Model,
     pub target_chunk_length: Option<i32>,

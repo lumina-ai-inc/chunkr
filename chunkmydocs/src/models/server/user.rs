@@ -1,22 +1,35 @@
-use serde::{Deserialize, Serialize};
-use strum_macros::{Display, EnumString};
-use chrono::{DateTime, Utc};
-use postgres_types::{FromSql, ToSql};
+use serde::{ Deserialize, Serialize };
+use strum_macros::{ Display, EnumString };
+use chrono::{ DateTime, Utc };
+use postgres_types::{ FromSql, ToSql };
 use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Display, EnumString, FromSql, ToSql, ToSchema)]
+#[derive(
+    Serialize,
+    Deserialize,
+    Debug,
+    PartialEq,
+    Eq,
+    Clone,
+    Display,
+    EnumString,
+    FromSql,
+    ToSql,
+    ToSchema
+)]
 #[postgres(name = "tier")]
 pub enum Tier {
     Free,
     PayAsYouGo,
-    Enterprise
+    Enterprise,
+    SelfHosted,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Display, EnumString, Hash, ToSchema)]
 pub enum UsageType {
     Fast,
     HighQuality,
-    Segment
+    Segment,
 }
 
 impl UsageType {
@@ -27,8 +40,18 @@ impl UsageType {
             UsageType::Segment => "Segment".to_string(),
         }
     }
-}
 
+    pub fn get_usage_limit(&self, tier: &Tier) -> i32 {
+        match tier {
+            Tier::Free => match self {
+                UsageType::Fast => 1000,
+                UsageType::HighQuality => 500,
+                UsageType::Segment => 250,
+            },
+            _ => i32::MAX,
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema)]
 pub struct User {
@@ -41,7 +64,7 @@ pub struct User {
     pub tier: Tier,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub usages: Vec<Usage>
+    pub usages: Vec<Usage>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema)]
@@ -51,5 +74,5 @@ pub struct Usage {
     pub usage_type: String,
     pub unit: String,
     pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>
+    pub updated_at: DateTime<Utc>,
 }

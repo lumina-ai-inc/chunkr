@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS TASKS (
     file_size BIGINT,
     page_count INTEGER,
     segment_count INTEGER,
-    created_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP WITH TIME ZONE,
     finished_at TIMESTAMP WITH TIME ZONE,
     status TEXT,
@@ -94,37 +94,46 @@ DECLARE
     v_segment_limit INTEGER;
     v_usage_type TEXT;
     v_config JSONB;
+    v_user_tier TEXT;
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        -- Parse configuration string to JSONB
-        v_config := NEW.configuration::JSONB;
+        -- Get user's tier
+        SELECT tier INTO v_user_tier
+        FROM users
+        WHERE user_id = NEW.user_id;
 
-        -- Determine usage type based on model
-        IF v_config->>'model' = 'Fast' THEN
-            v_usage_type := 'Fast';
-        ELSIF v_config->>'model' = 'HighQuality' THEN
-            v_usage_type := 'HighQuality';
-        ELSE
-            RAISE EXCEPTION 'Unknown model type in configuration';
-        END IF;
+        -- Only proceed with validation if the user is on the 'Free' tier
+        IF v_user_tier = 'Free' THEN
+            -- Parse configuration string to JSONB
+            v_config := NEW.configuration::JSONB;
 
-        -- Check page count usage
-        SELECT usage, usage_limit INTO v_page_usage, v_page_limit 
-        FROM USAGE 
-        WHERE user_id = NEW.user_id AND usage_type = v_usage_type;
+            -- Determine usage type based on model
+            IF v_config->>'model' = 'Fast' THEN
+                v_usage_type := 'Fast';
+            ELSIF v_config->>'model' = 'HighQuality' THEN
+                v_usage_type := 'HighQuality';
+            ELSE
+                RAISE EXCEPTION 'Unknown model type in configuration';
+            END IF;
 
-        IF COALESCE(v_page_usage, 0) + NEW.page_count > COALESCE(v_page_limit, 0) THEN
-            RAISE EXCEPTION 'Page usage limit exceeded';
-        END IF;
-
-        -- Check segment count usage if useVisionOCR is true
-        IF v_config->>'useVisionOCR' = 'true' THEN
-            SELECT usage, usage_limit INTO v_segment_usage, v_segment_limit 
+            -- Check page count usage
+            SELECT usage, usage_limit INTO v_page_usage, v_page_limit 
             FROM USAGE 
-            WHERE user_id = NEW.user_id AND usage_type = 'Segments';
+            WHERE user_id = NEW.user_id AND usage_type = v_usage_type;
 
-            IF COALESCE(v_segment_usage, 0) + NEW.segment_count > COALESCE(v_segment_limit, 0) THEN
-                RAISE EXCEPTION 'Segment usage limit exceeded';
+            IF COALESCE(v_page_usage, 0) + NEW.page_count > COALESCE(v_page_limit, 0) THEN
+                RAISE EXCEPTION 'Page usage limit exceeded';
+            END IF;
+
+            -- Check segment count usage if useVisionOCR is true
+            IF v_config->>'useVisionOCR' = 'true' THEN
+                SELECT usage, usage_limit INTO v_segment_usage, v_segment_limit 
+                FROM USAGE 
+                WHERE user_id = NEW.user_id AND usage_type = 'Segments';
+
+                IF COALESCE(v_segment_usage, 0) + NEW.segment_count > COALESCE(v_segment_limit, 0) THEN
+                    RAISE EXCEPTION 'Segment usage limit exceeded';
+                END IF;
             END IF;
         END IF;
     END IF;
