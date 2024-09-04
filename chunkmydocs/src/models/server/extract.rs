@@ -43,8 +43,11 @@ pub enum TableOcrModel {
 
 #[derive(Debug, MultipartForm, ToSchema)]
 pub struct UploadForm {
+    #[schema(value_type = String, format = "binary")]
     pub file: TempFile,
+    #[schema(value_type = Model)]
     pub model: Text<Model>,
+    #[schema(value_type = Option<i32>)]
     pub target_chunk_length: Option<Text<i32>>,
 }
 

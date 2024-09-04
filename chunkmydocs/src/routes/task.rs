@@ -21,7 +21,7 @@ use uuid::Uuid;
     ),
     responses(
         (status = 200, description = "Detailed information describing the extraction task", body = TaskResponse),
-        (status = 502, description = "Internal server error related to getting the extraction task", body = String),
+        (status = 500, description = "Internal server error related to getting the extraction task", body = String),
     ),
 )]
 pub async fn get_task_status(
@@ -59,8 +59,8 @@ pub async fn get_task_status(
     tag = "task",
     request_body(content = UploadForm, description = "Multipart form encoded data to create an extraction task", content_type = "multipart/form-data"),
     responses(
-        (status = 200, description = "Detailed information describing the extraction task such that it's status can be poll'ed for", body = TaskResponse),
-        (status = 502, description = "Internal server error related to creating the extraction task", body = String),
+        (status = 200, description = "Detailed information describing the extraction task such that it's status can be polled for", body = TaskResponse),
+        (status = 500, description = "Internal server error related to creating the extraction task", body = String),
     ),
 )]
 pub async fn create_extraction_task(

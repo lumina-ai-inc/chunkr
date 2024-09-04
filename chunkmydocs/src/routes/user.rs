@@ -3,14 +3,13 @@ use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::{ get_user::get_user, create_user::create_user };
 use actix_web::{ web, HttpResponse, Error };
 
-
 /// Get User
 ///
 /// Get user information, if its the first time the user is logging in, create a new user
 #[utoipa::path(
     get,
     path = "/user",
-    context_path = "",
+    context_path = "/api",
     tag = "user",
     responses(
         (
@@ -18,7 +17,7 @@ use actix_web::{ web, HttpResponse, Error };
             description = "Get user information, if it's the first time the user is logging in, create a new user",
             body = User,
         ),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 500, description = "Internal server error", body = String),
     )
 )]
 pub async fn get_or_create_user(
