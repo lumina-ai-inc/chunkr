@@ -122,7 +122,7 @@ export default function Header({
             onClick={() => setShowAccount(!showAccount)}
             style={{ cursor: "pointer" }}
           >
-            Account
+            Dashboard
           </Text>
         )}
 
