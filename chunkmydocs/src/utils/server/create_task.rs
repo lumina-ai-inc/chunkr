@@ -153,12 +153,12 @@ pub async fn create_task(
                 status: Status::Starting,
                 created_at,
                 finished_at: None,
-                expiration_time,
+                expires_at: expiration_time,
                 output_file_url: None,
                 input_file_url,
                 task_url: Some(task_url),
                 message,
-                model: model.clone(),
+                configuration: configuration.clone(),
             })
         }
         Err(e) => Err(e),

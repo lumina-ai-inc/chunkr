@@ -1,5 +1,4 @@
 use crate::utils::configs::pdf2png_config::Config;
-use base64;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
