@@ -66,7 +66,6 @@ pub async fn create_task(
     let base_url = config.base_url;
     let task_url = format!("{}/task/{}", base_url, task_id);
     
-    let file_id = Uuid::new_v4().to_string();
     let buffer: Vec<u8> = std::fs::read(file.file.path())?;
 
     if !is_valid_pdf(&buffer)? {
@@ -83,11 +82,10 @@ pub async fn create_task(
 
     let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
     let input_location = format!(
-        "s3://{}/{}/{}/{}/{}",
+        "s3://{}/{}/{}/{}",
         bucket_name,
         user_id,
         task_id,
-        file_id,
         file_name
     );
     let output_extension = model_internal.get_extension();
@@ -131,7 +129,6 @@ pub async fn create_task(
                 output_location,
                 expiration: None,
                 batch_size: Some(ingest_batch_size),
-                file_id,
                 task_id: task_id.clone(),
                 target_chunk_length: Some(target_chunk_length),
             };
