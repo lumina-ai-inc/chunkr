@@ -30,3 +30,5 @@ Cargo.lock
 *.tmp
 
 .lh
+
+.env.local
