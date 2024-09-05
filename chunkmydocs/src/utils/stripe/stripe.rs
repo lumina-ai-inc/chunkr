@@ -26,73 +26,44 @@ pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::
     Ok(stripe_customer_id)
 }
 
-pub async fn create_stripe_subscription(
+pub async fn create_stripe_setup_intent(
     customer_id: &str,
     stripe_config: &StripeConfig,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
-    let mut items = vec![
-        ("items[0][price]", stripe_config.page_fast_price_id.as_str()),
-        (
-            "items[1][price]",
-            stripe_config.page_high_quality_price_id.as_str(),
-        ),
-        ("items[2][price]", stripe_config.segment_price_id.as_str()),
-    ];
 
-    let mut form_data = vec![
-        ("automatic_tax[enabled]", "true"),
-        ("currency", "usd"),
+    let form_data = vec![
         ("customer", customer_id),
-        ("off_session", "true"),
-        ("payment_behavior", "error_if_incomplete"),
-        ("proration_behavior", "none"),
+        ("payment_method_types[]", "card"),
+        ("usage", "off_session"),
     ];
-    form_data.append(&mut items);
 
-    let stripe_response = client
-        .post("https://api.stripe.com/v1/subscriptions")
-        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
-        .form(&form_data)
-        .send()
-        .await?;
-
-    if !stripe_response.status().is_success() {
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            "Failed to create Stripe subscription",
-        )));
-    }
-
-    let stripe_subscription: serde_json::Value = stripe_response.json().await?;
-    Ok(stripe_subscription)
-}
-// collect payment information
-pub async fn create_setup_intent(
-    stripe_config: &StripeConfig,
-) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
-    let client = ReqwestClient::new();
-
-    let form_data = vec![("usage", "off_session"), ("payment_method_types[]", "card")];
-
-    let stripe_response = client
+    let stripe_response = match client
         .post("https://api.stripe.com/v1/setup_intents")
         .header("Authorization", format!("Bearer {}", stripe_config.api_key))
         .form(&form_data)
         .send()
-        .await?;
+        .await
+    {
+        Ok(response) => response,
+        Err(e) => return Err(Box::new(e)),
+    };
 
     if !stripe_response.status().is_success() {
+        let error_message = match stripe_response.text().await {
+            Ok(text) => format!("Failed to create Stripe SetupIntent: {}", text),
+            Err(_) => "Failed to create Stripe SetupIntent".to_string(),
+        };
         return Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::Other,
-            "Failed to create Stripe setup intent",
+            error_message,
         )));
     }
 
-    let setup_intent: serde_json::Value = stripe_response.json().await?;
-    Ok(setup_intent)
-}
+    let setup_intent: serde_json::Value = match stripe_response.json().await {
+        Ok(json) => json,
+        Err(e) => return Err(Box::new(e)),
+    };
 
-pub fn get_client_secret(setup_intent: &serde_json::Value) -> Option<String> {
-    setup_intent["client_secret"].as_str().map(String::from)
+    Ok(setup_intent)
 }
