@@ -4,17 +4,27 @@
 
 ### 1. Deploy Terraform
 
-1. Navigate to the GCP Terraform directory:
+1. Log in to your Google Cloud account:
+   ```bash
+   gcloud auth login
+   ```
+
+2. Set your GCP project:
+   ```bash
+   gcloud config set project YOUR_PROJECT_ID
+   ```
+
+3. Navigate to the GCP Terraform directory:
    ```bash
    cd terraform/gcp
    ```
 
-2. Open the Terraform variables file:
+4. Open the Terraform variables file:
    ```bash
    nano terraform.tfvars
    ```
 
-3. Set the following variables in your `terraform.tfvars` file:
+5. Set the following variables in your `terraform.tfvars` file:
 
    #### Required Variables
    | Variable | Description |
@@ -52,12 +62,17 @@ For each file, replace the placeholder values with your actual secret informatio
 
 ### 3. Deploy Kubernetes Resources
 
-1. Create the `chunkmydocs` namespace:
+1. Configure kubectl to use your GCP cluster:
+   ```bash
+   gcloud container clusters get-credentials YOUR_CLUSTER_NAME --region YOUR_REGION
+   ```
+
+2. Create the `chunkmydocs` namespace:
    ```bash
    kubectl create namespace chunkmydocs
    ```
 
-2. Apply the Kubernetes resources:
+3. Apply the Kubernetes resources:
    ```bash
    kubectl apply -f kube/gcp/
    ```
