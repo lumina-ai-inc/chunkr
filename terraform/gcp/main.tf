@@ -7,8 +7,17 @@ terraform {
   }
 }
 
+provider "google" {
+  region  = var.region
+  project = var.project
+}
+
 variable "base_name" {
   default = "chunkmydocs"
+}
+
+variable "region" {
+  default = "us-east1"
 }
 
 variable "cluster_name" {
@@ -20,9 +29,22 @@ variable "project" {
   description = "The GCP project ID"
 }
 
+variable "postgres_username" {
+  type = string
+  description = "The username for the PostgreSQL database"
+}
 
-variable "region" {
-  default = "us-east1"
+variable "postgres_password" {
+  type = string
+  description = "The password for the PostgreSQL database"
+}
+
+variable "chunkmydocs_db" {
+  default = "chunkmydocs"
+}
+
+variable "keycloak_db" {
+  default = "keycloak"
 }
 
 ###############################################################
@@ -41,18 +63,14 @@ resource "google_storage_bucket" "project_bucket" {
 # Set up the Networking Components
 ###############################################################
 # Set GOOGLE_CREDENTIALS
-provider "google" {
-  region  = var.region
-  project = var.project
-}
 
 resource "google_compute_network" "vpc_network" {
-  name                    = "gke-vpc-network"
+  name                    = "${var.base_name}-vpc-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "vpc_subnet" {
-  name          = "k8s-network"
+  name          = "${var.base_name}-vpc-subnet"
   ip_cidr_range = "10.3.0.0/16"
   region        = var.region
   network       = google_compute_network.vpc_network.id
@@ -64,12 +82,8 @@ resource "google_compute_subnetwork" "vpc_subnet" {
 resource "google_container_cluster" "cluster" {
   name     = var.cluster_name
   location = "${var.region}-b"
-
-  # We can't create a cluster with no node pool defined, but we want to only use
-  # separately managed node pools. So we create the smallest possible default
-  # node pool and immediately delete it.
-  remove_default_node_pool = false
-  initial_node_count       = 2
+  remove_default_node_pool = true
+  initial_node_count       = 1
 
   deletion_protection = false
 
@@ -170,3 +184,56 @@ resource "google_container_node_pool" "gpu_nodes" {
   }
 }
 
+###############################################################
+# Redis (Cloud Memorystore)
+###############################################################
+resource "google_redis_instance" "cache" {
+  name           = "${var.base_name}-redis"
+  tier           = "BASIC"
+  memory_size_gb = 6
+
+  region = var.region
+
+  authorized_network = google_compute_network.vpc_network.id
+
+  display_name  = "${var.base_name} redis cache"
+}
+
+###############################################################
+# PostgreSQL (Cloud SQL)
+###############################################################
+resource "google_sql_database_instance" "postgres" {
+  name             = "${var.base_name}-postgres"
+  database_version = "POSTGRES_14"
+  region           = var.region
+
+  settings {
+    tier = "db-f1-micro"
+
+    ip_configuration {
+      ipv4_enabled    = true
+      authorized_networks {
+        name  = "allow-all"
+        value = "0.0.0.0/0"
+      }
+    }
+  }
+
+  deletion_protection = true
+}
+
+resource "google_sql_database" "chunkkmydocs-database" {
+  name     = "${var.chunkmydocs_db}"
+  instance = google_sql_database_instance.postgres.name
+}
+
+resource "google_sql_database" "keycloak-database" {
+  name     = "${var.keycloak_db}"
+  instance = google_sql_database_instance.postgres.name
+}
+
+resource "google_sql_user" "users" {
+  name     = "${var.postgres_username}"
+  instance = google_sql_database_instance.postgres.name
+  password = var.postgres_password
+}
