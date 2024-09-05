@@ -12,12 +12,14 @@ variable "base_name" {
 }
 
 variable "cluster_name" {
-  default = "${var.base_name}-cluster"
+  default = "chunkmydocs-cluster"
 }
 
 variable "project" {
-  default = ""
+  type        = string
+  description = "The GCP project ID"
 }
+
 
 variable "region" {
   default = "us-east1"
