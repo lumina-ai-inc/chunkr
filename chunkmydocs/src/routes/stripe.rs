@@ -1,36 +1,33 @@
+use crate::models::auth::auth::UserInfo;
 use crate::utils::configs::stripe_config::Config as StripeConfig;
 use crate::utils::db::deadpool_postgres::Pool;
-use crate::utils::stripe::stripe::{create_stripe_customer, create_stripe_subscription};
+use crate::utils::stripe::stripe::{create_stripe_customer, create_stripe_setup_intent};
 use actix_web::{web, Error, HttpResponse};
-use serde::{Deserialize, Serialize};
-
-#[derive(Deserialize)]
-pub struct SubscriptionRequest {
-    user_id: String,
-    email: String,
-}
+use serde::Serialize;
 
 #[derive(Serialize)]
-pub struct SubscriptionResponse {
+pub struct SetupIntentResponse {
     customer_id: String,
-    subscription: serde_json::Value,
+    setup_intent: serde_json::Value,
 }
 
-pub async fn create_subscription(
+pub async fn create_setup_intent(
     pool: web::Data<Pool>,
-    stripe_config: web::Data<StripeConfig>,
-    req: web::Json<SubscriptionRequest>,
+    user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let client = pool.get().await.map_err(|e| {
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
-
+    let stripe_config = StripeConfig::from_env().map_err(|e| {
+        eprintln!("Error loading Stripe configuration: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Configuration error")
+    })?;
     // Check if customer_id exists for the user
     let row = client
         .query_opt(
             "SELECT customer_id FROM users WHERE user_id = $1",
-            &[&req.user_id],
+            &[&user_info.user_id],
         )
         .await
         .map_err(|e| {
@@ -48,7 +45,11 @@ pub async fn create_subscription(
         Some(id) if !id.is_empty() => id,
         _ => {
             // Create new Stripe customer
-            let new_customer_id = create_stripe_customer(&req.email).await.map_err(|e| {
+            let email = user_info
+                .email
+                .as_ref()
+                .ok_or_else(|| actix_web::error::ErrorBadRequest("User email is required"))?;
+            let new_customer_id = create_stripe_customer(email).await.map_err(|e| {
                 eprintln!("Error creating Stripe customer: {:?}", e);
                 actix_web::error::ErrorInternalServerError("Error creating Stripe customer")
             })?;
@@ -57,7 +58,7 @@ pub async fn create_subscription(
             client
                 .execute(
                     "UPDATE users SET customer_id = $1 WHERE user_id = $2",
-                    &[&new_customer_id, &req.user_id],
+                    &[&new_customer_id, &user_info.user_id],
                 )
                 .await
                 .map_err(|e| {
@@ -69,17 +70,17 @@ pub async fn create_subscription(
         }
     };
 
-    // Create Stripe subscription
-    let subscription = create_stripe_subscription(&customer_id, &stripe_config)
+    // Create Stripe setup intent
+    let setup_intent = create_stripe_setup_intent(&customer_id, &stripe_config)
         .await
         .map_err(|e| {
-            eprintln!("Error creating Stripe subscription: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Error creating Stripe subscription")
+            eprintln!("Error creating Stripe setup intent: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Error creating Stripe setup intent")
         })?;
 
-    let response = SubscriptionResponse {
+    let response = SetupIntentResponse {
         customer_id,
-        subscription,
+        setup_intent,
     };
 
     Ok(HttpResponse::Ok().json(response))

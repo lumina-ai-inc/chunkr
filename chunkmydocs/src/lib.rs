@@ -20,6 +20,7 @@ use routes::user::get_or_create_user;
 use routes::health::health_check;
 use routes::task::{ create_extraction_task, get_task_status };
 use routes::usage::get_usage;
+use routes::stripe::create_setup_intent;
 use utils::db::deadpool_postgres;
 use utils::storage::config_s3::create_client;
 use utoipa::OpenApi;
@@ -77,7 +78,9 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 }
 
 pub fn main() -> std::io::Result<()> {
+    std::env::set_var("RUST_LOG", "actix_web=debug");
     actix_web::rt::System::new().block_on(async move {
+
         let pg_pool = deadpool_postgres::create_pool();
         let s3_client = create_client().await.expect("Failed to create S3 client");
         run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
@@ -123,6 +126,7 @@ pub fn main() -> std::io::Result<()> {
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check))
+
                 .service(
                     web
                         ::scope("/api")
@@ -131,6 +135,8 @@ pub fn main() -> std::io::Result<()> {
                         .route("/task", web::post().to(create_extraction_task))
                         .route("/task/{task_id}", web::get().to(get_task_status))
                         .route("/usage", web::get().to(get_usage))
+                        .route("/stripe/create-setup-intent", web::get().to(create_setup_intent))
+
                 )
         })
             .bind("0.0.0.0:8000")?
