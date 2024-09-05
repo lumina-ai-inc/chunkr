@@ -15,7 +15,7 @@ Chunk my docs provides a self-hostable solution that leverages state-of-the-art 
 
 Our setup runs the Rust actix-web server locally on metal and everything else in Docker. pdla (pdf-document-layout-analysis) is meant to run on GPU so you may find it to be slow when running locally on CPU.
 
-### 1\. Setup ENV's
+### 1\. Setup ENVs
 
 `cp .env.docker-compose .env`
 
