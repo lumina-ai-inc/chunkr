@@ -78,4 +78,3 @@ Special shout out to Trieve (https://trieve.ai) for contributing and helping us 
 - add support for Grobid
 - make a diagram
 - explain how insanely awesome [RRQ](https://github.com/lumina-ai-inc/resilient-redis-queue) is
-- Kube deploy guide similar to [trieve/self-hosting.md](https://github.com/devflowinc/trieve/blob/main/self-hosting.md)
