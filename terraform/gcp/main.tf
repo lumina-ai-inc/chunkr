@@ -196,7 +196,26 @@ resource "google_redis_instance" "cache" {
 
   authorized_network = google_compute_network.vpc_network.id
 
-  display_name  = "${var.base_name} redis cache"
+  connect_mode = "PRIVATE_SERVICE_ACCESS"
+
+  display_name = "${var.base_name} redis cache"
+
+  depends_on = [google_service_networking_connection.private_service_connection]
+}
+
+# Add these new resources
+resource "google_compute_global_address" "private_ip_address" {
+  name          = "${var.base_name}-private-ip"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.vpc_network.id
+}
+
+resource "google_service_networking_connection" "private_service_connection" {
+  network                 = google_compute_network.vpc_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
 }
 
 ###############################################################
