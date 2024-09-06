@@ -32,3 +32,4 @@ Cargo.lock
 .lh
 
 .env.local
+.env.prod
