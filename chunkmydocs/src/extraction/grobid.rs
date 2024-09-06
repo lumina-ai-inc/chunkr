@@ -25,7 +25,7 @@ async fn call_grobid(
     file_path: &Path,
 ) -> Result<reqwest::Response, reqwest::Error> {
     println!("Calling grobid for {}", file_path.display());
-    let url: String = format!("{}/api/processFulltextDocument", config.grobid_url.clone());
+    let url: String = format!("{}/api/processFulltextDocument", config.grobid_url.clone().unwrap());
     let client = get_reqwest_client().await;
 
     let file_name = file_path.file_name().unwrap().to_str().unwrap().to_string();
