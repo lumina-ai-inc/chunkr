@@ -73,5 +73,5 @@ def process_all_files_in_input_folder(model: Model):
             print(f"Error processing {file_path}: {str(e)}")
 
 if __name__ == "__main__":
-    model = Model.Fast
+    model = Model.HighQuality
     process_all_files_in_input_folder(model)
