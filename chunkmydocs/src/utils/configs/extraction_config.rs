@@ -9,7 +9,6 @@ pub struct Config {
     pub extraction_queue: String,
     pub pdla_url: String,
     pub pdla_fast_url: String,
-    pub table_ocr_url: String,
     #[serde(with = "duration_seconds")]
     pub task_expiration: Option<Duration>,
     pub s3_bucket: String,
