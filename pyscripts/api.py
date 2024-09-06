@@ -10,8 +10,8 @@ dotenv.load_dotenv(override=True)
 def get_base_url():
     return os.getenv("INGEST_SERVER__URL")
 
-def get_access_token():
-    return os.getenv("INGEST_SERVER__ACCESS_TOKEN")
+def get_api_key():
+    return os.getenv("INGEST_SERVER__API_KEY")
 
 def get_headers():
     api_key = get_api_key()
