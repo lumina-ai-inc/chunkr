@@ -20,7 +20,7 @@ use routes::user::get_or_create_user;
 use routes::health::health_check;
 use routes::task::{ create_extraction_task, get_task_status };
 use routes::usage::get_usage;
-use routes::stripe::create_setup_intent;
+use routes::stripe::{ create_setup_intent, stripe_webhook };
 use utils::db::deadpool_postgres;
 use utils::storage::config_s3::create_client;
 use utoipa::OpenApi;
@@ -136,6 +136,8 @@ pub fn main() -> std::io::Result<()> {
                         .route("/task/{task_id}", web::get().to(get_task_status))
                         .route("/usage", web::get().to(get_usage))
                         .route("/stripe/create-setup-intent", web::get().to(create_setup_intent))
+                        .route("/stripe/webhook", web::post().to(stripe_webhook))
+
 
                 )
         })

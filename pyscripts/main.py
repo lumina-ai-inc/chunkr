@@ -70,8 +70,13 @@ def process_all_files_in_input_folder(model: Model, max_workers=4):
 
     # Use ThreadPoolExecutor to parallelize the process
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all tasks and wait for them to complete
-        list(executor.map(process_file_with_error_handling, pdf_files))
+        # Submit all tasks
+        futures = [executor.submit(process_file_with_error_handling, file) for file in pdf_files]
+        
+        # As each task completes, print its result
+        for future in concurrent.futures.as_completed(futures):
+            # The result is None, but this will raise any exceptions that occurred
+            future.result()
 
 
 if __name__ == "__main__":
