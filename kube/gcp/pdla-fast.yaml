@@ -1,30 +1,27 @@
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rrq
+  name: pdla-fast
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: rrq
+    app.kubernetes.io/name: pdla-fast
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: rrq
+      app.kubernetes.io/name: pdla-fast
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: rrq
+        app.kubernetes.io/name: pdla-fast
     spec:
       containers:
-      - name: rrq
-        image: luminainc/rrq:658e7d5
+      - name: pdla-fast
+        image: luminainc/pdla:7bd05a1
         imagePullPolicy: Always
-        envFrom:
-        - secretRef:
-            name: rrq-secrets
         ports:
         - containerPort: 8000
+        command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
         securityContext:
           privileged: true
           capabilities:
@@ -33,13 +30,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: rrq-service
+  name: pdla-fast-service
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: rrq
+    app.kubernetes.io/name: pdla-fast
 spec:
   selector:
-    app.kubernetes.io/name: rrq
+    app.kubernetes.io/name: pdla-fast
   type: ClusterIP
   ports:
   - port: 8000
@@ -49,10 +46,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: rrq-ingress
+  name: pdla-fast-ingress
   namespace: chunkmydocs
   labels:
-    app: rrq
+    app: pdla-fast
   annotations:
     kubernetes.io/ingress.class: gce
 spec:
@@ -64,6 +61,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: rrq-service
+            name: pdla-fast-service
             port:
               number: 8000
