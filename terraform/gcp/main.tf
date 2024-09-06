@@ -7,17 +7,13 @@ terraform {
   }
 }
 
-provider "google" {
-  region  = var.region
-  project = var.project
-}
 
 variable "base_name" {
   default = "chunkmydocs"
 }
 
 variable "region" {
-  default = "us-east1"
+  default = "us-central1"
 }
 
 variable "cluster_name" {
@@ -45,6 +41,11 @@ variable "chunkmydocs_db" {
 
 variable "keycloak_db" {
   default = "keycloak"
+}
+
+provider "google" {
+  region  = var.region
+  project = var.project
 }
 
 ###############################################################
