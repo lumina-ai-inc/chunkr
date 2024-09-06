@@ -21,17 +21,21 @@ class Status(str, Enum):
     Canceled = "Canceled"
 
 
+class Configuration(BaseModel):
+    model: Model
+    target_chunk_length: int
+
 class TaskResponse(BaseModel):
     task_id: str
     status: Status
     created_at: datetime
-    finished_at: Optional[str] = None
-    expiration_time: Optional[datetime] = None
+    finished_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
     message: Optional[str] = None
     input_file_url: Optional[str] = None
     output_file_url: Optional[str] = None
     task_url: Optional[str] = None
-    model: Model
+    configuration: Configuration
 
     class Config:
         json_encoders = {datetime: lambda v: v.isoformat()}
