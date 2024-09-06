@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: task-processor
-        image: luminainc/task-processor:d2f2603
+        image: luminainc/task-processor:132da86
         imagePullPolicy: Always
         envFrom:
         - secretRef:
