@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import "./Header.css";
-import Account from "../Auth/Account";
+import Dashboard from "../Dashboard/Dashboard";
 import { useAuth } from "react-oidc-context";
 import { downloadJSON } from "../../utils/utils";
 
@@ -115,15 +115,21 @@ export default function Header({
         </Text>
 
         {isAuthenticated && (
-          <Text
-            size="4"
-            weight="medium"
+          <Link
+            to="/dashboard"
+            style={{ textDecoration: "none" }}
             className="nav-item"
-            onClick={() => setShowAccount(!showAccount)}
-            style={{ cursor: "pointer" }}
           >
-            Dashboard
-          </Text>
+            <Text
+              size="4"
+              weight="medium"
+              className="nav-item"
+              onClick={() => setShowAccount(!showAccount)}
+              style={{ cursor: "pointer" }}
+            >
+              Dashboard
+            </Text>
+          </Link>
         )}
 
         {!isAuthenticated && (
@@ -190,7 +196,7 @@ export default function Header({
           </DropdownMenu.Root>
         </div>
       </Flex>
-      {showAccount && <Account onClose={() => setShowAccount(false)} />}
+      {showAccount && <Dashboard />}
     </Flex>
   );
 }
