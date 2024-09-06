@@ -7,7 +7,6 @@ use std::time::Duration;
 pub struct Config {
     pub version: String,
     pub extraction_queue: String,
-    pub grobid_url: String,
     pub pdla_url: String,
     pub pdla_fast_url: String,
     pub table_ocr_url: String,
