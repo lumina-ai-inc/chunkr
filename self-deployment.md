@@ -2,29 +2,35 @@
 
 ## GCP (Google Cloud Platform)
 
-### 1. Deploy Terraform
+### 1. Install Google Cloud SDK
 
-1. Log in to your Google Cloud account:
+1. Install [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
+
+2. Log in to your Google Cloud account:
    ```bash
    gcloud auth login
    ```
 
-2. Set your GCP project:
+3. Set your GCP project:
    ```bash
    gcloud config set project YOUR_PROJECT_ID
    ```
 
-3. Navigate to the GCP Terraform directory:
+### 2. Install Terraform
+
+1. Install [Terraform](https://developer.hashicorp.com/terraform/tutorials/gke/gke-install)
+
+2. Navigate to the GCP Terraform directory:
    ```bash
    cd terraform/gcp
    ```
 
-4. Open the Terraform variables file:
+3. Open the Terraform variables file:
    ```bash
    nano terraform.tfvars
    ```
 
-5. Set the following variables in your `terraform.tfvars` file:
+4. Set the following variables in your `terraform.tfvars` file:
 
    #### Required Variables
    | Variable | Description |
@@ -44,7 +50,23 @@
 
    > **Note**: Optional variables have default values in the Terraform configuration. You can override these in your `terraform.tfvars` file to customize your deployment.
 
-### 2. Setup Secrets
+5. Initialize Terraform:
+   ```bash
+   terraform init
+   ```
+
+6. Apply the Terraform configuration:
+   ```bash
+   terraform apply
+   ```
+
+7. Get raw output values:
+   ```bash
+   terraform output -json | jq -r 'to_entries[] | "echo \"\(.key): $(terraform output -raw \(.key))\"" ' | bash
+   ```
+   > **Note**: The output will contain sensitive information. Make sure to keep it secure.
+
+### 3. Setup Secrets
 
 Copy the example secret files to your GCP configuration:
 
@@ -58,19 +80,36 @@ cp kube/secret/rrq-secret.example.yaml kube/gcp/rrq-secret.yaml
 cp kube/secret/keycloak-secret.example.yaml kube/gcp/keycloak-secret.yaml
 ```
 
-For each file, replace the placeholder values with your actual secret information. 
+For each file, replace the placeholder values with your actual secret information. Use the values from the Terraform output.
 
-### 3. Deploy Kubernetes Resources
+### 4. Deploy Kubernetes Resources
 
-1. Configure kubectl to use your GCP cluster:
+1. Install kubectl following this [guide](https://kubernetes.io/docs/tasks/tools/)  
+
+2. Configure kubectl to use your GCP cluster and region:
    ```bash
    gcloud container clusters get-credentials YOUR_CLUSTER_NAME --region YOUR_REGION
    ```
+   > **Note**: This value is from the Terraform output `gke_connection_command`.
 
 2. Create the `chunkmydocs` namespace:
    ```bash
    kubectl create namespace chunkmydocs
    ```
+
+3. From the root of the repo, apply the Kubernetes resources:
+   ```bash
+   kubectl apply -f kube/gcp/
+   ```
+
+### 5. Finish the Deployment
+
+1. Set up keycloak
+
+2. Finish the secrets in the `chunkmydocs-secret.yaml` file:
+   - `AUTH__KEYCLOAK_URL`
+   - `AUTH__KEYCLOAK_REALM`
+   - `EXTRACTION__BASE_URL`
 
 3. Apply the Kubernetes resources:
    ```bash

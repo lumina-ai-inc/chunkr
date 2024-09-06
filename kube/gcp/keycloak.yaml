@@ -34,7 +34,7 @@ spec:
       containers:
         - name: keycloak
           image: quay.io/keycloak/keycloak:25.0.2
-          args: ["start"]
+          args: ["start-dev", "--import-realm"]
           envFrom:
           - secretRef:
               name: keycloak-secrets
