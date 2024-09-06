@@ -4,7 +4,7 @@ use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::stripe::stripe::{create_stripe_customer, create_stripe_setup_intent};
 use actix_web::{web, Error, HttpResponse};
 use serde::Serialize;
-
+use serde_json::Value;
 #[derive(Serialize)]
 pub struct SetupIntentResponse {
     customer_id: String,
@@ -84,4 +84,26 @@ pub async fn create_setup_intent(
     };
 
     Ok(HttpResponse::Ok().json(response))
+}
+
+pub async fn stripe_webhook(payload: web::Json<Value>) -> Result<HttpResponse, Error> {
+    let event = payload.into_inner();
+
+    match event["type"].as_str() {
+        Some("setup_intent.succeeded") => {
+            let setup_intent = &event["data"]["object"];
+            // Handle the setup intent succeeded event
+            println!("Setup Intent Succeeded: {:?}", setup_intent);
+        }
+        Some("setup_intent.created") => {
+            let setup_intent = &event["data"]["object"];
+            // Handle the setup intent created event
+            println!("Setup Intent Created: {:?}", setup_intent);
+        }
+        _ => {
+            println!("Unhandled event type: {:?}", event["type"]);
+        }
+    }
+
+    Ok(HttpResponse::Ok().finish())
 }
