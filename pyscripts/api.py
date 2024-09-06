@@ -17,7 +17,7 @@ def get_api_key():
 
 def get_headers():
     api_key = get_api_key()
-    headers = {"x-api-key": api_key}
+    headers = {"Authorization": api_key}
     return headers
 
 
