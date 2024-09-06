@@ -1,6 +1,5 @@
 import json
 import fitz
-
 import os
 
 def draw_bounding_boxes(pdf_path, json_path, output_path):
@@ -30,54 +29,33 @@ def draw_bounding_boxes(pdf_path, json_path, output_path):
     for page_num in range(len(pdf_document)):
         page = pdf_document[page_num]
 
-        # Filter objects for the current page
-        page_objects = [obj for obj in data if obj["page_number"] == page_num + 1]
+        # Filter segments for the current page
+        page_segments = [seg for item in data for seg in item.get("segments", []) if seg["page_number"] == page_num + 1]
 
-        # Group objects by markdown level
-        markdown_groups = {}
-        for obj in page_objects:
-            markdown_level = obj.get("markdown_level", 0)
-            if markdown_level not in markdown_groups:
-                markdown_groups[markdown_level] = []
-            markdown_groups[markdown_level].append(obj)
-
-        # Draw rectangles for each object and markdown group
-        for markdown_level, objects in markdown_groups.items():
-            # Draw small boxes for individual segments
-            for obj in objects:
-                rect = fitz.Rect(
-                    obj["left"],
-                    obj["top"],
-                    obj["left"] + obj["width"],
-                    obj["top"] + obj["height"],
-                )
-                color = color_map.get(obj["type"], (0, 0, 0))  # Default to black if type not found
-                page.draw_rect(rect, color=color, width=1)
-
-            # Draw big box for the collected segments
-            if objects:
-                left = min(obj["left"] for obj in objects)
-                top = min(obj["top"] for obj in objects)
-                right = max(obj["left"] + obj["width"] for obj in objects)
-                bottom = max(obj["top"] + obj["height"] for obj in objects)
-                big_rect = fitz.Rect(left, top, right, bottom)
-                page.draw_rect(big_rect, color=(0, 0.5, 0.5), width=2)  # Teal color for big box
+        # Draw rectangles for each segment
+        for seg in page_segments:
+            rect = fitz.Rect(
+                seg["left"],
+                seg["top"],
+                seg["left"] + seg["width"],
+                seg["top"] + seg["height"],
+            )
+            color = color_map.get(seg["type"], (0, 0, 0))  # Default to black if type not found
+            page.draw_rect(rect, color=color, width=1)
 
     # Save the modified PDF
     pdf_document.save(output_path)
     pdf_document.close()
 
-
-
 if __name__ == "__main__":
-    json_path = "output/00c08086-9837-5551-8133-4e22ac28c6a5-HighQuality/bounding_boxes.json"
+    json_path = "output/pdf_content.json"
     if not os.path.exists(json_path):
         print(f"Error: The file {json_path} does not exist.")
         print("Please ensure the JSON file has been generated before running this script.")
         exit(1)
 
     draw_bounding_boxes(
-        "input/00c08086-9837-5551-8133-4e22ac28c6a5-HighQuality.pdf",
+        "input/CIM-02-American-Casino.pdf",
         json_path,
-        "output/00c08086-9837-5551-8133-4e22ac28c6a5-HighQuality/annotated.pdf",
+        "output/CIM-02-American-Casino-Annotated.pdf",
     )
