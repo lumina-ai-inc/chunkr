@@ -1,0 +1,6 @@
+User-agent: Googlebot
+Allow: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+Allow: /$
+
+User-agent: *
+Disallow: /
