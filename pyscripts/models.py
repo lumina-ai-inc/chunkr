@@ -34,6 +34,7 @@ class TaskResponse(BaseModel):
     message: Optional[str] = None
     input_file_url: Optional[str] = None
     output_file_url: Optional[str] = None
+    input_file_url: Optional[str] = None
     task_url: Optional[str] = None
     configuration: Configuration
 
