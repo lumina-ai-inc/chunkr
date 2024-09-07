@@ -8,6 +8,7 @@ pub struct Config {
     pub page_fast_price_id: String,
     pub page_high_quality_price_id: String,
     pub segment_price_id: String,
+    pub webhook_secret: String,
 }
 
 impl Config {
