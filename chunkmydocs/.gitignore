@@ -33,3 +33,4 @@ Cargo.lock
 
 .env.local
 .env.prod.DS_Store
+.DS_Store
