@@ -25,7 +25,7 @@ dist-ssr
 .cache
 server/dist
 public/dist
-
+input2
 output
 test
 output-gpu

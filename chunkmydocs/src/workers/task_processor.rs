@@ -1,16 +1,16 @@
+use chrono::{DateTime, Utc};
 use chunkmydocs::extraction::pdla::pdla_extraction;
-use chunkmydocs::models::server::extract::ExtractionPayload;
-use chunkmydocs::models::server::segment::{ Chunk, Segment };
-use chunkmydocs::models::server::task::Status;
 use chunkmydocs::models::rrq::queue::QueuePayload;
+use chunkmydocs::models::server::extract::ExtractionPayload;
+use chunkmydocs::models::server::segment::{Chunk, Segment};
+use chunkmydocs::models::server::task::Status;
 use chunkmydocs::utils::configs::extraction_config;
 use chunkmydocs::utils::db::deadpool_postgres;
-use chunkmydocs::utils::db::deadpool_postgres::{ Client, Pool };
-use chunkmydocs::utils::json2mkd::json_2_mkd::chunk_and_add_markdown;
+use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
+use chunkmydocs::utils::json2mkd::json_2_mkd::hierarchical_chunk_and_add_markdown;
 use chunkmydocs::utils::rrq::consumer::consumer;
 use chunkmydocs::utils::storage::config_s3::create_client;
-use chunkmydocs::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
-use chrono::{ DateTime, Utc };
+use chunkmydocs::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use std::path::PathBuf;
 
 pub async fn log_task(
@@ -18,7 +18,7 @@ pub async fn log_task(
     status: Status,
     message: Option<String>,
     finished_at: Option<DateTime<Utc>>,
-    pool: &Pool
+    pool: &Pool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
@@ -46,31 +46,38 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
     log_task(
         task_id.clone(),
         Status::Processing,
-        Some(format!("Task processing | Tries ({}/{})", payload.attempt, payload.max_attempts)),
+        Some(format!(
+            "Task processing | Tries ({}/{})",
+            payload.attempt, payload.max_attempts
+        )),
         None,
-        &pg_pool
-    ).await?;
+        &pg_pool,
+    )
+    .await?;
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         let temp_file = download_to_tempfile(
             &s3_client,
             &reqwest_client,
             &extraction_item.input_location,
-            None
-        ).await?;
+            None,
+        )
+        .await?;
         let output_path: PathBuf;
         let chunks: Vec<Chunk>;
 
         output_path = pdla_extraction(
             temp_file.path(),
             extraction_item.model,
-            extraction_item.batch_size
-        ).await?;
+            extraction_item.batch_size,
+        )
+        .await?;
 
         let file_content = tokio::fs::read_to_string(&output_path).await?;
         let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
 
-        chunks = chunk_and_add_markdown(segments, extraction_item.target_chunk_length).await?;
+        chunks = hierarchical_chunk_and_add_markdown(segments, extraction_item.target_chunk_length)
+            .await?;
 
         let chunked_content = serde_json::to_string(&chunks)?;
         tokio::fs::write(&output_path, chunked_content).await?;
@@ -84,7 +91,8 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         }
 
         Ok(())
-    }).await;
+    })
+    .await;
 
     match result {
         Ok(_) => {
@@ -93,8 +101,9 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                 Status::Succeeded,
                 Some("Task succeeded".to_string()),
                 Some(Utc::now()),
-                &pg_pool
-            ).await?;
+                &pg_pool,
+            )
+            .await?;
             Ok(())
         }
         Err(e) => {
@@ -105,8 +114,9 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                     Status::Failed,
                     Some("Task failed".to_string()),
                     Some(Utc::now()),
-                    &pg_pool
-                ).await?;
+                    &pg_pool,
+                )
+                .await?;
             }
             Err(e)
         }
