@@ -3,21 +3,21 @@ use strum_macros::{Display, EnumString};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display)]
 pub enum SegmentType {
-    Caption,
-    Footnote,
-    Formula,
-    #[serde(rename = "List item")]
-    ListItem,
-    #[serde(rename = "Page footer")]
-    PageFooter,
-    #[serde(rename = "Page header")]
-    PageHeader,
-    Picture,
+    Title,
     #[serde(rename = "Section header")]
     SectionHeader,
-    Table,
     Text,
-    Title,
+    #[serde(rename = "List item")]
+    ListItem,
+    Table,
+    Picture,
+    Caption,
+    Formula,
+    Footnote,
+    #[serde(rename = "Page header")]
+    PageHeader,
+    #[serde(rename = "Page footer")]
+    PageFooter,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
