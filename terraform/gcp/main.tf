@@ -210,6 +210,8 @@ resource "google_redis_instance" "cache" {
 
   connect_mode = "PRIVATE_SERVICE_ACCESS"
 
+  transit_encryption_mode = "DISABLED"
+
   display_name = "${var.base_name} redis cache"
 
   depends_on = [google_service_networking_connection.private_service_connection]
@@ -278,6 +280,105 @@ resource "google_sql_user" "users" {
 }
 
 ###############################################################
+# VM Instance
+###############################################################
+resource "google_compute_address" "vm_ip" {
+  name = "${var.base_name}-vm-ip"
+  region = var.region
+}
+
+resource "google_compute_firewall" "allow_ssh" {
+  name    = "${var.base_name}-allow-ssh"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_firewall" "allow_port_8000" {
+  name    = "${var.base_name}-allow-port-8000"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8000"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["port-8000-allowed"]
+}
+
+resource "google_compute_instance" "vm_instance" {
+  name         = "${var.base_name}-vm"
+  machine_type = "e2-standard-2"
+  zone         = "${var.region}-b"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    network    = google_compute_network.vpc_network.name
+    subnetwork = google_compute_subnetwork.vpc_subnet.name
+
+    access_config {
+      nat_ip = google_compute_address.vm_ip.address
+    }
+  }
+
+  metadata = {
+    ssh-keys = "debian:${file("~/.ssh/id_rsa.pub")}"
+  }
+
+  metadata_startup_script = <<-EOF
+    #!/bin/bash
+    apt-get update
+    apt-get install -y redis-tools
+
+    # Install Docker
+    apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+    apt-get update
+    apt-get install -y docker-ce docker-ce-cli containerd.io
+    
+    # Add the debian user to the docker group
+    usermod -aG docker debian
+
+    # Wait for the Docker Compose file to be copied
+    while [ ! -f /home/debian/docker-compose.yml ]; do
+      sleep 5
+    done
+
+    # Start Docker Compose services
+    cd /home/debian
+    docker compose up -d
+  EOF
+
+  tags = ["ssh-allowed", "port-8000-allowed"]
+
+  provisioner "file" {
+    source      = "./compose.yaml"
+    destination = "/home/debian/compose.yaml"
+
+    connection {
+      type        = "ssh"
+      user        = "debian"
+      private_key = file("~/.ssh/id_rsa")
+      host        = self.network_interface[0].access_config[0].nat_ip
+    }
+  }
+
+  depends_on = [google_compute_firewall.allow_ssh]
+}
+
+###############################################################
 # Outputs
 ###############################################################
 output "cluster_name" {
@@ -337,4 +438,9 @@ output "gcs_s3_compatible_region" {
 output "bucket_name" {
   value       = google_storage_bucket.project_bucket.name
   description = "The name of the GCS bucket"
+}
+
+output "vm_public_ip" {
+  value       = google_compute_address.vm_ip.address
+  description = "The public IP address of the VM instance"
 }
