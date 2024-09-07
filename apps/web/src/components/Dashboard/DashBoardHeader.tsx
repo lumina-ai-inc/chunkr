@@ -5,18 +5,22 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import { createSetupIntent } from "../../services/stripeService";
+import PaymentSetup from "../Payments/PaymentSetup";
 
 export default function DashBoardHeader(user: User) {
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showPaymentSetup, setShowPaymentSetup] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const auth = useAuth();
   const accessToken = auth.user?.access_token;
 
-  const createStripeSetupIntent = async () => {
+  const handleAddPaymentMethod = async () => {
     try {
-      const clientSecret = await createSetupIntent(accessToken as string);
-      console.log("Stripe Setup Intent Client Secret:", clientSecret);
-      // Use the clientSecret here to set up the payment method
-      // For example, you might want to pass it to a Stripe Elements component
+      const secret = await createSetupIntent(accessToken as string);
+      console.log("Received clientSecret:", secret);
+
+      setClientSecret(secret);
+      setShowPaymentSetup(true);
     } catch (error) {
       console.error("Error creating Stripe Setup Intent:", error);
     }
@@ -152,13 +156,14 @@ export default function DashBoardHeader(user: User) {
             </Flex>
           </Dialog.Content>
         </Dialog.Root>
-        {user?.tier === "Free" ? (
-          <BetterButton padding="4px 12px" onClick={createStripeSetupIntent}>
+        {user?.tier === "Free" && (
+          <BetterButton padding="4px 12px" onClick={handleAddPaymentMethod}>
             <Text size="2" weight="medium" style={{ color: "var(--cyan-4)" }}>
               Add Payment Method
             </Text>
           </BetterButton>
-        ) : (
+        )}
+        {user?.tier !== "Free" && (
           <BetterButton padding="4px 12px">
             <Text size="2" weight="medium" style={{ color: "var(--cyan-4)" }}>
               Manage Payments
@@ -171,6 +176,21 @@ export default function DashBoardHeader(user: User) {
           </Text>
         </BetterButton>
       </Flex>
+      {showPaymentSetup && clientSecret && (
+        <Dialog.Root open={showPaymentSetup} onOpenChange={setShowPaymentSetup}>
+          <Dialog.Content
+            style={{
+              backgroundColor: "hsl(189, 70%, 3%)",
+              boxShadow: "0 0 0 1px var(--cyan-12)",
+              border: "1px solid var(--cyan-12)",
+              outline: "none",
+              borderRadius: "8px",
+            }}
+          >
+            <PaymentSetup clientSecret={clientSecret} />
+          </Dialog.Content>
+        </Dialog.Root>
+      )}
     </Flex>
   );
 }

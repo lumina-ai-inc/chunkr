@@ -1,11 +1,9 @@
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import SetupForm from "./SetupForm";
+import { Text } from "@radix-ui/themes";
 
-// Move this outside of the component to avoid recreating on every render
-const stripePromise = loadStripe(
-  "pk_test_51OQduZJxCgJtwOshy9VBZBQs0E8fv0GkZyko9G7CMNAyS08l671VTpcKZef15msCMiPatakpyG4gWRYAObbmAKNL00eSXG1jg8"
-);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
 
 interface PaymentSetupProps {
   clientSecret: string;
@@ -14,7 +12,6 @@ interface PaymentSetupProps {
 export default function PaymentSetup({ clientSecret }: PaymentSetupProps) {
   const options = {
     clientSecret,
-
     appearance: {
       theme: "night",
       variables: {
@@ -29,7 +26,13 @@ export default function PaymentSetup({ clientSecret }: PaymentSetupProps) {
 
   return (
     <Elements stripe={stripePromise} options={options as StripeElementsOptions}>
-      <SetupForm />
+      {clientSecret ? (
+        <SetupForm />
+      ) : (
+        <Text size="2" style={{ color: "var(--red-9)" }}>
+          Error: Unable to load payment form. Please try again.
+        </Text>
+      )}
     </Elements>
   );
 }
