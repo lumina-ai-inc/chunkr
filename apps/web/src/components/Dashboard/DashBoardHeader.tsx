@@ -4,10 +4,23 @@ import { User } from "../../models/user.model";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
+import { createSetupIntent } from "../../services/stripeService";
 
 export default function DashBoardHeader(user: User) {
   const [showApiKey, setShowApiKey] = useState(false);
   const auth = useAuth();
+  const accessToken = auth.user?.access_token;
+
+  const createStripeSetupIntent = async () => {
+    try {
+      const clientSecret = await createSetupIntent(accessToken as string);
+      console.log("Stripe Setup Intent Client Secret:", clientSecret);
+      // Use the clientSecret here to set up the payment method
+      // For example, you might want to pass it to a Stripe Elements component
+    } catch (error) {
+      console.error("Error creating Stripe Setup Intent:", error);
+    }
+  };
 
   const handleLogout = () => {
     auth.removeUser();
@@ -140,7 +153,7 @@ export default function DashBoardHeader(user: User) {
           </Dialog.Content>
         </Dialog.Root>
         {user?.tier === "Free" ? (
-          <BetterButton padding="4px 12px">
+          <BetterButton padding="4px 12px" onClick={createStripeSetupIntent}>
             <Text size="2" weight="medium" style={{ color: "var(--cyan-4)" }}>
               Add Payment Method
             </Text>
