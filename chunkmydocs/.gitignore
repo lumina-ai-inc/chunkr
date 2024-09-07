@@ -6,7 +6,7 @@ examples
 annotated
 annotated-gpu
 sample
-
+.DS_Store
 # Ignore Rust build artifacts
 target/
 **/*.rs.bk
