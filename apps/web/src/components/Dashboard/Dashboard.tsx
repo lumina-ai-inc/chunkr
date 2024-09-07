@@ -34,6 +34,7 @@ export default function Dashboard() {
             <Text size="2" weight="medium" style={{ color: "var(--amber-4)" }}>
               Add a payment method
             </Text>
+
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
