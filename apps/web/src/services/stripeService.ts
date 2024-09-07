@@ -10,7 +10,7 @@ export async function createSetupIntent(accessToken: string) {
         },
       }
     );
-    return response.data.clientSecret; // Return the client secret directly
+    return response.data.setup_intent.client_secret; // Return the client secret directly
   } catch (error) {
     console.error("Error creating setup intent:", error);
     throw error;

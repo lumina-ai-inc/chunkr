@@ -40,7 +40,7 @@ export default function SetupForm() {
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap="4">
         <PaymentElement />
-        <BetterButton active={!stripe || isLoading}>
+        <BetterButton active={!(!stripe || isLoading)} padding="4px 10px">
           <Text size="2" weight="medium">
             {isLoading ? "Processing..." : "Set up payment method"}
           </Text>
