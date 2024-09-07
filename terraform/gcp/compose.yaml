@@ -1,0 +1,23 @@
+services:
+  
+  redis:
+    deploy:
+      replicas: 1
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+  
+  rrq:
+    deploy:
+      replicas: 1
+    image: luminainc/rrq:658e7d5
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS__URL=redis://redis:6379
+      - VERSION=1.0.5
+      - API_KEY=1234567890
+volumes:
+  redis_data:
