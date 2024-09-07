@@ -403,9 +403,8 @@ output "chunkmydocs_postgresql_url" {
 }
 
 output "keycloak_postgresql_url" {
-  value       = "postgresql://${var.postgres_username}:${var.postgres_password}@${google_sql_database_instance.postgres.public_ip_address}:5432/${var.keycloak_db}"
+  value       = "postgresql://${google_sql_database_instance.postgres.public_ip_address}:5432/${var.keycloak_db}"
   description = "The connection URL for the Keycloak database"
-  sensitive   = true
 }
 
 output "redis_url" {
