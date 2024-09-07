@@ -20,7 +20,6 @@ use routes::user::get_or_create_user;
 use routes::health::health_check;
 use routes::task::{ create_extraction_task, get_task_status };
 use routes::usage::get_usage;
-use routes::stripe::{ create_setup_intent, stripe_webhook };
 use utils::db::deadpool_postgres;
 use utils::storage::config_s3::create_client;
 use utoipa::OpenApi;
@@ -111,7 +110,7 @@ pub fn main() -> std::io::Result<()> {
         env_logger::init_from_env(Env::default().default_filter_or("info"));
 
         HttpServer::new(move || {
-            App::new()
+            let mut app = App::new()
                 .wrap(Cors::permissive())
                 .wrap(Logger::default())
                 .wrap(Logger::new("%a %{User-Agent}i"))
@@ -125,21 +124,25 @@ pub fn main() -> std::io::Result<()> {
                 )
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
-                .route("/health", web::get().to(health_check))
+                .route("/health", web::get().to(health_check));
 
-                .service(
-                    web
-                        ::scope("/api")
-                        .wrap(ApiKeyMiddlewareFactory)
-                        .route("/user", web::get().to(get_or_create_user))
-                        .route("/task", web::post().to(create_extraction_task))
-                        .route("/task/{task_id}", web::get().to(get_task_status))
-                        .route("/usage", web::get().to(get_usage))
-                        .route("/stripe/create-setup-intent", web::get().to(create_setup_intent))
-                        .route("/stripe/webhook", web::post().to(stripe_webhook))
+            let mut api_scope = web::scope("/api")
+                .wrap(ApiKeyMiddlewareFactory)
+                .route("/user", web::get().to(get_or_create_user))
+                .route("/task", web::post().to(create_extraction_task))
+                .route("/task/{task_id}", web::get().to(get_task_status))
+                .route("/usage", web::get().to(get_usage));
 
+            // Check if Stripe environment variables are set
+            if std::env::var("STRIPE__API_KEY").is_ok() && std::env::var("STRIPE__WEBHOOK_SECRET").is_ok() {
+                use routes::stripe::{ create_setup_intent, stripe_webhook };
+                api_scope = api_scope
+                    .route("/stripe/create-setup-intent", web::get().to(create_setup_intent));
+                app=app
+                    .route("/stripe/webhook", web::post().to(stripe_webhook));
+            }
 
-                )
+            app.service(api_scope)
         })
             .bind("0.0.0.0:8000")?
             .keep_alive(timeout)
