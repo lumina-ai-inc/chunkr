@@ -1,18 +1,33 @@
+use crate::models::server::segment::{Chunk, Segment};
 use crate::utils::configs::pdf2png_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use tokio::sync::OnceCell;
+
 static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct BoundingBox {
-    pub left: f64,
-    pub top: f64,
-    pub width: f64,
-    pub height: f64,
-    pub page_number: i32,
+    pub left: f32,
+    pub top: f32,
+    pub width: f32,
+    pub height: f32,
+    pub page_number: u32,
     pub bb_id: String,
+}
+
+impl From<&Segment> for BoundingBox {
+    fn from(segment: &Segment) -> Self {
+        BoundingBox {
+            left: segment.left / segment.page_width,
+            top: segment.top / segment.page_height,
+            width: segment.width / segment.page_width,
+            height: segment.height / segment.page_height,
+            page_number: segment.page_number,
+            bb_id: uuid::Uuid::new_v4().to_string(),
+        }
+    }
 }
 
 async fn get_reqwest_client() -> &'static ReqwestClient {
@@ -102,17 +117,17 @@ mod tests {
                     .into_iter()
                     .filter(|segment| {
                         let segment_type = segment["type"].as_str().unwrap_or("");
-                        segment_type == "Table" || segment_type == "Picture"
+                        segment_type == "Table"
                     })
                     .map(|segment| {
                         let page_width = segment["page_width"].as_f64().unwrap_or(1.0);
                         let page_height = segment["page_height"].as_f64().unwrap_or(1.0);
                         BoundingBox {
-                            left: segment["left"].as_f64().unwrap_or(0.0) / page_width,
-                            top: segment["top"].as_f64().unwrap_or(0.0) / page_height,
-                            width: segment["width"].as_f64().unwrap_or(0.0) / page_width,
-                            height: segment["height"].as_f64().unwrap_or(0.0) / page_height,
-                            page_number: segment["page_number"].as_i64().unwrap_or(1) as i32,
+                            left: segment["left"].as_f64().unwrap_or(0.0) as f32,
+                            top: segment["top"].as_f64().unwrap_or(0.0) as f32,
+                            width: segment["width"].as_f64().unwrap_or(0.0) as f32,
+                            height: segment["height"].as_f64().unwrap_or(0.0) as f32,
+                            page_number: segment["page_number"].as_i64().unwrap_or(1) as u32,
                             bb_id: Uuid::new_v4().to_string(),
                         }
                     })

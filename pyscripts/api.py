@@ -1,7 +1,7 @@
 import dotenv
 import os
 import requests
-from models import Model, TaskResponse
+from models import Model, TableOcr, TaskResponse
 import time
 import glob
 
@@ -23,11 +23,13 @@ def health_check():
     response = requests.get(url, headers=get_headers()).raise_for_status()
     return response
 
-def extract_file(file_to_send, model: Model) -> TaskResponse:
+def extract_file(file_to_send, model: Model, table_ocr: TableOcr = None) -> TaskResponse:
     url = get_base_url() + "/api/task"
     with open(file_to_send, "rb") as file:
         file = {"file": (os.path.basename(file_to_send), file, "application/pdf")}
         file_data = {"model": model.value, "target_chunk_length": 100}
+        if table_ocr:
+            file_data["table_ocr"] = table_ocr.value
         headers = get_headers()
         response = requests.post(url, files=file, data=file_data, headers=headers)
         response.raise_for_status()
@@ -53,20 +55,20 @@ def check_task_status(url: str) -> TaskResponse:
         raise Exception(task.message)
     return task
 
-def process_file(file_path: str, model: Model) -> TaskResponse:
+def process_file(file_path: str, model: Model, table_ocr: TableOcr = None) -> TaskResponse:
     health_check()
-    task = extract_file(file_path, model)
+    task = extract_file(file_path, model, table_ocr)
     task = check_task_status(task.task_url)
     return task
 
-def process_all_files_in_input_folder(model: Model):
+def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None):
     input_folder = "input"
     pdf_files = glob.glob(os.path.join(input_folder, "*.pdf"))
     
     for file_path in pdf_files:
         print(f"Processing file: {file_path}")
         try:
-            task = process_file(file_path, model)
+            task = process_file(file_path, model, table_ocr)
             print(f"Task completed for {file_path}:")
             print(task)
         except Exception as e:

@@ -6,6 +6,7 @@ use std::time::Duration;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct ExtractionPayload {
     pub model: ModelInternal,
@@ -16,7 +17,7 @@ pub struct ExtractionPayload {
     #[serde(with = "humantime_serde")]
     pub expiration: Option<Duration>,
     pub target_chunk_length: Option<i32>,
-    pub table_ocr: Option<bool>,
+    pub table_ocr: Option<TableOcr>,
 }
 
 #[derive(

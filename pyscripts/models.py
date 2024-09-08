@@ -6,6 +6,9 @@ import dotenv
 
 dotenv.load_dotenv(override=True)
 
+class TableOcr(str, Enum):
+    HTML = "HTML"
+    PDF = "PDF"
 
 class Model(str, Enum):
     Research = "Research"
