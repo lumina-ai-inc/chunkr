@@ -16,10 +16,10 @@ use chunkmydocs::utils::json2mkd::json_2_mkd::hierarchical_chunk_and_add_markdow
 use chunkmydocs::utils::rrq::consumer::consumer;
 use chunkmydocs::utils::storage::config_s3::create_client;
 use chunkmydocs::utils::storage::services::{download_to_tempfile, upload_to_s3};
-use std::path::PathBuf;
-use std::{fs, io::Write, path::Path};
+use std::path::Path;
 use tempfile::TempDir;
 use uuid::Uuid;
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 
 pub async fn log_task(
     task_id: String,
@@ -178,7 +178,7 @@ pub async fn table_ocr(
                 // Find the corresponding PNG page
                 if let Some(png_page) = response.png_pages.iter().find(|p| {
                     let bb_id = bounding_boxes
-                        .iter() // Remove .clone() here
+                        .iter() 
                         .find(|bb| {
                             bb.left == segment.left
                                 && bb.top == segment.top
@@ -186,22 +186,19 @@ pub async fn table_ocr(
                                 && bb.height == segment.height
                                 && bb.page_number == segment.page_number
                         })
-                        .map(|bb| bb.bb_id.as_str()); // Use as_str() instead of clone()
+                        .map(|bb| bb.bb_id.as_str()); 
                     p.bb_id == bb_id.unwrap_or_default()
                 }) {
                     let temp_dir = TempDir::new()?;
                     let temp_file_path = temp_dir.path().join(format!("{}.png", png_page.bb_id));
-                    let image_data = base64::decode(&png_page.base64_png)?;
+                    let image_data = STANDARD.decode(&png_page.base64_png)?;
                     std::fs::write(&temp_file_path, &image_data)?;
-
                     let output = table_extraction_from_image(
                         &temp_file_path,
                         TableOcrModel::EasyOcr,
                         output_format,
                     )
                     .await?;
-
-                    // Replace the original table segment's text with the OCR output
                     let modified_segment = Segment {
                         text: output,
                         ..segment
