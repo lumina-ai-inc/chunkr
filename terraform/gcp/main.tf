@@ -263,11 +263,7 @@ resource "google_service_networking_connection" "private_service_connection" {
   network                 = google_compute_network.vpc_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
-<<<<<<< HEAD
-  depends_on = [google_project_service.servicenetworking]
-=======
   depends_on              = [google_project_service.servicenetworking]
->>>>>>> pdf-splitting
 }
 
 ###############################################################
@@ -313,11 +309,7 @@ resource "google_sql_user" "users" {
 # VM Instance
 ###############################################################
 resource "google_compute_address" "vm_ip" {
-<<<<<<< HEAD
-  name = "${var.base_name}-vm-ip"
-=======
   name   = "${var.base_name}-vm-ip"
->>>>>>> pdf-splitting
   region = var.region
 }
 
@@ -476,8 +468,4 @@ output "bucket_name" {
 output "vm_public_ip" {
   value       = google_compute_address.vm_ip.address
   description = "The public IP address of the VM instance"
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> pdf-splitting
