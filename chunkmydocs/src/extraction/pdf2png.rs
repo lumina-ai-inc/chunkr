@@ -143,7 +143,6 @@ pub async fn convert_pdf_to_png(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use base64;
     use serde_json::Value;
     use std::fs;
     use std::path::PathBuf;
@@ -178,8 +177,6 @@ mod tests {
                         segment_type == "Table"
                     })
                     .map(|segment| {
-                        let page_width = segment["page_width"].as_f64().unwrap_or(1.0);
-                        let page_height = segment["page_height"].as_f64().unwrap_or(1.0);
                         BoundingBox {
                             left: segment["left"].as_f64().unwrap_or(0.0) as f32,
                             top: segment["top"].as_f64().unwrap_or(0.0) as f32,
@@ -201,7 +198,7 @@ mod tests {
 
         // Save PNG files
         for png_page in &response.png_pages {
-            let png_data = base64::decode(&png_page.base64_png)?;
+            let png_data = STANDARD.decode(&png_page.base64_png)?;
             let png_path = output_dir.join(format!("snip_{}.png", png_page.bb_id));
             fs::write(&png_path, png_data)?;
         }
