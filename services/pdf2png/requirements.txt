@@ -1,6 +1,5 @@
 fastapi
 pydantic
-fitz
 uvicorn
 PyMuPDF
 python-multipart
