@@ -56,7 +56,7 @@ export default function PricingCard({
       <AnimatedSeparator
         size="2"
         style={{
-          backgroundColor: "var(--cyan-12)",
+          backgroundColor: "var(--cyan-4)",
           width: "100%",
           height: "2px",
           marginTop: "24px",
@@ -64,7 +64,7 @@ export default function PricingCard({
         }}
       />
       <Flex direction="column" gap="20px">
-        <Text size="4" weight="regular" className="cyan-6">
+        <Text size="4" weight="regular" className="cyan-3">
           {text}
         </Text>
       </Flex>

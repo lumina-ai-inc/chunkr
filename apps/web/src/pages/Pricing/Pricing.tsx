@@ -8,6 +8,7 @@ import Header from "../../components/Header/Header";
 import Calculator from "../../components/PriceCalculator/Calculator";
 import PricingCard from "../../components/PricingCard";
 import Footer from "../../components/Footer/Footer";
+import PricingTable from "../../components/PricingTable/PricingTable";
 
 const drawLine = keyframes`
   from {
@@ -138,7 +139,7 @@ export default function Pricing() {
                   </Text>
                 </Flex>
               </Flex>
-              <Flex direction="row" px="80px" mt="72px" gap="48px" width="100%">
+              <Flex direction="row" px="80px" mt="72px" gap="64px" width="100%">
                 <Flex direction="column" gap="8" style={{ flex: 1 }}>
                   <Calculator />
                 </Flex>
@@ -165,6 +166,9 @@ export default function Pricing() {
                     auth={true}
                   />
                 </Flex>
+              </Flex>
+              <Flex width="100%" mt="128px" px="80px">
+                <PricingTable />
               </Flex>
             </div>
           </div>
