@@ -57,6 +57,32 @@ resource "google_storage_bucket" "project_bucket" {
   storage_class = "STANDARD"
 
   uniform_bucket_level_access = true
+
+  cors {
+    origin          = ["*"]
+    method          = ["GET", "HEAD", "POST"]
+    response_header = ["*"]
+    max_age_seconds = 3600
+  }
+}
+
+###############################################################
+# GCS Interoperability (S3-compatible) Setup
+###############################################################
+resource "google_service_account" "gcs_interop" {
+  account_id   = "${var.base_name}-gcs-interop"
+  display_name = "GCS Interoperability Service Account"
+}
+
+resource "google_storage_hmac_key" "gcs_interop_key" {
+  service_account_email = google_service_account.gcs_interop.email
+}
+
+# Grant the service account the necessary permissions to access the bucket
+resource "google_storage_bucket_iam_member" "gcs_interop_object_admin" {
+  bucket = google_storage_bucket.project_bucket.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.gcs_interop.email}"
 }
 
 ###############################################################
@@ -237,7 +263,11 @@ resource "google_service_networking_connection" "private_service_connection" {
   network                 = google_compute_network.vpc_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+<<<<<<< HEAD
   depends_on = [google_project_service.servicenetworking]
+=======
+  depends_on              = [google_project_service.servicenetworking]
+>>>>>>> pdf-splitting
 }
 
 ###############################################################
@@ -283,7 +313,11 @@ resource "google_sql_user" "users" {
 # VM Instance
 ###############################################################
 resource "google_compute_address" "vm_ip" {
+<<<<<<< HEAD
   name = "${var.base_name}-vm-ip"
+=======
+  name   = "${var.base_name}-vm-ip"
+>>>>>>> pdf-splitting
   region = var.region
 }
 
@@ -339,7 +373,7 @@ resource "google_compute_instance" "vm_instance" {
   metadata_startup_script = <<-EOF
     #!/bin/bash
     apt-get update
-    apt-get install -y redis-tools
+    apt-get install -y redis-tools htop
 
     # Install Docker
     apt-get install -y apt-transport-https ca-certificates curl software-properties-common
@@ -442,4 +476,8 @@ output "bucket_name" {
 output "vm_public_ip" {
   value       = google_compute_address.vm_ip.address
   description = "The public IP address of the VM instance"
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> pdf-splitting
