@@ -4,7 +4,6 @@ use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::stripe::stripe::{create_stripe_customer, create_stripe_setup_intent};
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use serde::Serialize;
-use stripe::CustomerId;
 #[derive(Serialize)]
 pub struct SetupIntentResponse {
     customer_id: String,

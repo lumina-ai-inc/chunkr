@@ -1,4 +1,4 @@
-use crate::models::server::segment::{Chunk, Segment};
+use crate::models::server::segment::Segment;
 use crate::utils::configs::pdf2png_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde::{Deserialize, Serialize};
@@ -7,7 +7,6 @@ use tokio::sync::OnceCell;
 
 static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use serde_json::json;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct BoundingBox {
