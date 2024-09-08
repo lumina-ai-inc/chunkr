@@ -83,16 +83,6 @@ export default function Header({
           </Text>
         </a>
 
-        {/* <a
-          href="https://twitter.com/lumina_ai_inc"
-          target="_blank"
-          className="nav-item"
-        >
-          <Text size="3" weight="medium" className="nav-item">
-            Discord
-          </Text>
-        </a> */}
-
         <Link
           to="/pricing"
           style={{ textDecoration: "none" }}
@@ -102,10 +92,6 @@ export default function Header({
             Pricing
           </Text>
         </Link>
-
-        {/* <Text size="3" weight="medium" className="nav-item">
-          Contact
-        </Text> */}
       </Flex>
 
       <Flex className="nav" direction="row" gap="40px" align="center">
