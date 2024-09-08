@@ -204,7 +204,7 @@ function ExplanationSection({
         px="12px"
         py="4px"
         style={{
-          borderRadius: "4px",
+          borderRadius: "99px",
           border: "2px solid var(--cyan-2)",
           backgroundColor: "var(--cyan-1)",
         }}
@@ -220,7 +220,7 @@ function ExplanationSection({
           {free}
         </Text>
       </Text>
-      <Text size="4" weight="light" className="cyan-4" trim="both">
+      <Text size="4" weight="regular" className="cyan-4" trim="both">
         {description}
       </Text>
     </Flex>
