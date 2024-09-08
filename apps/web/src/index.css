@@ -71,6 +71,10 @@ button:focus-visible {
   }
 }
 
+.white {
+  color: white;
+}
+
 .cyan-1 {
   color: var(--cyan-1);
 }

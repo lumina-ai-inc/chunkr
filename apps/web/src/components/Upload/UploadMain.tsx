@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Upload from "./Upload";
 import "./UploadMain.css";
-import BetterButton from "../BetterButton/BetterButton";
 import { Model, UploadForm } from "../../models/upload.model";
 import * as pdfjsLib from "pdfjs-dist";
 import { uploadFile } from "../../services/uploadFileApi";
@@ -127,7 +126,7 @@ export default function UploadMain({
             direction="row"
             height="64px"
             width="100%"
-            mt="40px"
+            mt="8px"
             className="toggle-container"
             onClick={handleModelToggle}
           >
@@ -163,15 +162,21 @@ export default function UploadMain({
             </Flex>
           </Flex>
           <Flex direction="row" width="100%" mt="32px">
-            <BetterButton
-              padding="16px 64px"
-              onClick={handleRun}
-              active={!!file && !isLoading}
+            <Flex
+              direction="column"
+              height="64px"
+              justify="center"
+              className={!!file && !isLoading ? "toggle-active" : "toggle"}
+              style={{
+                borderRadius: "4px",
+                cursor: !!file && !isLoading ? "pointer" : "not-allowed",
+              }}
+              onClick={!!file && !isLoading ? handleRun : undefined}
             >
               <Text size="5" weight="medium">
                 {isLoading ? "Uploading..." : "Run"}
               </Text>
-            </BetterButton>
+            </Flex>
           </Flex>
         </>
       )}

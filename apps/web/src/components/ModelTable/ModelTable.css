@@ -22,23 +22,24 @@ tr {
 th {
   font-weight: 700 !important;
   font-size: 16px !important;
+  align-content: baseline !important;
 }
 
 .sub-header {
-  font-weight: 500 !important;
-  font-size: 20px !important;
-  color: var(--cyan-6) !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+  color: var(--cyan-3) !important;
   padding-top: 32px !important;
   padding-bottom: 32px !important;
-  border-bottom: 1px solid var(--cyan-12) !important;
+  border-bottom: 1px solid rgba(13, 60, 72, 0.5) !important;
 }
 
 td {
   font-size: 16px !important;
-  border-bottom: 1px solid var(--cyan-12) !important;
+  border-bottom: 1px solid rgba(13, 60, 72, 0.5) !important;
   align-items: center !important;
   justify-content: center !important;
   padding-top: 32px !important;
   padding-bottom: 32px !important;
-  color: var(--cyan-3) !important;
+  color: var(--cyan-1) !important;
 }
