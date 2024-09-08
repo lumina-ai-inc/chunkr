@@ -34,7 +34,7 @@ examples
 annotated
 annotated-gpu
 sample
-
+samples
 # Ignore Rust build artifacts
 target/
 **/*.rs.bk

@@ -9,36 +9,35 @@ pub async fn hierarchical_chunk_and_add_markdown(
     let mut current_chunk: Vec<Segment> = Vec::new();
     let mut current_word_count = 0;
     let mut hierarchy_stack: VecDeque<SegmentType> = VecDeque::new();
+    let target_length = target_length.unwrap_or(512);
 
-    for segment in segments {
-        let segment_word_count = segment.text.split_whitespace().count();
-
-        let should_start_new_chunk = match segment.segment_type {
-            SegmentType::Title => true,
-            SegmentType::SectionHeader => hierarchy_stack.front() != Some(&SegmentType::Title),
-            SegmentType::PageHeader | SegmentType::PageFooter => true,
-            _ => {
-                current_word_count + segment_word_count as i32 > target_length.unwrap_or(0)
-                    && !current_chunk.is_empty()
-            }
-        };
-
-        if should_start_new_chunk {
-            if !current_chunk.is_empty() {
-                chunks.push(Chunk {
-                    segments: current_chunk.clone(),
-                    markdown: generate_markdown(&current_chunk),
-                });
-                current_chunk.clear();
-                current_word_count = 0;
-            }
-            hierarchy_stack.clear();
+    fn finalize_chunk(chunk: &mut Vec<Segment>, chunks: &mut Vec<Chunk>) {
+        if !chunk.is_empty() {
+            chunks.push(Chunk {
+                segments: chunk.clone(),
+                markdown: generate_markdown(chunk),
+            });
+            chunk.clear();
         }
+    }
+
+    for (index, segment) in segments.iter().enumerate() {
+        let segment_word_count = segment.text.split_whitespace().count() as i32;
 
         match segment.segment_type {
-            SegmentType::Title | SegmentType::SectionHeader => {
+            SegmentType::Title => {
+                finalize_chunk(&mut current_chunk, &mut chunks);
+                current_word_count = 0;
+                hierarchy_stack.clear();
+                hierarchy_stack.push_front(segment.segment_type.clone());
+            }
+            SegmentType::SectionHeader => {
+                if current_word_count + segment_word_count > target_length {
+                    finalize_chunk(&mut current_chunk, &mut chunks);
+                    current_word_count = 0;
+                }
                 while let Some(top) = hierarchy_stack.front() {
-                    if *top == segment.segment_type {
+                    if *top == SegmentType::Title {
                         break;
                     }
                     hierarchy_stack.pop_front();
@@ -46,27 +45,51 @@ pub async fn hierarchical_chunk_and_add_markdown(
                 hierarchy_stack.push_front(segment.segment_type.clone());
             }
             SegmentType::PageHeader | SegmentType::PageFooter => {
-                // Create a separate chunk for page header and footer
+                finalize_chunk(&mut current_chunk, &mut chunks);
                 chunks.push(Chunk {
                     segments: vec![segment.clone()],
                     markdown: generate_markdown(&[segment.clone()]),
                 });
-                continue; // Skip adding to current_chunk
+                continue;
             }
-            _ => {}
+            _ => {
+                if current_word_count + segment_word_count > target_length {
+                    if current_chunk.last().map(|s| s.segment_type.clone())
+                        == Some(SegmentType::SectionHeader)
+                    {
+                        // If the last segment is a section header, keep it with this text
+                        let header = current_chunk.pop().unwrap();
+                        finalize_chunk(&mut current_chunk, &mut chunks);
+                        current_word_count = header.text.split_whitespace().count() as i32;
+                        current_chunk.push(header);
+                    } else {
+                        finalize_chunk(&mut current_chunk, &mut chunks);
+                        current_word_count = 0;
+                    }
+                }
+            }
         }
 
-        current_chunk.push(segment);
-        current_word_count += segment_word_count as i32;
+        current_chunk.push(segment.clone());
+        current_word_count += segment_word_count;
+
+        // Look ahead for section header + text pairs
+        if segment.segment_type == SegmentType::SectionHeader && index + 1 < segments.len() {
+            if let SegmentType::Text = segments[index + 1].segment_type {
+                let next_word_count = segments[index + 1].text.split_whitespace().count() as i32;
+                if current_word_count + next_word_count > target_length {
+                    finalize_chunk(&mut current_chunk, &mut chunks);
+                    current_word_count = 0;
+                }
+            }
+        }
     }
 
     // Add the last chunk if it's not empty
-    if !current_chunk.is_empty() {
-        chunks.push(Chunk {
-            segments: current_chunk.clone(),
-            markdown: generate_markdown(&current_chunk),
-        });
-    }
+    finalize_chunk(&mut current_chunk, &mut chunks);
+
+    // Remove any empty chunks (shouldn't be necessary, but just in case)
+    chunks.retain(|chunk| !chunk.segments.is_empty());
 
     Ok(chunks)
 }
@@ -81,15 +104,15 @@ fn generate_markdown(segments: &[Segment]) -> String {
         match segment_type {
             SegmentType::Title => {
                 list_level = 0;
-                markdown.push_str(&format!("# {}\n\n", segment.text));
+                markdown.push_str(&format!("# {}\n\n", segment.text.trim()));
             }
             SegmentType::SectionHeader => {
                 list_level = 0;
-                markdown.push_str(&format!("## {}\n\n", segment.text));
+                markdown.push_str(&format!("## {}\n\n", segment.text.trim()));
             }
             SegmentType::Text => {
                 list_level = 0;
-                markdown.push_str(&format!("{}\n\n", segment.text));
+                markdown.push_str(&format!("{}\n\n", segment.text.trim()));
             }
             SegmentType::ListItem => {
                 if list_level == 0 {
@@ -98,34 +121,34 @@ fn generate_markdown(segments: &[Segment]) -> String {
                 markdown.push_str(&format!(
                     "{}- {}\n",
                     "  ".repeat(list_level - 1),
-                    segment.text
+                    segment.text.trim()
                 ));
             }
             SegmentType::Caption => {
                 list_level = 0;
-                markdown.push_str(&format!("*{}\n\n", segment.text));
+                markdown.push_str(&format!("*{}*\n\n", segment.text.trim()));
             }
             SegmentType::Table => {
                 list_level = 0;
-                markdown.push_str(&format!("```\n{}\n```\n\n", segment.text));
+                markdown.push_str(&format!("```\n{}\n```\n\n", segment.text.trim()));
             }
             SegmentType::Formula => {
                 list_level = 0;
-                markdown.push_str(&format!("${}$\n\n", segment.text));
+                markdown.push_str(&format!("${}$\n\n", segment.text.trim()));
             }
             SegmentType::Picture => {
                 list_level = 0;
-                markdown.push_str(&format!("![Image]({})\n\n", segment.text));
+                markdown.push_str(&format!("![Image]({})\n\n", segment.text.trim()));
             }
             SegmentType::PageHeader => {
-                markdown.push_str(&format!("_Page Header: {}_\n\n", segment.text));
+                markdown.push_str(&format!("*Page Header:* {}\n\n", segment.text.trim()));
             }
             SegmentType::PageFooter => {
-                markdown.push_str(&format!("_Page Footer: {}_\n\n", segment.text));
+                markdown.push_str(&format!("*Page Footer:* {}\n\n", segment.text.trim()));
             }
             SegmentType::Footnote => {
                 list_level = 0;
-                markdown.push_str(&format!("[^1]: {}\n\n", segment.text));
+                markdown.push_str(&format!("[^1]: {}\n\n", segment.text.trim()));
             }
         }
     }

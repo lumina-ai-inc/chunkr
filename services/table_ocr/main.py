@@ -23,7 +23,7 @@ async def process_table(file: UploadFile = File(...)):
     table_data = await process_table_image(file)
     return TableStructureResponse(data=table_data)
 
-@app.post("/ocr/table", response_model=OCRResult)
+@app.post("/table/json", response_model=OCRResult)
 async def ocr_table(
     file: UploadFile = File(...),
     ocr_model: OCRModel = Form(default=OCRModel.EASYOCR, description="OCR model to use")
@@ -31,7 +31,7 @@ async def ocr_table(
     table_data = await ocr_table_image(file, ocr_model)
     return OCRResult(data=table_data)
 
-@app.post("/html/table", response_model=str)
+@app.post("/table/html", response_model=str)
 async def html_table(
     file: UploadFile = File(...),
     ocr_model: OCRModel = Form(default=OCRModel.EASYOCR, description="OCR model to use")
@@ -42,4 +42,4 @@ async def html_table(
 if __name__ == "__main__":
     import uvicorn
     print(DEVICE)
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8050)
