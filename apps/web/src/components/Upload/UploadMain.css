@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   width: 50%;
-  background: var(--cyan-12);
+  background-color: hsla(191, 71%, 32%, 0.7);
   color: rgba(250, 253, 254, 0.5);
   cursor: pointer;
   transition:
@@ -22,12 +22,12 @@
   align-items: center;
   justify-content: center;
   width: 50%;
-  background: var(--cyan-8);
+  background: rgba(61, 185, 207, 0.9);
   color: var(--cyan-1);
 }
 
 .toggle:hover {
-  background: var(--cyan-10);
+  background: rgba(61, 185, 207, 0.85);
   color: var(--cyan-3);
 }
 

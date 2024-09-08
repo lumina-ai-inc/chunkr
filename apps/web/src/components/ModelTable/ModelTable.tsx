@@ -1,4 +1,4 @@
-import { Flex, Table } from "@radix-ui/themes";
+import { Flex, Table, Text } from "@radix-ui/themes";
 import "./ModelTable.css";
 
 export default function ModelTable() {
@@ -7,9 +7,19 @@ export default function ModelTable() {
       <Table.Root variant="surface" mt="24px" style={{ width: "100%" }}>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeaderCell>FEATURE</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>FAST MODEL</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>HIGH QUALITY MODEL</Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell>
+              <Text size="9">Features</Text>
+            </Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell>
+              <Text size="4" weight="medium" className="cyan-6">
+                FAST MODEL
+              </Text>
+            </Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell>
+              <Text size="4" weight="medium" className="cyan-8">
+                HIGH QUALITY MODEL
+              </Text>
+            </Table.ColumnHeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
