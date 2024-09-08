@@ -1,13 +1,10 @@
-use crate::models::server::extract::{ModelInternal, TableOcr, TableOcrModel};
+use crate::models::server::extract::{TableOcr, TableOcrModel};
 use crate::utils::configs::extraction_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};
-use serde_json::Value;
 use std::{
     fs,
-    io::Write,
-    path::{Path, PathBuf},
+    path::Path,
 };
-use tempfile::NamedTempFile;
 use tokio::sync::OnceCell;
 
 static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
