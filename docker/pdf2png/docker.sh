@@ -7,7 +7,7 @@ CURRENT_DIR=$(pwd)
 cd ../../
 
 # Define the Docker image name as a variable
-DOCKER_IMAGE_NAME="luminainc/pdf2png"
+DOCKER_IMAGE_NAME="luminainc/pdf"
 
 # Get the current commit SHA
 SHA=$(git rev-parse --short HEAD)
