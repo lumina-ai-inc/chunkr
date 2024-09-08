@@ -21,7 +21,7 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
-        command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
+        command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000", "--workers", "1"]
         securityContext:
           privileged: true
           capabilities:
@@ -31,6 +31,14 @@ spec:
             nvidia.com/gpu: 1
           requests:
             nvidia.com/gpu: 1
+        volumeMounts:
+        - name: dshm
+          mountPath: /dev/shm
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 5Gi
 ---   
 apiVersion: v1
 kind: Service
