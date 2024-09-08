@@ -1,10 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import pdfContentReducer from "./pdfContentSlice";
+import userReducer from "./userSlice";
+import tokenReducer from "./tokenSlice";
 
 const store = configureStore({
   reducer: {
     pdfContent: pdfContentReducer,
-    // Add other reducers here if you have any
+    user: userReducer,
+    token: tokenReducer,
   },
 });
 

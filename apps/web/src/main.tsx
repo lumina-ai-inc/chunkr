@@ -13,6 +13,7 @@ import Task from "./pages/Task/Task.tsx";
 import AuthGuard from "./auth/AuthGuard.tsx";
 import Pricing from "./pages/Pricing/Pricing.tsx";
 import store from "./store/store";
+import Dashboard from "./components/Dashboard/Dashboard.tsx";
 
 const oidcConfig: AuthProviderProps = {
   authority: import.meta.env.VITE_KEYCLOAK_URL,
@@ -42,6 +43,14 @@ const router = createBrowserRouter([
     path: "/pricing",
     element: <Pricing />,
   },
+  {
+    path: "/dashboard",
+    element: (
+      <AuthGuard>
+        <Dashboard />
+      </AuthGuard>
+    ),
+  },
 ]);
 
 const queryClient = new QueryClient();
@@ -53,7 +62,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     panelBackground="solid"
     style={{
       height: "100%",
-      backgroundColor: "hsl(192, 70%, 5%)",
+      backgroundColor: "rgb(3, 15, 17)",
     }}
   >
     <QueryClientProvider client={queryClient}>

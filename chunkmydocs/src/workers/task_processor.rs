@@ -44,6 +44,7 @@ pub async fn log_task(
 }
 
 async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
+    println!("Processing task");
     let s3_client = create_client().await?;
     let reqwest_client = reqwest::Client::new();
     let extraction_item: ExtractionPayload = serde_json::from_value(payload.payload)?;
@@ -71,10 +72,8 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             None,
         )
         .await?;
-        let output_path: PathBuf;
-        let chunks: Vec<Chunk>;
 
-        output_path = pdla_extraction(
+        let output_path = pdla_extraction(
             temp_file.path(),
             extraction_item.model,
             extraction_item.batch_size,
@@ -109,6 +108,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
     match result {
         Ok(_) => {
+            println!("Task succeeded");
             log_task(
                 task_id.clone(),
                 Status::Succeeded,
@@ -122,6 +122,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         Err(e) => {
             eprintln!("Error processing task: {:?}", e);
             if payload.attempt >= payload.max_attempts {
+                println!("Task failed");
                 log_task(
                     task_id.clone(),
                     Status::Failed,
@@ -226,6 +227,7 @@ pub async fn table_ocr(
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = extraction_config::Config::from_env()?;
+    println!("Starting task processor");
     consumer(process, config.extraction_queue, 1, 600).await?;
     Ok(())
 }

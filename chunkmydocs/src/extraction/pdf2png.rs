@@ -2,10 +2,12 @@ use crate::models::server::segment::{Chunk, Segment};
 use crate::utils::configs::pdf2png_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tokio::sync::OnceCell;
 
 static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
+use base64::{engine::general_purpose::STANDARD, Engine as _};
+use serde_json::json;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct BoundingBox {
@@ -20,20 +22,90 @@ pub struct BoundingBox {
 impl From<&Segment> for BoundingBox {
     fn from(segment: &Segment) -> Self {
         BoundingBox {
-            left: segment.left / segment.page_width,
-            top: segment.top / segment.page_height,
-            width: segment.width / segment.page_width,
-            height: segment.height / segment.page_height,
+            left: segment.left,
+            top: segment.top,
+            width: segment.width,
+            height: segment.height,
             page_number: segment.page_number,
             bb_id: uuid::Uuid::new_v4().to_string(),
         }
     }
 }
 
+// Define the ConversionResponse struct
+#[derive(Serialize, Deserialize)]
+pub struct ConversionResponse {
+    pub png_pages: Vec<PngPage>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct PngPage {
+    pub bb_id: String,
+    pub base64_png: String,
+}
+
+#[derive(Deserialize)]
+pub struct SplitPdf {
+    pub split_number: usize,
+    pub base64_pdf: String,
+}
+
+#[derive(Deserialize)]
+pub struct SplitResponse {
+    pub split_pdfs: Vec<SplitPdf>,
+}
+
 async fn get_reqwest_client() -> &'static ReqwestClient {
     REQWEST_CLIENT
         .get_or_init(|| async { ReqwestClient::new() })
         .await
+}
+
+pub async fn split_pdf(
+    file_path: &Path,
+    pages_per_split: usize,
+    output_dir: &Path,
+) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+    let client = get_reqwest_client().await;
+    let config = Config::from_env()?;
+    let url = format!("{}/split", config.url);
+
+    // Create the output directory if it doesn't exist
+    tokio::fs::create_dir_all(output_dir).await?;
+
+    let file_name = file_path
+        .file_name()
+        .ok_or_else(|| "Invalid file name")?
+        .to_str()
+        .ok_or_else(|| "Non-UTF8 file name")?;
+
+    let file_content = tokio::fs::read(file_path).await?;
+    let part = multipart::Part::bytes(file_content).file_name(file_name.to_string());
+
+    let form = multipart::Form::new()
+        .part("file", part)
+        .text("pages_per_split", pages_per_split.to_string());
+
+    let response = client
+        .post(url)
+        .multipart(form)
+        .send()
+        .await?
+        .error_for_status()?;
+
+    let split_response: SplitResponse = response.json().await?;
+    let mut split_files = Vec::new();
+
+    for split_pdf in split_response.split_pdfs.iter() {
+        let pdf_data = STANDARD.decode(&split_pdf.base64_pdf)?;
+        let filename = format!("split_{}.pdf", split_pdf.split_number);
+        let file_path = output_dir.join(&filename);
+
+        tokio::fs::write(&file_path, pdf_data).await?;
+        split_files.push(file_path);
+    }
+
+    Ok(split_files)
 }
 
 pub async fn convert_pdf_to_png(
@@ -68,18 +140,6 @@ pub async fn convert_pdf_to_png(
     let response_json: ConversionResponse = response.json().await?; // Parse response as ConversionResponse
 
     Ok(response_json)
-}
-
-// Define the ConversionResponse struct
-#[derive(Serialize, Deserialize)]
-pub struct ConversionResponse {
-    pub png_pages: Vec<PngPage>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct PngPage {
-    pub bb_id: String,
-    pub base64_png: String,
 }
 
 #[cfg(test)]
