@@ -39,6 +39,7 @@ export default function PricingCard({
   return (
     <Flex
       direction="column"
+      width="100%"
       className={isActive ? "card-container-selected" : "card-container"}
     >
       <Text size="4" weight="medium" className="cyan-4" trim="start">
