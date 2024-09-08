@@ -60,6 +60,7 @@ fn run_migrations(url: &str) {
             models::server::extract::UploadForm,
             models::server::extract::Configuration,
             models::server::task::TaskResponse,
+            models::server::task::TableOcr,
             models::server::task::Status,
             models::server::extract::Model,
             models::server::user::User,
