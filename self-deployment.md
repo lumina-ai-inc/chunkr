@@ -66,6 +66,18 @@
    ```
    > **Note**: The output will contain sensitive information. Make sure to keep it secure.
 
+8. Setup startup cron job on the VM to run the docker compose file:
+
+   ```bash
+   crontab -e
+   ```
+
+   Add the following line to the end of the file:
+
+   ```bash
+   @reboot sleep 60; cd /home/debian/ && sudo docker compose up -d
+   ```
+
 ### 3. Setup Secrets
 
 Copy the example secret files to your GCP configuration:
