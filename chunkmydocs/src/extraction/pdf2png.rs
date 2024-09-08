@@ -112,10 +112,9 @@ pub async fn convert_pdf_to_png(
     pdf_path: &Path,
     bounding_boxes: Vec<BoundingBox>,
 ) -> Result<ConversionResponse, Box<dyn std::error::Error>> {
-    // Updated return type
     let client = get_reqwest_client().await;
     let config = Config::from_env()?;
-    let url = config.url;
+    let url = format!("{}/convert", config.url);
 
     let file_name = pdf_path
         .file_name()
@@ -137,7 +136,7 @@ pub async fn convert_pdf_to_png(
         .await?
         .error_for_status()?;
 
-    let response_json: ConversionResponse = response.json().await?; // Parse response as ConversionResponse
+    let response_json: ConversionResponse = response.json().await?;
 
     Ok(response_json)
 }
