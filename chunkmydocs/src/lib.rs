@@ -22,6 +22,7 @@ use routes::task::{ create_extraction_task, get_task_status };
 use routes::usage::get_usage;
 use utils::db::deadpool_postgres;
 use utils::storage::config_s3::create_client;
+use utils::server::admin_user::get_or_create_admin_user;
 use utoipa::OpenApi;
 use utoipa_redoc::{ Redoc, Servable };
 
@@ -62,7 +63,7 @@ fn run_migrations(url: &str) {
             models::server::task::Status,
             models::server::extract::Model,
             models::server::user::User,
-            models::server::user::Tier, 
+            models::server::user::Tier,
             models::server::user::Usage,
             models::server::user::UsageType
         )
@@ -78,15 +79,16 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
-
         let pg_pool = deadpool_postgres::create_pool();
         let s3_client = create_client().await.expect("Failed to create S3 client");
         run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
+        get_or_create_admin_user(&pg_pool).await.expect("Failed to create admin user");
 
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
             println!("Multipart error: {}", err);
             Error::from(err)
         }
+        
         let max_size: usize = std::env
             ::var("MAX_TOTAL_LIMIT")
             .unwrap_or_else(|_| "10485760".to_string()) // Default to 10 MB if not set
@@ -97,8 +99,6 @@ pub fn main() -> std::io::Result<()> {
             .unwrap_or_else(|_| "10485760".to_string()) // Default to 10 MB if not set
             .parse()
             .expect("MAX_MEMORY_LIMIT must be a valid usize");
-        println!("Max size: {}", max_size);
-
         let timeout: usize = std::env
             ::var("TIMEOUT")
             .unwrap_or_else(|_| "600".to_string())
@@ -125,7 +125,8 @@ pub fn main() -> std::io::Result<()> {
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check));
 
-            let mut api_scope = web::scope("/api")
+            let mut api_scope = web
+                ::scope("/api")
                 .wrap(ApiKeyMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
                 .route("/task", web::post().to(create_extraction_task))
@@ -133,12 +134,16 @@ pub fn main() -> std::io::Result<()> {
                 .route("/usage", web::get().to(get_usage));
 
             // Check if Stripe environment variables are set
-            if std::env::var("STRIPE__API_KEY").is_ok() && std::env::var("STRIPE__WEBHOOK_SECRET").is_ok() {
+            if
+                std::env::var("STRIPE__API_KEY").is_ok() &&
+                std::env::var("STRIPE__WEBHOOK_SECRET").is_ok()
+            {
                 use routes::stripe::{ create_setup_intent, stripe_webhook };
-                api_scope = api_scope
-                    .route("/stripe/create-setup-intent", web::get().to(create_setup_intent));
-                app=app
-                    .route("/stripe/webhook", web::post().to(stripe_webhook));
+                api_scope = api_scope.route(
+                    "/stripe/create-setup-intent",
+                    web::get().to(create_setup_intent)
+                );
+                app = app.route("/stripe/webhook", web::post().to(stripe_webhook));
             }
 
             app.service(api_scope)

@@ -4,8 +4,12 @@ use dotenvy::dotenv_override;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    #[serde(default = "bool::default")]
+    #[serde(default = "default_self_hosted")]
     pub self_hosted: bool,
+}
+
+fn default_self_hosted() -> bool {
+    true
 }
 
 impl Config {
