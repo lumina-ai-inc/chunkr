@@ -78,7 +78,6 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 }
 
 pub fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=debug");
     actix_web::rt::System::new().block_on(async move {
 
         let pg_pool = deadpool_postgres::create_pool();

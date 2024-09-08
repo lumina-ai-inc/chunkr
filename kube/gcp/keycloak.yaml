@@ -65,6 +65,6 @@ spec:
         path: /
         backend:
           service:
-            name: keycloak
+            name: keycloak-service
             port:
               number: 8080

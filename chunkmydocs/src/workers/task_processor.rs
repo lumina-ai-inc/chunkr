@@ -1,6 +1,6 @@
 use chunkmydocs::extraction::pdla::pdla_extraction;
 use chunkmydocs::models::server::extract::ExtractionPayload;
-use chunkmydocs::models::server::segment::{ Chunk, Segment };
+use chunkmydocs::models::server::segment::Segment;
 use chunkmydocs::models::server::task::Status;
 use chunkmydocs::models::rrq::queue::QueuePayload;
 use chunkmydocs::utils::configs::extraction_config;
@@ -11,7 +11,6 @@ use chunkmydocs::utils::rrq::consumer::consumer;
 use chunkmydocs::utils::storage::config_s3::create_client;
 use chunkmydocs::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use chrono::{ DateTime, Utc };
-use std::path::PathBuf;
 
 pub async fn log_task(
     task_id: String,
@@ -36,6 +35,7 @@ pub async fn log_task(
 }
 
 async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
+    println!("Processing task");
     let s3_client = create_client().await?;
     let reqwest_client = reqwest::Client::new();
     let extraction_item: ExtractionPayload = serde_json::from_value(payload.payload)?;
@@ -56,12 +56,10 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             &s3_client,
             &reqwest_client,
             &extraction_item.input_location,
-            None
+            None,
         ).await?;
-        let output_path: PathBuf;
-        let chunks: Vec<Chunk>;
 
-        output_path = pdla_extraction(
+        let output_path = pdla_extraction(
             temp_file.path(),
             extraction_item.model,
             extraction_item.batch_size
@@ -70,7 +68,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         let file_content = tokio::fs::read_to_string(&output_path).await?;
         let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
 
-        chunks = chunk_and_add_markdown(segments, extraction_item.target_chunk_length).await?;
+        let chunks = chunk_and_add_markdown(segments, extraction_item.target_chunk_length).await?;
 
         let chunked_content = serde_json::to_string(&chunks)?;
         tokio::fs::write(&output_path, chunked_content).await?;
@@ -88,6 +86,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
     match result {
         Ok(_) => {
+            println!("Task succeeded");
             log_task(
                 task_id.clone(),
                 Status::Succeeded,
@@ -100,6 +99,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         Err(e) => {
             eprintln!("Error processing task: {:?}", e);
             if payload.attempt >= payload.max_attempts {
+                println!("Task failed");
                 log_task(
                     task_id.clone(),
                     Status::Failed,
@@ -116,6 +116,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = extraction_config::Config::from_env()?;
+    println!("Starting task processor");
     consumer(process, config.extraction_queue, 1, 600).await?;
     Ok(())
 }
