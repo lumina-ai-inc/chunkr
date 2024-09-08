@@ -10,6 +10,8 @@ services:
       networks:
         - app-network
   postgres:
+    deploy:
+      replicas: 0
     image: postgres:15
     restart: always
     environment:
@@ -29,6 +31,8 @@ services:
       - app-network
 
   s3:
+    deploy:
+      replicas: 0
     image: minio/minio:RELEASE.2023-09-27T15-22-50Z
     ports:
       - 9000:9000
@@ -48,6 +52,8 @@ services:
       - app-network
 
   s3-client:
+    deploy:
+      replicas: 0
     image: minio/mc
     depends_on:
       s3:
@@ -71,6 +77,8 @@ services:
 
   redis:
     image: redis:7.2.2
+    deploy:
+      replicas: 0
     restart: always
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "ping"]
@@ -87,6 +95,8 @@ services:
 
   rrq:
     image: luminainc/rrq:a11fcf8
+    deploy:
+      replicas: 0    
     depends_on:
       redis:
         condition: service_healthy
@@ -103,6 +113,8 @@ services:
   pdla:
     image: luminainc/pdla:7bd05a1
     restart: on-failure
+    deploy:
+      replicas: 0
     networks:
       - app-network
     ports:

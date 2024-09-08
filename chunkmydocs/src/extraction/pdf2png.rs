@@ -7,12 +7,12 @@ static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
 
 #[derive(Serialize, Deserialize)]
 pub struct BoundingBox {
-    left: f64,
-    top: f64,
-    width: f64,
-    height: f64,
-    page_number: i32,
-    bb_id: String,
+    pub left: f64,
+    pub top: f64,
+    pub width: f64,
+    pub height: f64,
+    pub page_number: i32,
+    pub bb_id: String,
 }
 
 async fn get_reqwest_client() -> &'static ReqwestClient {
@@ -58,13 +58,13 @@ pub async fn convert_pdf_to_png(
 // Define the ConversionResponse struct
 #[derive(Serialize, Deserialize)]
 pub struct ConversionResponse {
-    png_pages: Vec<PngPage>,
+    pub png_pages: Vec<PngPage>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct PngPage {
-    bb_id: String,
-    base64_png: String,
+    pub bb_id: String,
+    pub base64_png: String,
 }
 
 #[cfg(test)]

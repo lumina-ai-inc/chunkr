@@ -5,6 +5,7 @@ from enum import Enum
 class OCRModel(str, Enum):
     TESSERACT = "tesseract"
     EASYOCR = "easyocr"
+    PDLA = "PDLA"
 
 class BoundingBox(BaseModel):
     x: float

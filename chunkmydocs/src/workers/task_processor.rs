@@ -1,5 +1,13 @@
 use chrono::{DateTime, Utc};
+use chunkmydocs::extraction::pdf2png::convert_pdf_to_png;
 use chunkmydocs::extraction::pdla::pdla_extraction;
+use chunkmydocs::extraction::table_ocr::table_extraction_from_image;
+use chunkmydocs::models::server::extract::{TableOcr, TableOcrModel};
+use chunkmydocs::models::server::segment::SegmentType;
+use chunkmydocs::extraction::pdf2png::BoundingBox;
+use std::{fs, io::Write, path::Path};
+use tempfile::TempDir;
+use uuid::Uuid;
 use chunkmydocs::models::rrq::queue::QueuePayload;
 use chunkmydocs::models::server::extract::ExtractionPayload;
 use chunkmydocs::models::server::segment::{Chunk, Segment};
@@ -76,8 +84,13 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         let file_content = tokio::fs::read_to_string(&output_path).await?;
         let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
 
-        chunks = hierarchical_chunk_and_add_markdown(segments, extraction_item.target_chunk_length)
+        let mut chunks = hierarchical_chunk_and_add_markdown(segments, extraction_item.target_chunk_length)
             .await?;
+        if let Some(table_ocr) = extraction_item.table_ocr {
+            if table_ocr {
+                let chunks = table_ocr(chunks, temp_file.path(), extraction_item.table_ocr).await?;
+            }
+        }
 
         let chunked_content = serde_json::to_string(&chunks)?;
         tokio::fs::write(&output_path, chunked_content).await?;
@@ -121,6 +134,63 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             Err(e)
         }
     }
+}
+
+
+pub async fn table_ocr(
+    chunks: Vec<Chunk>,
+    pdf_path: &Path,
+    html: bool,
+) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
+    let output_format = if html { TableOcr::HTML } else { TableOcr::JSON };
+
+    let mut modified_chunks = Vec::new();
+    for chunk in chunks {
+        let mut modified_segments = Vec::new();
+        for segment in chunk.segments {
+            if segment.segment_type == SegmentType::Table {
+                let temp_dir = TempDir::new()?;
+                let temp_file_path = temp_dir.path().join(Uuid::new_v4().to_string() + ".png");
+
+                let bounding_boxes = vec![BoundingBox {
+                    left: segment.left as f64,
+                    top: segment.top as f64,
+                    width: segment.width as f64,
+                    height: segment.height as f64,
+                    page_number: segment.page_number as i32,
+                    bb_id: Uuid::new_v4().to_string(),
+                }];
+
+                let response = convert_pdf_to_png(pdf_path, bounding_boxes).await?;
+                let png_page = response.png_pages.get(0).ok_or("No PNG pages found")?;
+                let image_data = base64::decode(&png_page.base64_png)?;
+                std::fs::write(&temp_file_path, &image_data)?;
+
+                let output = table_extraction_from_image(
+                    &temp_file_path,
+                    TableOcrModel::EasyOcr,
+                    output_format,
+                )
+                .await?;
+
+                // Replace the original table segment's text with the OCR output
+                let modified_segment = Segment {
+                    text: output,
+                    ..segment
+                };
+                modified_segments.push(modified_segment);
+            } else {
+                modified_segments.push(segment);
+            }
+        }
+        let modified_chunk = Chunk {
+            segments: modified_segments,
+            ..chunk
+        };
+        modified_chunks.push(modified_chunk);
+    }
+
+    Ok(modified_chunks)
 }
 
 #[tokio::main]

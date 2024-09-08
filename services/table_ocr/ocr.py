@@ -45,3 +45,8 @@ def ocr_tesseract(image):
 def ocr_easyocr(image):
     result = reader.readtext(image)
     return result
+
+# def ocr_pdla(image):
+#     pdla_url = get_pdla_url()
+    
+#     pass
