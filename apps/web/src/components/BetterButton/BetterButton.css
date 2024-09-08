@@ -1,5 +1,5 @@
 .button-resting {
-  background-color: var(--cyan-12);
+  background-color: hsl(189, 70%, 9%);
   border: none;
   color: rgba(222, 247, 249, 0.5);
   text-align: center;

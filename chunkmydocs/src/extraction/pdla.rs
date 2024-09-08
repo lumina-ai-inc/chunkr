@@ -1,6 +1,6 @@
 use crate::models::server::extract::ModelInternal;
 use crate::utils::configs::extraction_config::Config;
-use super::pdf::split_pdf;
+use super::pdf2png::split_pdf;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde_json::Value;
 use std::{
@@ -33,6 +33,7 @@ async fn call_pdla_api(
         .to_str()
         .ok_or_else(|| format!("Non-UTF8 file name: {:?}", file_path))?
         .to_string();
+
     let file_fs = fs::read(file_path).expect("Failed to read file");
     let part = multipart::Part::bytes(file_fs).file_name(file_name);
 
@@ -70,11 +71,13 @@ async fn process_file(
 ) -> Result<String, Box<dyn std::error::Error>> {
     let mut temp_files: Vec<PathBuf> = vec![];
     let temp_dir = TempDir::new("split_pdf")?;
+
     if let Some(batch_size) = batch_size {
-        temp_files = split_pdf(file_path, batch_size as usize, temp_dir.path())?;
+        temp_files = split_pdf(file_path, batch_size as usize, temp_dir.path()).await?;
     } else {
         temp_files.push(file_path.to_path_buf());
     }
+
     let mut combined_output = Vec::new();
     let mut page_offset = 0;
 

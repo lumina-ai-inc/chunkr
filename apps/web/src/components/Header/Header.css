@@ -69,21 +69,6 @@
   display: none;
 }
 
-.account-container {
-  position: absolute;
-  z-index: 100;
-  height: 100vh;
-  width: 100vw;
-  background-color: #061d22b0;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  top: 0;
-  left: 0;
-  display: flex;
-  justify-content: center !important;
-  align-items: center !important;
-}
-
 @media (max-width: 1066px) {
   .dropdown-container {
     display: block;
