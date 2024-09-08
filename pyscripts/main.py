@@ -6,7 +6,7 @@ import glob
 
 from api import process_file
 from download import download_file
-from models import Model
+from models import Model, TableOcr
 from annotate import draw_bounding_boxes
 
 
@@ -25,7 +25,7 @@ def print_time_taken(created_at, finished_at):
         print("Time taken information not available")
 
 
-def extract_and_annotate_file(file_path: str, model: Model):
+def extract_and_annotate_file(file_path: str, model: Model, table_ocr: TableOcr = None):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_name = os.path.basename(file_path).split(".")[0]
     output_dir = os.path.join(current_dir, "output")
@@ -35,7 +35,7 @@ def extract_and_annotate_file(file_path: str, model: Model):
     output_annotated_path = os.path.join(output_dir, f"{file_name}_annotated.pdf")
 
     print(f"Processing file: {file_path}")
-    task = process_file(file_path, model)
+    task = process_file(file_path, model, table_ocr)
     output_url = task.output_file_url
     print(f"File processed: {file_path}")
 
@@ -51,7 +51,7 @@ def extract_and_annotate_file(file_path: str, model: Model):
     print(f"File annotated: {file_path}")
 
 
-def process_all_files_in_input_folder(model: Model, max_workers=4):
+def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, max_workers=4):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_dir = os.path.join(current_dir, "input")
     
@@ -59,7 +59,7 @@ def process_all_files_in_input_folder(model: Model, max_workers=4):
     pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
 
     # Create a partial function with the model parameter
-    extract_func = partial(extract_and_annotate_file, model=model)
+    extract_func = partial(extract_and_annotate_file, model=model, table_ocr=table_ocr)
 
     def process_file_with_error_handling(file_path):
         try:
@@ -80,6 +80,7 @@ def process_all_files_in_input_folder(model: Model, max_workers=4):
 
 
 if __name__ == "__main__":
-    model = Model.HighQuality
-    process_all_files_in_input_folder(model)
+    model = Model.Fast
+    table_ocr = None  # You can set this to None if you don't want to use table OCR
+    process_all_files_in_input_folder(model, table_ocr)
     print("All files processed and annotated.")
