@@ -86,18 +86,6 @@ resource "google_storage_bucket_iam_member" "gcs_interop_object_admin" {
 }
 
 ###############################################################
-# GCS Interoperability (S3-compatible) Setup
-###############################################################
-resource "google_service_account" "gcs_interop" {
-  account_id   = "${var.base_name}-gcs-interop"
-  display_name = "GCS Interoperability Service Account"
-}
-
-resource "google_storage_hmac_key" "gcs_interop_key" {
-  service_account_email = google_service_account.gcs_interop.email
-}
-
-###############################################################
 # Set up the Networking Components
 ###############################################################
 
@@ -220,50 +208,6 @@ resource "google_container_node_pool" "gpu_nodes" {
 
     tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-gpu-time-sharing"]
   }
-}
-
-###############################################################
-# Redis (Cloud Memorystore)
-###############################################################
-resource "google_redis_instance" "cache" {
-  name           = "${var.base_name}-redis"
-  tier           = "BASIC"
-  memory_size_gb = 6
-
-  region = var.region
-
-  authorized_network = google_compute_network.vpc_network.id
-
-  connect_mode = "PRIVATE_SERVICE_ACCESS"
-
-  transit_encryption_mode = "DISABLED"
-
-  display_name = "${var.base_name} redis cache"
-
-  depends_on = [google_service_networking_connection.private_service_connection]
-}
-
-# Add these new resources
-resource "google_compute_global_address" "private_ip_address" {
-  name          = "${var.base_name}-private-ip"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.vpc_network.id
-}
-
-resource "google_project_service" "servicenetworking" {
-  project = var.project
-  service = "servicenetworking.googleapis.com"
-
-  disable_on_destroy = false
-}
-
-resource "google_service_networking_connection" "private_service_connection" {
-  network                 = google_compute_network.vpc_network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
-  depends_on              = [google_project_service.servicenetworking]
 }
 
 ###############################################################
@@ -431,11 +375,6 @@ output "chunkmydocs_postgresql_url" {
 output "keycloak_postgresql_url" {
   value       = "postgresql://${google_sql_database_instance.postgres.public_ip_address}:5432/${var.keycloak_db}"
   description = "The connection URL for the Keycloak database"
-}
-
-output "redis_url" {
-  value       = "redis://${google_redis_instance.cache.host}:${google_redis_instance.cache.port}"
-  description = "The connection URL for the Redis cache"
 }
 
 output "gcs_s3_compatible_endpoint" {
