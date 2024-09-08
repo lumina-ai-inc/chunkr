@@ -121,7 +121,14 @@ export default function Header({
           </Text>
         )}
 
-        <Flex direction="row" gap="3" align="center" className="auth-container">
+        <Flex
+          direction="row"
+          gap="3"
+          align="center"
+          className="auth-container"
+          justify="end"
+          style={{ width: "156px" }}
+        >
           {isAuthenticated ? (
             <Link
               to="/dashboard"

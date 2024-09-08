@@ -9,12 +9,11 @@
 }
 
 .card-container {
-  background-color: hsl(191, 73%, 5%);
-  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
-  border: 3px solid var(--cyan-5);
+  background-color: hsla(189.47368421052633, 76%, 4.901960784313726%, 0.6);
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--cyan-5);
   border-radius: 8px;
   padding: 48px;
-  width: calc(50% - 48px);
   cursor: pointer;
   transition:
     background-color 0.3s,
@@ -32,7 +31,6 @@
   border: 2px solid var(--cyan-5);
   border-radius: 8px;
   padding: 32px;
-  width: 324px;
   transition:
     background-color 0.3s,
     border-color 0.3s;
@@ -52,3 +50,51 @@
     gap: 64px;
   }
 }
+
+.pulsing-background {
+  background: #020809;
+}
+
+.pricing-main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: fit-content;
+  position: relative;
+}
+
+.pricing-image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-height: 100vh;
+  z-index: 0;
+}
+
+.pricing-gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 8, 9, 0.5) 0%,
+    rgba(2, 8, 9, 0.3) 50%,
+    rgba(2, 8, 9, 0.8) 80%,
+    #020809 100%
+  );
+  z-index: 1;
+}
+
+.pricing-content-container {
+  z-index: 1;
+  width: 100%;
+  max-width: 1564px;
+  margin-bottom: 176px;
+}
+
+/* Add any additional styles specific to the Pricing component here */
