@@ -51,17 +51,20 @@ kind: Ingress
 metadata:
   name: keycloak-ingress
   namespace: chunkmydocs
+  labels:
+    app: keycloak
   annotations:
     kubernetes.io/ingress.class: gce
 spec:
+  ingressClassName: gce
   rules:
-  - host: auth.chunkmydocs.com
+  - host: auth.chunkmydocs.com 
     http:
       paths:
       - pathType: Prefix
         path: /
         backend:
           service:
-            name: keycloak
+            name: keycloak-service
             port:
               number: 8080

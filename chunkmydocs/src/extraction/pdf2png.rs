@@ -1,9 +1,11 @@
 use crate::utils::configs::pdf2png_config::Config;
-use reqwest::{multipart, Client as ReqwestClient};
-use serde::{Deserialize, Serialize};
-use std::path::Path;
+use reqwest::{ multipart, Client as ReqwestClient };
+use serde::{ Deserialize, Serialize };
+use std::path::{ Path, PathBuf };
 use tokio::sync::OnceCell;
 static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
+use serde_json::json;
+use base64::{ Engine as _, engine::general_purpose::STANDARD };
 
 #[derive(Serialize, Deserialize)]
 pub struct BoundingBox {
@@ -15,15 +17,78 @@ pub struct BoundingBox {
     bb_id: String,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct ConversionResponse {
+    png_pages: Vec<PngPage>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct PngPage {
+    bb_id: String,
+    base64_png: String,
+}
+
+#[derive(Deserialize)]
+pub struct SplitPdf {
+    pub split_number: usize,
+    pub base64_pdf: String,
+}
+
+#[derive(Deserialize)]
+pub struct SplitResponse {
+    pub split_pdfs: Vec<SplitPdf>,
+}
+
 async fn get_reqwest_client() -> &'static ReqwestClient {
-    REQWEST_CLIENT
-        .get_or_init(|| async { ReqwestClient::new() })
-        .await
+    REQWEST_CLIENT.get_or_init(|| async { ReqwestClient::new() }).await
+}
+
+pub async fn split_pdf(
+    file_path: &Path,
+    pages_per_split: usize,
+    output_dir: &Path
+) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+    let client = get_reqwest_client().await;
+    let config = Config::from_env()?;
+    let url = format!("{}/split", config.url);
+
+    // Create the output directory if it doesn't exist
+    tokio::fs::create_dir_all(output_dir).await?;
+
+    let file_name = file_path
+        .file_name()
+        .ok_or_else(|| "Invalid file name")?
+        .to_str()
+        .ok_or_else(|| "Non-UTF8 file name")?;
+
+    let file_content = tokio::fs::read(file_path).await?;
+    let part = multipart::Part::bytes(file_content).file_name(file_name.to_string());
+
+    let form = multipart::Form
+        ::new()
+        .part("file", part)
+        .text("pages_per_split", pages_per_split.to_string());
+
+    let response = client.post(url).multipart(form).send().await?.error_for_status()?;
+
+    let split_response: SplitResponse = response.json().await?;
+    let mut split_files = Vec::new();
+
+    for split_pdf in split_response.split_pdfs.iter() {
+        let pdf_data = STANDARD.decode(&split_pdf.base64_pdf)?;
+        let filename = format!("split_{}.pdf", split_pdf.split_number);
+        let file_path = output_dir.join(&filename);
+
+        tokio::fs::write(&file_path, pdf_data).await?;
+        split_files.push(file_path);
+    }
+
+    Ok(split_files)
 }
 
 pub async fn convert_pdf_to_png(
     pdf_path: &Path,
-    bounding_boxes: Vec<BoundingBox>,
+    bounding_boxes: Vec<BoundingBox>
 ) -> Result<ConversionResponse, Box<dyn std::error::Error>> {
     // Updated return type
     let client = get_reqwest_client().await;
@@ -39,32 +104,16 @@ pub async fn convert_pdf_to_png(
     let file_content = tokio::fs::read(pdf_path).await?;
     let part = multipart::Part::bytes(file_content).file_name(file_name.to_string());
 
-    let form = multipart::Form::new()
+    let form = multipart::Form
+        ::new()
         .part("file", part)
         .text("bounding_boxes", serde_json::to_string(&bounding_boxes)?);
 
-    let response = client
-        .post(url)
-        .multipart(form)
-        .send()
-        .await?
-        .error_for_status()?;
+    let response = client.post(url).multipart(form).send().await?.error_for_status()?;
 
     let response_json: ConversionResponse = response.json().await?; // Parse response as ConversionResponse
 
     Ok(response_json)
-}
-
-// Define the ConversionResponse struct
-#[derive(Serialize, Deserialize)]
-pub struct ConversionResponse {
-    png_pages: Vec<PngPage>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct PngPage {
-    bb_id: String,
-    base64_png: String,
 }
 
 #[cfg(test)]
