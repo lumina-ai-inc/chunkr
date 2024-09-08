@@ -86,11 +86,9 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         let mut chunks =
             hierarchical_chunk_and_add_markdown(segments, extraction_item.target_chunk_length)
                 .await?;
-        println!("chunks");
         if let Some(table_ocr_option) = extraction_item.table_ocr {
             chunks = table_ocr(chunks, temp_file.path(), Some(table_ocr_option)).await?;
         }
-        println!("chunks after table ocr");
         let chunked_content = serde_json::to_string(&chunks)?;
         tokio::fs::write(&output_path, chunked_content).await?;
 

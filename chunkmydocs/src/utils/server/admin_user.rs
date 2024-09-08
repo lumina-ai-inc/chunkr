@@ -6,9 +6,9 @@ use super::{ get_user::get_user, create_user::create_user };
 pub async fn get_or_create_admin_user(pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {
     let user_info = UserInfo {
         user_id: "admin".to_string(),
-        email: None,
-        first_name: None,
-        last_name: None,
+        email: Some("admin@chunkmydocs.com".to_string()),
+        first_name: Some("admin".to_string()),
+        last_name: Some("admin".to_string()),
         api_key: None,
     };
 
