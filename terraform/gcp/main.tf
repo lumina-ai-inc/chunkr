@@ -7,6 +7,15 @@ terraform {
   }
 }
 
+variable "project" {
+  type        = string
+  description = "The GCP project ID"
+}
+
+variable "region" {
+  default = "us-central1"
+}
+
 variable "base_name" {
   default = "chunkmydocs"
 }
@@ -15,17 +24,9 @@ variable "bucket_name" {
   default = "chunkmydocs-bucket"
 }
 
-variable "region" {
-  default = "us-central1"
-}
 
 variable "cluster_name" {
   default = "chunkmydocs-cluster"
-}
-
-variable "project" {
-  type        = string
-  description = "The GCP project ID"
 }
 
 variable "postgres_username" {

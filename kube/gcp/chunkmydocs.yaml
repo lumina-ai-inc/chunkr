@@ -5,6 +5,8 @@ metadata:
   namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: chunkmydocs
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
 spec:
   selector:
     matchLabels:
