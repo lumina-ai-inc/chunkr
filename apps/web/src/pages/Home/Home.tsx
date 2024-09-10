@@ -1,4 +1,4 @@
-import { Code, Flex, ScrollArea, Text } from "@radix-ui/themes";
+import { Flex, ScrollArea, Text } from "@radix-ui/themes";
 import { useAuth } from "react-oidc-context";
 import "./Home.css";
 import Header from "../../components/Header/Header";
@@ -20,7 +20,7 @@ const Home = () => {
       }}
       className="pulsing-background"
     >
-      <ScrollArea>
+      <ScrollArea type="scroll">
         <div>
           <div className="hero-main-container">
             <div className="hero-image-container">
@@ -37,7 +37,9 @@ const Home = () => {
               <div className="hero-gradient-overlay"></div>
             </div>
             <div className="hero-content-container">
-              <Header px="0px" home={true} />
+              <Flex className="header-container">
+                <Header px="0px" home={true} />
+              </Flex>
               <Flex className="hero-container">
                 <Flex className="text-container" direction="column">
                   <Text
@@ -45,6 +47,7 @@ const Home = () => {
                     weight="bold"
                     trim="both"
                     className="hero-title"
+                    mb="32px"
                   >
                     Open Source Data Ingestion for LLMs & RAG
                   </Text>
@@ -52,6 +55,7 @@ const Home = () => {
                     className="white"
                     size="5"
                     weight="medium"
+                    mb="24px"
                     style={{
                       maxWidth: "542px",
                       lineHeight: "32px",
@@ -69,6 +73,7 @@ const Home = () => {
                       direction="row"
                       align="center"
                       className="signup-button"
+                      mb="24px"
                     >
                       <Text size="3" weight="bold" className="cyan-12">
                         Get started for free
@@ -154,30 +159,9 @@ const Home = () => {
           <Flex p="80px" mt="40px" className="model-table-container">
             <ModelTable />
           </Flex>
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            className="curl-block-container"
-          >
-            <Code
-              size="5"
-              weight="medium"
-              style={{
-                padding: "24px",
-                color: "var(--cyan-6)",
-                boxShadow: "0px 0px 20px 0px rgba(13, 60, 72, 0.3)",
-                backgroundColor: "unset",
-                borderRadius: "8px",
-              }}
-            >
-              curl -X POST https://api.chunkmydocs.com/v1/chunk \ -H<br></br>
-              "Content-Type: application/json" \ -H "Authorization: Bearer
-              <br></br>
-              YOUR_API_KEY" \ -d '"url": "https://example.com/document.pdf"'
-              <br></br>
-            </Code>
-          </Flex>
+
+          <Flex direction="row" className="home-cards-container"></Flex>
+
           <Flex direction="column" align="center" justify="center" gap="16px">
             <Flex
               direction="row"
@@ -213,3 +197,10 @@ const Home = () => {
 };
 
 export default Home;
+
+// curl -X POST https://api.chunkmydocs.com/api/task \ <br></br>
+// -H "Content-Type: application/json" \ <br></br>
+// -H "Authorization:{"{your_api_key}"}" \ <br></br>
+// -F "file=@/path/to/your/file.pdf" \ <br></br>
+// -F "model=Fast" \ <br></br>
+// -F "target_chunk_length=512"
