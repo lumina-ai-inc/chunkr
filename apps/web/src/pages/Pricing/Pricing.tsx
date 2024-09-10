@@ -77,6 +77,8 @@ export default function Pricing() {
                     width: "100%",
                     marginTop: "24px",
                     height: "3px",
+                    paddingLeft: "24px",
+                    paddingRight: "24px",
                   }}
                 />
                 <Text
@@ -139,15 +141,27 @@ export default function Pricing() {
                   </Text>
                 </Flex>
               </Flex>
-              <Flex direction="row" px="80px" mt="72px" gap="64px" width="100%">
-                <Flex direction="column" gap="8" style={{ flex: 1 }}>
+              <Flex
+                direction="row"
+                px="80px"
+                mt="72px"
+                gap="64px"
+                width="100%"
+                wrap="wrap"
+                className="pricing-card-container"
+              >
+                <Flex
+                  direction="column"
+                  gap="8"
+                  style={{ flex: 1, width: "100%" }}
+                >
                   <Calculator />
                 </Flex>
                 <Flex
                   justify="between"
                   direction="column"
                   gap="8"
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, width: "100%" }}
                 >
                   <PricingCard
                     tier="Managed Instance"
@@ -167,7 +181,12 @@ export default function Pricing() {
                   />
                 </Flex>
               </Flex>
-              <Flex width="100%" mt="128px" px="80px">
+              <Flex
+                width="100%"
+                mt="128px"
+                px="80px"
+                className="pricing-table-container"
+              >
                 <PricingTable />
               </Flex>
             </div>

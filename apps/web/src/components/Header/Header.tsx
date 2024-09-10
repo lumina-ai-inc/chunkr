@@ -31,13 +31,7 @@ export default function Header({
   };
 
   return (
-    <Flex
-      direction="row"
-      justify="between"
-      py="16px"
-      px="80px"
-      className="header"
-    >
+    <Flex direction="row" justify="between" py="16px" className="header">
       <Link to="/" style={{ textDecoration: "none" }}>
         <div className="logo-container">
           <svg
@@ -159,7 +153,7 @@ export default function Header({
 
         <div className="dropdown-container">
           <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
+            <DropdownMenu.Trigger style={{ backgroundColor: "transparent" }}>
               <Button>Menu</Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
