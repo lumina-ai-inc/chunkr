@@ -9,8 +9,8 @@ pub async fn get_tasks(
     pool: &Pool,
     s3_client: &S3Client,
     user_id: String,
-    page: i32,
-    limit: i32
+    page: i64,
+    limit: i64
 ) -> Result<Vec<TaskResponse>, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
     let offset = (page - 1) * limit;

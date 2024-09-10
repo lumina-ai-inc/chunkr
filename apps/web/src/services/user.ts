@@ -14,3 +14,12 @@ export async function getUser(dispatch: AppDispatch): Promise<void> {
     dispatch(setUserError("Failed to fetch user data"));
   }
 }
+
+export async function getTasks(page: number, limit: number): Promise<void> {
+  try {
+    const { data } = await axiosInstance.get<User>("/api/tasks?page=" + page + "&limit=" + limit);
+    console.log("tasks:", data);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+}

@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { useDispatch } from "react-redux";
 import axiosInstance from "../services/axios.config";
-import { getUser } from "../services/user";
+import { getUser, getTasks } from "../services/user";
 import { AppDispatch } from "../store/store";
 import { setAccessToken } from "../store/tokenSlice";
 
@@ -17,6 +17,11 @@ export default function Auth({ children }: { children: ReactNode }) {
       axiosInstance.defaults.headers.common["Authorization"] =
         `Bearer ${auth.user.access_token}`;
       getUser(dispatch)
+        .then()
+        .catch((error) => {
+          console.log("error:", error);
+        });
+      getTasks(1, 10)
         .then()
         .catch((error) => {
           console.log("error:", error);
