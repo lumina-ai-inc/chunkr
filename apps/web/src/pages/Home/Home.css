@@ -10,14 +10,17 @@
   }
 }
 
-.pulsing-background {
-  background: #020809;
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
-.curl-block-container {
-  border-radius: 8px;
-  margin-top: 64px;
-  padding: 40px;
+.pulsing-background {
+  background: #020809;
 }
 
 .hero-main-container {
@@ -55,7 +58,7 @@
 }
 
 .hero-container {
-  margin-top: 64px;
+  margin-top: 144px;
   padding-left: 80px;
   padding-right: 80px;
   width: 100%;
@@ -80,7 +83,6 @@
 
 .text-container {
   flex: 1;
-  gap: 32px;
 }
 
 .module-container {
