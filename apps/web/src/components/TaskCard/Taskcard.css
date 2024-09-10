@@ -3,9 +3,13 @@
   padding: 20px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  border: 1px solid hsl(189, 70%, 4%, 0);
+  transition:
+    background-color 0.2s ease-in-out,
+    border 0.2s ease-in-out;
 }
 
 .task-card:hover {
-  background-color: hsla(191, 90%, 32%);
+  background-color: hsla(191, 71%, 32%, 0.8);
+  border: 1px solid var(--cyan-8);
 }

@@ -16,11 +16,6 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   return data;
 }
 
-export async function getTask(taskId: string): Promise<TaskResponse> {
-  const { data } = await axiosInstance.get(`/api/task/${taskId}`);
-  return data;
-}
-
 export async function fetchFileFromSignedUrl(signedUrl: string): Promise<Blob> {
   const response = await fetch(signedUrl);
   if (!response.ok) {
