@@ -53,7 +53,7 @@ export default function Dashboard() {
               />
             </svg>
           </Flex>
-          <Flex direction="row" gap="4" justify="between" mt="5">
+          <Flex direction="row" gap="6" justify="between" mt="6">
             <Flex
               flexGrow="1"
               direction="column"
@@ -63,7 +63,17 @@ export default function Dashboard() {
                 borderRadius: "8px",
               }}
             >
-              <Flex direction="row" gap="2" align="center">
+              <Flex
+                direction="row"
+                gap="2"
+                align="center"
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: "4px",
+                  width: "fit-content",
+                  border: "1px solid var(--cyan-6)",
+                }}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -85,7 +95,7 @@ export default function Dashboard() {
                   />
                 </svg>
                 <Text
-                  size="3"
+                  size="2"
                   weight="medium"
                   style={{ color: "var(--cyan-2)" }}
                 >
@@ -94,7 +104,7 @@ export default function Dashboard() {
               </Flex>
               <Text
                 size="8"
-                mt="2"
+                mt="4"
                 weight="bold"
                 style={{ color: "var(--cyan-1)" }}
               >
@@ -125,7 +135,17 @@ export default function Dashboard() {
                 borderRadius: "8px",
               }}
             >
-              <Flex direction="row" gap="2" align="center">
+              <Flex
+                direction="row"
+                gap="2"
+                align="center"
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: "4px",
+                  width: "fit-content",
+                  border: "1px solid var(--cyan-6)",
+                }}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -147,7 +167,7 @@ export default function Dashboard() {
                   />
                 </svg>
                 <Text
-                  size="3"
+                  size="2"
                   weight="medium"
                   style={{ color: "var(--cyan-2)" }}
                 >
@@ -156,7 +176,7 @@ export default function Dashboard() {
               </Flex>
               <Text
                 size="8"
-                mt="2"
+                mt="4"
                 weight="bold"
                 style={{ color: "var(--cyan-1)" }}
               >
@@ -189,7 +209,17 @@ export default function Dashboard() {
                 borderRadius: "8px",
               }}
             >
-              <Flex direction="row" gap="2" align="center">
+              <Flex
+                direction="row"
+                gap="2"
+                align="center"
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: "4px",
+                  width: "fit-content",
+                  border: "1px solid var(--cyan-6)",
+                }}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -211,16 +241,16 @@ export default function Dashboard() {
                   />
                 </svg>
                 <Text
-                  size="3"
+                  size="2"
                   weight="medium"
                   style={{ color: "var(--cyan-2)" }}
                 >
-                  Spend
+                  Billing
                 </Text>
               </Flex>
               <Text
                 size="8"
-                mt="2"
+                mt="4"
                 weight="bold"
                 style={{ color: "var(--cyan-1)" }}
               >
@@ -231,7 +261,7 @@ export default function Dashboard() {
         </Flex>
         <Flex direction="column" className="dashboard-content-right">
           <ScrollArea scrollbars="vertical" style={{ height: "100%" }}>
-            <Flex direction="column" gap="4">
+            <Flex direction="column" gap="5">
               <Flex direction="row" align="center" gap="2" mb="2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
