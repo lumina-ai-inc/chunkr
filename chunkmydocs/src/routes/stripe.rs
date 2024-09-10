@@ -1,4 +1,5 @@
 use crate::models::auth::auth::UserInfo;
+use crate::models::server::user::{Tier, UsageType};
 use crate::utils::configs::stripe_config::Config as StripeConfig;
 use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::stripe::stripe::{create_stripe_customer, create_stripe_setup_intent};
@@ -178,24 +179,43 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
             actix_web::error::ErrorInternalServerError("Error processing discount")
         })?;
 
-    // Update USAGE table
+    // Update USAGE table with new usage limits for PayAsYouGo tier
     let update_usage_query = "
         UPDATE USAGE
-        SET usage_limit = 100000, usage = 0
-        WHERE user_id = $1
+        SET usage_limit = (
+            CASE 
+                WHEN usage_type = 'Fast' THEN $1
+                WHEN usage_type = 'HighQuality' THEN $2
+                WHEN usage_type = 'Segment' THEN $3
+            END
+        ),
+        usage = 0
+        WHERE user_id = $4
     ";
+    let fast_limit = UsageType::Fast.get_usage_limit(&Tier::PayAsYouGo);
+    let high_quality_limit = UsageType::HighQuality.get_usage_limit(&Tier::PayAsYouGo);
+    let segment_limit = UsageType::Segment.get_usage_limit(&Tier::PayAsYouGo);
+
     client
-        .execute(update_usage_query, &[&customer_id])
+        .execute(
+            update_usage_query,
+            &[
+                &fast_limit,
+                &high_quality_limit,
+                &segment_limit,
+                &customer_id,
+            ],
+        )
         .await
         .map_err(|e| {
             eprintln!("Error updating usage table: {:?}", e);
             actix_web::error::ErrorInternalServerError("Error updating usage")
         })?;
 
-    // Update users table to change tier to 'Paid'
+    // Update users table to change tier to 'PayAsYouGo'
     let update_user_tier_query = "
         UPDATE users
-        SET tier = 'Paid'
+        SET tier = 'PayAsYouGo'
         WHERE customer_id = $1
     ";
     client

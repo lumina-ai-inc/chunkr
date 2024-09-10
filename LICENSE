@@ -141,3 +141,12 @@ other recipients of the licensed work to be provided by Licensor:
 3. To specify a Change Date.
 
 4. Not to modify this License in any other way.
+
+
+This software uses pdf2image, which is licensed under the BSD 3-Clause License:
+
+Copyright (c) 2006-2008, Mathieu Fenniak
+Some contributions copyright (c) 2007, Ashish Kulkarni <kulkarni.ashish@gmail.com>
+Some contributions copyright (c) 2014, Steve Witham <switham_github@mac-guyver.com>
+
+This product includes software developed by Mathieu Fenniak, Ashish Kulkarni, Steve Witham, and other contributors. The use of this software does not imply endorsement by these contributors.

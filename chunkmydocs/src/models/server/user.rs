@@ -48,6 +48,11 @@ impl UsageType {
                 UsageType::HighQuality => 500,
                 UsageType::Segment => 250,
             },
+            Tier::PayAsYouGo => match self {
+                UsageType::Fast => 1000000,
+                UsageType::HighQuality => 1000000,
+                UsageType::Segment => 1000000,
+            },
             _ => i32::MAX,
         }
     }

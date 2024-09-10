@@ -32,3 +32,6 @@ CREATE TABLE IF NOT EXISTS invoices (
     amount_due FLOAT NOT NULL,
     total_pages INTEGER NOT NULL
 );
+
+
+ 
