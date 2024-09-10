@@ -8,7 +8,9 @@ export default function ModelTable() {
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeaderCell>
-              <Text className="table-title">Features</Text>
+              <Text size="4" weight="bold" className="white table-subtitle">
+                FEATURES
+              </Text>
             </Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell>
               <Flex direction="row" gap="2" align="center">
