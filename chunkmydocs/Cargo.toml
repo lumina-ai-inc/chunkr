@@ -68,3 +68,9 @@ async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] }
 [[bin]]
 name = "task-processor"
 path = "src/workers/task_processor.rs"
+
+
+
+[[bin]]
+name = "invoicer"
+path = "src/workers/invoicer.rs"

@@ -48,14 +48,14 @@ def draw_bounding_boxes(pdf_path, json_path, output_path):
     pdf_document.close()
 
 if __name__ == "__main__":
-    json_path = "output/pdf_content.json"
+    json_path = "output/De Beers Jewellers Ltd 2021_json.json"
     if not os.path.exists(json_path):
         print(f"Error: The file {json_path} does not exist.")
         print("Please ensure the JSON file has been generated before running this script.")
         exit(1)
 
     draw_bounding_boxes(
-        "input/CIM-02-American-Casino.pdf",
+        "input/De Beers Jewellers Ltd 2021.pdf",
         json_path,
-        "output/CIM-02-American-Casino-Annotated.pdf",
+        "output/De Beers Jewellers Ltd 2021_Annotated.pdf",
     )
