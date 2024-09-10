@@ -1,6 +1,6 @@
 .button-resting {
-  border: 1px solid var(--Colors-Cyan-8, #3db9cf);
-  background-color: hsla(191, 71%, 32%, 0.3);
+  border: 1px solid var(--cyan-4);
+  background-color: hsla(191, 71%, 32%, 0);
   color: inherit;
   text-align: center;
   text-decoration: none;
@@ -15,7 +15,7 @@
 }
 
 .button-resting:hover {
-  background-color: hsla(191, 71%, 32%, 0.7);
+  background-color: hsla(191, 71%, 32%, 0.8);
   border: 1px solid var(--cyan-6);
 }
 
