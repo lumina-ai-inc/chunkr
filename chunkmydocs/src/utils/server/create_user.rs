@@ -7,8 +7,10 @@ use std::collections::HashMap;
 use chrono::Utc;
 use std::str::FromStr;
 
-
-pub async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {
+pub async fn create_user(
+    user_info: UserInfo,
+    pool: &Pool
+) -> Result<User, Box<dyn std::error::Error>> {
     let mut client: Client = pool.get().await?;
     let user_config = UserConfig::from_env().unwrap();
 
@@ -24,7 +26,7 @@ pub async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<d
         true => Tier::SelfHosted,
         false => Tier::Free,
     };
-    
+
     let usage_limits: HashMap<UsageType, i32> = HashMap::from([
         (UsageType::Fast, UsageType::Fast.get_usage_limit(&tier)),
         (UsageType::HighQuality, UsageType::HighQuality.get_usage_limit(&tier)),
@@ -59,7 +61,7 @@ pub async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<d
     VALUES ($1, $2, $3, $4)
     "#;
 
-    transaction.execute(api_key_query, &[&key, &user_info.user_id, &"user", &true]).await?;
+    transaction.execute(api_key_query, &[&key, &user_info.user_id, &"admin", &true]).await?;
 
     let usage_query =
         r#"

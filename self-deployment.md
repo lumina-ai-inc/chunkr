@@ -45,6 +45,7 @@
    | `base_name` | Base name for resources | Provided |
    | `region` | GCP region for deployment | Provided |
    | `cluster_name` | Name of the Kubernetes cluster | Provided |
+   | `bucket_name` | Name of the GCS bucket | Provided |
    | `chunkmydocs_db` | Name of the ChunkMyDocs database | Provided |
    | `keycloak_db` | Name of the Keycloak database | Provided |
 
