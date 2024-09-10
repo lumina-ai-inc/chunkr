@@ -4,24 +4,10 @@ import "./Footer.css";
 export default function Footer() {
   return (
     <div className="footer-wrapper">
-      <div className="bottom-image-container">
-        <img
-          src="src/assets/bottom-image.png"
-          alt="bottom"
-          className="bottom-image"
-        />
-      </div>
-      <div className="bottom-gradient-overlay"></div>
       <Flex direction="column" className="footer-container">
         <Flex direction="row" justify="between" className="footer-content">
           <Flex direction="column" gap="3">
-            <Flex
-              direction="row"
-              gap="1"
-              align="center"
-              justify="center"
-              ml="-10px"
-            >
+            <Flex direction="row" gap="1" align="center" ml="-10px">
               <div
                 style={{
                   display: "flex",

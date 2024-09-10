@@ -1,6 +1,8 @@
 .header {
   width: 100%;
   z-index: 1;
+  padding-left: 80px;
+  padding-right: 80px;
 }
 
 .logo {
@@ -77,16 +79,23 @@
     display: block;
   }
 
+  .auth-container {
+    display: none;
+  }
+
   .nav-item {
     display: none;
   }
 }
 
-@media (max-width: 552px) {
-  .logo-title {
-    font-size: 24px !important;
+@media (max-width: 832px) {
+  .header {
+    padding-left: 32px;
+    padding-right: 32px;
   }
+}
 
+@media (max-width: 552px) {
   .header {
     padding-left: 24px !important;
     padding-right: 24px !important;
@@ -95,12 +104,6 @@
 
 @media (max-width: 384px) {
   .logo-title {
-    display: none;
-  }
-}
-
-@media (min-width: 768px) {
-  .dropdown-container {
     display: none;
   }
 }

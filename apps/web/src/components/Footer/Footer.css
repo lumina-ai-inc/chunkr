@@ -2,7 +2,9 @@
   position: relative;
   width: 100%;
   padding: 80px;
-  margin-top: 88px;
+  margin-top: 144px;
+  border-top: 1px solid var(--cyan-12);
+  background-color: hsl(189, 64%, 4%);
 }
 
 .bottom-image-container {
@@ -61,7 +63,7 @@
 }
 
 .footer-separator {
-  background-color: var(--cyan-6);
+  background-color: var(--cyan-12);
   margin-bottom: 24px;
 }
 
@@ -70,8 +72,13 @@
 }
 
 @media (max-width: 768px) {
+  .footer-wrapper {
+    padding: 48px 32px;
+    margin-top: 0px;
+  }
+
   .footer-container {
-    padding: 48px 24px;
+    padding: 0px 0px;
   }
 
   .footer-content {
