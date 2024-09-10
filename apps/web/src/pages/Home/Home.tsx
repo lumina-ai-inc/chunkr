@@ -160,13 +160,85 @@ const Home = () => {
             <ModelTable />
           </Flex>
 
-          <Flex direction="row" className="home-cards-container"></Flex>
+          <Flex
+            direction="row"
+            justify="between"
+            gap="32px"
+            className="home-cards-container"
+          >
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              gap="16px"
+              className="home-card"
+            >
+              <div className="card-image-container">
+                <img
+                  src="src/assets/home-cards/card-one.png"
+                  alt="Card 1"
+                  className="card-image"
+                />
+                <div className="card-gradient-overlay"></div>
+              </div>
+              {/* Add card content here */}
+            </Flex>
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              gap="16px"
+              className="home-card"
+            >
+              <div className="card-image-container">
+                <img
+                  src="src/assets/home-cards/card-two.png"
+                  alt="Card 2"
+                  className="card-image"
+                />
+                <div className="card-gradient-overlay"></div>
+              </div>
+              {/* Add card content here */}
+            </Flex>
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              gap="24px"
+              className="home-card"
+            >
+              <div className="card-image-container">
+                <img
+                  src="src/assets/home-cards/card-three.png"
+                  alt="Card 3"
+                  className="card-image"
+                />
+                <Flex
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    width: "100%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: "100",
+                    padding: "16px",
+                  }}
+                >
+                  <Text weight="bold" className="white" size="9">
+                    Built for startups
+                  </Text>
+                </Flex>
+                <div className="card-gradient-overlay"></div>
+              </div>
+            </Flex>
+          </Flex>
 
           <Flex direction="column" align="center" justify="center" gap="16px">
             <Flex
               direction="row"
               align="center"
               className="signup-button button-bottom"
+              mt="48px"
             >
               <Text size="3" weight="bold" className="cyan-12">
                 Get started for free
