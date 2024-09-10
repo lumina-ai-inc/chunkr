@@ -11,6 +11,10 @@ variable "base_name" {
   default = "chunkmydocs"
 }
 
+variable "bucket_name" {
+  default = "chunkmydocs-bucket"
+}
+
 variable "region" {
   default = "us-central1"
 }
@@ -48,10 +52,25 @@ provider "google" {
 }
 
 ###############################################################
+# Enable required APIs
+###############################################################
+# resource "google_project_service" "kubernetes_engine_api" {
+#   project = "chunkmydocs"
+#   service = "container.googleapis.com"
+#   disable_on_destroy = true
+# }
+
+# resource "google_project_service" "compute_engine_api" {
+#   project = "chunkmydocs"
+#   service = "compute.googleapis.com"
+#   disable_on_destroy = true
+# }
+
+###############################################################
 # Google Cloud Storage
 ###############################################################
 resource "google_storage_bucket" "project_bucket" {
-  name          = var.base_name
+  name          = var.bucket_name
   location      = var.region
   force_destroy = true
   storage_class = "STANDARD"
@@ -230,23 +249,38 @@ resource "google_sql_database_instance" "postgres" {
     }
   }
 
-  deletion_protection = true
+  deletion_protection = false
+}
+
+resource "time_sleep" "wait_30_seconds" {
+  depends_on = [google_sql_database_instance.postgres]
+  create_duration = "30s"
 }
 
 resource "google_sql_database" "chunkkmydocs-database" {
   name     = var.chunkmydocs_db
   instance = google_sql_database_instance.postgres.name
+
+  depends_on = [google_sql_database_instance.postgres]
 }
 
 resource "google_sql_database" "keycloak-database" {
   name     = var.keycloak_db
   instance = google_sql_database_instance.postgres.name
+
+  depends_on = [google_sql_database_instance.postgres]
 }
 
 resource "google_sql_user" "users" {
   name     = var.postgres_username
   instance = google_sql_database_instance.postgres.name
   password = var.postgres_password
+
+  depends_on = [
+    time_sleep.wait_30_seconds,
+    google_sql_database.chunkkmydocs-database,
+    google_sql_database.keycloak-database
+  ]
 }
 
 ###############################################################
@@ -345,6 +379,8 @@ resource "google_compute_instance" "vm_instance" {
     }
   }
 
+  deletion_protection = false
+
   depends_on = [google_compute_firewall.allow_ssh]
 }
 
@@ -364,6 +400,18 @@ output "cluster_region" {
 output "gke_connection_command" {
   value       = "gcloud container clusters get-credentials ${google_container_cluster.cluster.name} --region ${google_container_cluster.cluster.location}"
   description = "Command to configure kubectl to connect to the GKE cluster"
+}
+
+output "postgres_username" {
+  value       = var.postgres_username
+  description = "The password for the PostgreSQL database"
+  sensitive   = true
+}
+
+output "postgres_password" {
+  value       = var.postgres_password
+  description = "The password for the PostgreSQL database"
+  sensitive   = true
 }
 
 output "chunkmydocs_postgresql_url" {
@@ -408,3 +456,9 @@ output "vm_public_ip" {
   value       = google_compute_address.vm_ip.address
   description = "The public IP address of the VM instance"
 }
+
+output "vm_ssh_command" {
+  value       = "ssh debian@${google_compute_address.vm_ip.address}"
+  description = "The SSH command to connect to the VM instance"
+}
+
