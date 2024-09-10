@@ -30,11 +30,16 @@ async fn get_decoding_key() -> &'static DecodingKey {
         let response = client.get(url).send().await.expect("Failed to fetch JWKS")
             .json::<Value>().await.expect("Failed to parse JWKS response");
 
-        // Extract the RSA public key components
-        let jwk = &response["keys"][1];
+        let rs256_key = response["keys"].as_array()
+            .expect("JWKS keys should be an array")
+            .iter()
+            .find(|key| key["alg"] == "RS256")
+            .expect("No RS256 key found in JWKS");
 
-        DecodingKey::from_rsa_components(jwk["n"].as_str().unwrap(), jwk["e"].as_str().unwrap())
-            .expect("Invalid RSA public key")
+        DecodingKey::from_rsa_components(
+            rs256_key["n"].as_str().expect("Missing 'n' component in RSA key"),
+            rs256_key["e"].as_str().expect("Missing 'e' component in RSA key")
+        ).expect("Invalid RSA public key")
     }).await
 }
 
