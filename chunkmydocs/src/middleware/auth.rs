@@ -43,10 +43,10 @@ async fn get_decoding_key() -> &'static DecodingKey {
     }).await
 }
 
-pub struct ApiKeyMiddlewareFactory;
+pub struct AuthMiddlewareFactory;
 
 impl<S, B> Transform<S, ServiceRequest>
-    for ApiKeyMiddlewareFactory
+    for AuthMiddlewareFactory
     where
         S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
         S::Future: 'static,
@@ -55,24 +55,24 @@ impl<S, B> Transform<S, ServiceRequest>
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
-    type Transform = ApiKeyMiddleware<S>;
+    type Transform = AuthMiddleware<S>;
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
         ready(
-            Ok(ApiKeyMiddleware {
+            Ok(AuthMiddleware {
                 service: Rc::new(service),
             })
         )
     }
 }
 
-pub struct ApiKeyMiddleware<S> {
+pub struct AuthMiddleware<S> {
     service: Rc<S>,
 }
 
 impl<S, B> Service<ServiceRequest>
-    for ApiKeyMiddleware<S>
+    for AuthMiddleware<S>
     where
         S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
         S::Future: 'static,
