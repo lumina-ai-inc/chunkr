@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { getTask } from "../services/uploadFileApi";
+import { getTask } from "../services/taskApi";
 import { TaskResponse, Status } from "../models/task.model";
 import { useState } from "react";
 
