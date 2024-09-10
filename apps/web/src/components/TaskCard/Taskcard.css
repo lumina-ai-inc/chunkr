@@ -1,6 +1,5 @@
 .task-card {
-  border: 2px solid var(--cyan-12);
-  background-color: hsl(189, 70%, 5%);
+  background-color: hsl(189, 70%, 4%);
   padding: 16px;
   border-radius: 4px;
   cursor: pointer;
@@ -8,5 +7,5 @@
 }
 
 .task-card:hover {
-  background-color: hsl(189, 70%, 8%);
+  background-color: hsla(191, 90%, 32%);
 }
