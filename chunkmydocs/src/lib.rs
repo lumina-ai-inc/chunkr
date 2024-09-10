@@ -15,10 +15,11 @@ pub mod models;
 pub mod routes;
 pub mod utils;
 
-use middleware::auth::ApiKeyMiddlewareFactory;
+use middleware::auth::AuthMiddlewareFactory;
 use routes::user::get_or_create_user;
 use routes::health::health_check;
 use routes::task::{ create_extraction_task, get_task_status };
+use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
 use utils::db::deadpool_postgres;
 use utils::storage::config_s3::create_client;
@@ -50,10 +51,10 @@ fn run_migrations(url: &str) {
         (url = "http://localhost:8000", description = "Local development server")
     ),
     paths(
-        routes::health::health_check,
-        routes::user::get_or_create_user,
+        routes::health::health_check,   
         routes::task::create_extraction_task,
-        routes::task::get_task_status
+        routes::task::get_task_status,
+        routes::tasks::get_tasks_status
     ),
     components(
         schemas(
@@ -61,6 +62,7 @@ fn run_migrations(url: &str) {
             models::server::extract::Configuration,
             models::server::extract::TableOcr,
             models::server::task::TaskResponse,
+            models::server::tasks::TasksQuery,
             models::server::task::Status,
             models::server::extract::Model,
             models::server::user::User,
@@ -89,7 +91,7 @@ pub fn main() -> std::io::Result<()> {
             println!("Multipart error: {}", err);
             Error::from(err)
         }
-        
+
         let max_size: usize = std::env
             ::var("MAX_TOTAL_LIMIT")
             .unwrap_or_else(|_| "10485760".to_string()) // Default to 10 MB if not set
@@ -128,10 +130,11 @@ pub fn main() -> std::io::Result<()> {
 
             let mut api_scope = web
                 ::scope("/api")
-                .wrap(ApiKeyMiddlewareFactory)
+                .wrap(AuthMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
                 .route("/task", web::post().to(create_extraction_task))
                 .route("/task/{task_id}", web::get().to(get_task_status))
+                .route("/tasks", web::get().to(get_tasks_status))
                 .route("/usage", web::get().to(get_usage));
 
             // Check if Stripe environment variables are set
