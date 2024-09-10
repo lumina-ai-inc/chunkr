@@ -56,7 +56,7 @@ export default function PricingCard({
       <AnimatedSeparator
         size="2"
         style={{
-          backgroundColor: "var(--cyan-4)",
+          backgroundColor: "var(--cyan-8)",
           width: "100%",
           height: "2px",
           marginTop: "24px",
