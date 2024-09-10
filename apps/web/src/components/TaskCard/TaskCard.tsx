@@ -9,7 +9,7 @@ export default function TaskCard() {
       className="task-card"
     >
       <Flex direction="row" align="center" justify="between">
-        <Text size="2" weight="medium" style={{ color: "var(--cyan-5)" }}>
+        <Text size="2" weight="medium" style={{ color: "var(--cyan-3)" }}>
           08/12/2024 12:21
         </Text>
       </Flex>

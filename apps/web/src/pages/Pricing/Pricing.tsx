@@ -91,8 +91,7 @@ export default function Pricing() {
                     textWrap: "balance",
                   }}
                 >
-                  Flexible pricing for every stage of your journey - get started
-                  for free
+                  Flexible pricing for every stage of your journey
                 </Text>
                 <Flex direction="row" gap="4" py="4px" align="center" mt="1">
                   <Text
