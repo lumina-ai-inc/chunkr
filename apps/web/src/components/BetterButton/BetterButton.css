@@ -1,36 +1,31 @@
 .button-resting {
-  background-color: hsl(189, 70%, 9%);
-  border: none;
-  color: rgba(222, 247, 249, 0.5);
+  border: 1px solid var(--Colors-Cyan-8, #3db9cf);
+  background-color: hsla(191, 71%, 32%, 0.3);
+  color: inherit;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  border-radius: 0px;
   border-radius: 4px;
   cursor: pointer;
-  box-shadow:
-    0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
-    0px 3px 12px -4px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
-    0px 2px 3px -2px var(--Colors-Neutral-Neutral-Alpha-3, rgba(0, 0, 51, 0.06));
-
+  padding: 4px 10px;
   transition:
-    background-color 0.2s,
-    color 0.2s;
-
-  &:focus {
-    outline: none;
-  }
+    background-color 0.2s ease-in-out,
+    border 0.2s ease-in-out;
 }
 
 .button-resting:hover {
-  background-color: var(--cyan-9);
-  color: var(--cyan-3);
-  outline: none;
+  background-color: hsla(191, 71%, 32%, 0.7);
+  border: 1px solid var(--cyan-6);
 }
 
 .button-active {
-  background-color: var(--cyan-9);
-  color: var(--cyan-3);
+  /* You can decide how to style the active state */
+  background-color: hsla(191, 71%, 32%, 0.8);
+  border: 1px solid var(--cyan-2);
+}
+
+/* Remove unused styles */
+.button-resting:focus {
   outline: none;
 }
