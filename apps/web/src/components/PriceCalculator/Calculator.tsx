@@ -29,7 +29,7 @@ export default function Calculator() {
       }}
     >
       <Flex direction="column" width="100%" p="8">
-        <Text weight="bold" size="6" className="cyan-4" trim="start">
+        <Text weight="bold" size="4" className="cyan-4" trim="start">
           API Calculator
         </Text>
 
@@ -46,13 +46,13 @@ export default function Calculator() {
             className="cyan-5"
             style={{ fontStyle: "italic" }}
           >
-            *Free storage up to 1M pages
+            *Billed monthly
           </Text>
         </Flex>
 
         <Flex direction="column" gap="4">
           <Flex direction="column" width="100%">
-            <Flex direction="column" gap="4" width="100%" mt="4">
+            <Flex direction="column" gap="4" width="100%" mt="5">
               <Flex direction="column">
                 <ExplanationSection
                   title="Fast"
@@ -113,7 +113,7 @@ export default function Calculator() {
             </Flex>
           </Flex>
 
-          <Flex direction="column" width="100%" mt="5">
+          <Flex direction="column" width="100%" mt="6">
             <Flex direction="column" gap="4" width="100%" mt="4">
               <Flex direction="column">
                 <ExplanationSection
@@ -194,7 +194,7 @@ function ExplanationSection({
   icon: React.ReactNode;
 }) {
   return (
-    <Flex direction="column" gap="4">
+    <Flex direction="column" gap="3">
       <Flex
         direction="row"
         justify="between"
@@ -210,7 +210,7 @@ function ExplanationSection({
         }}
       >
         {icon}
-        <Text size="3" weight="bold" className="cyan-12">
+        <Text size="2" weight="bold" className="cyan-12">
           {title}
         </Text>
       </Flex>
@@ -220,7 +220,7 @@ function ExplanationSection({
           {free}
         </Text>
       </Text>
-      <Text size="4" weight="regular" className="cyan-4" trim="both">
+      <Text size="4" weight="regular" className="cyan-2" trim="both">
         {description}
       </Text>
     </Flex>
