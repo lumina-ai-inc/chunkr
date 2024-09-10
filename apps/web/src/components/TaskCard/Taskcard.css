@@ -1,6 +1,6 @@
 .task-card {
   background-color: hsl(189, 70%, 4%);
-  padding: 16px;
+  padding: 20px;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
