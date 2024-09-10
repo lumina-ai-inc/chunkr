@@ -37,17 +37,19 @@ export default function Calculator() {
           <Text size="9" weight="bold" className="cyan-2">
             ${calculateTotalCost()}
           </Text>
-          <Text size="6" weight="medium" className="cyan-8">
-            Estimated cost
-          </Text>
-          <Text
-            size="2"
-            weight="light"
-            className="cyan-5"
-            style={{ fontStyle: "italic" }}
-          >
-            *Billed monthly
-          </Text>
+          <Flex direction="row" gap="2" align="end">
+            <Text size="6" weight="medium" className="cyan-8">
+              Estimated cost
+            </Text>
+            <Text
+              size="2"
+              weight="light"
+              className="cyan-5"
+              style={{ fontStyle: "italic", lineHeight: "1.5" }}
+            >
+              *Billed monthly
+            </Text>
+          </Flex>
         </Flex>
 
         <Flex direction="column" gap="4">
