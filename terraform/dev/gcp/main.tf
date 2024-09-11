@@ -22,8 +22,13 @@ variable "base_name" {
 }
 
 variable "machine_type" {
-    default = "e2-micro"
-    description = "Instance Type of the required VM"
+  default     = "g2-standard-4"
+  description = "Instance Type of the required VM"
+}
+
+variable "accelerator_type" {
+  default     = "nvidia-l4"
+  description = "Accelerator Type"
 }
 
 provider "google" {
@@ -81,13 +86,25 @@ resource "google_compute_firewall" "allow_ports" {
 }
 
 resource "google_compute_instance" "vm_instance" {
-  name         = "${var.base_name}-vm"
-  machine_type = "e2-standard-2"
-  zone         = "${var.region}-b"
+  name                      = "${var.base_name}-vm"
+  machine_type              = var.machine_type
+  zone                      = "${var.region}-b"
+  allow_stopping_for_update = true
+
+  guest_accelerator {
+    type  = "nvidia-l4"
+    count = 1
+  }
+
+  scheduling {
+    on_host_maintenance = "TERMINATE"
+  }
 
   boot_disk {
     initialize_params {
       image = "debian-cloud/debian-11"
+      size  = 256           # Increase boot disk size to 256 GB
+      type  = "pd-balanced" # Use a balanced persistent disk for better performance
     }
   }
 
@@ -103,7 +120,6 @@ resource "google_compute_instance" "vm_instance" {
   metadata = {
     ssh-keys = "debian:${file("~/.ssh/id_rsa.pub")}"
   }
-
   metadata_startup_script = <<-EOF
     #!/bin/bash
     apt-get update
@@ -115,20 +131,30 @@ resource "google_compute_instance" "vm_instance" {
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
     apt-get update
     apt-get install -y docker-ce docker-ce-cli containerd.io
-    
+    sudo apt-get install python3-venv
     # Add the debian user to the docker group
     usermod -aG docker debian
 
     # Pull chunk-my-docs git repository
     git clone https://github.com/lumina-ai-inc/chunk-my-docs.git /home/debian/chunk-my-docs
     chown -R debian:debian /home/debian/chunk-my-docs
+
+
+
+    # Download and install NVIDIA GPU driver
+    sudo apt-get install -y build-essential dkms
+    wget https://us.download.nvidia.com/tesla/535.161.07/NVIDIA-Linux-x86_64-535.161.07.run
+    chmod +x NVIDIA-Linux-x86_64-535.161.07.run
+    sudo sh NVIDIA-Linux-x86_64-535.161.07.run
+
+
   EOF
 
-  tags = ["ssh-allowed", "port-8000-allowed"]
+  tags = ["ssh-allowed", "port-8000-allowed", "port-8010-allowed", "port-8020-allowed", "port-8030-allowed", "port-8040-allowed", "port-8050-allowed", "port-8060-allowed", "port-8070-allowed", "port-8080-allowed", "port-8090-allowed"]
 
   deletion_protection = false
 
-  depends_on = [google_compute_firewall.allow_ssh]
+  depends_on = [google_compute_firewall.allow_ssh, google_compute_firewall.allow_ports]
 }
 
 ###############################################################
