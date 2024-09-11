@@ -17,7 +17,7 @@ MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct"
 llm = LLM(
     model=MODEL_PATH,
     limit_mm_per_prompt={"image": 10},
-    dtype="float16",  # Use float16 for AWQ model
+    dtype="float16", 
 )
 
 sampling_params = SamplingParams(
@@ -74,4 +74,4 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Qwen2-VL-7B-Instruct-AWQ API"}
+    return {"message": "Welcome to the Qwen2-VL-2B-Instruct API"}
