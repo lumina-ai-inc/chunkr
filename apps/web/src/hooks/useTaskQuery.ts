@@ -27,6 +27,8 @@ export function useTasksQuery(page: number, limit: number) {
     () => getTasks(page, limit),
     {
       staleTime: 5000,
+      refetchInterval: 5000,
+      refetchIntervalInBackground: false,
     }
   );
 }

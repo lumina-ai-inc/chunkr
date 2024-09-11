@@ -16,7 +16,7 @@
 
 .button-resting:hover {
   background-color: hsla(191, 71%, 32%, 0.8);
-  border: 1px solid var(--cyan-8);
+  border: 1px solid var(--cyan-6);
 }
 
 .button-active {
