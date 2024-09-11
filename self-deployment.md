@@ -11,7 +11,7 @@
    gcloud auth login
    ```
 
-3. Set your GCP project:
+3. Set your GCP project:google-cloud-sdk 2
    ```bash
    gcloud config set project YOUR_PROJECT_ID
    ```
