@@ -19,7 +19,6 @@ pub async fn hierarchical_chunk_and_add_markdown(
     } else {
         let mut current_chunk: Vec<Segment> = Vec::new();
         let mut current_word_count = 0;
-        let mut hierarchy_stack: VecDeque<SegmentType> = VecDeque::new();
 
         fn finalize_chunk(chunk: &mut Vec<Segment>, chunks: &mut Vec<Chunk>) {
             if !chunk.is_empty() {
@@ -31,67 +30,50 @@ pub async fn hierarchical_chunk_and_add_markdown(
             }
         }
 
-        for (index, segment) in segments.iter().enumerate() {
+        for segment in segments.iter() {
             let segment_word_count = segment.text.split_whitespace().count() as i32;
 
             match segment.segment_type {
                 SegmentType::Title => {
                     finalize_chunk(&mut current_chunk, &mut chunks);
-                    current_word_count = 0;
-                    hierarchy_stack.clear();
-                    hierarchy_stack.push_front(segment.segment_type.clone());
-                }
-                SegmentType::SectionHeader => {
-                    if current_word_count + segment_word_count > target_length {
-                        finalize_chunk(&mut current_chunk, &mut chunks);
-                        current_word_count = 0;
-                    }
-                    while let Some(top) = hierarchy_stack.front() {
-                        if *top == SegmentType::Title {
-                            break;
-                        }
-                        hierarchy_stack.pop_front();
-                    }
-                    hierarchy_stack.push_front(segment.segment_type.clone());
-                }
-                SegmentType::PageHeader | SegmentType::PageFooter => {
-                    finalize_chunk(&mut current_chunk, &mut chunks);
                     chunks.push(Chunk {
                         segments: vec![segment.clone()],
                         markdown: generate_markdown(&[segment.clone()]),
                     });
+                    current_word_count = 0;
+                }
+                SegmentType::SectionHeader => {
+                    if !current_chunk.is_empty()
+                        && current_chunk.last().unwrap().segment_type != SegmentType::SectionHeader
+                    {
+                        finalize_chunk(&mut current_chunk, &mut chunks);
+                        current_word_count = 0;
+                    }
+                    current_chunk.push(segment.clone());
+                    current_word_count += segment_word_count;
+                }
+                SegmentType::PageHeader | SegmentType::PageFooter => {
+                    // Ignore headers and footers
                     continue;
                 }
                 _ => {
                     if current_word_count + segment_word_count > target_length {
-                        if current_chunk.last().map(|s| s.segment_type.clone())
-                            == Some(SegmentType::SectionHeader)
-                        {
-                            // If the last segment is a section header, keep it with this text
-                            let header = current_chunk.pop().unwrap();
-                            finalize_chunk(&mut current_chunk, &mut chunks);
-                            current_word_count = header.text.split_whitespace().count() as i32;
-                            current_chunk.push(header);
-                        } else {
-                            finalize_chunk(&mut current_chunk, &mut chunks);
-                            current_word_count = 0;
-                        }
-                    }
-                }
-            }
-
-            current_chunk.push(segment.clone());
-            current_word_count += segment_word_count;
-
-            // Look ahead for section header + text pairs
-            if segment.segment_type == SegmentType::SectionHeader && index + 1 < segments.len() {
-                if let SegmentType::Text = segments[index + 1].segment_type {
-                    let next_word_count = segments[index + 1].text.split_whitespace().count() as i32;
-                    if current_word_count + next_word_count > target_length {
                         finalize_chunk(&mut current_chunk, &mut chunks);
                         current_word_count = 0;
                     }
+                    current_chunk.push(segment.clone());
+                    current_word_count += segment_word_count;
                 }
+            }
+
+            // If a single segment is greater than target_length, break it
+            if segment_word_count > target_length {
+                finalize_chunk(&mut current_chunk, &mut chunks);
+                chunks.push(Chunk {
+                    segments: vec![segment.clone()],
+                    markdown: generate_markdown(&[segment.clone()]),
+                });
+                current_word_count = 0;
             }
         }
 

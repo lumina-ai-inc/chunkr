@@ -27,7 +27,7 @@ def extract_file(file_to_send, model: Model, table_ocr: TableOcr = None) -> Task
     url = get_base_url() + "/api/task"
     with open(file_to_send, "rb") as file:
         file = {"file": (os.path.basename(file_to_send), file, "application/pdf")}
-        file_data = {"model": model.value, "target_chunk_length": 100}
+        file_data = {"model": model.value, "target_chunk_length": 512}
         if table_ocr:
             file_data["table_ocr"] = table_ocr.value
         headers = get_headers()
