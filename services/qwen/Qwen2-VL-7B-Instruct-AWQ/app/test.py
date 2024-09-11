@@ -3,8 +3,13 @@ import os
 from PIL import Image
 import io
 import time
+from dotenv import load_dotenv
 
-def process_images(image_paths, url, prompt):
+load_dotenv()
+
+QWEN_URL = os.getenv('QWEN_URL')
+
+def process_images(image_paths, prompt):
     files = []
     for image_path in image_paths:
         with open(image_path, "rb") as image_file:
@@ -14,7 +19,7 @@ def process_images(image_paths, url, prompt):
     data = {"prompt": prompt}
 
     try:
-        response = requests.post(url, files=files, data=data)
+        response = requests.post(QWEN_URL, files=files, data=data)
         response.raise_for_status()
         return response.text
     except requests.exceptions.RequestException as e:
@@ -34,11 +39,10 @@ def test_qwen_batch():
         print(f"No image files found in {test_dir}")
         return
 
-    url = "http://35.197.120.88:8000/generate"
     prompt = "Return the provided complex table in JSON format that preserves information and heirarchy from the table at 100 percent accuracy." 
 
     start_time = time.time()
-    result = process_images(image_files, url, prompt)
+    result = process_images(image_files, prompt)
     end_time = time.time()
 
     total_time = end_time - start_time
@@ -60,14 +64,12 @@ def test_qwen_sync():
         print(f"No image files found in {test_dir}")
         return
 
-    url = "http://35.197.120.88:8000/generate"
     prompt = "Return the provided complex table in JSON format that preserves information and heirarchy from the table at 100 percent accuracy." 
     
-
     total_time = 0
     for image_file in image_files:
         start_time = time.time()
-        result = process_images([image_file], url, prompt)
+        result = process_images([image_file], prompt)
         end_time = time.time()
         
         processing_time = end_time - start_time
