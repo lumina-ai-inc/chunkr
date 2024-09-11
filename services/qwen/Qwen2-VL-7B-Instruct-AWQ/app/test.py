@@ -3,25 +3,28 @@ import os
 from PIL import Image
 import io
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 
-def process_image(image_path, url):
-    with open(image_path, "rb") as image_file:
-        image_data = image_file.read()
+def process_images(image_paths, url):
+    files = []
+    for image_path in image_paths:
+        with open(image_path, "rb") as image_file:
+            image_data = image_file.read()
+        files.append(("images", (os.path.basename(image_path), image_data, "image/png")))
 
-    # Prepare the request
-    files = {
-        "images": (os.path.basename(image_path), image_data, "image/png")
-    }
     data = {
-        "prompt": "Each image is a segment. First detect what type of segment it is. It can either by <type>Table</type> or <type>Graph</type> or <type>Infograph</type> or <type>Text</type> or <type>Image</type> or <type>Formula</type>. If it is a table, extract the table in markdown format that i can then render later. put markdown in <markdown></markdown> tabs, along with a description in <description></description> tabs. If it is a picture or graph , describe the picture in detail. If it is Text, then do OCR and return the text exactly as written (regardless if its handwrittten or typed)."
+        "prompt": "Each image is a segment. First detect what type of segment it is. It can also be a page (a whole page of a document), if it is, then extract the text as OCR for the whole page put it in <page></page> tags. It can also be <type>Table</type> or <type>Graph</type> or <type>Infograph</type> or <type>Text</type> or <type>Image</type> or <type>Formula</type>. If it is a table, extract the table in markdown format that i can then render later. put markdown in <markdown></markdown> tags, along with a description in <description></description> tags. If it is a picture or graph , describe the picture in detail. If it is Text, then do OCR and return the text exactly as written (regardless if its handwrittten or typed)."
     }
 
     try:
+        start_time = time.time()
         response = requests.post(url, files=files, data=data)
         response.raise_for_status()
-        return f"Response for {os.path.basename(image_path)}:\n" + response.text
+        end_time = time.time()
+        processing_time = end_time - start_time
+        return f"Batch response (processed in {processing_time:.2f} seconds):\n" + response.text
     except requests.exceptions.RequestException as e:
-        return f"Error processing {os.path.basename(image_path)}: {e}"
+        return f"Error processing batch request: {e}"
 
 def test_qwen_generate():
     script_dir = os.path.dirname(__file__)
@@ -37,17 +40,20 @@ def test_qwen_generate():
         print(f"No image files found in {test_dir}")
         return
 
-    url = "http://localhost:8000/generate"  # Assuming the server is running on localhost:8000
+    url = "http://35.197.120.88:8000/generate"  # Assuming the server is running on localhost:8000
 
-    prompt = "Each image is a segment. First detect what type of segment it is. It can also be a page (a whole page of a document), if it is, then extract the text as OCR for the whole page put it in <page></page> tags. It can also be <type>Table</type> or <type>Graph</type> or <type>Infograph</type> or <type>Text</type> or <type>Image</type> or <type>Formula</type>. If it is a table, extract the table in markdown format that i can then render later. put markdown in <markdown></markdown> tags, along with a description in <description></description> tags. If it is a picture or graph , describe the picture in detail. If it is Text, then do OCR and return the text exactly as written (regardless if its handwrittten or typed)."
-
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = [executor.submit(process_image, img_path, url) for img_path in image_files]
-        
-        for future in as_completed(futures):
-            result = future.result()
-            print(result)
-            print("-" * 50)
+    batch_size = 4
+    start_time = time.time()
+    
+    for i in range(0, len(image_files), batch_size):
+        batch = image_files[i:i+batch_size]
+        result = process_images(batch, url)
+        print(result)
+        print("-" * 50)
+    
+    end_time = time.time()
+    total_time = end_time - start_time
+    print(f"Total execution time: {total_time:.2f} seconds")
 
 if __name__ == "__main__":
     test_qwen_generate()

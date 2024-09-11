@@ -11,7 +11,7 @@ from qwen_vl_utils import process_vision_info
 
 app = FastAPI()
 
-model_id = "Qwen/Qwen2-VL-7B-Instruct-AWQ"
+model_id = "Qwen/Qwen2-VL-2B-Instruct-AWQ"
 
 # Note: set _attn_implementation='eager' if you don't have flash_attn installed
 model = Qwen2VLForConditionalGeneration.from_pretrained(
@@ -26,7 +26,7 @@ model = Qwen2VLForConditionalGeneration.from_pretrained(
 min_pixels = 256 * 28 * 28
 max_pixels = 1280 * 28 * 28
 processor = AutoProcessor.from_pretrained(
-    "Qwen/Qwen2-VL-7B-Instruct-AWQ", min_pixels=min_pixels, max_pixels=max_pixels
+    "Qwen/Qwen2-VL-2B-Instruct-AWQ", min_pixels=min_pixels, max_pixels=max_pixels
 ) 
 
 @app.post("/generate")
