@@ -8,8 +8,8 @@ numpy==1.24.4
 Pillow==10.3.0
 requests==2.31.0
 torchvision==0.18.0
-transformers==4.43.0
-accelerate==0.30.0
+git+https://github.com/huggingface/transformers@21fac7abba2a37fae86106f87fcf9974fd1e3830
+accelerate
 huggingface_hub
 fastapi
 pydantic
@@ -18,3 +18,5 @@ bitsandbytes
 python-multipart
 PIL
 qwen-vl-utils
+torchvision
+
