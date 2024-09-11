@@ -59,7 +59,7 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
     
     mm_data = {}
     if image_inputs is not None:
-        mm_data["image"] = image_inputs
+        mm_data["image"] = [image_inputs]  # Wrap image_inputs in a list
 
     llm_inputs = {
         "prompt": prompt,
