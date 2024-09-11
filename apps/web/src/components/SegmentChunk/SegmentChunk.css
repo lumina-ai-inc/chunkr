@@ -49,10 +49,6 @@ p {
   margin-bottom: 16px !important;
 }
 
-.AccordionRoot {
-  background-color: hsl(192, 71%, 5%);
-}
-
 .AccordionItem {
   overflow: hidden;
   margin-top: 1px;
@@ -69,8 +65,8 @@ p {
 
 .AccordionHeader {
   display: flex;
-  background-color: hsl(191, 73%, 5%);
-  border: 2px solid var(--cyan-12);
+  background-color: hsl(191, 73%, 5%, 0.4);
+  border: 2px solid hsla(192, 69%, 10%);
   border-bottom: none;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
@@ -84,7 +80,7 @@ p {
   justify-content: space-between;
   line-height: 1;
   padding: 16px 18px;
-  border-bottom: 2px solid var(--cyan-12);
+  border-bottom: 2px solid hsla(192, 69%, 10%);
   transition: background-color 0.2s;
   gap: 16px;
   border-top-left-radius: 4px;
@@ -96,15 +92,32 @@ p {
 }
 
 .AccordionContent {
-  overflow: hidden;
-  border: 2px solid var(--cyan-12);
+  border: 2px solid hsla(192, 69%, 10%);
   border-top: none;
   color: var(--cyan-11);
-  background-color: hsl(191, 73%, 4.5%);
-  height: 492px;
+  background-color: hsl(191, 73%, 3%, 0.4);
+  height: 100%;
+  max-height: 492px;
+  overflow-y: auto;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cyan-12) transparent;
 }
+
+.AccordionContent::-webkit-scrollbar {
+  width: 2px;
+}
+
+.AccordionContent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.AccordionContent::-webkit-scrollbar-thumb {
+  background-color: hsla(192, 69%, 10%);
+  border-radius: 1px;
+}
+
 .AccordionContent[data-state="open"] {
   animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
 }
@@ -113,7 +126,7 @@ p {
 }
 
 .AccordionContentText {
-  padding: 24px 16px;
+  padding: 24px 20px;
 }
 
 .AccordionChevron {
