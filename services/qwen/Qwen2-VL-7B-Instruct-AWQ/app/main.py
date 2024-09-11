@@ -1,8 +1,9 @@
 from fastapi import FastAPI, File, UploadFile, Form
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse
 from typing import List
-from transformers import Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor
-import torch
+from transformers import AutoProcessor
+from vllm import LLM, SamplingParams
+from qwen_vl_utils import process_vision_info
 from PIL import Image
 import io
 import requests
@@ -11,27 +12,24 @@ from qwen_vl_utils import process_vision_info
 
 app = FastAPI()
 
-model_id = "Qwen/Qwen2-VL-2B-Instruct-AWQ"
+MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct"
 
-# Note: set _attn_implementation='eager' if you don't have flash_attn installed
-model = Qwen2VLForConditionalGeneration.from_pretrained(
-    model_id, 
-    device_map="cuda", 
-    trust_remote_code=True, 
-    torch_dtype="auto", 
-    attn_implementation='flash_attention_2',
+llm = LLM(
+    model=MODEL_PATH,
+    limit_mm_per_prompt={"image": 10},
+    dtype="float16",  # Use float16 for AWQ model
+    quantization="awq",  # Specify AWQ quantization
 )
 
-# Adjusted min_pixels and max_pixels for better processing
-# Using num_crops=16 for single-frame processing as recommended
-min_pixels = 224 * 224  # Minimum 224x224 image size
-max_pixels = 1024 * 1024  # Maximum 1024x1024 image size
-processor = AutoProcessor.from_pretrained(
-    "Qwen/Qwen2-VL-2B-Instruct-AWQ", 
-    min_pixels=min_pixels, 
-    max_pixels=max_pixels,
-    num_crops=16
-) 
+sampling_params = SamplingParams(
+    temperature=0.1,
+    top_p=0.001,
+    repetition_penalty=1.05,
+    max_tokens=256,
+    stop_token_ids=[],
+)
+
+processor = AutoProcessor.from_pretrained(MODEL_PATH)
 
 @app.post("/generate")
 async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)):
@@ -41,8 +39,9 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
         image = Image.open(io.BytesIO(await img.read()))
         pil_images.append(image)
     
-    # Prepare the prompt
+    # Prepare the messages
     messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
         {
             "role": "user",
             "content": [
@@ -51,39 +50,28 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
         }
     ]
     
-    # Preparation for inference
-    text = processor.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
+    # Prepare the prompt
+    prompt = processor.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True,
     )
-    image_inputs, video_inputs = process_vision_info(messages)
-    inputs = processor(
-        text=[text],
-        images=image_inputs,
-        videos=video_inputs,
-        padding=True,
-        return_tensors="pt",
-    ).to("cuda:0")
+    image_inputs = process_vision_info(messages)
     
-    # Stream the response
-    async def generate_stream():
-        generation_args = { 
-            "max_new_tokens": 1000, 
-            "temperature": 0.0, 
-            "do_sample": False, 
-        } 
-        
-        generated_ids = model.generate(**inputs, **generation_args)
-        generated_ids_trimmed = generated_ids[:, inputs.input_ids.shape[1]:]
-        response = processor.batch_decode(
-            generated_ids_trimmed, 
-            skip_special_tokens=True, 
-            clean_up_tokenization_spaces=False
-        )[0]
-        
-        yield response
+    mm_data = {}
+    if image_inputs is not None:
+        mm_data["image"] = image_inputs
 
-    return StreamingResponse(generate_stream(), media_type="text/plain")
+    llm_inputs = {
+        "prompt": prompt,
+        "multi_modal_data": mm_data,
+    }
 
+    # Generate the response
+    outputs = llm.generate([llm_inputs], sampling_params=sampling_params)
+    generated_text = outputs[0].outputs[0].text
+
+    return JSONResponse(content={"generated_text": generated_text})
 
 @app.get("/")
 async def root():
