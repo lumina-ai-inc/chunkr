@@ -160,7 +160,7 @@ const Home = () => {
             <ModelTable />
           </Flex>
 
-          <Flex
+          {/* <Flex
             direction="row"
             justify="between"
             gap="48px"
@@ -181,7 +181,6 @@ const Home = () => {
                 />
                 <div className="card-gradient-overlay"></div>
               </div>
-              {/* Add card content here */}
             </Flex>
             <Flex
               direction="column"
@@ -198,7 +197,6 @@ const Home = () => {
                 />
                 <div className="card-gradient-overlay"></div>
               </div>
-              {/* Add card content here */}
             </Flex>
             <Flex
               direction="column"
@@ -231,7 +229,7 @@ const Home = () => {
                 <div className="card-gradient-overlay"></div>
               </div>
             </Flex>
-          </Flex>
+          </Flex> */}
 
           <Flex direction="column" align="center" justify="center" gap="16px">
             <Flex
