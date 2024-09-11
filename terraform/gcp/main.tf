@@ -24,7 +24,6 @@ variable "bucket_name" {
   default = "chunkmydocs-bucket"
 }
 
-
 variable "cluster_name" {
   default = "chunkmydocs-cluster"
 }
@@ -121,6 +120,62 @@ resource "google_compute_subnetwork" "vpc_subnet" {
   network       = google_compute_network.vpc_network.id
 }
 
+resource "google_compute_firewall" "allow_ssh" {
+  name    = "${var.base_name}-allow-ssh"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_firewall" "allow_port_8000" {
+  name    = "${var.base_name}-allow-port-8000"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8000"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["port-8000-allowed"]
+}
+
+resource "google_compute_firewall" "allow_egress" {
+  name    = "${var.base_name}-allow-egress"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "all"
+  }
+
+  direction          = "EGRESS"
+  destination_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_router" "router" {
+  name    = "${var.base_name}-router"
+  region  = var.region
+  network = google_compute_network.vpc_network.id
+}
+
+resource "google_compute_router_nat" "nat" {
+  name                               = "${var.base_name}-nat"
+  router                             = google_compute_router.router.name
+  region                             = google_compute_router.router.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+
+  log_config {
+    enable = true
+    filter = "ERRORS_ONLY"
+  }
+}
+
 ###############################################################
 # K8s configuration
 ###############################################################
@@ -135,6 +190,25 @@ resource "google_container_cluster" "cluster" {
   vertical_pod_autoscaling {
     enabled = true
   }
+
+  private_cluster_config {
+    enable_private_nodes    = true
+    enable_private_endpoint = false
+    master_ipv4_cidr_block  = "172.16.0.0/28"
+  }
+
+  ip_allocation_policy {
+    cluster_ipv4_cidr_block  = "/16"
+    services_ipv4_cidr_block = "/22"
+  }
+
+  master_authorized_networks_config {
+    cidr_blocks {
+      cidr_block   = "0.0.0.0/0"
+      display_name = "All"
+    }
+  }
+
 }
 
 resource "google_container_node_pool" "general_purpose_nodes" {
@@ -254,7 +328,7 @@ resource "google_sql_database_instance" "postgres" {
 }
 
 resource "time_sleep" "wait_30_seconds" {
-  depends_on = [google_sql_database_instance.postgres]
+  depends_on      = [google_sql_database_instance.postgres]
   create_duration = "30s"
 }
 
@@ -290,31 +364,6 @@ resource "google_sql_user" "users" {
 resource "google_compute_address" "vm_ip" {
   name   = "${var.base_name}-vm-ip"
   region = var.region
-}
-
-resource "google_compute_firewall" "allow_ssh" {
-  name    = "${var.base_name}-allow-ssh"
-  network = google_compute_network.vpc_network.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-}
-
-resource "google_compute_firewall" "allow_port_8000" {
-  name    = "${var.base_name}-allow-port-8000"
-  network = google_compute_network.vpc_network.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["8000"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["port-8000-allowed"]
 }
 
 resource "google_compute_instance" "vm_instance" {
