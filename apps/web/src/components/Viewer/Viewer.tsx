@@ -147,7 +147,7 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
       <Flex
         direction="row"
         width="100%"
-        style={{ borderTop: "2px solid var(--cyan-12)" }}
+        style={{ borderTop: "2px solid hsla(192, 69%, 10%)" }}
         onMouseMove={handleMouseMove}
       >
         <Flex
@@ -170,12 +170,12 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
             style={{
               position: "absolute",
               right: "-14px",
-              top: "calc(50% - 16px)",
+              top: "calc(50% - 32px)",
               width: "24px",
               height: "32px",
               cursor: "col-resize",
               borderRadius: "4px",
-              backgroundColor: "var(--cyan-5)",
+              backgroundColor: "var(--cyan-12)",
               zIndex: 10,
             }}
             onMouseDown={handleMouseDown}

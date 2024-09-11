@@ -1,7 +1,6 @@
 import { useState, useMemo, forwardRef } from "react";
 import { Chunk } from "../../models/chunk.model";
-import { Text, Flex, ScrollArea } from "@radix-ui/themes";
-import BetterButton from "../BetterButton/BetterButton";
+import { Text, Flex } from "@radix-ui/themes";
 import * as Accordion from "@radix-ui/react-accordion";
 import Badge from "../Badge";
 import remarkMath from "remark-math";
@@ -88,56 +87,62 @@ export const SegmentChunk = forwardRef<
                 </Flex>
 
                 <Flex gap="4">
-                  <BetterButton
-                    active={markdownSelected}
-                    padding="6px 12px"
+                  <Text
+                    size="3"
+                    weight="medium"
+                    style={{
+                      color: markdownSelected ? "var(--cyan-8)" : "#8A9BA8",
+                      cursor: "pointer",
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       setMarkdownSelected(true);
                     }}
                   >
                     Markdown
-                  </BetterButton>
-                  <BetterButton
-                    active={!markdownSelected}
-                    padding="8px 12px"
+                  </Text>
+                  <Text
+                    size="3"
+                    weight="medium"
+                    style={{
+                      color: !markdownSelected ? "var(--cyan-8)" : "#8A9BA8",
+                      cursor: "pointer",
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       setMarkdownSelected(false);
                     }}
                   >
                     JSON
-                  </BetterButton>
+                  </Text>
                 </Flex>
               </Flex>
             </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Content className="AccordionContent">
-            <ScrollArea>
-              <div className="AccordionContentText">
-                {markdownSelected ? (
-                  <ReactMarkdown
-                    className="cyan-2"
-                    remarkPlugins={[remarkMath]}
-                    rehypePlugins={[rehypeKatex]}
-                  >
-                    {chunk.markdown}
-                  </ReactMarkdown>
-                ) : (
-                  chunk.segments.map((segment, segmentIndex) => (
-                    <div key={segmentIndex}>
-                      <ReactJson
-                        src={segment}
-                        theme="monokai"
-                        displayDataTypes={false}
-                        enableClipboard={false}
-                        style={{ backgroundColor: "transparent" }}
-                      />
-                    </div>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
+            <div className="AccordionContentText">
+              {markdownSelected ? (
+                <ReactMarkdown
+                  className="cyan-2"
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {chunk.markdown}
+                </ReactMarkdown>
+              ) : (
+                chunk.segments.map((segment, segmentIndex) => (
+                  <div key={segmentIndex}>
+                    <ReactJson
+                      src={segment}
+                      theme="monokai"
+                      displayDataTypes={false}
+                      enableClipboard={false}
+                      style={{ backgroundColor: "transparent" }}
+                    />
+                  </div>
+                ))
+              )}
+            </div>
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>
