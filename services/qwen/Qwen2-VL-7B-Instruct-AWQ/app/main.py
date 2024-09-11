@@ -22,11 +22,15 @@ model = Qwen2VLForConditionalGeneration.from_pretrained(
     attn_implementation='flash_attention_2',
 )
 
-# for best performance, use num_crops=4 for multi-frame, num_crops=16 for single-frame.
-min_pixels = 256 * 28 * 28
-max_pixels = 1280 * 28 * 28
+# Adjusted min_pixels and max_pixels for better processing
+# Using num_crops=16 for single-frame processing as recommended
+min_pixels = 224 * 224  # Minimum 224x224 image size
+max_pixels = 1024 * 1024  # Maximum 1024x1024 image size
 processor = AutoProcessor.from_pretrained(
-    "Qwen/Qwen2-VL-2B-Instruct-AWQ", min_pixels=min_pixels, max_pixels=max_pixels
+    "Qwen/Qwen2-VL-2B-Instruct-AWQ", 
+    min_pixels=min_pixels, 
+    max_pixels=max_pixels,
+    num_crops=16
 ) 
 
 @app.post("/generate")

@@ -1,10 +1,7 @@
 use crate::models::server::extract::{TableOcr, TableOcrModel};
 use crate::utils::configs::extraction_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};
-use std::{
-    fs,
-    path::Path,
-};
+use std::{fs, path::Path};
 use tokio::sync::OnceCell;
 
 static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
@@ -37,17 +34,33 @@ async fn call_table_extraction_api(
     // Add OCR model to form
     form = form.text("ocr_model", ocr_model.to_string().to_lowercase());
 
-    let endpoint = match output_format {
-        TableOcr::HTML => "/table/html",
-        TableOcr::JSON => "/table/json",
+    let endpoint = if ocr_model == TableOcrModel::Qwen {
+        "/table/json"
+    } else {
+        match output_format {
+            TableOcr::HTML => "/table/html",
+            TableOcr::JSON => "/table/json",
+        }
     };
 
-    let response = client
-        .post(format!("{}{}", url, endpoint))
-        .multipart(form)
-        .send()
-        .await?
-        .error_for_status()?;
+    let response = if ocr_model == TableOcrModel::Qwen {
+        let prompt = "Return the provided complex table in JSON format that preserves information and hierarchy from the table at 100 percent accuracy.
+                            Create Intelligent lists and nesting to preserve the format of the table.";
+        form = form.text("prompt", prompt);
+        client
+            .post(url)
+            .multipart(form)
+            .send()
+            .await?
+            .error_for_status()?
+    } else {
+        client
+            .post(format!("{}{}", url, endpoint))
+            .multipart(form)
+            .send()
+            .await?
+            .error_for_status()?
+    };
     Ok(response.text().await?)
 }
 
@@ -57,7 +70,7 @@ pub async fn table_extraction_from_image(
     output_format: TableOcr,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let config = Config::from_env()?;
-    let url = config.table_ocr_url.ok_or("Table OCR URL not configured")?;
+    let mut url = config.table_ocr_url.ok_or("Table OCR URL not configured")?;
 
     let output = call_table_extraction_api(&url, file_path, ocr_model, output_format).await?;
 
