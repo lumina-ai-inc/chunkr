@@ -32,7 +32,7 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/task/:taskId/:pageCount",
+    path: "/task/:taskId",
     element: (
       <AuthGuard>
         <Task />

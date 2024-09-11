@@ -5,10 +5,26 @@ import { RootState } from "../../store/store";
 import TaskCard from "../TaskCard/TaskCard";
 import DashBoardHeader from "./DashBoardHeader";
 import Loader from "../../pages/Loader/Loader";
+import { useTasksQuery } from "../../hooks/useTaskQuery";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const user = useSelector((state: RootState) => state.user.data);
-  console.log(user);
+  const navigate = useNavigate();
+
+  const handleTaskClick = (taskId: string) => {
+    navigate(`/task/${taskId}`);
+  };
+
+  const { data: tasks, isLoading, isError } = useTasksQuery(1, 10);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (isError) {
+    return <div>Error</div>;
+  }
 
   if (!user) {
     return <Loader />;
@@ -33,36 +49,43 @@ export default function Dashboard() {
             >
               {user?.first_name} {user?.last_name}
             </Text>
-            <Flex className="callout">
-              <Text
-                size="2"
-                weight="medium"
-                style={{ color: "var(--amber-4)" }}
-              >
-                Add a payment method
-              </Text>
+            {user?.tier === "Free" && (
+              <Flex className="callout">
+                <Text
+                  size="2"
+                  weight="medium"
+                  style={{ color: "var(--amber-4)" }}
+                >
+                  Add a payment method
+                </Text>
 
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <rect width="16" height="16" fill="white" fill-opacity="0.01" />
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M8.68955 3.35623C8.89782 3.14794 9.23551 3.14794 9.44378 3.35623L13.7105 7.6229C13.9187 7.83117 13.9187 8.16886 13.7105 8.37713L9.44378 12.6439C9.23551 12.8521 8.89782 12.8521 8.68955 12.6439C8.48126 12.4355 8.48126 12.0978 8.68955 11.8895L12.0458 8.53335H2.66666C2.37212 8.53335 2.13333 8.29456 2.13333 8.00002C2.13333 7.70547 2.37212 7.46668 2.66666 7.46668H12.0458L8.68955 4.11047C8.48126 3.90219 8.48126 3.56451 8.68955 3.35623Z"
-                  fill="#FFEE9C"
-                />
-              </svg>
-            </Flex>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <rect
+                    width="16"
+                    height="16"
+                    fill="white"
+                    fill-opacity="0.01"
+                  />
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.68955 3.35623C8.89782 3.14794 9.23551 3.14794 9.44378 3.35623L13.7105 7.6229C13.9187 7.83117 13.9187 8.16886 13.7105 8.37713L9.44378 12.6439C9.23551 12.8521 8.89782 12.8521 8.68955 12.6439C8.48126 12.4355 8.48126 12.0978 8.68955 11.8895L12.0458 8.53335H2.66666C2.37212 8.53335 2.13333 8.29456 2.13333 8.00002C2.13333 7.70547 2.37212 7.46668 2.66666 7.46668H12.0458L8.68955 4.11047C8.48126 3.90219 8.48126 3.56451 8.68955 3.35623Z"
+                    fill="#FFEE9C"
+                  />
+                </svg>
+              </Flex>
+            )}
             <Flex direction="row" gap="6" justify="between" mt="6">
               <Flex
                 flexGrow="1"
                 direction="column"
-                p="4"
+                p="5"
                 style={{
                   border: "2px solid var(--cyan-3)",
                   borderRadius: "8px",
@@ -73,10 +96,10 @@ export default function Dashboard() {
                   gap="2"
                   align="center"
                   style={{
-                    padding: "4px 12px",
+                    padding: "6px 12px",
                     borderRadius: "4px",
                     width: "fit-content",
-                    border: "1px solid var(--cyan-6)",
+                    border: "2px solid var(--cyan-6)",
                   }}
                 >
                   <svg
@@ -134,7 +157,7 @@ export default function Dashboard() {
               <Flex
                 flexGrow="1"
                 direction="column"
-                p="4"
+                p="5"
                 style={{
                   border: "2px solid var(--cyan-3)",
                   borderRadius: "8px",
@@ -145,10 +168,10 @@ export default function Dashboard() {
                   gap="2"
                   align="center"
                   style={{
-                    padding: "4px 12px",
+                    padding: "6px 12px",
                     borderRadius: "4px",
                     width: "fit-content",
-                    border: "1px solid var(--cyan-6)",
+                    border: "2px solid var(--cyan-6)",
                   }}
                 >
                   <svg
@@ -207,7 +230,7 @@ export default function Dashboard() {
               </Flex>
               <Flex
                 flexGrow="1"
-                p="4"
+                p="5"
                 direction="column"
                 style={{
                   border: "2px solid var(--cyan-3)",
@@ -219,10 +242,10 @@ export default function Dashboard() {
                   gap="2"
                   align="center"
                   style={{
-                    padding: "4px 12px",
+                    padding: "6px 12px",
                     borderRadius: "4px",
                     width: "fit-content",
-                    border: "1px solid var(--cyan-6)",
+                    border: "2px solid var(--cyan-6)",
                   }}
                 >
                   <svg
@@ -297,10 +320,13 @@ export default function Dashboard() {
                   </Text>
                 </Flex>
 
-                <TaskCard />
-                <TaskCard />
-                <TaskCard />
-                <TaskCard />
+                {tasks?.map((task) => (
+                  <TaskCard
+                    key={task.task_id}
+                    {...task}
+                    onClick={() => handleTaskClick(task.task_id)}
+                  />
+                ))}
               </Flex>
             </ScrollArea>
           </Flex>
