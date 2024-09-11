@@ -13,3 +13,15 @@
   background-color: hsla(191, 71%, 32%, 0.8);
   border: 1px solid var(--cyan-8);
 }
+
+.task-card .cyan-2 {
+  color: var(--cyan-2);
+}
+
+.task-card .cyan-3 {
+  color: var(--cyan-3);
+}
+
+.task-card .cyan-4 {
+  color: var(--cyan-4);
+}
