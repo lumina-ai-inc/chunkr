@@ -6,7 +6,6 @@ use std::time::Duration;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
-
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct ExtractionPayload {
     pub model: ModelInternal,
@@ -48,10 +47,11 @@ impl fmt::Display for TableOcr {
         }
     }
 }
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, Display, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, Display, Copy, PartialEq)]
 pub enum TableOcrModel {
     EasyOcr,
     Tesseract,
+    Qwen,
 }
 
 #[derive(Debug, MultipartForm, ToSchema)]

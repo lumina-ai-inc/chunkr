@@ -8,7 +8,9 @@ dotenv.load_dotenv(override=True)
 
 class TableOcr(str, Enum):
     HTML = "HTML"
-    PDF = "PDF"
+    JSON = "JSON"
+    
+    
 
 class Model(str, Enum):
     Research = "Research"

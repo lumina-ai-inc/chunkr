@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use chrono::{DateTime, Utc};
 use chunkmydocs::extraction::pdf2png::convert_pdf_to_png;
 use chunkmydocs::extraction::pdf2png::BoundingBox;
@@ -19,7 +20,6 @@ use chunkmydocs::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use std::path::Path;
 use tempfile::TempDir;
 use uuid::Uuid;
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 
 pub async fn log_task(
     task_id: String,
@@ -176,7 +176,7 @@ pub async fn table_ocr(
                 // Find the corresponding PNG page
                 if let Some(png_page) = response.png_pages.iter().find(|p| {
                     let bb_id = bounding_boxes
-                        .iter() 
+                        .iter()
                         .find(|bb| {
                             bb.left == segment.left
                                 && bb.top == segment.top
@@ -184,7 +184,7 @@ pub async fn table_ocr(
                                 && bb.height == segment.height
                                 && bb.page_number == segment.page_number
                         })
-                        .map(|bb| bb.bb_id.as_str()); 
+                        .map(|bb| bb.bb_id.as_str());
                     p.bb_id == bb_id.unwrap_or_default()
                 }) {
                     let temp_dir = TempDir::new()?;
