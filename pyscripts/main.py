@@ -80,7 +80,7 @@ def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, 
 
 
 if __name__ == "__main__":
-    model = Model.HighQuality
+    model = Model.Fast
     table_ocr = None  # You can set this to None if you don't want to use table OCR
     process_all_files_in_input_folder(model, table_ocr)
     print("All files processed and annotated.")

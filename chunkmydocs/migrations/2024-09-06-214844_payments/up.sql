@@ -1,4 +1,3 @@
--- Your SQL goes here
 CREATE TABLE if not exists USAGE_TYPE (
     id TEXT PRIMARY KEY,
     type TEXT NOT NULL,
