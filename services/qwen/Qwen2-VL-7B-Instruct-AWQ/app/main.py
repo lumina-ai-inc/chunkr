@@ -18,14 +18,13 @@ llm = LLM(
     model=MODEL_PATH,
     limit_mm_per_prompt={"image": 10},
     dtype="float16",  # Use float16 for AWQ model
-    quantization="awq",  # Specify AWQ quantization
 )
 
 sampling_params = SamplingParams(
     temperature=0.1,
     top_p=0.001,
     repetition_penalty=1.05,
-    max_tokens=256,
+    max_tokens=1256,
     stop_token_ids=[],
 )
 
