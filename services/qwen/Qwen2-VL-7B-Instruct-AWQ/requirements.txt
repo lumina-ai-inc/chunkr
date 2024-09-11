@@ -2,8 +2,10 @@ fastapi
 packaging
 wheel
 huggingface_hub
-torch==2.3.0
-flash_attn==2.5.7
+torch==2.2.0
+torchvision==0.17.0  # Find a compatible version for torch 2.3.1
+autoawq==0.2.6
+flash-attn==2.5.7
 numpy==1.24.4
 Pillow==10.3.0
 requests==2.31.0
@@ -14,7 +16,6 @@ huggingface_hub
 fastapi
 pydantic
 uvicorn
-bitsandbytes
 python-multipart
 PIL
 qwen-vl-utils
