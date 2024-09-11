@@ -11,12 +11,17 @@
   padding: 4px 10px;
   transition:
     background-color 0.2s ease-in-out,
-    border 0.2s ease-in-out;
+    border 0.2s ease-in-out,
+    color 0.2s ease-in-out;
 }
 
 .button-resting:hover {
-  background-color: hsla(191, 71%, 32%, 0.8);
-  border: 1px solid var(--cyan-6);
+  background-color: #fff;
+  border: 1px solid #fff;
+}
+
+.button-resting:hover > span {
+  color: var(--cyan-12) !important;
 }
 
 .button-active {

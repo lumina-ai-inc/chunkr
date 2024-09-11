@@ -163,7 +163,7 @@ const Home = () => {
           <Flex
             direction="row"
             justify="between"
-            gap="32px"
+            gap="48px"
             className="home-cards-container"
           >
             <Flex
