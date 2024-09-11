@@ -7,6 +7,7 @@ from PIL import Image
 import io
 import requests
 import base64
+from qwen_vl_utils import process_vision_info
 
 app = FastAPI()
 
@@ -18,7 +19,7 @@ model = Qwen2VLForConditionalGeneration.from_pretrained(
     device_map="cuda", 
     trust_remote_code=True, 
     torch_dtype="auto", 
-    _attn_implementation='flash_attention_2',
+    attn_implementation='flash_attention_2',
 )
 
 # for best performance, use num_crops=4 for multi-frame, num_crops=16 for single-frame.
@@ -79,26 +80,7 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
 
     return StreamingResponse(generate_stream(), media_type="text/plain")
 
-def process_vision_info(messages):
-    image_inputs = []
-    video_inputs = []
-    for message in messages:
-        for content in message["content"]:
-            if content["type"] == "image":
-                if isinstance(content["image"], Image.Image):
-                    image_inputs.append(content["image"])
-                elif isinstance(content["image"], str):
-                    if content["image"].startswith("http://") or content["image"].startswith("https://"):
-                        image = Image.open(requests.get(content["image"], stream=True).raw)
-                    elif content["image"].startswith("data:image"):
-                        image = Image.open(io.BytesIO(base64.b64decode(content["image"].split(",")[1])))
-                    else:
-                        image = Image.open(content["image"])
-                    image_inputs.append(image)
-            elif content["type"] == "video":
-                # Handle video inputs if needed
-                pass
-    return image_inputs, video_inputs
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Qwen2-VL-7B-Instruct-AWQ API"}

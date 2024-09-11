@@ -1,3 +1,4 @@
+fastapi
 packaging
 wheel
 huggingface_hub
@@ -16,3 +17,4 @@ uvicorn
 bitsandbytes
 python-multipart
 PIL
+qwen-vl-utils
