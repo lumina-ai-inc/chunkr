@@ -1,6 +1,6 @@
-use config::{ Config as ConfigTrait, ConfigError };
+use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
-use serde::{ Deserialize, Serialize };
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -16,10 +16,11 @@ pub struct Config {
     pub s3_bucket: String,
     pub batch_size: i32,
     pub base_url: String,
+    // pub qwen_url: Option<String>,
 }
 
 mod duration_seconds {
-    use serde::{ Deserialize, Deserializer, Serializer };
+    use serde::{Deserialize, Deserializer, Serializer};
     use std::time::Duration;
 
     pub fn serialize<S>(duration: &Option<Duration>, serializer: S) -> Result<S::Ok, S::Error>
@@ -38,11 +39,10 @@ mod duration_seconds {
     {
         let value: Option<String> = Option::deserialize(deserializer)?;
         match value {
-            Some(s) if !s.is_empty() => {
-                s.parse::<u64>()
-                    .map(|secs| Some(Duration::from_secs(secs)))
-                    .map_err(serde::de::Error::custom)
-            }
+            Some(s) if !s.is_empty() => s
+                .parse::<u64>()
+                .map(|secs| Some(Duration::from_secs(secs)))
+                .map_err(serde::de::Error::custom),
             _ => Ok(None),
         }
     }
@@ -53,7 +53,11 @@ impl Config {
         dotenv_override().ok();
 
         ConfigTrait::builder()
-            .add_source(config::Environment::default().prefix("EXTRACTION").separator("__"))
+            .add_source(
+                config::Environment::default()
+                    .prefix("EXTRACTION")
+                    .separator("__"),
+            )
             .build()?
             .try_deserialize()
     }
