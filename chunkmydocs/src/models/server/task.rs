@@ -17,6 +17,8 @@ pub struct TaskResponse {
     pub input_file_url: Option<String>,
     pub task_url: Option<String>,
     pub configuration: Configuration,
+    pub file_name: Option<String>,
+    pub page_count: Option<i32>,
 }
 
 #[derive(
