@@ -8,6 +8,7 @@ from PIL import Image
 import io
 import requests
 import base64
+from typing import Dict, Any
 
 app = FastAPI()
 
