@@ -2,9 +2,10 @@
   width: 100%;
   height: fit-content;
   z-index: 1;
-  padding-left: 88px;
-  padding-right: 88px;
+  padding-left: 24px;
+  padding-right: 24px;
   align-items: center;
+  max-width: 1312px;
 }
 
 .logo {
@@ -36,11 +37,11 @@
 .nav-item {
   transition: color 0.2s ease-in-out;
   cursor: pointer;
-  color: #fff;
+  color: hsl(0, 0%, 100%, 0.9);
 }
 
 .nav-item:hover {
-  color: var(--cyan-5);
+  color: hsl(0, 0%, 100%);
 }
 
 .nav-item-download {
