@@ -16,7 +16,7 @@ pub async fn get_tasks(
     let client: Client = pool.get().await?;
     let offset = (page - 1) * limit;
     let tasks = client.query(
-        "SELECT task_id, status, created_at, finished_at, expires_at, message, input_location, output_location, task_url, configuration
+        "SELECT task_id, status, created_at, finished_at, expires_at, message, input_location, output_location, task_url, configuration, file_name, page_count
          FROM TASKS
          WHERE user_id = $1
          ORDER BY created_at DESC
@@ -32,6 +32,9 @@ pub async fn get_tasks(
         if expires_at.is_some() && expires_at.as_ref().unwrap() < &Utc::now() {
             continue;
         }
+
+        let file_name: Option<String> = row.get("file_name");
+        let page_count: Option<i32> = row.get("page_count");
 
         let status: Status = row
             .get::<_, Option<String>>("status")
@@ -75,6 +78,8 @@ pub async fn get_tasks(
             input_file_url,
             task_url,
             configuration,
+            file_name,
+            page_count,
         });
     }
 
