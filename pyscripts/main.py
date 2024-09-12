@@ -9,7 +9,7 @@ from download import download_file
 from models import Model, TableOcr
 from annotate import draw_bounding_boxes
 
-
+import json
 def print_time_taken(created_at, finished_at):
     if created_at and finished_at:
         try:
@@ -24,6 +24,14 @@ def print_time_taken(created_at, finished_at):
     else:
         print("Time taken information not available")
 
+def save_to_json(file_path: str, output: json, file_name: str ):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(current_dir, "output")
+    os.makedirs(output_dir, exist_ok=True)
+    output_json_path = os.path.join(output_dir, f"{file_name}_json.json")
+    with open(output_json_path, "w") as f:
+        json.dump(output, f)
+    return output_json_path
 
 def extract_and_annotate_file(file_path: str, model: Model, table_ocr: TableOcr = None):
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -36,18 +44,18 @@ def extract_and_annotate_file(file_path: str, model: Model, table_ocr: TableOcr 
 
     print(f"Processing file: {file_path}")
     task = process_file(file_path, model, table_ocr)
-    output_url = task.output_file_url
+    output = task.output
     print(f"File processed: {file_path}")
 
-    if output_url is None:
-        raise Exception(f"File URL not found for {file_path}")
+    if output is None:
+        raise Exception(f"Output not found for {file_path}")
 
     print(f"Downloading bounding boxes for {file_path}...")
-    json_path = download_file(output_url, output_json_path)
+    output_json_path = save_to_json(output_json_path, output, file_name)
     print(f"Downloaded bounding boxes for {file_path}")
 
     print(f"Annotating file: {file_path}")
-    draw_bounding_boxes(file_path, json_path, output_annotated_path)
+    draw_bounding_boxes(file_path, output_json_path, output_annotated_path)
     print(f"File annotated: {file_path}")
 
 
