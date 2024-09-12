@@ -39,7 +39,7 @@ def process_images_batch(image_paths, prompt):
     try:
         response = requests.post(f"{QWEN_URL}/batch", files=files, data=data)
         response.raise_for_status()
-        return response.json()["generated_text"]
+        return response.json()["generated_texts"]
     except requests.exceptions.RequestException as e:
         return f"Error processing request: {e}"
 
@@ -58,7 +58,15 @@ def test_qwen_batch():
         print(f"No image files found in {test_dir}")
         return
 
-    prompt = "Return the provided complex table in JSON format that preserves information and hierarchy from the table at 100 percent accuracy."
+    prompt = f"""Your main goal is to conver tables into JSON.
+    Return the provided complex table in JSON format that preserves information and hierarchy from the table at 100 percent accuracy. 
+    Preserve all text, and structure it in a logical way. 
+    
+    YOU MUST:
+    - HAVE ALL THE TEXT IN THE TABLE ACCOUNTED FOR, DO NOT MISS ANY KEY FACTS OR FIGURES.
+    
+    Put your plan in <plan></plan> tag for how you will preserve the tables full information and text and heirarchy in json, and then make <json></json> tags. 
+    For each table, put the output in its own <json></json> tag. Your final answer will be your <plan>, and then the <json>. start planing how you will preserve the table:"""
 
     start_time = time.time()
     result = process_images_batch(image_files, prompt)
@@ -66,7 +74,19 @@ def test_qwen_batch():
 
     total_time = end_time - start_time
     print(f"Batch processing result:")
-    print(result)
+    import json
+    import re
+
+    for item in result:
+        json_matches = re.findall(r'<json>(.*?)</json>', item, re.DOTALL)
+        for json_str in json_matches:
+            try:
+                parsed_json = json.loads(json_str)
+                print(json.dumps(parsed_json, indent=2))
+            except json.JSONDecodeError:
+                print(f"Invalid JSON: {json_str}")
+        if not json_matches:
+            print(item)
     print("-" * 50)
     print(f"Total execution time for batch: {total_time:.2f} seconds")
 
