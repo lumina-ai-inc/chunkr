@@ -58,12 +58,13 @@ def test_qwen_batch():
         print(f"No image files found in {test_dir}")
         return
 
-    prompt = f"""Your main goal is to conver tables into JSON.
+    prompt = f"""Your main goal is to convert tables into JSON.
     Return the provided complex table in JSON format that preserves information and hierarchy from the table at 100 percent accuracy. 
     Preserve all text, and structure it in a logical way. 
     
     YOU MUST:
     - HAVE ALL THE TEXT IN THE TABLE ACCOUNTED FOR, DO NOT MISS ANY KEY FACTS OR FIGURES.
+    - YOU MUST OUTPUT VALID JSON
     
     Put your plan in <plan></plan> tag for how you will preserve the tables full information and text and heirarchy in json, and then make <json></json> tags. 
     For each table, put the output in its own <json></json> tag. Your final answer will be your <plan>, and then the <json>. start planing how you will preserve the table:"""

@@ -13,7 +13,7 @@ pub struct TaskResponse {
     pub finished_at: Option<DateTime<Utc>>,
     pub expires_at: Option<DateTime<Utc>>,
     pub message: String,
-    pub output_file_url: Option<String>,
+    pub output: Option<serde_json::Value>,
     pub input_file_url: Option<String>,
     pub task_url: Option<String>,
     pub configuration: Configuration,
@@ -39,5 +39,3 @@ pub enum Status {
     Failed,
     Canceled,
 }
-
-

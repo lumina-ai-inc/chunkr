@@ -59,6 +59,8 @@ def process_file(file_path: str, model: Model, table_ocr: TableOcr = None) -> Ta
     health_check()
     task = extract_file(file_path, model, table_ocr)
     task = check_task_status(task.task_url)
+    print(f"Task completed for {file_path}:")
+    print(task)
     return task
 
 def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None):
