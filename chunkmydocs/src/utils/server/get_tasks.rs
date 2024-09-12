@@ -1,16 +1,17 @@
 use crate::models::server::extract::Configuration;
-use crate::models::server::task::{ Status, TaskResponse };
-use crate::utils::db::deadpool_postgres::{ Client, Pool };
-use crate::utils::storage::services::generate_presigned_url;
+use crate::models::server::task::{Status, TaskResponse};
+use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::utils::storage::services::{download_to_tempfile, generate_presigned_url};
 use aws_sdk_s3::Client as S3Client;
-use chrono::{ DateTime, Utc };
+use chrono::{DateTime, Utc};
+use std::io::{self, Write};
 
 pub async fn get_tasks(
     pool: &Pool,
     s3_client: &S3Client,
     user_id: String,
     page: i64,
-    limit: i64
+    limit: i64,
 ) -> Result<Vec<TaskResponse>, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
     let offset = (page - 1) * limit;
@@ -39,16 +40,23 @@ pub async fn get_tasks(
         let created_at: DateTime<Utc> = row.get("created_at");
         let finished_at: Option<DateTime<Utc>> = row.get("finished_at");
         let message = row.get::<_, Option<String>>("message").unwrap_or_default();
-        
+
         let input_location: String = row.get("input_location");
-        let input_file_url = generate_presigned_url(s3_client, &input_location, None).await.ok();
-        
+        let input_file_url = generate_presigned_url(s3_client, &input_location, None)
+            .await
+            .ok();
         let output_location: String = row.get("output_location");
-        let output_file_url = if status == Status::Succeeded {
-            generate_presigned_url(s3_client, &output_location, None).await.ok()
-        } else {
-            None
-        };
+        let mut output = None;
+        if status == Status::Succeeded {
+            if let Ok(temp_file) =
+                download_to_tempfile(s3_client, &reqwest::Client::new(), &output_location, None)
+                    .await
+            {
+                if let Ok(json_content) = tokio::fs::read_to_string(temp_file.path()).await {
+                    output = serde_json::from_str(&json_content).ok();
+                }
+            }
+        }
 
         let task_url: Option<String> = row.get("task_url");
         let configuration: Configuration = row
@@ -63,7 +71,7 @@ pub async fn get_tasks(
             finished_at,
             expires_at,
             message,
-            output_file_url,
+            output,
             input_file_url,
             task_url,
             configuration,
