@@ -4,7 +4,6 @@ import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
 import Header from "../Header/Header";
 import { Chunk } from "../../models/chunk.model";
-import { getChunks } from "../../services/chunkMyDocs";
 import { Link } from "react-router-dom";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
@@ -17,16 +16,17 @@ import {
 import { RootState } from "../../store/store";
 
 interface ViewerProps {
-  outputFileUrl: string;
+  // eslint-disable-next-line
+  output: any;
   inputFileUrl: string;
 }
 
-export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
+export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
-  const [pdfWidth, setPdfWidth] = useState<number>(50); // Initial width percentage
+  const [pdfWidth, setPdfWidth] = useState<number>(50); 
   const isDraggingRef = useRef<boolean>(false);
-  const dispatch = useDispatch(); // Use useDispatch hook
+  const dispatch = useDispatch(); 
   const {
     content: pdfContent,
     isLoading,
@@ -56,9 +56,8 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
     const fetchContent = async () => {
       dispatch(setLoading(true));
       try {
-        if (outputFileUrl) {
-          const content = await getChunks(outputFileUrl);
-          dispatch(setPdfContent(content));
+        if (output) {
+          dispatch(setPdfContent(output));
         }
       } catch (error) {
         console.error(error);
@@ -77,7 +76,7 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
     };
 
     fetchContent();
-  }, [outputFileUrl, inputFileUrl, dispatch]);
+  }, [output, inputFileUrl, dispatch]);
 
   useEffect(() => {
     const updateWidth = () => {
