@@ -1,12 +1,7 @@
--- Your SQL goes here
--- Add index on usage_type for discounts table
-CREATE INDEX idx_discounts_usage_type ON discounts (usage_type);
+-- Create indexes for the TASKS table
+CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON TASKS(user_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_status ON TASKS(status);
+CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON TASKS(created_at);
+CREATE INDEX IF NOT EXISTS idx_tasks_finished_at ON TASKS(finished_at);
+CREATE INDEX IF NOT EXISTS idx_tasks_expires_at ON TASKS(expires_at);
 
--- Add indexes for task_invoices table
-CREATE INDEX idx_task_invoices_invoice_id ON task_invoices (invoice_id);
-CREATE INDEX idx_task_invoices_usage_type ON task_invoices (usage_type);
-
--- Add indexes for invoices table
-CREATE INDEX idx_invoices_user_id ON invoices (user_id);
-CREATE INDEX idx_invoices_date_created ON invoices (date_created);
-CREATE INDEX idx_invoices_invoice_status ON invoices (invoice_status);
