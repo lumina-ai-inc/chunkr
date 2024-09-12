@@ -1,8 +1,10 @@
 .header {
   width: 100%;
+  height: fit-content;
   z-index: 1;
-  padding-left: 80px;
-  padding-right: 80px;
+  padding-left: 88px;
+  padding-right: 88px;
+  align-items: center;
 }
 
 .logo {
@@ -10,15 +12,11 @@
   cursor: pointer;
 }
 
-.logo-container path:last-child {
-  fill: var(--cyan-2);
-}
-
 .logo-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .logo:hover .logo-container {
@@ -60,18 +58,15 @@
 }
 
 .nav-item-right {
-  border: 1px solid var(--Colors-Cyan-8, #3db9cf);
-  background-color: hsla(191, 71%, 32%, 0.6);
-  padding: 4px 10px;
-  border-radius: 4px;
-  transition:
-    background-color 0.2s ease-in-out,
-    border 0.2s ease-in-out;
+  background-color: hsl(0, 0%, 100%, 0.9);
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #000;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .nav-item-right:hover {
-  background-color: hsla(191, 71%, 32%, 0.7);
-  border: 1px solid var(--cyan-3);
+  background-color: hsl(0, 0%, 100%);
 }
 
 @media (max-width: 1066px) {

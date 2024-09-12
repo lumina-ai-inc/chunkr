@@ -47,7 +47,7 @@ const Home = () => {
                     weight="bold"
                     trim="both"
                     className="hero-title"
-                    mb="32px"
+                    mb="28px"
                   >
                     Open Source Data Ingestion for LLMs & RAG
                   </Text>
@@ -100,7 +100,7 @@ const Home = () => {
                       </svg>
                     </Flex>
                   </Flex>
-                  <Flex
+                  {/* <Flex
                     direction="column"
                     align="start"
                     className="credit-main-container"
@@ -148,7 +148,7 @@ const Home = () => {
                         </a>
                       </Flex>
                     </Flex>
-                  </Flex>
+                  </Flex> */}
                 </Flex>
                 <Flex className="module-container" direction="column" gap="4">
                   <UploadMain isAuthenticated={isAuthenticated} />
