@@ -39,6 +39,13 @@ export default function TaskCard({ onClick, ...task }: TaskCardProps) {
         className="cyan-2"
         style={{ flex: 1, marginLeft: "16px", marginRight: "16px" }}
       >
+        {task.file_name}
+      </Text>
+      <Text
+        size="2"
+        className="cyan-2"
+        style={{ flex: 1, marginLeft: "16px", marginRight: "16px" }}
+      >
         {task.message}
       </Text>
       <Text size="2" className="cyan-4" style={{ marginRight: "16px" }}>
