@@ -39,7 +39,7 @@ def process_images_batch(image_paths, prompt):
         })
 
     try:
-        response = requests.post(f"{QWEN_URL}/generate/batch", json={"requests": requests_data})
+        response = requests.post(f"{QWEN_URL}/batch", json={"requests": requests_data})
         response.raise_for_status()
         return response.json()["generated_texts"]
     except requests.exceptions.RequestException as e:
