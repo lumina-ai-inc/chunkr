@@ -60,7 +60,7 @@ const Home = () => {
                       lineHeight: "32px",
                     }}
                   >
-                    Small tagline. Epxlain what demo does and what all can
+                    Small tagline. Explain what demo does and what all can
                     actually be done with API/self-hosting.
                   </Text>
                   <Flex
