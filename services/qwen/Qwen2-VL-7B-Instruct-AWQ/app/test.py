@@ -28,20 +28,18 @@ def process_images(image_paths, prompt):
     
 
 def process_images_batch(image_paths, prompt):
-    requests_data = []
+    files = []
     for image_path in image_paths:
         with open(image_path, "rb") as image_file:
             image_data = image_file.read()
-        encoded_image = base64.b64encode(image_data).decode('utf-8')
-        requests_data.append({
-            "prompt": prompt,
-            "images": [encoded_image]
-        })
+        files.append(("images", (os.path.basename(image_path), image_data, "image/png")))
+
+    data = {"prompt": prompt}
 
     try:
-        response = requests.post(f"{QWEN_URL}/batch", json={"requests": requests_data})
+        response = requests.post(f"{QWEN_URL}/batch", files=files, data=data)
         response.raise_for_status()
-        return response.json()["generated_texts"]
+        return response.json()["generated_text"]
     except requests.exceptions.RequestException as e:
         return f"Error processing request: {e}"
 
@@ -63,15 +61,13 @@ def test_qwen_batch():
     prompt = "Return the provided complex table in JSON format that preserves information and hierarchy from the table at 100 percent accuracy."
 
     start_time = time.time()
-    results = process_images_batch(image_files, prompt)
+    result = process_images_batch(image_files, prompt)
     end_time = time.time()
 
     total_time = end_time - start_time
-    print(f"Batch processing results:")
-    for i, result in enumerate(results):
-        print(f"Result for image {i + 1}:")
-        print(result)
-        print("-" * 50)
+    print(f"Batch processing result:")
+    print(result)
+    print("-" * 50)
     print(f"Total execution time for batch: {total_time:.2f} seconds")
 
 
