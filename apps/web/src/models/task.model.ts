@@ -16,7 +16,8 @@ export interface TaskResponse {
   expires_at: Date | null;
   message: string;
   input_file_url: string | null;
-  output_file_url: string | null;
+  // eslint-disable-next-line 
+  output: any;
   task_url: string | null;
   configuration: Configuration;
 }
