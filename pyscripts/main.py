@@ -55,7 +55,7 @@ def extract_and_annotate_file(file_path: str, model: Model, table_ocr: TableOcr 
     print(f"Downloaded bounding boxes for {file_path}")
 
     print(f"Annotating file: {file_path}")
-    draw_bounding_boxes(file_path, output_json_path, output_annotated_path)
+    draw_bounding_boxes(file_path, output, output_annotated_path)
     print(f"File annotated: {file_path}")
 
 
