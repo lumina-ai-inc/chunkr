@@ -11,7 +11,7 @@ import base64
 
 app = FastAPI()
 
-MODEL_PATH = "Qwen/Qwen2-VL-7B-Instruct"
+MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct-AWQ"
 
 llm = LLM(
     model=MODEL_PATH,
@@ -39,7 +39,7 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
     
     # Prepare the messages
     messages = [
-        {"role": "system", "content": "You are great at reading charts, tables and images."},
+        {"role": "system", "content": "You are great at reading charts, tables and images. You are being given multiple images and asked to answer a question about them. Respond for all."},
         {
             "role": "user",
             "content": [
@@ -71,6 +71,59 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
 
     return JSONResponse(content={"generated_text": generated_text})
 
+@app.post("/generate/batch")
+async def generate_batch(requests: List[Dict[str, Any]]):
+    batch_messages = []
+    for req in requests:
+        prompt = req.get("prompt", "")
+        images = req.get("images", [])
+        
+        # Process images
+        pil_images = []
+        for img in images:
+            image = Image.open(io.BytesIO(base64.b64decode(img)))
+            pil_images.append(image)
+        
+        # Prepare the messages
+        messages = [
+            {"role": "system", "content": "You are great at reading charts, tables and images."},
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                ] + [{"type": "image", "image": img} for img in pil_images]
+            }
+        ]
+        batch_messages.append(messages)
+    
+    # Prepare the prompts
+    prompts = [
+        processor.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        ) for messages in batch_messages
+    ]
+    image_inputs, _ = process_vision_info(batch_messages)
+    
+    mm_data = {}
+    if image_inputs is not None:
+        mm_data["image"] = image_inputs
+
+    llm_inputs = [
+        {
+            "prompt": prompt,
+            "multi_modal_data": mm_data,
+        } for prompt in prompts
+    ]
+
+    # Generate the responses
+    outputs = llm.generate(llm_inputs, sampling_params=sampling_params)
+    generated_texts = [output.outputs[0].text for output in outputs]
+
+    return JSONResponse(content={"generated_texts": generated_texts})
+
+
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Qwen2-VL-7B-Instruct API"}
+    return {"message": "Welcome to the Qwen2-VL-2B-Instruct-AWQ API"}
