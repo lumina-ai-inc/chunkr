@@ -7,28 +7,21 @@ import DashBoardHeader from "./DashBoardHeader";
 import Loader from "../../pages/Loader/Loader";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
 import { useNavigate } from "react-router-dom";
+import { TaskResponse } from "../../models/task.model";
 
 export default function Dashboard() {
   const user = useSelector((state: RootState) => state.user.data);
   const navigate = useNavigate();
 
-  const handleTaskClick = (taskId: string) => {
-    navigate(`/task/${taskId}`);
-  };
-
   const { data: tasks, isLoading, isError } = useTasksQuery(1, 10);
-
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  if (isError) {
-    return <div>Error</div>;
-  }
 
   if (!user) {
     return <Loader />;
   }
+
+  const handleTaskClick = (task: TaskResponse) => {
+    navigate(`/task/${task.task_id}?pageCount=${task.page_count}`);
+  };
 
   return (
     <div className="dashboard-container">
@@ -319,14 +312,19 @@ export default function Dashboard() {
                     Tasks
                   </Text>
                 </Flex>
-
-                {tasks?.map((task) => (
-                  <TaskCard
-                    key={task.task_id}
-                    {...task}
-                    onClick={() => handleTaskClick(task.task_id)}
-                  />
-                ))}
+                {isLoading ? (
+                  <Loader />
+                  ) : isError ? (
+                    <div>Error</div>
+                  ) : (
+                    tasks?.map((task) => (
+                      <TaskCard
+                        key={task.task_id}
+                        {...task}
+                        onClick={() => handleTaskClick(task)}
+                      />
+                  ))
+                )}
               </Flex>
             </ScrollArea>
           </Flex>

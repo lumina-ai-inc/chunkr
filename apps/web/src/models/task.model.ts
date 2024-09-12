@@ -20,6 +20,8 @@ export interface TaskResponse {
   output: any;
   task_url: string | null;
   configuration: Configuration;
+  file_name: string | null;
+  page_count: number | null;
 }
 
 export interface Configuration {
