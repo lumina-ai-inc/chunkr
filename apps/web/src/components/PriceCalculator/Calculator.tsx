@@ -21,11 +21,10 @@ export default function Calculator() {
       width="100%"
       gap="8"
       style={{
-        border: "2px solid var(--cyan-5)",
+        backgroundColor: "hsla(191, 71%, 32%, 0.6)",
         borderRadius: "8px",
-        backgroundColor:
-          "hsla(189.47368421052633, 76%, 4.901960784313726%, 0.6)",
-        boxShadow: "0px 0px 20px 0px rgba(0, 0, 0, 0.3)",
+        border: "2px solid var(--cyan-3)",
+        boxShadow: "0px 0px 16px 0px rgba(12, 12, 12, 0.25)",
       }}
     >
       <Flex direction="column" width="100%" p="8">
