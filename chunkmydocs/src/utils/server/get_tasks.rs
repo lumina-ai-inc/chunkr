@@ -1,10 +1,9 @@
 use crate::models::server::extract::Configuration;
 use crate::models::server::task::{Status, TaskResponse};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
-use crate::utils::storage::services::{download_to_tempfile, generate_presigned_url};
+use crate::utils::storage::services::generate_presigned_url;
 use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
-use std::io::{self, Write};
 
 pub async fn get_tasks(
     pool: &Pool,
