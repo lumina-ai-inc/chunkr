@@ -62,7 +62,7 @@ export default function Upload({
       <Text
         size="3"
         weight="medium"
-        className="cyan-3 hover-cyan-6"
+        className="demo-pdf-text"
         style={{
           cursor: "pointer",
         }}
@@ -91,13 +91,13 @@ export default function Upload({
         {isAuthenticated && <input {...getInputProps()} />}
         <Flex
           direction="column"
-          py="10px"
-          px="12px"
-          style={{ border: "1px dashed var(--Colors-Cyan-6, #9DDDE7)" }}
+          py="24px"
+          px="32px"
+          style={{ border: "1px dashed hsla(0, 0%, 100%, 0.2)" }}
         >
-          <Text size="6" weight="bold" className="cyan-1">
+          <Text size="7" weight="medium" className="white">
             {!isAuthenticated
-              ? "Log In"
+              ? "Log In to test"
               : isUploaded
                 ? "File Uploaded"
                 : isDragActive
@@ -105,7 +105,12 @@ export default function Upload({
                   : "Upload Document"}
           </Text>
           {isAuthenticated && (
-            <Text size="2" className="cyan-3" style={{ marginTop: "8px" }}>
+            <Text
+              size="4"
+              className="white"
+              weight="light"
+              style={{ marginTop: "8px" }}
+            >
               {isUploaded ? fileName : "Drag and drop a PDF or click to select"}
             </Text>
           )}

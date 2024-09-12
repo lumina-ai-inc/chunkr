@@ -3,7 +3,6 @@ import { useAuth } from "react-oidc-context";
 import "./Home.css";
 import Header from "../../components/Header/Header";
 import UploadMain from "../../components/Upload/UploadMain";
-import ModelTable from "../../components/ModelTable/ModelTable";
 import Footer from "../../components/Footer/Footer";
 
 const Home = () => {
@@ -47,7 +46,7 @@ const Home = () => {
                     weight="bold"
                     trim="both"
                     className="hero-title"
-                    mb="28px"
+                    mb="24px"
                   >
                     Open Source Data Ingestion for LLMs & RAG
                   </Text>
@@ -73,9 +72,8 @@ const Home = () => {
                       direction="row"
                       align="center"
                       className="signup-button"
-                      mb="24px"
                     >
-                      <Text size="3" weight="bold" className="cyan-12">
+                      <Text size="3" weight="bold">
                         Get started for free
                       </Text>
                       <svg
@@ -95,7 +93,7 @@ const Home = () => {
                           fill-rule="evenodd"
                           clip-rule="evenodd"
                           d="M13.0343 5.03431C13.3467 4.72188 13.8532 4.72188 14.1656 5.03431L20.5657 11.4343C20.878 11.7467 20.878 12.2533 20.5657 12.5657L14.1656 18.9658C13.8532 19.2781 13.3467 19.2781 13.0343 18.9658C12.7218 18.6533 12.7218 18.1467 13.0343 17.8342L18.0686 12.8H3.99995C3.55813 12.8 3.19995 12.4418 3.19995 12C3.19995 11.5582 3.55813 11.2 3.99995 11.2H18.0686L13.0343 6.16567C12.7218 5.85326 12.7218 5.34673 13.0343 5.03431Z"
-                          fill="#0D3C48"
+                          fill="#000000"
                         />
                       </svg>
                     </Flex>
@@ -156,108 +154,6 @@ const Home = () => {
               </Flex>
             </div>
           </div>
-          <Flex p="80px" mt="40px" className="model-table-container">
-            <ModelTable />
-          </Flex>
-
-          {/* <Flex
-            direction="row"
-            justify="between"
-            gap="48px"
-            className="home-cards-container"
-          >
-            <Flex
-              direction="column"
-              align="center"
-              justify="center"
-              gap="16px"
-              className="home-card"
-            >
-              <div className="card-image-container">
-                <img
-                  src="src/assets/home-cards/card-one.png"
-                  alt="Card 1"
-                  className="card-image"
-                />
-                <div className="card-gradient-overlay"></div>
-              </div>
-            </Flex>
-            <Flex
-              direction="column"
-              align="center"
-              justify="center"
-              gap="16px"
-              className="home-card"
-            >
-              <div className="card-image-container">
-                <img
-                  src="src/assets/home-cards/card-two.png"
-                  alt="Card 2"
-                  className="card-image"
-                />
-                <div className="card-gradient-overlay"></div>
-              </div>
-            </Flex>
-            <Flex
-              direction="column"
-              align="center"
-              justify="center"
-              gap="24px"
-              className="home-card"
-            >
-              <div className="card-image-container">
-                <img
-                  src="src/assets/home-cards/card-three.png"
-                  alt="Card 3"
-                  className="card-image"
-                />
-                <Flex
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    width: "100%",
-                    transform: "translate(-50%, -50%)",
-                    zIndex: "100",
-                    padding: "16px",
-                  }}
-                >
-                  <Text weight="bold" className="white" size="9">
-                    Built for startups
-                  </Text>
-                </Flex>
-                <div className="card-gradient-overlay"></div>
-              </div>
-            </Flex>
-          </Flex> */}
-
-          <Flex direction="column" align="center" justify="center" gap="16px">
-            <Flex
-              direction="row"
-              align="center"
-              className="signup-button button-bottom"
-              mt="48px"
-            >
-              <Text size="3" weight="bold" className="cyan-12">
-                Get started for free
-              </Text>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <rect width="24" height="24" fill="white" fill-opacity="0.01" />
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M13.0343 5.03431C13.3467 4.72188 13.8532 4.72188 14.1656 5.03431L20.5657 11.4343C20.878 11.7467 20.878 12.2533 20.5657 12.5657L14.1656 18.9658C13.8532 19.2781 13.3467 19.2781 13.0343 18.9658C12.7218 18.6533 12.7218 18.1467 13.0343 17.8342L18.0686 12.8H3.99995C3.55813 12.8 3.19995 12.4418 3.19995 12C3.19995 11.5582 3.55813 11.2 3.99995 11.2H18.0686L13.0343 6.16567C12.7218 5.85326 12.7218 5.34673 13.0343 5.03431Z"
-                  fill="#0D3C48"
-                />
-              </svg>
-            </Flex>
-          </Flex>
         </div>
 
         <Footer />
