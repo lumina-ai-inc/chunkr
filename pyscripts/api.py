@@ -43,6 +43,7 @@ def get_task(url: str) -> TaskResponse:
     headers = get_headers()
     response = requests.get(url, headers=headers)
     response.raise_for_status()
+    print(response.json())
     task = TaskResponse(**response.json())
     return task
 
@@ -60,8 +61,8 @@ def process_file(file_path: str, model: Model, table_ocr: TableOcr = None) -> Ta
     task = extract_file(file_path, model, table_ocr)
     print(f"Task id: {task.task_id}")
     task = check_task_status(task.task_url)
-    print(f"Task completed for {file_path}:")
-    print(task)
+    # print(f"Task completed for {file_path}:")
+    # print(task)
     return task
 
 def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None):
