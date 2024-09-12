@@ -3,12 +3,11 @@ from fastapi.responses import JSONResponse
 from typing import List
 from transformers import AutoProcessor
 from vllm import LLM, SamplingParams
-from qwen_vl_utils import process_vision_info
+from qwen_vl_utils import process_vision_info, make_batched_images
 from PIL import Image
 import io
 import requests
 import base64
-from qwen_vl_utils import process_vision_info
 
 app = FastAPI()
 
@@ -59,6 +58,8 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
     
     mm_data = {}
     if image_inputs is not None:
+        # Ensure images are batched correctly
+        image_inputs = make_batched_images(image_inputs)
         mm_data["image"] = [image_inputs]  # Wrap image_inputs in a list
 
     llm_inputs = {
