@@ -17,8 +17,6 @@ export default function DashBoardHeader(user: User) {
   const handleAddPaymentMethod = async () => {
     try {
       const secret = await createSetupIntent(accessToken as string);
-      console.log("Received clientSecret:", secret);
-
       setClientSecret(secret);
       setShowPaymentSetup(true);
     } catch (error) {
