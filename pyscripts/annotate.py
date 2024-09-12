@@ -2,7 +2,7 @@ import json
 import fitz
 import os
 
-def draw_bounding_boxes(pdf_path, json_path, output_path):
+def draw_bounding_boxes(pdf_path, json, output_path):
     # Define colors for different types
     color_map = {
         "Caption": (1, 0, 0),  # Red
@@ -19,8 +19,7 @@ def draw_bounding_boxes(pdf_path, json_path, output_path):
     }
 
     # Load JSON data
-    with open(json_path, "r") as f:
-        data = json.load(f)
+    data=json
 
     # Open the PDF
     pdf_document = fitz.open(pdf_path)
