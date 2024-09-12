@@ -58,6 +58,7 @@ def check_task_status(url: str) -> TaskResponse:
 def process_file(file_path: str, model: Model, table_ocr: TableOcr = None) -> TaskResponse:
     health_check()
     task = extract_file(file_path, model, table_ocr)
+    print(f"Task id: {task.task_id}")
     task = check_task_status(task.task_url)
     print(f"Task completed for {file_path}:")
     print(task)

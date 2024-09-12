@@ -6,7 +6,6 @@ use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
 use reqwest;
 use serde_json;
-use std::io::{self, Write};
 
 pub async fn get_task(
     pool: &Pool,
@@ -43,20 +42,14 @@ pub async fn get_task(
         .get::<_, Option<String>>("message")
         .unwrap_or_default();
 
-    println!("Getting input file URL");
-    io::stdout().flush().unwrap();
     let input_location: String = first_row.get("input_location");
-    println!("Input location: {}", input_location);
-    io::stdout().flush().unwrap();
     let input_file_url = match generate_presigned_url(s3_client, &input_location, None).await {
         Ok(response) => {
             println!("Successfully generated input file URL");
-            io::stdout().flush().unwrap();
             Some(response)
         }
         Err(e) => {
             println!("Error getting input file url: {}", e);
-            io::stdout().flush().unwrap();
             return Err("Error getting input file url".into());
         }
     };
