@@ -8,7 +8,6 @@ use actix_web::HttpRequest;
 use actix_web::{ web, App, HttpServer };
 use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
 use env_logger::Env;
-use log::{debug, info, warn, error};
 
 pub mod extraction;
 pub mod middleware;
@@ -36,7 +35,7 @@ fn run_migrations(url: &str) {
     let mut conn = diesel::pg::PgConnection::establish(url).expect("Failed to connect to database");
     conn.run_pending_migrations(MIGRATIONS).expect("Failed to run migrations");
 
-    println!("Migrations run successfully");
+    println!("Migrations ran successfully");
 }
 
 #[derive(OpenApi)]
@@ -139,7 +138,6 @@ pub fn main() -> std::io::Result<()> {
                 .route("/tasks", web::get().to(get_tasks_status))
                 .route("/usage", web::get().to(get_usage));
 
-            // Check if Stripe environment variables are set
             if
                 std::env::var("STRIPE__API_KEY").is_ok() &&
                 std::env::var("STRIPE__WEBHOOK_SECRET").is_ok()
