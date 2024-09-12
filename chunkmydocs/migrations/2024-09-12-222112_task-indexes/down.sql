@@ -1,7 +1,6 @@
--- This file should undo anything in `up.sql`
-DROP INDEX IF EXISTS idx_discounts_usage_type;
-DROP INDEX IF EXISTS idx_task_invoices_invoice_id;
-DROP INDEX IF EXISTS idx_task_invoices_usage_type;
-DROP INDEX IF EXISTS idx_invoices_user_id;
-DROP INDEX IF EXISTS idx_invoices_date_created;
-DROP INDEX IF EXISTS idx_invoices_invoice_status;
+-- Drop the indexes created in the up migration
+DROP INDEX IF EXISTS idx_tasks_user_id;
+DROP INDEX IF EXISTS idx_tasks_status;
+DROP INDEX IF EXISTS idx_tasks_created_at;
+DROP INDEX IF EXISTS idx_tasks_finished_at;
+DROP INDEX IF EXISTS idx_tasks_expires_at;
