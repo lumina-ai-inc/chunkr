@@ -67,7 +67,7 @@ export default function UploadMain({
 
     try {
       const taskResponse = await uploadFile(payload);
-      navigate(`/task/${taskResponse.task_id}/${pageCount}`);
+      navigate(`/task/${taskResponse.task_id}?pageCount=${pageCount}`);
     } catch (error) {
       console.error("Error uploading file:", error);
       setError("Failed to upload file. Please try again later.");
