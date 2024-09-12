@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS TASKS (
 );
 
 CREATE TABLE IF NOT EXISTS USAGE (
-    user_id TEXT,
+    user_id TEXT PRIMARY KEY,
     usage INTEGER,
     usage_limit INTEGER,
     usage_type TEXT,
