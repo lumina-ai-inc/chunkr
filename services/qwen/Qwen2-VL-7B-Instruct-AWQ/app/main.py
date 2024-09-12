@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from typing import List
 from transformers import AutoProcessor
 from vllm import LLM, SamplingParams
-from qwen_vl_utils import process_vision_info, make_batched_images
+from qwen_vl_utils import process_vision_info
 from PIL import Image
 import io
 import requests
@@ -11,7 +11,7 @@ import base64
 
 app = FastAPI()
 
-MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct"
+MODEL_PATH = "Qwen/Qwen2-VL-7B-Instruct"
 
 llm = LLM(
     model=MODEL_PATH,
@@ -39,7 +39,7 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
     
     # Prepare the messages
     messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "system", "content": "You are great at reading charts, tables and images."},
         {
             "role": "user",
             "content": [
@@ -54,13 +54,11 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
         tokenize=False,
         add_generation_prompt=True,
     )
-    image_inputs = process_vision_info(messages)
+    image_inputs, _ = process_vision_info(messages)
     
     mm_data = {}
     if image_inputs is not None:
-        # Ensure images are batched correctly
-        image_inputs = make_batched_images(image_inputs)
-        mm_data["image"] = [image_inputs]  # Wrap image_inputs in a list
+        mm_data["image"] = image_inputs
 
     llm_inputs = {
         "prompt": prompt,
@@ -75,4 +73,4 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Qwen2-VL-2B-Instruct API"}
+    return {"message": "Welcome to the Qwen2-VL-7B-Instruct API"}
