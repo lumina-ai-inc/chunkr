@@ -158,22 +158,20 @@ resource "google_compute_firewall" "allow_egress" {
 }
 
 resource "google_compute_router" "router" {
+  project = var.project
   name    = "${var.base_name}-router"
   region  = var.region
   network = google_compute_network.vpc_network.id
 }
 
-resource "google_compute_router_nat" "nat" {
-  name                               = "${var.base_name}-nat"
+module "cloud-nat" {
+  source                             = "terraform-google-modules/cloud-nat/google"
+  version                            = "~> 5.0"
+  project_id                         = var.project
+  region                             = var.region
   router                             = google_compute_router.router.name
-  region                             = google_compute_router.router.region
-  nat_ip_allocate_option             = "AUTO_ONLY"
+  name                               = "${var.base_name}-nat"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-
-  log_config {
-    enable = true
-    filter = "ERRORS_ONLY"
-  }
 }
 
 ###############################################################
@@ -187,6 +185,9 @@ resource "google_container_cluster" "cluster" {
 
   deletion_protection = false
 
+  network    = google_compute_network.vpc_network.self_link
+  subnetwork = google_compute_subnetwork.vpc_subnet.self_link
+  
   vertical_pod_autoscaling {
     enabled = true
   }
