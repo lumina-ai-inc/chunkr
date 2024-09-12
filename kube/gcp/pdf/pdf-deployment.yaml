@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdf
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: pdf
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pdf
+  template:
+    metadata:
+      namespace: chunkmydocs
+      labels:
+        app.kubernetes.io/name: pdf
+    spec:
+      containers:
+      - name: pdf
+        image: luminainc/pdf:ca2c61b
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
