@@ -23,7 +23,7 @@ llm = LLM(
 )
 
 sampling_params = SamplingParams(
-    temperature=0.01,
+    temperature=0,
     top_p=0.001,
     repetition_penalty=1.05,
     max_tokens=1256,
@@ -86,7 +86,7 @@ async def generate_batch(prompt: str = Form(...), images: List[UploadFile] = Fil
     messages = []
     for img in pil_images:
         message = [
-            {"role": "system", "content": "You are great at reading charts, tables and images. You are being given an image and asked to answer a question about it."},
+            {"role": "system", "content": "You are great at reading charts, tables and images. You are being given an image and asked to answer a question about it. You must be prepared to respond in JSON."},
             {
                 "role": "user",
                 "content": [

@@ -35,6 +35,7 @@ annotated
 annotated-gpu
 sample
 samples
+test_images
 # Ignore Rust build artifacts
 target/
 **/*.rs.bk
