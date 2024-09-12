@@ -48,18 +48,18 @@ pub async fn get_tasks(
         let input_file_url = generate_presigned_url(s3_client, &input_location, None)
             .await
             .ok();
-        let output_location: String = row.get("output_location");
-        let mut output = None;
-        if status == Status::Succeeded {
-            if let Ok(temp_file) =
-                download_to_tempfile(s3_client, &reqwest::Client::new(), &output_location, None)
-                    .await
-            {
-                if let Ok(json_content) = tokio::fs::read_to_string(temp_file.path()).await {
-                    output = serde_json::from_str(&json_content).ok();
-                }
-            }
-        }
+        // let output_location: String = row.get("output_location");
+        // let mut output = None;
+        // if status == Status::Succeeded {
+        //     if let Ok(temp_file) =
+        //         download_to_tempfile(s3_client, &reqwest::Client::new(), &output_location, None)
+        //             .await
+        //     {
+        //         if let Ok(json_content) = tokio::fs::read_to_string(temp_file.path()).await {
+        //             output = serde_json::from_str(&json_content).ok();
+        //         }
+        //     }
+        // }
 
         let task_url: Option<String> = row.get("task_url");
         let configuration: Configuration = row
@@ -74,7 +74,7 @@ pub async fn get_tasks(
             finished_at,
             expires_at,
             message,
-            output,
+            output: None,
             input_file_url,
             task_url,
             configuration,
