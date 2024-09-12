@@ -1,4 +1,3 @@
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,25 +44,3 @@ spec:
   - port: 8000
     targetPort: 8000
     protocol: TCP
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: rrq-ingress
-  namespace: chunkmydocs
-  labels:
-    app: rrq
-  annotations:
-    kubernetes.io/ingress.class: gce
-spec:
-  ingressClassName: gce
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: rrq-service
-            port:
-              number: 8000

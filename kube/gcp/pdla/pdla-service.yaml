@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pdla-service
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: pdla
+spec:
+  selector:
+    app.kubernetes.io/name: pdla
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
