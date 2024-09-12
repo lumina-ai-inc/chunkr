@@ -151,6 +151,8 @@ pub async fn create_task(
                 task_url: Some(task_url),
                 message,
                 configuration: configuration.clone(),
+                file_name: Some(file_name.to_string()),
+                page_count: Some(page_count),
             })
         }
         Err(e) => Err(e),

@@ -15,12 +15,13 @@ pub async fn get_task(
 ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
     let task_and_files = client.query(
-        "SELECT status, created_at, finished_at, expires_at, message, input_location, output_location, task_url, configuration
+        "SELECT status, created_at, finished_at, expires_at, message, input_location, output_location, task_url, configuration, file_name, page_count
          FROM TASKS
          WHERE task_id = $1 AND user_id = $2",
         &[&task_id, &user_id]
     ).await?;
-
+    let file_name = task_and_files[0].get::<_, Option<String>>("file_name");
+    let page_count = task_and_files[0].get::<_, Option<i32>>("page_count");
     if task_and_files.is_empty() {
         return Err("Task not found".into());
     }
@@ -83,5 +84,7 @@ pub async fn get_task(
         input_file_url,
         task_url,
         configuration,
+        file_name: file_name,
+        page_count: page_count,
     })
 }
