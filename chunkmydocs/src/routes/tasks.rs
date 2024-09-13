@@ -5,10 +5,6 @@ use crate::utils::server::get_tasks::get_tasks;
 use actix_web::{web, Error, HttpResponse};
 use aws_sdk_s3::Client as S3Client;
 
-/// Get Extraction Tasks
-///
-/// Get a list of extraction tasks for the user.
-
 pub async fn get_tasks_status(
     pool: web::Data<Pool>,
     s3_client: web::Data<S3Client>,
