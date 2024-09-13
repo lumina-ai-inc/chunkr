@@ -9,7 +9,14 @@
   align-items: center;
   justify-content: center;
   width: 50%;
-  background-color: hsla(191, 71%, 32%, 0.7);
+  background-color: hsl(0, 0%, 100%, 0.1);
+
+  /* border: 2px solid #fff; */
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(24px);
+  border: 1px solid hsla(0, 0%, 100%, 0.1);
   color: rgba(250, 253, 254, 0.5);
   cursor: pointer;
   transition:
@@ -22,13 +29,13 @@
   align-items: center;
   justify-content: center;
   width: 50%;
-  background: rgba(61, 185, 207, 0.9);
-  color: var(--cyan-1);
+  background: hsl(0, 0%, 100%, 0.9);
+  color: #000;
 }
 
 .toggle:hover {
-  background: rgba(61, 185, 207, 0.85);
-  color: var(--cyan-3);
+  background: hsl(0, 0%, 100%, 0.8);
+  color: hsl(0, 0%, 0%, 0.9);
 }
 
 @media (max-width: 718px) {

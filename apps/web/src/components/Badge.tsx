@@ -12,7 +12,7 @@ export default function Badge({
       py="8px"
       px="12px"
       className={className}
-      style={{ borderRadius: "4px", backgroundColor: "#04161a" }}
+      style={{ borderRadius: "4px" }}
     >
       {children}
     </Flex>
