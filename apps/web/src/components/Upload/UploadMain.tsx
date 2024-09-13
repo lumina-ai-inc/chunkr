@@ -110,7 +110,7 @@ export default function UploadMain({
             direction="row"
             height="64px"
             width="100%"
-            mt="8px"
+            mt="32px"
             className="toggle-container"
             onClick={handleModelToggle}
           >
