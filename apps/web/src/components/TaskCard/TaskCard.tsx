@@ -7,56 +7,60 @@ export interface TaskCardProps extends TaskResponse {
 }
 
 const statusColors = {
-  [Status.Starting]: "cyan-4",
-  [Status.Processing]: "cyan-8",
-  [Status.Succeeded]: "cyan-11",
-  [Status.Failed]: "red-8",
-  [Status.Canceled]: "amber-8",
+  [Status.Starting]: "#007AFF",
+  [Status.Processing]: "#FF9500",
+  [Status.Succeeded]: "#34C759",
+  [Status.Failed]: "#FF3B30",
+  [Status.Canceled]: "#FF9500",
 };
 
 export default function TaskCard({ onClick, ...task }: TaskCardProps) {
   const statusColor = statusColors[task.status];
 
   return (
-    <Flex
-      direction="row"
-      align="center"
-      justify="between"
-      className="task-card"
-      onClick={onClick}
-    >
-      <Text size="2" weight="bold" className="cyan-3">
-        {new Date(task.created_at).toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        })}
-      </Text>
-      <Text
-        size="2"
-        className="cyan-2"
-        style={{ flex: 1, marginLeft: "16px", marginRight: "16px" }}
-      >
+    <Flex direction="column" className="task-card" onClick={onClick} style={{}}>
+      <Flex justify="between" align="center" mb="2">
+        <Text size="1" style={{ color: "rgba(255, 255, 255, 0.6)" }}>
+          {new Date(task.created_at).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          })}
+        </Text>
+        <Badge
+          size="1"
+          style={{
+            backgroundColor: statusColor,
+            color: "#FFF",
+            padding: "4px 8px",
+            borderRadius: "12px",
+            fontWeight: "500",
+          }}
+        >
+          {task.status}
+        </Badge>
+      </Flex>
+      <Text size="3" weight="bold" mb="1" style={{ color: "#FFF" }}>
         {task.file_name}
       </Text>
       <Text
-        size="2"
-        className="cyan-2"
-        style={{ flex: 1, marginLeft: "16px", marginRight: "16px" }}
+        size="4"
+        mb="2"
+        weight="medium"
+        style={{ color: "rgba(255, 255, 255, 1)" }}
       >
         {task.message}
       </Text>
-      <Text size="2" className="cyan-4" style={{ marginRight: "16px" }}>
-        {task.configuration.model}
-      </Text>
-      <Text size="2" className="cyan-4" style={{ marginRight: "16px" }}>
-        {task.configuration.target_chunk_length || "N/A"}
-      </Text>
-      <Badge size="1" style={{ backgroundColor: statusColor }}>
-        {task.status}
-      </Badge>
+      <Flex gap="2" wrap="wrap">
+        <Text size="2" style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+          Model: {task.configuration.model}
+        </Text>
+        <Text size="2" style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+          Target Chunk Length: {task.configuration.target_chunk_length || "N/A"}
+        </Text>
+      </Flex>
     </Flex>
   );
 }
