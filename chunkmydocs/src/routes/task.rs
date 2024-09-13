@@ -8,7 +8,7 @@ use actix_web::{web, Error, HttpRequest, HttpResponse};
 use aws_sdk_s3::Client as S3Client;
 use uuid::Uuid;
 
-/// Get Extraction Task Status
+/// Get Task
 ///
 /// Keep track of the progress of an extraction task by polling this route with the task ID.
 #[utoipa::path(
@@ -49,7 +49,7 @@ pub async fn get_task_status(
     }
 }
 
-/// Create Extraction Task
+/// Create Task
 ///
 /// Queue a document for extraction and get a task ID back to poll for status
 #[utoipa::path(
