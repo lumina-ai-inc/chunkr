@@ -7,6 +7,7 @@ import "./Header.css";
 import Dashboard from "../Dashboard/Dashboard";
 import { useAuth } from "react-oidc-context";
 import { downloadJSON } from "../../utils/utils";
+import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
 
 interface HeaderProps {
   py?: string;
@@ -20,9 +21,11 @@ export default function Header({
   home = false,
 }: HeaderProps) {
   const [showAccount, setShowAccount] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
   const { content } = useSelector((state: RootState) => state.pdfContent);
+  const user = useSelector((state: RootState) => state.user.data);
 
   const handleDownloadJSON = () => {
     if (content) {
@@ -55,14 +58,22 @@ export default function Header({
         </div>
       </Link>
 
-      <Flex className="nav-center" direction="row" gap="40px" align="center">
-        <Text size="2" weight="medium" className="nav-item">
-          Features
-        </Text>
-
-        <Text size="2" weight="medium" className="nav-item">
-          API Docs
-        </Text>
+      <Flex
+        className="nav-center"
+        direction="row"
+        gap="40px"
+        ml={isAuthenticated ? "104px" : "0"}
+        align="center"
+      >
+        <a
+          href="https://github.com/lumina-ai-inc/chunk-my-docs"
+          target="_blank"
+          className="nav-item"
+        >
+          <Text size="2" weight="medium" className="nav-item">
+            API Docs
+          </Text>
+        </a>
 
         <a
           href="https://github.com/lumina-ai-inc/chunk-my-docs"
@@ -80,25 +91,13 @@ export default function Header({
           className="nav-item"
         >
           <Text size="2" weight="medium" className="nav-item">
-            Discord
+            Contact
           </Text>
         </a>
 
-        <Link
-          to="/pricing"
-          style={{ textDecoration: "none" }}
-          className="nav-item"
-        >
-          <Text size="2" weight="medium" className="nav-item">
-            Pricing
-          </Text>
-        </Link>
-      </Flex>
-
-      <Flex className="nav" direction="row" gap="40px" align="center">
         {download && !home && content && (
           <Text
-            size="3"
+            size="2"
             weight="medium"
             className="nav-item-download"
             onClick={handleDownloadJSON}
@@ -108,13 +107,32 @@ export default function Header({
           </Text>
         )}
 
+        {/* <Link
+          to="/pricing"
+          style={{ textDecoration: "none" }}
+          className="nav-item"
+        >
+          <Text size="2" weight="medium" className="nav-item">
+            Pricing
+          </Text>
+        </Link> */}
+      </Flex>
+
+      <Flex className="nav" direction="row" gap="24px" align="center">
         <Flex
           direction="row"
-          gap="3"
+          gap="4"
           align="center"
           className="auth-container"
           justify="end"
         >
+          {isAuthenticated && user && (
+            <ApiKeyDialog
+              user={user}
+              showApiKey={showApiKey}
+              setShowApiKey={setShowApiKey}
+            />
+          )}
           {isAuthenticated ? (
             <Link
               to="/dashboard"

@@ -35,7 +35,7 @@ export const SegmentChunk = forwardRef<
         key={type}
         className={`segment-badge ${type.toLowerCase().replace(" ", "-")}`}
       >
-        <Text size="1" weight="medium" className="cyan-4">
+        <Text size="1" weight="medium" className="white">
           {`${type} x${count}`}
         </Text>
       </Badge>
@@ -77,7 +77,7 @@ export const SegmentChunk = forwardRef<
                         fillRule="evenodd"
                         clipRule="evenodd"
                         d="M18.9836 9.85285C18.6814 9.53051 18.1751 9.51419 17.8528 9.81637L11.9999 15.3034L6.14715 9.81637C5.82475 9.51419 5.31851 9.53051 5.01627 9.85285C4.71419 10.1752 4.73051 10.6815 5.05275 10.9836L11.4528 16.9836C11.7605 17.2721 12.2394 17.2721 12.5471 16.9836L18.9471 10.9836C19.2694 10.6815 19.2858 10.1752 18.9836 9.85285Z"
-                        fill="#0D3C48"
+                        fill="hsla(0, 0%, 100%, 0.9)"
                       />
                     </svg>
                   </div>
@@ -91,7 +91,9 @@ export const SegmentChunk = forwardRef<
                     size="3"
                     weight="medium"
                     style={{
-                      color: markdownSelected ? "var(--cyan-8)" : "#8A9BA8",
+                      color: markdownSelected
+                        ? "hsla(0, 0%, 100%, 0.9)"
+                        : "#8A9BA8",
                       cursor: "pointer",
                     }}
                     onClick={(e) => {
@@ -105,7 +107,9 @@ export const SegmentChunk = forwardRef<
                     size="3"
                     weight="medium"
                     style={{
-                      color: !markdownSelected ? "var(--cyan-8)" : "#8A9BA8",
+                      color: !markdownSelected
+                        ? "hsla(0, 0%, 100%, 0.9)"
+                        : "#8A9BA8",
                       cursor: "pointer",
                     }}
                     onClick={(e) => {

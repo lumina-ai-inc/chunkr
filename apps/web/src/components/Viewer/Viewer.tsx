@@ -24,9 +24,9 @@ interface ViewerProps {
 export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
-  const [pdfWidth, setPdfWidth] = useState<number>(50); 
+  const [pdfWidth, setPdfWidth] = useState<number>(50);
   const isDraggingRef = useRef<boolean>(false);
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
   const {
     content: pdfContent,
     isLoading,
@@ -146,14 +146,14 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
       <Flex
         direction="row"
         width="100%"
-        style={{ borderTop: "2px solid hsla(192, 69%, 10%)" }}
+        style={{ borderTop: "2px solid hsla(0, 0%, 0%, 0.4)" }}
         onMouseMove={handleMouseMove}
       >
         <Flex
           width={`${pdfWidth}%`}
           direction="column"
           style={{
-            borderRight: "2px solid var(--cyan-12)",
+            borderRight: "2px solid hsla(0, 0%, 0%, 0.4)",
             position: "relative",
           }}
           ref={scrollAreaRef}
@@ -174,11 +174,30 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
               height: "32px",
               cursor: "col-resize",
               borderRadius: "4px",
-              backgroundColor: "var(--cyan-12)",
+              backgroundColor: "#1C1C1E",
               zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
             onMouseDown={handleMouseDown}
-          />
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+            >
+              <rect width="12" height="12" fill="white" fill-opacity="0.01" />
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M11.5999 0.799988C11.379 0.799988 11.1999 0.979074 11.1999 1.19999V4.79995H0.799994V1.19999C0.799994 0.979074 0.620909 0.799988 0.399997 0.799988C0.179085 0.799988 9.65641e-09 0.979074 0 1.19999L3.43308e-07 10.7999C3.33651e-07 11.0208 0.179084 11.1999 0.399997 11.1999C0.620909 11.1999 0.799994 11.0208 0.799994 10.7999V7.19993H11.1999V10.7999C11.1999 11.0208 11.379 11.1999 11.5999 11.1999C11.8208 11.1999 11.9999 11.0208 11.9999 10.7999V1.19999C11.9999 0.979074 11.8208 0.799988 11.5999 0.799988Z"
+                fill="white"
+              />
+            </svg>
+          </div>
         </Flex>
         <ScrollArea
           scrollbars="vertical"
@@ -186,6 +205,7 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
           style={{
             height: "calc(100vh - 90px)",
             width: `${100 - pdfWidth}%`,
+            borderTop: "1px solid hsla(0, 0%, 100%, 0.1)",
           }}
         >
           <Flex

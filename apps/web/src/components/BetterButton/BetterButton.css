@@ -1,5 +1,5 @@
 .button-resting {
-  border: 1px solid var(--cyan-4);
+  border: 1px solid hsla(0, 0%, 100%, 0.2);
   background-color: hsla(191, 71%, 32%, 0);
   color: inherit;
   text-align: center;
@@ -16,12 +16,12 @@
 }
 
 .button-resting:hover {
-  background-color: #fff;
-  border: 1px solid #fff;
+  background-color: hsla(0, 0%, 100%, 0.1);
+  border: 1px solid hsla(0, 0%, 100%, 0.5);
 }
 
 .button-resting:hover > span {
-  color: var(--cyan-12) !important;
+  color: hsla(0, 0%, 100%) !important;
 }
 
 .button-active {
