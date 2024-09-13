@@ -100,6 +100,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-
-notes.md
+log.py
+logs.md
 commit.py
+commits.md
