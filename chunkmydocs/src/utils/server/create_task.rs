@@ -1,5 +1,6 @@
 use crate::models::auth::auth::UserInfo;
 use crate::models::rrq::produce::ProducePayload;
+use crate::models::server::extract::PipelinePayload;
 use crate::models::{
     server::extract::{Configuration, ExtractionPayload},
     server::task::{Status, TaskResponse},
@@ -118,6 +119,11 @@ pub async fn create_task(
                 )
                 .await?;
 
+            let pipeline = PipelinePayload {
+                llm_model: configuration.LLM.clone(),
+                table_ocr: None,
+            };
+
             let extraction_payload = ExtractionPayload {
                 model: model_internal,
                 input_location: input_location.clone(),
@@ -126,7 +132,7 @@ pub async fn create_task(
                 batch_size: Some(ingest_batch_size),
                 task_id: task_id.clone(),
                 target_chunk_length: Some(target_chunk_length),
-                pipeline: None,
+                pipeline: Some(pipeline),
             };
 
             produce_extraction_payloads(extraction_payload).await?;
