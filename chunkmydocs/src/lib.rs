@@ -35,7 +35,7 @@ fn run_migrations(url: &str) {
     let mut conn = diesel::pg::PgConnection::establish(url).expect("Failed to connect to database");
     conn.run_pending_migrations(MIGRATIONS).expect("Failed to run migrations");
 
-    println!("Migrations run successfully");
+    println!("Migrations ran successfully");
 }
 
 #[derive(OpenApi)]
@@ -54,24 +54,28 @@ fn run_migrations(url: &str) {
         routes::health::health_check,   
         routes::task::create_extraction_task,
         routes::task::get_task_status,
-        routes::tasks::get_tasks_status
     ),
     components(
         schemas(
             models::server::extract::UploadForm,
             models::server::extract::Configuration,
             models::server::extract::TableOcr,
-            models::server::task::TaskResponse,
-            models::server::tasks::TasksQuery,
-            models::server::task::Status,
             models::server::extract::Model,
+            models::server::task::TaskResponse,
+            models::server::task::Status,
             models::server::user::User,
             models::server::user::Tier,
             models::server::user::Usage,
-            models::server::user::UsageType
+            models::server::user::UsageType,
+            models::server::segment::SegmentType,
+            models::server::segment::Segment,
+            models::server::segment::Chunk,
         )
     ),
-    tags((name = "health", description = "Endpoint for checking the health of the service."))
+    tags(
+        (name = "health", description = "Endpoint for checking the health of the service."),
+        (name = "task", description = "Endpoints for creating and getting task status")
+    )
 )]
 pub struct ApiDoc;
 
@@ -81,6 +85,7 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 }
 
 pub fn main() -> std::io::Result<()> {
+
     actix_web::rt::System::new().block_on(async move {
         let pg_pool = deadpool_postgres::create_pool();
         let s3_client = create_client().await.expect("Failed to create S3 client");
@@ -137,7 +142,6 @@ pub fn main() -> std::io::Result<()> {
                 .route("/tasks", web::get().to(get_tasks_status))
                 .route("/usage", web::get().to(get_usage));
 
-            // Check if Stripe environment variables are set
             if
                 std::env::var("STRIPE__API_KEY").is_ok() &&
                 std::env::var("STRIPE__WEBHOOK_SECRET").is_ok()

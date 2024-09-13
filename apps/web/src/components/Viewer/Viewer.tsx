@@ -4,34 +4,20 @@ import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
 import Header from "../Header/Header";
 import { Chunk } from "../../models/chunk.model";
-import { getChunks } from "../../services/chunkMyDocs";
-import { Link } from "react-router-dom";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
-import { useSelector, useDispatch } from "react-redux"; // Add useDispatch here
-import {
-  setPdfContent,
-  setLoading,
-  setError,
-} from "../../store/pdfContentSlice";
-import { RootState } from "../../store/store";
 
 interface ViewerProps {
-  outputFileUrl: string;
+  // eslint-disable-next-line
+  output: any;
   inputFileUrl: string;
 }
 
-export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
+export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
-  const [pdfWidth, setPdfWidth] = useState<number>(50); // Initial width percentage
+  const [pdfWidth, setPdfWidth] = useState<number>(50);
   const isDraggingRef = useRef<boolean>(false);
-  const dispatch = useDispatch(); // Use useDispatch hook
-  const {
-    content: pdfContent,
-    isLoading,
-    error,
-  } = useSelector((state: RootState) => state.pdfContent);
 
   const chunkRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -51,33 +37,6 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
       }
     }
   }, []);
-
-  useEffect(() => {
-    const fetchContent = async () => {
-      dispatch(setLoading(true));
-      try {
-        if (outputFileUrl) {
-          const content = await getChunks(outputFileUrl);
-          dispatch(setPdfContent(content));
-        }
-      } catch (error) {
-        console.error(error);
-        if (String(error).includes("403")) {
-          dispatch(
-            setError(
-              "Timeout Error: Failed to fetch file - try uploading again"
-            )
-          );
-        } else if (String(error).includes("Invalid JSON")) {
-          dispatch(setError(`Server returned invalid data: ${error}`));
-        } else {
-          dispatch(setError(`${error}`));
-        }
-      }
-    };
-
-    fetchContent();
-  }, [outputFileUrl, inputFileUrl, dispatch]);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -127,11 +86,8 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
     };
   }, []);
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  if (!pdfContent) {
+  // TODO: Convert to show error message
+  if (!output) {
     return <Loader />;
   }
 
@@ -147,21 +103,21 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
       <Flex
         direction="row"
         width="100%"
-        style={{ borderTop: "2px solid var(--cyan-12)" }}
+        style={{ borderTop: "2px solid hsla(0, 0%, 0%, 0.4)" }}
         onMouseMove={handleMouseMove}
       >
         <Flex
           width={`${pdfWidth}%`}
           direction="column"
           style={{
-            borderRight: "2px solid var(--cyan-12)",
+            borderRight: "2px solid hsla(0, 0%, 0%, 0.4)",
             position: "relative",
           }}
           ref={scrollAreaRef}
         >
-          {inputFileUrl && pdfContent && (
+          {inputFileUrl && output && (
             <PDF
-              content={pdfContent}
+              content={output}
               inputFileUrl={inputFileUrl}
               onSegmentClick={scrollToSegment}
             />
@@ -170,16 +126,35 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
             style={{
               position: "absolute",
               right: "-14px",
-              top: "calc(50% - 16px)",
+              top: "calc(50% - 32px)",
               width: "24px",
               height: "32px",
               cursor: "col-resize",
               borderRadius: "4px",
-              backgroundColor: "var(--cyan-5)",
+              backgroundColor: "#1C1C1E",
               zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
             onMouseDown={handleMouseDown}
-          />
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+            >
+              <rect width="12" height="12" fill="white" fill-opacity="0.01" />
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M11.5999 0.799988C11.379 0.799988 11.1999 0.979074 11.1999 1.19999V4.79995H0.799994V1.19999C0.799994 0.979074 0.620909 0.799988 0.399997 0.799988C0.179085 0.799988 9.65641e-09 0.979074 0 1.19999L3.43308e-07 10.7999C3.33651e-07 11.0208 0.179084 11.1999 0.399997 11.1999C0.620909 11.1999 0.799994 11.0208 0.799994 10.7999V7.19993H11.1999V10.7999C11.1999 11.0208 11.379 11.1999 11.5999 11.1999C11.8208 11.1999 11.9999 11.0208 11.9999 10.7999V1.19999C11.9999 0.979074 11.8208 0.799988 11.5999 0.799988Z"
+                fill="white"
+              />
+            </svg>
+          </div>
         </Flex>
         <ScrollArea
           scrollbars="vertical"
@@ -187,6 +162,7 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
           style={{
             height: "calc(100vh - 90px)",
             width: `${100 - pdfWidth}%`,
+            borderTop: "1px solid hsla(0, 0%, 100%, 0.1)",
           }}
         >
           <Flex
@@ -198,34 +174,10 @@ export const Viewer = ({ outputFileUrl, inputFileUrl }: ViewerProps) => {
             align="center"
             justify="center"
           >
-            {isLoading ? (
-              <Loader />
-            ) : error ? (
-              <Link to="/" style={{ textDecoration: "none" }}>
-                <div
-                  style={{
-                    color: "var(--red-9)",
-                    padding: "8px 12px",
-                    border: "2px solid var(--red-12)",
-                    borderRadius: "4px",
-                    backgroundColor: "var(--red-7)",
-                    cursor: "pointer",
-                    transition: "background-color 0.2s ease",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "var(--red-8)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "var(--red-7)")
-                  }
-                >
-                  {error}
-                </div>
-              </Link>
-            ) : pdfContent.length === 0 ? (
+            {output.length === 0 ? (
               <div>No content available for this PDF.</div>
             ) : (
-              pdfContent.map((chunk: Chunk, chunkIndex: number) => (
+              output.map((chunk: Chunk, chunkIndex: number) => (
                 <SegmentChunk
                   key={chunkIndex}
                   chunk={chunk}

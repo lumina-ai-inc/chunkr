@@ -1,12 +1,18 @@
 .task-card {
-  border: 2px solid var(--cyan-12);
-  background-color: hsl(189, 70%, 5%);
-  padding: 16px;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease-in-out;
 }
 
 .task-card:hover {
-  background-color: hsl(189, 70%, 8%);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.task-card .white {
+  color: #fff;
 }

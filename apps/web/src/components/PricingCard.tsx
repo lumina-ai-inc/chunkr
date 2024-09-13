@@ -1,6 +1,5 @@
-import { Flex, Text, Badge, Separator } from "@radix-ui/themes";
-import { keyframes } from "@emotion/react";
-import styled from "@emotion/styled";
+import { Flex, Text, Badge } from "@radix-ui/themes";
+
 import "../pages/Pricing/Pricing.css";
 
 // Add this component at the end of the file
@@ -12,19 +11,6 @@ interface PricingCardProps {
   enterprise: boolean;
   auth: boolean;
 }
-
-const drawLine = keyframes`
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-`;
-
-const AnimatedSeparator = styled(Separator)`
-  animation: ${drawLine} 1s ease-out forwards;
-`;
 
 export default function PricingCard({
   tier,
@@ -39,6 +25,7 @@ export default function PricingCard({
   return (
     <Flex
       direction="column"
+      width="100%"
       className={isActive ? "card-container-selected" : "card-container"}
     >
       <Text size="4" weight="medium" className="cyan-4" trim="start">
@@ -52,18 +39,9 @@ export default function PricingCard({
       >
         {enterprise ? price : `$${price}`}
       </Text>
-      <AnimatedSeparator
-        size="2"
-        style={{
-          backgroundColor: "var(--cyan-12)",
-          width: "100%",
-          height: "2px",
-          marginTop: "24px",
-          marginBottom: "24px",
-        }}
-      />
-      <Flex direction="column" gap="20px">
-        <Text size="4" weight="regular" className="cyan-6">
+
+      <Flex direction="column" gap="20px" mt="4">
+        <Text size="4" weight="regular" className="cyan-3">
           {text}
         </Text>
       </Flex>

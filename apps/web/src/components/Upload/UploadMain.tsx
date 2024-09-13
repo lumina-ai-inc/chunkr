@@ -3,12 +3,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Upload from "./Upload";
 import "./UploadMain.css";
-import BetterButton from "../BetterButton/BetterButton";
 import { Model, UploadForm } from "../../models/upload.model";
-import * as pdfjsLib from "pdfjs-dist";
 import { uploadFile } from "../../services/uploadFileApi";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export default function UploadMain({
   isAuthenticated,
@@ -17,7 +13,6 @@ export default function UploadMain({
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
-  const [pageCount, setPageCount] = useState<number | null>(null);
   const [model, setModel] = useState<Model>(Model.Fast);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,21 +21,6 @@ export default function UploadMain({
   const handleFileUpload = async (uploadedFile: File) => {
     setFile(uploadedFile);
     setFileName(uploadedFile.name);
-
-    if (uploadedFile.type === "application/pdf") {
-      try {
-        const arrayBuffer = await uploadedFile.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-        const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
-
-        setPageCount(pdf.numPages);
-      } catch (error) {
-        console.error("Error reading PDF:", error);
-        setPageCount(null);
-      }
-    } else {
-      setPageCount(null);
-    }
   };
 
   const handleFileRemove = () => {
@@ -63,11 +43,14 @@ export default function UploadMain({
     const payload: UploadForm = {
       file,
       model,
+      target_chunk_length: 512,
     };
 
     try {
       const taskResponse = await uploadFile(payload);
-      navigate(`/task/${taskResponse.task_id}/${pageCount}`);
+      navigate(
+        `/task/${taskResponse.task_id}?pageCount=${taskResponse.page_count}`
+      );
     } catch (error) {
       console.error("Error uploading file:", error);
       setError("Failed to upload file. Please try again later.");
@@ -127,7 +110,7 @@ export default function UploadMain({
             direction="row"
             height="64px"
             width="100%"
-            mt="40px"
+            mt="32px"
             className="toggle-container"
             onClick={handleModelToggle}
           >
@@ -163,15 +146,21 @@ export default function UploadMain({
             </Flex>
           </Flex>
           <Flex direction="row" width="100%" mt="32px">
-            <BetterButton
-              padding="16px 64px"
-              onClick={handleRun}
-              active={!!file && !isLoading}
+            <Flex
+              direction="column"
+              height="64px"
+              justify="center"
+              className={!!file && !isLoading ? "toggle-active" : "toggle"}
+              style={{
+                borderRadius: "4px",
+                cursor: !!file && !isLoading ? "pointer" : "not-allowed",
+              }}
+              onClick={!!file && !isLoading ? handleRun : undefined}
             >
               <Text size="5" weight="medium">
                 {isLoading ? "Uploading..." : "Run"}
               </Text>
-            </BetterButton>
+            </Flex>
           </Flex>
         </>
       )}

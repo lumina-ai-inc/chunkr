@@ -1,5 +1,4 @@
 use crate::models::server::segment::{Chunk, Segment, SegmentType};
-use std::collections::VecDeque;
 
 pub async fn hierarchical_chunk_and_add_markdown(
     segments: Vec<Segment>,

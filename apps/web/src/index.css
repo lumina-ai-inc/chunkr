@@ -71,6 +71,10 @@ button:focus-visible {
   }
 }
 
+.white {
+  color: white;
+}
+
 .cyan-1 {
   color: var(--cyan-1);
 }
@@ -120,5 +124,5 @@ button:focus-visible {
 }
 
 .rt-ScrollAreaThumb {
-  background-color: var(--cyan-12) !important;
+  background-color: hsla(180, 100%, 100%, 0.2) !important;
 }

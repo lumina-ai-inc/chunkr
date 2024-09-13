@@ -1,8 +1,8 @@
-import { ReactNode } from 'react';
-import toast from 'react-hot-toast';
+import { ReactNode } from "react";
+import toast from "react-hot-toast";
 import { useAuth } from "react-oidc-context";
 import { useNavigate } from "react-router-dom";
-import Loader from '../pages/Loader/Loader';
+import Loader from "../pages/Loader/Loader";
 
 interface AuthGuardProps {
   children: ReactNode;

@@ -1,5 +1,10 @@
 .header {
   width: 100%;
+  height: fit-content;
+  z-index: 1;
+  padding-left: 24px;
+  padding-right: 24px;
+  align-items: center;
 }
 
 .logo {
@@ -7,66 +12,61 @@
   cursor: pointer;
 }
 
-.logo:hover .logo-title,
-.logo:hover .logo-container {
-  color: var(--cyan-5) !important;
-  fill: var(--cyan-5);
-}
-
-.logo-container path:last-child {
-  fill: var(--cyan-2);
-  transition: fill 0.2s ease;
-}
-
-.logo:hover .logo-container path:last-child {
-  fill: var(--cyan-5);
-}
-
 .logo-container {
-  width: 40px;
-  height: 40px;
-  outline: 2px solid var(--cyan-2);
-  border-radius: 4px;
-  transition: outline 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .logo:hover .logo-container {
-  outline: 2px solid var(--cyan-5);
+  border: 1px solid var(--cyan-5);
 }
 
 .logo-title {
-  color: var(--cyan-2) !important;
+  color: hsl(0, 0%, 100%) !important;
   background-color: unset !important;
-  transition: color 0.2s ease;
 }
 
 .logo-path {
-  fill: var(--cyan-4);
+  fill: hsl(0, 0%, 100%, 0.9);
   transition: fill 0.2s ease;
 }
 
 .nav-item {
   transition: color 0.2s ease-in-out;
   cursor: pointer;
-  color: var(--cyan-4);
+  color: hsl(0, 0%, 100%, 0.9);
 }
 
 .nav-item:hover {
-  color: var(--cyan-8);
+  color: hsl(0, 0%, 100%);
 }
 
 .nav-item-download {
   transition: color 0.2s ease-in-out;
   cursor: pointer;
-  color: var(--cyan-6);
+  color: hsl(0, 0%, 100%, 0.9);
 }
 
 .nav-item-download:hover {
-  color: var(--cyan-8);
+  color: hsl(0, 0%, 100%);
 }
 
 .dropdown-container {
   display: none;
+}
+
+.nav-item-right {
+  background-color: hsl(0, 0%, 100%, 0.9);
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #000;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.nav-item-right:hover {
+  background-color: hsl(0, 0%, 100%);
 }
 
 @media (max-width: 1066px) {
@@ -74,16 +74,23 @@
     display: block;
   }
 
+  .auth-container {
+    display: none;
+  }
+
   .nav-item {
     display: none;
   }
 }
 
-@media (max-width: 552px) {
-  .logo-title {
-    font-size: 24px !important;
+@media (max-width: 832px) {
+  .header {
+    padding-left: 32px;
+    padding-right: 32px;
   }
+}
 
+@media (max-width: 552px) {
   .header {
     padding-left: 24px !important;
     padding-right: 24px !important;
@@ -92,6 +99,12 @@
 
 @media (max-width: 384px) {
   .logo-title {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .nav-center {
     display: none;
   }
 }

@@ -63,7 +63,7 @@ jsonwebtoken = "9.3.0"
 lazy_static = "1.5.0"
 base64 = "0.22.1"
 async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] }
-
+log = "0.4.22"
 
 [[bin]]
 name = "task-processor"
