@@ -5,6 +5,7 @@ import "./Home.css";
 import Header from "../../components/Header/Header";
 import UploadMain from "../../components/Upload/UploadMain";
 import Footer from "../../components/Footer/Footer";
+import heroImage from "../../assets/hero-image.png";
 
 const Home = () => {
   const auth = useAuth();
@@ -34,7 +35,7 @@ const Home = () => {
           <div className="hero-main-container">
             <div className="hero-image-container">
               <img
-                src="src/assets/hero-image.png"
+                src={heroImage}
                 alt="hero"
                 className="hero-image"
                 style={{
