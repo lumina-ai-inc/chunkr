@@ -10,11 +10,11 @@ export default function Task() {
     taskId: string;
   }>();
 
-  const pageCount = new URLSearchParams(window.location.search).get("pageCount");
+  const pageCount = new URLSearchParams(window.location.search).get(
+    "pageCount"
+  );
 
   const { data: taskResponse, error, isLoading } = useTaskQuery(taskId);
-
-  console.log(taskResponse);
 
   if (isLoading) {
     return <Loader />;
