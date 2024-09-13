@@ -99,3 +99,8 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+log.py
+logs.md
+commit.py
+commits.md
