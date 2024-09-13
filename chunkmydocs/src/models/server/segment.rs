@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema)]
 pub enum SegmentType {
     Title,
     #[serde(rename = "Section header")]
@@ -20,7 +21,7 @@ pub enum SegmentType {
     PageFooter,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Segment {
     pub left: f32,
     pub top: f32,
@@ -34,7 +35,7 @@ pub struct Segment {
     pub segment_type: SegmentType,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
     pub segments: Vec<Segment>,
     pub markdown: String,
