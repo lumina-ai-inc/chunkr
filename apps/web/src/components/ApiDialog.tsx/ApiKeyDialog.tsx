@@ -57,7 +57,7 @@ export default function ApiKeyDialog({
           </Text>
         </Flex>
 
-        <Flex direction="column" gap="2" mt="4">
+        <Flex direction="column" gap="2" mt="5">
           <Flex
             direction="row"
             align="center"
@@ -77,7 +77,7 @@ export default function ApiKeyDialog({
               {user.api_keys[0]}
             </Text>
           </Flex>
-          <Flex direction="row" gap="5" mt="4">
+          <Flex direction="row" gap="4" mt="3">
             <BetterButton
               onClick={() => {
                 navigator.clipboard.writeText(user.api_keys[0]);
