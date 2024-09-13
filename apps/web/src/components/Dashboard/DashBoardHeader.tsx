@@ -28,6 +28,22 @@ export default function DashBoardHeader(user: User) {
     window.location.href = "/";
   };
 
+  const handleSupport = () => {
+    window.open(
+      "https://cal.com/mehulc/15min",
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
+  const handleApiDocs = () => {
+    window.open(
+      `${import.meta.env.VITE_API_URL}/redoc`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
   return (
     <Flex direction="row" align="center" justify="between" width="100%" px="7">
       <Link to="/" style={{ textDecoration: "none" }}>
@@ -64,7 +80,7 @@ export default function DashBoardHeader(user: User) {
             </Text>
           </BetterButton>
         )}
-        {user?.tier !== "Free" && (
+        {/* {user?.tier !== "Free" && (
           <BetterButton padding="4px 12px">
             <Text
               size="1"
@@ -74,8 +90,17 @@ export default function DashBoardHeader(user: User) {
               Manage Payments
             </Text>
           </BetterButton>
-        )}
-        <BetterButton padding="4px 12px">
+        )} */}
+        <BetterButton padding="4px 12px" onClick={handleApiDocs}>
+          <Text
+            size="1"
+            weight="medium"
+            style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+          >
+            API Docs
+          </Text>
+        </BetterButton>
+        <BetterButton padding="4px 12px" onClick={handleSupport}>
           <Text
             size="1"
             weight="medium"
