@@ -1,8 +1,11 @@
+use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema)]
+#[derive(
+    Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema, ToSql, FromSql,
+)]
 pub enum SegmentType {
     Title,
     #[serde(rename = "Section header")]
