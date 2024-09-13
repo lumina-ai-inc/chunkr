@@ -27,6 +27,7 @@ export default function Auth({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     auth.signinSilent();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <>{children}</>;
