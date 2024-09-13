@@ -1,5 +1,5 @@
 .rt-ProgressIndicator {
-  background-color: var(--cyan-9);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .status-title {
@@ -15,7 +15,7 @@
 
 .status-title-badge {
   border-radius: 4px;
-  border: 2px solid var(--cyan-11);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   width: fit-content;
   padding: 8px 24px;
   align-self: flex-end;
@@ -54,13 +54,13 @@
 
 @keyframes pulse {
   0% {
-    color: var(--cyan-4);
+    color: rgba(255, 255, 255, 0.6);
   }
   50% {
-    color: var(--cyan-8);
+    color: #fff;
   }
   100% {
-    color: var(--cyan-4);
+    color: rgba(255, 255, 255, 0.6);
   }
 }
 
