@@ -54,24 +54,25 @@ fn run_migrations(url: &str) {
         routes::health::health_check,   
         routes::task::create_extraction_task,
         routes::task::get_task_status,
-        routes::tasks::get_tasks_status
     ),
     components(
         schemas(
             models::server::extract::UploadForm,
             models::server::extract::Configuration,
             models::server::extract::TableOcr,
-            models::server::task::TaskResponse,
-            models::server::tasks::TasksQuery,
-            models::server::task::Status,
             models::server::extract::Model,
+            models::server::task::TaskResponse,
+            models::server::task::Status,
             models::server::user::User,
             models::server::user::Tier,
             models::server::user::Usage,
             models::server::user::UsageType
         )
     ),
-    tags((name = "health", description = "Endpoint for checking the health of the service."))
+    tags(
+        (name = "health", description = "Endpoint for checking the health of the service."),
+        (name = "task", description = "Endpoints for creating and getting task status")
+    )
 )]
 pub struct ApiDoc;
 
