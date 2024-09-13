@@ -25,7 +25,7 @@ export default function DashBoardHeader(user: User) {
   };
 
   const handleLogout = () => {
-    auth.removeUser();
+    auth.signoutRedirect();
     window.location.href = "/";
   };
 
