@@ -22,6 +22,7 @@ interface ViewerProps {
 }
 
 export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
+  console.log(output);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
   const [pdfWidth, setPdfWidth] = useState<number>(50);
