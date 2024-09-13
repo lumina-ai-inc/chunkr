@@ -107,7 +107,7 @@
 }
 
 .text-container {
-  max-width: 992px;
+  max-width: 642px;
 }
 
 .module-container {
@@ -208,7 +208,7 @@
 
 @media (max-width: 552px) {
   .hero-container {
-    margin-top: 32px;
+    margin-top: 128px;
     padding-left: 24px;
     padding-right: 24px;
   }
@@ -222,7 +222,7 @@
   }
 
   .hero-title {
-    font-size: 48px !important;
+    font-size: 52px !important;
     line-height: 64px !important;
   }
 }

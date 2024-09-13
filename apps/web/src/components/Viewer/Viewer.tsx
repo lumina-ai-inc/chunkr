@@ -4,16 +4,8 @@ import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
 import Header from "../Header/Header";
 import { Chunk } from "../../models/chunk.model";
-import { Link } from "react-router-dom";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
-import { useSelector, useDispatch } from "react-redux"; // Add useDispatch here
-import {
-  setPdfContent,
-  setLoading,
-  setError,
-} from "../../store/pdfContentSlice";
-import { RootState } from "../../store/store";
 
 interface ViewerProps {
   // eslint-disable-next-line
@@ -27,12 +19,6 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
   const [pdfWidth, setPdfWidth] = useState<number>(50);
   const isDraggingRef = useRef<boolean>(false);
-  const dispatch = useDispatch();
-  const {
-    content: pdfContent,
-    isLoading,
-    error,
-  } = useSelector((state: RootState) => state.pdfContent);
 
   const chunkRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -52,32 +38,6 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
       }
     }
   }, []);
-
-  useEffect(() => {
-    const fetchContent = async () => {
-      dispatch(setLoading(true));
-      try {
-        if (output) {
-          dispatch(setPdfContent(output));
-        }
-      } catch (error) {
-        console.error(error);
-        if (String(error).includes("403")) {
-          dispatch(
-            setError(
-              "Timeout Error: Failed to fetch file - try uploading again"
-            )
-          );
-        } else if (String(error).includes("Invalid JSON")) {
-          dispatch(setError(`Server returned invalid data: ${error}`));
-        } else {
-          dispatch(setError(`${error}`));
-        }
-      }
-    };
-
-    fetchContent();
-  }, [output, inputFileUrl, dispatch]);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -127,11 +87,8 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
     };
   }, []);
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  if (!pdfContent) {
+  // TODO: Convert to show error message
+  if (!output) {
     return <Loader />;
   }
 
@@ -159,9 +116,9 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
           }}
           ref={scrollAreaRef}
         >
-          {inputFileUrl && pdfContent && (
+          {inputFileUrl && output && (
             <PDF
-              content={pdfContent}
+              content={output}
               inputFileUrl={inputFileUrl}
               onSegmentClick={scrollToSegment}
             />
@@ -218,34 +175,10 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
             align="center"
             justify="center"
           >
-            {isLoading ? (
-              <Loader />
-            ) : error ? (
-              <Link to="/" style={{ textDecoration: "none" }}>
-                <div
-                  style={{
-                    color: "var(--red-9)",
-                    padding: "8px 12px",
-                    border: "2px solid var(--red-12)",
-                    borderRadius: "4px",
-                    backgroundColor: "var(--red-7)",
-                    cursor: "pointer",
-                    transition: "background-color 0.2s ease",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "var(--red-8)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "var(--red-7)")
-                  }
-                >
-                  {error}
-                </div>
-              </Link>
-            ) : pdfContent.length === 0 ? (
+            {output.length === 0 ? (
               <div>No content available for this PDF.</div>
             ) : (
-              pdfContent.map((chunk: Chunk, chunkIndex: number) => (
+              output.map((chunk: Chunk, chunkIndex: number) => (
                 <SegmentChunk
                   key={chunkIndex}
                   chunk={chunk}
