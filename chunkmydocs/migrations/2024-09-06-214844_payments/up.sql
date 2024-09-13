@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS invoices (
     date_paid timestamp default null,
     invoice_status TEXT NOT NULL,
     amount_due FLOAT NOT NULL,
-    total_pages INTEGER NOT NULL
+    total_pages INTEGER NOT NULL,
+    stripe_invoice_id TEXT 
 );
 
 
