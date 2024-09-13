@@ -25,5 +25,9 @@ export default function Auth({ children }: { children: ReactNode }) {
     }
   }, [auth.isAuthenticated, auth.user, dispatch]);
 
+  useEffect(() => {
+    auth.signinSilent();
+  }, []);
+
   return <>{children}</>;
 }
