@@ -1,6 +1,6 @@
-use crate::models::server::extract::ModelInternal;
-use crate::utils::configs::extraction_config::Config;
 use super::pdf2png::split_pdf;
+use crate::models::server::extract::SegmentationModel;
+use crate::utils::configs::extraction_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde_json::Value;
 use std::{
@@ -67,7 +67,7 @@ async fn handle_high_quality_requests(
 async fn process_file(
     file_path: &Path,
     batch_size: Option<i32>,
-    model: ModelInternal,
+    model: SegmentationModel,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let mut temp_files: Vec<PathBuf> = vec![];
     let temp_dir = TempDir::new("split_pdf")?;
@@ -82,9 +82,9 @@ async fn process_file(
     let mut page_offset = 0;
 
     for temp_file in &temp_files {
-        let json_output = if model == ModelInternal::PdlaFast {
+        let json_output = if model == SegmentationModel::PdlaFast {
             handle_fast_requests(temp_file).await?
-        } else if model == ModelInternal::Pdla {
+        } else if model == SegmentationModel::Pdla {
             handle_high_quality_requests(temp_file).await?
         } else {
             return Err(format!("Invalid model: {}", model).into());
@@ -105,7 +105,7 @@ async fn process_file(
 
 pub async fn pdla_extraction(
     file_path: &Path,
-    model: ModelInternal,
+    model: SegmentationModel,
     batch_size: Option<i32>,
 ) -> Result<PathBuf, Box<dyn std::error::Error>> {
     let json_output = process_file(file_path, batch_size, model).await?;
@@ -115,6 +115,3 @@ pub async fn pdla_extraction(
 
     Ok(output_temp_file.into_temp_path().keep()?.to_path_buf())
 }
-
-
-    
