@@ -67,6 +67,43 @@ provider "google" {
 # }
 
 ###############################################################
+# Redis (Cloud Memorystore)
+###############################################################
+resource "google_redis_instance" "cache" {
+  name           = "${var.base_name}-redis"
+  tier           = "BASIC"
+  memory_size_gb = 6
+  region = var.region
+  authorized_network = google_compute_network.vpc_network.id
+  connect_mode = "PRIVATE_SERVICE_ACCESS"
+  transit_encryption_mode = "DISABLED"
+  display_name = "${var.base_name} redis cache"
+  depends_on = [google_service_networking_connection.private_service_connection]
+}
+
+# Add these new resources
+resource "google_compute_global_address" "private_ip_address" {
+  name          = "${var.base_name}-private-ip"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.vpc_network.id
+}
+
+resource "google_project_service" "servicenetworking" {
+  project = var.project
+  service = "servicenetworking.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_service_networking_connection" "private_service_connection" {
+  network                 = google_compute_network.vpc_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+  depends_on              = [google_project_service.servicenetworking]
+}
+
+###############################################################
 # Google Cloud Storage
 ###############################################################
 resource "google_storage_bucket" "project_bucket" {
@@ -187,7 +224,7 @@ resource "google_container_cluster" "cluster" {
 
   network    = google_compute_network.vpc_network.self_link
   subnetwork = google_compute_subnetwork.vpc_subnet.self_link
-  
+
   vertical_pod_autoscaling {
     enabled = true
   }
@@ -360,82 +397,6 @@ resource "google_sql_user" "users" {
 }
 
 ###############################################################
-# VM Instance
-###############################################################
-resource "google_compute_address" "vm_ip" {
-  name   = "${var.base_name}-vm-ip"
-  region = var.region
-}
-
-resource "google_compute_instance" "vm_instance" {
-  name         = "${var.base_name}-vm"
-  machine_type = "e2-standard-2"
-  zone         = "${var.region}-b"
-
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-11"
-    }
-  }
-
-  network_interface {
-    network    = google_compute_network.vpc_network.name
-    subnetwork = google_compute_subnetwork.vpc_subnet.name
-
-    access_config {
-      nat_ip = google_compute_address.vm_ip.address
-    }
-  }
-
-  metadata = {
-    ssh-keys = "debian:${file("~/.ssh/id_rsa.pub")}"
-  }
-
-  metadata_startup_script = <<-EOF
-    #!/bin/bash
-    apt-get update
-    apt-get install -y redis-tools htop
-
-    # Install Docker
-    apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-    apt-get update
-    apt-get install -y docker-ce docker-ce-cli containerd.io
-    
-    # Add the debian user to the docker group
-    usermod -aG docker debian
-
-    # Wait for the Docker Compose file to be copied
-    while [ ! -f /home/debian/docker-compose.yml ]; do
-      sleep 5
-    done
-
-    # Start Docker Compose services
-    cd /home/debian
-    docker compose up -d
-  EOF
-
-  tags = ["ssh-allowed", "port-8000-allowed"]
-
-  provisioner "file" {
-    source      = "./compose.yaml"
-    destination = "/home/debian/compose.yaml"
-
-    connection {
-      type        = "ssh"
-      user        = "debian"
-      private_key = file("~/.ssh/id_rsa")
-      host        = self.network_interface[0].access_config[0].nat_ip
-    }
-  }
-
-  deletion_protection = false
-
-  depends_on = [google_compute_firewall.allow_ssh]
-}
-
-###############################################################
 # Outputs
 ###############################################################
 output "cluster_name" {
@@ -503,13 +464,7 @@ output "bucket_name" {
   description = "The name of the GCS bucket"
 }
 
-output "vm_public_ip" {
-  value       = google_compute_address.vm_ip.address
-  description = "The public IP address of the VM instance"
+output "redis_url" {
+  value       = "redis://${google_redis_instance.cache.host}:${google_redis_instance.cache.port}"
+  description = "The connection URL for the Redis cache"
 }
-
-output "vm_ssh_command" {
-  value       = "ssh debian@${google_compute_address.vm_ip.address}"
-  description = "The SSH command to connect to the VM instance"
-}
-
