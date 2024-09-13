@@ -4,7 +4,6 @@ import { useState } from "react";
 export default function Calculator() {
   const [fastPages, setFastPages] = useState(0);
   const [highQualityPages, setHighQualityPages] = useState(0);
-  // const [llmSegments, setLlmSegments] = useState(0);
 
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -13,24 +12,23 @@ export default function Calculator() {
   const calculateTotalCost = () => {
     const fastCost = fastPages * 0.002;
     const highQualityCost = highQualityPages * 0.01;
-    // const llmCost = llmSegments * 0.012;
     return (fastCost + highQualityCost).toFixed(2);
   };
 
   return (
     <Flex
-      direction="row"
+      direction="column"
       width="100%"
       gap="8"
       style={{
-        border: "3px solid var(--cyan-5)",
+        backgroundColor: "hsla(191, 71%, 32%, 0.6)",
         borderRadius: "8px",
-        backgroundColor: "hsl(191, 73%, 5%)",
-        boxShadow: "0px 0px 20px 0px rgba(0, 0, 0, 1)",
+        border: "2px solid var(--cyan-3)",
+        boxShadow: "0px 0px 16px 0px rgba(12, 12, 12, 0.25)",
       }}
     >
-      <Flex direction="column" width="55%" p="8">
-        <Text weight="medium" size="6" className="cyan-4" trim="start">
+      <Flex direction="column" width="100%" p="8">
+        <Text weight="bold" size="4" className="cyan-4" trim="start">
           API Calculator
         </Text>
 
@@ -38,30 +36,55 @@ export default function Calculator() {
           <Text size="9" weight="bold" className="cyan-2">
             ${calculateTotalCost()}
           </Text>
-          <Text size="6" className="cyan-8">
-            Estimated cost
-          </Text>
-          <Text
-            size="2"
-            weight="light"
-            className="cyan-5"
-            style={{ fontStyle: "italic" }}
-          >
-            *Free storage up to 1M pages
-          </Text>
+          <Flex direction="row" gap="2" align="end">
+            <Text size="6" weight="medium" className="cyan-8">
+              Estimated cost
+            </Text>
+            <Text
+              size="2"
+              weight="light"
+              className="cyan-5"
+              style={{ fontStyle: "italic", lineHeight: "1.5" }}
+            >
+              *Billed monthly
+            </Text>
+          </Flex>
         </Flex>
 
         <Flex direction="column" gap="4">
           <Flex direction="column" width="100%">
-            <Flex direction="column" gap="4" width="100%" mt="4">
+            <Flex direction="column" gap="4" width="100%" mt="5">
               <Flex direction="column">
-                <Text size="3" weight="bold" className="cyan-3">
-                  FAST{" "}
-                  <Text size="2" weight="light" className="cyan-5" mt="1">
-                    (1000 pages free)
-                  </Text>
-                </Text>
-                <Text size="2" weight="light" className="cyan-5" mt="1">
+                <ExplanationSection
+                  title="Fast"
+                  price="0.005 / page"
+                  free="1000 free"
+                  description="Quick processing for standard documents. Ideal for bulk operations and time-sensitive tasks."
+                  icon={
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="18"
+                      viewBox="0 0 16 18"
+                      fill="none"
+                    >
+                      <rect
+                        width="16"
+                        height="16"
+                        transform="translate(0 1)"
+                        fill="white"
+                        fill-opacity="0.01"
+                      />
+                      <path
+                        d="M9.31576 0.951108L9.27642 1.04304L9.31576 0.951107C9.04732 0.836241 8.73514 0.919785 8.55994 1.15337L2.15996 9.68667L2.15996 9.68667C2.01603 9.87858 1.99289 10.1353 2.10016 10.3499L2.10017 10.3499C2.20745 10.5645 2.42675 10.7 2.66663 10.7H7.25232L6.30857 16.3625C6.26056 16.6506 6.41569 16.9341 6.68413 17.0489L6.68417 17.049C6.95257 17.1637 7.26475 17.0803 7.43994 16.8467L13.8399 8.31337C13.8399 8.31336 13.8399 8.31335 13.8399 8.31334C13.9839 8.12143 14.0071 7.86468 13.8998 7.65012C13.7925 7.43554 13.5731 7.30001 13.3333 7.30001H8.74757L9.69132 1.63749C9.73933 1.34948 9.5842 1.06597 9.31576 0.951108ZM7.5167 8.34272L7.5167 8.34272C7.63704 8.48476 7.81378 8.56668 7.99994 8.56668H12.0666L7.98499 14.0088L8.62466 10.1708C8.65527 9.98716 8.60352 9.79935 8.48319 9.6573C8.36286 9.51525 8.18611 9.43334 7.99994 9.43334H3.9333L8.01491 3.99119L7.37524 7.82922C7.37524 7.82922 7.37524 7.82922 7.37524 7.82922C7.34462 8.01287 7.39637 8.20066 7.5167 8.34272Z"
+                        fill="#0D3C48"
+                        stroke="#0D3C48"
+                        stroke-width="0.2"
+                      />
+                    </svg>
+                  }
+                />
+                <Text size="2" weight="light" className="cyan-5" mt="4">
                   {formatNumber(fastPages)} Pages
                 </Text>
               </Flex>
@@ -91,16 +114,39 @@ export default function Calculator() {
             </Flex>
           </Flex>
 
-          <Flex direction="column" width="100%">
+          <Flex direction="column" width="100%" mt="6">
             <Flex direction="column" gap="4" width="100%" mt="4">
               <Flex direction="column">
-                <Text size="3" weight="bold" className="cyan-3">
-                  HIGH QUALITY{" "}
-                  <Text size="2" weight="light" className="cyan-5" mt="1">
-                    (500 pages free)
-                  </Text>
-                </Text>
-                <Text size="2" weight="light" className="cyan-5" mt="1">
+                <ExplanationSection
+                  title="High Quality"
+                  price="0.01 / page"
+                  free="500 free"
+                  description="Enhanced processing for complex documents. Perfect for when accuracy and detail are crucial."
+                  icon={
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                    >
+                      <rect
+                        width="16"
+                        height="16"
+                        fill="white"
+                        fill-opacity="0.01"
+                      />
+                      <path
+                        d="M8.00222 0.835547C4.04417 0.835547 0.835547 4.04417 0.835547 8.00221C0.835547 11.9602 4.04417 15.1689 8.00222 15.1689C11.9602 15.1689 15.1689 11.9602 15.1689 8.00221C15.1689 4.04417 11.9602 0.835547 8.00222 0.835547ZM4.80003 7.3667H2.0824C2.37738 4.58645 4.58645 2.37738 7.3667 2.0824V4.80003C7.3667 5.14981 7.65024 5.43337 8.00003 5.43337C8.34981 5.43337 8.63337 5.14981 8.63337 4.80003V2.08193C11.4157 2.37508 13.6269 4.58499 13.9221 7.3667H11.2C10.8503 7.3667 10.5667 7.65024 10.5667 8.00003C10.5667 8.34982 10.8503 8.63337 11.2 8.63337H13.9225C13.6292 11.4171 11.4171 13.6292 8.63337 13.9225V11.2C8.63337 10.8503 8.34982 10.5667 8.00003 10.5667C7.65024 10.5667 7.3667 10.8503 7.3667 11.2V13.9221C4.58499 13.6269 2.37508 11.4157 2.08193 8.63337H4.80003C5.14981 8.63337 5.43337 8.34981 5.43337 8.00003C5.43337 7.65024 5.14981 7.3667 4.80003 7.3667Z"
+                        fill="#0D3C48"
+                        stroke="#0D3C48"
+                        stroke-width="0.2"
+                      />
+                    </svg>
+                  }
+                />
+
+                <Text size="2" weight="light" className="cyan-5" mt="4">
                   {formatNumber(highQualityPages)} Pages
                 </Text>
               </Flex>
@@ -129,108 +175,7 @@ export default function Calculator() {
               </Text>
             </Flex>
           </Flex>
-
-          {/* <Flex direction="column" width="100%">
-            <Flex direction="column" gap="4" width="100%" mt="4">
-              <Flex direction="column">
-                <Text size="3" weight="bold" className="cyan-3">
-                  LLM ADD-ONS{" "}
-                  <Text size="2" weight="light" className="cyan-5" mt="1">
-                    (100 segments free)
-                  </Text>
-                </Text>
-                <Text size="2" weight="light" className="cyan-5" mt="1">
-                  {formatNumber(llmSegments)} Segments
-                </Text>
-              </Flex>
-              <Slider
-                min={0}
-                max={1000000}
-                step={100}
-                value={[llmSegments]}
-                onValueChange={(value) => setLlmSegments(value[0])}
-                style={{
-                  backgroundColor: "var(--cyan-12)",
-                  borderRadius: "8px",
-                }}
-              />
-            </Flex>
-
-            <Flex direction="row" justify="between" width="100%" mt="3">
-              <Text size="2" weight="bold" className="cyan-5">
-                0
-              </Text>
-              <Text size="2" weight="bold" className="cyan-5">
-                500K
-              </Text>
-              <Text size="2" weight="bold" className="cyan-5">
-                1M
-              </Text>
-            </Flex>
-          </Flex> */}
         </Flex>
-      </Flex>
-      <Flex
-        direction="column"
-        width="45%"
-        py="8"
-        align="center"
-        gap="9"
-        style={{
-          paddingRight: "40px",
-          paddingLeft: "16px",
-          paddingTop: "112px",
-        }}
-      >
-        <ExplanationSection
-          title="Fast"
-          price="0.001 / page"
-          description="Quick processing for standard documents. Ideal for bulk operations and time-sensitive tasks."
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-            >
-              <rect width="16" height="16" fill="white" fill-opacity="0.01" />
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M9.27642 0.0430443C9.50247 0.139774 9.63311 0.378514 9.59268 0.621051L8.62952 6.40001H13.3333C13.5352 6.40001 13.72 6.51414 13.8103 6.69484C13.9007 6.87552 13.8812 7.09173 13.7599 7.25334L7.35994 15.7867C7.21242 15.9834 6.94953 16.0537 6.72347 15.957C6.49742 15.8603 6.36678 15.6215 6.40721 15.379L7.37037 9.6H2.66663C2.46463 9.6 2.27995 9.48587 2.18961 9.30518C2.09927 9.1245 2.11876 8.90828 2.23996 8.74667L8.63994 0.213374C8.78747 0.0166672 9.05036 -0.0536855 9.27642 0.0430443ZM3.7333 8.53334H7.99994C8.15672 8.53334 8.30555 8.60231 8.40689 8.72194C8.50822 8.84156 8.55179 8.99971 8.52602 9.15435L7.81893 13.3969L12.2666 7.46668H7.99994C7.84318 7.46668 7.69434 7.3977 7.593 7.27808C7.49167 7.15845 7.44809 7.00031 7.47387 6.84566L8.18097 2.60311L3.7333 8.53334Z"
-                fill="var(--cyan-4)"
-              />
-            </svg>
-          }
-        />
-        <ExplanationSection
-          title="High Quality"
-          price="0.01 / page"
-          description="Enhanced processing for complex documents. Perfect for when accuracy and detail are crucial."
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-            >
-              <rect width="16" height="16" fill="white" fill-opacity="0.01" />
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M0.935547 8.00221C0.935547 4.0994 4.0994 0.935547 8.00222 0.935547C11.905 0.935547 15.0689 4.0994 15.0689 8.00221C15.0689 11.905 11.905 15.0689 8.00222 15.0689C4.0994 15.0689 0.935547 11.905 0.935547 8.00221ZM1.97225 7.4667C2.22784 4.55082 4.55082 2.22784 7.4667 1.97225V4.80003C7.4667 5.09458 7.70547 5.33337 8.00003 5.33337C8.29458 5.33337 8.53337 5.09458 8.53337 4.80003V1.97186C11.4513 2.22553 13.7764 4.54935 14.0322 7.4667H11.2C10.9055 7.4667 10.6667 7.70547 10.6667 8.00003C10.6667 8.29458 10.9055 8.53337 11.2 8.53337H14.0325C13.7788 11.4527 11.4527 13.7788 8.53337 14.0325V11.2C8.53337 10.9055 8.29458 10.6667 8.00003 10.6667C7.70547 10.6667 7.4667 10.9055 7.4667 11.2V14.0322C4.54935 13.7764 2.22553 11.4513 1.97186 8.53337H4.80003C5.09458 8.53337 5.33337 8.29458 5.33337 8.00003C5.33337 7.70547 5.09458 7.4667 4.80003 7.4667H1.97225Z"
-                fill="var(--cyan-4)"
-              />
-            </svg>
-          }
-        />
-        {/* <ExplanationSection
-          title="LLM Add-ons"
-          price="0.012 / segment"
-          description="Advanced AI-powered analysis and insights. Unlock deeper understanding of your documents."
-        /> */}
       </Flex>
     </Flex>
   );
@@ -240,44 +185,43 @@ function ExplanationSection({
   title,
   price,
   description,
+  free,
   icon,
 }: {
   title: string;
   price: string;
   description: string;
+  free: string;
   icon: React.ReactNode;
 }) {
   return (
-    <Flex direction="column" gap="4">
+    <Flex direction="column" gap="3">
       <Flex
         direction="row"
         justify="between"
         align="center"
         width="fit-content"
         gap="2"
-        px="10px"
+        px="12px"
         py="4px"
         style={{
-          borderRadius: "4px",
-          border: "2px solid var(--cyan-8)",
+          borderRadius: "99px",
+          border: "2px solid var(--cyan-2)",
+          backgroundColor: "var(--cyan-1)",
         }}
       >
         {icon}
-        <Text size="3" weight="medium" className="cyan-4">
+        <Text size="2" weight="bold" className="cyan-12">
           {title}
         </Text>
       </Flex>
-      <Text size="8" weight="bold" className="cyan-1">
-        ${price}
+      <Text size="7" weight="bold" className="cyan-1">
+        ${price}{" "}
+        <Text size="3" weight="regular" className="cyan-5">
+          {free}
+        </Text>
       </Text>
-      <Text
-        size="5"
-        weight="light"
-        className="cyan-4"
-        trim="both"
-        mt="1"
-        style={{ fontStyle: "italic" }}
-      >
+      <Text size="4" weight="regular" className="cyan-2" trim="both">
         {description}
       </Text>
     </Flex>

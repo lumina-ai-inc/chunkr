@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel
 import dotenv
-
+import json
 dotenv.load_dotenv(override=True)
 
 class TableOcr(str, Enum):
@@ -38,10 +38,11 @@ class TaskResponse(BaseModel):
     expires_at: Optional[datetime] = None
     message: Optional[str] = None
     input_file_url: Optional[str] = None
-    output_file_url: Optional[str] = None
-    input_file_url: Optional[str] = None
+    output: Optional[list[dict]] = None
     task_url: Optional[str] = None
     configuration: Configuration
+    file_name: Optional[str] = None
+    page_count: Optional[int] = None
 
     class Config:
         json_encoders = {datetime: lambda v: v.isoformat()}

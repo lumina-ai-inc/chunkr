@@ -11,13 +11,7 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
       formData.append(key, value);
     }
   }
-  console.log(formData);
   const { data } = await axiosInstance.post("/api/task", formData);
-  return data;
-}
-
-export async function getTask(taskId: string): Promise<TaskResponse> {
-  const { data } = await axiosInstance.get(`/api/task/${taskId}`);
   return data;
 }
 

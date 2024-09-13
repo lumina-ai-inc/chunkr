@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { getTask } from "../services/uploadFileApi";
+import { getTask, getTasks } from "../services/taskApi";
 import { TaskResponse, Status } from "../models/task.model";
 import { useState } from "react";
 
@@ -17,6 +17,18 @@ export function useTaskQuery(taskId: string | undefined) {
       onSuccess: (data) => {
         setTaskResponse(data);
       },
+    }
+  );
+}
+
+export function useTasksQuery(page: number, limit: number) {
+  return useQuery<TaskResponse[], Error>(
+    [`tasks-${page}-${limit}`],
+    () => getTasks(page, limit),
+    {
+      staleTime: 5000,
+      refetchInterval: 5000,
+      refetchIntervalInBackground: false,
     }
   );
 }

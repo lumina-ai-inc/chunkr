@@ -70,7 +70,7 @@ pub async fn table_extraction_from_image(
     output_format: TableOcr,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let config = Config::from_env()?;
-    let mut url = config.table_ocr_url.ok_or("Table OCR URL not configured")?;
+    let url = config.table_ocr_url.ok_or("Table OCR URL not configured")?;
 
     let output = call_table_extraction_api(&url, file_path, ocr_model, output_format).await?;
 

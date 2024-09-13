@@ -1,4 +1,5 @@
 use super::extract::Configuration;
+use crate::models::server::segment::Chunk;
 use chrono::{DateTime, Utc};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
@@ -13,10 +14,12 @@ pub struct TaskResponse {
     pub finished_at: Option<DateTime<Utc>>,
     pub expires_at: Option<DateTime<Utc>>,
     pub message: String,
-    pub output_file_url: Option<String>,
+    pub output: Option<Vec<Chunk>>,
     pub input_file_url: Option<String>,
     pub task_url: Option<String>,
     pub configuration: Configuration,
+    pub file_name: Option<String>,
+    pub page_count: Option<i32>,
 }
 
 #[derive(
@@ -39,5 +42,3 @@ pub enum Status {
     Failed,
     Canceled,
 }
-
-
