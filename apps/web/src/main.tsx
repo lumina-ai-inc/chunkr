@@ -51,6 +51,10 @@ const router = createBrowserRouter([
       </AuthGuard>
     ),
   },
+  {
+    path: "*",
+    element: <Home />,
+  },
 ]);
 
 const queryClient = new QueryClient();
