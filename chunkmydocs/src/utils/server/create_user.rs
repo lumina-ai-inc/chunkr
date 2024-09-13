@@ -24,7 +24,7 @@ pub async fn create_user(user_info: UserInfo, pool: &Pool) -> Result<User, Box<d
         true => Tier::SelfHosted,
         false => Tier::Free,
     };
-    
+
     let usage_limits: HashMap<UsageType, i32> = HashMap::from([
         (UsageType::Fast, UsageType::Fast.get_usage_limit(&tier)),
         (UsageType::HighQuality, UsageType::HighQuality.get_usage_limit(&tier)),
