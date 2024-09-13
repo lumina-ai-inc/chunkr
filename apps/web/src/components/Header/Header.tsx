@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import "./Header.css";
@@ -8,6 +8,7 @@ import Dashboard from "../Dashboard/Dashboard";
 import { useAuth } from "react-oidc-context";
 import { downloadJSON } from "../../utils/utils";
 import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
+import { useTaskQuery } from "../../hooks/useTaskQuery";
 
 interface HeaderProps {
   py?: string;
@@ -24,12 +25,16 @@ export default function Header({
   const [showApiKey, setShowApiKey] = useState(false);
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
-  const { content } = useSelector((state: RootState) => state.pdfContent);
+  const { taskId } = useParams<{ taskId: string }>();
+  const { data: taskResponse } = useTaskQuery(taskId);
   const user = useSelector((state: RootState) => state.user.data);
 
   const handleDownloadJSON = () => {
-    if (content) {
-      downloadJSON(content, "pdf_content.json");
+    if (taskResponse?.output) {
+      downloadJSON(
+        taskResponse.output,
+        `${taskResponse.file_name?.slice(0, -4)}.json`
+      );
     }
   };
 
@@ -95,7 +100,7 @@ export default function Header({
           </Text>
         </a>
 
-        {download && !home && content && (
+        {download && !home && taskResponse?.output && (
           <Text
             size="2"
             weight="medium"
