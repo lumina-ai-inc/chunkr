@@ -1,3 +1,4 @@
+use crate::models::server::llm::LLMConfig;
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
@@ -6,9 +7,9 @@ use std::time::Duration;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct ExtractionPayload {
-    pub model: ModelInternal,
+    pub model: SegmentationModel,
     pub input_location: String,
     pub output_location: String,
     pub task_id: String,
@@ -16,13 +17,19 @@ pub struct ExtractionPayload {
     #[serde(with = "humantime_serde")]
     pub expiration: Option<Duration>,
     pub target_chunk_length: Option<i32>,
+    pub pipeline: Option<PipelinePayload>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct PipelinePayload {
+    pub llm_model: Option<LLMConfig>,
     pub table_ocr: Option<TableOcr>,
 }
 
 #[derive(
     Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq, ToSql, FromSql,
 )]
-pub enum ModelInternal {
+pub enum SegmentationModel {
     PdlaFast,
     Pdla,
 }
@@ -74,26 +81,26 @@ pub struct Configuration {
 }
 
 impl Model {
-    pub fn to_internal(&self) -> ModelInternal {
+    pub fn to_internal(&self) -> SegmentationModel {
         match self {
-            Model::Fast => ModelInternal::PdlaFast,
-            Model::HighQuality => ModelInternal::Pdla,
+            Model::Fast => SegmentationModel::PdlaFast,
+            Model::HighQuality => SegmentationModel::Pdla,
         }
     }
 }
 
-impl ModelInternal {
+impl SegmentationModel {
     pub fn to_external(&self) -> Model {
         match self {
-            ModelInternal::PdlaFast => Model::Fast,
-            ModelInternal::Pdla => Model::HighQuality,
+            SegmentationModel::PdlaFast => Model::Fast,
+            SegmentationModel::Pdla => Model::HighQuality,
         }
     }
 
     pub fn get_extension(&self) -> &str {
         match self {
-            ModelInternal::PdlaFast => "json",
-            ModelInternal::Pdla => "json",
+            SegmentationModel::PdlaFast => "json",
+            SegmentationModel::Pdla => "json",
         }
     }
 }
