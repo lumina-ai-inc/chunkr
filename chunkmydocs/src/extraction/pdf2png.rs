@@ -1,10 +1,10 @@
+use crate::models::server::segment::PngPage;
 use crate::models::server::segment::Segment;
 use crate::utils::configs::pdf2png_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use tokio::sync::OnceCell;
-
 static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 
@@ -35,12 +35,6 @@ impl From<&Segment> for BoundingBox {
 #[derive(Serialize, Deserialize)]
 pub struct ConversionResponse {
     pub png_pages: Vec<PngPage>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct PngPage {
-    pub bb_id: String,
-    pub base64_png: String,
 }
 
 #[derive(Deserialize)]
@@ -176,15 +170,13 @@ mod tests {
                         let segment_type = segment["type"].as_str().unwrap_or("");
                         segment_type == "Table"
                     })
-                    .map(|segment| {
-                        BoundingBox {
-                            left: segment["left"].as_f64().unwrap_or(0.0) as f32,
-                            top: segment["top"].as_f64().unwrap_or(0.0) as f32,
-                            width: segment["width"].as_f64().unwrap_or(0.0) as f32,
-                            height: segment["height"].as_f64().unwrap_or(0.0) as f32,
-                            page_number: segment["page_number"].as_i64().unwrap_or(1) as u32,
-                            bb_id: Uuid::new_v4().to_string(),
-                        }
+                    .map(|segment| BoundingBox {
+                        left: segment["left"].as_f64().unwrap_or(0.0) as f32,
+                        top: segment["top"].as_f64().unwrap_or(0.0) as f32,
+                        width: segment["width"].as_f64().unwrap_or(0.0) as f32,
+                        height: segment["height"].as_f64().unwrap_or(0.0) as f32,
+                        page_number: segment["page_number"].as_i64().unwrap_or(1) as u32,
+                        bb_id: Uuid::new_v4().to_string(),
                     })
             })
             .collect();

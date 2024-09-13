@@ -33,10 +33,16 @@ pub struct Segment {
     pub text: String,
     #[serde(rename = "type")]
     pub segment_type: SegmentType,
+    pub segment_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
     pub segments: Vec<Segment>,
     pub markdown: String,
+}
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct PngPage {
+    pub bb_id: String,
+    pub base64_png: String,
 }
