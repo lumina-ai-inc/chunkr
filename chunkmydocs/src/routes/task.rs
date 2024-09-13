@@ -75,7 +75,7 @@ pub async fn create_extraction_task(
     let configuration = Configuration {
         model: form.model.into_inner(),
         target_chunk_length: form.target_chunk_length.map(|t| t.into_inner()),
-        table_ocr: form.table_ocr.map(|t| t.into_inner()),
+        // table_ocr: form.table_ocr.map(|t| t.into_inner()),
     };
 
     let result = create_task(pool, s3_client, file_data, &user_info, &configuration).await;

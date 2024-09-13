@@ -6,7 +6,7 @@ use std::time::Duration;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ExtractionPayload {
     pub model: ModelInternal,
     pub input_location: String,
@@ -62,15 +62,15 @@ pub struct UploadForm {
     pub model: Text<Model>,
     #[schema(value_type = Option<i32>)]
     pub target_chunk_length: Option<Text<i32>>,
-    #[schema(value_type = Option<TableOcr>)]
-    pub table_ocr: Option<Text<TableOcr>>,
+    // #[schema(value_type = Option<TableOcr>)]
+    // pub table_ocr: Option<Text<TableOcr>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 pub struct Configuration {
     pub model: Model,
     pub target_chunk_length: Option<i32>,
-    pub table_ocr: Option<TableOcr>,
+    // pub table_ocr: Option<TableOcr>,
 }
 
 impl Model {
