@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: gce
   rules:
-  - host: auth.chunkmydocs.com 
+  - host: auth.chunkr.ai 
     http:
       paths:
       - pathType: Prefix
