@@ -16,8 +16,6 @@ export default function Task() {
 
   const { data: taskResponse, error, isLoading } = useTaskQuery(taskId);
 
-  console.log(taskResponse);
-
   if (isLoading) {
     return <Loader />;
   }
