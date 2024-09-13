@@ -95,7 +95,7 @@ export default function Upload({
           px="32px"
           style={{ border: "1px dashed hsla(0, 0%, 100%, 0.2)" }}
         >
-          <Text size="7" weight="medium" className="white">
+          <Text size="7" weight="bold" className="white">
             {!isAuthenticated
               ? "Log In to test"
               : isUploaded

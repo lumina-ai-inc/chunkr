@@ -66,7 +66,7 @@ export default function Header({
         align="center"
       >
         <a
-          href="https://github.com/lumina-ai-inc/chunk-my-docs"
+          href={`${import.meta.env.VITE_API_URL}/redoc`}
           target="_blank"
           className="nav-item"
         >
