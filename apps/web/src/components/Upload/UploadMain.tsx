@@ -4,10 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Upload from "./Upload";
 import "./UploadMain.css";
 import { Model, UploadForm } from "../../models/upload.model";
-import * as pdfjsLib from "pdfjs-dist";
 import { uploadFile } from "../../services/uploadFileApi";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export default function UploadMain({
   isAuthenticated,

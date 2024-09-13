@@ -1,7 +1,7 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import "./Upload.css";
 
@@ -43,7 +43,7 @@ export default function Upload({
     noClick: true, // Prevent opening file dialog on click
   });
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const auth = useAuth();
 
   const handleContainerClick = () => {
@@ -57,21 +57,21 @@ export default function Upload({
     }
   };
 
-  const DemoPdfLink = () => (
-    <div className="demo-pdf-link-container">
-      <Text
-        size="3"
-        weight="medium"
-        className="demo-pdf-text"
-        style={{
-          cursor: "pointer",
-        }}
-        onClick={() => navigate("/task/da91192d-efd0-4924-9e1f-c973ebc3c31d/8")}
-      >
-        Click here for demo PDF
-      </Text>
-    </div>
-  );
+  // const DemoPdfLink = () => (
+  //   <div className="demo-pdf-link-container">
+  //     <Text
+  //       size="3"
+  //       weight="medium"
+  //       className="demo-pdf-text"
+  //       style={{
+  //         cursor: "pointer",
+  //       }}
+  //       onClick={() => navigate("/task/da91192d-efd0-4924-9e1f-c973ebc3c31d/8")}
+  //     >
+  //       Click here for demo PDF
+  //     </Text>
+  //   </div>
+  // );
 
   return (
     <>
@@ -97,7 +97,7 @@ export default function Upload({
         >
           <Text size="7" weight="bold" className="white">
             {!isAuthenticated
-              ? "Log In to test"
+              ? "Log In to start uploading"
               : isUploaded
                 ? "File Uploaded"
                 : isDragActive
@@ -116,7 +116,7 @@ export default function Upload({
           )}
         </Flex>
       </Flex>
-      <DemoPdfLink />
+      {/* <DemoPdfLink /> */}
     </>
   );
 }

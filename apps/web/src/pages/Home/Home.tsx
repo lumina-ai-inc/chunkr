@@ -60,7 +60,7 @@ const Home = () => {
                     className="hero-title"
                     mb="24px"
                   >
-                    Open Source Data Ingestion for LLMs & RAG
+                    Open Source Data Ingestion
                   </Text>
                   <Text
                     className="white"
@@ -72,8 +72,8 @@ const Home = () => {
                       lineHeight: "32px",
                     }}
                   >
-                    Small tagline. Explain what demo does and what all can
-                    actually be done with API/self-hosting.
+                    API service for document layout analysis and chunking to
+                    convert PDFs into RAG/LLM-ready data.
                   </Text>
                   <Flex
                     className="signup-container"
