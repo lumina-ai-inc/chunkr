@@ -66,7 +66,10 @@ fn run_migrations(url: &str) {
             models::server::user::User,
             models::server::user::Tier,
             models::server::user::Usage,
-            models::server::user::UsageType
+            models::server::user::UsageType,
+            models::server::segment::SegmentType,
+            models::server::segment::Segment,
+            models::server::segment::Chunk,
         )
     ),
     tags(
