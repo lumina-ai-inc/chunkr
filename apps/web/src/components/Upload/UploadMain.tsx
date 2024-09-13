@@ -16,7 +16,6 @@ export default function UploadMain({
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
-  const [pageCount, setPageCount] = useState<number | null>(null);
   const [model, setModel] = useState<Model>(Model.Fast);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,21 +24,6 @@ export default function UploadMain({
   const handleFileUpload = async (uploadedFile: File) => {
     setFile(uploadedFile);
     setFileName(uploadedFile.name);
-
-    if (uploadedFile.type === "application/pdf") {
-      try {
-        const arrayBuffer = await uploadedFile.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-        const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
-
-        setPageCount(pdf.numPages);
-      } catch (error) {
-        console.error("Error reading PDF:", error);
-        setPageCount(null);
-      }
-    } else {
-      setPageCount(null);
-    }
   };
 
   const handleFileRemove = () => {
@@ -67,7 +51,9 @@ export default function UploadMain({
 
     try {
       const taskResponse = await uploadFile(payload);
-      navigate(`/task/${taskResponse.task_id}?pageCount=${pageCount}`);
+      navigate(
+        `/task/${taskResponse.task_id}?pageCount=${taskResponse.page_count}`
+      );
     } catch (error) {
       console.error("Error uploading file:", error);
       setError("Failed to upload file. Please try again later.");
