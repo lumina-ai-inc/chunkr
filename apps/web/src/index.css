@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -124,5 +120,5 @@ button:focus-visible {
 }
 
 .rt-ScrollAreaThumb {
-  background-color: var(--cyan-12) !important;
+  background-color: hsla(180, 100%, 100%, 0.2) !important;
 }

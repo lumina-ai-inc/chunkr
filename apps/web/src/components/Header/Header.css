@@ -5,7 +5,6 @@
   padding-left: 24px;
   padding-right: 24px;
   align-items: center;
-  max-width: 1312px;
 }
 
 .logo {
@@ -25,12 +24,12 @@
 }
 
 .logo-title {
-  color: var(--cyan-2) !important;
+  color: hsl(0, 0%, 100%) !important;
   background-color: unset !important;
 }
 
 .logo-path {
-  fill: var(--cyan-4);
+  fill: hsl(0, 0%, 100%, 0.9);
   transition: fill 0.2s ease;
 }
 
@@ -47,11 +46,11 @@
 .nav-item-download {
   transition: color 0.2s ease-in-out;
   cursor: pointer;
-  color: var(--cyan-6);
+  color: hsl(0, 0%, 100%, 0.9);
 }
 
 .nav-item-download:hover {
-  color: var(--cyan-8);
+  color: hsl(0, 0%, 100%);
 }
 
 .dropdown-container {

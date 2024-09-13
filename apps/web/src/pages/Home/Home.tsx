@@ -1,5 +1,6 @@
 import { Flex, ScrollArea, Text } from "@radix-ui/themes";
 import { useAuth } from "react-oidc-context";
+import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import Header from "../../components/Header/Header";
 import UploadMain from "../../components/Upload/UploadMain";
@@ -8,6 +9,15 @@ import Footer from "../../components/Footer/Footer";
 const Home = () => {
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (auth.isAuthenticated) {
+      navigate("/dashboard");
+    } else {
+      auth.signinRedirect();
+    }
+  };
 
   return (
     <Flex
@@ -37,7 +47,9 @@ const Home = () => {
             </div>
             <div className="hero-content-container">
               <Flex className="header-container">
-                <Header px="0px" home={true} />
+                <div style={{ maxWidth: "1312px", width: "100%" }}>
+                  <Header px="0px" home={true} />
+                </div>
               </Flex>
               <Flex className="hero-container">
                 <Flex className="text-container" direction="column">
@@ -72,6 +84,7 @@ const Home = () => {
                       direction="row"
                       align="center"
                       className="signup-button"
+                      onClick={handleGetStarted}
                     >
                       <Text size="3" weight="bold">
                         Get started for free
@@ -98,55 +111,6 @@ const Home = () => {
                       </svg>
                     </Flex>
                   </Flex>
-                  {/* <Flex
-                    direction="column"
-                    align="start"
-                    className="credit-main-container"
-                  >
-                    <Flex
-                      className="credit-container"
-                      direction="column"
-                      gap="16px"
-                    >
-                      <Text size="6" weight="medium" className="white">
-                        Powered by
-                      </Text>
-                      <Flex direction="row" gap="32px" align="center">
-                        <a
-                          href="https://www.lumina.sh/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Flex
-                            gap="12px"
-                            align="center"
-                            justify="center"
-                            className="credit-button"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="32"
-                              height="32"
-                              viewBox="0 0 32 32"
-                              fill="none"
-                            >
-                              <circle cx="16" cy="16" r="16" fill="#D1F0FA" />
-                              <path
-                                d="M9.57141 8.28572H22.4286M10.8571 8.28572V22C10.8571 22.4547 11.0377 22.8907 11.3592 23.2122C11.6807 23.5337 12.1168 23.7143 12.5714 23.7143H19.4286C19.8832 23.7143 20.3192 23.5337 20.6407 23.2122C20.9622 22.8907 21.1428 22.4547 21.1428 22V8.28572M10.8571 17.7143H21.1428"
-                                stroke="#60B3D7"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                            <Text size="7" weight="bold" className="cyan-1">
-                              Lumina
-                            </Text>
-                          </Flex>
-                        </a>
-                      </Flex>
-                    </Flex>
-                  </Flex> */}
                 </Flex>
                 <Flex className="module-container" direction="column" gap="4">
                   <UploadMain isAuthenticated={isAuthenticated} />

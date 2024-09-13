@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   padding: 80px;
-  margin-top: 144px;
+  margin-top: 164px;
   border-top: 1px solid hsla(0, 0%, 100%, 0.1);
   background-color: hsl(0, 0%, 100%, 0.08);
   justify-content: center;
@@ -15,8 +15,6 @@
   max-width: 1312px;
   padding-left: 24px;
   padding-right: 24px;
-
-  /* Add any existing footer styles here */
 }
 
 .footer-content {
