@@ -35,6 +35,7 @@ annotated
 annotated-gpu
 sample
 samples
+test_images
 # Ignore Rust build artifacts
 target/
 **/*.rs.bk
@@ -98,3 +99,8 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+log.py
+logs.md
+commit.py
+commits.md

@@ -1,14 +1,14 @@
-use crate::models::server::extract::{Configuration, UploadForm};
 use crate::models::auth::auth::UserInfo;
+use crate::models::server::extract::{Configuration, UploadForm};
+use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
-use crate::utils::db::deadpool_postgres::Pool;
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use aws_sdk_s3::Client as S3Client;
 use uuid::Uuid;
 
-/// Get Extraction Task Status
+/// Get Task
 ///
 /// Keep track of the progress of an extraction task by polling this route with the task ID.
 #[utoipa::path(
@@ -49,7 +49,7 @@ pub async fn get_task_status(
     }
 }
 
-/// Create Extraction Task
+/// Create Task
 ///
 /// Queue a document for extraction and get a task ID back to poll for status
 #[utoipa::path(
@@ -78,14 +78,7 @@ pub async fn create_extraction_task(
         table_ocr: form.table_ocr.map(|t| t.into_inner()),
     };
 
-    let result = create_task(
-        pool,
-        s3_client,
-        file_data,
-        &user_info,
-        &configuration,
-    )
-    .await;
+    let result = create_task(pool, s3_client, file_data, &user_info, &configuration).await;
 
     // Delete temporary files after create_task has finished
     if let Err(e) = std::fs::remove_file(file_data.file.path()) {

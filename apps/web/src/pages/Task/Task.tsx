@@ -6,10 +6,13 @@ import { Viewer } from "../../components/Viewer/Viewer";
 import { useTaskQuery } from "../../hooks/useTaskQuery";
 
 export default function Task() {
-  const { taskId, pageCount } = useParams<{
+  const { taskId } = useParams<{
     taskId: string;
-    pageCount: string;
   }>();
+
+  const pageCount = new URLSearchParams(window.location.search).get(
+    "pageCount"
+  );
 
   const { data: taskResponse, error, isLoading } = useTaskQuery(taskId);
 
@@ -53,9 +56,9 @@ export default function Task() {
     );
   }
 
-  return taskResponse.output_file_url && taskResponse.input_file_url ? (
+  return taskResponse.output && taskResponse.input_file_url ? (
     <Viewer
-      outputFileUrl={taskResponse.output_file_url}
+      output={taskResponse.output}
       inputFileUrl={taskResponse.input_file_url}
     />
   ) : (

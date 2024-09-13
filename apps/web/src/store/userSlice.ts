@@ -17,7 +17,7 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUserData: (state, action: PayloadAction<User>) => {
+    setUserData: (state, action: PayloadAction<User | null>) => {
       state.data = action.payload;
       state.isLoading = false;
       state.error = null;

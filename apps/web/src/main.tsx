@@ -32,7 +32,7 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/task/:taskId/:pageCount",
+    path: "/task/:taskId",
     element: (
       <AuthGuard>
         <Task />
@@ -51,6 +51,10 @@ const router = createBrowserRouter([
       </AuthGuard>
     ),
   },
+  {
+    path: "*",
+    element: <Home />,
+  },
 ]);
 
 const queryClient = new QueryClient();
@@ -62,7 +66,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     panelBackground="solid"
     style={{
       height: "100%",
-      backgroundColor: "rgb(3, 15, 17)",
+      backgroundColor: "#020809",
     }}
   >
     <QueryClientProvider client={queryClient}>
