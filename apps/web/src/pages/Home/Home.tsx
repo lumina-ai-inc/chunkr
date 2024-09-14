@@ -5,7 +5,8 @@ import "./Home.css";
 import Header from "../../components/Header/Header";
 import UploadMain from "../../components/Upload/UploadMain";
 import Footer from "../../components/Footer/Footer";
-import heroImage from "../../assets/hero-image.png";
+import heroImageWebp from "../../assets/hero/hero-image.webp";
+import heroImageJpg from "../../assets/hero/hero-image-85-p.jpg";
 
 const Home = () => {
   const auth = useAuth();
@@ -34,16 +35,19 @@ const Home = () => {
         <div>
           <div className="hero-main-container">
             <div className="hero-image-container">
-              <img
-                src={heroImage}
-                alt="hero"
-                className="hero-image"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
+              <picture>
+                <source srcSet={heroImageWebp} type="image/webp" />
+                <img
+                  src={heroImageJpg}
+                  alt="hero"
+                  className="hero-image"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              </picture>
               <div className="hero-gradient-overlay"></div>
             </div>
             <div className="hero-content-container">
