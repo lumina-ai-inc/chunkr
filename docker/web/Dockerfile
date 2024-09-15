@@ -1,11 +1,6 @@
 # Build stage
 FROM node:18 as build
 
-# # Handle environment variables
-# COPY apps/web/.env .env
-# ENV $(cat .env | xargs)
-# RUN rm .env
-
 WORKDIR /app
 
 COPY apps/web/ .
@@ -37,6 +32,19 @@ EOF
 
 RUN chmod +x /docker-entrypoint.d/01-insert-window-variable.sh
 
+COPY <<'EOF' /usr/local/bin/docker-entrypoint.sh
+#!/bin/sh
+set -e
+
+# Run the original script
+/docker-entrypoint.d/01-insert-window-variable.sh
+
+# Start Nginx
+exec nginx -g 'daemon off;'
+EOF
+
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 8000
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
