@@ -17,10 +17,10 @@ spec:
     spec:
       containers:
       - name: web
-        image: luminainc/web:1928a882
+        image: luminainc/web:d0d80b1f
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
         envFrom:
         - secretRef:
-            name: web-secret
+            name: web-secrets
