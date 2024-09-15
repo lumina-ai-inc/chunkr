@@ -115,7 +115,7 @@ For each file, replace the placeholder values with your actual secret informatio
 
 3. From the root of the repo, apply the Kubernetes resources:
    ```bash
-   kubectl apply -f kube/gcp/
+   kubectl apply -R -f kube/gcp/
    ```
 
 ### 5. Finish the Deployment
