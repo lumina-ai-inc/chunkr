@@ -32,19 +32,19 @@ EOF
 
 RUN chmod +x /docker-entrypoint.d/01-insert-window-variable.sh
 
-COPY <<'EOF' /usr/local/bin/docker-entrypoint.sh
-#!/bin/sh
-set -e
+# COPY <<'EOF' /usr/local/bin/docker-entrypoint.sh
+# #!/bin/sh
+# set -e
 
-# Run the original script
-/docker-entrypoint.d/01-insert-window-variable.sh
+# # Run the original script
+# /docker-entrypoint.d/01-insert-window-variable.sh
 
-# Start Nginx
-exec nginx -g 'daemon off;'
-EOF
+# # Start Nginx
+# exec nginx -g 'daemon off;'
+# EOF
 
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 8000
 
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+# ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
