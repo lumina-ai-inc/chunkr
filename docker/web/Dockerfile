@@ -10,7 +10,7 @@ RUN npm install -g pnpm turbo
 RUN pnpm install
 
 # Build the project using Turbo
-RUN pnpm run build
+RUN pnpm turbo run build --filter=web...
 
 # Production stage
 FROM nginx:alpine
@@ -32,19 +32,4 @@ EOF
 
 RUN chmod +x /docker-entrypoint.d/01-insert-window-variable.sh
 
-# COPY <<'EOF' /usr/local/bin/docker-entrypoint.sh
-# #!/bin/sh
-# set -e
-
-# # Run the original script
-# /docker-entrypoint.d/01-insert-window-variable.sh
-
-# # Start Nginx
-# exec nginx -g 'daemon off;'
-# EOF
-
-# RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
 EXPOSE 8000
-
-# ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
