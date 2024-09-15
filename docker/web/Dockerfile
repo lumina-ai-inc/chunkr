@@ -10,7 +10,7 @@ RUN npm install -g pnpm turbo
 RUN pnpm install
 
 # Build the project using Turbo
-RUN pnpm turbo run build --filter=web...
+RUN pnpm run build
 
 # Production stage
 FROM nginx:alpine
