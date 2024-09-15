@@ -12,6 +12,7 @@ export default function DashBoardHeader(user: User) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const auth = useAuth();
   const accessToken = auth.user?.access_token;
+  const tier = user.tier;
 
   const handleAddPaymentMethod = async () => {
     try {
@@ -69,7 +70,7 @@ export default function DashBoardHeader(user: User) {
         </div>
       </Link>
       <Flex direction="row" gap="4">
-        {user?.tier === "Free" && (
+        {tier === "Free" && (
           <BetterButton padding="4px 12px" onClick={handleAddPaymentMethod}>
             <Text
               size="1"
