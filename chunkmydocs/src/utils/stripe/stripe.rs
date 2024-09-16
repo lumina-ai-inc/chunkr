@@ -67,20 +67,19 @@ pub async fn create_stripe_setup_intent(
 
     Ok(setup_intent)
 }
-pub async fn create_stripe_setup_session(
+pub async fn create_customer_session(
     customer_id: &str,
     stripe_config: &StripeConfig,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
     let form_data = vec![
         ("customer", customer_id),
-        ("mode", "setup"),
-        ("payment_method_types[]", "card"),
+        ("components[payment_element][enabled]", "true"),
     ];
 
     let stripe_response = client
-        .post("https://api.stripe.com/v1/checkout/sessions")
+        .post("https://api.stripe.com/v1/customer_sessions")
         .header("Authorization", format!("Bearer {}", stripe_config.api_key))
         .form(&form_data)
         .send()
@@ -90,17 +89,16 @@ pub async fn create_stripe_setup_session(
         let error_message = stripe_response.text().await?;
         return Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::Other,
-            format!("Failed to create Stripe Setup Session: {}", error_message),
+            format!(
+                "Failed to create Stripe Customer Session: {}",
+                error_message
+            ),
         )));
     }
 
     let session: serde_json::Value = stripe_response.json().await?;
-    let client_secret = session["client_secret"]
-        .as_str()
-        .ok_or("Client secret not found in response")?
-        .to_string();
 
-    Ok(client_secret)
+    Ok(session)
 }
 pub async fn list_payment_methods(
     customer_id: &str,
