@@ -1,12 +1,11 @@
-use crate::models::server::user::{ User, Tier };
-use crate::utils::db::deadpool_postgres::{ Client, Pool };
+use crate::models::server::user::{InvoiceStatus, Tier, User};
+use crate::utils::db::deadpool_postgres::{Client, Pool};
 use std::str::FromStr;
 
 pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
-    let query =
-        r#"
+    let query = r#"
     SELECT 
         u.user_id,
         u.customer_id,
@@ -17,6 +16,7 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         u.tier,
         u.created_at,
         u.updated_at,
+        u.invoice_status,
         json_agg(
             json_build_object(
                 'usage', COALESCE(us.usage, 0),
@@ -39,14 +39,12 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         u.user_id;
     "#;
 
-    let row = client
-        .query_opt(query, &[&user_id]).await?
-        .ok_or_else(||
-            std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                format!("User with id {} not found", user_id)
-            )
-        )?;
+    let row = client.query_opt(query, &[&user_id]).await?.ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("User with id {} not found", user_id),
+        )
+    })?;
 
     let user = User {
         user_id: row.get("user_id"),
@@ -62,6 +60,11 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         created_at: row.get("created_at"),
         updated_at: row.get("updated_at"),
         usages: serde_json::from_str(&row.get::<_, String>("usages")).unwrap_or_default(),
+        invoice_status: Some(
+            row.get::<_, Option<String>>("invoice_status")
+                .and_then(|s| InvoiceStatus::from_str(&s).ok())
+                .unwrap_or(InvoiceStatus::NoInvoice),
+        ),
     };
 
     Ok(user)
