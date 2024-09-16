@@ -235,11 +235,11 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
 
     // Calculate remaining pages for each usage type and insert into discounts table
     let remaining_pages_query = "
-        INSERT INTO discounts (user_id, usage_type, remaining_pages)
-        SELECT user_id, usage_type, usage_limit - usage AS remaining_pages
-        FROM USAGE
-        WHERE user_id = $1
-    ";
+    INSERT INTO discounts (user_id, usage_type, amount)
+    SELECT user_id, usage_type, usage_limit - usage::integer AS amount
+    FROM USAGE
+    WHERE user_id = $1
+";
     client
         .execute(remaining_pages_query, &[&customer_id])
         .await

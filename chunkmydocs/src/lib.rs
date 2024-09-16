@@ -26,6 +26,7 @@ use utils::storage::config_s3::create_client;
 use utils::server::admin_user::get_or_create_admin_user;
 use utoipa::OpenApi;
 use utoipa_redoc::{ Redoc, Servable };
+use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session };
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
@@ -131,7 +132,10 @@ pub fn main() -> std::io::Result<()> {
                 )
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
-                .route("/health", web::get().to(health_check));
+                .route("/health", web::get().to(health_check))
+
+                .route("/stripe/webhook", web::post().to(stripe_webhook));
+            
 
             let mut api_scope = web
                 ::scope("/api")
@@ -140,20 +144,14 @@ pub fn main() -> std::io::Result<()> {
                 .route("/task", web::post().to(create_extraction_task))
                 .route("/task/{task_id}", web::get().to(get_task_status))
                 .route("/tasks", web::get().to(get_tasks_status))
-                .route("/usage", web::get().to(get_usage));
-
-            if
-                std::env::var("STRIPE__API_KEY").is_ok() &&
-                std::env::var("STRIPE__WEBHOOK_SECRET").is_ok()
-            {
-                use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session };
-                api_scope = api_scope.route(
+                .route("/usage", web::get().to(get_usage))
+                .route(
                     "/stripe/create-setup-intent",
                     web::get().to(create_setup_intent)
                 )
                 .route("/stripe/create-session", web::get().to(create_stripe_session));
-                app = app.route("/stripe/webhook", web::post().to(stripe_webhook));
-            }
+
+            
 
             app.service(api_scope)
         })
