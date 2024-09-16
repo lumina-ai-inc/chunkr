@@ -32,5 +32,7 @@ Cargo.lock
 .lh
 
 .env.local
+.env.loc
 .env.prod.DS_Store
 .DS_Store
+
