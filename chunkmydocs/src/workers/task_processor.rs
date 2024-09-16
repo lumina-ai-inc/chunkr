@@ -6,6 +6,7 @@ use chunkmydocs::extraction::pdf2png::BoundingBox;
 use chunkmydocs::extraction::pdla::pdla_extraction;
 use chunkmydocs::extraction::table_ocr::table_extraction_from_image;
 use chunkmydocs::models::rrq::queue::QueuePayload;
+use chunkmydocs::models::server::extract::Configuration;
 use chunkmydocs::models::server::extract::ExtractionPayload;
 use chunkmydocs::models::server::extract::PipelinePayload;
 use chunkmydocs::models::server::extract::{TableOcr, TableOcrModel};
@@ -97,8 +98,8 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             .collect();
         //transform - or OCR here?
         //LLMs here?
-        if let Some(pipeline) = extraction_item.pipeline {
-            segments = apply_pipeline(segments.clone(), pipeline, temp_file.path()).await?;
+        if let Some(config) = extraction_item.configuration {
+            segments = apply_pipeline(segments.clone(), config, temp_file.path()).await?;
         }
         let mut chunks =
             hierarchical_chunk_and_add_markdown(segments, extraction_item.target_chunk_length)
@@ -152,10 +153,10 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
 async fn apply_pipeline(
     segments: Vec<Segment>,
-    config: PipelinePayload,
+    config: Configuration,
     pdf_path: &Path,
 ) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
-    let bounding_boxes = collect_bounding_boxes(&segments, &config);
+    let bounding_boxes = segments_to_bounding_boxes(&segments);
     let png_pages_resp = convert_pdf_to_png(pdf_path, bounding_boxes).await?;
     let png_pages: Vec<PngPage> = png_pages_resp
         .png_pages
@@ -165,32 +166,54 @@ async fn apply_pipeline(
 
     let mut segments = segments;
 
-    if config.table_ocr.is_some() {
-        segments = apply_table_ocr(segments, &png_pages, config.table_ocr).await?;
-    }
+    // if let Some(llm_config) = config.LLM {
+    //     // Filter segments based on affected_segments in llm_config
+    //     let affected_types = &llm_config.affected_segments;
+    //     let filtered_segments: Vec<Segment> = segments
+    //         .iter()
+    //         .filter(|s| affected_types.contains(&s.segment_type))
+    //         .cloned()
+    //         .collect();
 
-    if let Some(llm_config) = config.llm_model {
-        segments = apply_llm_to_segments(segments, llm_config, &png_pages).await?;
-    }
+    //     let processed_segments =
+    //         apply_llm_to_segments(filtered_segments, llm_config.clone(), &png_pages).await?;
+
+    //     // Replace the affected segments with processed ones
+    //     segments = segments
+    //         .into_iter()
+    //         .map(|s| {
+    //             if affected_types.contains(&s.segment_type) {
+    //                 processed_segments
+    //                     .iter()
+    //                     .find(|ps| ps.segment_id == s.segment_id)
+    //                     .cloned()
+    //                     .unwrap_or(s)
+    //             } else {
+    //                 s
+    //             }
+    //         })
+    //         .collect();
+    // }
+    // uncomment this when we add llm
 
     Ok(segments)
 }
 
-fn collect_bounding_boxes(segments: &[Segment], config: &PipelinePayload) -> Vec<BoundingBox> {
+fn segments_to_bounding_boxes(segments: &[Segment]) -> Vec<BoundingBox> {
     segments
         .iter()
-        .filter(|s| {
-            (s.segment_type == SegmentType::Picture && config.llm_model.is_some())
-                || (s.segment_type == SegmentType::Table
-                    && (config.table_ocr.is_some() || config.llm_model.is_some()))
-        })
+        // .filter(|s| {
+        //     (s.segment_type == SegmentType::Picture && config.llm_model.is_some())
+        //         || (s.segment_type == SegmentType::Table
+        //             && (config.table_ocr.is_some() || config.llm_model.is_some()))
+        // })
         .map(|s| BoundingBox {
             left: s.left,
             top: s.top,
             width: s.width,
             height: s.height,
             page_number: s.page_number,
-            bb_id: Uuid::new_v4().to_string(),
+            bb_id: s.segment_id.clone(),
         })
         .collect()
 }
@@ -231,7 +254,6 @@ async fn apply_table_ocr(
 
     Ok(result)
 }
-
 async fn apply_llm_to_segments(
     segments: Vec<Segment>,
     llm_config: LLMConfig,
@@ -239,29 +261,36 @@ async fn apply_llm_to_segments(
 ) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
     let table_prompt =
         "Extract all the tables from the image and return the data in a markdown table";
-    let picture_prompt = "Describe the image";
+    let image_prompt = "Describe the image in detail";
 
     let extraction_config = extraction_config::Config::from_env()?;
 
     let mut result = Vec::new();
     for segment in segments {
-        let prompt = if segment.segment_type == SegmentType::Table {
-            table_prompt.to_string()
-        } else {
-            picture_prompt.to_string()
+        // Check if the segment type is in affected_segments
+        if !llm_config.affected_segments.contains(&segment.segment_type) {
+            result.push(segment);
+            continue;
+        }
+
+        let (prompt, segment_type_str) = match segment.segment_type {
+            SegmentType::Table => (table_prompt, "Table"),
+            SegmentType::Picture => (image_prompt, "Image"),
+            _ => continue, // Skip other segment types
         };
+
         let llm_output = apply_llm(
             llm_config.clone(),
             &extraction_config,
             png_pages.to_vec(),
-            prompt.clone(),
+            prompt.to_string(),
         )
         .await?;
 
         result.push(Segment {
             text: format!(
-                "Table: {}\n\n LLM Table Output:\n{}",
-                segment.text, llm_output
+                "{}: {}\n\n LLM {} Output:\n{}",
+                segment_type_str, segment.text, segment_type_str, llm_output
             ),
             ..segment
         });

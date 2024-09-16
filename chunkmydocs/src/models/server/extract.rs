@@ -17,7 +17,7 @@ pub struct ExtractionPayload {
     #[serde(with = "humantime_serde")]
     pub expiration: Option<Duration>,
     pub target_chunk_length: Option<i32>,
-    pub pipeline: Option<PipelinePayload>,
+    pub configuration: Option<Configuration>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -69,16 +69,14 @@ pub struct UploadForm {
     pub model: Text<Model>,
     #[schema(value_type = Option<i32>)]
     pub target_chunk_length: Option<Text<i32>>,
-    #[schema(value_type = Option<Configuration>)]
-    pub configuration: Option<Text<Configuration>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 pub struct Configuration {
     pub model: Model,
     pub target_chunk_length: Option<i32>,
-    pub table_ocr: Option<TableOcr>,
-    pub LLM: Option<LLMConfig>,
+    // pub table_ocr: Option<TableOcr>,
+    // pub LLM: Option<LLMConfig>,
 }
 
 impl Model {

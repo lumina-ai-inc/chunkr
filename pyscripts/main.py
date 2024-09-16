@@ -88,7 +88,7 @@ def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, 
 
 
 if __name__ == "__main__":
-    model = Model.Fast
+    model = Model.HighQuality
     # table_ocr = TableOcr.JSON  # You can set this to None if you don't want to use table OCR
     table_ocr = None
     process_all_files_in_input_folder(model, table_ocr)
