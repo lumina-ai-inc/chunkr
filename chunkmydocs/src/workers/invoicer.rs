@@ -1,5 +1,8 @@
 use chrono::{DateTime, Utc};
+use chunkmydocs::utils::configs::stripe_config::Config as StripeConfig;
 use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
+use reqwest::Client as ReqwestClient;
+use serde_json::json;
 use uuid::Uuid;
 
 pub async fn process_daily_invoices(pool: &Pool) -> Result<(), Box<dyn std::error::Error>> {
@@ -84,12 +87,175 @@ pub async fn process_daily_invoices(pool: &Pool) -> Result<(), Box<dyn std::erro
     Ok(())
 }
 
-pub fn main() -> std::io::Result<()> {
-    actix_web::rt::System::new().block_on(async move {
-        let pg_pool = chunkmydocs::utils::db::deadpool_postgres::create_pool();
-        process_daily_invoices(&pg_pool)
-            .await
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
-        Ok(())
-    })
+pub async fn invoices_to_execute(pool: &Pool) -> Result<(), Box<dyn std::error::Error>> {
+    let client: Client = pool.get().await?;
+
+    // Get all invoices that are not completed and are either ongoing or failed
+    let invoices = client
+        .query(
+            "SELECT i.invoice_id, i.invoice_status, MIN(ti.created_at) as oldest_task_date
+             FROM invoices i
+             JOIN task_invoices ti ON i.invoice_id = ti.invoice_id
+             WHERE i.invoice_status IN ('ongoing', 'failed')
+             GROUP BY i.invoice_id, i.invoice_status",
+            &[],
+        )
+        .await?;
+
+    for row in invoices {
+        let invoice_id: String = row.get("invoice_id");
+        let invoice_status: String = row.get("invoice_status");
+        let oldest_task_date: DateTime<Utc> = row.get("oldest_task_date");
+
+        if invoice_status == "failed" {
+            // Skip failed invoices
+            continue;
+        }
+
+        // Check if the invoice has been ongoing for more than 30 days
+        if invoice_status == "ongoing" && (Utc::now() - oldest_task_date).num_days() > 30 {
+            create_and_send_invoice(&pool, &invoice_id).await?;
+        }
+    }
+
+    Ok(())
+}
+
+pub async fn create_and_send_invoice(
+    db_pool: &Pool,
+    invoice_id: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let client: Client = db_pool.get().await?;
+
+    // Query to get invoice details, customer info, and usage
+    let query = "
+        SELECT i.invoice_id, i.user_id, i.amount_due, i.total_pages,
+               u.stripe_customer_id,
+               ti.usage_type, SUM(ti.pages) as pages
+        FROM invoices i
+        JOIN users u ON i.user_id = u.id
+        JOIN task_invoices ti ON i.invoice_id = ti.invoice_id
+        WHERE i.invoice_id = $1
+        GROUP BY i.invoice_id, i.user_id, i.amount_due, i.total_pages, u.stripe_customer_id, ti.usage_type
+    ";
+
+    let rows = client.query(query, &[&invoice_id]).await?;
+
+    if rows.is_empty() {
+        return Err("Invoice not found".into());
+    }
+
+    let row = &rows[0];
+    let stripe_customer_id: String = row.get("stripe_customer_id");
+    let amount_due: f64 = row.get("amount_due");
+
+    // Create line items based on usage
+    let mut line_items = Vec::new();
+    for row in &rows {
+        let usage_type: String = row.get("usage_type");
+        let pages: i32 = row.get("pages");
+
+        let (price_id, quantity) = match usage_type.as_str() {
+            "Fast" => (StripeConfig::from_env()?.page_fast_price_id, pages),
+            "HighQuality" => (StripeConfig::from_env()?.page_high_quality_price_id, pages),
+            "Segment" => (StripeConfig::from_env()?.segment_price_id, pages),
+            _ => return Err("Invalid usage type".into()),
+        };
+
+        line_items.push(json!({
+            "price": price_id,
+            "quantity": quantity,
+        }));
+    }
+
+    // Create invoice in Stripe
+    let stripe_config = StripeConfig::from_env()?;
+    let reqwest_client = ReqwestClient::new();
+    let response = reqwest_client
+        .post("https://api.stripe.com/v1/invoices")
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&[
+            ("customer", stripe_customer_id.as_str()),
+            ("auto_advance", "true"),
+            ("collection_method", "charge_automatically"),
+        ])
+        .send()
+        .await?;
+
+    if !response.status().is_success() {
+        return Err(format!(
+            "Failed to create Stripe invoice: {}",
+            response.text().await?
+        )
+        .into());
+    }
+
+    let invoice: serde_json::Value = response.json().await?;
+    let stripe_invoice_id = invoice["id"].as_str().unwrap();
+
+    // Add line items to the invoice
+    for line_item in line_items {
+        let response = reqwest_client
+            .post(&format!(
+                "https://api.stripe.com/v1/invoices/{}/lines",
+                stripe_invoice_id
+            ))
+            .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+            .form(&[
+                ("price", line_item["price"].as_str().unwrap()),
+                ("quantity", &line_item["quantity"].to_string()),
+            ])
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            return Err(format!(
+                "Failed to add line item to Stripe invoice: {}",
+                response.text().await?
+            )
+            .into());
+        }
+    }
+
+    // Finalize the invoice
+    let response = reqwest_client
+        .post(&format!(
+            "https://api.stripe.com/v1/invoices/{}/finalize",
+            stripe_invoice_id
+        ))
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .send()
+        .await?;
+
+    if !response.status().is_success() {
+        return Err(format!(
+            "Failed to finalize Stripe invoice: {}",
+            response.text().await?
+        )
+        .into());
+    }
+
+    // Update local invoice with Stripe invoice ID
+    client
+        .execute(
+            "UPDATE invoices SET stripe_invoice_id = $1 WHERE invoice_id = $2",
+            &[&stripe_invoice_id, &invoice_id],
+        )
+        .await?;
+
+    Ok(())
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    let pg_pool = chunkmydocs::utils::db::deadpool_postgres::create_pool();
+    process_daily_invoices(&pg_pool)
+        .await
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+
+    invoices_to_execute(&pg_pool)
+        .await
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+
+    Ok(())
 }

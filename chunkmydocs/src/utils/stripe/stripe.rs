@@ -67,3 +67,131 @@ pub async fn create_stripe_setup_intent(
 
     Ok(setup_intent)
 }
+pub async fn create_stripe_setup_session(
+    customer_id: &str,
+    stripe_config: &StripeConfig,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let form_data = vec![
+        ("customer", customer_id),
+        ("mode", "setup"),
+        ("payment_method_types[]", "card"),
+    ];
+
+    let stripe_response = client
+        .post("https://api.stripe.com/v1/checkout/sessions")
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&form_data)
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let error_message = stripe_response.text().await?;
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Failed to create Stripe Setup Session: {}", error_message),
+        )));
+    }
+
+    let session: serde_json::Value = stripe_response.json().await?;
+    let client_secret = session["client_secret"]
+        .as_str()
+        .ok_or("Client secret not found in response")?
+        .to_string();
+
+    Ok(client_secret)
+}
+pub async fn list_payment_methods(
+    customer_id: &str,
+    stripe_config: &StripeConfig,
+) -> Result<Vec<serde_json::Value>, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let url = format!(
+        "https://api.stripe.com/v1/customers/{}/payment_methods",
+        customer_id
+    );
+
+    let stripe_response = client
+        .get(&url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let error_message = stripe_response.text().await?;
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Failed to list payment methods: {}", error_message),
+        )));
+    }
+
+    let response: serde_json::Value = stripe_response.json().await?;
+    let payment_methods = response["data"]
+        .as_array()
+        .ok_or("No payment methods found")?
+        .to_vec();
+
+    Ok(payment_methods)
+}
+
+pub async fn delete_payment_method(
+    payment_method_id: &str,
+    stripe_config: &StripeConfig,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let url = format!(
+        "https://api.stripe.com/v1/payment_methods/{}/detach",
+        payment_method_id
+    );
+
+    let stripe_response = client
+        .post(&url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let error_message = stripe_response.text().await?;
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Failed to delete payment method: {}", error_message),
+        )));
+    }
+
+    Ok(())
+}
+
+pub async fn update_payment_method(
+    payment_method_id: &str,
+    update_data: serde_json::Value,
+    stripe_config: &StripeConfig,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let url = format!(
+        "https://api.stripe.com/v1/payment_methods/{}",
+        payment_method_id
+    );
+
+    let stripe_response = client
+        .post(&url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .json(&update_data)
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let error_message = stripe_response.text().await?;
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Failed to update payment method: {}", error_message),
+        )));
+    }
+
+    let updated_payment_method: serde_json::Value = stripe_response.json().await?;
+
+    Ok(updated_payment_method)
+}
