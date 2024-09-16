@@ -80,8 +80,8 @@ export default function DashBoardHeader(user: User) {
             </Text>
           </BetterButton>
         )}
-        {/* {user?.tier !== "Free" && (
-          <BetterButton padding="4px 12px">
+        {user?.tier !== "Free" && (
+          <BetterButton padding="4px 12px" onClick={handleAddPaymentMethod}>
             <Text
               size="1"
               weight="medium"
@@ -90,7 +90,7 @@ export default function DashBoardHeader(user: User) {
               Manage Payments
             </Text>
           </BetterButton>
-        )} */}
+        )}
         <BetterButton padding="4px 12px" onClick={handleApiDocs}>
           <Text
             size="1"
