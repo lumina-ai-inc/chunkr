@@ -119,11 +119,6 @@ pub async fn create_task(
                 )
                 .await?;
 
-            let pipeline = PipelinePayload {
-                llm_model: configuration.LLM.clone(),
-                table_ocr: None,
-            };
-
             let extraction_payload = ExtractionPayload {
                 model: model_internal,
                 input_location: input_location.clone(),
@@ -132,7 +127,7 @@ pub async fn create_task(
                 batch_size: Some(ingest_batch_size),
                 task_id: task_id.clone(),
                 target_chunk_length: Some(target_chunk_length),
-                pipeline: Some(pipeline),
+                configuration: Some(configuration.clone()),
             };
 
             produce_extraction_payloads(extraction_payload).await?;
