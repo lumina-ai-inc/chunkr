@@ -108,8 +108,8 @@ export default function UploadMain({
         <>
           <Flex
             direction="row"
-            height="64px"
             width="100%"
+            gap="6"
             mt="32px"
             className="toggle-container"
             onClick={handleModelToggle}
@@ -117,32 +117,150 @@ export default function UploadMain({
             <Flex
               direction="column"
               height="100%"
-              justify="center"
+              minHeight="300px"
+              justify="end"
               className={model === Model.Fast ? "toggle-active" : "toggle"}
               style={{
-                borderTopLeftRadius: "4px",
-                borderBottomLeftRadius: "4px",
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <Text size="5" weight="medium">
-                Fast
-              </Text>
+              <div className="card-gradient-overlay"></div>
+              <div
+                className="card-image"
+                style={{
+                  backgroundImage: "url('src/assets/cards/fast.png')",
+                }}
+              />
+              <Flex
+                direction="column"
+                className="toggle-icon-container"
+                height="100%"
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              >
+                <Flex direction="row" gap="2" align="center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className={
+                      model === Model.Fast
+                        ? "toggle-icon-active"
+                        : "toggle-icon"
+                    }
+                  >
+                    <rect
+                      width="24"
+                      height="24"
+                      fill="white"
+                      fill-opacity="0.01"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M13.9146 0.0645665C14.2537 0.209661 14.4497 0.567771 14.389 0.931576L12.9443 9.60002H20C20.3028 9.60002 20.58 9.77122 20.7155 10.0423C20.851 10.3133 20.8217 10.6376 20.6398 10.88L11.0399 23.68C10.8186 23.975 10.4243 24.0805 10.0852 23.9355C9.74612 23.7904 9.55017 23.4323 9.61081 23.0685L11.0555 14.4H3.99995C3.69694 14.4 3.41993 14.2288 3.28441 13.9578C3.14891 13.6868 3.17814 13.3624 3.35995 13.12L12.9599 0.320061C13.1812 0.0250008 13.5755 -0.0805282 13.9146 0.0645665ZM5.59995 12.8H11.9999C12.2351 12.8 12.4583 12.9035 12.6103 13.0829C12.7623 13.2623 12.8277 13.4996 12.789 13.7315L11.7284 20.0954L18.4 11.2H11.9999C11.7648 11.2 11.5415 11.0965 11.3895 10.9171C11.2375 10.7377 11.1721 10.5005 11.2108 10.2685L12.2715 3.90467L5.59995 12.8Z"
+                      fill="white"
+                    />
+                  </svg>
+                  <Text
+                    size="7"
+                    weight="bold"
+                    style={{ position: "relative", zIndex: 1 }}
+                  >
+                    Fast
+                  </Text>
+                </Flex>
+
+                <Text size="5" weight="medium" mt="3">
+                  Lightning-fast CPU processing
+                </Text>
+                <Text size="4" weight="medium" mt="2">
+                  ~10 pages per second
+                </Text>
+                <Text size="3" weight="light" style={{ opacity: 0.8 }}>
+                  $0.005/page | 1000 pages for free
+                </Text>
+              </Flex>
             </Flex>
+
             <Flex
               direction="column"
               height="100%"
-              justify="center"
+              minHeight="300px"
+              justify="end"
               className={
                 model === Model.HighQuality ? "toggle-active" : "toggle"
               }
               style={{
-                borderTopRightRadius: "4px",
-                borderBottomRightRadius: "4px",
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <Text size="5" weight="medium">
-                High Quality
-              </Text>
+              <div className="card-gradient-overlay"></div>
+              <div
+                className="card-image"
+                style={{
+                  backgroundImage: "url('src/assets/cards/highQuality.png')",
+                }}
+              />
+              <Flex
+                direction="column"
+                className="toggle-icon-container"
+                height="100%"
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              >
+                <Flex direction="row" gap="2" align="center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className={
+                      model === Model.HighQuality
+                        ? "toggle-icon-active"
+                        : "toggle-icon"
+                    }
+                  >
+                    <rect
+                      width="24"
+                      height="24"
+                      fill="white"
+                      fill-opacity="0.01"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M1.40332 12.0033C1.40332 6.1491 6.1491 1.40332 12.0033 1.40332C17.8574 1.40332 22.6034 6.1491 22.6034 12.0033C22.6034 17.8574 17.8574 22.6034 12.0033 22.6034C6.1491 22.6034 1.40332 17.8574 1.40332 12.0033ZM2.95837 11.2C3.34176 6.82622 6.82622 3.34176 11.2 2.95837V7.20005C11.2 7.64187 11.5582 8.00005 12 8.00005C12.4419 8.00005 12.8 7.64187 12.8 7.20005V2.95779C17.177 3.33829 20.6646 6.82403 21.0483 11.2H16.8C16.3582 11.2 16 11.5582 16 12C16 12.4419 16.3582 12.8 16.8 12.8H21.0488C20.6682 17.179 17.179 20.6682 12.8 21.0488V16.8C12.8 16.3582 12.4419 16 12 16C11.5582 16 11.2 16.3582 11.2 16.8V21.0483C6.82403 20.6646 3.33829 17.177 2.95779 12.8H7.20005C7.64187 12.8 8.00005 12.4419 8.00005 12C8.00005 11.5582 7.64187 11.2 7.20005 11.2H2.95837Z"
+                      fill="white"
+                    />
+                  </svg>
+                  <Text
+                    size="7"
+                    weight="bold"
+                    style={{ position: "relative", zIndex: 1 }}
+                  >
+                    High Quality
+                  </Text>
+                </Flex>
+                <Text size="5" weight="medium" mt="3">
+                  Advanced GPU processing
+                </Text>
+                <Text size="4" weight="medium" mt="2">
+                  ~2 pages per second
+                </Text>
+                <Text size="3" weight="light" style={{ opacity: 0.8 }}>
+                  $0.02/page | 250 pages for free
+                </Text>
+              </Flex>
             </Flex>
           </Flex>
           <Flex direction="row" width="100%" mt="32px">
@@ -150,6 +268,7 @@ export default function UploadMain({
               direction="column"
               height="64px"
               justify="center"
+              align="center"
               className={!!file && !isLoading ? "toggle-active" : "toggle"}
               style={{
                 borderRadius: "4px",
