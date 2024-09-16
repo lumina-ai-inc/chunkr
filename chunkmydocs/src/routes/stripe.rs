@@ -232,7 +232,37 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
+    let tier_query = "
+        SELECT tier
+        FROM users
+        WHERE customer_id = $1
+    ";
+    let row = client
+        .query_one(tier_query, &[&customer_id])
+        .await
+        .map_err(|e| {
+            eprintln!("Error querying tier from users table: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Error querying user tier")
+        })?;
+    let user_tier: String = row.get("tier");
 
+    if user_tier == "PayAsYouGo" || user_tier == "SelfHosted" {
+        return Ok(HttpResponse::Ok().body("User does not need to be upgraded"));
+    }
+
+    let user_id_query = "
+        SELECT user_id
+        FROM users
+        WHERE customer_id = $1
+    ";
+    let row = client
+        .query_one(user_id_query, &[&customer_id])
+        .await
+        .map_err(|e| {
+            eprintln!("Error querying user_id from users table: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Error querying user_id")
+        })?;
+    let user_id: String = row.get("user_id");
     // Calculate remaining pages for each usage type and insert into discounts table
     let remaining_pages_query = "
     INSERT INTO discounts (user_id, usage_type, amount)
@@ -249,37 +279,70 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
         })?;
 
     // Update USAGE table with new usage limits for PayAsYouGo tier
-    let update_usage_query = "
+    let update_fast_usage_query = "
         UPDATE USAGE
-        SET usage_limit = (
-            CASE 
-                WHEN usage_type = 'Fast' THEN $1
-                WHEN usage_type = 'HighQuality' THEN $2
-                WHEN usage_type = 'Segment' THEN $3
-            END
-        ),
+        SET usage_limit = $1::integer,
         usage = 0
-        WHERE user_id = $4
+        WHERE user_id = $2 AND usage_type = 'Fast';
     ";
-    let fast_limit = UsageType::Fast.get_usage_limit(&Tier::PayAsYouGo);
-    let high_quality_limit = UsageType::HighQuality.get_usage_limit(&Tier::PayAsYouGo);
-    let segment_limit = UsageType::Segment.get_usage_limit(&Tier::PayAsYouGo);
+    let update_high_quality_usage_query = "
+        UPDATE USAGE
+        SET usage_limit = $1::integer,
+        usage = 0
+        WHERE user_id = $2 AND usage_type = 'HighQuality';
+    ";
+    let update_segment_usage_query = "
+        UPDATE USAGE
+        SET usage_limit = $1::integer,
+        usage = 0
+        WHERE user_id = $2 AND usage_type = 'Segment';
+    ";
 
+    let fast_limit = UsageType::Fast.get_usage_limit(&Tier::PayAsYouGo) as i32;
+    let high_quality_limit = UsageType::HighQuality.get_usage_limit(&Tier::PayAsYouGo) as i32;
+    let segment_limit = UsageType::Segment.get_usage_limit(&Tier::PayAsYouGo) as i32;
+
+    println!("Updating fast usage for customer_id: {}", customer_id);
+    client
+        .execute(update_fast_usage_query, &[&fast_limit, &user_id])
+        .await
+        .map_err(|e| {
+            eprintln!("Error updating fast usage table: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Error updating fast usage")
+        })?;
+    println!(
+        "Successfully updated fast usage for customer_id: {}",
+        user_id
+    );
+
+    println!("Updating high quality usage for customer_id: {}", user_id);
     client
         .execute(
-            update_usage_query,
-            &[
-                &fast_limit,
-                &high_quality_limit,
-                &segment_limit,
-                &customer_id,
-            ],
+            update_high_quality_usage_query,
+            &[&high_quality_limit, &user_id],
         )
         .await
         .map_err(|e| {
-            eprintln!("Error updating usage table: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Error updating usage")
+            eprintln!("Error updating high quality usage table: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Error updating high quality usage")
         })?;
+    println!(
+        "Successfully updated high quality usage for customer_id: {}",
+        user_id
+    );
+
+    println!("Updating segment usage for customer_id: {}", user_id);
+    client
+        .execute(update_segment_usage_query, &[&segment_limit, &user_id])
+        .await
+        .map_err(|e| {
+            eprintln!("Error updating segment usage table: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Error updating segment usage")
+        })?;
+    println!(
+        "Successfully updated segment usage for customer_id: {}",
+        user_id
+    );
 
     // Update users table to change tier to 'PayAsYouGo'
     let update_user_tier_query = "
