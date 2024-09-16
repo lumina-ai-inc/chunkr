@@ -1,5 +1,5 @@
 use crate::models::auth::auth::UserInfo;
-use crate::models::server::user::{Tier, Usage, UsageType, User};
+use crate::models::server::user::{InvoiceStatus, Tier, Usage, UsageType, User};
 use crate::utils::configs::user_config::Config as UserConfig;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use chrono::Utc;
@@ -117,7 +117,7 @@ pub async fn create_user(
                 updated_at: Utc::now(),
             })
             .collect(),
-        invoice_status: None,
+        invoice_status: Some(InvoiceStatus::NoInvoice),
     };
 
     Ok(user)
