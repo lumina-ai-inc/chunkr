@@ -146,11 +146,12 @@ pub fn main() -> std::io::Result<()> {
                 std::env::var("STRIPE__API_KEY").is_ok() &&
                 std::env::var("STRIPE__WEBHOOK_SECRET").is_ok()
             {
-                use routes::stripe::{ create_setup_intent, stripe_webhook };
+                use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session };
                 api_scope = api_scope.route(
                     "/stripe/create-setup-intent",
                     web::get().to(create_setup_intent)
-                );
+                )
+                .route("/stripe/create-session", web::get().to(create_stripe_session));
                 app = app.route("/stripe/webhook", web::post().to(stripe_webhook));
             }
 
