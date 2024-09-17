@@ -1,42 +1,39 @@
 import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe, StripeElementsOptionsMode } from "@stripe/stripe-js";
+import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import SetupForm from "./SetupForm";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
 
 interface PaymentSetupProps {
-  customerSessionClientSecret: string | { customerSessionClientSecret: string };
+  customerSessionSecret: string;
+  clientSecret: string;
 }
 
 export default function PaymentSetup({
-  customerSessionClientSecret,
+  customerSessionSecret,
+  clientSecret,
 }: PaymentSetupProps) {
-  const clientSecret =
-    typeof customerSessionClientSecret === "string"
-      ? customerSessionClientSecret
-      : customerSessionClientSecret.customerSessionClientSecret;
-
-  const options: StripeElementsOptionsMode = {
-    mode: "setup",
-    currency: "usd",
-    customerSessionClientSecret: clientSecret,
+  const options: StripeElementsOptions = {
+    clientSecret,
+    customerSessionClientSecret: customerSessionSecret,
     appearance: {
-      theme: "night",
+      theme: "flat",
       variables: {
-        colorPrimary: "#9DDDE7",
-        colorBackground: "#061d22",
-        colorText: "#9DDDE7",
+        colorPrimary: "#FFFFFF",
+        colorBackground: "#020809",
+        colorText: "#FFFFFF",
         colorDanger: "#ff4444",
         fontFamily: "Roboto, sans-serif",
       },
     },
   };
 
-  console.log("Stripe Elements options:", options);
-
   return (
     <Elements stripe={stripePromise} options={options}>
-      <SetupForm />
+      <SetupForm
+        clientSecret={clientSecret}
+        customerSessionSecret={customerSessionSecret}
+      />
     </Elements>
   );
 }
