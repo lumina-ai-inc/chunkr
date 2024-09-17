@@ -387,10 +387,11 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
 }
 // Define a route to get invoices for a user
 pub async fn get_user_invoices(
-    user_id: web::Path<String>,
+    user_info: web::ReqData<UserInfo>,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let invoices = get_invoices(user_id.into_inner(), &pool).await?;
+    let user_id = user_info.user_id.clone();
+    let invoices = get_invoices(user_id, &pool).await?;
     Ok(HttpResponse::Ok().json(invoices))
 }
 

@@ -85,9 +85,12 @@ pub async fn get_invoices(
         .into_iter()
         .map(|row| InvoiceSummary {
             invoice_id: row.get("invoice_id"),
-            status: row.get("invoice_status"),
+            status: row
+                .get::<_, Option<String>>("invoice_status")
+                .and_then(|s| s.parse::<InvoiceStatus>().ok())
+                .unwrap_or(InvoiceStatus::NoInvoice), // Provide a default value
             date_created: row.get("date_created"),
-            amount_due: row.get("amount_due"), // Fetching amount_due from the query
+            amount_due: row.get::<_, f64>("amount_due") as f32, // Fetching amount_due from the query and converting to f32
         })
         .collect();
 
