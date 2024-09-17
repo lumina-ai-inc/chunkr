@@ -1,31 +1,18 @@
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 use chrono::{DateTime, Utc};
-use chunkmydocs::extraction::llm::apply_llm;
-use chunkmydocs::extraction::pdf2png::convert_pdf_to_png;
-use chunkmydocs::extraction::pdf2png::BoundingBox;
+use std::path::Path;
+use chunkmydocs::extraction::pdf2png::{convert_pdf_to_png, BoundingBox};
 use chunkmydocs::extraction::pdla::pdla_extraction;
-use chunkmydocs::extraction::table_ocr::table_extraction_from_image;
 use chunkmydocs::models::rrq::queue::QueuePayload;
-use chunkmydocs::models::server::extract::Configuration;
-use chunkmydocs::models::server::extract::ExtractionPayload;
-use chunkmydocs::models::server::extract::PipelinePayload;
-use chunkmydocs::models::server::extract::{TableOcr, TableOcrModel};
-use chunkmydocs::models::server::llm::LLMConfig;
-use chunkmydocs::models::server::segment::PngPage;
-use chunkmydocs::models::server::segment::SegmentType;
-use chunkmydocs::models::server::segment::{Chunk, Segment};
+use chunkmydocs::models::server::extract::{ExtractionPayload, Configuration};
+use chunkmydocs::models::server::segment::{PngPage, Segment};
 use chunkmydocs::models::server::task::Status;
-use chunkmydocs::utils::configs::extraction_config;
-use chunkmydocs::utils::db::deadpool_postgres;
-use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
-use chunkmydocs::utils::json2mkd::json_2_mkd::hierarchical_chunk_and_add_markdown;
 use chunkmydocs::utils::rrq::consumer::consumer;
+use chunkmydocs::utils::configs::extraction_config;
+use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool, create_pool};
+use chunkmydocs::utils::json2mkd::json_2_mkd::hierarchical_chunk_and_add_markdown;
 use chunkmydocs::utils::storage::config_s3::create_client;
 use chunkmydocs::utils::storage::services::{download_to_tempfile, upload_to_s3};
-use std::path::Path;
 
-use tempfile::TempDir;
-use uuid::Uuid;
 pub async fn log_task(
     task_id: String,
     status: Status,
@@ -55,7 +42,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
     let extraction_item: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_item.task_id.clone();
 
-    let pg_pool = deadpool_postgres::create_pool();
+    let pg_pool = create_pool();
 
     log_task(
         task_id.clone(),
@@ -101,7 +88,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         if let Some(config) = extraction_item.configuration {
             segments = apply_pipeline(segments.clone(), config, temp_file.path()).await?;
         }
-        let mut chunks =
+        let chunks =
             hierarchical_chunk_and_add_markdown(segments, extraction_item.target_chunk_length)
                 .await?;
 
@@ -218,85 +205,6 @@ fn segments_to_bounding_boxes(segments: &[Segment]) -> Vec<BoundingBox> {
         .collect()
 }
 
-async fn apply_table_ocr(
-    segments: Vec<Segment>,
-    png_pages: &[PngPage],
-    table_ocr: Option<TableOcr>,
-) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
-    let output_format = table_ocr.unwrap_or(TableOcr::JSON);
-
-    let mut result = Vec::new();
-
-    for segment in segments {
-        if segment.segment_type == SegmentType::Table {
-            if let Some(png_page) = png_pages.iter().find(|p| p.bb_id == segment.segment_id) {
-                let temp_dir = TempDir::new()?;
-                let temp_file_path = temp_dir.path().join(format!("{}.png", png_page.bb_id));
-                let image_data = STANDARD.decode(&png_page.base64_png)?;
-                std::fs::write(&temp_file_path, &image_data)?;
-                let ocr_output = table_extraction_from_image(
-                    &temp_file_path,
-                    TableOcrModel::EasyOcr,
-                    output_format,
-                )
-                .await?;
-                result.push(Segment {
-                    text: ocr_output,
-                    ..segment
-                });
-            } else {
-                result.push(segment);
-            }
-        } else {
-            result.push(segment);
-        }
-    }
-
-    Ok(result)
-}
-async fn apply_llm_to_segments(
-    segments: Vec<Segment>,
-    llm_config: LLMConfig,
-    png_pages: &[PngPage],
-) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
-    let table_prompt =
-        "Extract all the tables from the image and return the data in a markdown table";
-    let image_prompt = "Describe the image in detail";
-
-    let extraction_config = extraction_config::Config::from_env()?;
-
-    let mut result = Vec::new();
-    for segment in segments {
-        // Check if the segment type is in affected_segments
-        if !llm_config.affected_segments.contains(&segment.segment_type) {
-            result.push(segment);
-            continue;
-        }
-
-        let (prompt, segment_type_str) = match segment.segment_type {
-            SegmentType::Table => (table_prompt, "Table"),
-            SegmentType::Picture => (image_prompt, "Image"),
-            _ => continue, // Skip other segment types
-        };
-
-        let llm_output = apply_llm(
-            llm_config.clone(),
-            &extraction_config,
-            png_pages.to_vec(),
-            prompt.to_string(),
-        )
-        .await?;
-
-        result.push(Segment {
-            text: format!(
-                "{}: {}\n\n LLM {} Output:\n{}",
-                segment_type_str, segment.text, segment_type_str, llm_output
-            ),
-            ..segment
-        });
-    }
-    Ok(result)
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

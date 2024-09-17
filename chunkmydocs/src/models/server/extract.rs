@@ -1,4 +1,3 @@
-use crate::models::server::llm::LLMConfig;
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
@@ -20,12 +19,6 @@ pub struct ExtractionPayload {
     pub configuration: Option<Configuration>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct PipelinePayload {
-    pub llm_model: Option<LLMConfig>,
-    pub table_ocr: Option<TableOcr>,
-}
-
 #[derive(
     Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq, ToSql, FromSql,
 )]
@@ -38,27 +31,6 @@ pub enum SegmentationModel {
 pub enum Model {
     Fast,
     HighQuality,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, Copy, ToSql, FromSql)]
-#[postgres(name = "table_ocr")]
-pub enum TableOcr {
-    HTML,
-    JSON,
-}
-impl fmt::Display for TableOcr {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            TableOcr::HTML => write!(f, "HTML"),
-            TableOcr::JSON => write!(f, "JSON"),
-        }
-    }
-}
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema, Display, Copy, PartialEq)]
-pub enum TableOcrModel {
-    EasyOcr,
-    Tesseract,
-    Qwen,
 }
 
 #[derive(Debug, MultipartForm, ToSchema)]
@@ -75,7 +47,6 @@ pub struct UploadForm {
 pub struct Configuration {
     pub model: Model,
     pub target_chunk_length: Option<i32>,
-    // pub table_ocr: Option<TableOcr>,
     // pub LLM: Option<LLMConfig>,
 }
 
