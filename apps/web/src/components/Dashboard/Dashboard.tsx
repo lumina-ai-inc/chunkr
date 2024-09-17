@@ -155,7 +155,8 @@ export default function Dashboard() {
                           user.usages.find(
                             (usage) => usage.usage_type === "Fast"
                           )?.usage_limit
-                        }
+                        }{" "}
+                        pages
                       </>
                     )}
                   </Text> */}
@@ -233,7 +234,8 @@ export default function Dashboard() {
                           user.usages.find(
                             (usage) => usage.usage_type === "HighQuality"
                           )?.usage_limit
-                        }
+                        }{" "}
+                        pages
                       </>
                     )}
                   </Text> */}
