@@ -4,6 +4,7 @@ use chunkmydocs::utils::configs::stripe_config::Config as StripeConfig;
 use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
 use reqwest::Client as ReqwestClient;
 use serde_json::json;
+use tokio_postgres::Row;
 use uuid::Uuid;
 
 pub async fn process_daily_invoices(pool: &Pool) -> Result<(), Box<dyn std::error::Error>> {
