@@ -38,6 +38,7 @@ export async function getUserInvoices(accessToken: string) {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+    console.log("response", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching user invoices:", error);
