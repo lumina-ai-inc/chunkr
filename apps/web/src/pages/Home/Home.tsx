@@ -65,13 +65,13 @@ const Home = () => {
                     className="hero-title"
                     mb="24px"
                   >
-                    Open Source Data Ingestion
+                    Open Source Doc Segmentation
                   </Text>
                   <Text
                     className="white"
                     size="5"
                     weight="medium"
-                    mb="24px"
+                    mb="40px"
                     style={{
                       maxWidth: "542px",
                       lineHeight: "32px",
@@ -91,9 +91,15 @@ const Home = () => {
                       className="signup-button"
                       onClick={handleGetStarted}
                     >
-                      <Text size="3" weight="bold">
-                        Get started for free
-                      </Text>
+                      {isAuthenticated ? (
+                        <Text size="3" weight="bold">
+                          Go to dashboard
+                        </Text>
+                      ) : (
+                        <Text size="3" weight="bold">
+                          Get started for free
+                        </Text>
+                      )}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
