@@ -4,12 +4,16 @@ import { User } from "../../models/user.model";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
-import { createSetupIntent } from "../../services/stripeService";
+import {
+  createCustomerSession,
+  createSetupIntent,
+} from "../../services/stripeService";
 import PaymentSetup from "../Payments/PaymentSetup";
 
 export default function DashBoardHeader(user: User) {
   const [showPaymentSetup, setShowPaymentSetup] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [customerSession, setCustomerSession] = useState<string | null>(null);
   const auth = useAuth();
   const accessToken = auth.user?.access_token;
   const tier = user.tier;
@@ -17,8 +21,17 @@ export default function DashBoardHeader(user: User) {
   const handleAddPaymentMethod = async () => {
     try {
       const secret = await createSetupIntent(accessToken as string);
+      console.log("secret", secret);
+      const customerSession = await createCustomerSession(
+        accessToken as string
+      );
+      console.log("customerSession", customerSession);
       setClientSecret(secret);
+      console.log("secret", secret);
+      setCustomerSession(customerSession);
+      console.log("customerSession", customerSession);
       setShowPaymentSetup(true);
+      console.log("showPaymentSetup", showPaymentSetup);
     } catch (error) {
       console.error("Error creating Stripe Setup Intent:", error);
     }
@@ -131,7 +144,11 @@ export default function DashBoardHeader(user: User) {
               borderRadius: "8px",
             }}
           >
-            <PaymentSetup clientSecret={clientSecret} />
+            <PaymentSetup
+              customerId={customerSession as string}
+              ephemeralKey={clientSecret as string}
+              currency="usd"
+            />
           </Dialog.Content>
         </Dialog.Root>
       )}
