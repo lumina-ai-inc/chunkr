@@ -1,17 +1,29 @@
 import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
+import { loadStripe, StripeElementsOptionsMode } from "@stripe/stripe-js";
 import SetupForm from "./SetupForm";
-import { Text } from "@radix-ui/themes";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
 
 interface PaymentSetupProps {
-  clientSecret: string;
+  customerId: string;
+  ephemeralKey: string;
+  currency: string;
 }
 
-export default function PaymentSetup({ clientSecret }: PaymentSetupProps) {
-  const options = {
-    clientSecret,
+export default function PaymentSetup({
+  customerId,
+  ephemeralKey,
+  currency = "usd",
+}: PaymentSetupProps) {
+  const options: StripeElementsOptionsMode = {
+    mode: "setup",
+    currency: currency,
+    customerOptions: {
+      customer: customerId,
+      ephemeralKey: ephemeralKey,
+    },
+    // Add this configuration to display saved payment methods
+    paymentMethodCreation: "manual",
     appearance: {
       theme: "night",
       variables: {
@@ -24,15 +36,11 @@ export default function PaymentSetup({ clientSecret }: PaymentSetupProps) {
     },
   };
 
+  console.log(options);
+
   return (
-    <Elements stripe={stripePromise} options={options as StripeElementsOptions}>
-      {clientSecret ? (
-        <SetupForm />
-      ) : (
-        <Text size="2" style={{ color: "var(--red-9)" }}>
-          Error: Unable to load payment form. Please try again.
-        </Text>
-      )}
+    <Elements stripe={stripePromise} options={options}>
+      <SetupForm />
     </Elements>
   );
 }
