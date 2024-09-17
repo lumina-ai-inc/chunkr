@@ -87,8 +87,8 @@ pub async fn get_invoices(
             invoice_id: row.get("invoice_id"),
             status: row
                 .get::<_, Option<String>>("invoice_status")
-                .and_then(|s| s.parse::<InvoiceStatus>().ok())
-                .unwrap_or(InvoiceStatus::NoInvoice), // Provide a default value
+                .and_then(|s| s.to_lowercase().parse::<InvoiceStatus>().ok())
+                .expect("Invalid invoice status"),
             date_created: row.get("date_created"),
             amount_due: row.get::<_, f64>("amount_due") as f32, // Fetching amount_due from the query and converting to f32
         })

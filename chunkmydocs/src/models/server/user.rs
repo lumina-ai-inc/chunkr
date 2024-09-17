@@ -87,7 +87,7 @@ impl ToString for InvoiceStatus {
     fn to_string(&self) -> String {
         match self {
             InvoiceStatus::Paid => "Paid".to_string(),
-            InvoiceStatus::Ongoing => "Ongoing".to_string(),
+            InvoiceStatus::Ongoing => "ongoing".to_string(),
             InvoiceStatus::PastDue => "PastDue".to_string(),
             InvoiceStatus::Canceled => "Canceled".to_string(),
             InvoiceStatus::NoInvoice => "NoInvoice".to_string(),
@@ -101,7 +101,7 @@ impl std::str::FromStr for InvoiceStatus {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "Paid" => Ok(InvoiceStatus::Paid),
-            "Ongoing" => Ok(InvoiceStatus::Ongoing),
+            "ongoing" => Ok(InvoiceStatus::Ongoing),
             "PastDue" => Ok(InvoiceStatus::PastDue),
             "Canceled" => Ok(InvoiceStatus::Canceled),
             "NoInvoice" => Ok(InvoiceStatus::NoInvoice),
