@@ -35,6 +35,7 @@ pub async fn create_stripe_setup_intent(
     let form_data = vec![
         ("customer", customer_id),
         ("payment_method_types[]", "card"),
+        ("automatic_payment_methods", "true"),
         ("usage", "off_session"),
     ];
 
@@ -84,18 +85,14 @@ pub async fn create_customer_session(
             "components[payment_element][features][payment_method_allow_redisplay_filters][]",
             "always",
         ),
-        (
-            "components[payment_element][features][payment_method_save]",
-            "enabled",
-        ),
-        (
-            "components[payment_element][features][payment_method_save_usage]",
-            "off_session",
-        ),
-        (
-            "components[payment_element][features][payment_method_remove]",
-            "enabled",
-        ),
+        // (
+        //     "components[payment_element][features][payment_method_save]",
+        //     "enabled",
+        // ),
+        // (
+        //     "components[payment_element][features][payment_method_save_usage]",
+        //     "off_session",
+        // ),
     ];
 
     let stripe_response = client
