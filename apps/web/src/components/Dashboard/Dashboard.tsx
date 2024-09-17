@@ -138,7 +138,7 @@ export default function Dashboard() {
                   weight="bold"
                   style={{ color: "hsla(180, 100%, 100%, 1)" }}
                 >
-                  {
+                  {/* {
                     user?.usages.find((usage) => usage.usage_type === "Fast")
                       ?.usage
                   }
@@ -158,7 +158,7 @@ export default function Dashboard() {
                         }
                       </>
                     )}
-                  </Text>
+                  </Text> */}
                 </Text>
               </Flex>
               <Flex
@@ -215,7 +215,7 @@ export default function Dashboard() {
                   weight="bold"
                   style={{ color: "hsla(180, 100%, 100%, 1)" }}
                 >
-                  {
+                  {/* {
                     user?.usages.find(
                       (usage) => usage.usage_type === "HighQuality"
                     )?.usage
@@ -236,7 +236,7 @@ export default function Dashboard() {
                         }
                       </>
                     )}
-                  </Text>
+                  </Text> */}
                 </Text>
               </Flex>
 

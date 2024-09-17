@@ -100,6 +100,10 @@ pub async fn create_customer_session(
             "components[payment_element][features][payment_method_save]",
             "disabled",
         ),
+        (
+            "components[payment_element][features][payment_method_redisplay_limit]",
+            "1",
+        ),
         // (
         //     "components[payment_element][features][payment_method_save_usage]",
         //     "off_session",

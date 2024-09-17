@@ -15,24 +15,11 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         array_agg(DISTINCT ak.key) as api_keys,
         u.tier,
         u.created_at,
-        u.updated_at,
-        u.invoice_status,
-        json_agg(
-            json_build_object(
-                'usage', COALESCE(us.usage, 0),
-                'usage_limit', COALESCE(us.usage_limit, 0),
-                'usage_type', us.usage_type,
-                'unit', us.unit,
-                'created_at', us.created_at,
-                'updated_at', us.created_at
-            )
-        )::text AS usages
+        u.updated_at
     FROM 
         users u
     LEFT JOIN 
-        USAGE us ON u.user_id = us.user_id
-    LEFT JOIN
-        API_KEYS ak ON u.user_id = ak.user_id
+        api_keys ak ON u.user_id = ak.user_id
     WHERE 
         u.user_id = $1
     GROUP BY 
@@ -59,13 +46,100 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
             .unwrap_or(Tier::Free),
         created_at: row.get("created_at"),
         updated_at: row.get("updated_at"),
-        usages: serde_json::from_str(&row.get::<_, String>("usages")).unwrap_or_default(),
-        invoice_status: Some(
-            row.get::<_, Option<String>>("invoice_status")
-                .and_then(|s| InvoiceStatus::from_str(&s).ok())
-                .unwrap_or(InvoiceStatus::NoInvoice),
-        ),
     };
 
     Ok(user)
+}
+
+use serde::Serialize;
+
+#[derive(Serialize)]
+pub struct InvoiceSummary {
+    pub invoice_id: String,
+    pub status: InvoiceStatus,
+    pub date_created: Option<chrono::NaiveDateTime>,
+    pub amount_due: f32, // Added amount_due field
+}
+
+pub async fn get_invoices(
+    user_id: String,
+    pool: &Pool,
+) -> Result<Vec<InvoiceSummary>, Box<dyn std::error::Error>> {
+    let client: Client = pool.get().await?;
+
+    let query = r#"
+    SELECT 
+        invoice_id,
+        invoice_status,
+        date_created,
+        amount_due
+    FROM 
+        invoices
+    WHERE 
+        user_id = $1;
+    "#;
+
+    let rows = client.query(query, &[&user_id]).await?;
+
+    let invoices = rows
+        .into_iter()
+        .map(|row| InvoiceSummary {
+            invoice_id: row.get("invoice_id"),
+            status: row.get("invoice_status"),
+            date_created: row.get("date_created"),
+            amount_due: row.get("amount_due"), // Fetching amount_due from the query
+        })
+        .collect();
+
+    Ok(invoices)
+}
+
+#[derive(Serialize)]
+pub struct TaskInvoice {
+    pub task_id: String,
+    pub usage_type: String,
+    pub pages: i32,
+    pub cost: f32,
+    pub created_at: chrono::NaiveDateTime,
+}
+
+#[derive(Serialize)]
+pub struct InvoiceDetail {
+    pub invoice_id: String,
+    pub tasks: Vec<TaskInvoice>,
+}
+
+pub async fn get_invoice_information(
+    invoice_id: String,
+    pool: &Pool,
+) -> Result<InvoiceDetail, Box<dyn std::error::Error>> {
+    let client: Client = pool.get().await?;
+
+    let query = r#"
+    SELECT 
+        task_id,
+        usage_type,
+        pages,
+        cost,
+        created_at
+    FROM 
+        task_invoices
+    WHERE 
+        invoice_id = $1;
+    "#;
+
+    let rows = client.query(query, &[&invoice_id]).await?;
+
+    let tasks = rows
+        .into_iter()
+        .map(|row| TaskInvoice {
+            task_id: row.get("task_id"),
+            usage_type: row.get("usage_type"),
+            pages: row.get("pages"),
+            cost: row.get("cost"),
+            created_at: row.get("created_at"),
+        })
+        .collect();
+
+    Ok(InvoiceDetail { invoice_id, tasks })
 }

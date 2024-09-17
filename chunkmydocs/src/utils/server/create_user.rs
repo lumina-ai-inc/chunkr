@@ -106,18 +106,6 @@ pub async fn create_user(
             .unwrap_or(Tier::Free),
         created_at: user_row.get("created_at"),
         updated_at: user_row.get("updated_at"),
-        usages: usage_limits_clone
-            .into_iter()
-            .map(|(usage_type, limit)| Usage {
-                usage: 0,
-                usage_limit: limit,
-                usage_type: usage_type.to_string(),
-                unit: usage_type.get_unit(),
-                created_at: Utc::now(),
-                updated_at: Utc::now(),
-            })
-            .collect(),
-        invoice_status: Some(InvoiceStatus::NoInvoice),
     };
 
     Ok(user)

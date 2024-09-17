@@ -71,8 +71,6 @@ pub struct User {
     pub tier: Tier,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub usages: Vec<Usage>,
-    pub invoice_status: Option<InvoiceStatus>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, ToSql, FromSql)]

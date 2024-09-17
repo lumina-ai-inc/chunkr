@@ -2,6 +2,7 @@ use crate::models::auth::auth::UserInfo;
 use crate::models::server::user::{Tier, UsageType};
 use crate::utils::configs::stripe_config::Config as StripeConfig;
 use crate::utils::db::deadpool_postgres::Pool;
+use crate::utils::server::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe::{
     create_customer_session, create_stripe_customer, create_stripe_setup_intent,
 };
@@ -242,7 +243,7 @@ pub async fn stripe_webhook(
             if let stripe::EventObject::Invoice(invoice) = event.data.object {
                 println!("Invoice Payment Succeeded: {:?}", invoice);
             }
-        }
+        } //update USERS and INVOICES table
         _ => {
             println!("Unhandled event type: {:?}", event.type_);
         } //do these... test invoice...
@@ -383,4 +384,21 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
 
     // Return a valid HttpResponse
     Ok(HttpResponse::Ok().finish())
+}
+// Define a route to get invoices for a user
+pub async fn get_user_invoices(
+    user_id: web::Path<String>,
+    pool: web::Data<Pool>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let invoices = get_invoices(user_id.into_inner(), &pool).await?;
+    Ok(HttpResponse::Ok().json(invoices))
+}
+
+// Define a route to get detailed information for a specific invoice
+pub async fn get_invoice_detail(
+    invoice_id: web::Path<String>,
+    pool: web::Data<Pool>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let invoice_detail = get_invoice_information(invoice_id.into_inner(), &pool).await?;
+    Ok(HttpResponse::Ok().json(invoice_detail))
 }

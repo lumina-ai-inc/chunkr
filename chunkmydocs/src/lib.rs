@@ -26,7 +26,7 @@ use utils::storage::config_s3::create_client;
 use utils::server::admin_user::get_or_create_admin_user;
 use utoipa::OpenApi;
 use utoipa_redoc::{ Redoc, Servable };
-use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session };
+use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session, get_user_invoices, get_invoice_detail };
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
@@ -149,7 +149,9 @@ pub fn main() -> std::io::Result<()> {
                     "/stripe/create-setup-intent",
                     web::get().to(create_setup_intent)
                 )
-                .route("/stripe/create-session", web::get().to(create_stripe_session));
+                .route("/stripe/create-session", web::get().to(create_stripe_session))
+                .route("/stripe/get-user-invoices", web::get().to(get_user_invoices))
+                .route("/stripe/get-invoice-detail/{invoice_id}", web::get().to(get_invoice_detail));
 
             
 

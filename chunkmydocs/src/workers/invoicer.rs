@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use chunkmydocs::models::server::user::InvoiceStatus;
 use chunkmydocs::utils::configs::stripe_config::Config as StripeConfig;
 use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
 use reqwest::Client as ReqwestClient;
@@ -80,6 +81,35 @@ pub async fn process_daily_invoices(pool: &Pool) -> Result<(), Box<dyn std::erro
                  total_pages = total_pages + $3
              WHERE invoice_id = $4",
                 &[&task_id, &cost, &pages, &invoice_id],
+            )
+            .await?;
+    }
+
+    // Check the most recent invoice for each user and update users table
+    let recent_invoices = client
+        .query(
+            "SELECT user_id, invoice_status
+             FROM invoices
+             WHERE invoice_id IN (
+                 SELECT invoice_id
+                 FROM invoices
+                 WHERE user_id = user_id
+                 ORDER BY date_created DESC
+                 LIMIT 1
+             )",
+            &[],
+        )
+        .await?;
+
+    for row in recent_invoices {
+        let user_id: String = row.get("user_id");
+        let invoice_status: String = row.get("invoice_status");
+
+        // Update user status based on the most recent invoice status
+        client
+            .execute(
+                "UPDATE users SET invoice_status = $1 WHERE user_id = $2",
+                &[&invoice_status, &user_id],
             )
             .await?;
     }
