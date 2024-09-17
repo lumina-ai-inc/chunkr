@@ -81,7 +81,7 @@ pub async fn create_customer_session(
             "enabled",
         ),
         (
-            "components[payment_element][features][payment_method_allow_redisplay_filters]",
+            "components[payment_element][features][payment_method_allow_redisplay_filters][]",
             "always",
         ),
         (
