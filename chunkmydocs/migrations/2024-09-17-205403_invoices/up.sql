@@ -1,22 +1,41 @@
 -- Your SQL goes here
 -- Function to handle invoice processing after task usage is successfully updated
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+
+
 CREATE OR REPLACE FUNCTION handle_task_invoice() RETURNS TRIGGER AS $$
 DECLARE
     v_user_id TEXT;
     v_task_id TEXT;
     v_pages INTEGER;
+    v_segment_count INTEGER;
     v_usage_type TEXT;
     v_created_at TIMESTAMP;
     v_invoice_id TEXT;
     v_cost_per_unit FLOAT;
     v_cost FLOAT;
+    v_config JSONB;
 BEGIN
     -- Only proceed if the task status is 'completed'
-    IF NEW.status = 'completed' THEN
+    IF NEW.status = 'Succeeded' THEN
         v_user_id := NEW.user_id;
         v_task_id := NEW.task_id;
         v_pages := NEW.page_count;
-        v_usage_type := (SELECT type FROM USAGE_TYPE WHERE id = NEW.configuration);
+        v_segment_count := NEW.segment_count; -- Added segment count
+        v_config := NEW.configuration::JSONB;
+
+        -- Update for Fast, HighQuality, or Segment
+        IF v_config->>'model' = 'Fast' THEN
+            v_usage_type := 'Fast';
+        ELSIF v_config->>'model' = 'HighQuality' THEN
+            v_usage_type := 'HighQuality';
+        ELSIF v_config->>'useVisionOCR' = 'true' THEN
+            v_usage_type := 'Segment';
+        ELSE
+            RAISE EXCEPTION 'Unknown model type in configuration';
+        END IF;
         v_created_at := NEW.created_at;
 
         -- Check if there's an ongoing invoice for this user
@@ -43,7 +62,11 @@ BEGIN
         WHERE type = v_usage_type;
 
         -- Calculate the cost
-        v_cost := v_cost_per_unit * v_pages;
+        IF v_usage_type = 'Segment' THEN
+            v_cost := v_cost_per_unit * v_segment_count; -- Use segment count for cost calculation
+        ELSE
+            v_cost := v_cost_per_unit * v_pages;
+        END IF;
 
         -- Insert into task_invoices
         INSERT INTO task_invoices (task_id, invoice_id, usage_type, pages, cost, created_at)
@@ -55,7 +78,6 @@ BEGIN
             total_pages = total_pages + v_pages
         WHERE invoice_id = v_invoice_id;
 
-        WHERE user_id = v_user_id;
     END IF;
 
     RETURN NEW;
@@ -63,8 +85,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger to execute the handle_task_invoice function after a task is updated to 'completed'
-CREATE TRIGGER trg_handle_task_invoice
+CREATE OR REPLACE TRIGGER trg_handle_task_invoice
 AFTER UPDATE OF status ON TASKS
 FOR EACH ROW
-WHEN (NEW.status = 'completed')
+WHEN (NEW.status = 'Succeeded')
 EXECUTE FUNCTION handle_task_invoice();
