@@ -1,13 +1,14 @@
 import requests
-import json
 import base64
 from pathlib import Path
+import os
+import time
 
-def convert_pdf_to_images(pdf_path, output_dir, density=150):
+def convert_file_to_images(file_path, output_dir, density=150):
     # Prepare the URL and files for the request
     url = 'http://localhost:3000/convert_to_img'
     files = {
-        'file': open(pdf_path, 'rb')
+        'file': open(file_path, 'rb')
     }
     data = {
         'density': str(density)
@@ -39,6 +40,24 @@ def convert_pdf_to_images(pdf_path, output_dir, density=150):
         print(f"Error: {response.status_code} - {response.text}")
 
 # Usage
-pdf_path = '/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/CIM-04-Alcatel-Lucent.pdf'
-output_dir = 'output'
-convert_pdf_to_images(pdf_path, output_dir)
+file_path = '/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/1c749c35-cc15-56b2-ade5-010fbf1a9778.pdf'
+base_output_dir = 'output'
+
+# Extract the filename without extension
+file_name = Path(file_path).stem
+
+# Create the output directory using the filename
+output_dir = Path(base_output_dir) / file_name
+os.makedirs(output_dir, exist_ok=True)
+
+# Start timing
+start_time = time.time()
+
+convert_file_to_images(file_path, output_dir, 300)
+
+# End timing
+end_time = time.time()
+
+# Calculate and print execution time
+execution_time = end_time - start_time
+print(f"Execution time: {execution_time:.2f} seconds")
