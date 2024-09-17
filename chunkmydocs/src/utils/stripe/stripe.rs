@@ -35,7 +35,6 @@ pub async fn create_stripe_setup_intent(
     let form_data = vec![
         ("customer", customer_id),
         ("payment_method_types[]", "card"),
-        ("automatic_payment_methods", "true"),
         ("usage", "off_session"),
     ];
 
