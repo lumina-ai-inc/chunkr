@@ -83,7 +83,7 @@ export default function Dashboard() {
                 </svg>
               </Flex>
             )}
-            <Flex direction="row" gap="6" justify="between" mt="6">
+            <Flex direction="row" gap="6" justify="between" mt="7">
               <Flex
                 flexGrow="1"
                 direction="column"
