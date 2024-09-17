@@ -1,7 +1,6 @@
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use std::time::Duration;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
