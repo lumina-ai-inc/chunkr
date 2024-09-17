@@ -24,7 +24,8 @@ export async function createCustomerSession(accessToken: string) {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    return response.data.customer;
+    console.log("response", response.data);
+    return response.data.client_secret;
   } catch (error) {
     console.error("Error creating customer session:", error);
     throw error;

@@ -5,25 +5,21 @@ import SetupForm from "./SetupForm";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_API_KEY);
 
 interface PaymentSetupProps {
-  customerId: string;
-  ephemeralKey: string;
-  currency: string;
+  customerSessionClientSecret: string | { customerSessionClientSecret: string };
 }
 
 export default function PaymentSetup({
-  customerId,
-  ephemeralKey,
-  currency = "usd",
+  customerSessionClientSecret,
 }: PaymentSetupProps) {
+  const clientSecret =
+    typeof customerSessionClientSecret === "string"
+      ? customerSessionClientSecret
+      : customerSessionClientSecret.customerSessionClientSecret;
+
   const options: StripeElementsOptionsMode = {
     mode: "setup",
-    currency: currency,
-    customerOptions: {
-      customer: customerId,
-      ephemeralKey: ephemeralKey,
-    },
-    // Add this configuration to display saved payment methods
-    paymentMethodCreation: "manual",
+    currency: "usd",
+    customerSessionClientSecret: clientSecret,
     appearance: {
       theme: "night",
       variables: {
@@ -36,7 +32,7 @@ export default function PaymentSetup({
     },
   };
 
-  console.log(options);
+  console.log("Stripe Elements options:", options);
 
   return (
     <Elements stripe={stripePromise} options={options}>

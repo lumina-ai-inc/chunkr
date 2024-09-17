@@ -4,32 +4,23 @@ import { User } from "../../models/user.model";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
-import {
-  createCustomerSession,
-  createSetupIntent,
-} from "../../services/stripeService";
+import { createCustomerSession } from "../../services/stripeService";
 import PaymentSetup from "../Payments/PaymentSetup";
 
 export default function DashBoardHeader(user: User) {
   const [showPaymentSetup, setShowPaymentSetup] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [customerSession, setCustomerSession] = useState<string | null>(null);
   const auth = useAuth();
   const accessToken = auth.user?.access_token;
   const tier = user.tier;
 
   const handleAddPaymentMethod = async () => {
     try {
-      const secret = await createSetupIntent(accessToken as string);
-      console.log("secret", secret);
-      const customerSession = await createCustomerSession(
-        accessToken as string
-      );
-      console.log("customerSession", customerSession);
+      const secret = await createCustomerSession(accessToken as string);
+
       setClientSecret(secret);
       console.log("secret", secret);
-      setCustomerSession(customerSession);
-      console.log("customerSession", customerSession);
+
       setShowPaymentSetup(true);
       console.log("showPaymentSetup", showPaymentSetup);
     } catch (error) {
@@ -144,11 +135,7 @@ export default function DashBoardHeader(user: User) {
               borderRadius: "8px",
             }}
           >
-            <PaymentSetup
-              customerId={customerSession as string}
-              ephemeralKey={clientSecret as string}
-              currency="usd"
-            />
+            <PaymentSetup customerSessionClientSecret={clientSecret} />
           </Dialog.Content>
         </Dialog.Root>
       )}
