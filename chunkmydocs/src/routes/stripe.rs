@@ -223,6 +223,29 @@ pub async fn stripe_webhook(
         _ => {
             println!("Unhandled event type: {:?}", event.type_);
         }
+        stripe::EventType::InvoicePaid => {
+            if let stripe::EventObject::Invoice(invoice) = event.data.object {
+                println!("Invoice Paid: {:?}", invoice);
+            }
+        }
+        stripe::EventType::InvoicePaymentActionRequired => {
+            if let stripe::EventObject::Invoice(invoice) = event.data.object {
+                println!("Invoice Payment Action Required: {:?}", invoice);
+            }
+        }
+        stripe::EventType::InvoicePaymentFailed => {
+            if let stripe::EventObject::Invoice(invoice) = event.data.object {
+                println!("Invoice Payment Failed: {:?}", invoice);
+            }
+        }
+        stripe::EventType::InvoicePaymentSucceeded => {
+            if let stripe::EventObject::Invoice(invoice) = event.data.object {
+                println!("Invoice Payment Succeeded: {:?}", invoice);
+            }
+        }
+        _ => {
+            println!("Unhandled event type: {:?}", event.type_);
+        } //do these... test invoice...
     }
 
     Ok(HttpResponse::Ok().finish())

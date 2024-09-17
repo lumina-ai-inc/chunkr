@@ -147,7 +147,6 @@ pub async fn create_and_send_invoice(
 
     let row = &rows[0];
     let stripe_customer_id: String = row.get("stripe_customer_id");
-    let amount_due: f64 = row.get("amount_due");
 
     // Create line items based on usage
     let mut line_items = Vec::new();

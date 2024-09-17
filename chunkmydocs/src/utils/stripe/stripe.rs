@@ -76,6 +76,22 @@ pub async fn create_customer_session(
     let form_data = vec![
         ("customer", customer_id),
         ("components[payment_element][enabled]", "true"),
+        (
+            "components[payment_element][features][payment_method_redisplay]",
+            "enabled",
+        ),
+        (
+            "components[payment_element][features][payment_method_save]",
+            "enabled",
+        ),
+        (
+            "components[payment_element][features][payment_method_save_usage]",
+            "off_session",
+        ),
+        (
+            "components[payment_element][features][payment_method_remove]",
+            "enabled",
+        ),
     ];
 
     let stripe_response = client
