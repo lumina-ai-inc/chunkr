@@ -1,6 +1,5 @@
 use crate::models::auth::auth::UserInfo;
 use crate::models::rrq::produce::ProducePayload;
-use crate::models::server::extract::PipelinePayload;
 use crate::models::{
     server::extract::{Configuration, ExtractionPayload},
     server::task::{Status, TaskResponse},

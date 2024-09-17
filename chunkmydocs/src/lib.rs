@@ -59,7 +59,6 @@ fn run_migrations(url: &str) {
         schemas(
             models::server::extract::UploadForm,
             models::server::extract::Configuration,
-            models::server::extract::TableOcr,
             models::server::extract::Model,
             models::server::task::TaskResponse,
             models::server::task::Status,
