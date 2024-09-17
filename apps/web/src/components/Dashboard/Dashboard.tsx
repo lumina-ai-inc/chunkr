@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, Flex, ScrollArea } from "@radix-ui/themes";
 import "./Dashboard.css";
 import { useSelector } from "react-redux";
@@ -15,25 +15,33 @@ import { useAuth } from "react-oidc-context";
 
 export default function Dashboard() {
   const [showApiKey, setShowApiKey] = useState(false);
+  const [invoices, setInvoices] = useState(null);
+
   const user = useSelector((state: RootState) => state.user.data);
   const navigate = useNavigate();
   const auth = useAuth();
 
   const accessToken = auth.user?.access_token;
 
-  const { data: tasks, isLoading, isError } = useTasksQuery(1, 10);
-
-  if (!user) {
-    return <Loader />;
-  }
-
-  const invoices = getUserInvoices(accessToken as string);
+  useEffect(() => {
+    if (accessToken) {
+      getUserInvoices(accessToken).then((result) => {
+        setInvoices(result);
+      });
+    }
+  }, [accessToken]);
 
   console.log(invoices);
+
+  const { data: tasks, isLoading, isError } = useTasksQuery(1, 10);
 
   const handleTaskClick = (task: TaskResponse) => {
     navigate(`/task/${task.task_id}?pageCount=${task.page_count}`);
   };
+
+  if (!user) {
+    return <Loader />;
+  }
 
   return (
     <div className="dashboard-container">
