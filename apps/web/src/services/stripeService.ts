@@ -30,3 +30,34 @@ export async function createCustomerSession(accessToken: string) {
     throw error;
   }
 }
+
+export async function getUserInvoices(accessToken: string) {
+  try {
+    const response = await axiosInstance.get("/api/stripe/get-user-invoices", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user invoices:", error);
+    throw error;
+  }
+}
+
+export async function getInvoiceDetail(accessToken: string, invoiceId: string) {
+  try {
+    const response = await axiosInstance.get(
+      `/api/stripe/get-invoice-detail/${invoiceId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching invoice detail:", error);
+    throw error;
+  }
+}
