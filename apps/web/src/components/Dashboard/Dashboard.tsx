@@ -10,17 +10,26 @@ import { useTasksQuery } from "../../hooks/useTaskQuery";
 import { useNavigate } from "react-router-dom";
 import { TaskResponse } from "../../models/task.model";
 import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
+import { getUserInvoices } from "../../services/stripeService";
+import { useAuth } from "react-oidc-context";
 
 export default function Dashboard() {
   const [showApiKey, setShowApiKey] = useState(false);
   const user = useSelector((state: RootState) => state.user.data);
   const navigate = useNavigate();
+  const auth = useAuth();
+
+  const accessToken = auth.user?.access_token;
 
   const { data: tasks, isLoading, isError } = useTasksQuery(1, 10);
 
   if (!user) {
     return <Loader />;
   }
+
+  const invoices = getUserInvoices(accessToken as string);
+
+  console.log(invoices);
 
   const handleTaskClick = (task: TaskResponse) => {
     navigate(`/task/${task.task_id}?pageCount=${task.page_count}`);
