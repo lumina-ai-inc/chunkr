@@ -78,7 +78,7 @@ pub async fn create_customer_session(
         ("components[payment_element][enabled]", "true"),
         (
             "components[payment_element][features][payment_method_redisplay]",
-            "enabled",
+            "always",
         ),
         (
             "components[payment_element][features][payment_method_save]",
