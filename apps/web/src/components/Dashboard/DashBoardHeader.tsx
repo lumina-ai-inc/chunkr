@@ -4,25 +4,34 @@ import { User } from "../../models/user.model";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
-import { createCustomerSession } from "../../services/stripeService";
+import {
+  createCustomerSession,
+  createSetupIntent,
+} from "../../services/stripeService";
 import PaymentSetup from "../Payments/PaymentSetup";
 
 export default function DashBoardHeader(user: User) {
   const [showPaymentSetup, setShowPaymentSetup] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [customerSessionSecret, setCustomerSessionSecret] = useState<
+    string | null
+  >(null);
+  const [customerSessionClientSecret, setCustomerSessionClientSecret] =
+    useState<string | null>(null);
   const auth = useAuth();
   const accessToken = auth.user?.access_token;
   const tier = user.tier;
 
   const handleAddPaymentMethod = async () => {
     try {
-      const secret = await createCustomerSession(accessToken as string);
-
-      setClientSecret(secret);
-      console.log("secret", secret);
-
+      const customerSessionSecret = await createCustomerSession(
+        accessToken as string
+      );
+      const customerSessionClientSecret = await createSetupIntent(
+        accessToken as string
+      );
+      setCustomerSessionSecret(customerSessionSecret);
+      setCustomerSessionClientSecret(customerSessionClientSecret);
       setShowPaymentSetup(true);
-      console.log("showPaymentSetup", showPaymentSetup);
     } catch (error) {
       console.error("Error creating Stripe Setup Intent:", error);
     }
@@ -85,8 +94,8 @@ export default function DashBoardHeader(user: User) {
             </Text>
           </BetterButton>
         )}
-        {/* {user?.tier !== "Free" && (
-          <BetterButton padding="4px 12px">
+        {user?.tier !== "Free" && (
+          <BetterButton padding="4px 12px" onClick={handleAddPaymentMethod}>
             <Text
               size="1"
               weight="medium"
@@ -95,7 +104,7 @@ export default function DashBoardHeader(user: User) {
               Manage Payments
             </Text>
           </BetterButton>
-        )} */}
+        )}
         <BetterButton padding="4px 12px" onClick={handleApiDocs}>
           <Text
             size="1"
@@ -124,7 +133,7 @@ export default function DashBoardHeader(user: User) {
           </Text>
         </BetterButton>
       </Flex>
-      {showPaymentSetup && clientSecret && (
+      {showPaymentSetup && customerSessionSecret && (
         <Dialog.Root open={showPaymentSetup} onOpenChange={setShowPaymentSetup}>
           <Dialog.Content
             style={{
@@ -135,7 +144,10 @@ export default function DashBoardHeader(user: User) {
               borderRadius: "8px",
             }}
           >
-            <PaymentSetup customerSessionClientSecret={clientSecret} />
+            <PaymentSetup
+              customerSessionSecret={customerSessionSecret}
+              clientSecret={customerSessionClientSecret as string}
+            />
           </Dialog.Content>
         </Dialog.Root>
       )}
