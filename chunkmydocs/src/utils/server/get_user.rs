@@ -220,6 +220,8 @@ pub struct TaskInvoice {
 #[derive(Serialize)]
 pub struct InvoiceDetail {
     pub invoice_id: String,
+    pub stripe_invoice_id: Option<String>, // New field for Stripe invoice ID
+    pub invoice_status: Option<String>,    // New field for invoice status
     pub tasks: Vec<TaskInvoice>,
 }
 
@@ -232,6 +234,8 @@ pub async fn get_invoices(
     let query = r#"
     SELECT 
         invoice_id,
+        stripe_invoice_id, 
+        invoice_status,      
         task_id,
         usage_type,
         pages,
@@ -251,6 +255,8 @@ pub async fn get_invoices(
 
     for row in rows {
         let invoice_id: String = row.get("invoice_id");
+        let stripe_invoice_id: Option<String> = row.get("stripe_invoice_id"); // Get Stripe invoice ID
+        let invoice_status: Option<String> = row.get("invoice_status"); // Get invoice status
         let task_invoice = TaskInvoice {
             task_id: row.get("task_id"),
             usage_type: row.get("usage_type"),
@@ -265,6 +271,8 @@ pub async fn get_invoices(
         } else {
             invoices.push(InvoiceDetail {
                 invoice_id: invoice_id,
+                stripe_invoice_id, // Include Stripe invoice ID
+                invoice_status,    // Include invoice status
                 tasks: vec![task_invoice],
             });
         }
@@ -285,17 +293,19 @@ pub async fn get_invoice_information(
         usage_type,
         pages,
         cost,
-        created_at
+        created_at,
+        stripe_invoice_id,
+        invoice_status
     FROM 
         task_invoices
     WHERE 
         invoice_id = $1;
     "#;
 
-    let rows = client.query(query, &[&invoice_id]).await?;
+    let rows: Vec<tokio_postgres::Row> = client.query(query, &[&invoice_id]).await?;
 
     let tasks = rows
-        .into_iter()
+        .iter()
         .map(|row| TaskInvoice {
             task_id: row.get("task_id"),
             usage_type: row.get("usage_type"),
@@ -305,5 +315,14 @@ pub async fn get_invoice_information(
         })
         .collect();
 
-    Ok(InvoiceDetail { invoice_id, tasks })
+    let stripe_invoice_id: Option<String> =
+        rows.first().and_then(|row| row.get("stripe_invoice_id"));
+    let invoice_status: Option<String> = rows.first().and_then(|row| row.get("invoice_status"));
+
+    Ok(InvoiceDetail {
+        invoice_id,
+        stripe_invoice_id: stripe_invoice_id.clone(),
+        invoice_status: invoice_status.clone(),
+        tasks,
+    })
 }

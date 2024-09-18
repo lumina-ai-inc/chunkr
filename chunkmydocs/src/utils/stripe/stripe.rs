@@ -1,4 +1,5 @@
 use crate::utils::configs::stripe_config::Config as StripeConfig;
+use crate::utils::db::deadpool_postgres::{Client, Pool};
 use reqwest::Client as ReqwestClient;
 
 pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -25,7 +26,20 @@ pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::
         .to_string();
     Ok(stripe_customer_id)
 }
-
+pub async fn update_invoice_status(
+    stripe_invoice_id: &str,
+    status: &str,
+    db_pool: &Pool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let client: Client = db_pool.get().await?;
+    client
+        .execute(
+            "UPDATE invoices SET invoice_status = $1 WHERE stripe_invoice_id = $2",
+            &[&status, &stripe_invoice_id],
+        )
+        .await?;
+    Ok(())
+}
 pub async fn create_stripe_setup_intent(
     customer_id: &str,
     stripe_config: &StripeConfig,

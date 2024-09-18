@@ -1,3 +1,5 @@
+use chrono::Datelike;
+use chrono::NaiveDate;
 use chrono::{DateTime, Utc};
 use chunkmydocs::models::server::user::InvoiceStatus;
 use chunkmydocs::utils::configs::stripe_config::Config as StripeConfig;
@@ -118,8 +120,34 @@ pub async fn process_daily_invoices(pool: &Pool) -> Result<(), Box<dyn std::erro
     Ok(())
 }
 
-pub async fn invoices_to_execute(pool: &Pool) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn invoices_to_execute(
+    pool: &Pool,
+    end_of_month: Option<NaiveDate>,
+) -> Result<(), Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
+
+    // Determine the end of the month date
+    let today = Utc::now().naive_utc();
+    let end_of_month_date = match end_of_month {
+        Some(date) => date,
+        None => {
+            let (_, year) = today.year_ce();
+            let month = today.month();
+            let last_day = match month {
+                1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+                4 | 6 | 9 | 11 => 30,
+                2 => {
+                    if year % 4 == 0 && (year % 100 != 0 || year % 400 == 0) {
+                        29
+                    } else {
+                        28
+                    }
+                }
+                _ => unreachable!(),
+            };
+            NaiveDate::from_ymd_opt(year as i32, month, last_day).unwrap()
+        }
+    };
 
     // Get all invoices that are not completed and are either ongoing or failed
     let invoices = client
@@ -136,15 +164,14 @@ pub async fn invoices_to_execute(pool: &Pool) -> Result<(), Box<dyn std::error::
     for row in invoices {
         let invoice_id: String = row.get("invoice_id");
         let invoice_status: String = row.get("invoice_status");
-        let oldest_task_date: DateTime<Utc> = row.get("oldest_task_date");
 
         if invoice_status == "failed" {
             // Skip failed invoices
             continue;
         }
 
-        // Check if the invoice has been ongoing for more than 30 days
-        if invoice_status == "ongoing" && (Utc::now() - oldest_task_date).num_days() > 30 {
+        // Check if today is the end of the month
+        if invoice_status == "ongoing" && today.date() == end_of_month_date {
             create_and_send_invoice(&pool, &invoice_id).await?;
         }
     }
@@ -304,7 +331,7 @@ pub async fn create_and_send_invoice(
     // Update local invoice with Stripe invoice ID
     client
         .execute(
-            "UPDATE invoices SET stripe_invoice_id = $1 WHERE invoice_id = $2",
+            "UPDATE invoices SET stripe_invoice_id = $1, invoice_status = 'Executed' WHERE invoice_id = $2",
             &[&stripe_invoice_id, &invoice_id],
         )
         .await?;
@@ -315,11 +342,11 @@ pub async fn create_and_send_invoice(
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let pg_pool = chunkmydocs::utils::db::deadpool_postgres::create_pool();
-    process_daily_invoices(&pg_pool)
-        .await
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+    // process_daily_invoices(&pg_pool)
+    //     .await
+    //     .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
 
-    invoices_to_execute(&pg_pool)
+    invoices_to_execute(&pg_pool, None)
         .await
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
 
