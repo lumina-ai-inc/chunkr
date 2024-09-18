@@ -64,29 +64,32 @@ export default function Dashboard() {
     highQualityDiscount - highQualityUsage
   );
 
-  const adjustedFastUsage = Math.max(0, fastUsage - fastDiscount);
-  const adjustedHighQualityUsage = Math.max(
-    0,
-    highQualityUsage - highQualityDiscount
-  );
+  // const adjustedFastUsage = Math.max(0, fastUsage - fastDiscount);
+  // const adjustedHighQualityUsage = Math.max(
+  //   0,
+  //   highQualityUsage - highQualityDiscount
+  // );
 
-  const fastCost =
-    monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "Fast")
-      ?.cost || 0;
-  const highQualityCost =
-    monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "HighQuality")
-      ?.cost || 0;
+  // const fastCost =
+  //   monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "Fast")
+  //     ?.cost || 0;
+  // const highQualityCost =
+  //   monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "HighQuality")
+  //     ?.cost || 0;
 
-  const fastCostPerPage = fastUsage > 0 ? fastCost / fastUsage : 0;
-  const highQualityCostPerPage =
-    highQualityUsage > 0 ? highQualityCost / highQualityUsage : 0;
+  // const fastCostPerPage = fastUsage > 0 ? fastCost / fastUsage : 0;
+  // const highQualityCostPerPage =
+  //   highQualityUsage > 0 ? highQualityCost / highQualityUsage : 0;
 
-  const adjustedBillingAmount = Math.max(
-    0,
-    fastCost -
-      fastDiscount * fastCostPerPage +
-      (highQualityCost - highQualityDiscount * highQualityCostPerPage)
-  );
+  // const adjustedBillingAmount = Math.max(
+  //   0,
+  //   fastCost -
+  //     fastDiscount * fastCostPerPage +
+  //     (highQualityCost - highQualityDiscount * highQualityCostPerPage)
+  // );
+
+  const billingAmount = monthlyUsage?.[0]?.total_cost;
+  console.log(billingAmount);
 
   const billingDueDate = monthlyUsage?.[0]?.month
     ? calculateBillingDueDate(monthlyUsage[0].month)
@@ -201,7 +204,7 @@ export default function Dashboard() {
                       weight="medium"
                       style={{ color: "hsla(180, 100%, 100%, 1)" }}
                     >
-                      Fast
+                      Fast ($0.005/page)
                     </Text>
                   </Flex>
                   {user?.tier === "PayAsYouGo" && fastDiscountedUsage < 0 && (
@@ -222,7 +225,7 @@ export default function Dashboard() {
                         weight="medium"
                         style={{ color: "hsla(0, 0%, 0%, 1)" }}
                       >
-                        {fastDiscountedUsage} free pages
+                        {fastDiscount} free pages
                       </Text>
                     </Flex>
                   )}
@@ -235,7 +238,7 @@ export default function Dashboard() {
                     weight="bold"
                     style={{ color: "hsla(180, 100%, 100%, 1)" }}
                   >
-                    {adjustedFastUsage}
+                    {fastUsage}
                     <Text
                       size="4"
                       weight="medium"
@@ -322,7 +325,7 @@ export default function Dashboard() {
                       weight="medium"
                       style={{ color: "hsla(180, 100%, 100%, 1)" }}
                     >
-                      High Quality
+                      High Quality ($0.01/page)
                     </Text>
                   </Flex>
                   {user?.tier === "PayAsYouGo" &&
@@ -344,7 +347,7 @@ export default function Dashboard() {
                           weight="medium"
                           style={{ color: "hsla(0, 0%, 0%, 1)" }}
                         >
-                          {highQualityDiscountedUsage} free pages
+                          {highQualityDiscount} free pages
                         </Text>
                       </Flex>
                     )}
@@ -356,7 +359,7 @@ export default function Dashboard() {
                     weight="bold"
                     style={{ color: "hsla(180, 100%, 100%, 1)" }}
                   >
-                    {adjustedHighQualityUsage}
+                    {highQualityUsage}
                     <Text
                       size="4"
                       weight="medium"
@@ -397,7 +400,7 @@ export default function Dashboard() {
                 )}
               </Flex>
 
-              {user?.tier !== "SelfHosted" && (
+              {user?.tier === "PayAsYouGo" && (
                 <Flex
                   flexGrow="1"
                   p="5"
@@ -464,11 +467,59 @@ export default function Dashboard() {
                     weight="bold"
                     style={{ color: "hsla(180, 100%, 100%, 1)" }}
                   >
-                    ${adjustedBillingAmount.toFixed(2)}
+                    ${billingAmount.toFixed(2)}
                   </Text>
                 </Flex>
               )}
             </Flex>
+            {user?.tier === "PayAsYouGo" &&
+              (fastDiscount > 0 || highQualityDiscount > 0) && (
+                <Flex
+                  direction="row"
+                  p="4"
+                  mt="4"
+                  align="center"
+                  gap="2"
+                  style={{
+                    backgroundColor: "hsla(180, 100%, 100%, 0.85)",
+                    borderRadius: "4px",
+                    color: "hsla(0, 0%, 0%, 1)",
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <rect
+                      width="16"
+                      height="16"
+                      fill="white"
+                      fill-opacity="0.01"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M7.9999 0.935349C4.09837 0.935349 0.935547 4.09817 0.935547 7.9997C0.935547 11.9012 4.09837 15.0641 7.9999 15.0641C11.9014 15.0641 15.0642 11.9012 15.0642 7.9997C15.0642 4.09817 11.9014 0.935349 7.9999 0.935349ZM1.94887 7.9997C1.94887 4.65782 4.65802 1.94868 7.9999 1.94868C11.3418 1.94868 14.0509 4.65782 14.0509 7.9997C14.0509 11.3415 11.3418 14.0508 7.9999 14.0508C4.65802 14.0508 1.94887 11.3415 1.94887 7.9997ZM8.79991 4.79999C8.79991 5.24181 8.44174 5.59999 7.99991 5.59999C7.55809 5.59999 7.19991 5.24181 7.19991 4.79999C7.19991 4.35815 7.55809 3.99999 7.99991 3.99999C8.44174 3.99999 8.79991 4.35815 8.79991 4.79999ZM6.40003 6.39999H6.93337H8.00003C8.29459 6.39999 8.53336 6.63876 8.53336 6.93332V10.6667H9.0667H9.60003V11.7333H9.0667H8.00003H6.93337H6.40003V10.6667H6.93337H7.4667V7.46665H6.93337H6.40003V6.39999Z"
+                      fill="black"
+                    />
+                  </svg>
+                  <Text size="2" weight="medium">
+                    A discount of{" "}
+                    {fastDiscount > 0 && highQualityDiscount > 0
+                      ? `${fastDiscount} fast and ${highQualityDiscount} high-quality`
+                      : fastDiscount > 0
+                        ? `${fastDiscount} fast`
+                        : `${highQualityDiscount} high-quality`}{" "}
+                    {fastDiscount > 0 && highQualityDiscount > 0
+                      ? "pages are"
+                      : "page is"}{" "}
+                    applied to your account for this billing period.
+                  </Text>
+                </Flex>
+              )}
           </Flex>
 
           <Flex direction="column" className="dashboard-content-right">
