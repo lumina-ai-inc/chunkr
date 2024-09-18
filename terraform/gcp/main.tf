@@ -354,11 +354,8 @@ resource "google_sql_database_instance" "postgres" {
     tier = "db-f1-micro"
 
     ip_configuration {
-      ipv4_enabled = true
-      authorized_networks {
-        name  = "allow-all"
-        value = "0.0.0.0/0"
-      }
+      ipv4_enabled    = false
+      private_network = google_compute_network.vpc_network.id
     }
   }
 
@@ -427,7 +424,7 @@ output "postgres_password" {
 }
 
 output "chunkmydocs_postgresql_url" {
-  value       = "postgresql://${var.postgres_username}:${var.postgres_password}@${google_sql_database_instance.postgres.public_ip_address}:5432/${var.chunkmydocs_db}"
+  value       = "postgresql://${var.postgres_username}:${var.postgres_password}@${google_sql_database_instance.postgres.private_ip_address}:5432/${var.chunkmydocs_db}"
   description = "The connection URL for the PostgreSQL database"
   sensitive   = true
 }
