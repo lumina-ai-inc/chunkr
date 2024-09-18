@@ -158,6 +158,7 @@ pub async fn get_monthly_usage_count(
     WHERE 
         user_id = $1 
         AND configuration::JSONB->>'model' IN ('Fast', 'HighQuality', 'Segment')
+        AND status = 'Succeeded'
     GROUP BY 
         month, usage_type
     ORDER BY 
