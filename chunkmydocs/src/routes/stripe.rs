@@ -359,19 +359,16 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
     let update_fast_usage_query = "
         UPDATE USAGE
         SET usage_limit = $1::integer,
-        usage = 0
         WHERE user_id = $2 AND usage_type = 'Fast';
     ";
     let update_high_quality_usage_query = "
         UPDATE USAGE
         SET usage_limit = $1::integer,
-        usage = 0
         WHERE user_id = $2 AND usage_type = 'HighQuality';
     ";
     let update_segment_usage_query = "
         UPDATE USAGE
         SET usage_limit = $1::integer,
-        usage = 0
         WHERE user_id = $2 AND usage_type = 'Segment';
     ";
 
