@@ -16,7 +16,4 @@ dependencies = [
 
 [project.optional-dependencies]
 cpu = ["paddlepaddle>=2.6.2"]
-gpu = ["paddlepaddle-gpu>=2.6.2"]
-
-[tool.uv.sources]
-detectron2 = { url = "https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.9/detectron2-0.6-cp311-cp311-linux_x86_64.whl" }
+gpu = ["paddlepaddle-gpu>=2.6.2,<2.7.0"]

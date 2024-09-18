@@ -16,6 +16,10 @@ variable "region" {
   default = "us-central1"
 }
 
+variable "zone" {
+  default = "a"
+}
+
 variable "base_name" {
   default     = "dev"
   description = "Base name"
@@ -41,7 +45,6 @@ variable "startup_script_path" {
   type        = string
   description = "Path to the local startup.sh file"
 }
-
 
 ###############################################################
 # Set up the Networking Components
@@ -77,6 +80,7 @@ resource "google_compute_firewall" "allow_ssh" {
   }
 
   source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["ssh-allowed"]
 }
 
 resource "google_compute_firewall" "allow_ports" {
@@ -95,7 +99,7 @@ resource "google_compute_firewall" "allow_ports" {
 resource "google_compute_instance" "vm_instance" {
   name                      = "${var.base_name}-vm"
   machine_type              = var.machine_type
-  zone                      = "${var.region}-b"
+  zone                      = "${var.region}-${var.zone}"
   allow_stopping_for_update = true
 
   guest_accelerator {
@@ -109,9 +113,9 @@ resource "google_compute_instance" "vm_instance" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-11"
-      size  = 256           # Increase boot disk size to 256 GB
-      type  = "pd-balanced" # Use a balanced persistent disk for better performance
+      image = "deeplearning-platform-release/common-cu113-debian-11"
+      size  = 256
+      type  = "pd-balanced"
     }
   }
 
@@ -132,6 +136,7 @@ resource "google_compute_instance" "vm_instance" {
         chmod +x /tmp/startup.sh
         (sleep 60 && /tmp/startup.sh) &
       EOF
+    install-nvidia-driver = "True"
   }
 
   tags = ["ssh-allowed", "port-8000-allowed", "port-8010-allowed", "port-8020-allowed", "port-8030-allowed", "port-8040-allowed", "port-8050-allowed", "port-8060-allowed", "port-8070-allowed", "port-8080-allowed", "port-8090-allowed", "port-3000-allowed", "port-5173-allowed"]
@@ -140,7 +145,6 @@ resource "google_compute_instance" "vm_instance" {
 
   depends_on = [google_compute_firewall.allow_ssh, google_compute_firewall.allow_ports]
 }
-
 ###############################################################
 # Outputs
 ###############################################################
