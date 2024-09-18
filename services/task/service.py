@@ -31,7 +31,7 @@ class Image:
 
 @bentoml.service(
     name="ocr",
-    resources={"gpu": 1},
+    resources={"gpu": 1, "cpu": "4"},
     traffic={"timeout": 60}
 )
 class OCR:
