@@ -5,15 +5,17 @@ import numpy as np
 
 def perform_paddle_ocr(ocr: PaddleOCR, image_path: Path) -> list:
     try:
-        # Open the image using PIL and convert to RGB
         with Image.open(image_path) as img:
             img = img.convert('RGB')
-            # Convert PIL Image to numpy array
             img_array = np.array(img)
-        
-        # Pass the numpy array to PaddleOCR
         result = ocr.ocr(img_array)
-    except Exception as e:
+    except Image.DecompressionBombError:
+        print(f"Error: The image file is too large or complex to process.")
         result = []
-        print(f"An error occurred: {str(e)}")
+    except Image.UnidentifiedImageError:
+        print(f"Error: The image file '{image_path}' cannot be identified or is corrupted.")
+        result = []
+    except Exception as e:
+        print(f"An unexpected error occurred: {str(e)}")
+        result = []
     return result
