@@ -123,7 +123,8 @@ export default function Dashboard() {
                     padding: "6px 12px",
                     borderRadius: "4px",
                     width: "fit-content",
-                    border: "1px solid hsla(180, 100%, 100%, 0.5)",
+                    border: "1px solid hsla(180, 100%, 100%, 0.1)",
+                    backgroundColor: "hsla(180, 100%, 100%, 0.05)",
                   }}
                 >
                   <svg
@@ -188,7 +189,8 @@ export default function Dashboard() {
                     padding: "6px 12px",
                     borderRadius: "4px",
                     width: "fit-content",
-                    border: "1px solid hsla(180, 100%, 100%, 0.5)",
+                    border: "1px solid hsla(180, 100%, 100%, 0.1)",
+                    backgroundColor: "hsla(180, 100%, 100%, 0.05)",
                   }}
                 >
                   <svg
@@ -255,7 +257,8 @@ export default function Dashboard() {
                       padding: "6px 12px",
                       borderRadius: "4px",
                       width: "fit-content",
-                      border: "1px solid hsla(180, 100%, 100%, 0.5)",
+                      border: "1px solid hsla(180, 100%, 100%, 0.1)",
+                      backgroundColor: "hsla(180, 100%, 100%, 0.05)",
                     }}
                   >
                     <svg

@@ -7,6 +7,11 @@ export interface Usage {
   updated_at: string;
 }
 
+export interface UserUsage {
+  usage_type: "Fast" | "HighQuality" | "Segment";
+  usage_limit: number;
+}
+
 export interface User {
   user_id: string;
   customer_id: string | null;
@@ -17,6 +22,7 @@ export interface User {
   tier: string;
   created_at: string;
   updated_at: string;
+  usage: UserUsage[];
 }
 
 export interface AuthUser {
