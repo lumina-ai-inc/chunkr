@@ -9,17 +9,22 @@
   width: 50%;
   padding: 16px;
   border-radius: 8px;
-  /* border: 2px solid #fff; */
-  filter: drop-shadow(0px 2px 3px rgba(0, 0, 51, 0.06))
-    drop-shadow(0px 3px 12px rgba(0, 0, 0, 0.1))
-    drop-shadow(0px 4px 16px rgba(0, 0, 0, 0.1));
-  backdrop-filter: blur(24px);
-  /* border: 1px solid hsla(0, 0%, 100%, 0.1); */
   color: hsl(0, 0%, 100%, 0.6);
   cursor: pointer;
+  outline: 1px solid hsla(180, 100%, 100%, 0);
   transition:
-    background 0.2s ease-in-out,
-    color 0.2s ease-in-out;
+    color 0.2s ease-in-out,
+    outline 0.2s ease-in-out;
+}
+
+.toggle-container {
+  background-color: hsl(0, 0%, 100%, 0.1);
+  border-radius: 8px;
+  /* border: 2px solid #fff; */
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(24px);
 }
 
 .toggle-icon {
@@ -32,13 +37,14 @@
   padding: 16px;
   border-radius: 8px;
   width: 50%;
-  /* outline: 1px solid hsla(0, 0%, 100%, 0.15); */
+  outline: 1px solid hsla(180, 100%, 100%, 0.15);
   color: hsl(0, 0%, 100%);
 }
 
 .toggle:hover {
   background: hsl(0, 0%, 100%, 0.8);
   color: hsl(0, 0%, 100%, 0.9);
+  outline: 1px solid hsla(180, 100%, 100%, 0.15);
 }
 
 .toggle:hover .toggle-icon {

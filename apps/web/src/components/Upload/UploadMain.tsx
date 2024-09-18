@@ -145,8 +145,9 @@ export default function UploadMain({
           <Flex
             direction="row"
             width="100%"
-            gap="8"
+            gap="4"
             mt="16px"
+            p="8px"
             className="toggle-container"
             onClick={handleModelToggle}
           >

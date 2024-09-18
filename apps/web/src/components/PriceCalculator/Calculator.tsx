@@ -1,5 +1,6 @@
 import { Flex, Text, Slider } from "@radix-ui/themes";
 import { useState } from "react";
+import "./Calculator.css";
 
 export default function Calculator() {
   const [fastPages, setFastPages] = useState(0);
@@ -21,10 +22,13 @@ export default function Calculator() {
       width="100%"
       gap="8"
       style={{
-        backgroundColor: "hsla(191, 71%, 32%, 0.6)",
+        backgroundColor: "hsl(0, 0%, 100%, 0.1)",
         borderRadius: "8px",
-        border: "2px solid var(--cyan-3)",
-        boxShadow: "0px 0px 16px 0px rgba(12, 12, 12, 0.25)",
+        /* border: 2px solid #fff; */
+        boxShadow:
+          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+        backdropFilter: "blur(24px)",
+        border: "1px solid hsla(0, 0%, 100%, 0.1)",
       }}
     >
       <Flex direction="column" width="100%" p="8">
@@ -99,7 +103,12 @@ export default function Calculator() {
                     </svg>
                   }
                 />
-                <Text size="2" weight="light" className="cyan-5" mt="4">
+                <Text
+                  size="2"
+                  weight="light"
+                  style={{ color: "hsla(180, 100%, 100%, 0.8)" }}
+                  mt="4"
+                >
                   {formatNumber(fastPages)} Pages
                 </Text>
               </Flex>
@@ -110,20 +119,33 @@ export default function Calculator() {
                 value={[fastPages]}
                 onValueChange={(value) => setFastPages(value[0])}
                 style={{
-                  backgroundColor: "var(--cyan-12)",
+                  backgroundColor: "hsla(180, 100%, 100%, 0.1)",
+                  color: "hsla(180, 100%, 100%, 0.1)",
                   borderRadius: "8px",
                 }}
               />
             </Flex>
 
             <Flex direction="row" justify="between" width="100%" mt="3">
-              <Text size="2" weight="bold" className="cyan-5">
+              <Text
+                size="2"
+                weight="bold"
+                style={{ color: "hsla(180, 100%, 100%, 0.9)" }}
+              >
                 0
               </Text>
-              <Text size="2" weight="bold" className="cyan-5">
+              <Text
+                size="2"
+                weight="bold"
+                style={{ color: "hsla(180, 100%, 100%, 0.9)" }}
+              >
                 500K
               </Text>
-              <Text size="2" weight="bold" className="cyan-5">
+              <Text
+                size="2"
+                weight="bold"
+                style={{ color: "hsla(180, 100%, 100%, 0.9)" }}
+              >
                 1M
               </Text>
             </Flex>
@@ -153,15 +175,20 @@ export default function Calculator() {
                       />
                       <path
                         d="M8.00222 0.835547C4.04417 0.835547 0.835547 4.04417 0.835547 8.00221C0.835547 11.9602 4.04417 15.1689 8.00222 15.1689C11.9602 15.1689 15.1689 11.9602 15.1689 8.00221C15.1689 4.04417 11.9602 0.835547 8.00222 0.835547ZM4.80003 7.3667H2.0824C2.37738 4.58645 4.58645 2.37738 7.3667 2.0824V4.80003C7.3667 5.14981 7.65024 5.43337 8.00003 5.43337C8.34981 5.43337 8.63337 5.14981 8.63337 4.80003V2.08193C11.4157 2.37508 13.6269 4.58499 13.9221 7.3667H11.2C10.8503 7.3667 10.5667 7.65024 10.5667 8.00003C10.5667 8.34982 10.8503 8.63337 11.2 8.63337H13.9225C13.6292 11.4171 11.4171 13.6292 8.63337 13.9225V11.2C8.63337 10.8503 8.34982 10.5667 8.00003 10.5667C7.65024 10.5667 7.3667 10.8503 7.3667 11.2V13.9221C4.58499 13.6269 2.37508 11.4157 2.08193 8.63337H4.80003C5.14981 8.63337 5.43337 8.34981 5.43337 8.00003C5.43337 7.65024 5.14981 7.3667 4.80003 7.3667Z"
-                        fill="#0D3C48"
-                        stroke="#0D3C48"
+                        fill="#000"
+                        stroke="#000"
                         stroke-width="0.2"
                       />
                     </svg>
                   }
                 />
 
-                <Text size="2" weight="light" className="cyan-5" mt="4">
+                <Text
+                  size="2"
+                  weight="light"
+                  style={{ color: "hsla(180, 100%, 100%, 0.8)" }}
+                  mt="4"
+                >
                   {formatNumber(highQualityPages)} Pages
                 </Text>
               </Flex>
@@ -172,20 +199,32 @@ export default function Calculator() {
                 value={[highQualityPages]}
                 onValueChange={(value) => setHighQualityPages(value[0])}
                 style={{
-                  backgroundColor: "var(--cyan-12)",
+                  backgroundColor: "hsla(180, 100%, 100%, 0.1)",
                   borderRadius: "8px",
                 }}
               />
             </Flex>
 
             <Flex direction="row" justify="between" width="100%" mt="3">
-              <Text size="2" weight="bold" className="cyan-5">
+              <Text
+                size="2"
+                weight="bold"
+                style={{ color: "hsla(180, 100%, 100%, 0.9)" }}
+              >
                 0
               </Text>
-              <Text size="2" weight="bold" className="cyan-5">
+              <Text
+                size="2"
+                weight="bold"
+                style={{ color: "hsla(180, 100%, 100%, 0.9)" }}
+              >
                 500K
               </Text>
-              <Text size="2" weight="bold" className="cyan-5">
+              <Text
+                size="2"
+                weight="bold"
+                style={{ color: "hsla(180, 100%, 100%, 0.9)" }}
+              >
                 1M
               </Text>
             </Flex>
@@ -222,15 +261,11 @@ function ExplanationSection({
         style={{
           borderRadius: "99px",
           border: "2px solid hsla(180, 100%, 100%, 0.15)",
-          backgroundColor: "hsla(180, 100%, 100%, 0.1)",
+          backgroundColor: "hsla(180, 100%, 100%, 0.9)",
         }}
       >
         {icon}
-        <Text
-          size="2"
-          weight="bold"
-          style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
-        >
+        <Text size="2" weight="bold" style={{ color: "hsla(0, 0%, 0%, 0.9)" }}>
           {title}
         </Text>
       </Flex>
