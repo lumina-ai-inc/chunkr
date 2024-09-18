@@ -17,5 +17,4 @@ export interface User {
   tier: string;
   created_at: string;
   updated_at: string;
-  usages: Usage[];
 }

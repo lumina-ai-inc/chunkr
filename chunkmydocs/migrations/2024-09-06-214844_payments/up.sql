@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS invoices (
     tasks TEXT[] NOT NULL,
     date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_paid timestamp default null,
-    invoice_status TEXT NOT NULL,
+    invoice_status TEXT NOT NULL, --ongoing or paid or failed
     amount_due FLOAT NOT NULL,
     total_pages INTEGER NOT NULL,
     stripe_invoice_id TEXT 

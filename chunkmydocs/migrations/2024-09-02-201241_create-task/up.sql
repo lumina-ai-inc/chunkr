@@ -153,3 +153,8 @@ AFTER UPDATE ON TASKS
 FOR EACH ROW
 WHEN (NEW.status = 'Succeeded')
 EXECUTE FUNCTION update_usage_on_success();
+
+
+
+
+

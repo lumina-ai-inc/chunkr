@@ -1,12 +1,11 @@
-use crate::models::server::user::{ User, Tier };
-use crate::utils::db::deadpool_postgres::{ Client, Pool };
+use crate::models::server::user::{Discount, InvoiceStatus, Tier, UsageLimit, UsageType, User};
+use crate::utils::db::deadpool_postgres::{Client, Pool};
+use serde_json::Value;
 use std::str::FromStr;
-
 pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
-    let query =
-        r#"
+    let query = r#"
     SELECT 
         u.user_id,
         u.customer_id,
@@ -17,37 +16,31 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         u.tier,
         u.created_at,
         u.updated_at,
-        json_agg(
-            json_build_object(
-                'usage', COALESCE(us.usage, 0),
-                'usage_limit', COALESCE(us.usage_limit, 0),
-                'usage_type', us.usage_type,
-                'unit', us.unit,
-                'created_at', us.created_at,
-                'updated_at', us.created_at
-            )
-        )::text AS usages
+        COALESCE(json_agg(json_build_object('usage_type', d.usage_type, 'amount', d.amount))::text, '[]') as discounts
     FROM 
         users u
     LEFT JOIN 
-        USAGE us ON u.user_id = us.user_id
-    LEFT JOIN
-        API_KEYS ak ON u.user_id = ak.user_id
+        api_keys ak ON u.user_id = ak.user_id
+    LEFT JOIN 
+        discounts d ON u.user_id = d.user_id AND d.usage_type IN ('Fast', 'HighQuality', 'Segment')
     WHERE 
         u.user_id = $1
     GROUP BY 
         u.user_id;
     "#;
 
-    let row = client
-        .query_opt(query, &[&user_id]).await?
-        .ok_or_else(||
-            std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                format!("User with id {} not found", user_id)
-            )
-        )?;
-
+    let row = client.query_opt(query, &[&user_id]).await?.ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("User with id {} not found", user_id),
+        )
+    })?;
+    let discounts_json: String = row.get("discounts");
+    let discounts: Vec<Discount> = serde_json::from_str::<Vec<Value>>(&discounts_json)?
+        .into_iter()
+        .filter(|d| d["usage_type"] != Value::Null && d["amount"] != Value::Null)
+        .map(|v| serde_json::from_value(v).unwrap())
+        .collect();
     let user = User {
         user_id: row.get("user_id"),
         customer_id: row.get("customer_id"),
@@ -61,8 +54,256 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
             .unwrap_or(Tier::Free),
         created_at: row.get("created_at"),
         updated_at: row.get("updated_at"),
-        usages: serde_json::from_str(&row.get::<_, String>("usages")).unwrap_or_default(),
+        usage: vec![
+            UsageLimit {
+                usage_type: UsageType::Fast,
+                usage_limit: UsageType::Fast.get_usage_limit(
+                    &row.get::<_, Option<String>>("tier")
+                        .and_then(|t| Tier::from_str(&t).ok())
+                        .unwrap_or(Tier::Free),
+                ),
+                discounts: if discounts.is_empty() {
+                    None
+                } else {
+                    Some(
+                        discounts
+                            .clone()
+                            .into_iter()
+                            .filter(|d| d.usage_type == UsageType::Fast)
+                            .collect(),
+                    )
+                },
+            },
+            UsageLimit {
+                usage_type: UsageType::HighQuality,
+                usage_limit: UsageType::HighQuality.get_usage_limit(
+                    &row.get::<_, Option<String>>("tier")
+                        .and_then(|t| Tier::from_str(&t).ok())
+                        .unwrap_or(Tier::Free),
+                ),
+                discounts: if discounts.is_empty() {
+                    None
+                } else {
+                    Some(
+                        discounts
+                            .clone()
+                            .into_iter()
+                            .filter(|d| d.usage_type == UsageType::HighQuality)
+                            .collect(),
+                    )
+                },
+            },
+            UsageLimit {
+                usage_type: UsageType::Segment,
+                usage_limit: UsageType::Segment.get_usage_limit(
+                    &row.get::<_, Option<String>>("tier")
+                        .and_then(|t| Tier::from_str(&t).ok())
+                        .unwrap_or(Tier::Free),
+                ),
+                discounts: if discounts.is_empty() {
+                    None
+                } else {
+                    Some(
+                        discounts
+                            .into_iter()
+                            .filter(|d| d.usage_type == UsageType::Segment)
+                            .collect(),
+                    )
+                },
+            },
+        ],
     };
+    println!("user: {:?}", user);
 
     Ok(user)
+}
+
+use serde::Serialize;
+
+#[derive(Serialize)]
+pub struct InvoiceSummary {
+    pub invoice_id: String,
+    pub status: InvoiceStatus,
+    pub date_created: Option<chrono::NaiveDateTime>,
+    pub amount_due: f32, // Added amount_due field
+}
+
+#[derive(Serialize)]
+pub struct MonthlyUsage {
+    pub month: String,
+    pub total_cost: f32,
+    pub usage_details: Vec<UsageDetail>,
+}
+
+#[derive(Serialize)]
+pub struct UsageDetail {
+    pub usage_type: String,
+    pub count: i64,
+    pub cost: f32,
+}
+
+pub async fn get_monthly_usage_count(
+    user_id: String,
+    pool: &Pool,
+) -> Result<Vec<MonthlyUsage>, Box<dyn std::error::Error>> {
+    let client: Client = pool.get().await?;
+
+    let query = r#"
+    SELECT 
+        to_char(created_at, 'YYYY-MM') AS month,
+        configuration::JSONB->>'model' AS usage_type,
+        COUNT(*) AS count
+    FROM 
+        tasks
+    WHERE 
+        user_id = $1 
+    GROUP BY 
+        month, usage_type
+    ORDER BY 
+        month, usage_type;
+    "#;
+
+    let rows = client.query(query, &[&user_id]).await?;
+
+    let mut monthly_usage_map: std::collections::HashMap<String, MonthlyUsage> =
+        std::collections::HashMap::new();
+
+    for row in rows {
+        let month: String = row.get("month");
+        let usage_type: String = row.get("usage_type");
+        let count: i64 = row.get("count");
+
+        let cost_per_page = match usage_type.as_str() {
+            "Fast" => 0.005,
+            "HighQuality" => 0.01,
+            "Segment" => 0.01,
+            _ => 0.0,
+        };
+
+        let cost = (count as f64) * cost_per_page; // Convert count to f64 before multiplication
+
+        monthly_usage_map
+            .entry(month.clone())
+            .or_insert(MonthlyUsage {
+                month: month.clone(),
+                total_cost: 0.0,
+                usage_details: Vec::new(),
+            })
+            .total_cost += cost as f32;
+
+        monthly_usage_map
+            .get_mut(&month)
+            .unwrap()
+            .usage_details
+            .push(UsageDetail {
+                usage_type,
+                count,
+                cost: cost as f32,
+            });
+    }
+
+    let monthly_usage_counts: Vec<MonthlyUsage> =
+        monthly_usage_map.into_iter().map(|(_, v)| v).collect();
+
+    Ok(monthly_usage_counts)
+}
+
+#[derive(Serialize)]
+pub struct TaskInvoice {
+    pub task_id: String,
+    pub usage_type: String, //enum
+    pub pages: i32,
+    pub cost: f32,
+    pub created_at: chrono::NaiveDateTime,
+}
+
+#[derive(Serialize)]
+pub struct InvoiceDetail {
+    pub invoice_id: String,
+    pub tasks: Vec<TaskInvoice>,
+}
+
+pub async fn get_invoices(
+    user_id: String,
+    pool: &Pool,
+) -> Result<Vec<InvoiceDetail>, Box<dyn std::error::Error>> {
+    let client: Client = pool.get().await?;
+
+    let query = r#"
+    SELECT 
+        invoice_id,
+        task_id,
+        usage_type,
+        pages,
+        cost,
+        created_at
+    FROM 
+        task_invoices
+    WHERE 
+        user_id = $1
+    ORDER BY 
+        created_at DESC;
+    "#;
+
+    let rows = client.query(query, &[&user_id]).await?;
+
+    let mut invoices: Vec<InvoiceDetail> = Vec::new();
+
+    for row in rows {
+        let invoice_id: String = row.get("invoice_id");
+        let task_invoice = TaskInvoice {
+            task_id: row.get("task_id"),
+            usage_type: row.get("usage_type"),
+            pages: row.get("pages"),
+            cost: row.get("cost"),
+            created_at: row.get("created_at"),
+        };
+
+        // Check if the invoice already exists in the vector
+        if let Some(invoice) = invoices.iter_mut().find(|inv| inv.invoice_id == invoice_id) {
+            invoice.tasks.push(task_invoice);
+        } else {
+            invoices.push(InvoiceDetail {
+                invoice_id: invoice_id,
+                tasks: vec![task_invoice],
+            });
+        }
+    }
+
+    Ok(invoices)
+}
+
+pub async fn get_invoice_information(
+    invoice_id: String,
+    pool: &Pool,
+) -> Result<InvoiceDetail, Box<dyn std::error::Error>> {
+    let client: Client = pool.get().await?;
+
+    let query = r#"
+    SELECT 
+        task_id,
+        usage_type,
+        pages,
+        cost,
+        created_at
+    FROM 
+        task_invoices
+    WHERE 
+        invoice_id = $1;
+    "#;
+
+    let rows = client.query(query, &[&invoice_id]).await?;
+
+    let tasks = rows
+        .into_iter()
+        .map(|row| TaskInvoice {
+            task_id: row.get("task_id"),
+            usage_type: row.get("usage_type"),
+            pages: row.get("pages"),
+            cost: row.get("cost"),
+            created_at: row.get("created_at"),
+        })
+        .collect();
+
+    Ok(InvoiceDetail { invoice_id, tasks })
 }

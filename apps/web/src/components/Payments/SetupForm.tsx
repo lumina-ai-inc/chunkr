@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   PaymentElement,
   useStripe,
@@ -7,11 +7,48 @@ import {
 import { Flex, Text } from "@radix-ui/themes";
 import BetterButton from "../BetterButton/BetterButton";
 
-export default function SetupForm() {
+export default function SetupForm({
+  clientSecret,
+  customerSessionSecret,
+}: {
+  clientSecret: string;
+  customerSessionSecret: string;
+}) {
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (stripe && elements) {
+      const elementsOptions = {
+        clientSecret,
+        customerSessionClientSecret: customerSessionSecret,
+        appearance: {
+          variables: {
+            colorPrimary: "#FFFFFF",
+            colorBackground: "#020809",
+            colorText: "#FFFFFF",
+            colorDanger: "#ff4444",
+            fontFamily: "Roboto, sans-serif",
+          },
+        },
+      };
+
+      elements.update(elementsOptions);
+    }
+  }, [stripe, elements, clientSecret, customerSessionSecret]);
+
+  useEffect(() => {
+    if (elements) {
+      const paymentElement = elements.getElement("payment");
+      if (paymentElement) {
+        paymentElement.on("change", (event) => {
+          console.log("Payment Element change event:", event);
+        });
+      }
+    }
+  }, [elements]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -39,10 +76,14 @@ export default function SetupForm() {
   return (
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap="4">
-        <PaymentElement />
-        <BetterButton active={!(!stripe || isLoading)} padding="4px 10px">
-          <Text size="2" weight="medium">
-            {isLoading ? "Processing..." : "Set up payment method"}
+        <PaymentElement id="payment-element" />
+        <BetterButton padding="4px 10px">
+          <Text
+            size="1"
+            weight="medium"
+            style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+          >
+            {isLoading ? "Processing..." : "Add Payment Method"}
           </Text>
         </BetterButton>
         {errorMessage && (
