@@ -113,7 +113,7 @@ resource "google_compute_instance" "vm_instance" {
 
   boot_disk {
     initialize_params {
-      image = "deeplearning-platform-release/common-cu113-debian-11"
+      image = "deeplearning-platform-release/common-cu122-debian-11"
       size  = 256
       type  = "pd-balanced"
     }

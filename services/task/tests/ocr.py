@@ -5,10 +5,10 @@ import cv2
 import os
 import matplotlib.pyplot as plt
 from paddleocr import draw_ocr
+import multiprocessing
 
 def save_ocr(img_path, out_path, result, font):
     os.makedirs(out_path, exist_ok=True)
-    # Ensure the output file has a proper image extension
     save_path = os.path.join(out_path, os.path.splitext(os.path.basename(img_path))[0] + '_output.png')
     
     image = cv2.imread(img_path)
@@ -23,7 +23,9 @@ def save_ocr(img_path, out_path, result, font):
  
     img = cv2.cvtColor(im_show, cv2.COLOR_BGR2RGB)
     plt.imshow(img)
-    plt.show()  # Add this line to display the image
+    plt.show()
+
+import time
 
 def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     """
@@ -31,32 +33,53 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
 
     :param image_path: Path to the image file
     :param service_url: URL of the OCR service
-    :return: Dictionary containing OCR results
+    :return: Dictionary containing OCR results and time taken
     """
     # Prepare the file for sending
     files = {'file': open(image_path, 'rb')}
 
+    # Record start time
+    start_time = time.time()
+
     # Send POST request to the OCR service
     response = requests.post(f"{service_url}/paddle", files=files)
+
+    time_taken = time.time() - start_time
+
+    print(f"Time taken: {time_taken} seconds")
 
     # Check if the request was successful
     if response.status_code == 200:
         results = response.json()
-        with open("output/results.json", "w") as f:
-            json.dump(results, f)
-        save_ocr(image_path, "output", results[0], "font/simfang.ttf")
+        # with open("output/results.json", "w") as f:
+        #     json.dump(results, f)
+        # save_ocr(image_path, "output", results[0], "font/simfang.ttf")
         return results
     else:
         raise Exception(f"Error: {response.status_code} - {response.text}")
 
+
+def process_image(args):
+    image_path, service_url = args
+    try:
+        return send_image_to_ocr(image_path, service_url)
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
 # Usage example
 if __name__ == "__main__":
-    # image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/PNG_transparency_demonstration_1.png"
     image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/1c749c35-cc15-56b2-ade5-010fbf1a9778/page_2.jpg"
-    service_url = "http://34.169.115.7:3000"  
-    try:
-        results = send_image_to_ocr(image_path, service_url)
-        print("OCR Results:")
-        print(json.dumps(results, indent=2))
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
+    service_url = "http://35.236.179.125:3000"
+    n = 15 # Number of times to send the image
+
+    # Create a pool of worker processes
+    with multiprocessing.Pool() as pool:
+        # Create a list of arguments for each process
+        args = [(image_path, service_url) for _ in range(n)]
+        
+        # Map the process_image function to the arguments
+        results = pool.map(process_image, args)
+
+    # Print results
+    for i, result in enumerate(results, 1):
+        print(f"Result {i}:", result)
