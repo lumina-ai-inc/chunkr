@@ -16,14 +16,7 @@ import store from "./store/store";
 import Dashboard from "./components/Dashboard/Dashboard.tsx";
 
 const oidcConfig: AuthProviderProps = {
-<<<<<<< HEAD
   authority: import.meta.env.VITE_KEYCLOAK_URL + "/realms/" + import.meta.env.VITE_KEYCLOAK_REALM,
-=======
-  authority:
-    import.meta.env.VITE_KEYCLOAK_URL +
-    "/realms/" +
-    import.meta.env.VITE_KEYCLOAK_REALM,
->>>>>>> main
   client_id: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
   redirect_uri: import.meta.env.VITE_KEYCLOAK_REDIRECT_URI,
   post_logout_redirect_uri: import.meta.env
