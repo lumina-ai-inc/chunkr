@@ -1,7 +1,7 @@
-use crate::models::server::user::{InvoiceStatus, Tier, UsageLimit, UsageType, User};
+use crate::models::server::user::{Discount, InvoiceStatus, Tier, UsageLimit, UsageType, User};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
+use serde_json::Value;
 use std::str::FromStr;
-
 pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
@@ -15,11 +15,14 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         array_agg(DISTINCT ak.key) as api_keys,
         u.tier,
         u.created_at,
-        u.updated_at
+        u.updated_at,
+        COALESCE(json_agg(json_build_object('usage_type', d.usage_type, 'amount', d.amount))::text, '[]') as discounts
     FROM 
         users u
     LEFT JOIN 
         api_keys ak ON u.user_id = ak.user_id
+    LEFT JOIN 
+        discounts d ON u.user_id = d.user_id AND d.usage_type IN ('Fast', 'HighQuality', 'Segment')
     WHERE 
         u.user_id = $1
     GROUP BY 
@@ -32,7 +35,12 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
             format!("User with id {} not found", user_id),
         )
     })?;
-
+    let discounts_json: String = row.get("discounts");
+    let discounts: Vec<Discount> = serde_json::from_str::<Vec<Value>>(&discounts_json)?
+        .into_iter()
+        .filter(|d| d["usage_type"] != Value::Null && d["amount"] != Value::Null)
+        .map(|v| serde_json::from_value(v).unwrap())
+        .collect();
     let user = User {
         user_id: row.get("user_id"),
         customer_id: row.get("customer_id"),
@@ -54,6 +62,17 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
                         .and_then(|t| Tier::from_str(&t).ok())
                         .unwrap_or(Tier::Free),
                 ),
+                discounts: if discounts.is_empty() {
+                    None
+                } else {
+                    Some(
+                        discounts
+                            .clone()
+                            .into_iter()
+                            .filter(|d| d.usage_type == UsageType::Fast)
+                            .collect(),
+                    )
+                },
             },
             UsageLimit {
                 usage_type: UsageType::HighQuality,
@@ -62,6 +81,17 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
                         .and_then(|t| Tier::from_str(&t).ok())
                         .unwrap_or(Tier::Free),
                 ),
+                discounts: if discounts.is_empty() {
+                    None
+                } else {
+                    Some(
+                        discounts
+                            .clone()
+                            .into_iter()
+                            .filter(|d| d.usage_type == UsageType::HighQuality)
+                            .collect(),
+                    )
+                },
             },
             UsageLimit {
                 usage_type: UsageType::Segment,
@@ -70,9 +100,20 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
                         .and_then(|t| Tier::from_str(&t).ok())
                         .unwrap_or(Tier::Free),
                 ),
+                discounts: if discounts.is_empty() {
+                    None
+                } else {
+                    Some(
+                        discounts
+                            .into_iter()
+                            .filter(|d| d.usage_type == UsageType::Segment)
+                            .collect(),
+                    )
+                },
             },
         ],
     };
+    println!("user: {:?}", user);
 
     Ok(user)
 }

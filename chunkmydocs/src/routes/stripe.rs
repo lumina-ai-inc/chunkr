@@ -289,14 +289,15 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
         })?;
     let user_id: String = row.get("user_id");
     // Calculate remaining pages for each usage type and insert into discounts table
+
     let remaining_pages_query = "
     INSERT INTO discounts (user_id, usage_type, amount)
     SELECT user_id, usage_type, usage_limit - usage::integer AS amount
     FROM USAGE
     WHERE user_id = $1
-";
+    ";
     client
-        .execute(remaining_pages_query, &[&customer_id])
+        .execute(remaining_pages_query, &[&user_id])
         .await
         .map_err(|e| {
             eprintln!("Error inserting into discounts table: {:?}", e);

@@ -90,6 +90,13 @@ pub struct User {
 pub struct UsageLimit {
     pub usage_type: UsageType,
     pub usage_limit: i32,
+    pub discounts: Option<Vec<Discount>>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, ToSql, FromSql)]
+pub struct Discount {
+    pub usage_type: UsageType,
+    pub amount: i32,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, ToSql, FromSql)]

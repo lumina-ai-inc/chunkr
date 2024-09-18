@@ -109,14 +109,17 @@ pub async fn create_user(
             UsageLimit {
                 usage_type: UsageType::Fast,
                 usage_limit: 1000,
+                discounts: None, // Set discounts as None
             },
             UsageLimit {
                 usage_type: UsageType::HighQuality,
                 usage_limit: 500,
+                discounts: None, // Set discounts as None
             },
             UsageLimit {
                 usage_type: UsageType::Segment,
                 usage_limit: 250,
+                discounts: None, // Set discounts as None
             },
         ], // Added usage limits for the Free tier
     };
