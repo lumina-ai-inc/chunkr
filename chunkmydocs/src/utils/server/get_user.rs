@@ -152,17 +152,17 @@ pub async fn get_monthly_usage_count(
     SELECT 
         to_char(created_at, 'YYYY-MM') AS month,
         configuration::JSONB->>'model' AS usage_type,
-        COUNT(*) AS count
+        SUM(page_count) AS total_pages
     FROM 
         tasks
     WHERE 
         user_id = $1 
+        AND configuration::JSONB->>'model' IN ('Fast', 'HighQuality', 'Segment')
     GROUP BY 
         month, usage_type
     ORDER BY 
         month, usage_type;
     "#;
-
     let rows = client.query(query, &[&user_id]).await?;
 
     let mut monthly_usage_map: std::collections::HashMap<String, MonthlyUsage> =
@@ -171,7 +171,7 @@ pub async fn get_monthly_usage_count(
     for row in rows {
         let month: String = row.get("month");
         let usage_type: String = row.get("usage_type");
-        let count: i64 = row.get("count");
+        let total_pages: i64 = row.get("total_pages");
 
         let cost_per_page = match usage_type.as_str() {
             "Fast" => 0.005,
@@ -180,7 +180,7 @@ pub async fn get_monthly_usage_count(
             _ => 0.0,
         };
 
-        let cost = (count as f64) * cost_per_page; // Convert count to f64 before multiplication
+        let cost = (total_pages as f64) * cost_per_page; // Convert total_pages to f64 before multiplication
 
         monthly_usage_map
             .entry(month.clone())
@@ -197,7 +197,7 @@ pub async fn get_monthly_usage_count(
             .usage_details
             .push(UsageDetail {
                 usage_type,
-                count,
+                count: total_pages,
                 cost: cost as f32,
             });
     }
