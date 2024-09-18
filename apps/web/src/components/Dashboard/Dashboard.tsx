@@ -37,9 +37,9 @@ export default function Dashboard() {
     return <Loader />;
   }
 
-  const handleTaskClick = (task: TaskResponse) => {
-    navigate(`/task/${task.task_id}?pageCount=${task.page_count}`);
-  };
+  if (!monthlyUsage) {
+    return <Loader />;
+  }
 
   const fastUsage =
     monthlyUsage?.[0]?.usage_details.find(
@@ -57,6 +57,12 @@ export default function Dashboard() {
   const highQualityDiscount =
     user?.usage?.find((u) => u.usage_type === "HighQuality")?.discounts?.[0]
       ?.amount || 0;
+
+  const fastDiscountedUsage = Math.max(0, fastDiscount - fastUsage);
+  const highQualityDiscountedUsage = Math.max(
+    0,
+    highQualityDiscount - highQualityUsage
+  );
 
   const adjustedFastUsage = Math.max(0, fastUsage - fastDiscount);
   const adjustedHighQualityUsage = Math.max(
@@ -82,8 +88,11 @@ export default function Dashboard() {
       (highQualityCost - highQualityDiscount * highQualityCostPerPage)
   );
 
-  console.log(monthlyUsage?.[0]?.month);
   const billingDueDate = calculateBillingDueDate(monthlyUsage?.[0]?.month);
+
+  const handleTaskClick = (task: TaskResponse) => {
+    navigate(`/task/${task.task_id}?pageCount=${task.page_count}`);
+  };
 
   return (
     <div className="dashboard-container">
@@ -193,7 +202,7 @@ export default function Dashboard() {
                       Fast
                     </Text>
                   </Flex>
-                  {user?.tier === "PayAsYouGo" && (
+                  {user?.tier === "PayAsYouGo" && fastDiscountedUsage < 0 && (
                     <Flex
                       direction="row"
                       gap="2"
@@ -211,7 +220,7 @@ export default function Dashboard() {
                         weight="medium"
                         style={{ color: "hsla(0, 0%, 0%, 1)" }}
                       >
-                        {fastDiscount} free pages
+                        {fastDiscountedUsage} free pages
                       </Text>
                     </Flex>
                   )}
@@ -314,28 +323,29 @@ export default function Dashboard() {
                       High Quality
                     </Text>
                   </Flex>
-                  {user?.tier === "PayAsYouGo" && (
-                    <Flex
-                      direction="row"
-                      gap="2"
-                      align="center"
-                      style={{
-                        padding: "6px 12px",
-                        borderRadius: "4px",
-                        width: "fit-content",
-                        border: "1px solid hsla(180, 100%, 100%, 0.1)",
-                        backgroundColor: "hsla(180, 100%, 100%, 0.9)",
-                      }}
-                    >
-                      <Text
-                        size="2"
-                        weight="medium"
-                        style={{ color: "hsla(0, 0%, 0%, 1)" }}
+                  {user?.tier === "PayAsYouGo" &&
+                    highQualityDiscountedUsage < 0 && (
+                      <Flex
+                        direction="row"
+                        gap="2"
+                        align="center"
+                        style={{
+                          padding: "6px 12px",
+                          borderRadius: "4px",
+                          width: "fit-content",
+                          border: "1px solid hsla(180, 100%, 100%, 0.1)",
+                          backgroundColor: "hsla(180, 100%, 100%, 0.9)",
+                        }}
                       >
-                        {highQualityDiscount} free pages
-                      </Text>
-                    </Flex>
-                  )}
+                        <Text
+                          size="2"
+                          weight="medium"
+                          style={{ color: "hsla(0, 0%, 0%, 1)" }}
+                        >
+                          {highQualityDiscountedUsage} free pages
+                        </Text>
+                      </Flex>
+                    )}
                 </Flex>
                 {user?.tier === "PayAsYouGo" && (
                   <Text

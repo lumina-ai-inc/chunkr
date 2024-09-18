@@ -100,6 +100,12 @@ export default function Header({
           </Text>
         </a>
 
+        <Link to="/pricing" style={{ textDecoration: "none" }}>
+          <Text size="2" weight="medium" className="nav-item">
+            Pricing
+          </Text>
+        </Link>
+
         {download && !home && taskResponse?.output && (
           <Text
             size="2"
@@ -111,16 +117,6 @@ export default function Header({
             Download JSON
           </Text>
         )}
-
-        {/* <Link
-          to="/pricing"
-          style={{ textDecoration: "none" }}
-          className="nav-item"
-        >
-          <Text size="2" weight="medium" className="nav-item">
-            Pricing
-          </Text>
-        </Link> */}
       </Flex>
 
       <Flex className="nav" direction="row" gap="24px" align="center">

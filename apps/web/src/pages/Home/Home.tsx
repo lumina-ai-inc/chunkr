@@ -58,7 +58,7 @@ const Home = () => {
               </Flex>
               <Flex className="hero-container">
                 <Flex className="text-container" direction="column">
-                  <Flex direction="row" gap="16px">
+                  {/* <Flex direction="row" gap="16px">
                     <Text
                       size="3"
                       weight="bold"
@@ -66,7 +66,7 @@ const Home = () => {
                     >
                       Back by Y Combinator
                     </Text>
-                  </Flex>
+                  </Flex> */}
                   <Text
                     size="9"
                     weight="bold"
