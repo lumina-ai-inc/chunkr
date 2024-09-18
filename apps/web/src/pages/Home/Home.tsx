@@ -58,6 +58,15 @@ const Home = () => {
               </Flex>
               <Flex className="hero-container">
                 <Flex className="text-container" direction="column">
+                  <Flex direction="row" gap="16px">
+                    <Text
+                      size="3"
+                      weight="bold"
+                      style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+                    >
+                      Back by Y Combinator
+                    </Text>
+                  </Flex>
                   <Text
                     size="9"
                     weight="bold"
@@ -82,8 +91,9 @@ const Home = () => {
                   </Text>
                   <Flex
                     className="signup-container"
-                    direction="column"
+                    direction="row"
                     gap="16px"
+                    align="center"
                   >
                     <Flex
                       direction="row"
@@ -121,6 +131,15 @@ const Home = () => {
                         />
                       </svg>
                     </Flex>
+                    {!isAuthenticated && (
+                      <Text
+                        size="2"
+                        weight="medium"
+                        style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+                      >
+                        1500 pages in credits
+                      </Text>
+                    )}
                   </Flex>
                 </Flex>
                 <Flex className="module-container" direction="column" gap="4">

@@ -131,12 +131,12 @@ export default function UploadMain({
               }}
             >
               {model === Model.HighQuality && (
-                <Text size="2" weight="bold" style={{ opacity: 0.8 }}>
+                <Text size="2" weight="bold" style={{ opacity: 0.9 }}>
                   HIGH QUALITY
                 </Text>
               )}
               {model === Model.Fast && (
-                <Text size="2" weight="bold" style={{ opacity: 0.8 }}>
+                <Text size="2" weight="bold" style={{ opacity: 0.9 }}>
                   FAST
                 </Text>
               )}
