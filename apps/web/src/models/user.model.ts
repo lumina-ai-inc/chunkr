@@ -10,6 +10,12 @@ export interface Usage {
 export interface UserUsage {
   usage_type: "Fast" | "HighQuality" | "Segment";
   usage_limit: number;
+  discounts: Discount[];
+}
+
+export interface Discount {
+  usage_type: "Fast" | "HighQuality" | "Segment";
+  amount: number;
 }
 
 export interface User {
@@ -52,4 +58,9 @@ export interface JWTProfile extends User {
   preferred_username: string;
   given_name: string;
   family_name: string;
+}
+
+export interface Discount {
+  usage_type: "Fast" | "HighQuality" | "Segment";
+  amount: number;
 }
