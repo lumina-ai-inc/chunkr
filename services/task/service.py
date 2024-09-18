@@ -40,3 +40,17 @@ class OCR:
     @bentoml.api 
     def paddle(self, file: Path) -> list:
         return perform_paddle_ocr(self.ocr, file)
+
+
+@bentoml.service(
+    name="segment",
+    resources={"gpu": 1},
+    traffic={"timeout": 60}
+)
+class Segment:
+    def __init__(self) -> None:
+        self.ocr = PaddleOCR(use_angle_cls=True, lang="en")
+
+    @bentoml.api 
+    def paddle(self, file: Path) -> list:
+        return perform_paddle_ocr(self.ocr, file)

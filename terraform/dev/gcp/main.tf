@@ -36,6 +36,13 @@ provider "google" {
   project = var.project
 }
 
+variable "startup_script_path" {
+  default     = "./startup.sh"
+  type        = string
+  description = "Path to the local startup.sh file"
+}
+
+
 ###############################################################
 # Set up the Networking Components
 ###############################################################
@@ -78,11 +85,11 @@ resource "google_compute_firewall" "allow_ports" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8000", "8010", "8020", "8030", "8040", "8050", "8060", "8070", "8080", "8090"]
+    ports    = ["8000", "8010", "8020", "8030", "8040", "8050", "8060", "8070", "8080", "8090", "3000", "5173"]
   }
 
   source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["port-8000-allowed", "port-8010-allowed", "port-8020-allowed", "port-8030-allowed", "port-8040-allowed", "port-8050-allowed", "port-8060-allowed", "port-8070-allowed", "port-8080-allowed", "port-8090-allowed"]
+  target_tags   = ["port-8000-allowed", "port-8010-allowed", "port-8020-allowed", "port-8030-allowed", "port-8040-allowed", "port-8050-allowed", "port-8060-allowed", "port-8070-allowed", "port-8080-allowed", "port-8090-allowed", "port-3000-allowed", "port-5173-allowed"]
 }
 
 resource "google_compute_instance" "vm_instance" {
@@ -118,39 +125,16 @@ resource "google_compute_instance" "vm_instance" {
   }
 
   metadata = {
-    ssh-keys = "debian:${file("~/.ssh/id_rsa.pub")}"
+    ssh-keys       = "debian:${file("~/.ssh/id_rsa.pub")}"
+    startup-script = <<-EOF
+        #!/bin/bash
+        echo '${file(var.startup_script_path)}' > /tmp/startup.sh
+        chmod +x /tmp/startup.sh
+        (sleep 60 && /tmp/startup.sh) &
+      EOF
   }
-  metadata_startup_script = <<-EOF
-    #!/bin/bash
-    apt-get update
-    apt-get install -y redis-tools htop git
 
-    # Install Docker
-    apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-    apt-get update
-    apt-get install -y docker-ce docker-ce-cli containerd.io
-    sudo apt-get install python3-venv
-    # Add the debian user to the docker group
-    usermod -aG docker debian
-
-    # Pull chunk-my-docs git repository
-    git clone https://github.com/lumina-ai-inc/chunk-my-docs.git /home/debian/chunk-my-docs
-    chown -R debian:debian /home/debian/chunk-my-docs
-
-
-
-    # Download and install NVIDIA GPU driver
-    sudo apt-get install -y build-essential dkms
-    wget https://us.download.nvidia.com/tesla/535.161.07/NVIDIA-Linux-x86_64-535.161.07.run
-    chmod +x NVIDIA-Linux-x86_64-535.161.07.run
-    sudo sh NVIDIA-Linux-x86_64-535.161.07.run
-
-
-  EOF
-
-  tags = ["ssh-allowed", "port-8000-allowed", "port-8010-allowed", "port-8020-allowed", "port-8030-allowed", "port-8040-allowed", "port-8050-allowed", "port-8060-allowed", "port-8070-allowed", "port-8080-allowed", "port-8090-allowed"]
+  tags = ["ssh-allowed", "port-8000-allowed", "port-8010-allowed", "port-8020-allowed", "port-8030-allowed", "port-8040-allowed", "port-8050-allowed", "port-8060-allowed", "port-8070-allowed", "port-8080-allowed", "port-8090-allowed", "port-3000-allowed", "port-5173-allowed"]
 
   deletion_protection = false
 
