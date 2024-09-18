@@ -345,7 +345,7 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
     INSERT INTO discounts (user_id, usage_type, amount)
     SELECT user_id, usage_type, usage_limit - usage::integer AS amount
     FROM USAGE
-    WHERE user_id = $1
+    WHERE user_id = $1;
     ";
     client
         .execute(remaining_pages_query, &[&user_id])
@@ -358,17 +358,17 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
     // Update USAGE table with new usage limits for PayAsYouGo tier
     let update_fast_usage_query = "
         UPDATE USAGE
-        SET usage_limit = $1::integer,
+        SET usage_limit = $1::integer
         WHERE user_id = $2 AND usage_type = 'Fast';
     ";
     let update_high_quality_usage_query = "
         UPDATE USAGE
-        SET usage_limit = $1::integer,
+        SET usage_limit = $1::integer
         WHERE user_id = $2 AND usage_type = 'HighQuality';
     ";
     let update_segment_usage_query = "
         UPDATE USAGE
-        SET usage_limit = $1::integer,
+        SET usage_limit = $1::integer
         WHERE user_id = $2 AND usage_type = 'Segment';
     ";
 

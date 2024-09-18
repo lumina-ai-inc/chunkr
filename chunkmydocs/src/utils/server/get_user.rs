@@ -148,6 +148,10 @@ pub async fn get_monthly_usage_count(
 ) -> Result<Vec<MonthlyUsage>, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
+    // Check user tier
+    let tier_query = "SELECT tier FROM users WHERE user_id = $1";
+    let user_tier: Option<String> = client.query_one(tier_query, &[&user_id]).await?.get(0);
+
     let query = r#"
     SELECT 
         to_char(created_at, 'YYYY-MM') AS month,
@@ -174,14 +178,16 @@ pub async fn get_monthly_usage_count(
         let usage_type: String = row.get("usage_type");
         let total_pages: i64 = row.get("total_pages");
 
-        let cost_per_page = match usage_type.as_str() {
-            "Fast" => 0.005,
-            "HighQuality" => 0.01,
-            "Segment" => 0.01,
-            _ => 0.0,
+        let (cost_per_page, cost) = if user_tier.as_deref() == Some("Free") {
+            (0.0, 0.0) // Hardcode cost per type and total cost to 0 for Free tier
+        } else {
+            match usage_type.as_str() {
+                "Fast" => (0.005, (total_pages as f64) * 0.005),
+                "HighQuality" => (0.01, (total_pages as f64) * 0.01),
+                "Segment" => (0.01, (total_pages as f64) * 0.01),
+                _ => (0.0, 0.0),
+            }
         };
-
-        let cost = (total_pages as f64) * cost_per_page; // Convert total_pages to f64 before multiplication
 
         monthly_usage_map
             .entry(month.clone())
