@@ -18,3 +18,32 @@ export interface User {
   created_at: string;
   updated_at: string;
 }
+
+export interface AuthUser {
+  access_token: string;
+  profile: User;
+}
+
+export interface JWTAuthUser extends AuthUser {
+  id_token: string;
+  session_state: string;
+  refresh_token: string;
+  token_type: string;
+  scope: string;
+  expires_at: number;
+  profile: JWTProfile;
+}
+
+export interface JWTProfile extends User {
+  exp: number;
+  iat: number;
+  iss: string;
+  aud: string;
+  sub: string;
+  typ: string;
+  sid: string;
+  email_verified: boolean;
+  preferred_username: string;
+  given_name: string;
+  family_name: string;
+}
