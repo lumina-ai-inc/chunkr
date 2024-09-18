@@ -104,3 +104,6 @@ log.py
 logs.md
 commit.py
 commits.md
+
+terraform/dev/gcp
+terraform/dev
