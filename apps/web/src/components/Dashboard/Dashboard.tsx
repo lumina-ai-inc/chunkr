@@ -88,7 +88,9 @@ export default function Dashboard() {
       (highQualityCost - highQualityDiscount * highQualityCostPerPage)
   );
 
-  const billingDueDate = calculateBillingDueDate(monthlyUsage?.[0]?.month);
+  const billingDueDate = monthlyUsage?.[0]?.month
+    ? calculateBillingDueDate(monthlyUsage[0].month)
+    : null;
 
   const handleTaskClick = (task: TaskResponse) => {
     navigate(`/task/${task.task_id}?pageCount=${task.page_count}`);
@@ -446,13 +448,15 @@ export default function Dashboard() {
                         Billing
                       </Text>
                     </Flex>
-                    <Text
-                      size="2"
-                      weight="medium"
-                      style={{ color: "hsla(180, 100%, 100%, 1)" }}
-                    >
-                      Due {billingDueDate}
-                    </Text>
+                    {billingDueDate && (
+                      <Text
+                        size="2"
+                        weight="medium"
+                        style={{ color: "hsla(180, 100%, 100%, 1)" }}
+                      >
+                        Due {billingDueDate}
+                      </Text>
+                    )}
                   </Flex>
                   <Text
                     size="8"
