@@ -124,5 +124,5 @@ button:focus-visible {
 }
 
 .rt-ScrollAreaThumb {
-  background-color: hsla(180, 100%, 100%, 0.2) !important;
+  background-color: rgba(142, 142, 147, 0.5) !important;
 }

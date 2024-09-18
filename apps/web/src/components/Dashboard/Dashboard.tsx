@@ -30,8 +30,6 @@ export default function Dashboard() {
 
   const { data: tasks, isLoading, isError } = useTasksQuery(1, 10);
 
-  console.log(user);
-
   if (!user) {
     return <Loader />;
   }
@@ -47,6 +45,9 @@ export default function Dashboard() {
   const highQualityUsage = monthlyUsage?.[0]?.usage_details.find(
     (usage) => usage.usage_type === "HighQuality"
   )?.count;
+
+  console.log(monthlyUsage);
+  console.log(user);
 
   return (
     <div className="dashboard-container">
