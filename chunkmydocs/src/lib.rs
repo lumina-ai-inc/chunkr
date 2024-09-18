@@ -26,7 +26,7 @@ use utils::storage::config_s3::create_client;
 use utils::server::admin_user::get_or_create_admin_user;
 use utoipa::OpenApi;
 use utoipa_redoc::{ Redoc, Servable };
-use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session, get_user_invoices, get_invoice_detail };
+use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session, get_user_invoices, get_invoice_detail, get_monthly_usage };
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
@@ -145,14 +145,15 @@ pub fn main() -> std::io::Result<()> {
                 .route("/task/{task_id}", web::get().to(get_task_status))
                 .route("/tasks", web::get().to(get_tasks_status))
                 .route("/usage", web::get().to(get_usage))
+                .route("/usage/monthly", web::get().to(get_monthly_usage))
                 .route(
                     "/stripe/create-setup-intent",
                     web::get().to(create_setup_intent)
                 )
                 .route("/stripe/create-session", web::get().to(create_stripe_session))
-                .route("/stripe/get-user-invoices", web::get().to(get_user_invoices))
-                .route("/stripe/get-invoice-detail/{invoice_id}", web::get().to(get_invoice_detail));
-
+                .route("/stripe/invoices", web::get().to(get_user_invoices))
+                .route("/stripe/invoice/{invoice_id}", web::get().to(get_invoice_detail));
+                
             
 
             app.service(api_scope)

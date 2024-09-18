@@ -61,46 +61,52 @@ pub struct InvoiceSummary {
     pub amount_due: f32, // Added amount_due field
 }
 
-pub async fn get_invoices(
+#[derive(Serialize)]
+pub struct MonthlyUsageCount {
+    pub month: String,
+    pub usage_type: String,
+    pub count: i64,
+}
+
+pub async fn get_monthly_usage_count(
     user_id: String,
     pool: &Pool,
-) -> Result<Vec<InvoiceSummary>, Box<dyn std::error::Error>> {
+) -> Result<Vec<MonthlyUsageCount>, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
     let query = r#"
     SELECT 
-        invoice_id,
-        invoice_status,
-        date_created,
-        amount_due
+        to_char(created_at, 'YYYY-MM') AS month,
+        configuration::JSONB->>'model' AS usage_type,
+        COUNT(*) AS count
     FROM 
-        invoices
+        tasks
     WHERE 
-        user_id = $1;
+        user_id = $1 
+    GROUP BY 
+        month, usage_type
+    ORDER BY 
+        month, usage_type;
     "#;
 
     let rows = client.query(query, &[&user_id]).await?;
 
-    let invoices = rows
+    let monthly_usage_counts: Vec<MonthlyUsageCount> = rows
         .into_iter()
-        .map(|row| InvoiceSummary {
-            invoice_id: row.get("invoice_id"),
-            status: row
-                .get::<_, Option<String>>("invoice_status")
-                .and_then(|s| s.to_lowercase().parse::<InvoiceStatus>().ok())
-                .expect("Invalid invoice status"),
-            date_created: row.get("date_created"),
-            amount_due: row.get::<_, f64>("amount_due") as f32, // Fetching amount_due from the query and converting to f32
+        .map(|row| MonthlyUsageCount {
+            month: row.get("month"),
+            usage_type: row.get("usage_type"),
+            count: row.get("count"),
         })
         .collect();
 
-    Ok(invoices)
+    Ok(monthly_usage_counts)
 }
 
 #[derive(Serialize)]
 pub struct TaskInvoice {
     pub task_id: String,
-    pub usage_type: String,
+    pub usage_type: String, //enum
     pub pages: i32,
     pub cost: f32,
     pub created_at: chrono::NaiveDateTime,
@@ -110,6 +116,56 @@ pub struct TaskInvoice {
 pub struct InvoiceDetail {
     pub invoice_id: String,
     pub tasks: Vec<TaskInvoice>,
+}
+
+pub async fn get_invoices(
+    user_id: String,
+    pool: &Pool,
+) -> Result<Vec<InvoiceDetail>, Box<dyn std::error::Error>> {
+    let client: Client = pool.get().await?;
+
+    let query = r#"
+    SELECT 
+        invoice_id,
+        task_id,
+        usage_type,
+        pages,
+        cost,
+        created_at
+    FROM 
+        task_invoices
+    WHERE 
+        user_id = $1
+    ORDER BY 
+        created_at DESC;
+    "#;
+
+    let rows = client.query(query, &[&user_id]).await?;
+
+    let mut invoices: Vec<InvoiceDetail> = Vec::new();
+
+    for row in rows {
+        let invoice_id: String = row.get("invoice_id");
+        let task_invoice = TaskInvoice {
+            task_id: row.get("task_id"),
+            usage_type: row.get("usage_type"),
+            pages: row.get("pages"),
+            cost: row.get("cost"),
+            created_at: row.get("created_at"),
+        };
+
+        // Check if the invoice already exists in the vector
+        if let Some(invoice) = invoices.iter_mut().find(|inv| inv.invoice_id == invoice_id) {
+            invoice.tasks.push(task_invoice);
+        } else {
+            invoices.push(InvoiceDetail {
+                invoice_id: invoice_id,
+                tasks: vec![task_invoice],
+            });
+        }
+    }
+
+    Ok(invoices)
 }
 
 pub async fn get_invoice_information(

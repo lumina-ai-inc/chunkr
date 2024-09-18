@@ -2,6 +2,7 @@ use crate::models::auth::auth::UserInfo;
 use crate::models::server::user::{Tier, UsageType};
 use crate::utils::configs::stripe_config::Config as StripeConfig;
 use crate::utils::db::deadpool_postgres::Pool;
+use crate::utils::server::get_user::get_monthly_usage_count;
 use crate::utils::server::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe::{
     create_customer_session, create_stripe_customer, create_stripe_setup_intent,
@@ -402,4 +403,12 @@ pub async fn get_invoice_detail(
 ) -> Result<HttpResponse, actix_web::Error> {
     let invoice_detail = get_invoice_information(invoice_id.into_inner(), &pool).await?;
     Ok(HttpResponse::Ok().json(invoice_detail))
+}
+pub async fn get_monthly_usage(
+    user_info: web::ReqData<UserInfo>,
+    pool: web::Data<Pool>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let user_id = user_info.user_id.clone();
+    let monthly_usage = get_monthly_usage_count(user_id, &pool).await?;
+    Ok(HttpResponse::Ok().json(monthly_usage))
 }
