@@ -25,7 +25,7 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
 # Usage example
 if __name__ == "__main__":
     image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/05-receipt1.jpg"
-    service_url = "http://localhost:3000"  
+    service_url = "http://35.184.192.150:3000"  
     try:
         results = send_image_to_ocr(image_path, service_url)
         print("OCR Results:")
