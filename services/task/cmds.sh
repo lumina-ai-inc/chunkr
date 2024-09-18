@@ -7,3 +7,7 @@ curl -X 'POST' \
     -o output/output.json
 
 uv run pip install .[gpu]
+
+# [project.optional-dependencies]
+# cpu = ["paddlepaddle>=2.6.2"]
+# gpu = ["paddlepaddle-gpu>=2.6.2,<2.7.0"]
