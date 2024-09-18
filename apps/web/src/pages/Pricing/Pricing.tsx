@@ -1,22 +1,11 @@
 import { Flex, Text, Separator, ScrollArea } from "@radix-ui/themes";
-import { keyframes } from "@emotion/react";
-import styled from "@emotion/styled";
 import "./Pricing.css";
 import Header from "../../components/Header/Header";
 import Calculator from "../../components/PriceCalculator/Calculator";
-import PricingCard from "../../components/PricingCard";
+import PricingCard from "../../components/PricingCard/PricingCard";
 import Footer from "../../components/Footer/Footer";
 import pricingImageWebp from "../../assets/pricing/pricing-image.webp";
 import pricingImageJpg from "../../assets/pricing/pricing-image-85.jpg";
-
-const drawLine = keyframes`
-  from { width: 0; }
-  to { width: 100%; }
-`;
-
-const AnimatedSeparator = styled(Separator)`
-  animation: ${drawLine} 1s ease-out forwards;
-`;
 
 export default function Pricing() {
   return (
@@ -65,15 +54,6 @@ export default function Pricing() {
                   >
                     Pricing
                   </Text>
-                  <AnimatedSeparator
-                    size="2"
-                    style={{
-                      backgroundColor: "var(--cyan-4)",
-                      width: "100%",
-                      marginTop: "24px",
-                      height: "3px",
-                    }}
-                  />
                   <Text
                     className="white"
                     size="5"
@@ -84,26 +64,38 @@ export default function Pricing() {
                       lineHeight: "32px",
                     }}
                   >
-                    Flexible pricing for every stage of your journey
+                    Flexible plans for every stage of your journey
                   </Text>
                   <Flex direction="row" gap="4" py="4px" align="center" mt="1">
-                    <Text size="4" weight="medium" className="cyan-4">
+                    <Text
+                      size="4"
+                      weight="medium"
+                      style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
+                    >
                       Metered API
                     </Text>
                     <Separator
                       size="2"
                       orientation="vertical"
-                      style={{ backgroundColor: "var(--cyan-5)" }}
+                      style={{ backgroundColor: "#FFFFFF" }}
                     />
-                    <Text size="4" weight="medium" className="cyan-4">
+                    <Text
+                      size="4"
+                      weight="medium"
+                      style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
+                    >
                       Managed Instance
                     </Text>
                     <Separator
                       size="2"
                       orientation="vertical"
-                      style={{ backgroundColor: "var(--cyan-5)" }}
+                      style={{ backgroundColor: "#FFFFFF" }}
                     />
-                    <Text size="4" weight="medium" className="cyan-4">
+                    <Text
+                      size="4"
+                      weight="medium"
+                      style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
+                    >
                       Self-hosted
                     </Text>
                   </Flex>
@@ -123,20 +115,14 @@ export default function Pricing() {
                   style={{ flex: 1, width: "100%" }}
                 >
                   <PricingCard
-                    tier="Managed Instance"
-                    price="High Volume"
+                    tier="High volume discounts"
+                    title="Managed Instance"
                     text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                    active={false}
-                    enterprise={true}
-                    auth={true}
                   />
                   <PricingCard
                     tier="Self-hosted"
-                    price="License"
+                    title="Flat monthly rate"
                     text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                    active={false}
-                    enterprise={true}
-                    auth={true}
                   />
                 </Flex>
               </Flex>
