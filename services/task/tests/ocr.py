@@ -1,6 +1,29 @@
 import requests
 from pathlib import Path
 import json
+import cv2
+import os
+import matplotlib.pyplot as plt
+from paddleocr import draw_ocr
+
+def save_ocr(img_path, out_path, result, font):
+    os.makedirs(out_path, exist_ok=True)
+    # Ensure the output file has a proper image extension
+    save_path = os.path.join(out_path, os.path.splitext(os.path.basename(img_path))[0] + '_output.png')
+    
+    image = cv2.imread(img_path)
+    
+    boxes = [line[0] for line in result]
+    txts = [line[1][0] for line in result]
+    scores = [line[1][1] for line in result]
+
+    im_show = draw_ocr(image, boxes, txts, scores, font_path=font)
+    
+    cv2.imwrite(save_path, im_show)
+ 
+    img = cv2.cvtColor(im_show, cv2.COLOR_BGR2RGB)
+    plt.imshow(img)
+    plt.show()  # Add this line to display the image
 
 def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     """
@@ -18,14 +41,18 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
 
     # Check if the request was successful
     if response.status_code == 200:
-        return response.json()
+        results = response.json()
+        with open("output/results.json", "w") as f:
+            json.dump(results, f)
+        save_ocr(image_path, "output", results[0], "font/simfang.ttf")
+        return results
     else:
         raise Exception(f"Error: {response.status_code} - {response.text}")
 
 # Usage example
 if __name__ == "__main__":
-    image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/05-receipt1.jpg"
-    service_url = "http://35.184.192.150:3000"  
+    image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/page_70.png"
+    service_url = "http://34.169.115.7:3000"  
     try:
         results = send_image_to_ocr(image_path, service_url)
         print("OCR Results:")
