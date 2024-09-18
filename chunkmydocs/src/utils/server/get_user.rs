@@ -1,4 +1,4 @@
-use crate::models::server::user::{InvoiceStatus, Tier, User};
+use crate::models::server::user::{InvoiceStatus, Tier, UsageLimit, UsageType, User};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use std::str::FromStr;
 
@@ -46,6 +46,32 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
             .unwrap_or(Tier::Free),
         created_at: row.get("created_at"),
         updated_at: row.get("updated_at"),
+        usage: vec![
+            UsageLimit {
+                usage_type: UsageType::Fast,
+                usage_limit: UsageType::Fast.get_usage_limit(
+                    &row.get::<_, Option<String>>("tier")
+                        .and_then(|t| Tier::from_str(&t).ok())
+                        .unwrap_or(Tier::Free),
+                ),
+            },
+            UsageLimit {
+                usage_type: UsageType::HighQuality,
+                usage_limit: UsageType::HighQuality.get_usage_limit(
+                    &row.get::<_, Option<String>>("tier")
+                        .and_then(|t| Tier::from_str(&t).ok())
+                        .unwrap_or(Tier::Free),
+                ),
+            },
+            UsageLimit {
+                usage_type: UsageType::Segment,
+                usage_limit: UsageType::Segment.get_usage_limit(
+                    &row.get::<_, Option<String>>("tier")
+                        .and_then(|t| Tier::from_str(&t).ok())
+                        .unwrap_or(Tier::Free),
+                ),
+            },
+        ],
     };
 
     Ok(user)

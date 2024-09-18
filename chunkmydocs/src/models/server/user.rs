@@ -26,8 +26,20 @@ pub enum Tier {
 }
 
 #[derive(
-    Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Display, EnumString, Hash, ToSchema,
+    Serialize,
+    Deserialize,
+    Debug,
+    PartialEq,
+    Eq,
+    Clone,
+    Display,
+    EnumString,
+    Hash,
+    ToSchema,
+    ToSql,
+    FromSql,
 )]
+#[postgres(name = "usage_type")]
 pub enum UsageType {
     Fast,
     HighQuality,
@@ -71,6 +83,13 @@ pub struct User {
     pub tier: Tier,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub usage: Vec<UsageLimit>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, ToSql, FromSql)]
+pub struct UsageLimit {
+    pub usage_type: UsageType,
+    pub usage_limit: i32,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, ToSql, FromSql)]

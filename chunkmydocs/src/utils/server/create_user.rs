@@ -1,8 +1,7 @@
 use crate::models::auth::auth::UserInfo;
-use crate::models::server::user::{InvoiceStatus, Tier, Usage, UsageType, User};
+use crate::models::server::user::{Tier, UsageLimit, UsageType, User};
 use crate::utils::configs::user_config::Config as UserConfig;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
-use chrono::Utc;
 use prefixed_api_key::PrefixedApiKeyController;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -106,6 +105,20 @@ pub async fn create_user(
             .unwrap_or(Tier::Free),
         created_at: user_row.get("created_at"),
         updated_at: user_row.get("updated_at"),
+        usage: vec![
+            UsageLimit {
+                usage_type: UsageType::Fast,
+                usage_limit: 1000,
+            },
+            UsageLimit {
+                usage_type: UsageType::HighQuality,
+                usage_limit: 500,
+            },
+            UsageLimit {
+                usage_type: UsageType::Segment,
+                usage_limit: 250,
+            },
+        ], // Added usage limits for the Free tier
     };
 
     Ok(user)
