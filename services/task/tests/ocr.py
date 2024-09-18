@@ -51,7 +51,7 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
 
 # Usage example
 if __name__ == "__main__":
-    image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/page_70.png"
+    image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/1c749c35-cc15-56b2-ade5-010fbf1a9778/page_2.png"
     service_url = "http://34.169.115.7:3000"  
     try:
         results = send_image_to_ocr(image_path, service_url)

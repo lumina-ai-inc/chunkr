@@ -23,9 +23,10 @@ class Image:
     def convert_to_img(
         self,
         file: Path,
-        density: int = Field(default=300, description="Image density in DPI")
+        density: int = Field(default=300, description="Image density in DPI"),
+        extension: str = Field(default="png", description="Image extension")
     ) -> Dict[int, str]:
-        return convert_to_img(file, density)
+        return convert_to_img(file, density, extension)
 
 
 @bentoml.service(

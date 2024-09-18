@@ -4,14 +4,15 @@ from pathlib import Path
 import os
 import time
 
-def convert_file_to_images(file_path, output_dir, density=150):
+def convert_file_to_images(file_path, output_dir, density=150, extension="png"):
     # Prepare the URL and files for the request
     url = 'http://localhost:3000/convert_to_img'
     files = {
         'file': open(file_path, 'rb')
     }
     data = {
-        'density': str(density)
+        'density': str(density),
+        'extension': extension
     }
 
     # Send the POST request
@@ -25,13 +26,13 @@ def convert_file_to_images(file_path, output_dir, density=150):
         # Create the output directory if it doesn't exist
         Path(output_dir).mkdir(parents=True, exist_ok=True)
         
-        # Save each page as a PNG image
+        # Save each page as a image
         for page_number, base64_image in result.items():
             # Decode the base64 image
             image_data = base64.b64decode(base64_image)
             
             # Save the image
-            output_path = Path(output_dir) / f"page_{page_number}.png"
+            output_path = Path(output_dir) / f"page_{page_number}.{extension}"
             with open(output_path, 'wb') as f:
                 f.write(image_data)
             
@@ -53,7 +54,7 @@ os.makedirs(output_dir, exist_ok=True)
 # Start timing
 start_time = time.time()
 
-convert_file_to_images(file_path, output_dir, 300)
+convert_file_to_images(file_path, output_dir, 300, "png")
 
 # End timing
 end_time = time.time()
