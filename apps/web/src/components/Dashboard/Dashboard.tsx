@@ -10,24 +10,27 @@ import { useTasksQuery } from "../../hooks/useTaskQuery";
 import { useNavigate } from "react-router-dom";
 import { TaskResponse } from "../../models/task.model";
 import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
-import { getUserInvoices } from "../../services/stripeService";
+import { MonthlyUsageData } from "../../models/usage.model";
+import useMonthlyUsage from "../../hooks/useMonthlyUsage";
 
 export default function Dashboard() {
   const [showApiKey, setShowApiKey] = useState(false);
-  const [invoices, setInvoices] = useState(null);
+  const [monthlyUsage, setMonthlyUsage] = useState<MonthlyUsageData>([]);
 
   const user = useSelector((state: RootState) => state.user.data);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getUserInvoices().then((result) => {
-      setInvoices(result);
-    });
-  }, []);
+  const { data: monthlyUsageData } = useMonthlyUsage();
 
-  console.log(invoices);
+  useEffect(() => {
+    if (monthlyUsageData) {
+      setMonthlyUsage(monthlyUsageData);
+    }
+  }, [monthlyUsageData]);
 
   const { data: tasks, isLoading, isError } = useTasksQuery(1, 10);
+
+  console.log(user);
 
   if (!user) {
     return <Loader />;
@@ -36,6 +39,14 @@ export default function Dashboard() {
   const handleTaskClick = (task: TaskResponse) => {
     navigate(`/task/${task.task_id}?pageCount=${task.page_count}`);
   };
+
+  const fastUsage = monthlyUsage?.[0]?.usage_details.find(
+    (usage) => usage.usage_type === "Fast"
+  )?.count;
+
+  const highQualityUsage = monthlyUsage?.[0]?.usage_details.find(
+    (usage) => usage.usage_type === "HighQuality"
+  )?.count;
 
   return (
     <div className="dashboard-container">
@@ -149,28 +160,15 @@ export default function Dashboard() {
                   weight="bold"
                   style={{ color: "hsla(180, 100%, 100%, 1)" }}
                 >
-                  {/* {
-                    user?.usages.find((usage) => usage.usage_type === "Fast")
-                      ?.usage
-                  }
+                  {fastUsage}
                   <Text
                     size="4"
                     weight="medium"
                     style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
                   >
                     {" "}
-                    {user?.tier !== "SelfHosted" && (
-                      <>
-                        /{" "}
-                        {
-                          user.usages.find(
-                            (usage) => usage.usage_type === "Fast"
-                          )?.usage_limit
-                        }{" "}
-                        pages
-                      </>
-                    )}
-                  </Text> */}
+                    {user?.tier !== "SelfHosted" && <>/ 1M pages</>}
+                  </Text>
                 </Text>
               </Flex>
               <Flex
@@ -227,29 +225,15 @@ export default function Dashboard() {
                   weight="bold"
                   style={{ color: "hsla(180, 100%, 100%, 1)" }}
                 >
-                  {/* {
-                    user?.usages.find(
-                      (usage) => usage.usage_type === "HighQuality"
-                    )?.usage
-                  }
+                  {highQualityUsage}
                   <Text
                     size="4"
                     weight="medium"
                     style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
                   >
                     {" "}
-                    {user?.tier !== "SelfHosted" && (
-                      <>
-                        /{" "}
-                        {
-                          user.usages.find(
-                            (usage) => usage.usage_type === "HighQuality"
-                          )?.usage_limit
-                        }{" "}
-                        pages
-                      </>
-                    )}
-                  </Text> */}
+                    {user?.tier !== "SelfHosted" && <>/ 1M pages</>}
+                  </Text>
                 </Text>
               </Flex>
 
@@ -308,7 +292,7 @@ export default function Dashboard() {
                     weight="bold"
                     style={{ color: "hsla(180, 100%, 100%, 1)" }}
                   >
-                    $0
+                    ${monthlyUsage?.[0]?.total_cost}
                   </Text>
                 </Flex>
               )}

@@ -65,7 +65,7 @@ const Home = () => {
                     className="hero-title"
                     mb="24px"
                   >
-                    Open Source Doc Segmentation
+                    Open Source Segmentation
                   </Text>
                   <Text
                     className="white"
