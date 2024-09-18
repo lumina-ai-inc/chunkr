@@ -18,71 +18,66 @@ DECLARE
     v_cost FLOAT;
     v_config JSONB;
 BEGIN
-    -- Check if the user is not on the Free tier
-    IF EXISTS (
-        SELECT 1 FROM users
-        WHERE user_id = NEW.user_id AND tier != 'Free'
-    ) THEN
-        -- Only proceed if the task status is 'Succeeded'
-        IF NEW.status = 'Succeeded' THEN
-            v_user_id := NEW.user_id;
-            v_task_id := NEW.task_id;
-            v_pages := NEW.page_count;
-            v_segment_count := NEW.segment_count;
-            v_config := NEW.configuration::JSONB;
+    -- Proceed for all users regardless of tier
+    -- Only proceed if the task status is 'Succeeded'
+    IF NEW.status = 'Succeeded' THEN
+        v_user_id := NEW.user_id;
+        v_task_id := NEW.task_id;
+        v_pages := NEW.page_count;
+        v_segment_count := NEW.segment_count;
+        v_config := NEW.configuration::JSONB;
 
-            -- Update for Fast, HighQuality, or Segment
-            IF v_config->>'model' = 'Fast' THEN
-                v_usage_type := 'Fast';
-            ELSIF v_config->>'model' = 'HighQuality' THEN
-                v_usage_type := 'HighQuality';
-            ELSIF v_config->>'useVisionOCR' = 'true' THEN
-                v_usage_type := 'Segment';
-            ELSE
-                RAISE EXCEPTION 'Unknown model type in configuration';
-            END IF;
-            v_created_at := NEW.created_at;
+        -- Update for Fast, HighQuality, or Segment
+        IF v_config->>'model' = 'Fast' THEN
+            v_usage_type := 'Fast';
+        ELSIF v_config->>'model' = 'HighQuality' THEN
+            v_usage_type := 'HighQuality';
+        ELSIF v_config->>'useVisionOCR' = 'true' THEN
+            v_usage_type := 'Segment';
+        ELSE
+            RAISE EXCEPTION 'Unknown model type in configuration';
+        END IF;
+        v_created_at := NEW.created_at;
 
-            -- Check if there's an ongoing invoice for this user
-            SELECT invoice_id INTO v_invoice_id
-            FROM invoices
-            WHERE user_id = v_user_id AND invoice_status = 'Ongoing'
-            LIMIT 1;
+        -- Check if there's an ongoing invoice for this user
+        SELECT invoice_id INTO v_invoice_id
+        FROM invoices
+        WHERE user_id = v_user_id AND invoice_status = 'Ongoing'
+        LIMIT 1;
 
-            -- If no ongoing invoice, create a new one
-            IF NOT FOUND THEN
-                v_invoice_id := uuid_generate_v4()::TEXT;
-                INSERT INTO invoices (invoice_id, user_id, tasks, invoice_status, amount_due, total_pages)
-                VALUES (v_invoice_id, v_user_id, ARRAY[v_task_id], 'Ongoing', 0, 0);
-            ELSE
-                -- Append the task_id to the existing invoice's tasks array
-                UPDATE invoices
-                SET tasks = array_append(tasks, v_task_id)
-                WHERE invoice_id = v_invoice_id;
-            END IF;
-
-            -- Get the cost per unit for the usage type
-            SELECT cost_per_unit_dollars INTO v_cost_per_unit
-            FROM USAGE_TYPE
-            WHERE type = v_usage_type;
-
-            -- Calculate the cost
-            IF v_usage_type = 'Segment' THEN
-                v_cost := v_cost_per_unit * v_segment_count;
-            ELSE
-                v_cost := v_cost_per_unit * v_pages;
-            END IF;
-
-            -- Insert into task_invoices
-            INSERT INTO task_invoices (task_id, invoice_id, usage_type, pages, cost, created_at)
-            VALUES (v_task_id, v_invoice_id, v_usage_type, v_pages, v_cost, v_created_at);
-
-            -- Update the invoice with the new amount_due and total_pages
+        -- If no ongoing invoice, create a new one
+        IF NOT FOUND THEN
+            v_invoice_id := uuid_generate_v4()::TEXT;
+            INSERT INTO invoices (invoice_id, user_id, tasks, invoice_status, amount_due, total_pages)
+            VALUES (v_invoice_id, v_user_id, ARRAY[v_task_id], 'Ongoing', 0, 0);
+        ELSE
+            -- Append the task_id to the existing invoice's tasks array
             UPDATE invoices
-            SET amount_due = amount_due + v_cost,
-                total_pages = total_pages + v_pages
+            SET tasks = array_append(tasks, v_task_id)
             WHERE invoice_id = v_invoice_id;
         END IF;
+
+        -- Get the cost per unit for the usage type
+        SELECT cost_per_unit_dollars INTO v_cost_per_unit
+        FROM USAGE_TYPE
+        WHERE type = v_usage_type;
+
+        -- Calculate the cost
+        IF v_usage_type = 'Segment' THEN
+            v_cost := v_cost_per_unit * v_segment_count;
+        ELSE
+            v_cost := v_cost_per_unit * v_pages;
+        END IF;
+
+        -- Insert into task_invoices
+        INSERT INTO task_invoices (task_id, invoice_id, usage_type, pages, cost, created_at)
+        VALUES (v_task_id, v_invoice_id, v_usage_type, v_pages, v_cost, v_created_at);
+
+        -- Update the invoice with the new amount_due and total_pages
+        UPDATE invoices
+        SET amount_due = amount_due + v_cost,
+            total_pages = total_pages + v_pages
+        WHERE invoice_id = v_invoice_id;
     END IF;
 
     RETURN NEW;

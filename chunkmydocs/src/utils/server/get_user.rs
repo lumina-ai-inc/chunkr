@@ -151,23 +151,22 @@ pub async fn get_monthly_usage_count(
     // Check user tier
     let tier_query = "SELECT tier FROM users WHERE user_id = $1";
     let user_tier: Option<String> = client.query_one(tier_query, &[&user_id]).await?.get(0);
-
     let query = r#"
-    SELECT 
-        to_char(created_at, 'YYYY-MM') AS month,
-        configuration::JSONB->>'model' AS usage_type,
-        SUM(page_count) AS total_pages
-    FROM 
-        tasks
-    WHERE 
-        user_id = $1 
-        AND configuration::JSONB->>'model' IN ('Fast', 'HighQuality', 'Segment')
-        AND status = 'Succeeded'
-    GROUP BY 
-        month, usage_type
-    ORDER BY 
-        month, usage_type;
-    "#;
+        SELECT
+            to_char(created_at, 'YYYY-MM') AS month,
+            configuration::JSONB->>'model' AS usage_type,
+            SUM(page_count) AS total_pages
+        FROM
+            tasks
+        WHERE
+            user_id = $1
+            AND status = 'Succeeded'
+        GROUP BY
+            month, usage_type
+        ORDER BY
+            month, usage_type;
+        "#;
+
     let rows = client.query(query, &[&user_id]).await?;
 
     let mut monthly_usage_map: std::collections::HashMap<String, MonthlyUsage> =
@@ -178,7 +177,7 @@ pub async fn get_monthly_usage_count(
         let usage_type: String = row.get("usage_type");
         let total_pages: i64 = row.get("total_pages");
 
-        let (cost_per_page, cost) = if user_tier.as_deref() == Some("Free") {
+        let (_, cost) = if user_tier.as_deref() == Some("Free") {
             (0.0, 0.0) // Hardcode cost per type and total cost to 0 for Free tier
         } else {
             match usage_type.as_str() {

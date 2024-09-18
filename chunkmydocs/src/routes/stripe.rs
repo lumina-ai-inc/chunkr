@@ -343,7 +343,7 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
 
     let remaining_pages_query = "
     INSERT INTO discounts (user_id, usage_type, amount)
-    SELECT user_id, usage_type, usage_limit - usage::integer AS amount
+    SELECT user_id, usage_type, usage_limit AS amount
     FROM USAGE
     WHERE user_id = $1;
     ";

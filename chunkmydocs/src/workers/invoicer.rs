@@ -155,7 +155,8 @@ pub async fn invoices_to_execute(
             "SELECT i.invoice_id, i.invoice_status, MIN(ti.created_at) as oldest_task_date
              FROM invoices i
              JOIN task_invoices ti ON i.invoice_id = ti.invoice_id
-             WHERE i.invoice_status IN ('ongoing', 'failed')
+             JOIN users u ON i.user_id = u.id
+             WHERE i.invoice_status IN ('ongoing', 'failed') AND u.tier != 'free'
              GROUP BY i.invoice_id, i.invoice_status",
             &[],
         )
