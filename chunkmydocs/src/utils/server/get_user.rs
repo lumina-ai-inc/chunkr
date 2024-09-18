@@ -62,16 +62,23 @@ pub struct InvoiceSummary {
 }
 
 #[derive(Serialize)]
-pub struct MonthlyUsageCount {
+pub struct MonthlyUsage {
     pub month: String,
+    pub total_cost: f32,
+    pub usage_details: Vec<UsageDetail>,
+}
+
+#[derive(Serialize)]
+pub struct UsageDetail {
     pub usage_type: String,
     pub count: i64,
+    pub cost: f32,
 }
 
 pub async fn get_monthly_usage_count(
     user_id: String,
     pool: &Pool,
-) -> Result<Vec<MonthlyUsageCount>, Box<dyn std::error::Error>> {
+) -> Result<Vec<MonthlyUsage>, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
     let query = r#"
@@ -91,14 +98,45 @@ pub async fn get_monthly_usage_count(
 
     let rows = client.query(query, &[&user_id]).await?;
 
-    let monthly_usage_counts: Vec<MonthlyUsageCount> = rows
-        .into_iter()
-        .map(|row| MonthlyUsageCount {
-            month: row.get("month"),
-            usage_type: row.get("usage_type"),
-            count: row.get("count"),
-        })
-        .collect();
+    let mut monthly_usage_map: std::collections::HashMap<String, MonthlyUsage> =
+        std::collections::HashMap::new();
+
+    for row in rows {
+        let month: String = row.get("month");
+        let usage_type: String = row.get("usage_type");
+        let count: i64 = row.get("count");
+
+        let cost_per_page = match usage_type.as_str() {
+            "Fast" => 0.005,
+            "HighQuality" => 0.01,
+            "Segment" => 0.01,
+            _ => 0.0,
+        };
+
+        let cost = (count as f64) * cost_per_page; // Convert count to f64 before multiplication
+
+        monthly_usage_map
+            .entry(month.clone())
+            .or_insert(MonthlyUsage {
+                month: month.clone(),
+                total_cost: 0.0,
+                usage_details: Vec::new(),
+            })
+            .total_cost += cost as f32;
+
+        monthly_usage_map
+            .get_mut(&month)
+            .unwrap()
+            .usage_details
+            .push(UsageDetail {
+                usage_type,
+                count,
+                cost: cost as f32,
+            });
+    }
+
+    let monthly_usage_counts: Vec<MonthlyUsage> =
+        monthly_usage_map.into_iter().map(|(_, v)| v).collect();
 
     Ok(monthly_usage_counts)
 }
