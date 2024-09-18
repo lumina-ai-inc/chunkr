@@ -88,7 +88,7 @@ export default function Dashboard() {
   //     (highQualityCost - highQualityDiscount * highQualityCostPerPage)
   // );
 
-  const billingAmount = monthlyUsage?.[0]?.total_cost;
+  const billingAmount = monthlyUsage?.[0]?.total_cost || 0;
   console.log(billingAmount);
 
   const billingDueDate = monthlyUsage?.[0]?.month
@@ -467,7 +467,7 @@ export default function Dashboard() {
                     weight="bold"
                     style={{ color: "hsla(180, 100%, 100%, 1)" }}
                   >
-                    ${billingAmount.toFixed(2)}
+                    ${billingAmount}
                   </Text>
                 </Flex>
               )}
@@ -515,7 +515,7 @@ export default function Dashboard() {
                         : `${highQualityDiscount} high-quality`}{" "}
                     {fastDiscount > 0 && highQualityDiscount > 0
                       ? "pages are"
-                      : "page is"}{" "}
+                      : "pages is"}{" "}
                     applied to your account for this billing period.
                   </Text>
                 </Flex>
