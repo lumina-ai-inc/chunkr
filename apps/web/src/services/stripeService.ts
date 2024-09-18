@@ -31,13 +31,9 @@ export async function createCustomerSession(accessToken: string) {
   }
 }
 
-export async function getUserInvoices(accessToken: string) {
+export async function getUserInvoices() {
   try {
-    const response = await axiosInstance.get("/api/stripe/get-user-invoices", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const response = await axiosInstance.get("/api/stripe/get-user-invoices");
     console.log("response", response.data);
     return response.data;
   } catch (error) {
