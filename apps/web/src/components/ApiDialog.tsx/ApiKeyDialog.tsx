@@ -18,7 +18,12 @@ export default function ApiKeyDialog({
     <Dialog.Root open={showApiKey} onOpenChange={setShowApiKey}>
       <Dialog.Trigger>
         <BetterButton>
-          <Text size="2" weight="medium" className="nav-item" mt="2px">
+          <Text
+            size="2"
+            weight="medium"
+            mt="2px"
+            style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+          >
             API Key
           </Text>
         </BetterButton>
