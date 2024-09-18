@@ -1,8 +1,10 @@
 use chrono::{DateTime, Utc};
+use chunkmydocs::models::server::user::InvoiceStatus;
 use chunkmydocs::utils::configs::stripe_config::Config as StripeConfig;
 use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
 use reqwest::Client as ReqwestClient;
 use serde_json::json;
+use tokio_postgres::Row;
 use uuid::Uuid;
 
 pub async fn process_daily_invoices(pool: &Pool) -> Result<(), Box<dyn std::error::Error>> {
@@ -84,6 +86,35 @@ pub async fn process_daily_invoices(pool: &Pool) -> Result<(), Box<dyn std::erro
             .await?;
     }
 
+    // Check the most recent invoice for each user and update users table
+    let recent_invoices = client
+        .query(
+            "SELECT user_id, invoice_status
+             FROM invoices
+             WHERE invoice_id IN (
+                 SELECT invoice_id
+                 FROM invoices
+                 WHERE user_id = user_id
+                 ORDER BY date_created DESC
+                 LIMIT 1
+             )",
+            &[],
+        )
+        .await?;
+
+    for row in recent_invoices {
+        let user_id: String = row.get("user_id");
+        let invoice_status: String = row.get("invoice_status");
+
+        // Update user status based on the most recent invoice status
+        client
+            .execute(
+                "UPDATE users SET invoice_status = $1 WHERE user_id = $2",
+                &[&invoice_status, &user_id],
+            )
+            .await?;
+    }
+
     Ok(())
 }
 
@@ -147,13 +178,27 @@ pub async fn create_and_send_invoice(
 
     let row = &rows[0];
     let stripe_customer_id: String = row.get("stripe_customer_id");
-    let amount_due: f64 = row.get("amount_due");
 
     // Create line items based on usage
     let mut line_items = Vec::new();
+    let mut discount_message = String::new();
     for row in &rows {
         let usage_type: String = row.get("usage_type");
         let pages: i32 = row.get("pages");
+
+        // Check for discounts
+        let discount_query = "
+            SELECT amount FROM discounts 
+            WHERE user_id = $1 AND usage_type = $2
+        ";
+        let discount_amount: Option<f64> = client
+            .query_one(
+                discount_query,
+                &[&row.get::<_, String>("user_id"), &usage_type],
+            )
+            .await
+            .ok()
+            .map(|r: Row| r.get("amount"));
 
         let (price_id, quantity) = match usage_type.as_str() {
             "Fast" => (StripeConfig::from_env()?.page_fast_price_id, pages),
@@ -162,10 +207,30 @@ pub async fn create_and_send_invoice(
             _ => return Err("Invalid usage type".into()),
         };
 
-        line_items.push(json!({
-            "price": price_id,
-            "quantity": quantity,
-        }));
+        // Apply discount if available
+        if let Some(amount) = discount_amount {
+            let discounted_price = (pages as f64 * amount).min(row.get::<_, f64>("amount_due"));
+            line_items.push(json!({
+                "price": price_id,
+                "quantity": quantity,
+            }));
+            discount_message.push_str(&format!(
+                "DISCOUNT APPLIED for USAGE TYPE: {} and {} PAGES\n",
+                usage_type, pages
+            ));
+            // Remove the discount from the discounts table
+            client
+                .execute(
+                    "DELETE FROM discounts WHERE user_id = $1 AND usage_type = $2",
+                    &[&row.get::<_, String>("user_id"), &usage_type],
+                )
+                .await?;
+        } else {
+            line_items.push(json!({
+                "price": price_id,
+                "quantity": quantity,
+            }));
+        }
     }
 
     // Create invoice in Stripe
@@ -178,6 +243,7 @@ pub async fn create_and_send_invoice(
             ("customer", stripe_customer_id.as_str()),
             ("auto_advance", "true"),
             ("collection_method", "charge_automatically"),
+            ("description", &discount_message), // Add discount message to invoice
         ])
         .send()
         .await?;

@@ -16,3 +16,17 @@ export async function createSetupIntent(accessToken: string) {
     throw error;
   }
 }
+
+export async function createCustomerSession(accessToken: string) {
+  try {
+    const response = await axiosInstance.get("/api/stripe/create-session", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data.client_secret;
+  } catch (error) {
+    console.error("Error creating customer session:", error);
+    throw error;
+  }
+}
