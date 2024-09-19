@@ -16,6 +16,6 @@ def group_by_row(ocr_result):
     return [sorted(row, key=lambda x: x[0][0][0]) for row in rows]
 
 def perform_paddle_ocr(ocr: PaddleOCR, image_path: Path) -> list:
-    result = ocr.ocr(image_path)
+    result = ocr.ocr(str(image_path))
     grouped_result = group_by_row(result[0])
     return grouped_result
