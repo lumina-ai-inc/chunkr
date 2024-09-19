@@ -28,6 +28,7 @@ use utoipa::OpenApi;
 use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session, get_user_invoices, get_invoice_detail, get_monthly_usage };
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
+use routes::usage::get_task_count;
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 fn run_migrations(url: &str) {
@@ -129,8 +130,6 @@ pub fn main() -> std::io::Result<()> {
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check))
-
-                .route("/stripe/webhook", web::post().to(stripe_webhook))
                 .service(
                     SwaggerUi::new("/swagger-ui/{_:.*}").url("/docs/openapi.json", ApiDoc::openapi()),
                 );
@@ -144,13 +143,19 @@ pub fn main() -> std::io::Result<()> {
                 .route("/tasks", web::get().to(get_tasks_status))
                 .route("/usage", web::get().to(get_usage))
                 .route("/usage/monthly", web::get().to(get_monthly_usage))
-                .route(
-                    "/stripe/create-setup-intent",
-                    web::get().to(create_setup_intent)
-                )
-                .route("/stripe/create-session", web::get().to(create_stripe_session))
-                .route("/stripe/invoices", web::get().to(get_user_invoices))
-                .route("/stripe/invoice/{invoice_id}", web::get().to(get_invoice_detail));
+                .route("/usage/tasks", web::get().to(get_task_count));
+
+            if std::env::var("STRIPE").is_ok() {
+                app = app.route("/stripe/webhook", web::post().to(stripe_webhook));
+                api_scope = api_scope
+                    .route(
+                        "/stripe/create-setup-intent",
+                        web::get().to(create_setup_intent)
+                    )
+                    .route("/stripe/create-session", web::get().to(create_stripe_session))
+                    .route("/stripe/invoices", web::get().to(get_user_invoices))
+                    .route("/stripe/invoice/{invoice_id}", web::get().to(get_invoice_detail));
+            }
                 
             
 
