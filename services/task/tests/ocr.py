@@ -42,7 +42,7 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     start_time = time.time()
 
     # Send POST request to the OCR service
-    response = requests.post(f"{service_url}/paddle_ocr_batch", files=files)
+    response = requests.post(f"{service_url}/paddle_ocr_raw", files=files)
 
     time_taken = time.time() - start_time
 
