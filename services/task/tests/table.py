@@ -35,7 +35,9 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
             json.dump(results, f, indent=2)
         save_structure_res(results, "./output",
                            os.path.basename(image_path).split('.')[0])
-        font_path = 'fonts/simfang.ttf'  
+        for line in results:
+            line.pop('img')
+        font_path = 'fonts/simfang.ttf'
         image = Image.open(image_path).convert('RGB')
         im_show = draw_structure_result(image, results, font_path=font_path)
         im_show = Image.fromarray(im_show)
