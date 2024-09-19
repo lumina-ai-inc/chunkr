@@ -37,14 +37,14 @@
   padding: 16px;
   border-radius: 8px;
   width: 50%;
-  outline: 1px solid hsla(180, 100%, 100%, 0.15);
+  outline: 1px solid hsla(180, 100%, 100%, 0.12);
   color: hsl(0, 0%, 100%);
 }
 
 .toggle:hover {
   background: hsl(0, 0%, 100%, 0.8);
   color: hsl(0, 0%, 100%, 0.9);
-  outline: 1px solid hsla(180, 100%, 100%, 0.15);
+  outline: 1px solid hsla(180, 100%, 100%, 0.12);
 }
 
 .toggle:hover .toggle-icon {

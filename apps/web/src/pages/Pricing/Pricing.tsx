@@ -65,41 +65,8 @@ export default function Pricing() {
                     }}
                   >
                     Flexible plans for every stage of your journey. From solo
-                    hackers to large-scale enterprises.
+                    developers to large-scale enterprises.
                   </Text>
-                  {/* <Flex direction="row" gap="4" py="4px" align="center" mt="1">
-                    <Text
-                      size="4"
-                      weight="medium"
-                      style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
-                    >
-                      Metered API
-                    </Text>
-                    <Separator
-                      size="2"
-                      orientation="vertical"
-                      style={{ backgroundColor: "#FFFFFF" }}
-                    />
-                    <Text
-                      size="4"
-                      weight="medium"
-                      style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
-                    >
-                      Managed Instance
-                    </Text>
-                    <Separator
-                      size="2"
-                      orientation="vertical"
-                      style={{ backgroundColor: "#FFFFFF" }}
-                    />
-                    <Text
-                      size="4"
-                      weight="medium"
-                      style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
-                    >
-                      Self-hosted
-                    </Text>
-                  </Flex> */}
                 </Flex>
               </Flex>
               <Flex className="pricing-cards-container">
