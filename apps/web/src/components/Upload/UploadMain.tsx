@@ -300,7 +300,7 @@ export default function UploadMain({
               </Flex>
             </Flex>
           </Flex>
-          <Flex direction="row" width="100%" mt="40px" pr="40px">
+          <Flex direction="row" width="100%" mt="40px">
             <Flex
               direction="column"
               height="72px"

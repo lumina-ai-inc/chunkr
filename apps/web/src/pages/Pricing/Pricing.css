@@ -70,7 +70,7 @@
 }
 
 .text-container {
-  max-width: 742px;
+  max-width: 642px;
 }
 
 .pricing-title {
@@ -96,11 +96,6 @@
 }
 
 @media (max-width: 1236px) {
-  .pricing-title {
-    font-size: 56px !important;
-    line-height: 72px !important;
-    max-width: 400px !important;
-  }
   .text-container {
     gap: 24px;
   }
@@ -137,11 +132,6 @@
     margin-top: 128px;
     padding-left: 24px;
     padding-right: 24px;
-  }
-
-  .pricing-title {
-    font-size: 52px !important;
-    line-height: 64px !important;
   }
 }
 

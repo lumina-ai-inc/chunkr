@@ -74,7 +74,7 @@ const Home = () => {
                     className="hero-title"
                     mb="24px"
                   >
-                    Open Source Segmentation
+                    Open Source Data Ingestion
                   </Text>
                   <Text
                     className="white"
@@ -86,8 +86,8 @@ const Home = () => {
                       marginBottom: "12px",
                     }}
                   >
-                    API service for document layout analysis and chunking to
-                    convert PDFs into RAG/LLM-ready data.
+                    API service for document layout analysis, OCR and chunking
+                    to convert PDFs into RAG/LLM-ready data.
                   </Text>
 
                   <Flex direction="row" gap="24px" mb="40px">
