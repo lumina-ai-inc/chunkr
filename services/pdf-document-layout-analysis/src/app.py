@@ -20,9 +20,9 @@ app = FastAPI()
 def readiness():
     return {"status": "ready"}
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+# @app.get("/")
+# def read_root():
+#     return {"message": "Hello, World!"}
 
 # @app.get("/")
 # async def info():

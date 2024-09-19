@@ -59,14 +59,14 @@
     to bottom,
     rgba(2, 8, 9, 0) 0%,
     rgba(2, 8, 9, 0.25) 50%,
-    rgba(2, 8, 9, 0.8) 80%,
+    rgba(2, 8, 9, 0.5) 80%,
     #020809 100%
   );
   z-index: 1;
 }
 
 .hero-container {
-  margin-top: 168px;
+  margin-top: 152px;
   padding-left: 24px;
   padding-right: 24px;
   width: 100%;
@@ -107,7 +107,7 @@
 }
 
 .text-container {
-  max-width: 642px;
+  max-width: 742px;
 }
 
 .module-container {

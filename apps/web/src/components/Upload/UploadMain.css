@@ -7,20 +7,24 @@
 .toggle {
   display: flex;
   width: 50%;
-  background-color: hsl(0, 0%, 100%, 0.1);
   padding: 16px;
-  border-radius: 4px;
+  border-radius: 8px;
+  color: hsl(0, 0%, 100%, 0.6);
+  cursor: pointer;
+  outline: 1px solid hsla(180, 100%, 100%, 0);
+  transition:
+    color 0.2s ease-in-out,
+    outline 0.2s ease-in-out;
+}
+
+.toggle-container {
+  background-color: hsl(0, 0%, 100%, 0.1);
+  border-radius: 8px;
   /* border: 2px solid #fff; */
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(24px);
-  border: 1px solid hsla(0, 0%, 100%, 0.1);
-  color: hsl(0, 0%, 100%, 0.8);
-  cursor: pointer;
-  transition:
-    background 0.2s ease-in-out,
-    color 0.2s ease-in-out;
 }
 
 .toggle-icon {
@@ -31,15 +35,16 @@
 .toggle-active {
   display: flex;
   padding: 16px;
-  border-radius: 4px;
+  border-radius: 8px;
   width: 50%;
-  border: 1px solid hsla(0, 0%, 100%, 0.7);
+  outline: 1px solid hsla(180, 100%, 100%, 0.15);
   color: hsl(0, 0%, 100%);
 }
 
 .toggle:hover {
   background: hsl(0, 0%, 100%, 0.8);
   color: hsl(0, 0%, 100%, 0.9);
+  outline: 1px solid hsla(180, 100%, 100%, 0.15);
 }
 
 .toggle:hover .toggle-icon {
@@ -60,10 +65,20 @@
     to bottom,
     rgba(2, 8, 9, 0) 0%,
     rgba(2, 8, 9, 0.6) 50%,
-    rgba(2, 8, 9, 0.8) 80%,
-    #020809 100%
+    rgba(2, 8, 9, 0.6) 95%,
+    rgba(2, 8, 9, 0.6) 100%
   );
   z-index: 1;
+}
+
+.toggle-active .card-gradient-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 8, 9, 0) 0%,
+    rgba(2, 8, 9, 0.3) 50%,
+    rgba(2, 8, 9, 0.4) 75%,
+    rgba(2, 8, 9, 0.5) 100%
+  );
 }
 
 .card-image {
@@ -86,9 +101,29 @@
     to bottom,
     rgba(2, 8, 9, 0) 0%,
     rgba(2, 8, 9, 0.3) 50%,
-    rgba(2, 8, 9, 0.8) 80%,
-    #020809 100%
+    rgba(2, 8, 9, 0.6) 80%,
+    rgba(2, 8, 9, 0.7) 100%
   );
+}
+
+.run {
+  background: hsl(0, 0%, 100%, 0.1);
+  color: hsl(0, 0%, 100%, 0.6);
+  width: 50%;
+  transition:
+    background 0.2s ease-in-out,
+    color 0.2s ease-in-out;
+}
+
+.run-active {
+  background: hsl(0, 0%, 100%, 0.9);
+  color: #020809;
+  width: 50%;
+  transition: background 0.2s ease-in-out;
+}
+
+.run-active:hover {
+  background: hsl(0, 0%, 100%);
 }
 
 @media (max-width: 718px) {

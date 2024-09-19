@@ -75,11 +75,6 @@ pub async fn create_extraction_task(
     let configuration = Configuration {
         model: form.model.into_inner(),
         target_chunk_length: form.target_chunk_length.map(|t| t.into_inner()),
-        // table_ocr: form
-        //     .configuration
-        //     .as_ref()
-        //     .and_then(|c| c.table_ocr.clone()),
-        // LLM: form.configuration.as_ref().and_then(|c| c.LLM.clone()),
     };
 
     let result = create_task(pool, s3_client, file_data, &user_info, &configuration).await;
@@ -92,8 +87,13 @@ pub async fn create_extraction_task(
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
-            eprintln!("Error creating task: {:?}", e);
-            Ok(HttpResponse::InternalServerError().body("Failed to create task"))
+            let error_message = e.to_string();
+            if error_message.contains("Usage limit exceeded") {
+                Ok(HttpResponse::TooManyRequests().body("Usage limit exceeded"))
+            } else {
+                eprintln!("Error creating task: {:?}", e);
+                Ok(HttpResponse::InternalServerError().body("Failed to create task"))
+            }
         }
     }
 }

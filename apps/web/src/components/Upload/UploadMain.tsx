@@ -96,7 +96,7 @@ export default function UploadMain({
   }
 
   return (
-    <Flex direction="column" width="100%" align="center">
+    <Flex direction="column" width="100%">
       <Upload
         onFileUpload={handleFileUpload}
         onFileRemove={handleFileRemove}
@@ -107,17 +107,54 @@ export default function UploadMain({
       {isAuthenticated && (
         <>
           <Flex
+            className="model-title-container"
+            align="center"
+            direction="row"
+            mt="40px"
+            gap="4"
+            width="100%"
+          >
+            <Text
+              size="4"
+              weight="bold"
+              style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+            >
+              SELECT PIPELINE
+            </Text>
+            <Flex
+              direction="row"
+              gap="2"
+              style={{
+                padding: "4px 8px",
+                backgroundColor: "hsla(180, 100%, 100%)",
+                borderRadius: "4px",
+              }}
+            >
+              {model === Model.HighQuality && (
+                <Text size="2" weight="bold" style={{ opacity: 0.9 }}>
+                  HIGH QUALITY
+                </Text>
+              )}
+              {model === Model.Fast && (
+                <Text size="2" weight="bold" style={{ opacity: 0.9 }}>
+                  FAST
+                </Text>
+              )}
+            </Flex>
+          </Flex>
+          <Flex
             direction="row"
             width="100%"
-            gap="6"
-            mt="32px"
+            gap="4"
+            mt="16px"
+            p="8px"
             className="toggle-container"
             onClick={handleModelToggle}
           >
             <Flex
               direction="column"
               height="100%"
-              minHeight="300px"
+              minHeight="224px"
               justify="end"
               className={model === Model.Fast ? "toggle-active" : "toggle"}
               style={{
@@ -168,7 +205,7 @@ export default function UploadMain({
                     />
                   </svg>
                   <Text
-                    size="7"
+                    size="6"
                     weight="bold"
                     style={{ position: "relative", zIndex: 1 }}
                   >
@@ -176,13 +213,13 @@ export default function UploadMain({
                   </Text>
                 </Flex>
 
-                <Text size="5" weight="medium" mt="3">
+                <Text size="4" weight="medium" mt="3">
                   Lightning-fast CPU processing
                 </Text>
-                <Text size="4" weight="medium" mt="2">
+                <Text size="3" weight="medium" mt="2">
                   ~10 pages per second
                 </Text>
-                <Text size="3" weight="light" style={{ opacity: 0.8 }}>
+                <Text size="2" weight="light" style={{ opacity: 0.8 }}>
                   $0.005/page | 1000 pages for free
                 </Text>
               </Flex>
@@ -191,7 +228,7 @@ export default function UploadMain({
             <Flex
               direction="column"
               height="100%"
-              minHeight="300px"
+              minHeight="224px"
               justify="end"
               className={
                 model === Model.HighQuality ? "toggle-active" : "toggle"
@@ -244,39 +281,39 @@ export default function UploadMain({
                     />
                   </svg>
                   <Text
-                    size="7"
+                    size="6"
                     weight="bold"
                     style={{ position: "relative", zIndex: 1 }}
                   >
                     High Quality
                   </Text>
                 </Flex>
-                <Text size="5" weight="medium" mt="3">
+                <Text size="4" weight="medium" mt="3">
                   Advanced GPU processing
                 </Text>
-                <Text size="4" weight="medium" mt="2">
+                <Text size="3" weight="medium" mt="2">
                   ~2 pages per second
                 </Text>
-                <Text size="3" weight="light" style={{ opacity: 0.8 }}>
+                <Text size="2" weight="light" style={{ opacity: 0.8 }}>
                   $0.02/page | 250 pages for free
                 </Text>
               </Flex>
             </Flex>
           </Flex>
-          <Flex direction="row" width="100%" mt="32px">
+          <Flex direction="row" width="100%" mt="40px" pr="40px">
             <Flex
               direction="column"
-              height="64px"
+              height="72px"
               justify="center"
               align="center"
-              className={!!file && !isLoading ? "toggle-active" : "toggle"}
+              className={!!file && !isLoading ? "run-active" : "run"}
               style={{
-                borderRadius: "4px",
+                borderRadius: "8px",
                 cursor: !!file && !isLoading ? "pointer" : "not-allowed",
               }}
               onClick={!!file && !isLoading ? handleRun : undefined}
             >
-              <Text size="5" weight="medium">
+              <Text size="5" weight="bold">
                 {isLoading ? "Uploading..." : "Run"}
               </Text>
             </Flex>

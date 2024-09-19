@@ -1,9 +1,9 @@
 use chrono::{DateTime, Utc};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
+use stripe::InvoiceStatus as StripeInvoiceStatus;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
-
 #[derive(
     Serialize,
     Deserialize,
@@ -107,6 +107,8 @@ pub enum InvoiceStatus {
     PastDue,
     Canceled,
     NoInvoice,
+    NeedsAction,
+    Executed,
 }
 
 impl ToString for InvoiceStatus {
@@ -117,6 +119,8 @@ impl ToString for InvoiceStatus {
             InvoiceStatus::PastDue => "PastDue".to_string(),
             InvoiceStatus::Canceled => "Canceled".to_string(),
             InvoiceStatus::NoInvoice => "NoInvoice".to_string(),
+            InvoiceStatus::NeedsAction => "NeedsAction".to_string(),
+            InvoiceStatus::Executed => "Executed".to_string(),
         }
     }
 }
@@ -131,6 +135,8 @@ impl std::str::FromStr for InvoiceStatus {
             "PastDue" => Ok(InvoiceStatus::PastDue),
             "Canceled" => Ok(InvoiceStatus::Canceled),
             "NoInvoice" => Ok(InvoiceStatus::NoInvoice),
+            "NeedsAction" => Ok(InvoiceStatus::NeedsAction),
+            "Executed" => Ok(InvoiceStatus::Executed),
             _ => Err(()),
         }
     }

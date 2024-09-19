@@ -10,7 +10,7 @@ use crate::utils::rrq::service::produce;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use lopdf::Document;
 use std::error::Error;
 use uuid::Uuid;
@@ -54,11 +54,10 @@ pub async fn create_task(
     let model = configuration.model.clone();
     let model_internal = model.to_internal();
     let target_chunk_length = configuration.target_chunk_length.unwrap_or(512);
-
+    let created_at = Utc::now();
     let client: Client = pool.get().await?;
     let config = Config::from_env()?;
     let expiration = config.task_expiration;
-    let created_at: DateTime<Utc> = Utc::now();
     let expiration_time: Option<DateTime<Utc>> = expiration.map(|exp| Utc::now() + exp);
     let bucket_name = config.s3_bucket;
     let ingest_batch_size = config.batch_size;
@@ -89,7 +88,7 @@ pub async fn create_task(
     match upload_to_s3(s3_client, &input_location, file.file.path()).await {
         Ok(_) => {
             let configuration_json = serde_json::to_string(configuration)?;
-            client
+            match client
                 .execute(
                     "INSERT INTO TASKS (
                     task_id, user_id, api_key, file_name, file_size, 
@@ -116,7 +115,20 @@ pub async fn create_task(
                         &message,
                     ],
                 )
-                .await?;
+                .await
+            {
+                Ok(_) => {}
+                Err(e) => {
+                    if e.to_string().contains("usage limit exceeded") {
+                        return Err(Box::new(std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            "429 Rate Limit Error: Usage limit exceeded",
+                        )));
+                    } else {
+                        return Err(Box::new(e) as Box<dyn Error>);
+                    }
+                }
+            };
 
             let extraction_payload = ExtractionPayload {
                 model: model_internal,
@@ -143,7 +155,7 @@ pub async fn create_task(
             Ok(TaskResponse {
                 task_id: task_id.clone(),
                 status: Status::Starting,
-                created_at,
+                created_at: created_at,
                 finished_at: None,
                 expires_at: expiration_time,
                 output: None,

@@ -59,7 +59,7 @@ def extract_and_annotate_file(file_path: str, model: Model, table_ocr: TableOcr 
     print(f"File annotated: {file_path}")
 
 
-def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, max_workers=8):
+def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, max_workers=4):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_dir = os.path.join(current_dir, "input")
     
@@ -91,5 +91,22 @@ if __name__ == "__main__":
     model = Model.HighQuality
     # table_ocr = TableOcr.JSON  # You can set this to None if you don't want to use table OCR
     table_ocr = None
+    import os
+    import glob
+
+    def rename_files_in_input_folder():
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        input_dir = os.path.join(current_dir, "input")
+        pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
+
+        for file_path in pdf_files:
+            directory, file_name = os.path.split(file_path)
+            name, ext = os.path.splitext(file_name)
+            new_name = name.replace('.', '_') + ext
+            new_file_path = os.path.join(directory, new_name)
+            os.rename(file_path, new_file_path)
+            print(f"Renamed: {file_name} to {new_name}")
+
+    rename_files_in_input_folder()
     process_all_files_in_input_folder(model, table_ocr)
     print("All files processed and annotated.")

@@ -1,26 +1,11 @@
 import { Flex, Text, Separator, ScrollArea } from "@radix-ui/themes";
-import { keyframes } from "@emotion/react";
-
 import "./Pricing.css";
-
-import styled from "@emotion/styled";
 import Header from "../../components/Header/Header";
 import Calculator from "../../components/PriceCalculator/Calculator";
-import PricingCard from "../../components/PricingCard";
+import PricingCard from "../../components/PricingCard/PricingCard";
 import Footer from "../../components/Footer/Footer";
-
-const drawLine = keyframes`
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-`;
-
-const AnimatedSeparator = styled(Separator)`
-  animation: ${drawLine} 1s ease-out forwards;
-`;
+import pricingImageWebp from "../../assets/pricing/pricing-image.webp";
+import pricingImageJpg from "../../assets/pricing/pricing-image-85.jpg";
 
 export default function Pricing() {
   return (
@@ -33,121 +18,90 @@ export default function Pricing() {
       }}
       className="pulsing-background"
     >
-      <ScrollArea>
-        <div className="pricing-main-container">
-          <div className="pricing-image-container">
-            <img
-              src="src/assets/pricing-image.png"
-              alt="pricing hero"
-              className="pricing-hero-image"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-            <div className="pricing-gradient-overlay"></div>
-          </div>
-          <div className="pricing-content-container">
-            <Header />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                px="4"
-                className="pricing-container"
-              >
-                <Text size="9" weight="bold" className="cyan-1">
-                  Pricing
-                </Text>
-                <AnimatedSeparator
-                  size="2"
+      <ScrollArea type="scroll">
+        <div>
+          <div className="pricing-main-container">
+            <div className="pricing-image-container">
+              <picture>
+                <source srcSet={pricingImageWebp} type="image/webp" />
+                <img
+                  src={pricingImageJpg}
+                  alt="pricing hero"
+                  className="pricing-hero-image"
                   style={{
-                    backgroundColor: "var(--cyan-4)",
                     width: "100%",
-                    marginTop: "24px",
-                    height: "3px",
-                    paddingLeft: "24px",
-                    paddingRight: "24px",
+                    height: "100%",
+                    objectFit: "cover",
                   }}
                 />
-                <Text
-                  size="6"
-                  weight="medium"
-                  className="cyan-2"
-                  style={{
-                    marginTop: "16px",
-                    padding: "0 12px",
-                    textAlign: "center",
-                    textWrap: "balance",
-                  }}
-                >
-                  Flexible pricing for every stage of your journey
-                </Text>
-                <Flex direction="row" gap="4" py="4px" align="center" mt="1">
+              </picture>
+              <div className="pricing-gradient-overlay"></div>
+            </div>
+            <div className="pricing-content-container">
+              <Flex className="header-container">
+                <div style={{ maxWidth: "1312px", width: "100%" }}>
+                  <Header px="0px" />
+                </div>
+              </Flex>
+              <Flex className="pricing-hero-container">
+                <Flex className="text-container" direction="column">
                   <Text
-                    size="4"
-                    weight="medium"
-                    className="cyan-4"
-                    mt="16px"
-                    style={{ textAlign: "center" }}
+                    size="9"
+                    weight="bold"
+                    trim="both"
+                    className="pricing-title"
+                    mb="24px"
                   >
-                    Metered API
+                    Pricing
                   </Text>
-                  <Separator
-                    size="2"
-                    orientation="vertical"
+                  <Text
+                    className="white"
+                    size="5"
+                    weight="medium"
+                    mb="40px"
                     style={{
-                      backgroundColor: "var(--cyan-5)",
-                      marginTop: "16px",
+                      maxWidth: "542px",
+                      lineHeight: "32px",
                     }}
-                  />
-                  <Text
-                    size="4"
-                    weight="medium"
-                    className="cyan-4"
-                    mt="16px"
-                    style={{ textAlign: "center" }}
                   >
-                    Managed Instance
+                    Flexible plans for every stage of your journey
                   </Text>
-                  <Separator
-                    size="2"
-                    orientation="vertical"
-                    style={{
-                      backgroundColor: "var(--cyan-5)",
-                      marginTop: "16px",
-                    }}
-                  />
-                  <Text
-                    size="4"
-                    weight="medium"
-                    className="cyan-4"
-                    mt="16px"
-                    style={{ textAlign: "center" }}
-                  >
-                    Self-hosted
-                  </Text>
+                  <Flex direction="row" gap="4" py="4px" align="center" mt="1">
+                    <Text
+                      size="4"
+                      weight="medium"
+                      style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
+                    >
+                      Metered API
+                    </Text>
+                    <Separator
+                      size="2"
+                      orientation="vertical"
+                      style={{ backgroundColor: "#FFFFFF" }}
+                    />
+                    <Text
+                      size="4"
+                      weight="medium"
+                      style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
+                    >
+                      Managed Instance
+                    </Text>
+                    <Separator
+                      size="2"
+                      orientation="vertical"
+                      style={{ backgroundColor: "#FFFFFF" }}
+                    />
+                    <Text
+                      size="4"
+                      weight="medium"
+                      style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
+                    >
+                      Self-hosted
+                    </Text>
+                  </Flex>
                 </Flex>
               </Flex>
-              <Flex
-                direction="row"
-                px="80px"
-                mt="72px"
-                gap="64px"
-                width="100%"
-                wrap="wrap"
-                className="pricing-card-container"
-              >
+              <Flex className="pricing-cards-container">
                 <Flex
                   direction="column"
                   gap="8"
@@ -161,31 +115,17 @@ export default function Pricing() {
                   style={{ flex: 1, width: "100%" }}
                 >
                   <PricingCard
-                    tier="Managed Instance"
-                    price="High Volume"
-                    text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-                    active={false}
-                    enterprise={true}
-                    auth={true}
+                    tier="High volume discounts"
+                    title="Managed Instance"
+                    text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                   />
                   <PricingCard
                     tier="Self-hosted"
-                    price="License"
-                    text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-                    active={false}
-                    enterprise={true}
-                    auth={true}
+                    title="Flat monthly rate"
+                    text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                   />
                 </Flex>
               </Flex>
-              {/* <Flex
-                width="100%"
-                mt="128px"
-                px="80px"
-                className="pricing-table-container"
-              >
-                <PricingTable />
-              </Flex> */}
             </div>
           </div>
         </div>

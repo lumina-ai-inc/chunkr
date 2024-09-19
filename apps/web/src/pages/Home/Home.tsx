@@ -58,6 +58,15 @@ const Home = () => {
               </Flex>
               <Flex className="hero-container">
                 <Flex className="text-container" direction="column">
+                  {/* <Flex direction="row" gap="16px">
+                    <Text
+                      size="3"
+                      weight="bold"
+                      style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+                    >
+                      Back by Y Combinator
+                    </Text>
+                  </Flex> */}
                   <Text
                     size="9"
                     weight="bold"
@@ -65,13 +74,13 @@ const Home = () => {
                     className="hero-title"
                     mb="24px"
                   >
-                    Open Source Data Ingestion
+                    Open Source Segmentation
                   </Text>
                   <Text
                     className="white"
                     size="5"
                     weight="medium"
-                    mb="24px"
+                    mb="40px"
                     style={{
                       maxWidth: "542px",
                       lineHeight: "32px",
@@ -82,8 +91,9 @@ const Home = () => {
                   </Text>
                   <Flex
                     className="signup-container"
-                    direction="column"
+                    direction="row"
                     gap="16px"
+                    align="center"
                   >
                     <Flex
                       direction="row"
@@ -91,9 +101,15 @@ const Home = () => {
                       className="signup-button"
                       onClick={handleGetStarted}
                     >
-                      <Text size="3" weight="bold">
-                        Get started for free
-                      </Text>
+                      {isAuthenticated ? (
+                        <Text size="3" weight="bold">
+                          Go to dashboard
+                        </Text>
+                      ) : (
+                        <Text size="3" weight="bold">
+                          Get started for free
+                        </Text>
+                      )}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -115,6 +131,15 @@ const Home = () => {
                         />
                       </svg>
                     </Flex>
+                    {!isAuthenticated && (
+                      <Text
+                        size="2"
+                        weight="medium"
+                        style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+                      >
+                        1500 pages in credits
+                      </Text>
+                    )}
                   </Flex>
                 </Flex>
                 <Flex className="module-container" direction="column" gap="4">
