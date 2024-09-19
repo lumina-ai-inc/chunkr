@@ -7,7 +7,7 @@ from paddleocr import PaddleOCR
 
 from ocr import perform_paddle_ocr
 from utils import check_imagemagick_installed
-from converters import convert_to_img
+from converters import convert_to_img, crop_image
 
 
 @bentoml.service(
@@ -28,6 +28,18 @@ class Image:
     ) -> Dict[int, str]:
         return convert_to_img(file, density, extension)
 
+    @bentoml.api
+    def crop_image(
+        self,
+        file: Path,
+        bbox: Dict[str, int]
+    ) -> Path:
+        height = bbox.get('height', 0)
+        left = bbox.get('left', 0)
+        top = bbox.get('top', 0)
+        width = bbox.get('width', 0)
+        return crop_image(file, left, top, left + width, top + height)
+
 
 @bentoml.service(
     name="ocr",
@@ -36,11 +48,11 @@ class Image:
 )
 class OCR:
     def __init__(self) -> None:
-        self.ocr = PaddleOCR(use_angle_cls=True, lang="en", ocr_order_method="tb-xy")
+        self.ocr = PaddleOCR(use_angle_cls=True, lang="en", ocr_order_method="tb-xy", return_word_box=True)
 
     @bentoml.api 
     def paddle(self, file: Path) -> list:
-        return perform_paddle_ocr(self.ocr, file)
+        return self.ocr.ocr(str(file))
 
 
 @bentoml.service(

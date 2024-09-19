@@ -51,8 +51,8 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     # Check if the request was successful
     if response.status_code == 200:
         results = response.json()
-        # with open("output/results.json", "w") as f:
-        #     json.dump(results, f)
+        with open("output/results_2.json", "w") as f:
+            json.dump(results, f)
         save_ocr(image_path, "output", results[0], "font/simfang.ttf")
         return results
     else:
