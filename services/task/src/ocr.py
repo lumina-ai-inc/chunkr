@@ -72,12 +72,16 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> OCRRespons
     return response
 
 def latex_ocr(model: LatexOCR, image_path: Path) -> str:
-    with open(str(image_path), "rb") as f:
-        data = f.read()
+    try:
+        with open(str(image_path), "rb") as f:
+            data = f.read()
 
-    res, elapse = model(data)
+        res, elapse = model(data)
 
-    print(res)
-    print(elapse)
+        print(res)
+        print(elapse)
 
-    return res
+        return res
+    except Exception as e:
+        print(e)
+        return ""
