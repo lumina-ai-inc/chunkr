@@ -195,3 +195,27 @@
 .fade-in {
   animation: fadeIn 0.3s ease-in;
 }
+
+.pricing-card-container {
+  width: 100%;
+}
+
+.checkpoints-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.checkpoint-item {
+  flex: 0 0 calc(50% - 6px);
+}
+
+@media (max-width: 768px) {
+  .checkpoints-container {
+    flex-direction: column;
+  }
+
+  .checkpoint-item {
+    flex: 1 0 100%;
+  }
+}
