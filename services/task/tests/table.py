@@ -4,7 +4,26 @@ import multiprocessing
 import time
 import json
 from typing import List, Tuple
+from PIL import Image, ImageDraw, ImageFont
 
+def draw_boxes_on_image(image_path: str, bounding_boxes: List[dict], output_path: str):
+    """
+    Draw bounding boxes on the image and tag them with an index.
+
+    :param image_path: Path to the input image
+    :param bounding_boxes: List of bounding box dictionaries
+    :param output_path: Path to save the output image
+    """
+    with Image.open(image_path) as img:
+        draw = ImageDraw.Draw(img)
+        font = ImageFont.load_default()
+
+        for idx, box in enumerate(bounding_boxes):
+            coords = box['top_left'] + box['top_right'] + box['bottom_right'] + box['bottom_left']
+            draw.polygon(coords, outline="red")
+            draw.text((coords[0], coords[1]), str(idx), font=font, fill="red")
+
+        img.save(output_path)
 
 def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
     """
@@ -25,7 +44,6 @@ def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
 
     if response.status_code == 200:
         results = response.json()
-        print(results)
         base_name = os.path.splitext(os.path.basename(image_path))[0]
 
         # Save JSON result
@@ -71,7 +89,10 @@ def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
         </head>
         """
         with open(html_path, "w") as f:
-            f.write(html_head + results[0]['res']['html'])
+            f.write(html_head + results['html'])
+            
+        output_image_path = os.path.join(output_dir, f"{base_name}_boxes.png")
+        draw_boxes_on_image(image_path, results['cell_bbox'], output_image_path)
 
         return results
     else:
