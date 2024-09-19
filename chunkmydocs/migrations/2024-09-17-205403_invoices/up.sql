@@ -17,14 +17,19 @@ DECLARE
     v_cost_per_unit FLOAT;
     v_cost FLOAT;
     v_config JSONB;
+    v_current_month INTEGER;
+    v_invoice_month INTEGER;
 BEGIN
-    -- Only proceed if the task status is 'completed'
+    -- Proceed for all users regardless of tier
+    -- Only proceed if the task status is 'Succeeded'
     IF NEW.status = 'Succeeded' THEN
         v_user_id := NEW.user_id;
         v_task_id := NEW.task_id;
         v_pages := NEW.page_count;
-        v_segment_count := NEW.segment_count; -- Added segment count
+        v_segment_count := NEW.segment_count;
         v_config := NEW.configuration::JSONB;
+        v_created_at := NEW.created_at;
+        v_current_month := EXTRACT(MONTH FROM v_created_at);
 
         -- Update for Fast, HighQuality, or Segment
         IF v_config->>'model' = 'Fast' THEN
@@ -36,19 +41,19 @@ BEGIN
         ELSE
             RAISE EXCEPTION 'Unknown model type in configuration';
         END IF;
-        v_created_at := NEW.created_at;
 
-        -- Check if there's an ongoing invoice for this user
-        SELECT invoice_id INTO v_invoice_id
+        -- Check if there's an ongoing invoice for this user from the current month
+        SELECT invoice_id, EXTRACT(MONTH FROM date_created) INTO v_invoice_id, v_invoice_month
         FROM invoices
-        WHERE user_id = v_user_id AND invoice_status = 'ongoing'
+        WHERE user_id = v_user_id AND invoice_status = 'Ongoing'
+        ORDER BY date_created DESC
         LIMIT 1;
 
-        -- If no ongoing invoice, create a new one
-        IF NOT FOUND THEN
+        -- If no ongoing invoice or the last ongoing invoice is from a previous month, create a new one
+        IF NOT FOUND OR v_invoice_month != v_current_month THEN
             v_invoice_id := uuid_generate_v4()::TEXT;
-            INSERT INTO invoices (invoice_id, user_id, tasks, invoice_status, amount_due, total_pages)
-            VALUES (v_invoice_id, v_user_id, ARRAY[v_task_id], 'ongoing', 0, 0);
+            INSERT INTO invoices (invoice_id, user_id, tasks, invoice_status, amount_due, total_pages, date_created)
+            VALUES (v_invoice_id, v_user_id, ARRAY[v_task_id], 'Ongoing', 0, 0, v_created_at);
         ELSE
             -- Append the task_id to the existing invoice's tasks array
             UPDATE invoices
@@ -63,7 +68,7 @@ BEGIN
 
         -- Calculate the cost
         IF v_usage_type = 'Segment' THEN
-            v_cost := v_cost_per_unit * v_segment_count; -- Use segment count for cost calculation
+            v_cost := v_cost_per_unit * v_segment_count;
         ELSE
             v_cost := v_cost_per_unit * v_pages;
         END IF;
@@ -77,14 +82,12 @@ BEGIN
         SET amount_due = amount_due + v_cost,
             total_pages = total_pages + v_pages
         WHERE invoice_id = v_invoice_id;
-
     END IF;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger to execute the handle_task_invoice function after a task is updated to 'completed'
 CREATE OR REPLACE TRIGGER trg_handle_task_invoice
 AFTER UPDATE OF status ON TASKS
 FOR EACH ROW

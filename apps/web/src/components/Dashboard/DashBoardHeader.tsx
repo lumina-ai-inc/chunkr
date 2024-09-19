@@ -94,7 +94,7 @@ export default function DashBoardHeader(user: User) {
             </Text>
           </BetterButton>
         )}
-        {user?.tier !== "Free" && (
+        {user?.tier === "PayAsYouGo" && (
           <BetterButton padding="4px 12px" onClick={handleAddPaymentMethod}>
             <Text
               size="1"

@@ -18,6 +18,7 @@ export default function SetupForm({
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
 
   useEffect(() => {
     if (stripe && elements) {
@@ -45,6 +46,7 @@ export default function SetupForm({
       if (paymentElement) {
         paymentElement.on("change", (event) => {
           console.log("Payment Element change event:", event);
+          setHasPaymentMethod(!!event.value?.payment_method);
         });
       }
     }
@@ -77,15 +79,17 @@ export default function SetupForm({
     <form onSubmit={handleSubmit}>
       <Flex direction="column" gap="4">
         <PaymentElement id="payment-element" />
-        <BetterButton padding="4px 10px">
-          <Text
-            size="1"
-            weight="medium"
-            style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
-          >
-            {isLoading ? "Processing..." : "Add Payment Method"}
-          </Text>
-        </BetterButton>
+        {!hasPaymentMethod && (
+          <BetterButton padding="4px 10px">
+            <Text
+              size="1"
+              weight="medium"
+              style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+            >
+              {isLoading ? "Processing..." : "Add Payment Method"}
+            </Text>
+          </BetterButton>
+        )}
         {errorMessage && (
           <Text size="2" style={{ color: "var(--red-9)" }}>
             {errorMessage}

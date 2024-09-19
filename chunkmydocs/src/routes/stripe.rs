@@ -1,14 +1,16 @@
 use crate::models::auth::auth::UserInfo;
-use crate::models::server::user::{Tier, UsageType};
+use crate::models::server::user::{InvoiceStatus, Tier, UsageType};
 use crate::utils::configs::stripe_config::Config as StripeConfig;
 use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::get_user::get_monthly_usage_count;
 use crate::utils::server::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe::{
     create_customer_session, create_stripe_customer, create_stripe_setup_intent,
+    update_invoice_status,
 };
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use serde::Serialize;
+use stripe::InvoiceStatus as StripeInvoiceStatus;
 #[derive(Serialize)]
 pub struct SetupIntentResponse {
     customer_id: String,
@@ -228,21 +230,70 @@ pub async fn stripe_webhook(
         stripe::EventType::InvoicePaid => {
             if let stripe::EventObject::Invoice(invoice) = event.data.object {
                 println!("Invoice Paid: {:?}", invoice);
+                let invoice_id = invoice.id.clone();
+                let status: Option<StripeInvoiceStatus> = invoice.status.clone();
+                let status_str = match status {
+                    Some(StripeInvoiceStatus::Paid) => InvoiceStatus::Paid.to_string(),
+                    Some(StripeInvoiceStatus::Open) => InvoiceStatus::Ongoing.to_string(),
+                    Some(StripeInvoiceStatus::Void) => InvoiceStatus::Canceled.to_string(),
+                    Some(StripeInvoiceStatus::Uncollectible) => {
+                        InvoiceStatus::NoInvoice.to_string()
+                    }
+                    _ => {
+                        return Err(
+                            actix_web::error::ErrorBadRequest("Invalid invoice status").into()
+                        )
+                    }
+                };
+                update_invoice_status(&invoice_id.to_string(), &status_str, &pool).await?;
             }
         }
         stripe::EventType::InvoicePaymentActionRequired => {
             if let stripe::EventObject::Invoice(invoice) = event.data.object {
                 println!("Invoice Payment Action Required: {:?}", invoice);
+                let invoice_id = invoice.id.clone();
+                let status: Option<StripeInvoiceStatus> = invoice.status.clone();
+                let status_str = match status {
+                    Some(StripeInvoiceStatus::Open) => InvoiceStatus::NeedsAction.to_string(),
+                    Some(StripeInvoiceStatus::Uncollectible) => {
+                        InvoiceStatus::NeedsAction.to_string()
+                    }
+                    _ => {
+                        return Err(
+                            actix_web::error::ErrorBadRequest("Invalid invoice status").into()
+                        )
+                    }
+                };
+                update_invoice_status(&invoice_id.to_string(), &status_str, &pool).await?;
             }
         }
         stripe::EventType::InvoicePaymentFailed => {
             if let stripe::EventObject::Invoice(invoice) = event.data.object {
                 println!("Invoice Payment Failed: {:?}", invoice);
+                let invoice_id = invoice.id.clone();
+                let status_str = InvoiceStatus::PastDue.to_string();
+                update_invoice_status(&invoice_id.to_string(), &status_str, &pool).await?;
             }
         }
         stripe::EventType::InvoicePaymentSucceeded => {
             if let stripe::EventObject::Invoice(invoice) = event.data.object {
                 println!("Invoice Payment Succeeded: {:?}", invoice);
+                let invoice_id = invoice.id.clone();
+                let status: Option<StripeInvoiceStatus> = invoice.status.clone();
+                let status_str = match status {
+                    Some(StripeInvoiceStatus::Paid) => InvoiceStatus::Paid.to_string(),
+                    Some(StripeInvoiceStatus::Open) => InvoiceStatus::Ongoing.to_string(),
+                    Some(StripeInvoiceStatus::Void) => InvoiceStatus::Canceled.to_string(),
+                    Some(StripeInvoiceStatus::Uncollectible) => {
+                        InvoiceStatus::NoInvoice.to_string()
+                    }
+                    _ => {
+                        return Err(
+                            actix_web::error::ErrorBadRequest("Invalid invoice status").into()
+                        )
+                    }
+                };
+                update_invoice_status(&invoice_id.to_string(), &status_str, &pool).await?;
             }
         } //update USERS and INVOICES table
         _ => {
@@ -292,9 +343,9 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
 
     let remaining_pages_query = "
     INSERT INTO discounts (user_id, usage_type, amount)
-    SELECT user_id, usage_type, usage_limit - usage::integer AS amount
+    SELECT user_id, usage_type, usage_limit AS amount
     FROM USAGE
-    WHERE user_id = $1
+    WHERE user_id = $1;
     ";
     client
         .execute(remaining_pages_query, &[&user_id])
@@ -307,20 +358,17 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
     // Update USAGE table with new usage limits for PayAsYouGo tier
     let update_fast_usage_query = "
         UPDATE USAGE
-        SET usage_limit = $1::integer,
-        usage = 0
+        SET usage_limit = $1::integer
         WHERE user_id = $2 AND usage_type = 'Fast';
     ";
     let update_high_quality_usage_query = "
         UPDATE USAGE
-        SET usage_limit = $1::integer,
-        usage = 0
+        SET usage_limit = $1::integer
         WHERE user_id = $2 AND usage_type = 'HighQuality';
     ";
     let update_segment_usage_query = "
         UPDATE USAGE
-        SET usage_limit = $1::integer,
-        usage = 0
+        SET usage_limit = $1::integer
         WHERE user_id = $2 AND usage_type = 'Segment';
     ";
 

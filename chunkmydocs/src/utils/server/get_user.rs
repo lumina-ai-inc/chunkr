@@ -148,20 +148,24 @@ pub async fn get_monthly_usage_count(
 ) -> Result<Vec<MonthlyUsage>, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
+    // Check user tier
+    let tier_query = "SELECT tier FROM users WHERE user_id = $1";
+    let user_tier: Option<String> = client.query_one(tier_query, &[&user_id]).await?.get(0);
     let query = r#"
-    SELECT 
-        to_char(created_at, 'YYYY-MM') AS month,
-        configuration::JSONB->>'model' AS usage_type,
-        COUNT(*) AS count
-    FROM 
-        tasks
-    WHERE 
-        user_id = $1 
-    GROUP BY 
-        month, usage_type
-    ORDER BY 
-        month, usage_type;
-    "#;
+        SELECT
+            to_char(created_at, 'YYYY-MM') AS month,
+            configuration::JSONB->>'model' AS usage_type,
+            SUM(page_count) AS total_pages
+        FROM
+            tasks
+        WHERE
+            user_id = $1
+            AND status = 'Succeeded'
+        GROUP BY
+            month, usage_type
+        ORDER BY
+            month, usage_type;
+        "#;
 
     let rows = client.query(query, &[&user_id]).await?;
 
@@ -171,16 +175,18 @@ pub async fn get_monthly_usage_count(
     for row in rows {
         let month: String = row.get("month");
         let usage_type: String = row.get("usage_type");
-        let count: i64 = row.get("count");
+        let total_pages: i64 = row.get("total_pages");
 
-        let cost_per_page = match usage_type.as_str() {
-            "Fast" => 0.005,
-            "HighQuality" => 0.01,
-            "Segment" => 0.01,
-            _ => 0.0,
+        let (_, cost) = if user_tier.as_deref() == Some("Free") {
+            (0.0, 0.0) // Hardcode cost per type and total cost to 0 for Free tier
+        } else {
+            match usage_type.as_str() {
+                "Fast" => (0.005, (total_pages as f64) * 0.005),
+                "HighQuality" => (0.01, (total_pages as f64) * 0.01),
+                "Segment" => (0.01, (total_pages as f64) * 0.01),
+                _ => (0.0, 0.0),
+            }
         };
-
-        let cost = (count as f64) * cost_per_page; // Convert count to f64 before multiplication
 
         monthly_usage_map
             .entry(month.clone())
@@ -197,7 +203,7 @@ pub async fn get_monthly_usage_count(
             .usage_details
             .push(UsageDetail {
                 usage_type,
-                count,
+                count: total_pages,
                 cost: cost as f32,
             });
     }
@@ -220,6 +226,8 @@ pub struct TaskInvoice {
 #[derive(Serialize)]
 pub struct InvoiceDetail {
     pub invoice_id: String,
+    pub stripe_invoice_id: Option<String>, // New field for Stripe invoice ID
+    pub invoice_status: Option<String>,    // New field for invoice status
     pub tasks: Vec<TaskInvoice>,
 }
 
@@ -232,6 +240,8 @@ pub async fn get_invoices(
     let query = r#"
     SELECT 
         invoice_id,
+        stripe_invoice_id, 
+        invoice_status,      
         task_id,
         usage_type,
         pages,
@@ -251,6 +261,8 @@ pub async fn get_invoices(
 
     for row in rows {
         let invoice_id: String = row.get("invoice_id");
+        let stripe_invoice_id: Option<String> = row.get("stripe_invoice_id"); // Get Stripe invoice ID
+        let invoice_status: Option<String> = row.get("invoice_status"); // Get invoice status
         let task_invoice = TaskInvoice {
             task_id: row.get("task_id"),
             usage_type: row.get("usage_type"),
@@ -265,6 +277,8 @@ pub async fn get_invoices(
         } else {
             invoices.push(InvoiceDetail {
                 invoice_id: invoice_id,
+                stripe_invoice_id, // Include Stripe invoice ID
+                invoice_status,    // Include invoice status
                 tasks: vec![task_invoice],
             });
         }
@@ -285,17 +299,19 @@ pub async fn get_invoice_information(
         usage_type,
         pages,
         cost,
-        created_at
+        created_at,
+        stripe_invoice_id,
+        invoice_status
     FROM 
         task_invoices
     WHERE 
         invoice_id = $1;
     "#;
 
-    let rows = client.query(query, &[&invoice_id]).await?;
+    let rows: Vec<tokio_postgres::Row> = client.query(query, &[&invoice_id]).await?;
 
     let tasks = rows
-        .into_iter()
+        .iter()
         .map(|row| TaskInvoice {
             task_id: row.get("task_id"),
             usage_type: row.get("usage_type"),
@@ -305,5 +321,14 @@ pub async fn get_invoice_information(
         })
         .collect();
 
-    Ok(InvoiceDetail { invoice_id, tasks })
+    let stripe_invoice_id: Option<String> =
+        rows.first().and_then(|row| row.get("stripe_invoice_id"));
+    let invoice_status: Option<String> = rows.first().and_then(|row| row.get("invoice_status"));
+
+    Ok(InvoiceDetail {
+        invoice_id,
+        stripe_invoice_id: stripe_invoice_id.clone(),
+        invoice_status: invoice_status.clone(),
+        tasks,
+    })
 }
