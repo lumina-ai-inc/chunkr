@@ -67,5 +67,5 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> TableOCRRe
             )
         )
 
-    response = TableOCRResponse(results=OCRResponse(results=ocr_result), html=html)
+    response = TableOCRResponse(results=ocr_result, html=html)
     return response

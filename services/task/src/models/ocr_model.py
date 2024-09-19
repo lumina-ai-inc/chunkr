@@ -41,7 +41,7 @@ class OCRResponse(BaseModel):
 
 
 class TableOCRResponse(BaseModel):
-    results: OCRResponse = Field(...,
+    results: List[OCRResult] = Field(...,
                                  description="List of ocr results for each cell")
     html: str = Field(..., description="HTML representation of the table")
 
