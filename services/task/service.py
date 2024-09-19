@@ -1,14 +1,14 @@
 from __future__ import annotations
 import bentoml
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 from pydantic import Field
 from paddleocr import PaddleOCR, PPStructure
 
 from src.ocr import ppocr_raw, ppocr, ppstructure_table_raw, ppstructure_table
 from src.utils import check_imagemagick_installed
 from src.converters import convert_to_img, crop_image
-from src.models.ocr_model import OCRResponse
+from src.models.ocr_model import OCRResponse, TableOCRResponse
 
 
 @bentoml.service(
@@ -67,7 +67,7 @@ class OCR:
         return ppstructure_table_raw(self.table_engine, file)
 
     @bentoml.api
-    def paddle_table(self, file: Path) -> list:
+    def paddle_table(self, file: Path) -> TableOCRResponse:
         return ppstructure_table(self.table_engine, file)
 
 
