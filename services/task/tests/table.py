@@ -30,13 +30,10 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     # Check if the request was successful
     if response.status_code == 200:
         results = response.json()
-        print(results)
         with open(f"./output/{os.path.basename(image_path).split('.')[0]}_result.json", "w") as f:
             json.dump(results, f, indent=2)
         save_structure_res(results, "./output",
                            os.path.basename(image_path).split('.')[0])
-        for line in results:
-            line.pop('img')
         font_path = 'fonts/simfang.ttf'
         image = Image.open(image_path).convert('RGB')
         im_show = draw_structure_result(image, results, font_path=font_path)
