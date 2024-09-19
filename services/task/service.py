@@ -5,7 +5,7 @@ from typing import Dict, List
 from pydantic import Field
 from paddleocr import PaddleOCR, PPStructure
 
-from src.ocr import perform_paddle_ocr
+from src.ocr import perform_paddle_ocr, ppstructure_table
 from src.utils import check_imagemagick_installed
 from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResponse
@@ -51,8 +51,8 @@ class OCR:
     def __init__(self) -> None:
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
                              ocr_order_method="tb-xy")
-        self.table_engine = PPStructure(recovery=True, return_ocr_result_in_table=True)
-
+        self.table_engine = PPStructure(
+            recovery=True, return_ocr_result_in_table=True, show_log=True)
 
     @bentoml.api
     def paddle_raw(self, file: Path) -> list:
@@ -61,6 +61,10 @@ class OCR:
     @bentoml.api
     def paddle(self, file: Path) -> OCRResponse:
         return perform_paddle_ocr(self.ocr, file)
+
+    @bentoml.api
+    def paddle_table(self, file: Path) -> list:
+        return ppstructure_table(self.table_engine, file)
 
 
 @bentoml.service(
