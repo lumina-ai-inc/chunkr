@@ -24,11 +24,9 @@ def perform_paddle_ocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
     return OCRResponse(results=ocr_results)
 
 
-def ppstructure_table(table_engine: PPStructure, image_path: Path) -> Path:
+def ppstructure_table(table_engine: PPStructure, image_path: Path) -> list:
     img = cv2.imread(str(image_path))
     result = table_engine(img)
     for line in result:
         line.pop('img')
-        print(line)
-    pprint(result)
     return result
