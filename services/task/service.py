@@ -75,7 +75,7 @@ class OCR:
 
     @bentoml.api
     def latex_ocr(self, file: Path) -> list:
-        return latex_ocr(self.ocr, file)
+        return latex_ocr(self.latex_ocr, file)
 
 
 @bentoml.service(
