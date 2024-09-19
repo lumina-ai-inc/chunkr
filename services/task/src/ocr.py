@@ -73,7 +73,7 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> OCRRespons
     return response
 
 def perform_latex_ocr(model: LatexOCR, image_path: Path) -> str:
-    img = Image.open(str(image_path))
+    img = Image.open(image_path)
     res = model(img)
     return res
 
