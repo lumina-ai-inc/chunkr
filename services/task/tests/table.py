@@ -1,77 +1,113 @@
 import requests
 import os
-from paddleocr import draw_structure_result, save_structure_res
 import multiprocessing
 import time
-from PIL import Image
 import json
+from typing import List, Tuple
 
-def send_image_to_ocr(image_path: str, service_url: str) -> dict:
+
+def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
     """
     Send an image file to the OCR service and return the results.
 
-    :param image_path: Path to the image file
-    :param service_url: URL of the OCR service
+    :param args: Tuple containing (image_path, service_url, output_dir)
     :return: Dictionary containing OCR results and time taken
     """
-    # Prepare the file for sending
+    image_path, service_url, output_dir = args
     files = {'file': open(image_path, 'rb')}
 
-    # Record start time
     start_time = time.time()
-
-    # Send POST request to the OCR service
     response = requests.post(f"{service_url}/paddle_table", files=files)
-
     time_taken = time.time() - start_time
 
-    print(f"Time taken: {time_taken} seconds")
+    print(
+        f"Time taken for {os.path.basename(image_path)}: {time_taken:.2f} seconds")
 
-    # Check if the request was successful
     if response.status_code == 200:
         results = response.json()
-        with open(f"./output/{os.path.basename(image_path).split('.')[0]}_result.json", "w") as f:
+        base_name = os.path.splitext(os.path.basename(image_path))[0]
+
+        # Save JSON result
+        json_path = os.path.join(output_dir, f"{base_name}_result.json")
+        with open(json_path, "w") as f:
             json.dump(results, f, indent=2)
-        save_structure_res(results, "./output",
-                           os.path.basename(image_path).split('.')[0])
-        font_path = 'fonts/simfang.ttf'
-        image = Image.open(image_path).convert('RGB')
-        im_show = draw_structure_result(image, results, font_path=font_path)
-        im_show = Image.fromarray(im_show)
-        im_show.save(
-            f"./output/{os.path.basename(image_path).split('.')[0]}_result.jpg")
+
+        # Save HTML result
+        html_path = os.path.join(output_dir, f"{base_name}_result.html")
+        html_head = """
+        <head>
+            <style>
+                table {
+                    background-color: white;
+                    color: black;
+                    border-collapse: separate;
+                    border-spacing: 0;
+                    width: 100%;
+                    max-width: 800px;
+                    margin: 20px auto;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    overflow: hidden;
+                }
+
+                th,
+                td {
+                    border: 1px solid #e0e0e0;
+                    padding: 12px 15px;
+                    text-align: left;
+                }
+
+                thead {
+                    background-color: #f8f9fa;
+                    font-weight: 600;
+                }
+
+                tr:hover {
+                    background-color: #f5f5f5;
+                    transition: background-color 0.3s ease;
+                }
+            </style>
+        </head>
+        """
+        with open(html_path, "w") as f:
+            f.write(html_head + results[0]['res']['html'])
+
         return results
     else:
-        raise Exception(f"Error: {response.status_code} - {response.text}")
+        raise Exception(
+            f"Error for {os.path.basename(image_path)}: {response.status_code} - {response.text}")
 
 
-def process_image(args):
-    image_path, service_url = args
-    try:
-        return send_image_to_ocr(image_path, service_url)
-    except Exception as e:
-        return f"An error occurred: {str(e)}"
+def process_images(image_dir: str, service_url: str, output_dir: str) -> List[dict]:
+    """
+    Process all images in the given directory using multiprocessing.
+
+    :param image_dir: Directory containing input images
+    :param service_url: URL of the OCR service
+    :param output_dir: Directory to save output files
+    :return: List of results for each image
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    image_paths = [os.path.join(image_dir, f) for f in os.listdir(
+        image_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    args = [(path, service_url, output_dir) for path in image_paths]
+
+    with multiprocessing.Pool() as pool:
+        results = pool.map(send_image_to_ocr, args)
+
+    return results
 
 
-# Usage example
 if __name__ == "__main__":
-    image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table.jpg"
+    image_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/jpg"
     service_url = "http://35.236.179.125:3000"
+    output_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/table_ocr"
 
-    # process_image((image_path, service_url))
+    start_time = time.time()
+    results = process_images(image_dir, service_url, output_dir)
+    end_time = time.time()
 
-    process_image((image_path, service_url))
-    # n = 1  # Number of times to send the image
-
-    # start_time = time.time()
-    # # Create a pool of worker processes
-    # with multiprocessing.Pool() as pool:
-    #     # Create a list of arguments for each process
-    #     args = [(image_path, service_url) for _ in range(n)]
-
-    #     # Map the process_image function to the arguments
-    #     results = pool.map(process_image, args)
-
-    # end_time = time.time()
-    # print(f"Total time taken: {end_time - start_time} seconds")
-    # print(f"Average time taken: {(end_time - start_time) / n} seconds")
+    total_time = end_time - start_time
+    print(f"Total time taken: {total_time:.2f} seconds")
+    print(f"Average time per image: {total_time / len(results):.2f} seconds")

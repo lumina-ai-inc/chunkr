@@ -11,3 +11,6 @@ uv run pip install .[gpu]
 # [project.optional-dependencies]
 # cpu = ["paddlepaddle>=2.6.2"]
 # gpu = ["paddlepaddle-gpu>=2.6.2,<2.7.0"]
+
+
+mogrify -format jpg -path /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/jpg /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/*.png
