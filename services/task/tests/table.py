@@ -21,7 +21,7 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     start_time = time.time()
 
     # Send POST request to the OCR service
-    response = requests.post(f"{service_url}/paddle_ocr_batch", files=files)
+    response = requests.post(f"{service_url}/paddle_table", files=files)
 
     time_taken = time.time() - start_time
 
@@ -30,9 +30,12 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     # Check if the request was successful
     if response.status_code == 200:
         results = response.json()
+        print(results)
+        with open(f"./output/{os.path.basename(image_path).split('.')[0]}_result.json", "w") as f:
+            f.write(str(results))
         save_structure_res(results, "./output",
                            os.path.basename(image_path).split('.')[0])
-        font_path = 'doc/fonts/simfang.ttf'  # font provided in PaddleOCR
+        font_path = 'fonts/simfang.ttf'  
         image = Image.open(image_path).convert('RGB')
         im_show = draw_structure_result(image, results, font_path=font_path)
         im_show = Image.fromarray(im_show)
@@ -53,23 +56,23 @@ def process_image(args):
 
 # Usage example
 if __name__ == "__main__":
-    image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/Picture.jpg"
+    image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table.jpg"
     service_url = "http://35.236.179.125:3000"
 
     # process_image((image_path, service_url))
 
     process_image((image_path, service_url))
-    n = 10  # Number of times to send the image
+    # n = 1  # Number of times to send the image
 
-    start_time = time.time()
-    # Create a pool of worker processes
-    with multiprocessing.Pool() as pool:
-        # Create a list of arguments for each process
-        args = [(image_path, service_url) for _ in range(n)]
+    # start_time = time.time()
+    # # Create a pool of worker processes
+    # with multiprocessing.Pool() as pool:
+    #     # Create a list of arguments for each process
+    #     args = [(image_path, service_url) for _ in range(n)]
 
-        # Map the process_image function to the arguments
-        results = pool.map(process_image, args)
+    #     # Map the process_image function to the arguments
+    #     results = pool.map(process_image, args)
 
-    end_time = time.time()
-    print(f"Total time taken: {end_time - start_time} seconds")
-    print(f"Average time taken: {(end_time - start_time) / n} seconds")
+    # end_time = time.time()
+    # print(f"Total time taken: {end_time - start_time} seconds")
+    # print(f"Average time taken: {(end_time - start_time) / n} seconds")
