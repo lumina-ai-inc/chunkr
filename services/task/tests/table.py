@@ -4,7 +4,7 @@ from paddleocr import draw_structure_result, save_structure_res
 import multiprocessing
 import time
 from PIL import Image
-
+import json
 
 def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     """
@@ -32,7 +32,7 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
         results = response.json()
         print(results)
         with open(f"./output/{os.path.basename(image_path).split('.')[0]}_result.json", "w") as f:
-            f.write(str(results))
+            json.dump(results, f, indent=2)
         save_structure_res(results, "./output",
                            os.path.basename(image_path).split('.')[0])
         font_path = 'fonts/simfang.ttf'  
