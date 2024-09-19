@@ -90,9 +90,9 @@ def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
         """
         with open(html_path, "w") as f:
             f.write(html_head + results['html'])
-            
+
         output_image_path = os.path.join(output_dir, f"{base_name}_boxes.png")
-        draw_boxes_on_image(image_path, results['cell_bbox'], output_image_path)
+        draw_boxes_on_image(image_path, results['bbox'], output_image_path)
 
         return results
     else:

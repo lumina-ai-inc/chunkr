@@ -15,11 +15,11 @@ class BoundingBox(BaseModel):
 
 
 class OCRResult(BaseModel):
-    bounding_box: BoundingBox = Field(...,
-                                      description="Coordinates of the bounding box")
+    bbox: BoundingBox = Field(...,
+                              description="Coordinates of the bounding box")
     text: str = Field(..., description="Detected text")
-    confidence: float = Field(...,
-                              description="Confidence score of the detection")
+    confidence: Optional[float] = Field(...,
+                                        description="Confidence score of the detection")
 
     class Config:
         json_schema_extra = {
@@ -40,27 +40,25 @@ class OCRResponse(BaseModel):
     results: List[OCRResult] = Field(..., description="List of OCR results")
 
 
-class CellBoundingBox(BaseModel):
-    bbox: BoundingBox = Field(..., description="Bounding box of the cell")
-    text: str = Field(..., description="Text of the cell")
-
-
 class TableOCRResponse(BaseModel):
-    cell_bbox: List[CellBoundingBox] = Field(...,
-                                         description="List of bounding boxes for each cell")
+    results: OCRResponse = Field(...,
+                                 description="List of ocr results for each cell")
     html: str = Field(..., description="HTML representation of the table")
 
     class Config:
         json_schema_extra = {
             "example": {
-                "cell_bbox": [
+                "results": [
                     {
-                        "top_left": [10.0, 10.0],
-                        "top_right": [100.0, 10.0],
-                        "bottom_right": [100.0, 50.0],
-                        "bottom_left": [10.0, 50.0]
+                        "bbox": {
+                            "top_left": [10.0, 10.0],
+                            "top_right": [100.0, 10.0],
+                            "bottom_right": [100.0, 50.0],
+                            "bottom_left": [10.0, 50.0]
+                        },
+                        "text": "Sample"
                     },
-                    # ... more bounding boxes ...
+                    # ... more OCR results ...
                 ],
                 "html": "<table><tr><td>Sample</td><td>Table</td></tr></table>"
             }
