@@ -12,6 +12,7 @@ import { TaskResponse } from "../../models/task.model";
 import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
 import {
   calculateBillingDueDate,
+  calculateDiscountedBilling,
   MonthlyUsageData,
 } from "../../models/usage.model";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
@@ -62,6 +63,22 @@ export default function Dashboard() {
   const highQualityDiscountedUsage = Math.max(
     0,
     highQualityDiscount - highQualityUsage
+  );
+
+  const fastCost =
+    monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "Fast")
+      ?.cost || 0;
+  const highQualityCost =
+    monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "HighQuality")
+      ?.cost || 0;
+
+  const adjustedBillingAmount = calculateDiscountedBilling(
+    fastUsage,
+    highQualityUsage,
+    fastDiscount,
+    highQualityDiscount,
+    fastCost,
+    highQualityCost
   );
 
   // const adjustedFastUsage = Math.max(0, fastUsage - fastDiscount);
@@ -513,10 +530,8 @@ export default function Dashboard() {
                       : fastDiscount > 0
                         ? `${fastDiscount} fast`
                         : `${highQualityDiscount} high-quality`}{" "}
-                    {fastDiscount > 0 && highQualityDiscount > 0
-                      ? "pages are"
-                      : "pages is"}{" "}
-                    applied to your account for this billing period.
+                    will be applied to your account for this billing period.
+                    Your adjusted bill is ${adjustedBillingAmount}.
                   </Text>
                 </Flex>
               )}
