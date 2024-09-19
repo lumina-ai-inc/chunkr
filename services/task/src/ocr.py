@@ -52,9 +52,9 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> TableOCRRe
     soup = BeautifulSoup(html, 'html.parser')
     cells = soup.find_all(['td', 'th'])
 
-    cell_bbox = []
+    ocr_result = []
     for bbox, cell in zip(cell_bbox_raw, cells):
-        cell_bbox.append(
+        ocr_result.append(
             OCRResult(
                 bbox=BoundingBox(
                     top_left=[bbox[0], bbox[1]],
@@ -67,5 +67,5 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> TableOCRRe
             )
         )
 
-    response = TableOCRResponse(results=cell_bbox, html=html)
+    response = TableOCRResponse(results=OCRResponse(results=ocr_result), html=html)
     return response
