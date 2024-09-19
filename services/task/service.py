@@ -74,7 +74,7 @@ class OCR:
         return ppstructure_table(self.table_engine, file)
 
     @bentoml.api
-    def latex_ocr(self, file: Path) -> list:
+    def latex_ocr(self, file: Path) -> str:
         return latex_ocr(self.latex_ocr, file)
 
 
