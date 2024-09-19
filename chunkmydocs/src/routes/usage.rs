@@ -21,7 +21,7 @@ struct TaskCountResponse {
 /// Retrieve the total number of tasks for the authenticated user
 #[utoipa::path(
     get,
-    path = "/usage/tasks",
+    path = "/usage/task_count",
     context_path = "/api",
     tag = "usage",
     responses(

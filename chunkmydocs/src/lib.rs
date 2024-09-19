@@ -143,7 +143,7 @@ pub fn main() -> std::io::Result<()> {
                 .route("/tasks", web::get().to(get_tasks_status))
                 .route("/usage", web::get().to(get_usage))
                 .route("/usage/monthly", web::get().to(get_monthly_usage))
-                .route("/usage/tasks", web::get().to(get_task_count));
+                .route("/usage/task_count", web::get().to(get_task_count));
 
             if std::env::var("STRIPE").is_ok() {
                 app = app.route("/stripe/webhook", web::post().to(stripe_webhook));
