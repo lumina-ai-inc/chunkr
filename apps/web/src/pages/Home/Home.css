@@ -106,10 +106,6 @@
   }
 }
 
-.text-container {
-  max-width: 742px;
-}
-
 .module-container {
   flex: 1;
 }
@@ -169,12 +165,11 @@
   gap: 16px;
 }
 
+.text-container {
+  max-width: 642px;
+}
+
 @media (max-width: 1236px) {
-  .hero-title {
-    font-size: 56px !important;
-    line-height: 72px !important;
-    max-width: 400px !important;
-  }
   .text-container {
     gap: 24px;
   }
