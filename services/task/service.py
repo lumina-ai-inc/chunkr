@@ -56,7 +56,7 @@ class OCR:
 
     @bentoml.api
     def paddle_ocr_raw(self, file: Path) -> list:
-        return self.table_engine.ocr(str(file))
+        return self.ocr.ocr(str(file))
 
     @bentoml.api
     def paddle_ocr(self, file: Path) -> OCRResponse:
@@ -64,7 +64,7 @@ class OCR:
 
     @bentoml.api
     def paddle_table(self, file: Path) -> list:
-        return ppstructure_table(self.table_engine, file)
+        return ppstructure_table(self.ocr, file)
 
 
 @bentoml.service(
