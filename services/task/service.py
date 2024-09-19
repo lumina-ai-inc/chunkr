@@ -36,7 +36,7 @@ class Image:
 )
 class OCR:
     def __init__(self) -> None:
-        self.ocr = PaddleOCR(use_angle_cls=True, lang="en")
+        self.ocr = PaddleOCR(use_angle_cls=True, lang="en", ocr_order_method="tb-xy")
 
     @bentoml.api 
     def paddle(self, file: Path) -> list:
