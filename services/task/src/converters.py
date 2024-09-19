@@ -44,7 +44,7 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
 def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, extension: str = "png") -> str:
     """
     Crop an image given the input path and crop coordinates.
-
+    
     :param input_path: Path to the input image file
     :param left: Left coordinate of the crop box
     :param top: Top coordinate of the crop box
@@ -62,15 +62,15 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, ex
                 raise ValueError("Invalid crop coordinates")
 
             cropped_img = img.crop((left, top, right, bottom))
-
+            
             format_map = {
                 "png": "PNG",
                 "jpg": "JPEG",
                 "jpeg": "JPEG"
             }
-
+            
             img_format = format_map.get(extension.lower(), "PNG")
-
+            
             with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{extension}') as temp_file:
                 output_path = temp_file.name
                 cropped_img.save(output_path, format=img_format)
