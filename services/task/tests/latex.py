@@ -24,13 +24,8 @@ def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
         f"Time taken for {os.path.basename(image_path)}: {time_taken:.2f} seconds")
 
     if response.status_code == 200:
-        results = response.json()
+        results = response.text
         base_name = os.path.splitext(os.path.basename(image_path))[0]
-
-        # Save JSON result
-        json_path = os.path.join(output_dir, f"{base_name}_result.json")
-        with open(json_path, "w") as f:
-            json.dump(results, f, indent=2)
 
         # Save LaTeX result
         latex_path = os.path.join(output_dir, f"{base_name}_result.tex")
@@ -65,7 +60,7 @@ def process_images(image_dir: str, service_url: str, output_dir: str) -> List[di
 
 
 if __name__ == "__main__":
-    image_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr/jpg"
+    image_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr"
     service_url = "http://35.236.179.125:3000"
     output_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/latex_ocr"
 
