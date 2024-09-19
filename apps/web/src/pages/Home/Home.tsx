@@ -34,7 +34,7 @@ const Home = () => {
       <ScrollArea type="scroll">
         <div>
           <div className="hero-main-container">
-            <div className="hero-image-container">
+            <div className="hero-image-container fade-in">
               <picture>
                 <source srcSet={heroImageWebp} type="image/webp" />
                 <img
