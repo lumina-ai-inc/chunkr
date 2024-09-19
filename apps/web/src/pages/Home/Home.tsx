@@ -64,7 +64,7 @@ const Home = () => {
                       weight="bold"
                       style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
                     >
-                      Back by Y Combinator
+                      Backed by Y Combinator
                     </Text>
                   </Flex> */}
                   <Text

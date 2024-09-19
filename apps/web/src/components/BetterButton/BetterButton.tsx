@@ -4,11 +4,13 @@ export default function BetterButton({
   children,
   padding = "4px 10px",
   active = false,
+  disabled = false,
   onClick,
 }: {
   children: React.ReactNode;
   padding?: string;
   active?: boolean;
+  disabled?: boolean;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
@@ -20,6 +22,7 @@ export default function BetterButton({
         fontSize: "12px",
       }}
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </button>
