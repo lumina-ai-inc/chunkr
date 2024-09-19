@@ -303,3 +303,16 @@
   bottom: 0;
   background: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.5));
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}

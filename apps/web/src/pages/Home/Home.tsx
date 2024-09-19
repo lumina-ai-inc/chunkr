@@ -34,7 +34,7 @@ const Home = () => {
       <ScrollArea type="scroll">
         <div>
           <div className="hero-main-container">
-            <div className="hero-image-container">
+            <div className="hero-image-container fade-in">
               <picture>
                 <source srcSet={heroImageWebp} type="image/webp" />
                 <img
@@ -64,7 +64,7 @@ const Home = () => {
                       weight="bold"
                       style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
                     >
-                      Back by Y Combinator
+                      Backed by Y Combinator
                     </Text>
                   </Flex> */}
                   <Text
