@@ -48,22 +48,45 @@ class Image:
 )
 class OCR:
     def __init__(self) -> None:
-        self.ocr = PaddleOCR(use_angle_cls=True, lang="en", ocr_order_method="tb-xy", return_word_box=True)
+        self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
+                             ocr_order_method="tb-xy", return_word_box=True)
 
-    @bentoml.api 
+    @bentoml.api
     def paddle(self, file: Path) -> list:
         return self.ocr.ocr(str(file))
 
 
 @bentoml.service(
-    name="segment",
-    resources={"gpu": 1},
+    name="task",
+    resources={"gpu": 1, "cpu": "4"},
     traffic={"timeout": 60}
 )
-class Segment:
+class Task:
     def __init__(self) -> None:
+        check_imagemagick_installed()
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en")
 
-    @bentoml.api 
-    def paddle(self, file: Path) -> list:
+    @bentoml.api
+    def ocr(self, file: Path) -> list:
         return perform_paddle_ocr(self.ocr, file)
+
+    @bentoml.api
+    def convert_to_img(
+        self,
+        file: Path,
+        density: int = Field(default=300, description="Image density in DPI"),
+        extension: str = Field(default="png", description="Image extension")
+    ) -> Dict[int, str]:
+        return convert_to_img(file, density, extension)
+
+    @bentoml.api
+    def crop_image(
+        self,
+        file: Path,
+        bbox: Dict[str, int]
+    ) -> Path:
+        height = bbox.get('height', 0)
+        left = bbox.get('left', 0)
+        top = bbox.get('top', 0)
+        width = bbox.get('width', 0)
+        return crop_image(file, left, top, left + width, top + height)
