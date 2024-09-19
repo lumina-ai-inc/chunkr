@@ -25,9 +25,9 @@ use utils::db::deadpool_postgres;
 use utils::storage::config_s3::create_client;
 use utils::server::admin_user::get_or_create_admin_user;
 use utoipa::OpenApi;
-use utoipa_redoc::{ Redoc, Servable };
 use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session, get_user_invoices, get_invoice_detail, get_monthly_usage };
-
+use utoipa_redoc::{Redoc, Servable};
+use utoipa_swagger_ui::SwaggerUi;
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 fn run_migrations(url: &str) {
@@ -134,8 +134,10 @@ pub fn main() -> std::io::Result<()> {
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check))
 
-                .route("/stripe/webhook", web::post().to(stripe_webhook));
-            
+                .route("/stripe/webhook", web::post().to(stripe_webhook))
+                .service(
+                    SwaggerUi::new("/swagger-ui/{_:.*}").url("/docs/openapi.json", ApiDoc::openapi()),
+                );
 
             let mut api_scope = web
                 ::scope("/api")

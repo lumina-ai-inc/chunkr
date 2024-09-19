@@ -64,6 +64,7 @@ lazy_static = "1.5.0"
 base64 = "0.22.1"
 async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] }
 log = "0.4.22"
+utoipa-swagger-ui = { version = "7.0", features = ["actix-web"] }
 
 [[bin]]
 name = "task-processor"
