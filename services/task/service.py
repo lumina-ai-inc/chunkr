@@ -1,11 +1,11 @@
 from __future__ import annotations
 import bentoml
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 from pydantic import Field
 from paddleocr import PaddleOCR
 
-from ocr import perform_paddle_ocr
+from ocr import perform_paddle_ocr, perform_paddle_ocr_batch
 from utils import check_imagemagick_installed
 from converters import convert_to_img, crop_image
 
@@ -54,10 +54,19 @@ class OCR:
     @bentoml.api
     def paddle_ocr_raw(self, file: Path) -> list:
         return self.ocr.ocr(str(file))
-    
+
     @bentoml.api
     def paddle_ocr(self, file: Path) -> list:
         return perform_paddle_ocr(self.ocr, file)
+
+    @bentoml.api(
+        batchable=True,
+        batch_dim=(0, 0),
+        max_batch_size=64,
+        max_latency_ms=500
+    )
+    def paddle_ocr_batch(self, files: List[Path]) -> list:
+        return perform_paddle_ocr_batch(self.ocr, files)
 
 
 @bentoml.service(
