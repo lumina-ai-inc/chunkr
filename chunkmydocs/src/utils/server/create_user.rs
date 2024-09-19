@@ -122,6 +122,7 @@ pub async fn create_user(
                 discounts: None, // Set discounts as None
             },
         ], // Added usage limits for the Free tier
+        task_count: Some(0),
     };
 
     Ok(user)
