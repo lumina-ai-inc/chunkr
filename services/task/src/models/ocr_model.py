@@ -18,7 +18,7 @@ class OCRResult(BaseModel):
     bbox: BoundingBox = Field(...,
                               description="Coordinates of the bounding box")
     text: str = Field(..., description="Detected text")
-    confidence: Optional[float] = Field(...,
+    confidence: Optional[float] = Field(None,
                                         description="Confidence score of the detection")
 
     class Config:
