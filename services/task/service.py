@@ -53,7 +53,6 @@ class OCR:
                              ocr_order_method="tb-xy")
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2")
-        self.latex_model = LatexOCR()
 
     @bentoml.api
     def paddle_ocr_raw(self, file: Path) -> list:
