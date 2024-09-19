@@ -1,10 +1,13 @@
 from pydantic import BaseModel, Field
 from typing import List
 
+
 class OCRResult(BaseModel):
-    bounding_box: List[List[float]] = Field(..., description="Coordinates of the bounding box")
+    bounding_box: List[List[float]
+                       ] = Field(..., description="Coordinates of the bounding box")
     text: str = Field(..., description="Detected text")
-    confidence: float = Field(..., description="Confidence score of the detection")
+    confidence: float = Field(...,
+                              description="Confidence score of the detection")
 
     class Config:
         json_schema_extra = {
@@ -19,6 +22,7 @@ class OCRResult(BaseModel):
                 "confidence": 0.99928879737854
             }
         }
+
 
 class OCRResponse(BaseModel):
     results: List[OCRResult] = Field(..., description="List of OCR results")

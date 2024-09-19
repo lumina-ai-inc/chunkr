@@ -3,11 +3,12 @@ import bentoml
 from pathlib import Path
 from typing import Dict, List
 from pydantic import Field
-from paddleocr import PaddleOCR
+from paddleocr import PaddleOCR, PPStructure
 
-from ocr import perform_paddle_ocr, perform_paddle_ocr_batch
-from utils import check_imagemagick_installed
-from converters import convert_to_img, crop_image
+from src.ocr import perform_paddle_ocr
+from src.utils import check_imagemagick_installed
+from src.converters import convert_to_img, crop_image
+from src.models.ocr_model import OCRResponse
 
 
 @bentoml.service(
@@ -49,24 +50,17 @@ class Image:
 class OCR:
     def __init__(self) -> None:
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy", return_word_box=True)
+                             ocr_order_method="tb-xy")
+        self.table_engine = PPStructure(recovery=True, return_ocr_result_in_table=True)
+
 
     @bentoml.api
-    def paddle_ocr_raw(self, file: Path) -> list:
+    def paddle_raw(self, file: Path) -> list:
         return self.ocr.ocr(str(file))
 
     @bentoml.api
-    def paddle_ocr(self, file: Path) -> list:
+    def paddle(self, file: Path) -> OCRResponse:
         return perform_paddle_ocr(self.ocr, file)
-
-    @bentoml.api(
-        batchable=True,
-        batch_dim=(0, 0),
-        max_batch_size=64,
-        max_latency_ms=500
-    )
-    def paddle_ocr_batch(self, files: List[Path]) -> list:
-        return perform_paddle_ocr_batch(self.ocr, files)
 
 
 @bentoml.service(

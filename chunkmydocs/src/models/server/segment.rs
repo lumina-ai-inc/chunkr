@@ -1,10 +1,19 @@
-use postgres_types::{FromSql, ToSql};
-use serde::{Deserialize, Serialize};
-use strum_macros::{Display, EnumString};
+use postgres_types::{ FromSql, ToSql };
+use serde::{ Deserialize, Serialize };
+use strum_macros::{ Display, EnumString };
 use utoipa::ToSchema;
 
 #[derive(
-    Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema, ToSql, FromSql,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    EnumString,
+    Display,
+    ToSchema,
+    ToSql,
+    FromSql
 )]
 pub enum SegmentType {
     Title,
@@ -37,6 +46,7 @@ pub struct Segment {
     #[serde(rename = "type")]
     pub segment_type: SegmentType,
     pub segment_id: String,
+    pub ocr: Option<OCRResponse>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -44,6 +54,19 @@ pub struct Chunk {
     pub segments: Vec<Segment>,
     pub markdown: String,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct OCRResult {
+    pub bounding_box: Vec<Vec<f32>>,
+    pub text: String,
+    pub confidence: f32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct OCRResponse {
+    pub results: Vec<OCRResult>,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct PngPage {
     pub bb_id: String,

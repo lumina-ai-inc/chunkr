@@ -42,7 +42,7 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     start_time = time.time()
 
     # Send POST request to the OCR service
-    response = requests.post(f"{service_url}/paddle", files=files)
+    response = requests.post(f"{service_url}/paddle_ocr_batch", files=files)
 
     time_taken = time.time() - start_time
 
@@ -71,20 +71,20 @@ if __name__ == "__main__":
     image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/Picture.jpg"
     service_url = "http://35.236.179.125:3000"
 
-    process_image((image_path, service_url))
-
     # process_image((image_path, service_url))
-    # n = 200 # Number of times to send the image
 
-    # start_time = time.time()
-    # # Create a pool of worker processes
-    # with multiprocessing.Pool() as pool:
-    #     # Create a list of arguments for each process
-    #     args = [(image_path, service_url) for _ in range(n)]
+    process_image((image_path, service_url))
+    n = 10 # Number of times to send the image
+
+    start_time = time.time()
+    # Create a pool of worker processes
+    with multiprocessing.Pool() as pool:
+        # Create a list of arguments for each process
+        args = [(image_path, service_url) for _ in range(n)]
         
-    #     # Map the process_image function to the arguments
-    #     results = pool.map(process_image, args)
+        # Map the process_image function to the arguments
+        results = pool.map(process_image, args)
 
-    # end_time = time.time() 
-    # print(f"Total time taken: {end_time - start_time} seconds")
-    # print(f"Average time taken: {(end_time - start_time) / n} seconds")
+    end_time = time.time() 
+    print(f"Total time taken: {end_time - start_time} seconds")
+    print(f"Average time taken: {(end_time - start_time) / n} seconds")

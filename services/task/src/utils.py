@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 import cv2
 import matplotlib.pyplot as plt
-from paddleocr import PaddleOCR, draw_ocr
+from paddleocr import draw_ocr
 
 def check_imagemagick_installed():
     try:
