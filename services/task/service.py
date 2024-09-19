@@ -4,9 +4,8 @@ from pathlib import Path
 from typing import Dict
 from pydantic import Field
 from paddleocr import PaddleOCR, PPStructure
-from pix2tex.cli import LatexOCR
 
-from src.ocr import ppocr_raw, ppocr, ppstructure_table_raw, ppstructure_table, perform_latex_ocr
+from src.ocr import ppocr_raw, ppocr, ppstructure_table_raw, ppstructure_table
 from src.utils import check_imagemagick_installed
 from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResponse
@@ -71,11 +70,6 @@ class OCR:
     @bentoml.api
     def paddle_table(self, file: Path) -> OCRResponse:
         return ppstructure_table(self.table_engine, file)
-
-    @bentoml.api
-    def latex_ocr(self, file: Path) -> str:
-        return perform_latex_ocr(self.latex_model, file)
-
 
 @bentoml.service(
     name="task",
