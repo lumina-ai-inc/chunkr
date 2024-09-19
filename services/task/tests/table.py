@@ -25,6 +25,7 @@ def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
 
     if response.status_code == 200:
         results = response.json()
+        print(results)
         base_name = os.path.splitext(os.path.basename(image_path))[0]
 
         # Save JSON result
