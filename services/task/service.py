@@ -52,14 +52,14 @@ class OCR:
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
                              ocr_order_method="tb-xy")
         self.table_engine = PPStructure(
-            recovery=True, return_ocr_result_in_table=True, layout=False, show_log=True)
+            recovery=True, return_ocr_result_in_table=True, layout=False, show_log=True, structure_version="PP-StructureV2")
 
     @bentoml.api
-    def paddle_raw(self, file: Path) -> list:
+    def paddle_ocr_raw(self, file: Path) -> list:
         return self.ocr.ocr(str(file))
 
     @bentoml.api
-    def paddle(self, file: Path) -> OCRResponse:
+    def paddle_ocr(self, file: Path) -> OCRResponse:
         return perform_paddle_ocr(self.ocr, file)
 
     @bentoml.api
