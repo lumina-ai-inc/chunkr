@@ -4,6 +4,8 @@ import tempfile
 import base64
 from pathlib import Path
 from typing import Dict
+from PIL import Image
+import shutil
 
 from utils import needs_conversion
 
@@ -36,5 +38,45 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Failed to convert image: {e.stderr}")
     finally:
-        import shutil
         shutil.rmtree(temp_dir)
+
+
+def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, extension: str = "png") -> str:
+    """
+    Crop an image given the input path and crop coordinates.
+    
+    :param input_path: Path to the input image file
+    :param left: Left coordinate of the crop box
+    :param top: Top coordinate of the crop box
+    :param right: Right coordinate of the crop box
+    :param bottom: Bottom coordinate of the crop box
+    :param extension: Output file extension (default: "png")
+    :return: Path to the cropped image file
+    """
+    try:
+        if not os.path.exists(input_path):
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+
+        with Image.open(input_path) as img:
+            if left < 0 or top < 0 or right > img.width or bottom > img.height:
+                raise ValueError("Invalid crop coordinates")
+
+            cropped_img = img.crop((left, top, right, bottom))
+            
+            format_map = {
+                "png": "PNG",
+                "jpg": "JPEG",
+                "jpeg": "JPEG"
+            }
+            
+            img_format = format_map.get(extension.lower(), "PNG")
+            
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{extension}') as temp_file:
+                output_path = temp_file.name
+                cropped_img.save(output_path, format=img_format)
+
+        return output_path
+    except (FileNotFoundError, ValueError) as e:
+        raise e
+    except Exception as e:
+        raise RuntimeError(f"Failed to crop image: {str(e)}")
