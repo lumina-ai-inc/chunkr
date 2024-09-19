@@ -60,7 +60,7 @@ def process_images(image_dir: str, service_url: str, output_dir: str) -> List[di
 
 
 if __name__ == "__main__":
-    image_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr"
+    image_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr/jpg"
     service_url = "http://35.236.179.125:3000"
     output_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/latex_ocr"
 
