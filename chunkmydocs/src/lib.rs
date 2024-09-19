@@ -28,7 +28,6 @@ use utoipa::OpenApi;
 use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session, get_user_invoices, get_invoice_detail, get_monthly_usage };
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
-use routes::usage::get_task_count;
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 fn run_migrations(url: &str) {

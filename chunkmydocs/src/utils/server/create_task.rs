@@ -10,7 +10,7 @@ use crate::utils::rrq::service::produce;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, Utc};
 use lopdf::Document;
 use std::error::Error;
 use uuid::Uuid;

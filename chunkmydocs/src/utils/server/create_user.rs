@@ -38,8 +38,6 @@ pub async fn create_user(
         ),
     ]);
 
-    let usage_limits_clone = usage_limits.clone();
-
     let transaction = client.transaction().await?;
 
     let user_query = r#"
