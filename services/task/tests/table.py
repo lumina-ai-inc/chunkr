@@ -6,7 +6,7 @@ import json
 from typing import List, Tuple
 from PIL import Image, ImageDraw, ImageFont
 
-def draw_boxes_on_image(image_path: str, bounding_boxes: List[dict], output_path: str):
+def draw_boxes_on_image(image_path: str, results: List[dict], output_path: str):
     """
     Draw bounding boxes on the image and tag them with an index.
 
@@ -18,7 +18,8 @@ def draw_boxes_on_image(image_path: str, bounding_boxes: List[dict], output_path
         draw = ImageDraw.Draw(img)
         font = ImageFont.load_default()
 
-        for idx, box in enumerate(bounding_boxes):
+        for idx, result in enumerate(results):
+            box = result['bbox']
             coords = box['top_left'] + box['top_right'] + box['bottom_right'] + box['bottom_left']
             draw.polygon(coords, outline="red")
             draw.text((coords[0], coords[1]), str(idx), font=font, fill="red")
@@ -92,7 +93,7 @@ def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
             f.write(html_head + results['html'])
 
         output_image_path = os.path.join(output_dir, f"{base_name}_boxes.png")
-        draw_boxes_on_image(image_path, results['bbox'], output_image_path)
+        draw_boxes_on_image(image_path, results['results'], output_image_path)
 
         return results
     else:

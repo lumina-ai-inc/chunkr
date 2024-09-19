@@ -14,3 +14,4 @@ uv run pip install .[gpu]
 
 
 mogrify -format jpg -path /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/jpg /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/*.png
+mogrify -format jpg -path /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr/jpg /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr/*.png

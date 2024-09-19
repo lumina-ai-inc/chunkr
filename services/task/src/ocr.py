@@ -2,8 +2,9 @@ import cv2
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from bs4 import BeautifulSoup
+from rapid_latex_ocr import LatexOCR
 
-from src.models.ocr_model import OCRResult, OCRResponse, TableOCRResponse, BoundingBox
+from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
 
 
 def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
@@ -25,7 +26,7 @@ def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
         )
         for result in raw_results[0]
     ]
-    return OCRResponse(results=ocr_results)
+    return OCRResponse(results=ocr_results, html=None)
 
 
 def ppstructure_table_raw(table_engine: PPStructure, image_path: Path) -> list:
@@ -36,14 +37,14 @@ def ppstructure_table_raw(table_engine: PPStructure, image_path: Path) -> list:
     return result
 
 
-def ppstructure_table(table_engine: PPStructure, image_path: Path) -> TableOCRResponse:
+def ppstructure_table(table_engine: PPStructure, image_path: Path) -> OCRResponse:
     img = cv2.imread(str(image_path))
     result = table_engine(img)
 
     table_result = result[0] if result else None
 
     if not table_result:
-        return TableOCRResponse(results=[], html="")
+        return OCRResponse(results=[], html="")
 
     cell_bbox_raw = table_result['res'].get('cell_bbox', [])
     html = table_result['res'].get('html', "")
@@ -67,5 +68,16 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> TableOCRRe
             )
         )
 
-    response = TableOCRResponse(results=ocr_result, html=html)
+    response = OCRResponse(results=ocr_result, html=html)
     return response
+
+def latex_ocr(model: LatexOCR, image_path: Path) -> str:
+    with open(image_path, "rb") as f:
+        data = f.read()
+
+    res, elapse = model(data)
+
+    print(res)
+    print(elapse)
+
+    return res

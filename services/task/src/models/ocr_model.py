@@ -18,7 +18,7 @@ class OCRResult(BaseModel):
     bbox: BoundingBox = Field(...,
                               description="Coordinates of the bounding box")
     text: str = Field(..., description="Detected text")
-    confidence: Optional[float] = Field(...,
+    confidence: Optional[float] = Field(None,
                                         description="Confidence score of the detection")
 
     class Config:
@@ -35,15 +35,10 @@ class OCRResult(BaseModel):
             }
         }
 
-
 class OCRResponse(BaseModel):
-    results: List[OCRResult] = Field(..., description="List of OCR results")
-
-
-class TableOCRResponse(BaseModel):
     results: List[OCRResult] = Field(...,
                                  description="List of ocr results for each cell")
-    html: str = Field(..., description="HTML representation of the table")
+    html: Optional[str] = Field(None, description="HTML representation of the table")
 
     class Config:
         json_schema_extra = {
