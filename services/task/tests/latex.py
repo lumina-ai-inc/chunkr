@@ -17,7 +17,7 @@ def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
     files = {'file': open(image_path, 'rb')}
 
     start_time = time.time()
-    response = requests.post(f"{service_url}/paddle_table", files=files)
+    response = requests.post(f"{service_url}/latex_ocr", files=files)
     time_taken = time.time() - start_time
 
     print(
@@ -35,7 +35,7 @@ def send_image_to_ocr(args: Tuple[str, str, str]) -> dict:
         # Save LaTeX result
         latex_path = os.path.join(output_dir, f"{base_name}_result.tex")
         with open(latex_path, "w") as f:
-            f.write(results['latex'])
+            f.write(results)
 
         return results
     else:
