@@ -89,7 +89,7 @@ pub async fn create_task(
     match upload_to_s3(s3_client, &input_location, file.file.path()).await {
         Ok(_) => {
             let configuration_json = serde_json::to_string(configuration)?;
-            client
+            match client
                 .execute(
                     "INSERT INTO TASKS (
                     task_id, user_id, api_key, file_name, file_size, 
@@ -116,7 +116,20 @@ pub async fn create_task(
                         &message,
                     ],
                 )
-                .await?;
+                .await
+            {
+                Ok(_) => {}
+                Err(e) => {
+                    if e.to_string().contains("usage limit exceeded") {
+                        return Err(Box::new(std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            "429 Rate Limit Error: Usage limit exceeded",
+                        )));
+                    } else {
+                        return Err(Box::new(e) as Box<dyn Error>);
+                    }
+                }
+            };
 
             let extraction_payload = ExtractionPayload {
                 model: model_internal,
