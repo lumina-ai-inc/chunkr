@@ -71,7 +71,7 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> OCRRespons
     response = OCRResponse(results=ocr_result, html=html)
     return response
 
-def latex_ocr(model: LatexOCR, image_path: Path) -> str:
+def rapid_latex_ocr(model: LatexOCR, image_path: Path) -> str:
     try:
         with open(str(image_path), "rb") as f:
             data = f.read()
