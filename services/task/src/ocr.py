@@ -62,7 +62,8 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> TableOCRRe
                     bottom_right=[bbox[4], bbox[5]],
                     bottom_left=[bbox[6], bbox[7]],
                 ),
-                text=cell.get_text(strip=True)
+                text=cell.get_text(strip=True),
+                confidence=None
             )
         )
 
