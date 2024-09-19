@@ -24,3 +24,29 @@ export function calculateBillingDueDate(month: string): string {
     year: "numeric",
   });
 }
+
+export function calculateDiscountedBilling(
+  fastUsage: number,
+  highQualityUsage: number,
+  fastDiscount: number,
+  highQualityDiscount: number,
+  fastCost: number,
+  highQualityCost: number
+): number {
+  const fastPricePerPage = fastUsage > 0 ? fastCost / fastUsage : 0;
+  const highQualityPricePerPage =
+    highQualityUsage > 0 ? highQualityCost / highQualityUsage : 0;
+
+  const discountedFastCost = Math.max(
+    0,
+    fastCost - fastDiscount * fastPricePerPage
+  );
+  const discountedHighQualityCost = Math.max(
+    0,
+    highQualityCost - highQualityDiscount * highQualityPricePerPage
+  );
+
+  const totalDiscountedCost = discountedFastCost + discountedHighQualityCost;
+
+  return Math.max(0, totalDiscountedCost);
+}

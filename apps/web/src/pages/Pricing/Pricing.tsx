@@ -27,7 +27,7 @@ export default function Pricing() {
                 <img
                   src={pricingImageJpg}
                   alt="pricing hero"
-                  className="pricing-hero-image"
+                  className="pricing-hero-image fade-in"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -64,7 +64,8 @@ export default function Pricing() {
                       lineHeight: "32px",
                     }}
                   >
-                    Flexible plans for every stage of your journey
+                    Flexible plans for every stage of your journey. From solo
+                    hackers to large-scale enterprises.
                   </Text>
                   <Flex direction="row" gap="4" py="4px" align="center" mt="1">
                     <Text
@@ -120,8 +121,8 @@ export default function Pricing() {
                     text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                   />
                   <PricingCard
-                    tier="Self-hosted"
-                    title="Flat monthly rate"
+                    tier="Flat monthly rate"
+                    title="Self-hosted"
                     text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                   />
                 </Flex>

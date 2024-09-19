@@ -12,9 +12,11 @@ import { TaskResponse } from "../../models/task.model";
 import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
 import {
   calculateBillingDueDate,
+  calculateDiscountedBilling,
   MonthlyUsageData,
 } from "../../models/usage.model";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
+import Pagination from "../Pagination/Pagination";
 
 export default function Dashboard() {
   const [showApiKey, setShowApiKey] = useState(false);
@@ -31,7 +33,18 @@ export default function Dashboard() {
     }
   }, [monthlyUsageData]);
 
-  const { data: tasks, isLoading, isError } = useTasksQuery(1, 10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const {
+    data: tasks,
+    isLoading,
+    isError,
+  } = useTasksQuery(currentPage, itemsPerPage);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
 
   if (!user) {
     return <Loader />;
@@ -62,6 +75,22 @@ export default function Dashboard() {
   const highQualityDiscountedUsage = Math.max(
     0,
     highQualityDiscount - highQualityUsage
+  );
+
+  const fastCost =
+    monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "Fast")
+      ?.cost || 0;
+  const highQualityCost =
+    monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "HighQuality")
+      ?.cost || 0;
+
+  const adjustedBillingAmount = calculateDiscountedBilling(
+    fastUsage,
+    highQualityUsage,
+    fastDiscount,
+    highQualityDiscount,
+    fastCost,
+    highQualityCost
   );
 
   // const adjustedFastUsage = Math.max(0, fastUsage - fastDiscount);
@@ -513,10 +542,8 @@ export default function Dashboard() {
                       : fastDiscount > 0
                         ? `${fastDiscount} fast`
                         : `${highQualityDiscount} high-quality`}{" "}
-                    {fastDiscount > 0 && highQualityDiscount > 0
-                      ? "pages are"
-                      : "pages is"}{" "}
-                    applied to your account for this billing period.
+                    will be applied to your account for this billing period.
+                    Your adjusted bill is ${adjustedBillingAmount}.
                   </Text>
                 </Flex>
               )}
@@ -525,35 +552,43 @@ export default function Dashboard() {
           <Flex direction="column" className="dashboard-content-right">
             <ScrollArea scrollbars="vertical" style={{ height: "100%" }}>
               <Flex direction="column" gap="5">
-                <Flex direction="row" align="center" gap="2" mb="2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <rect
+                <Flex direction="row" justify="between">
+                  <Flex direction="row" align="center" gap="2" mb="2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
                       width="24"
                       height="24"
-                      fill="white"
-                      fill-opacity="0.01"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M12.4069 2.91125C12.1559 2.7629 11.844 2.7629 11.5929 2.91125L2.79294 8.11125C2.54937 8.25517 2.39993 8.51706 2.39993 8.79999C2.39993 9.08292 2.54937 9.3448 2.79294 9.48872L11.5929 14.6887C11.844 14.8371 12.1559 14.8371 12.4069 14.6887L21.2069 9.48872C21.4506 9.3448 21.6 9.08292 21.6 8.79999C21.6 8.51706 21.4506 8.25517 21.2069 8.11125L12.4069 2.91125ZM11.9999 13.0708L4.77248 8.79999L11.9999 4.52922L19.2274 8.79999L11.9999 13.0708ZM3.60691 13.3113C3.22653 13.0865 2.73597 13.2126 2.51118 13.593C2.28641 13.9734 2.41256 14.464 2.79294 14.6887L11.5929 19.8888C11.844 20.0371 12.1559 20.0371 12.4069 19.8888L21.2069 14.6887C21.5874 14.464 21.7134 13.9734 21.4886 13.593C21.2638 13.2126 20.7733 13.0865 20.393 13.3113L11.9999 18.2707L3.60691 13.3113Z"
-                      fill="var(--cyan-2)"
-                    />
-                  </svg>
-                  <Text
-                    size="6"
-                    weight="bold"
-                    style={{ color: "var(--cyan-2)" }}
-                  >
-                    Tasks
-                  </Text>
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <rect
+                        width="24"
+                        height="24"
+                        fill="white"
+                        fill-opacity="0.01"
+                      />
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M12.4069 2.91125C12.1559 2.7629 11.844 2.7629 11.5929 2.91125L2.79294 8.11125C2.54937 8.25517 2.39993 8.51706 2.39993 8.79999C2.39993 9.08292 2.54937 9.3448 2.79294 9.48872L11.5929 14.6887C11.844 14.8371 12.1559 14.8371 12.4069 14.6887L21.2069 9.48872C21.4506 9.3448 21.6 9.08292 21.6 8.79999C21.6 8.51706 21.4506 8.25517 21.2069 8.11125L12.4069 2.91125ZM11.9999 13.0708L4.77248 8.79999L11.9999 4.52922L19.2274 8.79999L11.9999 13.0708ZM3.60691 13.3113C3.22653 13.0865 2.73597 13.2126 2.51118 13.593C2.28641 13.9734 2.41256 14.464 2.79294 14.6887L11.5929 19.8888C11.844 20.0371 12.1559 20.0371 12.4069 19.8888L21.2069 14.6887C21.5874 14.464 21.7134 13.9734 21.4886 13.593C21.2638 13.2126 20.7733 13.0865 20.393 13.3113L11.9999 18.2707L3.60691 13.3113Z"
+                        fill="var(--cyan-2)"
+                      />
+                    </svg>
+                    <Text
+                      size="6"
+                      weight="bold"
+                      style={{ color: "var(--cyan-2)" }}
+                    >
+                      Tasks
+                    </Text>
+                  </Flex>
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={10}
+                    onPageChange={handlePageChange}
+                  />
                 </Flex>
+
                 {isLoading ? (
                   <Loader />
                 ) : isError ? (
