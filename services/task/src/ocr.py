@@ -1,8 +1,9 @@
 import cv2
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
+from bs4 import BeautifulSoup
 
-from src.models.ocr_model import OCRResult, OCRResponse, TableOCRResponse, BoundingBox
+from src.models.ocr_model import OCRResult, OCRResponse, TableOCRResponse, BoundingBox, CellBoundingBox
 
 
 def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
@@ -47,15 +48,23 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> TableOCRRe
     cell_bbox_raw = table_result['res'].get('cell_bbox', [])
     html = table_result['res'].get('html', "")
 
-    cell_bbox = [
-        BoundingBox(
-            top_left=[bbox[0], bbox[1]],
-            top_right=[bbox[2], bbox[3]],
-            bottom_right=[bbox[4], bbox[5]],
-            bottom_left=[bbox[6], bbox[7]]
+    # Parse the HTML
+    soup = BeautifulSoup(html, 'html.parser')
+    cells = soup.find_all(['td', 'th'])
+
+    cell_bbox = []
+    for bbox, cell in zip(cell_bbox_raw, cells):
+        cell_bbox.append(
+            CellBoundingBox(
+                bbox=BoundingBox(
+                    top_left=[bbox[0], bbox[1]],
+                    top_right=[bbox[2], bbox[3]],
+                    bottom_right=[bbox[4], bbox[5]],
+                    bottom_left=[bbox[6], bbox[7]],
+                ),
+                text=cell.get_text(strip=True)
+            )
         )
-        for bbox in cell_bbox_raw
-    ]
 
     response = TableOCRResponse(cell_bbox=cell_bbox, html=html)
     return response

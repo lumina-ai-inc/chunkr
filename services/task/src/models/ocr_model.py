@@ -40,8 +40,13 @@ class OCRResponse(BaseModel):
     results: List[OCRResult] = Field(..., description="List of OCR results")
 
 
+class CellBoundingBox(BaseModel):
+    bbox: BoundingBox = Field(..., description="Bounding box of the cell")
+    text: str = Field(..., description="Text of the cell")
+
+
 class TableOCRResponse(BaseModel):
-    cell_bbox: List[BoundingBox] = Field(...,
+    cell_bbox: List[CellBoundingBox] = Field(...,
                                          description="List of bounding boxes for each cell")
     html: str = Field(..., description="HTML representation of the table")
 

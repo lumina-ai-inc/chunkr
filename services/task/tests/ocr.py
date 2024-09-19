@@ -42,7 +42,7 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     start_time = time.time()
 
     # Send POST request to the OCR service
-    response = requests.post(f"{service_url}/paddle_ocr_raw", files=files)
+    response = requests.post(f"{service_url}/paddle_ocr", files=files)
 
     time_taken = time.time() - start_time
 
@@ -51,9 +51,9 @@ def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     # Check if the request was successful
     if response.status_code == 200:
         results = response.json()
-        # with open("output/results_2.json", "w") as f:
-        #     json.dump(results, f)
-        save_ocr(image_path, "output", results[0], "font/simfang.ttf")
+        with open("output/results_2.json", "w") as f:
+            json.dump(results, f)
+        # save_ocr(image_path, "output", results[0], "font/simfang.ttf")
         return results
     else:
         raise Exception(f"Error: {response.status_code} - {response.text}")
