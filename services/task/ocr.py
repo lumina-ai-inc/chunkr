@@ -1,21 +1,21 @@
 from paddleocr import PaddleOCR
 from pathlib import Path
-from PIL import Image
-import numpy as np
+from more_itertools import split_when
+
+def get_y_center(box):
+    return (box[0][0][1] + box[0][2][1]) / 2
+
+def not_vertically_overlapping(box1, box2):
+    up1, down1 = box1[0][0][1], box1[0][2][1]
+    up2, down2 = box2[0][0][1], box2[0][2][1]
+    return down1 < up2 or (down1 - up2) < (up2 - up1) / 2
+
+def group_by_row(ocr_result):
+    sorted_boxes = sorted(ocr_result, key=get_y_center)
+    rows = list(split_when(sorted_boxes, not_vertically_overlapping))
+    return [sorted(row, key=lambda x: x[0][0][0]) for row in rows]
 
 def perform_paddle_ocr(ocr: PaddleOCR, image_path: Path) -> list:
-    try:
-        with Image.open(image_path) as img:
-            img = img.convert('RGB')
-            img_array = np.array(img)
-        result = ocr.ocr(img_array)
-    except Image.DecompressionBombError:
-        print(f"Error: The image file is too large or complex to process.")
-        result = []
-    except Image.UnidentifiedImageError:
-        print(f"Error: The image file '{image_path}' cannot be identified or is corrupted.")
-        result = []
-    except Exception as e:
-        print(f"An unexpected error occurred: {str(e)}")
-        result = []
-    return result
+    result = ocr.ocr(image_path)
+    grouped_result = group_by_row(result[0])
+    return grouped_result

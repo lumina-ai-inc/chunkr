@@ -6,6 +6,7 @@ import os
 import matplotlib.pyplot as plt
 from paddleocr import draw_ocr
 import multiprocessing
+import time
 
 def save_ocr(img_path, out_path, result, font):
     os.makedirs(out_path, exist_ok=True)
@@ -25,7 +26,6 @@ def save_ocr(img_path, out_path, result, font):
     plt.imshow(img)
     plt.show()
 
-import time
 
 def send_image_to_ocr(image_path: str, service_url: str) -> dict:
     """
@@ -68,10 +68,13 @@ def process_image(args):
 
 # Usage example
 if __name__ == "__main__":
-    image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/1c749c35-cc15-56b2-ade5-010fbf1a9778/page_2.jpg"
+    image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/Picture.jpg"
     service_url = "http://35.236.179.125:3000"
-    n = 15 # Number of times to send the image
 
+    # process_image((image_path, service_url))
+    n = 200 # Number of times to send the image
+
+    start_time = time.time()
     # Create a pool of worker processes
     with multiprocessing.Pool() as pool:
         # Create a list of arguments for each process
@@ -80,6 +83,6 @@ if __name__ == "__main__":
         # Map the process_image function to the arguments
         results = pool.map(process_image, args)
 
-    # Print results
-    for i, result in enumerate(results, 1):
-        print(f"Result {i}:", result)
+    end_time = time.time() 
+    print(f"Total time taken: {end_time - start_time} seconds")
+    print(f"Average time taken: {(end_time - start_time) / n} seconds")
