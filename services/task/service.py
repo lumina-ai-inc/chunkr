@@ -6,7 +6,7 @@ from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
 import tempfile
-from typing import Dict
+from typing import Dict, Optional
 
 from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResponse
@@ -45,7 +45,7 @@ class Image:
         density: int = Field(default=300, description="Image density in DPI"),
         extension: str = Field(default="png", description="Image extension"),
         quality: int = Field(default=100, description="Image quality (0-100)"),
-        resize: str = Field(
+        resize: Optional[str] = Field(
             default=None, description="Image resize dimensions (e.g., '800x600')")
     ) -> str:
         return crop_image(str(file), left, top, left + width, top + height, density, extension, quality, resize)
