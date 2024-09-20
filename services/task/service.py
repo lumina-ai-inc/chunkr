@@ -43,6 +43,7 @@ class Image:
         height: float,
         extension: str = Field(default="png", description="Image extension")
     ) -> str:
+        # TODO: Add png support
         return crop_image(str(file), left, top, left + width, top + height, extension)
 
 
@@ -123,7 +124,7 @@ class Task:
                 print("Segment cropped")
                 with tempfile.NamedTemporaryFile(suffix=f".{segment_image_extension}", delete=False) as temp_file:
                     temp_file.write(segment.image)
-                    temp_file_path = temp_file.name
+                    temp_file_path = Path(temp_file.name)
                 try:
                     print("Segment ocr started")
                     if segment.segment_type == SegmentType.Table:
