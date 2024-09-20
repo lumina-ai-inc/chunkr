@@ -6,16 +6,16 @@ import time
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(override=True)
 
 def convert_file_to_images(file_path, output_dir, density=150, extension="png"):
     # Get the service URL from environment variable
     service_url = os.getenv('SERVICE_URL')
     if not service_url:
-        raise ValueError("SERVICE_URL not found in environment variables")
+        raise ValueError("SERVICE_URL environment variable is not set")
 
     # Prepare the URL and files for the request
-    url = f'{service_url}images_from_file'
+    url = f'{service_url}/images_from_file'
     files = {
         'file': open(file_path, 'rb')
     }
@@ -49,25 +49,25 @@ def convert_file_to_images(file_path, output_dir, density=150, extension="png"):
     else:
         print(f"Error: {response.status_code} - {response.text}")
 
-# Usage
-file_path = '/Users/ishaankapoor/chunk-my-docs/services/task/input/10_1002_slct_201802657_annotated.pdf'
-base_output_dir = 'output'
+# # Usage
+# file_path = '/Users/ishaankapoor/chunk-my-docs/services/task/input/10_1002_slct_201802657_annotated.pdf'
+# base_output_dir = 'output'
 
-# Extract the filename without extension
-file_name = Path(file_path).stem
+# # Extract the filename without extension
+# file_name = Path(file_path).stem
 
-# Create the output directory using the filename
-output_dir = Path(base_output_dir) / file_name
-os.makedirs(output_dir, exist_ok=True)
+# # Create the output directory using the filename
+# output_dir = Path(base_output_dir) / file_name
+# os.makedirs(output_dir, exist_ok=True)
 
-# Start timing
-start_time = time.time()
+# # Start timing
+# start_time = time.time()
 
-convert_file_to_images(file_path, output_dir, 300, "png")
+# convert_file_to_images(file_path, output_dir, 300, "png")
 
-# End timing
-end_time = time.time()
+# # End timing
+# end_time = time.time()
 
-# Calculate and print execution time
-execution_time = end_time - start_time
-print(f"Execution time: {execution_time:.2f} seconds")
+# # Calculate and print execution time
+# execution_time = end_time - start_time
+# print(f"Execution time: {execution_time:.2f} seconds")
