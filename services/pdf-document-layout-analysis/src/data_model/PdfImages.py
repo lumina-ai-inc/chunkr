@@ -8,6 +8,8 @@ from os.path import join
 from pathlib import Path
 from PIL import Image
 from pdf2image import convert_from_path
+
+# rewrite convert from path using 
 from pdf_features.PdfFeatures import PdfFeatures
 
 from src.configuration import IMAGES_ROOT_PATH, XMLS_PATH
