@@ -143,7 +143,7 @@ pub fn main() -> std::io::Result<()> {
                 .route("/usage", web::get().to(get_usage))
                 .route("/usage/monthly", web::get().to(get_monthly_usage));
 
-            if std::env::var("STRIPE").is_ok() {
+            if std::env::var("STRIPE__API_KEY").is_ok() {
                 app = app.route("/stripe/webhook", web::post().to(stripe_webhook));
                 api_scope = api_scope
                     .route(
