@@ -9,6 +9,7 @@ from src.ocr import ppocr_raw, ppocr, ppstructure_table_raw, ppstructure_table
 from src.utils import check_imagemagick_installed
 from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResponse
+from src.models.segment_model import Segment,SegmentType
 
 
 @bentoml.service(
@@ -33,13 +34,13 @@ class Image:
     def crop_image(
         self,
         file: Path,
-        bbox: Dict[str, int]
+        left: float,
+        top: float,
+        width: float,
+        height: float,
+        extension: str = Field(default="png", description="Image extension")
     ) -> Path:
-        height = bbox.get('height', 0)
-        left = bbox.get('left', 0)
-        top = bbox.get('top', 0)
-        width = bbox.get('width', 0)
-        return crop_image(file, left, top, left + width, top + height)
+        return crop_image(file, left, top, left + width, top + height, extension)
 
 
 @bentoml.service(
@@ -70,6 +71,7 @@ class OCR:
     def paddle_table(self, file: Path) -> OCRResponse:
         return ppstructure_table(self.table_engine, file)
 
+
 @bentoml.service(
     name="task",
     resources={"gpu": 1, "cpu": "4"},
@@ -81,5 +83,33 @@ class Task:
         self.ocr_service = bentoml.depends(OCR)
 
     @bentoml.api
-    def process(self, file: Path) -> list:
-        pass
+    def images_from_file(
+        self,
+        file: Path,
+        density: int = Field(default=300, description="Image density in DPI"),
+        extension: str = Field(default="png", description="Image extension")
+    ) -> Dict[int, str]:
+        return self.image_service.convert_to_img(file, density, extension)
+
+    @bentoml.api
+    def process(
+            self,
+            file: Path,
+            segments: list[Segment],
+            image_density: int = Field(
+                default=300, description="Image density in DPI for page images"),
+            page_image_extension: str = Field(
+                default="png", description="Image extension for page images"),
+            segment_image_extension: str = Field(
+                default="jpg", description="Image extension for segment images")
+    ) -> list[Segment]:
+        page_images = self.image_service.convert_to_img(
+            file, image_density, page_image_extension)
+        for segment in segments:
+            segment.image = self.image_service.crop_image(
+                page_images[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
+            if segment.segment_type == SegmentType.Table:
+                segment.ocr = self.ocr_service.paddle_table(segment.image)
+            else:
+                segment.ocr = self.ocr_service.paddle_ocr(segment.image)
+        return segments
