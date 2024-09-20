@@ -12,7 +12,6 @@ dependencies = [
     "more-itertools>=10.5.0",
     "opencv-python>=4.10.0.84",
     "openpyxl>=3.1.5",
-    "paddleocr>=2.8.1",
     "pydantic>=2.9.1",
     "pyenchant>=3.2.2",
     "requests>=2.32.3",
@@ -20,11 +19,12 @@ dependencies = [
     "transformers>=4.44.2",
 ]
 
+[project.optional-dependencies]
+linux = ["paddlepaddle-gpu>=2.6.2"]
+macos = ["paddlepaddle>=2.6.2"]
+
+[tool.uv]
 environments = [
     "sys_platform == 'linux'",
-    "sys_platform != 'linux'"
+    "sys_platform == 'darwin'"
 ]
-
-[tool.uv.dependencies]
-paddlepaddle-gpu = { version = ">=2.6.2", platform = "linux" }
-paddlepaddle = { version = ">=2.6.2", platform = "!linux" }
