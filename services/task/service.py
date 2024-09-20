@@ -105,6 +105,7 @@ class Task:
             segment_image_extension: str = Field(
                 default="jpg", description="Image extension for segment images")
     ) -> list[Segment]:
+        print("Processing started")
         page_images = self.image_service.convert_to_img(
             file, image_density, page_image_extension)
         page_image_file_paths = {}
@@ -114,22 +115,24 @@ class Task:
             temp_file.write(base64.b64decode(page_image))
             temp_file.close()
             page_image_file_paths[page_number] = temp_file.name
+        print("Pages converted to images")
         try:
             for segment in segments:
                 segment.image = self.image_service.crop_image(
                     page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
-
+                print("Segment cropped")
                 with tempfile.NamedTemporaryFile(suffix=f".{segment_image_extension}", delete=False) as temp_file:
                     temp_file.write(segment.image)
                     temp_file_path = temp_file.name
-
                 try:
+                    print("Segment ocr started")
                     if segment.segment_type == SegmentType.Table:
                         segment.ocr = self.ocr_service.paddle_table(
                             temp_file_path)
                     else:
                         segment.ocr = self.ocr_service.paddle_ocr(
                             temp_file_path)
+                    print("Segment ocr finished")
                 finally:
                     os.unlink(temp_file_path)
         finally:
