@@ -109,14 +109,14 @@ class Task:
         for page_number, page_image in page_images.items():
             temp_path = tempfile.NamedTemporaryFile(suffix=page_image_extension)
             with open(temp_path, "wb") as f:
-                f.write(page_image.read())
+                f.write(page_image)
             page_image_file_paths[page_number] = temp_path
         for segment in segments:
             segment.image = self.image_service.crop_image(
                 page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
             image_path = tempfile.NamedTemporaryFile(suffix=segment_image_extension)
             with open(image_path, "wb") as f:
-                f.write(segment.image.read())
+                f.write(segment.image)
                 if segment.segment_type == SegmentType.Table:
                     segment.ocr = self.ocr_service.paddle_table(image_path)
                 else:
