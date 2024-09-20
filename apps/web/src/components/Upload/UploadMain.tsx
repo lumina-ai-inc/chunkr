@@ -167,6 +167,7 @@ export default function UploadMain({
                 className="card-image"
                 style={{
                   backgroundImage: "url('src/assets/cards/fast.png')",
+                  zIndex: 0,
                 }}
               />
               <Flex
