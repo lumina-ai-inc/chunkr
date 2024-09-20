@@ -39,7 +39,7 @@ export default function Footer() {
           </Flex>
           <Flex direction="row" gap="8" className="footer-links">
             <FooterColumn title="Product" links={["API Docs", "Github"]} />
-            <FooterColumn title="Contact" links={["Book a call"]} />
+            <FooterColumn title="Contact" links={["Book a call", "Email"]} />
           </Flex>
         </Flex>
         <Separator size="4" className="footer-separator" />
@@ -108,13 +108,16 @@ const FooterColumn = ({ title, links }: { title: string; links: string[] }) => {
         let href = "#";
         switch (link) {
           case "API Docs":
-            href = `${import.meta.env.VITE_API_URL}/redoc`;
+            href = `https://docs.chunkr.ai`;
             break;
           case "Github":
             href = "https://github.com/lumina-ai-inc/chunk-my-docs";
             break;
           case "Book a call":
             href = "https://cal.com/mehulc/15min";
+            break;
+          case "Email":
+            href = "mailto:mehul@lumina.sh";
             break;
         }
         return (

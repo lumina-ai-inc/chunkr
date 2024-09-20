@@ -169,10 +169,11 @@
   max-width: 642px;
 }
 
-@media (max-width: 1236px) {
-  .text-container {
-    gap: 24px;
-  }
+.hero-description {
+  font-size: 20px;
+  max-width: 542px;
+  line-height: 32px;
+  margin-bottom: 12px;
 }
 
 @media (max-width: 992px) {
@@ -217,7 +218,7 @@
   }
 
   .hero-title {
-    font-size: 52px !important;
+    font-size: 64px !important;
     line-height: 64px !important;
   }
 }
@@ -310,4 +311,21 @@
 
 .fade-in {
   animation: fadeIn 0.3s ease-in;
+}
+
+@media (max-width: 400px) {
+  .module-container {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: 48px !important;
+    line-height: 48px !important;
+    margin-bottom: 32px;
+  }
+
+  .hero-description {
+    font-size: 16px;
+    line-height: 24px;
+  }
 }

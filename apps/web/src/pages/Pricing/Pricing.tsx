@@ -44,7 +44,7 @@ export default function Pricing() {
                 </div>
               </Flex>
               <Flex className="pricing-hero-container">
-                <Flex className="text-container" direction="column">
+                <Flex className="text-container-pricing" direction="column">
                   <Text
                     size="9"
                     weight="bold"
@@ -78,15 +78,7 @@ export default function Pricing() {
                   <Calculator />
                 </Flex>
                 <Flex direction="column" style={{ flex: 1, width: "100%" }}>
-                  <Text
-                    size="5"
-                    weight="bold"
-                    mb="32px"
-                    style={{ color: "hsla(180, 100%, 100%, 0.95)" }}
-                  >
-                    ENTERPRISE PLANS
-                  </Text>
-                  <Flex direction="column" gap="48px">
+                  <Flex direction="column" gap="44px">
                     <PricingCard
                       icon={
                         <svg
@@ -111,6 +103,7 @@ export default function Pricing() {
                         </svg>
                       }
                       title="High Volume"
+                      subtitle="Scalable & high-throughput solution"
                       checkpoints={[
                         "Discounted per-page rate",
                         "Integrate in minutes",
@@ -145,11 +138,12 @@ export default function Pricing() {
                         </svg>
                       }
                       title="Self-hosted"
+                      subtitle="Maximum control, security, & customization"
                       checkpoints={[
                         "Flat monthly rate",
                         "White glove onboarding",
                         "Self-hosted in private VPC",
-                        "Deploy on AWS or GCP",
+                        "Deploy on AWS/GCP/Azure",
                         "Custom ingestion pipeline",
                         "0 limits and high throughput",
                         "24/7 founder support",

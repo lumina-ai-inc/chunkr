@@ -65,7 +65,6 @@ console.log(import.meta.env);
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Theme
     scaling="100%"
-    accentColor="cyan"
     panelBackground="solid"
     style={{
       height: "100%",
