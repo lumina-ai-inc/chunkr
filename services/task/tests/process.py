@@ -7,12 +7,13 @@ from pathlib import Path
 import glob
 import uuid
 
-def create_segments_list(json_data):
+def create_segments_list(json_path):
+    with open(json_path, 'r') as file:
+        json_data = json.load(file)
     segments = []
-    
-    for item in json_data:
-        if 'segments' in item:
-            for segment in item['segments']:
+    for chunk in json_data:
+        if 'segments' in chunk:
+            for segment in chunk['segments']:
                 segments.append({
                     'left': segment['left'],
                     'top': segment['top'],
@@ -23,7 +24,7 @@ def create_segments_list(json_data):
                     'page_height': segment['page_height'],
                     'text': segment['text'],
                     'type': segment['type'],
-                    'segment_id': uuid.uuid4(),
+                    'segment_id': str(uuid.uuid4()),
                     'ocr': None,
                     'image': None
                 })
