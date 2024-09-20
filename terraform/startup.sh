@@ -1,5 +1,5 @@
 apt-get update
-apt-get install -y redis-tools htop git inux-headers-`uname -r` build-essential dkms
+apt-get install -y redis-tools htop git linux-headers-`uname -r` build-essential dkms
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.cargo/env
 
@@ -35,6 +35,7 @@ rm -rf ImageMagick-7.1.0-38
 # Enable OpenCL at runtime
 echo 'export MAGICK_OCL_DEVICE=true' >> /etc/profile.d/imagemagick.sh
 
+sudo 
 
 # Install Docker
 apt-get install -y apt-transport-https ca-certificates curl software-properties-common
