@@ -1,7 +1,10 @@
+from autocorrect import Speller
 from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Optional
 from src.models.ocr_model import OCRResponse
+
+spell = Speller(only_replacements=True)
 
 class SegmentType(str, Enum):
     Title = "Title"
@@ -36,5 +39,5 @@ class Segment(BaseModel):
         Extract all text from OCR results and update the text_ocr field.
         """
         if self.ocr and self.ocr.results:
-            ocr_texts = [result.text for result in self.ocr.results]
+            ocr_texts = [spell(result.text) for result in self.ocr.results]
             self.text_ocr = " ".join(ocr_texts)

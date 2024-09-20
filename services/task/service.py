@@ -59,8 +59,6 @@ class OCR:
         self.spell = Speller(only_replacements=True)
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
                              ocr_order_method="tb-xy")
-        self.ocr_rec = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy", det=False, rec=True)
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2")
 
@@ -69,11 +67,8 @@ class OCR:
         return ppocr_raw(self.ocr, file)
 
     @bentoml.api
-    def paddle_ocr(self, file: Path, det: bool = True) -> OCRResponse:
-        if not det:
-            return ppocr(self.ocr_rec, self.spell, file)
-        else:
-            return ppocr(self.ocr, self.spell, file)
+    def paddle_ocr(self, file: Path) -> OCRResponse:
+        return ppocr(self.ocr, self.spell, file)
 
     @bentoml.api
     def paddle_table_raw(self, file: Path) -> list:
