@@ -69,7 +69,8 @@ pub struct Segment {
     #[serde(rename = "type")]
     pub segment_type: SegmentType,
     pub segment_id: String,
-    pub ocr: Option<OCRResponse>
+    pub ocr: Option<OCRResponse>,
+    pub image: Option<String>,
 }
 
 impl Segment {
@@ -84,6 +85,7 @@ impl Segment {
         text: String,
         segment_type: SegmentType,
         ocr: Option<OCRResponse>,
+        image: Option<String>,
     ) -> Self {
         Self {
             left,
@@ -97,6 +99,7 @@ impl Segment {
             segment_type,
             segment_id: Uuid::new_v4().to_string(),
             ocr,
+            image,
         }
     }
 }
