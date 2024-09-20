@@ -3,7 +3,7 @@ name = "task"
 version = "0.1.0"
 description = "Run tasks on documents on either cpu or gpu"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "autocorrect>=2.6.1",
     "beautifulsoup4>=4.12.3",
