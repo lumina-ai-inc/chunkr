@@ -30,7 +30,7 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
 
         for img_file in sorted(os.listdir(temp_dir)):
             if img_file.startswith('output-') and img_file.endswith(f".{extension}"):
-                page_num = int(img_file.split('-')[1].split('.')[0])
+                page_num = int(img_file.split('-')[1].split('.')[0]) + 1
                 with open(os.path.join(temp_dir, img_file), 'rb') as img:
                     img_base64 = base64.b64encode(img.read()).decode('utf-8')
                     result[page_num] = img_base64
