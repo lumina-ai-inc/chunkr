@@ -117,23 +117,29 @@ class Task:
             temp_file.write(base64.b64decode(page_image))
             temp_file.close()
             page_image_file_paths[page_number] = Path(temp_file.name)
+        print("Pages converted to images")
         try:
+            print("Segment cropping started")
             for segment in segments:
-                segment.image = self.image_service.crop_image(
-                    page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
-                segment_temp_file = tempfile.NamedTemporaryFile(
-                    suffix=f".{segment_image_extension}", delete=False)
-                segment_temp_file.write(base64.b64decode(segment.image))
-                segment_temp_file.close()
                 try:
-                    if segment.segment_type == SegmentType.Table:
-                        segment.ocr = self.ocr_service.paddle_table(
-                            Path(segment_temp_file.name))
-                    else:
-                        segment.ocr = self.ocr_service.paddle_ocr(
-                            Path(segment_temp_file.name))
-                finally:
-                    os.unlink(segment_temp_file.name)
+                    segment.image = self.image_service.crop_image(
+                        page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
+                    segment_temp_file = tempfile.NamedTemporaryFile(
+                        suffix=f".{segment_image_extension}", delete=False)
+                    segment_temp_file.write(base64.b64decode(segment.image))
+                    segment_temp_file.close()
+                    try:
+                        if segment.segment_type == SegmentType.Table:
+                            segment.ocr = self.ocr_service.paddle_table(
+                                Path(segment_temp_file.name))
+                        else:
+                            segment.ocr = self.ocr_service.paddle_ocr(
+                                Path(segment_temp_file.name))
+                    finally:
+                        os.unlink(segment_temp_file.name)
+                except Exception as e:
+                    print(f"Error cropping segment {segment.segment_type} on page {segment.page_number}: {e}")
+            print("Segment ocr finished")
         finally:
             for page_image_file_path in page_image_file_paths.values():
                 os.unlink(page_image_file_path)
