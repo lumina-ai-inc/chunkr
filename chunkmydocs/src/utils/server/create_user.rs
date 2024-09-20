@@ -38,8 +38,6 @@ pub async fn create_user(
         ),
     ]);
 
-    let usage_limits_clone = usage_limits.clone();
-
     let transaction = client.transaction().await?;
 
     let user_query = r#"
@@ -122,6 +120,7 @@ pub async fn create_user(
                 discounts: None, // Set discounts as None
             },
         ], // Added usage limits for the Free tier
+        task_count: Some(0),
     };
 
     Ok(user)

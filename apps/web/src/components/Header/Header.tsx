@@ -91,7 +91,7 @@ export default function Header({
         </a>
 
         <a
-          href="https://github.com/lumina-ai-inc/chunk-my-docs"
+          href="https://cal.com/mehulc/30min"
           target="_blank"
           className="nav-item"
         >

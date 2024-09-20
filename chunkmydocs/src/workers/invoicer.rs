@@ -1,7 +1,7 @@
 use chrono::Datelike;
 use chrono::NaiveDate;
 use chrono::{DateTime, Utc};
-use chunkmydocs::models::server::user::InvoiceStatus;
+// use chunkmydocs::models::server::user::InvoiceStatus;
 use chunkmydocs::utils::configs::stripe_config::Config as StripeConfig;
 use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
 use reqwest::Client as ReqwestClient;
@@ -236,8 +236,9 @@ pub async fn create_and_send_invoice(
         };
 
         // Apply discount if available
-        if let Some(amount) = discount_amount {
-            let discounted_price = (pages as f64 * amount).min(row.get::<_, f64>("amount_due"));
+        if let Some(_) = discount_amount {
+            // let _discounted_price: f64 =
+            //     (pages as f64 * amount).min(row.get::<_, f64>("amount_due"));
             line_items.push(json!({
                 "price": price_id,
                 "quantity": quantity,
