@@ -13,6 +13,8 @@ uv add paddlepaddle-gpu
 # cpu = ["paddlepaddle>=2.6.2"]
 # gpu = ["paddlepaddle-gpu>=2.6.2,<2.7.0"]
 
+uv pip install .[linux]
+uv pip install .[macos]
 
 mogrify -format jpg -path /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/jpg /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/*.png
 mogrify -format jpg -path /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr/jpg /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr/*.png
