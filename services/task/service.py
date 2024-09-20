@@ -1,5 +1,4 @@
 from __future__ import annotations
-from autocorrect import Speller
 import base64
 import bentoml
 import os
@@ -13,7 +12,7 @@ from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResponse
 from src.models.segment_model import Segment, SegmentType
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
-from src.utils import check_imagemagick_installed
+from src.utils import check_imagemagick_installed, ImprovedSpeller
 from src.process import adjust_segments
 
 
@@ -31,9 +30,12 @@ class Image:
         self,
         file: Path,
         density: int = Field(default=300, description="Image density in DPI"),
-        extension: str = Field(default="png", description="Image extension")
+        extension: str = Field(default="png", description="Image extension"),
+        quality: int = Field(default=95, description="Image quality (0-100)"),
+        resize: str = Field(
+            default=None, description="Image resize dimensions (e.g., '800x600')")
     ) -> Dict[int, str]:
-        return convert_to_img(file, density, extension)
+        return convert_to_img(file, density, extension, quality, resize)
 
     @bentoml.api
     def crop_image(
@@ -56,7 +58,7 @@ class Image:
 )
 class OCR:
     def __init__(self) -> None:
-        self.spell = Speller(only_replacements=True)
+        self.spell = ImprovedSpeller(only_replacements=True)
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
                              ocr_order_method="tb-xy")
         self.table_engine = PPStructure(
@@ -67,8 +69,8 @@ class OCR:
         return ppocr_raw(self.ocr, file)
 
     @bentoml.api
-    def paddle_ocr(self, file: Path) -> OCRResponse:
-        return ppocr(self.ocr, self.spell, file)
+    def paddle_ocr(self, file: Path, threshold: int = 80) -> OCRResponse:
+        return ppocr(self.ocr, self.spell, file, threshold)
 
     @bentoml.api
     def paddle_table_raw(self, file: Path) -> list:
@@ -111,7 +113,11 @@ class Task:
             segment_image_density: int = Field(
                 default=300, description="Image density in DPI for segment images"),
             segment_bbox_offset: float = Field(
-                default=1.5, description="Offset for segment bbox")
+                default=1.5, description="Offset for segment bbox"),
+            segment_image_quality: int = Field(
+                default=95, description="Image quality (0-100) for segment images"),
+            segment_image_resize: str = Field(
+                default=None, description="Image resize dimensions (e.g., '800x600') for segment images")
     ) -> list[Segment]:
         print("Processing started")
         adjust_segments(segments, segment_bbox_offset)
@@ -130,7 +136,16 @@ class Task:
             for segment in segments:
                 try:
                     segment.image = self.image_service.crop_image(
-                        page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_density, segment_image_extension)
+                        page_image_file_paths[segment.page_number],
+                        segment.left,
+                        segment.top,
+                        segment.width,
+                        segment.height,
+                        segment_image_density,
+                        segment_image_extension,
+                        segment_image_quality,
+                        segment_image_resize
+                    )
                     segment_temp_file = tempfile.NamedTemporaryFile(
                         suffix=f".{segment_image_extension}", delete=False)
                     segment_temp_file.write(base64.b64decode(segment.image))
