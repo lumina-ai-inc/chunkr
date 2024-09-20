@@ -82,7 +82,7 @@ const Home = () => {
                     className="white hero-description"
                   >
                     API service for document layout analysis, OCR and chunking
-                    to convert PDFs into RAG & Training Data.
+                    to convert PDFs into RAG/Training Data.
                   </Text>
 
                   <Flex direction="row" gap="24px" mb="40px">
@@ -245,9 +245,9 @@ const Home = () => {
                     </Flex>
                     {!isAuthenticated && (
                       <Text
-                        size="2"
-                        weight="medium"
-                        style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+                        size="1"
+                        weight="bold"
+                        style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
                       >
                         1500 pages in credits
                       </Text>
