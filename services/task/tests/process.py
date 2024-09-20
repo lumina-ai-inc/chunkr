@@ -59,8 +59,9 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
         'page_image_extension': 'png',
         'segment_image_extension': 'jpg',
         'segment_image_density': 500,
-        'segment_bbox_offset': 1.5,
-        
+        'segment_bbox_offset': 2,
+        'segment_image_quality': 100,
+        'segment_image_resize': None,
     }
 
     start_time = time.time()
