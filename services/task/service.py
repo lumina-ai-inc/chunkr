@@ -1,7 +1,6 @@
 from __future__ import annotations
 import base64
 import bentoml
-import multiprocessing
 import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
@@ -14,6 +13,7 @@ from src.models.ocr_model import OCRResponse
 from src.models.segment_model import Segment, SegmentType
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
 from src.utils import check_imagemagick_installed
+from src.process import adjust_segments
 
 
 @bentoml.service(
@@ -42,10 +42,10 @@ class Image:
         top: float,
         width: float,
         height: float,
+        density: int = Field(default=300, description="Image density in DPI"),
         extension: str = Field(default="png", description="Image extension")
     ) -> str:
-        # TODO: Add png support
-        return crop_image(str(file), left, top, left + width, top + height, extension)
+        return crop_image(str(file), left, top, left + width, top + height, density, extension)
 
 
 @bentoml.service(
@@ -108,6 +108,7 @@ class Task:
                 default="jpg", description="Image extension for segment images")
     ) -> list[Segment]:
         print("Processing started")
+        adjust_segments(segments, 5)
         page_images = self.image_service.convert_to_img(
             file, image_density, page_image_extension)
         page_image_file_paths: dict[int, Path] = {}
@@ -138,7 +139,8 @@ class Task:
                     finally:
                         os.unlink(segment_temp_file.name)
                 except Exception as e:
-                    print(f"Error cropping segment {segment.segment_type} on page {segment.page_number}: {e}")
+                    print(
+                        f"Error cropping segment {segment.segment_type} on page {segment.page_number}: {e}")
             print("Segment ocr finished")
         finally:
             for page_image_file_path in page_image_file_paths.values():

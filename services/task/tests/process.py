@@ -51,8 +51,8 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
 
     data = {
         'segments': json.dumps(segments),
-        'image_density': 300,
-        'page_image_extension': 'jpg',
+        'image_density': 500,
+        'page_image_extension': 'png',
         'segment_image_extension': 'jpg'
     }
 
@@ -71,10 +71,10 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
         with open(json_path, "w") as f:
             json.dump(results, f, indent=2)
 
-        for segment in results:
+        for index, segment in enumerate(results):
             if 'image' in segment and segment['image']:
                 image_data = base64.b64decode(segment['image'])
-                image_path = os.path.join(output_dir, f"{segment['segment_id']}.jpg")
+                image_path = os.path.join(output_dir, f"{index}.jpg")
                 with open(image_path, 'wb') as image_file:
                     image_file.write(image_data)
 
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     service_url = "http://35.236.179.125:3000"
     run = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     input_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/process/00c08086-9837-5551-8133-4e22ac28c6a5"
-    output_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/process/{run}/00c08086-9837-5551-8133-4e22ac28c6a5"
+    output_dir = f"/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/process/{run}/00c08086-9837-5551-8133-4e22ac28c6a5"
 
     pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
     if not pdf_files:
