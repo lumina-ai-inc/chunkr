@@ -114,7 +114,7 @@ class Task:
                 suffix=f".{page_image_extension}", delete=False)
             temp_file.write(base64.b64decode(page_image))
             temp_file.close()
-            page_image_file_paths[page_number] = temp_file.name
+            page_image_file_paths[page_number] = Path(temp_file.name)
         print("Pages converted to images")
         try:
             for segment in segments:
