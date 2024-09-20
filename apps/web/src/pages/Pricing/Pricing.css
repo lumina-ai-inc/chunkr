@@ -83,7 +83,7 @@
 .pricing-cards-container {
   flex-direction: row;
   padding: 0 24px;
-  margin-top: 80px;
+  margin-top: 64px;
   gap: 64px;
   width: 100%;
   flex-wrap: wrap;
