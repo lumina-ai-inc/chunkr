@@ -30,12 +30,9 @@ class Image:
         self,
         file: Path,
         density: int = Field(default=300, description="Image density in DPI"),
-        extension: str = Field(default="png", description="Image extension"),
-        quality: int = Field(default=95, description="Image quality (0-100)"),
-        resize: str = Field(
-            default=None, description="Image resize dimensions (e.g., '800x600')")
+        extension: str = Field(default="png", description="Image extension")
     ) -> Dict[int, str]:
-        return convert_to_img(file, density, extension, quality, resize)
+        return convert_to_img(file, density, extension)
 
     @bentoml.api
     def crop_image(
@@ -46,9 +43,12 @@ class Image:
         width: float,
         height: float,
         density: int = Field(default=300, description="Image density in DPI"),
-        extension: str = Field(default="png", description="Image extension")
+        extension: str = Field(default="png", description="Image extension"),
+        quality: int = Field(default=100, description="Image quality (0-100)"),
+        resize: str = Field(
+            default=None, description="Image resize dimensions (e.g., '800x600')")
     ) -> str:
-        return crop_image(str(file), left, top, left + width, top + height, density, extension)
+        return crop_image(str(file), left, top, left + width, top + height, density, extension, quality, resize)
 
 
 @bentoml.service(
@@ -115,7 +115,7 @@ class Task:
             segment_bbox_offset: float = Field(
                 default=1.5, description="Offset for segment bbox"),
             segment_image_quality: int = Field(
-                default=95, description="Image quality (0-100) for segment images"),
+                default=100, description="Image quality (0-100) for segment images"),
             segment_image_resize: str = Field(
                 default=None, description="Image resize dimensions (e.g., '800x600') for segment images")
     ) -> list[Segment]:
