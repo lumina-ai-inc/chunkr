@@ -15,7 +15,18 @@ def check_imagemagick_installed():
         
         # Check and update ImageMagick policy
         policy_file = '/etc/ImageMagick-6/policy.xml'
-        tree = ET.parse(policy_file)
+        try:
+            tree = ET.parse(policy_file)
+        except ET.ParseError as parse_error:
+            print(f"Error parsing ImageMagick policy file: {str(parse_error)}")
+            print("Attempting to read the file contents:")
+            with open(policy_file, 'r') as f:
+                lines = f.readlines()
+                for i, line in enumerate(lines, 1):
+                    print(f"{i:3d}: {line.rstrip()}")
+            raise RuntimeError("Failed to parse ImageMagick policy file") from parse_error
+        
+        root = tree.getroot()
         root = tree.getroot()
         
         patterns_to_remove = ['PS', 'PS2', 'PS3', 'EPS', 'PDF', 'XPS']
