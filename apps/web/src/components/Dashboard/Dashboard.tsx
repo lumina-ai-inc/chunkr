@@ -17,13 +17,19 @@ import {
 } from "../../models/usage.model";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
 import Pagination from "../Pagination/Pagination";
+import BetterButton from "../BetterButton/BetterButton";
 
 export default function Dashboard() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [monthlyUsage, setMonthlyUsage] = useState<MonthlyUsageData>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const user = useSelector((state: RootState) => state.user.data);
   const navigate = useNavigate();
+
+  const totalTasks = user?.task_count || 0;
+  const totalPages = Math.ceil(totalTasks / itemsPerPage);
 
   const { data: monthlyUsageData } = useMonthlyUsage();
 
@@ -32,9 +38,6 @@ export default function Dashboard() {
       setMonthlyUsage(monthlyUsageData);
     }
   }, [monthlyUsageData]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   const {
     data: tasks,
@@ -63,6 +66,19 @@ export default function Dashboard() {
     monthlyUsage?.[0]?.usage_details.find(
       (usage) => usage.usage_type === "HighQuality"
     )?.count || 0;
+
+  const fastLimit =
+    user?.usage?.find((u) => u.usage_type === "Fast")?.usage_limit || 0;
+  const highQualityLimit =
+    user?.usage?.find((u) => u.usage_type === "HighQuality")?.usage_limit || 0;
+
+  console.log("fastUsage", fastUsage, "fastLimit", fastLimit);
+  console.log(
+    "highQualityUsage",
+    highQualityUsage,
+    "highQualityLimit",
+    highQualityLimit
+  );
 
   const fastDiscount =
     user?.usage?.find((u) => u.usage_type === "Fast")?.discounts?.[0]?.amount ||
@@ -93,32 +109,7 @@ export default function Dashboard() {
     highQualityCost
   );
 
-  // const adjustedFastUsage = Math.max(0, fastUsage - fastDiscount);
-  // const adjustedHighQualityUsage = Math.max(
-  //   0,
-  //   highQualityUsage - highQualityDiscount
-  // );
-
-  // const fastCost =
-  //   monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "Fast")
-  //     ?.cost || 0;
-  // const highQualityCost =
-  //   monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "HighQuality")
-  //     ?.cost || 0;
-
-  // const fastCostPerPage = fastUsage > 0 ? fastCost / fastUsage : 0;
-  // const highQualityCostPerPage =
-  //   highQualityUsage > 0 ? highQualityCost / highQualityUsage : 0;
-
-  // const adjustedBillingAmount = Math.max(
-  //   0,
-  //   fastCost -
-  //     fastDiscount * fastCostPerPage +
-  //     (highQualityCost - highQualityDiscount * highQualityCostPerPage)
-  // );
-
-  const billingAmount = monthlyUsage?.[0]?.total_cost || 0;
-  console.log(billingAmount);
+  const billingAmount = Math.max(0, adjustedBillingAmount);
 
   const billingDueDate = monthlyUsage?.[0]?.month
     ? calculateBillingDueDate(monthlyUsage[0].month)
@@ -265,7 +256,12 @@ export default function Dashboard() {
                     size="8"
                     mt="4"
                     weight="bold"
-                    style={{ color: "hsla(180, 100%, 100%, 1)" }}
+                    style={{
+                      color:
+                        fastUsage >= fastLimit
+                          ? "var(--red-9)"
+                          : "hsla(180, 100%, 100%, 1)",
+                    }}
                   >
                     {fastUsage}
                     <Text
@@ -283,7 +279,12 @@ export default function Dashboard() {
                     size="8"
                     mt="4"
                     weight="bold"
-                    style={{ color: "hsla(180, 100%, 100%, 1)" }}
+                    style={{
+                      color:
+                        fastUsage >= fastLimit
+                          ? "var(--red-9)"
+                          : "hsla(180, 100%, 100%, 1)",
+                    }}
                   >
                     {fastUsage}
                     <Text
@@ -386,7 +387,12 @@ export default function Dashboard() {
                     size="8"
                     mt="4"
                     weight="bold"
-                    style={{ color: "hsla(180, 100%, 100%, 1)" }}
+                    style={{
+                      color:
+                        highQualityUsage >= highQualityLimit
+                          ? "var(--red-9)"
+                          : "hsla(180, 100%, 100%, 1)",
+                    }}
                   >
                     {highQualityUsage}
                     <Text
@@ -404,7 +410,12 @@ export default function Dashboard() {
                     size="8"
                     mt="4"
                     weight="bold"
-                    style={{ color: "hsla(180, 100%, 100%, 1)" }}
+                    style={{
+                      color:
+                        highQualityUsage >= highQualityLimit
+                          ? "var(--red-9)"
+                          : "hsla(180, 100%, 100%, 1)",
+                    }}
                   >
                     {highQualityUsage}
                     <Text
@@ -547,6 +558,67 @@ export default function Dashboard() {
                   </Text>
                 </Flex>
               )}
+
+            {((user?.tier === "Free" &&
+              (fastUsage >= fastLimit ||
+                highQualityUsage >= highQualityLimit)) ||
+              (user?.tier === "PayAsYouGo" &&
+                (fastUsage >= fastLimit ||
+                  highQualityUsage >= highQualityLimit))) && (
+              <Flex
+                direction="row"
+                p="4"
+                mt="4"
+                align="center"
+                gap="2"
+                style={{
+                  backgroundColor: "hsla(0, 100%, 50%, 0.1)",
+                  borderRadius: "4px",
+                  color: "hsla(0, 100%, 100%, 1)",
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM7 12C7 11.4477 7.44772 11 8 11C8.55228 11 9 11.4477 9 12C9 12.5523 8.55228 13 8 13C7.44772 13 7 12.5523 7 12ZM8 3C7.44772 3 7 3.44772 7 4V8C7 8.55228 7.44772 9 8 9C8.55228 9 9 8.55228 9 8V4C9 3.44772 8.55228 3 8 3Z"
+                    fill="hsla(0, 100%, 100%, 1)"
+                  />
+                </svg>
+                <Text size="2" weight="medium">
+                  {user?.tier === "Free"
+                    ? "You've reached your free usage limit. Add a payment method to increase your limits and continue using our services."
+                    : "You've reached your usage limit. Please contact us to move to an enterprise plan for higher limits."}
+                </Text>
+                <Flex ml="auto">
+                  {user?.tier === "Free" ? (
+                    <Text
+                      size="1"
+                      weight="medium"
+                      style={{ color: "var(--cyan-9)" }}
+                    >
+                      Add Payment Method
+                    </Text>
+                  ) : (
+                    <BetterButton
+                      onClick={() => {
+                        window.open("https://cal.com/mehulc/30min", "_blank");
+                      }}
+                    >
+                      <Text size="1" weight="medium" className="white">
+                        Contact Us
+                      </Text>
+                    </BetterButton>
+                  )}
+                </Flex>
+              </Flex>
+            )}
           </Flex>
 
           <Flex direction="column" className="dashboard-content-right">
@@ -582,11 +654,22 @@ export default function Dashboard() {
                       Tasks
                     </Text>
                   </Flex>
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={10}
-                    onPageChange={handlePageChange}
-                  />
+                  {totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  )}
+                  {tasks?.length === 0 && (
+                    <Text
+                      size="4"
+                      weight="medium"
+                      style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
+                    >
+                      Create a task through the homepage or by hitting our API.
+                    </Text>
+                  )}
                 </Flex>
 
                 {isLoading ? (
