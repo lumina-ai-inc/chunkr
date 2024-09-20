@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from paddleocr import draw_ocr
 import shutil
 import xml.etree.ElementTree as ET
+import re
 
 def clean_policy_file(file_path):
     with open(file_path, 'r') as f:
