@@ -6,6 +6,8 @@ from pydantic import Field
 from paddleocr import PaddleOCR, PPStructure
 import tempfile
 import os
+import base64
+
 from src.ocr import ppocr_raw, ppocr, ppstructure_table_raw, ppstructure_table
 from src.utils import check_imagemagick_installed
 from src.converters import convert_to_img, crop_image
@@ -40,7 +42,7 @@ class Image:
         width: float,
         height: float,
         extension: str = Field(default="png", description="Image extension")
-    ) -> Path:
+    ) -> str:
         return crop_image(file, left, top, left + width, top + height, extension)
 
 
@@ -107,24 +109,27 @@ class Task:
             file, image_density, page_image_extension)
         page_image_file_paths = {}
         for page_number, page_image in page_images.items():
-            temp_file = tempfile.NamedTemporaryFile(suffix=f".{page_image_extension}", delete=False)
-            temp_file.write(page_image)
+            temp_file = tempfile.NamedTemporaryFile(
+                suffix=f".{page_image_extension}", delete=False)
+            temp_file.write(base64.b64decode(page_image))
             temp_file.close()
             page_image_file_paths[page_number] = temp_file.name
         try:
             for segment in segments:
                 segment.image = self.image_service.crop_image(
                     page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
-                
+
                 with tempfile.NamedTemporaryFile(suffix=f".{segment_image_extension}", delete=False) as temp_file:
                     temp_file.write(segment.image)
                     temp_file_path = temp_file.name
 
                 try:
                     if segment.segment_type == SegmentType.Table:
-                        segment.ocr = self.ocr_service.paddle_table(temp_file_path)
+                        segment.ocr = self.ocr_service.paddle_table(
+                            temp_file_path)
                     else:
-                        segment.ocr = self.ocr_service.paddle_ocr(temp_file_path)
+                        segment.ocr = self.ocr_service.paddle_ocr(
+                            temp_file_path)
                 finally:
                     os.unlink(temp_file_path)
         finally:
