@@ -12,21 +12,27 @@ def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
 
 def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
     raw_results = ocr.ocr(str(image_path))
-    if len(raw_results) == 0:
+    
+    # Check if raw_results is None or empty
+    if not raw_results or not raw_results[0]:
         return OCRResponse(results=[], html="")
-    ocr_results = [
-        OCRResult(
-            bbox=BoundingBox(
-                top_left=result[0][0],
-                top_right=result[0][1],
-                bottom_right=result[0][2],
-                bottom_left=result[0][3]
-            ),
-            text=result[1][0],
-            confidence=result[1][1]
-        )
-        for result in raw_results[0]
-    ]
+    
+    ocr_results = []
+    for result in raw_results[0]:
+        if result and len(result) == 2 and result[0] and result[1]:
+            ocr_results.append(
+                OCRResult(
+                    bbox=BoundingBox(
+                        top_left=result[0][0],
+                        top_right=result[0][1],
+                        bottom_right=result[0][2],
+                        bottom_left=result[0][3]
+                    ),
+                    text=result[1][0],
+                    confidence=result[1][1]
+                )
+            )
+    
     return OCRResponse(results=ocr_results, html=None)
 
 
