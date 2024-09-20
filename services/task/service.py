@@ -117,25 +117,21 @@ class Task:
             temp_file.write(base64.b64decode(page_image))
             temp_file.close()
             page_image_file_paths[page_number] = Path(temp_file.name)
-        print("Pages converted to images")
         try:
             for segment in segments:
                 segment.image = self.image_service.crop_image(
                     page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
-                print("Segment cropped")
                 segment_temp_file = tempfile.NamedTemporaryFile(
                     suffix=f".{segment_image_extension}", delete=False)
                 segment_temp_file.write(base64.b64decode(segment.image))
                 segment_temp_file.close()
                 try:
-                    print("Segment ocr started")
                     if segment.segment_type == SegmentType.Table:
                         segment.ocr = self.ocr_service.paddle_table(
                             Path(segment_temp_file.name))
                     else:
                         segment.ocr = self.ocr_service.paddle_ocr(
                             Path(segment_temp_file.name))
-                    print("Segment ocr finished")
                 finally:
                     os.unlink(segment_temp_file.name)
         finally:
