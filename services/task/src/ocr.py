@@ -12,6 +12,8 @@ def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
 
 def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
     raw_results = ocr.ocr(str(image_path))
+    if len(raw_results) == 0:
+        return OCRResponse(results=[], html="")
     ocr_results = [
         OCRResult(
             bbox=BoundingBox(
