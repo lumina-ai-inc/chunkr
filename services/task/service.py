@@ -111,8 +111,7 @@ class Task:
             segment_image_density: int = Field(
                 default=300, description="Image density in DPI for segment images"),
             segment_bbox_offset: float = Field(
-                default=1.5, description="Offset for segment bbox"),
-            det: bool = Field(default=True, description="Enable detection")
+                default=1.5, description="Offset for segment bbox")
     ) -> list[Segment]:
         print("Processing started")
         adjust_segments(segments, segment_bbox_offset)
@@ -142,7 +141,7 @@ class Task:
                                 Path(segment_temp_file.name))
                         else:
                             segment.ocr = self.ocr_service.paddle_ocr(
-                                Path(segment_temp_file.name), det)
+                                Path(segment_temp_file.name))
                             segment.update_text_ocr()
                     finally:
                         os.unlink(segment_temp_file.name)
