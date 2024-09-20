@@ -4,7 +4,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.cargo/env
 
 # Install ImageMagick dependencies
-apt-get install -y wget autoconf pkg-config build-essential curl libpng-dev ghostscript libgs-dev libpdf-dev
+apt-get install -y wget autoconf pkg-config build-essential curl libpng-dev ghostscript libgs-dev libpdf-dev ocl-icd-opencl-dev
 
 # Download and install ImageMagick
 wget https://github.com/ImageMagick/ImageMagick/archive/refs/tags/7.1.0-38.tar.gz
@@ -24,12 +24,17 @@ cd ImageMagick-7.1.0-38
     --with-xml=yes \
     --with-gs-font-dir=yes \
     --with-gslib=yes \
-    --with-pdf=yes
+    --with-pdf=yes \
+    --enable-opencl
 make -j
 make install
 ldconfig /usr/local/lib
 cd ..
 rm -rf ImageMagick-7.1.0-38
+
+# Enable OpenCL at runtime
+echo 'export MAGICK_OCL_DEVICE=true' >> /etc/profile.d/imagemagick.sh
+
 
 # Install Docker
 apt-get install -y apt-transport-https ca-certificates curl software-properties-common
