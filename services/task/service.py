@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict
 from pydantic import Field
 from paddleocr import PaddleOCR, PPStructure
+import tempfile
 
 from src.ocr import ppocr_raw, ppocr, ppstructure_table_raw, ppstructure_table
 from src.utils import check_imagemagick_installed
@@ -107,8 +108,12 @@ class Task:
         for segment in segments:
             segment.image = self.image_service.crop_image(
                 page_images[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
-            if segment.segment_type == SegmentType.Table:
-                segment.ocr = self.ocr_service.paddle_table(segment.image)
-            else:
-                segment.ocr = self.ocr_service.paddle_ocr(segment.image)
+            image_path = tempfile.NamedTemporaryFile(suffix=segment_image_extension)
+            with open(image_path, "wb") as f:
+                f.write(segment.image.read())
+                if segment.segment_type == SegmentType.Table:
+                    segment.ocr = self.ocr_service.paddle_table(image_path)
+                else:
+                    segment.ocr = self.ocr_service.paddle_ocr(image_path)
+        print(segments)
         return segments
