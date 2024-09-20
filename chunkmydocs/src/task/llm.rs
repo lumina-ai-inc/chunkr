@@ -1,7 +1,7 @@
 use reqwest::Client;
 use std::error::Error;
 use base64::{ engine::general_purpose::STANDARD, Engine as _ };
-use crate::models::server::{ segment::{ PngPage, SegmentType, Segment }, llm::LLMConfig };
+use crate::models::server::{ segment::{ SegmentType, Segment }, llm::LLMConfig };
 use crate::utils::configs::extraction_config::Config;
 
 pub async fn apply_llm(

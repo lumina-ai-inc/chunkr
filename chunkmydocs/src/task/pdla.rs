@@ -1,15 +1,13 @@
-use super::pdf2png::split_pdf;
+use super::pdf::split_pdf;
 use crate::models::server::extract::SegmentationModel;
 use crate::utils::configs::extraction_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};
 use serde_json::Value;
 use std::{
     fs,
-    io::Write,
     path::{Path, PathBuf},
 };
 use tempdir::TempDir;
-use tempfile::NamedTempFile;
 use tokio::sync::OnceCell;
 
 static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
@@ -107,11 +105,7 @@ pub async fn pdla_extraction(
     file_path: &Path,
     model: SegmentationModel,
     batch_size: Option<i32>,
-) -> Result<PathBuf, Box<dyn std::error::Error>> {
+) -> Result<String, Box<dyn std::error::Error>> {
     let json_output = process_file(file_path, batch_size, model).await?;
-
-    let mut output_temp_file = NamedTempFile::new()?;
-    output_temp_file.write_all(json_output.as_bytes())?;
-
-    Ok(output_temp_file.into_temp_path().keep()?.to_path_buf())
+    Ok(json_output)
 }
