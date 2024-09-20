@@ -17,6 +17,7 @@ class SegmentType(str, Enum):
     PageFooter = "Page footer"
 
 class Segment(BaseModel):
+    segment_id: str
     left: float
     top: float
     width: float
@@ -25,8 +26,15 @@ class Segment(BaseModel):
     page_width: float
     page_height: float
     text: str
+    text_ocr: Optional[str] = None
     segment_type: SegmentType = Field(..., alias="type")
-    segment_id: str
     ocr: Optional[OCRResponse] = None
     image: Optional[str] = None
 
+    def update_text_ocr(self):
+        """
+        Extract all text from OCR results and update the text_ocr field.
+        """
+        if self.ocr and self.ocr.results:
+            ocr_texts = [result.text for result in self.ocr.results]
+            self.text_ocr = " ".join(ocr_texts)

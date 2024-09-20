@@ -1,4 +1,5 @@
 from __future__ import annotations
+from autocorrect import Speller
 import base64
 import bentoml
 import os
@@ -55,6 +56,7 @@ class Image:
 )
 class OCR:
     def __init__(self) -> None:
+        self.spell = Speller(only_replacements=True)
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
                              ocr_order_method="tb-xy")
         self.ocr_rec = PaddleOCR(use_angle_cls=True, lang="en",
@@ -69,9 +71,9 @@ class OCR:
     @bentoml.api
     def paddle_ocr(self, file: Path, det: bool = True) -> OCRResponse:
         if not det:
-            return ppocr(self.ocr_rec, file)
+            return ppocr(self.ocr_rec, self.spell, file)
         else:
-            return ppocr(self.ocr, file)
+            return ppocr(self.ocr, self.spell, file)
 
     @bentoml.api
     def paddle_table_raw(self, file: Path) -> list:
@@ -146,6 +148,7 @@ class Task:
                         else:
                             segment.ocr = self.ocr_service.paddle_ocr(
                                 Path(segment_temp_file.name), det)
+                            segment.update_text_ocr()
                     finally:
                         os.unlink(segment_temp_file.name)
                 except Exception as e:

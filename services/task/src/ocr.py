@@ -1,3 +1,4 @@
+from autocorrect import Speller
 import cv2
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
@@ -10,7 +11,7 @@ def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
     return ocr.ocr(str(image_path))
 
 
-def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
+def ppocr(ocr: PaddleOCR, spell: Speller, image_path: Path) -> OCRResponse:
     raw_results = ocr.ocr(str(image_path))
     
     # Check if raw_results is None or empty
@@ -35,7 +36,7 @@ def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
                         bottom_right=result[0][2],
                         bottom_left=result[0][3]
                     ),
-                    text=result[1][0],
+                    text=spell(result[1][0]),
                     confidence=result[1][1]
                 )
             )
