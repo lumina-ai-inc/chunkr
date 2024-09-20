@@ -4,7 +4,7 @@ import tempfile
 import base64
 from pathlib import Path
 from typing import Dict
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import shutil
 from io import BytesIO
 
