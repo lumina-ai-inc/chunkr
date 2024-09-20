@@ -42,7 +42,7 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
         shutil.rmtree(temp_dir)
 
 
-def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, density: int = 300, extension: str = "png") -> str:
+def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, density: int = 300, extension: str = "png", quality: int = 100, resize: str = None) -> str:
     """
     Crop an image using ImageMagick, given the input path and crop coordinates, and return as base64.
 
@@ -51,7 +51,10 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, de
     :param top: Top coordinate of the crop box
     :param right: Right coordinate of the crop box
     :param bottom: Bottom coordinate of the crop box
+    :param density: Input image density (DPI)
     :param extension: Output file extension (default: "png")
+    :param quality: Output image quality (0-100, default: 95)
+    :param resize: Optional resize dimensions (e.g., "800x600")
     :return: Base64 encoded string of the cropped image
     """
     try:
@@ -76,8 +79,20 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, de
             input_path,
             '-density', str(density),
             '-crop', crop_geometry,
-            temp_output_path
         ]
+
+        # Add resize option if specified
+        if resize:
+            command.extend(['-resize', resize])
+
+        # Add quality option
+        if extension.lower() in ['jpg', 'jpeg']:
+            command.extend(['-quality', str(quality)])
+        elif extension.lower() == 'png':
+            command.extend(['-quality', str(quality), '-define',
+                           f'png:compression-level={9 - quality // 10}'])
+
+        command.append(temp_output_path)
 
         # Run the ImageMagick command
         result = subprocess.run(
@@ -98,4 +113,3 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, de
         raise RuntimeError(f"ImageMagick error: {e.stderr}")
     except Exception as e:
         raise RuntimeError(f"Failed to crop image: {str(e)}")
- 

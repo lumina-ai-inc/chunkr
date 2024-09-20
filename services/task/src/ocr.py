@@ -1,17 +1,16 @@
-from autocorrect import Speller
 import cv2
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from bs4 import BeautifulSoup
 
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
-
+from src.utils import ImprovedSpeller
 
 def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
     return ocr.ocr(str(image_path))
 
 
-def ppocr(ocr: PaddleOCR, spell: Speller, image_path: Path) -> OCRResponse:
+def ppocr(ocr: PaddleOCR, spell: ImprovedSpeller, image_path: Path, threshold: int = 80) -> OCRResponse:
     raw_results = ocr.ocr(str(image_path))
     
     # Check if raw_results is None or empty
@@ -29,7 +28,7 @@ def ppocr(ocr: PaddleOCR, spell: Speller, image_path: Path) -> OCRResponse:
                         bottom_right=result[0][2],
                         bottom_left=result[0][3]
                     ),
-                    text=spell(result[1][0]),
+                    text=spell.correct(result[1][0], threshold),
                     confidence=result[1][1]
                 )
             )

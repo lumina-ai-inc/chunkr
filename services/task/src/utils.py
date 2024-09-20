@@ -5,6 +5,9 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 from paddleocr import draw_ocr
+from autocorrect import Speller
+from fuzzywuzzy import process
+import enchant
 
 def check_imagemagick_installed():
     try:
@@ -40,3 +43,36 @@ def save_ocr(img_path, out_path, result, font):
  
     img = cv2.cvtColor(im_show, cv2.COLOR_BGR2RGB)
     plt.imshow(img)
+
+
+
+class ImprovedSpeller:
+    def __init__(self, only_replacements=False):
+        self.speller = Speller(lang='en', only_replacements=only_replacements)
+        self.dictionary = enchant.Dict("en_US")
+    
+    def correct(self, sentence, threshold=80):
+        words = sentence.split()
+        corrected_words = []
+        
+        for word in words:
+            if self.dictionary.check(word):
+                corrected_words.append(word)
+            else:
+                suggestions = self.dictionary.suggest(word)
+                print(word, suggestions)
+                if suggestions:
+                    best_match, score = process.extractOne(word, suggestions)
+                    if score > self.threshold:
+                        corrected_words.append(best_match)
+                    else:
+                        corrected_words.append(self.speller(word))
+                else:
+                    corrected_words.append(self.speller(word))
+        
+        return ' '.join(corrected_words)
+        
+
+if __name__ == "__main__":
+    spell = ImprovedSpeller(only_replacements=True)
+    print(spell.correct("are weighed against the loss in placement fiexbitiry and", threshold=50))
