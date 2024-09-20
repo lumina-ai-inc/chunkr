@@ -109,7 +109,7 @@ class Task:
         print("Processing started")
         page_images = self.image_service.convert_to_img(
             file, image_density, page_image_extension)
-        page_image_file_paths = {}
+        page_image_file_paths: dict[int, Path] = {}
         for page_number, page_image in page_images.items():
             temp_file = tempfile.NamedTemporaryFile(
                 suffix=f".{page_image_extension}", delete=False)
@@ -122,20 +122,21 @@ class Task:
                 segment.image = self.image_service.crop_image(
                     page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
                 print("Segment cropped")
-                with tempfile.NamedTemporaryFile(suffix=f".{segment_image_extension}", delete=False) as temp_file:
-                    temp_file.write(segment.image)
-                    temp_file_path = Path(temp_file.name)
+                segment_temp_file = tempfile.NamedTemporaryFile(
+                    suffix=f".{segment_image_extension}", delete=False)
+                segment_temp_file.write(base64.b64decode(segment.image))
+                segment_temp_file.close()
                 try:
                     print("Segment ocr started")
                     if segment.segment_type == SegmentType.Table:
                         segment.ocr = self.ocr_service.paddle_table(
-                            temp_file_path)
+                            Path(segment_temp_file.name))
                     else:
                         segment.ocr = self.ocr_service.paddle_ocr(
-                            temp_file_path)
+                            Path(segment_temp_file.name))
                     print("Segment ocr finished")
                 finally:
-                    os.unlink(temp_file_path)
+                    os.unlink(segment_temp_file.name)
         finally:
             for page_image_file_path in page_image_file_paths.values():
                 os.unlink(page_image_file_path)
