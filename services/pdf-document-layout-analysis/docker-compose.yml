@@ -11,4 +11,6 @@ services:
     env_file:
       - .env
     environment:
-      - SERVICE_URL=${SERVICE_URL}
+      - SERVICE_URL=http://host.docker.internal:3000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
