@@ -8,6 +8,16 @@ from paddleocr import draw_ocr
 import shutil
 import xml.etree.ElementTree as ET
 
+def clean_policy_file(file_path):
+    with open(file_path, 'r') as f:
+        content = f.read()
+    
+    # Remove malformed XML comments
+    cleaned_content = re.sub(r'<!--(?!.*-->).*', '', content, flags=re.DOTALL)
+    
+    with open(file_path, 'w') as f:
+        f.write(cleaned_content)
+
 def check_imagemagick_installed():
     try:
         subprocess.run(['convert', '-version'], check=True, capture_output=True)
@@ -15,6 +25,10 @@ def check_imagemagick_installed():
         
         # Check and update ImageMagick policy
         policy_file = '/etc/ImageMagick-6/policy.xml'
+        
+        # Clean up the policy file before parsing
+        clean_policy_file(policy_file)
+        
         try:
             tree = ET.parse(policy_file)
         except ET.ParseError as parse_error:
@@ -26,7 +40,6 @@ def check_imagemagick_installed():
                     print(f"{i:3d}: {line.rstrip()}")
             raise RuntimeError("Failed to parse ImageMagick policy file") from parse_error
         
-        root = tree.getroot()
         root = tree.getroot()
         
         patterns_to_remove = ['PS', 'PS2', 'PS3', 'EPS', 'PDF', 'XPS']
