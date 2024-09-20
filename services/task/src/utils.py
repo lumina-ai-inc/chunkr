@@ -60,10 +60,9 @@ class ImprovedSpeller:
                 corrected_words.append(word)
             else:
                 suggestions = self.dictionary.suggest(word)
-                print(word, suggestions)
                 if suggestions:
                     best_match, score = process.extractOne(word, suggestions)
-                    if score > self.threshold:
+                    if score > threshold:
                         corrected_words.append(best_match)
                     else:
                         corrected_words.append(self.speller(word))
