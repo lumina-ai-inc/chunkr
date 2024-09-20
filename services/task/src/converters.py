@@ -22,7 +22,7 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
             pdf_file = file
 
         output_pattern = os.path.join(temp_dir, f'output-%d.{extension}')
-        subprocess.run(['sudo', 'convert', str(pdf_file), '-density', str(density),
+        subprocess.run(['magick', str(pdf_file), '-density', str(density),
                         '-background', 'white', '-alpha', 'remove', '-alpha', 'off',
                         output_pattern],
                        check=True, capture_output=True, text=True)
