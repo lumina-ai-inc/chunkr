@@ -109,7 +109,7 @@ class Task:
             segment_image_density: int = Field(
                 default=300, description="Image density in DPI for segment images"),
             segment_bbox_offset: float = Field(
-                default=5.0, description="Offset for segment bbox")
+                default=1.5, description="Offset for segment bbox")
     ) -> list[Segment]:
         print("Processing started")
         adjust_segments(segments, segment_bbox_offset)
