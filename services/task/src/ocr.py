@@ -17,8 +17,15 @@ def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
     if not raw_results or not raw_results[0]:
         return OCRResponse(results=[], html="")
     
+    def get_center_point(bbox):
+        x = (bbox[0][0] + bbox[1][0] + bbox[2][0] + bbox[3][0]) / 4
+        y = (bbox[0][1] + bbox[1][1] + bbox[2][1] + bbox[3][1]) / 4
+        return (x, y) 
+    
+    sorted_results = sorted(raw_results[0], key=lambda x: get_center_point(x[0]))
+    
     ocr_results = []
-    for result in raw_results[0]:
+    for result in sorted_results:
         if result and len(result) == 2 and result[0] and result[1]:
             ocr_results.append(
                 OCRResult(
