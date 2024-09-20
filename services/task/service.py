@@ -43,7 +43,7 @@ class Image:
         height: float,
         extension: str = Field(default="png", description="Image extension")
     ) -> str:
-        return crop_image(file, left, top, left + width, top + height, extension)
+        return crop_image(str(file), left, top, left + width, top + height, extension)
 
 
 @bentoml.service(
