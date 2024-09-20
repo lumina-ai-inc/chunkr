@@ -58,9 +58,16 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, ex
         if not os.path.exists(input_path):
             raise FileNotFoundError(f"Input file not found: {input_path}")
 
+        # Check file size and type
+        file_size = os.path.getsize(input_path)
+        file_type = subprocess.run(['file', '-b', '--mime-type', input_path], capture_output=True, text=True).stdout.strip()
+        print(f"File size: {file_size} bytes, File type: {file_type}")
+
         with Image.open(input_path) as img:
+            print(f"Image format: {img.format}, Size: {img.size}, Mode: {img.mode}")
+            
             if left < 0 or top < 0 or right > img.width or bottom > img.height:
-                raise ValueError("Invalid crop coordinates")
+                raise ValueError(f"Invalid crop coordinates: ({left}, {top}, {right}, {bottom}) for image size {img.size}")
 
             cropped_img = img.crop((left, top, right, bottom))
 
@@ -77,7 +84,13 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, ex
             img_str = base64.b64encode(buffer.getvalue()).decode('utf-8')
 
         return img_str
-    except (FileNotFoundError, ValueError) as e:
+    except FileNotFoundError as e:
         raise e
+    except ValueError as e:
+        raise e
+    except UnidentifiedImageError:
+        raise RuntimeError(f"Unidentified image format: {input_path}")
+    except OSError as e:
+        raise RuntimeError(f"OSError when processing image: {str(e)}")
     except Exception as e:
         raise RuntimeError(f"Failed to crop image: {str(e)}")
