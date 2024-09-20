@@ -50,3 +50,5 @@ usermod -aG docker debian
 git clone https://github.com/lumina-ai-inc/chunkr.git ./chunkr
 chown -R debian:debian ./chunkr
 
+# Install pyenchant and its dependencies
+apt-get install -y libenchant-2-dev
