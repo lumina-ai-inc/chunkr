@@ -42,7 +42,7 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
         shutil.rmtree(temp_dir)
 
 
-def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, extension: str = "png") -> str:
+def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, density: int = 300, extension: str = "png") -> str:
     """
     Crop an image using ImageMagick, given the input path and crop coordinates, and return as base64.
 
@@ -74,6 +74,7 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, ex
         command = [
             'magick', 'convert',
             input_path,
+            '-density', str(density),
             '-crop', crop_geometry,
             temp_output_path
         ]
