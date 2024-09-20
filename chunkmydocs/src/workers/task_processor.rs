@@ -1,25 +1,25 @@
-use chrono::{ DateTime, Utc };
-use tempfile::NamedTempFile;
-use std::io::Write;
-use chunkmydocs::task::pdla::pdla_extraction;
-use chunkmydocs::task::process::process_segments;
+use chrono::{DateTime, Utc};
 use chunkmydocs::models::rrq::queue::QueuePayload;
 use chunkmydocs::models::server::extract::ExtractionPayload;
 use chunkmydocs::models::server::segment::Segment;
 use chunkmydocs::models::server::task::Status;
-use chunkmydocs::utils::rrq::consumer::consumer;
+use chunkmydocs::task::pdla::pdla_extraction;
+use chunkmydocs::task::process::process_segments;
 use chunkmydocs::utils::configs::extraction_config;
-use chunkmydocs::utils::db::deadpool_postgres::{ Client, Pool, create_pool };
+use chunkmydocs::utils::db::deadpool_postgres::{create_pool, Client, Pool};
 use chunkmydocs::utils::json2mkd::json_2_mkd::hierarchical_chunk_and_add_markdown;
+use chunkmydocs::utils::rrq::consumer::consumer;
 use chunkmydocs::utils::storage::config_s3::create_client;
-use chunkmydocs::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
+use chunkmydocs::utils::storage::services::{download_to_tempfile, upload_to_s3};
+use std::io::Write;
+use tempfile::NamedTempFile;
 
 pub async fn log_task(
     task_id: String,
     status: Status,
     message: Option<String>,
     finished_at: Option<DateTime<Utc>>,
-    pool: &Pool
+    pool: &Pool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
@@ -48,41 +48,48 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
     log_task(
         task_id.clone(),
         Status::Processing,
-        Some(format!("Task processing | Tries ({}/{})", payload.attempt, payload.max_attempts)),
+        Some(format!(
+            "Task processing | Tries ({}/{})",
+            payload.attempt, payload.max_attempts
+        )),
         None,
-        &pg_pool
-    ).await?;
+        &pg_pool,
+    )
+    .await?;
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         let temp_file = download_to_tempfile(
             &s3_client,
             &reqwest_client,
             &extraction_item.input_location,
-            None
-        ).await?;
+            None,
+        )
+        .await?;
 
         let pdla_response = pdla_extraction(
             temp_file.path(),
             extraction_item.model,
-            extraction_item.batch_size
-        ).await?;
+            extraction_item.batch_size,
+        )
+        .await?;
 
         let base_segments: Vec<Segment> = serde_json::from_str(&pdla_response)?;
 
-        let segments: Vec<Segment> = process_segments(
-            temp_file.path(),
-            &base_segments
-        ).await?;
+        let segments: Vec<Segment> = process_segments(temp_file.path(), &base_segments).await?;
 
-        let chunks = hierarchical_chunk_and_add_markdown(
-            segments,
-            extraction_item.target_chunk_length
-        ).await?;
+        let chunks =
+            hierarchical_chunk_and_add_markdown(segments, extraction_item.target_chunk_length)
+                .await?;
 
         let mut output_temp_file = NamedTempFile::new()?;
         output_temp_file.write_all(serde_json::to_string(&chunks)?.as_bytes())?;
-    
-        upload_to_s3(&s3_client, &extraction_item.output_location, &output_temp_file.path()).await?;
+
+        upload_to_s3(
+            &s3_client,
+            &extraction_item.output_location,
+            &output_temp_file.path(),
+        )
+        .await?;
 
         if temp_file.path().exists() {
             if let Err(e) = std::fs::remove_file(temp_file.path()) {
@@ -96,7 +103,8 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         }
 
         Ok(())
-    }).await;
+    })
+    .await;
 
     match result {
         Ok(_) => {
@@ -106,8 +114,9 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                 Status::Succeeded,
                 Some("Task succeeded".to_string()),
                 Some(Utc::now()),
-                &pg_pool
-            ).await?;
+                &pg_pool,
+            )
+            .await?;
             Ok(())
         }
         Err(e) => {
@@ -119,8 +128,9 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                     Status::Failed,
                     Some("Task failed".to_string()),
                     Some(Utc::now()),
-                    &pg_pool
-                ).await?;
+                    &pg_pool,
+                )
+                .await?;
             }
             Err(e)
         }
