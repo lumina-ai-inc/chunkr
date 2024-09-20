@@ -44,7 +44,7 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
 
 def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, extension: str = "png") -> str:
     """
-    Crop an image given the input path and crop coordinates, and return as base64.
+    Crop an image using ImageMagick, given the input path and crop coordinates, and return as base64.
 
     :param input_path: Path to the input image file
     :param left: Left coordinate of the crop box
@@ -61,37 +61,40 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, ex
 
         # Check file size and type
         file_size = os.path.getsize(input_path)
-        file_type = subprocess.run(['file', '-b', '--mime-type', input_path], capture_output=True, text=True).stdout.strip()
+        file_type = subprocess.run(
+            ['file', '-b', '--mime-type', input_path], capture_output=True, text=True).stdout.strip()
         print(f"File size: {file_size} bytes, File type: {file_type}")
 
-        with Image.open(input_path) as img:
-            print(f"Image format: {img.format}, Size: {img.size}, Mode: {img.mode}")
-            
-            if left < 0 or top < 0 or right > img.width or bottom > img.height:
-                raise ValueError(f"Invalid crop coordinates: ({left}, {top}, {right}, {bottom}) for image size {img.size}")
+        # Create a temporary file for the cropped image
+        with tempfile.NamedTemporaryFile(suffix=f".{extension}", delete=False) as temp_file:
+            temp_output_path = temp_file.name
 
-            cropped_img = img.crop((left, top, right, bottom))
+        # Construct the ImageMagick command
+        crop_geometry = f"{right - left}x{bottom - top}+{left}+{top}"
+        command = [
+            'magick', 'convert',
+            input_path,
+            '-crop', crop_geometry,
+            temp_output_path
+        ]
 
-            format_map = {
-                "png": "PNG",
-                "jpg": "JPEG",
-                "jpeg": "JPEG"
-            }
+        # Run the ImageMagick command
+        result = subprocess.run(
+            command, capture_output=True, text=True, check=True)
+        print(f"ImageMagick output: {result.stdout}")
 
-            img_format = format_map.get(extension.lower(), "PNG")
+        # Read the cropped image and convert to base64
+        with open(temp_output_path, 'rb') as img_file:
+            img_str = base64.b64encode(img_file.read()).decode('utf-8')
 
-            buffer = BytesIO()
-            cropped_img.save(buffer, format=img_format)
-            img_str = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        # Clean up the temporary file
+        os.unlink(temp_output_path)
 
         return img_str
     except FileNotFoundError as e:
         raise e
-    except ValueError as e:
-        raise e
-    except UnidentifiedImageError:
-        raise RuntimeError(f"Unidentified image format: {input_path}")
-    except OSError as e:
-        raise RuntimeError(f"OSError when processing image: {str(e)}")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"ImageMagick error: {e.stderr}")
     except Exception as e:
         raise RuntimeError(f"Failed to crop image: {str(e)}")
+ 

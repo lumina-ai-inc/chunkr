@@ -2,10 +2,11 @@ import requests
 import os
 import json
 import time
-from typing import List
 from pathlib import Path
 import glob
 import uuid
+import base64
+
 
 def create_segments_list(json_path):
     with open(json_path, 'r') as file:
@@ -69,6 +70,13 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
         json_path = os.path.join(output_dir, f"{base_name}_result.json")
         with open(json_path, "w") as f:
             json.dump(results, f, indent=2)
+
+        for segment in results:
+            if 'image' in segment and segment['image']:
+                image_data = base64.b64decode(segment['image'])
+                image_path = os.path.join(output_dir, f"{segment['segment_id']}.jpg")
+                with open(image_path, 'wb') as image_file:
+                    image_file.write(image_data)
 
         return results
     else:
