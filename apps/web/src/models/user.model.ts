@@ -24,6 +24,7 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  task_count: number;
   api_keys: string[];
   tier: string;
   created_at: string;

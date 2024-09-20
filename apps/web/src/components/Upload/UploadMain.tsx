@@ -167,6 +167,7 @@ export default function UploadMain({
                 className="card-image"
                 style={{
                   backgroundImage: "url('src/assets/cards/fast.png')",
+                  zIndex: 0,
                 }}
               />
               <Flex
@@ -300,7 +301,7 @@ export default function UploadMain({
               </Flex>
             </Flex>
           </Flex>
-          <Flex direction="row" width="100%" mt="40px" pr="40px">
+          <Flex direction="row" width="100%" mt="40px">
             <Flex
               direction="column"
               height="72px"

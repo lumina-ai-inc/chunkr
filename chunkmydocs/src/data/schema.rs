@@ -18,10 +18,10 @@ diesel::table! {
 }
 
 diesel::table! {
-    discounts (user_id) {
+    discounts (user_id, usage_type) {
         user_id -> Text,
         usage_type -> Text,
-        amount -> Nullable<Float8>,
+        amount -> Float8,
     }
 }
 
@@ -35,6 +35,20 @@ diesel::table! {
         invoice_status -> Text,
         amount_due -> Float8,
         total_pages -> Int4,
+        stripe_invoice_id -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    monthly_usage (id) {
+        id -> Int4,
+        user_id -> Text,
+        usage -> Nullable<Int4>,
+        usage_type -> Text,
+        year -> Int4,
+        month -> Int4,
+        created_at -> Nullable<Timestamptz>,
+        updated_at -> Nullable<Timestamptz>,
     }
 }
 
@@ -84,6 +98,15 @@ diesel::table! {
 }
 
 diesel::table! {
+    usage_limits (id) {
+        id -> Int4,
+        usage_type -> Text,
+        tier -> Text,
+        usage_limit -> Int4,
+    }
+}
+
+diesel::table! {
     usage_type (id) {
         id -> Text,
         #[sql_name = "type"]
@@ -112,9 +135,11 @@ diesel::allow_tables_to_appear_in_same_query!(
     api_keys,
     discounts,
     invoices,
+    monthly_usage,
     task_invoices,
     tasks,
     usage,
+    usage_limits,
     usage_type,
     users,
 );

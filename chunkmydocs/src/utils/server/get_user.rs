@@ -16,6 +16,7 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         u.tier,
         u.created_at,
         u.updated_at,
+        u.task_count,
         COALESCE(json_agg(json_build_object('usage_type', d.usage_type, 'amount', d.amount))::text, '[]') as discounts
     FROM 
         users u
@@ -112,6 +113,7 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
                 },
             },
         ],
+        task_count: row.get("task_count"),
     };
     println!("user: {:?}", user);
 

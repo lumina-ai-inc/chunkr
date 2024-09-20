@@ -66,11 +66,11 @@
 }
 
 .hero-container {
-  margin-top: 152px;
+  margin-top: 168px;
   padding-left: 24px;
   padding-right: 24px;
   width: 100%;
-  gap: 80px;
+  gap: 124px;
   flex-direction: column;
 
   z-index: 1;
@@ -104,10 +104,6 @@
   .hero-container {
     margin-top: 180px;
   }
-}
-
-.text-container {
-  max-width: 742px;
 }
 
 .module-container {
@@ -169,12 +165,11 @@
   gap: 16px;
 }
 
+.text-container {
+  max-width: 642px;
+}
+
 @media (max-width: 1236px) {
-  .hero-title {
-    font-size: 56px !important;
-    line-height: 72px !important;
-    max-width: 400px !important;
-  }
   .text-container {
     gap: 24px;
   }

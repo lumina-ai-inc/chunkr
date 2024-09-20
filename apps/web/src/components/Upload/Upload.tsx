@@ -4,6 +4,7 @@ import { useDropzone } from "react-dropzone";
 // import { useNavigate } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import "./Upload.css";
+import useUser from "../../hooks/useUser";
 
 interface UploadProps {
   onFileUpload: (file: File, fileContent: ArrayBuffer) => void;
@@ -20,6 +21,9 @@ export default function Upload({
   fileName,
   isAuthenticated,
 }: UploadProps) {
+  const user = useUser();
+  console.log(user);
+
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
@@ -75,6 +79,37 @@ export default function Upload({
 
   return (
     <>
+      <Flex
+        className="model-title-container"
+        align="center"
+        direction="row"
+        mb="16px"
+        gap="4"
+        width="100%"
+      >
+        <Text
+          size="4"
+          weight="bold"
+          style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+        >
+          RUN A TEST
+        </Text>
+        {isUploaded && (
+          <Flex
+            direction="row"
+            gap="2"
+            style={{
+              padding: "4px 8px",
+              backgroundColor: "hsla(180, 100%, 100%)",
+              borderRadius: "4px",
+            }}
+          >
+            <Text size="2" weight="bold" style={{ opacity: 0.9 }}>
+              UPLOADED
+            </Text>
+          </Flex>
+        )}
+      </Flex>
       <Flex
         {...(isAuthenticated ? getRootProps() : {})}
         direction="row"

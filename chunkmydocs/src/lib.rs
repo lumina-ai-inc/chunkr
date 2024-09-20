@@ -131,8 +131,6 @@ pub fn main() -> std::io::Result<()> {
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check))
-
-                .route("/stripe/webhook", web::post().to(stripe_webhook))
                 .service(
                     SwaggerUi::new("/swagger-ui/{_:.*}").url("/docs/openapi.json", ApiDoc::openapi()),
                 );
@@ -145,14 +143,19 @@ pub fn main() -> std::io::Result<()> {
                 .route("/task/{task_id}", web::get().to(get_task_status))
                 .route("/tasks", web::get().to(get_tasks_status))
                 .route("/usage", web::get().to(get_usage))
-                .route("/usage/monthly", web::get().to(get_monthly_usage))
-                .route(
-                    "/stripe/create-setup-intent",
-                    web::get().to(create_setup_intent)
-                )
-                .route("/stripe/create-session", web::get().to(create_stripe_session))
-                .route("/stripe/invoices", web::get().to(get_user_invoices))
-                .route("/stripe/invoice/{invoice_id}", web::get().to(get_invoice_detail));
+                .route("/usage/monthly", web::get().to(get_monthly_usage));
+
+            if std::env::var("STRIPE__API_KEY").is_ok() {
+                app = app.route("/stripe/webhook", web::post().to(stripe_webhook));
+                api_scope = api_scope
+                    .route(
+                        "/stripe/create-setup-intent",
+                        web::get().to(create_setup_intent)
+                    )
+                    .route("/stripe/create-session", web::get().to(create_stripe_session))
+                    .route("/stripe/invoices", web::get().to(get_user_invoices))
+                    .route("/stripe/invoice/{invoice_id}", web::get().to(get_invoice_detail));
+            }
                 
             
 
