@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 from paddleocr import draw_ocr
 import multiprocessing
 import time
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def save_ocr(img_path, out_path, result, font):
     os.makedirs(out_path, exist_ok=True)
@@ -69,7 +73,7 @@ def process_image(args):
 # Usage example
 if __name__ == "__main__":
     image_path = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/Picture.jpg"
-    service_url = "http://35.236.179.125:3000"
+    service_url = os.getenv('SERVICE_URL')
 
     # process_image((image_path, service_url))
 

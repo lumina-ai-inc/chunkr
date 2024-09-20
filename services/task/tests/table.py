@@ -5,6 +5,10 @@ import time
 import json
 from typing import List, Tuple
 from PIL import Image, ImageDraw, ImageFont
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def draw_boxes_on_image(image_path: str, results: List[dict], output_path: str):
     """
@@ -124,7 +128,7 @@ def process_images(image_dir: str, service_url: str, output_dir: str) -> List[di
 
 if __name__ == "__main__":
     image_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/jpg"
-    service_url = "http://35.236.179.125:3000"
+    service_url = os.getenv('SERVICE_URL')
     output_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/table_ocr"
 
     start_time = time.time()

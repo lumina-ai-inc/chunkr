@@ -3,10 +3,19 @@ import base64
 from pathlib import Path
 import os
 import time
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def convert_file_to_images(file_path, output_dir, density=150, extension="png"):
+    # Get the service URL from environment variable
+    service_url = os.getenv('SERVICE_URL')
+    if not service_url:
+        raise ValueError("SERVICE_URL not found in environment variables")
+
     # Prepare the URL and files for the request
-    url = 'http://35.236.179.125:3000/convert_to_img'
+    url = f'{service_url}images_from_file'
     files = {
         'file': open(file_path, 'rb')
     }
