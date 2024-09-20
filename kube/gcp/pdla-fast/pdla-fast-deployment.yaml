@@ -17,8 +17,11 @@ spec:
     spec:
       containers:
       - name: pdla-fast
-        image: luminainc/pdla:7bd05a1
+        image: luminainc/pdla:338a81d7
         imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: pdla-secrets
         ports:
         - containerPort: 8000
         command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
