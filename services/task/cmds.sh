@@ -6,7 +6,8 @@ curl -X 'POST' \
     -F 'density=150' \
     -o output/output.json
 
-uv run pip install .[gpu]
+uv run pip install paddlepaddle-gpu
+uv add paddlepaddle-gpu
 
 # [project.optional-dependencies]
 # cpu = ["paddlepaddle>=2.6.2"]
