@@ -69,7 +69,7 @@
   max-width: 1312px;
 }
 
-.text-container {
+.text-container-pricing {
   max-width: 642px;
 }
 
@@ -83,7 +83,7 @@
 .pricing-cards-container {
   flex-direction: row;
   padding: 0 24px;
-  margin-top: 64px;
+  margin-top: 48px;
   gap: 64px;
   width: 100%;
   flex-wrap: wrap;
@@ -96,7 +96,7 @@
 }
 
 @media (max-width: 1236px) {
-  .text-container {
+  .text-container-pricing {
     gap: 24px;
   }
 }
@@ -107,13 +107,14 @@
     gap: 48px;
   }
 
-  .text-container {
+  .text-container-pricing {
     width: 100%;
   }
 
   .pricing-cards-container {
     flex-direction: column;
     align-items: center;
+    margin-top: 0px;
   }
 }
 
@@ -124,6 +125,7 @@
 
   .pricing-cards-container {
     padding: 0 32px;
+    margin-bottom: 88px;
   }
 }
 

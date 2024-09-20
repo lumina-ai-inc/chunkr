@@ -8,3 +8,9 @@
   border: 1px solid hsla(0, 0%, 100%, 0.1);
   padding: 40px;
 }
+
+@media (max-width: 524px) {
+  .pricing-card-container {
+    padding: 24px;
+  }
+}

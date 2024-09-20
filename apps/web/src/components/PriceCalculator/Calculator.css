@@ -1,3 +1,13 @@
 .rt-SliderRange {
   background-color: hsla(180, 100%, 100%, 0.9) !important;
 }
+
+.calculator-container {
+  padding: 48px;
+}
+
+@media (max-width: 524px) {
+  .calculator-container {
+    padding: 24px;
+  }
+}

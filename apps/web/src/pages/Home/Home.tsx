@@ -77,17 +77,12 @@ const Home = () => {
                     Open Source Data Ingestion
                   </Text>
                   <Text
-                    className="white"
-                    size="5"
                     weight="medium"
-                    style={{
-                      maxWidth: "542px",
-                      lineHeight: "32px",
-                      marginBottom: "12px",
-                    }}
+                    size="5"
+                    className="white hero-description"
                   >
                     API service for document layout analysis, OCR and chunking
-                    to convert PDFs into RAG/LLM-ready data.
+                    to convert PDFs into RAG & Training Data.
                   </Text>
 
                   <Flex direction="row" gap="24px" mb="40px">

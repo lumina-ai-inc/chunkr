@@ -5,12 +5,14 @@ import "./PricingCard.css";
 // Add this component at the end of the file
 interface PricingCardProps {
   title: string;
+  subtitle: string;
   checkpoints?: string[];
   icon: React.ReactNode;
 }
 
 export default function PricingCard({
   title,
+  subtitle,
   checkpoints,
   icon,
 }: PricingCardProps) {
@@ -32,6 +34,15 @@ export default function PricingCard({
         </Text>
       </Flex>
 
+      <Text
+        size="4"
+        weight="bold"
+        mt="18px"
+        style={{ color: "hsla(180, 100%, 100%)" }}
+      >
+        {subtitle}
+      </Text>
+
       <Flex direction="column" gap="20px" mt="5">
         {checkpoints && (
           <Flex className="checkpoints-container">
@@ -42,7 +53,7 @@ export default function PricingCard({
                 gap="8px"
                 className="checkpoint-item"
               >
-                <Text size="3" style={{ color: "hsla(180, 100%, 100%, 0.95)" }}>
+                <Text size="3" style={{ color: "hsla(180, 100%, 100%, 0.9)" }}>
                   ✓
                 </Text>
                 <Text
@@ -57,8 +68,12 @@ export default function PricingCard({
           </Flex>
         )}
       </Flex>
-      <Flex mt="44px">
-        <BetterButton>
+      <Flex mt="40px">
+        <BetterButton
+          onClick={() => {
+            window.location.href = "https://cal.com/mehulc/30min";
+          }}
+        >
           <Text size="3" weight="medium" className="white">
             Book a Call
           </Text>

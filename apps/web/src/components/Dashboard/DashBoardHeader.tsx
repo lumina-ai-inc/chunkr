@@ -1,4 +1,4 @@
-import { Flex, Text, Dialog } from "@radix-ui/themes";
+import { Flex, Text, Dialog, DropdownMenu, Button } from "@radix-ui/themes";
 import BetterButton from "../BetterButton/BetterButton";
 import { User } from "../../models/user.model";
 import { useState } from "react";
@@ -51,15 +51,18 @@ export default function DashBoardHeader(user: User) {
   };
 
   const handleApiDocs = () => {
-    window.open(
-      `${import.meta.env.VITE_API_URL}/redoc`,
-      "_blank",
-      "noopener,noreferrer"
-    );
+    window.open(`https://docs.chunkr.ai`, "_blank", "noopener,noreferrer");
   };
 
   return (
-    <Flex direction="row" align="center" justify="between" width="100%" px="7">
+    <Flex
+      direction="row"
+      align="center"
+      justify="between"
+      width="100%"
+      px="7"
+      className="dashboard-header"
+    >
       <Link to="/" style={{ textDecoration: "none" }}>
         <div className="logo-container">
           <svg
@@ -83,55 +86,85 @@ export default function DashBoardHeader(user: User) {
         </div>
       </Link>
       <Flex direction="row" gap="4">
-        {tier === "Free" && (
-          <BetterButton padding="4px 12px" onClick={handleAddPaymentMethod}>
+        <div className="nav-options-container">
+          {tier === "Free" && (
+            <BetterButton padding="4px 12px" onClick={handleAddPaymentMethod}>
+              <Text
+                size="1"
+                weight="medium"
+                style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+              >
+                Add Payment Method
+              </Text>
+            </BetterButton>
+          )}
+          {user?.tier === "PayAsYouGo" && (
+            <BetterButton padding="4px 12px" onClick={handleAddPaymentMethod}>
+              <Text
+                size="1"
+                weight="medium"
+                style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+              >
+                Manage Payments
+              </Text>
+            </BetterButton>
+          )}
+          <BetterButton padding="4px 12px" onClick={handleApiDocs}>
             <Text
               size="1"
               weight="medium"
               style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
             >
-              Add Payment Method
+              API Docs
             </Text>
           </BetterButton>
-        )}
-        {user?.tier === "PayAsYouGo" && (
-          <BetterButton padding="4px 12px" onClick={handleAddPaymentMethod}>
+          <BetterButton padding="4px 12px" onClick={handleSupport}>
             <Text
               size="1"
               weight="medium"
               style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
             >
-              Manage Payments
+              Support
             </Text>
           </BetterButton>
-        )}
-        <BetterButton padding="4px 12px" onClick={handleApiDocs}>
-          <Text
-            size="1"
-            weight="medium"
-            style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
-          >
-            API Docs
-          </Text>
-        </BetterButton>
-        <BetterButton padding="4px 12px" onClick={handleSupport}>
-          <Text
-            size="1"
-            weight="medium"
-            style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
-          >
-            Support
-          </Text>
-        </BetterButton>
-        <BetterButton padding="4px 12px" onClick={handleLogout}>
-          <Text
-            size="1"
-            weight="medium"
-            style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
-          >
-            Logout
-          </Text>
-        </BetterButton>
+          <BetterButton padding="4px 12px" onClick={handleLogout}>
+            <Text
+              size="1"
+              weight="medium"
+              style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+            >
+              Logout
+            </Text>
+          </BetterButton>
+        </div>
+        <div className="dropdown-container">
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger style={{ backgroundColor: "transparent" }}>
+              <Button>Menu</Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              {tier === "Free" && (
+                <DropdownMenu.Item onSelect={handleAddPaymentMethod}>
+                  <Text>Add Payment Method</Text>
+                </DropdownMenu.Item>
+              )}
+              {user?.tier === "PayAsYouGo" && (
+                <DropdownMenu.Item onSelect={handleAddPaymentMethod}>
+                  <Text>Manage Payments</Text>
+                </DropdownMenu.Item>
+              )}
+              <DropdownMenu.Item onSelect={handleApiDocs}>
+                <Text>API Docs</Text>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={handleSupport}>
+                <Text>Support</Text>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={handleLogout}>
+                <Text>Logout</Text>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        </div>
       </Flex>
       {showPaymentSetup && customerSessionSecret && (
         <Dialog.Root open={showPaymentSetup} onOpenChange={setShowPaymentSetup}>

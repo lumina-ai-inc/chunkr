@@ -11,16 +11,16 @@
   border-radius: 8px;
   color: hsl(0, 0%, 100%, 0.6);
   cursor: pointer;
-  outline: 1px solid hsla(180, 100%, 100%, 0);
+  outline: 0px solid hsla(180, 100%, 100%, 0);
   transition:
     color 0.2s ease-in-out,
     outline 0.2s ease-in-out;
+  aspect-ratio: 3 / 1; /* Add this line to maintain 16:8 aspect ratio */
 }
 
 .toggle-container {
   background-color: hsl(0, 0%, 100%, 0.1);
   border-radius: 8px;
-  /* border: 2px solid #fff; */
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1);
@@ -39,10 +39,10 @@
   width: 50%;
   outline: 1px solid hsla(180, 100%, 100%, 0.12);
   color: hsl(0, 0%, 100%);
+  aspect-ratio: 3 / 1;
 }
 
 .toggle:hover {
-  background: hsl(0, 0%, 100%, 0.8);
   color: hsl(0, 0%, 100%, 0.9);
   outline: 1px solid hsla(180, 100%, 100%, 0.12);
 }
@@ -65,8 +65,8 @@
     to bottom,
     rgba(2, 8, 9, 0) 0%,
     rgba(2, 8, 9, 0.6) 50%,
-    rgba(2, 8, 9, 0.6) 95%,
-    rgba(2, 8, 9, 0.6) 100%
+    rgba(2, 8, 9, 0.8) 75%,
+    rgba(2, 8, 9, 0.9) 100%
   );
   z-index: 1;
   backdrop-filter: blur(4px);
@@ -76,9 +76,9 @@
   background: linear-gradient(
     to bottom,
     rgba(2, 8, 9, 0) 0%,
-    rgba(2, 8, 9, 0.4) 50%,
-    rgba(2, 8, 9, 0.5) 75%,
-    rgba(2, 8, 9, 0.6) 100%
+    rgba(2, 8, 9, 0.6) 50%,
+    rgba(2, 8, 9, 0.75) 75%,
+    rgba(2, 8, 9, 0.85) 100%
   );
   backdrop-filter: blur(0px);
 }
@@ -128,20 +128,44 @@
   background: hsl(0, 0%, 100%);
 }
 
-@media (max-width: 718px) {
+@media (max-width: 1036px) {
   .toggle-container {
-    width: 100%;
-    flex-direction: column;
-    height: 124px;
+    flex-direction: column !important;
   }
 
   .toggle {
     width: 100%;
-    border-radius: 0px;
   }
 
   .toggle-active {
     width: 100%;
-    border-radius: 0px;
+  }
+}
+
+@media (max-width: 718px) {
+  .toggle-container {
+    width: 100%;
+  }
+
+  .toggle {
+    width: 100%;
+    min-height: fit-content;
+    aspect-ratio: 2 / 1;
+  }
+
+  .toggle-active {
+    width: 100%;
+    min-height: fit-content;
+    aspect-ratio: 2 / 1;
+  }
+}
+
+@media (max-width: 718px) {
+  .card-image {
+    display: none;
+  }
+
+  .card-gradient-overlay {
+    display: none;
   }
 }

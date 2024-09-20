@@ -70,11 +70,7 @@ export default function Header({
         ml={isAuthenticated ? "104px" : "0"}
         align="center"
       >
-        <a
-          href={`${import.meta.env.VITE_API_URL}/redoc`}
-          target="_blank"
-          className="nav-item"
-        >
+        <a href={"https://docs.chunkr.ai"} target="_blank" className="nav-item">
           <Text size="2" weight="medium" className="nav-item">
             API Docs
           </Text>
@@ -187,12 +183,20 @@ export default function Header({
                 </DropdownMenu.Item>
               )}
               <DropdownMenu.Item asChild>
-                <a href="https://twitter.com/lumina_ai_inc" target="_blank">
+                <a
+                  href="https://cal.com/mehulc/30min"
+                  target="_blank"
+                  style={{ textDecoration: "none" }}
+                >
                   <Text>Contact</Text>
                 </a>
               </DropdownMenu.Item>
               <DropdownMenu.Item asChild>
-                <a href="https://twitter.com/lumina_ai_inc" target="_blank">
+                <a
+                  href="https://twitter.com/lumina_ai_inc"
+                  target="_blank"
+                  style={{ textDecoration: "none" }}
+                >
                   <Text>Twitter</Text>
                 </a>
               </DropdownMenu.Item>
@@ -200,23 +204,33 @@ export default function Header({
                 <a
                   href="https://github.com/lumina-ai-inc/chunk-my-docs"
                   target="_blank"
+                  style={{ textDecoration: "none" }}
                 >
                   <Text>Github</Text>
                 </a>
               </DropdownMenu.Item>
               <DropdownMenu.Item asChild>
-                <Link to="/pricing">
+                <Link to="/pricing" style={{ textDecoration: "none" }}>
                   <Text>Pricing</Text>
                 </Link>
               </DropdownMenu.Item>
               <DropdownMenu.Item>
-                <Text>Docs</Text>
+                <a
+                  href={"https://docs.chunkr.ai/introduction"}
+                  target="_blank"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <Text>Docs</Text>
+                </a>
               </DropdownMenu.Item>
               {isAuthenticated ? (
-                <DropdownMenu.Item
-                  onSelect={() => setShowAccount(!showAccount)}
-                >
-                  <Text>Dashboard</Text>
+                <DropdownMenu.Item>
+                  <Link
+                    to="/dashboard"
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <Text>Dashboard</Text>
+                  </Link>
                 </DropdownMenu.Item>
               ) : (
                 <DropdownMenu.Item onSelect={() => auth.signinRedirect()}>

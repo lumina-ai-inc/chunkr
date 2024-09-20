@@ -31,7 +31,7 @@ export default function Calculator() {
         border: "1px solid hsla(0, 0%, 100%, 0.1)",
       }}
     >
-      <Flex direction="column" width="100%" p="8">
+      <Flex direction="column" width="100%" className="calculator-container">
         <Flex
           direction="row"
           gap="4"
@@ -66,7 +66,7 @@ export default function Calculator() {
           </Text>
         </Flex>
 
-        <Flex direction="column" mt="6" mb="5" gap="2">
+        <Flex direction="column" mt="8" mb="5" gap="2">
           <Text
             size="9"
             weight="bold"

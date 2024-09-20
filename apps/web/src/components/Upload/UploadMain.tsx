@@ -143,19 +143,18 @@ export default function UploadMain({
             </Flex>
           </Flex>
           <Flex
-            direction="row"
             width="100%"
             gap="4"
             mt="16px"
-            p="8px"
+            p="16px"
             className="toggle-container"
             onClick={handleModelToggle}
           >
             <Flex
               direction="column"
               height="100%"
-              minHeight="224px"
               justify="end"
+              minHeight="fit-content"
               className={model === Model.Fast ? "toggle-active" : "toggle"}
               style={{
                 position: "relative",
@@ -173,6 +172,7 @@ export default function UploadMain({
               <Flex
                 direction="column"
                 className="toggle-icon-container"
+                justify="end"
                 height="100%"
                 style={{
                   position: "relative",
@@ -212,10 +212,32 @@ export default function UploadMain({
                   >
                     Fast
                   </Text>
+                  <Flex
+                    direction="row"
+                    gap="2"
+                    ml="2"
+                    style={{
+                      padding: "4px 8px",
+                      border: "1px solid hsla(180, 100%, 100%, 0.1)",
+                      backgroundColor: "hsla(180, 100%, 100%, 0.2)",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    <Text size="2" weight="bold" style={{ opacity: 0.9 }}>
+                      CPU
+                    </Text>
+                  </Flex>
                 </Flex>
 
-                <Text size="4" weight="medium" mt="3">
-                  Lightning-fast CPU processing
+                <Text
+                  size="4"
+                  weight="medium"
+                  mt="3"
+                  style={{ maxWidth: "400px" }}
+                >
+                  <b>LightGBM</b>
+                  <br />
+                  Blazing speed - perfect for high volume tasks
                 </Text>
                 <Text size="3" weight="medium" mt="2">
                   ~10 pages per second
@@ -229,7 +251,6 @@ export default function UploadMain({
             <Flex
               direction="column"
               height="100%"
-              minHeight="224px"
               justify="end"
               className={
                 model === Model.HighQuality ? "toggle-active" : "toggle"
@@ -249,6 +270,7 @@ export default function UploadMain({
               <Flex
                 direction="column"
                 className="toggle-icon-container"
+                justify="end"
                 height="100%"
                 style={{
                   position: "relative",
@@ -288,9 +310,31 @@ export default function UploadMain({
                   >
                     High Quality
                   </Text>
+                  <Flex
+                    direction="row"
+                    gap="2"
+                    ml="2"
+                    style={{
+                      padding: "4px 8px",
+                      border: "1px solid hsla(180, 100%, 100%, 0.1)",
+                      backgroundColor: "hsla(180, 100%, 100%, 0.2)",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    <Text size="2" weight="bold" style={{ opacity: 0.9 }}>
+                      GPU
+                    </Text>
+                  </Flex>
                 </Flex>
-                <Text size="4" weight="medium" mt="3">
-                  Advanced GPU processing
+                <Text
+                  size="4"
+                  weight="medium"
+                  mt="3"
+                  style={{ maxWidth: "400px" }}
+                >
+                  <b>VGT</b>
+                  <br />
+                  Higher accuracy + better image segmentation
                 </Text>
                 <Text size="3" weight="medium" mt="2">
                   ~2 pages per second
