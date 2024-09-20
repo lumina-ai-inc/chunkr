@@ -100,17 +100,21 @@ class Task:
             self,
             file: Path,
             segments: list[Segment],
-            image_density: int = Field(
+            page_image_density: int = Field(
                 default=300, description="Image density in DPI for page images"),
             page_image_extension: str = Field(
                 default="png", description="Image extension for page images"),
             segment_image_extension: str = Field(
-                default="jpg", description="Image extension for segment images")
+                default="jpg", description="Image extension for segment images"),
+            segment_image_density: int = Field(
+                default=300, description="Image density in DPI for segment images"),
+            segment_bbox_offset: float = Field(
+                default=5.0, description="Offset for segment bbox")
     ) -> list[Segment]:
         print("Processing started")
-        adjust_segments(segments, 5)
+        adjust_segments(segments, segment_bbox_offset)
         page_images = self.image_service.convert_to_img(
-            file, image_density, page_image_extension)
+            file, page_image_density, page_image_extension)
         page_image_file_paths: dict[int, Path] = {}
         for page_number, page_image in page_images.items():
             temp_file = tempfile.NamedTemporaryFile(
@@ -124,7 +128,7 @@ class Task:
             for segment in segments:
                 try:
                     segment.image = self.image_service.crop_image(
-                        page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
+                        page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_density, segment_image_extension)
                     segment_temp_file = tempfile.NamedTemporaryFile(
                         suffix=f".{segment_image_extension}", delete=False)
                     segment_temp_file.write(base64.b64decode(segment.image))
