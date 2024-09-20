@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict
 from PIL import Image
 import shutil
+from io import BytesIO
 
 from src.utils import needs_conversion
 
@@ -43,15 +44,15 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
 
 def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, extension: str = "png") -> str:
     """
-    Crop an image given the input path and crop coordinates.
-    
+    Crop an image given the input path and crop coordinates, and return as base64.
+
     :param input_path: Path to the input image file
     :param left: Left coordinate of the crop box
     :param top: Top coordinate of the crop box
     :param right: Right coordinate of the crop box
     :param bottom: Bottom coordinate of the crop box
     :param extension: Output file extension (default: "png")
-    :return: Path to the cropped image file
+    :return: Base64 encoded string of the cropped image
     """
     try:
         if not os.path.exists(input_path):
@@ -62,20 +63,20 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, ex
                 raise ValueError("Invalid crop coordinates")
 
             cropped_img = img.crop((left, top, right, bottom))
-            
+
             format_map = {
                 "png": "PNG",
                 "jpg": "JPEG",
                 "jpeg": "JPEG"
             }
-            
-            img_format = format_map.get(extension.lower(), "PNG")
-            
-            with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{extension}') as temp_file:
-                output_path = temp_file.name
-                cropped_img.save(output_path, format=img_format)
 
-        return output_path
+            img_format = format_map.get(extension.lower(), "PNG")
+
+            buffer = BytesIO()
+            cropped_img.save(buffer, format=img_format)
+            img_str = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+        return img_str
     except (FileNotFoundError, ValueError) as e:
         raise e
     except Exception as e:
