@@ -1,18 +1,20 @@
 from __future__ import annotations
-import bentoml
-from pathlib import Path
-from typing import Dict
-from pydantic import Field
-from paddleocr import PaddleOCR, PPStructure
-import tempfile
-import os
 import base64
+import bentoml
+import multiprocessing
+import os
+from paddleocr import PaddleOCR, PPStructure
+from pathlib import Path
+from pydantic import Field
+import tempfile
+from typing import Dict
 
-from src.ocr import ppocr_raw, ppocr, ppstructure_table_raw, ppstructure_table
-from src.utils import check_imagemagick_installed
 from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResponse
-from src.models.segment_model import Segment, SegmentType
+from src.models.segment_model import Segment
+from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
+from src.process import process_segment
+from src.utils import check_imagemagick_installed
 
 
 @bentoml.service(
@@ -79,7 +81,7 @@ class OCR:
 @bentoml.service(
     name="task",
     resources={"gpu": 1, "cpu": "4"},
-    traffic={"timeout": 60}
+    traffic={"timeout": 600}
 )
 class Task:
     image_service = bentoml.depends(Image)
@@ -95,17 +97,7 @@ class Task:
         return self.image_service.convert_to_img(file, density, extension)
 
     @bentoml.api
-    def process(
-            self,
-            file: Path,
-            segments: list[Segment],
-            image_density: int = Field(
-                default=300, description="Image density in DPI for page images"),
-            page_image_extension: str = Field(
-                default="png", description="Image extension for page images"),
-            segment_image_extension: str = Field(
-                default="jpg", description="Image extension for segment images")
-    ) -> list[Segment]:
+    def process(self, file: Path, segments: list[Segment], image_density: int = Field(default=300, description="Image density in DPI for page images"), page_image_extension: str = Field(default="png", description="Image extension for page images"), segment_image_extension: str = Field(default="jpg", description="Image extension for segment images")) -> list[Segment]:
         print("Processing started")
         page_images = self.image_service.convert_to_img(
             file, image_density, page_image_extension)
@@ -116,28 +108,14 @@ class Task:
             temp_file.write(base64.b64decode(page_image))
             temp_file.close()
             page_image_file_paths[page_number] = Path(temp_file.name)
-        print("Pages converted to images")
         try:
-            for segment in segments:
-                segment.image = self.image_service.crop_image(
-                    page_image_file_paths[segment.page_number], segment.left, segment.top, segment.width, segment.height, segment_image_extension)
-                print("Segment cropped")
-                segment_temp_file = tempfile.NamedTemporaryFile(
-                    suffix=f".{segment_image_extension}", delete=False)
-                segment_temp_file.write(base64.b64decode(segment.image))
-                segment_temp_file.close()
-                try:
-                    print("Segment ocr started")
-                    if segment.segment_type == SegmentType.Table:
-                        segment.ocr = self.ocr_service.paddle_table(
-                            Path(segment_temp_file.name))
-                    else:
-                        segment.ocr = self.ocr_service.paddle_ocr(
-                            Path(segment_temp_file.name))
-                    print("Segment ocr finished")
-                finally:
-                    os.unlink(segment_temp_file.name)
+            with multiprocessing.Pool() as pool:
+                processed_segments = pool.starmap(
+                    process_segment,
+                    [(segment, self.image_service, self.ocr_service, page_image_file_paths,
+                      segment_image_extension) for segment in segments]
+                )
+            return processed_segments
         finally:
             for page_image_file_path in page_image_file_paths.values():
                 os.unlink(page_image_file_path)
-        return segments
