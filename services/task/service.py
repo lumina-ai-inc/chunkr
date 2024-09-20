@@ -103,6 +103,7 @@ class Task:
             segment_image_extension: str = Field(
                 default="jpg", description="Image extension for segment images")
     ) -> list[Segment]:
+        print(segments)
         page_images = self.image_service.convert_to_img(
             file, image_density, page_image_extension)
         for segment in segments:
