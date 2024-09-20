@@ -18,11 +18,17 @@ def check_imagemagick_installed():
         tree = ET.parse(policy_file)
         root = tree.getroot()
         
-        pdf_policy = root.find(".//policy[@pattern='PDF']")
-        if pdf_policy is not None and pdf_policy.get('rights') == 'none':
-            print("Updating ImageMagick policy to allow PDF operations")
-            pdf_policy.set('rights', 'read|write')
-            
+        patterns_to_remove = ['PS', 'PS2', 'PS3', 'EPS', 'PDF', 'XPS']
+        elements_removed = False
+
+        for pattern in patterns_to_remove:
+            policy = root.find(f".//policy[@pattern='{pattern}']")
+            if policy is not None and policy.get('rights') == 'none':
+                root.remove(policy)
+                elements_removed = True
+                print(f"Removed policy for {pattern}")
+
+        if elements_removed:
             # Create a backup of the original file
             shutil.copy2(policy_file, f"{policy_file}.bak")
             
@@ -30,13 +36,14 @@ def check_imagemagick_installed():
             tree.write(policy_file)
             print("ImageMagick policy updated successfully")
         else:
-            print("ImageMagick policy already allows PDF operations")
+            print("No changes were needed in the ImageMagick policy")
         
     except (subprocess.CalledProcessError, FileNotFoundError):
         raise RuntimeError("ImageMagick is not installed or not in the system PATH")
     except Exception as e:
         print(f"Error updating ImageMagick policy: {str(e)}")
         raise RuntimeError("Failed to update ImageMagick policy")
+
 def needs_conversion(file: Path) -> bool:
     mime_type, _ = mimetypes.guess_type(file)
     return mime_type in [
