@@ -56,7 +56,7 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
     }
 
     start_time = time.time()
-    response = requests.post(f"{service_url}/process", files=files, data=data)
+    response = requests.post(f"{service_url}/process", files=files, data=data, timeout=600)
     time_taken = time.time() - start_time
 
     print(f"Time taken for processing: {time_taken:.2f} seconds")
