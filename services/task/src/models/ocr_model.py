@@ -5,7 +5,7 @@ from typing import List
 
 class BoundingBox(BaseModel):
     top_left: List[float] = Field(...,
-                                  description="Top-left coordinates [x, y]")
+                                  description="Top-left coor dinates [x, y]")
     top_right: List[float] = Field(...,
                                    description="Top-right coordinates [x, y]")
     bottom_right: List[float] = Field(...,
