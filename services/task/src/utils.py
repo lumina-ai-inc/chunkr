@@ -8,7 +8,7 @@ from paddleocr import draw_ocr
 
 def check_imagemagick_installed():
     try:
-        subprocess.run(['convert', '-version'], check=True, capture_output=True)
+        subprocess.run(['magick', '-version'], check=True, capture_output=True)
         print("ImageMagick is installed")
     except (subprocess.CalledProcessError, FileNotFoundError):
         raise RuntimeError("ImageMagick is not installed or not in the system PATH")
