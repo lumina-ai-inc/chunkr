@@ -55,6 +55,7 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, ex
     :return: Base64 encoded string of the cropped image
     """
     try:
+        print(f"Cropping image: {input_path}")
         if not os.path.exists(input_path):
             raise FileNotFoundError(f"Input file not found: {input_path}")
 
