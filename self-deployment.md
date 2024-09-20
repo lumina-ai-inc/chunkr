@@ -95,6 +95,10 @@ cp kube/secret/keycloak-secret.example.yaml kube/gcp/keycloak-secret.yaml
 ```bash
 cp kube/secret/web-secret.example.yaml kube/gcp/web-secret.yaml
 ```
+```bash
+cp kube/secret/pdla-secret.example.yaml kube/gcp/pdla-secret.yaml
+```
+
 
 For each file, replace the placeholder values with your actual secret information. Use the values from the Terraform output.
 
