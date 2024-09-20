@@ -7,6 +7,10 @@ import glob
 import uuid
 import base64
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def create_segments_list(json_path):
     with open(json_path, 'r') as file:
@@ -100,7 +104,10 @@ def process_pdf_and_json(pdf_path: str, json_path: str, service_url: str, output
 
 
 if __name__ == "__main__":
-    service_url = "http://35.236.179.125:3000"
+    service_url = os.getenv('SERVICE_URL')
+    if not service_url:
+        raise ValueError("SERVICE_URL not found in environment variables")
+
     run = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     input_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/process/00c08086-9837-5551-8133-4e22ac28c6a5"
     output_dir = f"/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/process/{run}/00c08086-9837-5551-8133-4e22ac28c6a5"

@@ -1,5 +1,8 @@
 import os
 import shutil
+import requests
+import base64
+import io
 
 import cv2
 import numpy as np
@@ -7,13 +10,14 @@ from os import makedirs
 from os.path import join
 from pathlib import Path
 from PIL import Image
-from pdf2image import convert_from_path
+from dotenv import load_dotenv
 
-# rewrite convert from path using 
 from pdf_features.PdfFeatures import PdfFeatures
 
 from src.configuration import IMAGES_ROOT_PATH, XMLS_PATH
 
+# Load environment variables
+load_dotenv()
 
 class PdfImages:
     def __init__(self, pdf_features: PdfFeatures, pdf_images: list[Image]):
@@ -52,5 +56,23 @@ class PdfImages:
         else:
             pdf_name = Path(pdf_path).parent.name if Path(pdf_path).name == "document.pdf" else Path(pdf_path).stem
             pdf_features.file_name = pdf_name
-        pdf_images = convert_from_path(pdf_path, dpi=72)
+
+        # Use the PDF to PNG service
+        url = f"{os.getenv('SERVICE_URL')}/images_from_file"
+        files = {'file': open(pdf_path, 'rb')}
+        data = {'density': '72', 'extension': 'png'}
+
+        response = requests.post(url, files=files, data=data)
+        
+        if response.status_code != 200:
+            raise Exception(f"Error: {response.status_code} - {response.text}")
+
+        result = response.json()
+        pdf_images = []
+
+        for _, base64_image in result.items():
+            image_data = base64.b64decode(base64_image)
+            pil_image = Image.open(io.BytesIO(image_data))
+            pdf_images.append(pil_image)
+
         return PdfImages(pdf_features, pdf_images)
