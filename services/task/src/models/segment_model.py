@@ -1,7 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Optional
-from ocr_model import OCRResponse
+from src.models.ocr_model import OCRResponse
 
 class SegmentType(str, Enum):
     Title = "Title"

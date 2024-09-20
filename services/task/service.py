@@ -9,7 +9,7 @@ from src.ocr import ppocr_raw, ppocr, ppstructure_table_raw, ppstructure_table
 from src.utils import check_imagemagick_installed
 from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResponse
-from src.models.segment_model import Segment,SegmentType
+from src.models.segment_model import Segment, SegmentType
 
 
 @bentoml.service(
