@@ -1,4 +1,3 @@
-use crate::models::server::segment::PngPage;
 use crate::models::server::segment::Segment;
 use crate::utils::configs::pdf2png_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};

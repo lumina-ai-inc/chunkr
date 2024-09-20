@@ -9,7 +9,7 @@ use actix_web::{ web, App, HttpServer };
 use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
 use env_logger::Env;
 
-pub mod extraction;
+pub mod task;
 pub mod middleware;
 pub mod models;
 pub mod routes;
@@ -66,11 +66,14 @@ fn run_migrations(url: &str) {
             models::server::segment::SegmentType,
             models::server::segment::Segment,
             models::server::segment::Chunk,
+            models::server::segment::OCRResponse,
+            models::server::segment::OCRResult,
+            models::server::segment::BoundingBox,
         )
     ),
     tags(
-        (name = "health", description = "Endpoint for checking the health of the service."),
-        (name = "task", description = "Endpoints for creating and getting task status")
+        (name = "Health", description = "Endpoint for checking the health of the service."),
+        (name = "Task", description = "Endpoints for creating and getting task status")
     )
 )]
 pub struct ApiDoc;

@@ -2,6 +2,29 @@ use postgres_types::{ FromSql, ToSql };
 use serde::{ Deserialize, Serialize };
 use strum_macros::{ Display, EnumString };
 use utoipa::ToSchema;
+use uuid::Uuid;
+
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct BoundingBox {
+    pub top_left: Vec<f32>,
+    pub top_right: Vec<f32>,
+    pub bottom_right: Vec<f32>,
+    pub bottom_left: Vec<f32>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct OCRResult {
+    pub bbox: BoundingBox,
+    pub text: String,
+    pub confidence: Option<f32>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct OCRResponse {
+    pub results: Vec<OCRResult>,
+    pub html: Option<String>,
+}
 
 #[derive(
     Serialize,
@@ -49,26 +72,40 @@ pub struct Segment {
     pub ocr: Option<OCRResponse>
 }
 
+impl Segment {
+    pub fn new(
+        left: f32,
+        top: f32,
+        width: f32,
+        height: f32,
+        page_number: u32,
+        page_width: f32,
+        page_height: f32,
+        text: String,
+        segment_type: SegmentType,
+        ocr: Option<OCRResponse>,
+    ) -> Self {
+        Self {
+            left,
+            top,
+            width,
+            height,
+            page_number,
+            page_width,
+            page_height,
+            text,
+            segment_type,
+            segment_id: Uuid::new_v4().to_string(),
+            ocr,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
     pub segments: Vec<Segment>,
     pub markdown: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct OCRResult {
-    pub bounding_box: Vec<Vec<f32>>,
-    pub text: String,
-    pub confidence: f32,
-}
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct OCRResponse {
-    pub results: Vec<OCRResult>,
-}
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct PngPage {
-    pub bb_id: String,
-    pub base64_png: String,
-}

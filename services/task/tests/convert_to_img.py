@@ -6,7 +6,7 @@ import time
 
 def convert_file_to_images(file_path, output_dir, density=150, extension="png"):
     # Prepare the URL and files for the request
-    url = 'http://localhost:3000/convert_to_img'
+    url = 'http://35.236.179.125:3000/convert_to_img'
     files = {
         'file': open(file_path, 'rb')
     }
