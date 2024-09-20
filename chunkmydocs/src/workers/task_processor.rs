@@ -2,6 +2,7 @@ use chrono::{ DateTime, Utc };
 use tempfile::NamedTempFile;
 use std::io::Write;
 use chunkmydocs::task::pdla::pdla_extraction;
+use chunkmydocs::task::process::process_segments;
 use chunkmydocs::models::rrq::queue::QueuePayload;
 use chunkmydocs::models::server::extract::ExtractionPayload;
 use chunkmydocs::models::server::segment::Segment;
@@ -66,7 +67,12 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             extraction_item.batch_size
         ).await?;
 
-        let segments: Vec<Segment> = serde_json::from_str(&pdla_response)?;
+        let base_segments: Vec<Segment> = serde_json::from_str(&pdla_response)?;
+
+        let segments: Vec<Segment> = process_segments(
+            temp_file.path(),
+            &base_segments
+        ).await?;
 
         let chunks = hierarchical_chunk_and_add_markdown(
             segments,
