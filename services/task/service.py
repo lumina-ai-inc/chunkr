@@ -78,9 +78,8 @@ class OCR:
     traffic={"timeout": 60}
 )
 class Task:
-    def __init__(self) -> None:
-        self.image_service = bentoml.depends(Image)
-        self.ocr_service = bentoml.depends(OCR)
+    image_service = bentoml.depends(Image)
+    ocr_service = bentoml.depends(OCR)
 
     @bentoml.api
     def images_from_file(

@@ -5,17 +5,30 @@ import time
 from typing import List
 from pathlib import Path
 import glob
+import uuid
 
-def read_segments_from_json(json_path: str) -> List[dict]:
-    """
-    Read segments from a JSON file.
-
-    :param json_path: Path to the JSON file containing segments
-    :return: List of segment dictionaries
-    """
-    with open(json_path, 'r') as f:
-        data = json.load(f)
-    return data['segments']
+def create_segments_list(json_data):
+    segments = []
+    
+    for item in json_data:
+        if 'segments' in item:
+            for segment in item['segments']:
+                segments.append({
+                    'left': segment['left'],
+                    'top': segment['top'],
+                    'width': segment['width'],
+                    'height': segment['height'],
+                    'page_number': segment['page_number'],
+                    'page_width': segment['page_width'],
+                    'page_height': segment['page_height'],
+                    'text': segment['text'],
+                    'type': segment['type'],
+                    'segment_id': uuid.uuid4(),
+                    'ocr': None,
+                    'image': None
+                })
+    
+    return segments
 
 
 def send_files_to_process(pdf_path: str, json_path: str, service_url: str, output_dir: str) -> dict:
@@ -28,7 +41,7 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
     :param output_dir: Directory to save output files
     :return: Dictionary containing OCR results and time taken
     """
-    segments = read_segments_from_json(json_path)
+    segments = create_segments_list(json_path)
 
     files = {
         'file': open(pdf_path, 'rb'),
