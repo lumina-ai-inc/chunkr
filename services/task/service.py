@@ -19,7 +19,7 @@ from src.process import adjust_segments
 
 @bentoml.service(
     name="image",
-    resources={"cpu": "2"},
+    resources={"cpu": "4"},
     traffic={"timeout": 60}
 )
 class Image:
@@ -167,7 +167,7 @@ class Task:
         print("Pages converted to images")
         try:
             print("Segment processing started")
-            with ThreadPoolExecutor() as executor:
+            with ThreadPoolExecutor(max_workers=12) as executor:
                 futures = [executor.submit(self.process_segment, segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize) for segment in segments]
                 processed_segments = []
                 for future in as_completed(futures):
