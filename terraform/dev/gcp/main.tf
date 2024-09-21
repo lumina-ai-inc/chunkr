@@ -21,7 +21,7 @@ variable "zone" {
 }
 
 variable "base_name" {
-  default     = "dev-ishaan"
+  default     = "dev"
   description = "Base name"
 }
 
