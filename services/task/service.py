@@ -49,7 +49,7 @@ class Image:
         resize: Optional[str] = Field(
             default=None, description="Image resize dimensions (e.g., '800x600')")
     ) -> str:
-        return crop_image(str(file), left, top, left + width, top + height, density, extension, quality, resize)
+        return crop_image(file, left, top, left + width, top + height, density, extension, quality, resize)
 
 
 @bentoml.service(
@@ -88,9 +88,8 @@ class OCR:
     traffic={"timeout": 600}
 )
 class Task:
-    image_service = bentoml.depends(Image)
-
     def __init__(self) -> None:
+        check_imagemagick_installed()
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
                              ocr_order_method="tb-xy")
         self.table_engine = PPStructure(
@@ -103,12 +102,12 @@ class Task:
         density: int = Field(default=300, description="Image density in DPI"),
         extension: str = Field(default="png", description="Image extension")
     ) -> Dict[int, str]:
-        return self.image_service.convert_to_img(file, density, extension)
+        return convert_to_img(file, density, extension)
 
     @staticmethod
     def process_segment(self, segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize):
         try:
-            segment.image = self.image_service.crop_image(
+            segment.image = crop_image(
                 page_image_file_paths[segment.page_number],
                 segment.left,
                 segment.top,
@@ -163,7 +162,7 @@ class Task:
         print("Processing started")
         adjust_segments(segments, segment_bbox_offset,
                         page_image_density, pdla_density)
-        page_images = self.image_service.convert_to_img(
+        page_images = convert_to_img(
             file, page_image_density, page_image_extension)
         page_image_file_paths: dict[int, Path] = {}
         for page_number, page_image in page_images.items():
