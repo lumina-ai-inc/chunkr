@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: pdla-fast
-        image: luminainc/pdla:a0db098f
+        image: luminainc/pdla:e1c934fe
         imagePullPolicy: Always
         envFrom:
         - secretRef:
