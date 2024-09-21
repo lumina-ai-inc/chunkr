@@ -50,10 +50,10 @@ def predict_doclaynet():
     VGTTrainer.test(configuration, model)
 
 
-def analyze_pdf(file: AnyStr, xml_file_name: str) -> list[dict]:
+def analyze_pdf(file: AnyStr, xml_file_name: str, density: int, extension: str) -> list[dict]:
     pdf_path = pdf_content_to_pdf_path(file)
     service_logger.info(f"Creating PDF images")
-    pdf_images_list: list[PdfImages] = [PdfImages.from_pdf_path(pdf_path, "", xml_file_name)]
+    pdf_images_list: list[PdfImages] = [PdfImages.from_pdf_path(pdf_path, "", xml_file_name, density, extension)]
     create_word_grid([pdf_images.pdf_features for pdf_images in pdf_images_list])
     get_annotations(pdf_images_list)
     predict_doclaynet()
