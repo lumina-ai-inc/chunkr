@@ -6,17 +6,18 @@ from bs4 import BeautifulSoup
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
 from src.utils import ImprovedSpeller
 
+
 def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
     return ocr.ocr(str(image_path))
 
 
-def ppocr(ocr: PaddleOCR, spell: ImprovedSpeller, image_path: Path, threshold: int = 80) -> OCRResponse:
+def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
     raw_results = ocr.ocr(str(image_path))
-    
+
     # Check if raw_results is None or empty
     if not raw_results or not raw_results[0]:
         return OCRResponse(results=[], html="")
-    
+
     ocr_results = []
     for result in raw_results[0]:
         if result and len(result) == 2 and result[0] and result[1]:
@@ -28,11 +29,11 @@ def ppocr(ocr: PaddleOCR, spell: ImprovedSpeller, image_path: Path, threshold: i
                         bottom_right=result[0][2],
                         bottom_left=result[0][3]
                     ),
-                    text=spell.correct(result[1][0], threshold),
+                    text=result[1][0],
                     confidence=result[1][1]
                 )
             )
-    
+
     return OCRResponse(results=ocr_results, html=None)
 
 

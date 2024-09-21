@@ -51,7 +51,7 @@ class ImprovedSpeller:
         self.speller = Speller(lang='en', only_replacements=only_replacements)
         self.dictionary = enchant.Dict("en_US")
     
-    def correct(self, sentence, threshold=80):
+    def correct(self, sentence):
         words = sentence.split()
         corrected_words = []
         
@@ -59,19 +59,11 @@ class ImprovedSpeller:
             if self.dictionary.check(word):
                 corrected_words.append(word)
             else:
-                suggestions = self.dictionary.suggest(word)
-                if suggestions:
-                    best_match, score = process.extractOne(word, suggestions)
-                    if score > threshold:
-                        corrected_words.append(best_match)
-                    else:
-                        corrected_words.append(self.speller(word))
-                else:
-                    corrected_words.append(self.speller(word))
+                corrected_words.append(self.speller(word))
         
         return ' '.join(corrected_words)
-        
+    
 
 if __name__ == "__main__":
     spell = ImprovedSpeller(only_replacements=True)
-    print(spell.correct("are weighed against the loss in placement fiexbitiry and", threshold=50))
+    print(spell.correct("are weighed against the loss in placement fiexbitiry and"))
