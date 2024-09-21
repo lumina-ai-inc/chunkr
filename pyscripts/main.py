@@ -108,5 +108,5 @@ if __name__ == "__main__":
             print(f"Renamed: {file_name} to {new_name}")
 
     rename_files_in_input_folder()
-    process_all_files_in_input_folder(model, table_ocr)
+    process_all_files_in_input_folder(model, table_ocr, 5)
     print("All files processed and annotated.")

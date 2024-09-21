@@ -130,12 +130,6 @@ resource "google_compute_instance" "vm_instance" {
 
   metadata = {
     ssh-keys       = "debian:${file("~/.ssh/id_rsa.pub")}"
-    startup-script = <<-EOF
-        #!/bin/bash
-        echo '${file(var.startup_script_path)}' > /tmp/startup.sh
-        chmod +x /tmp/startup.sh
-        (sleep 60 && /tmp/startup.sh) &
-      EOF
     install-nvidia-driver = "True"
   }
 
