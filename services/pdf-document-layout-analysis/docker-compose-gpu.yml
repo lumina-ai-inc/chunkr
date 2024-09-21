@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 services:
   pdf-document-layout-analysis-gpu:
     build:
@@ -8,6 +8,7 @@ services:
       - "8000:8000"
     environment:
       - SERVICE_URL=http://host.docker.internal:3000
+    entrypoint: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
     deploy:
       resources:
         reservations:
