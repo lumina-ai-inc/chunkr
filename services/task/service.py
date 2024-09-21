@@ -1,7 +1,7 @@
 from __future__ import annotations
 import base64
 import bentoml
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from multiprocessing import Pool, cpu_count
 import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
@@ -100,6 +100,7 @@ class Task:
     ) -> Dict[int, str]:
         return self.image_service.convert_to_img(file, density, extension)
 
+    @staticmethod
     def process_segment(self, segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize):
         try:
             segment.image = self.image_service.crop_image(
@@ -167,13 +168,13 @@ class Task:
         print("Pages converted to images")
         try:
             print("Segment processing started")
-            with ThreadPoolExecutor(max_workers=12) as executor:
-                futures = [executor.submit(self.process_segment, segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize) for segment in segments]
-                processed_segments = []
-                for future in as_completed(futures):
-                    processed_segments.append(future.result())
+            with Pool(processes=cpu_count()) as pool:
+                processed_segments = pool.starmap(
+                    self.process_segment,
+                    [(segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize) for segment in segments]
+                )
             print("Segment processing finished")
         finally:
             for page_image_file_path in page_image_file_paths.values():
                 os.unlink(page_image_file_path)
-        return segments
+        return processed_segments
