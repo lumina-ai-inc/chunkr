@@ -1,3 +1,4 @@
+from PIL import Image, ImageDraw
 import requests
 import os
 import json
@@ -6,6 +7,7 @@ from pathlib import Path
 import glob
 import uuid
 import base64
+import io 
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -82,9 +84,19 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
         for index, segment in enumerate(results):
             if 'image' in segment and segment['image']:
                 image_data = base64.b64decode(segment['image'])
+                image = Image.open(io.BytesIO(image_data))
+                draw = ImageDraw.Draw(image)
+
+                if 'ocr' in segment and 'results' in segment['ocr']:
+                    for ocr_result in segment['ocr']['results']:
+                        bbox = ocr_result['bbox']
+                        draw.rectangle([
+                            (bbox['top_left'][0], bbox['top_left'][1]),
+                            (bbox['bottom_right'][0], bbox['bottom_right'][1])
+                        ], outline="red", width=2)
+
                 image_path = os.path.join(output_dir, f"{index}.jpg")
-                with open(image_path, 'wb') as image_file:
-                    image_file.write(image_data)
+                image.save(image_path)
 
         return results
     else:
