@@ -19,7 +19,7 @@ export default function Loader() {
         fill="none"
         className="logo-icon jitter-animation"
       >
-        <rect width="40" height="40" fill="white" fill-opacity="0.01" />
+        <rect width="40" height="40" fill="white" fillOpacity="0.01" />
         <path
           fill-rule="evenodd"
           clip-rule="evenodd"

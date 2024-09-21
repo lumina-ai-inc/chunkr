@@ -59,7 +59,7 @@ export default function PricingCard({
                 <Text
                   size="3"
                   weight="medium"
-                  style={{ color: "hsla(180, 100%, 100%, 0.95)" }}
+                  style={{ color: "hsla(180, 100%, 100%, 0.85)" }}
                 >
                   {checkpoint}
                 </Text>
@@ -74,7 +74,7 @@ export default function PricingCard({
             window.location.href = "https://cal.com/mehulc/30min";
           }}
         >
-          <Text size="3" weight="medium" className="white">
+          <Text size="2" weight="medium" className="white">
             Book a Call
           </Text>
         </BetterButton>
