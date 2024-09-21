@@ -117,10 +117,12 @@ class Task:
             segment_image_quality: int = Field(
                 default=100, description="Image quality (0-100) for segment images"),
             segment_image_resize: str = Field(
-                default=None, description="Image resize dimensions (e.g., '800x600') for segment images")
+                default=None, description="Image resize dimensions (e.g., '800x600') for segment images"),
+            pdla_density: int = Field(
+                default=72, description="Image density in DPI for pdla")
     ) -> list[Segment]:
         print("Processing started")
-        adjust_segments(segments, segment_bbox_offset, page_image_density, 72)
+        adjust_segments(segments, segment_bbox_offset, page_image_density, pdla_density)
         page_images = self.image_service.convert_to_img(
             file, page_image_density, page_image_extension)
         page_image_file_paths: dict[int, Path] = {}
