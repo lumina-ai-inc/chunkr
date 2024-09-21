@@ -69,8 +69,8 @@ class OCR:
         return ppocr_raw(self.ocr, file)
 
     @bentoml.api
-    def paddle_ocr(self, file: Path, threshold: int = 80) -> OCRResponse:
-        return ppocr(self.ocr, self.spell, file, threshold)
+    def paddle_ocr(self, file: Path) -> OCRResponse:
+        return ppocr(self.ocr, file)
 
     @bentoml.api
     def paddle_table_raw(self, file: Path) -> list:

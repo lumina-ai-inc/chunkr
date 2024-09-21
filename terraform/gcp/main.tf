@@ -81,28 +81,6 @@ resource "google_redis_instance" "cache" {
   depends_on = [google_service_networking_connection.private_service_connection]
 }
 
-# Add these new resources
-resource "google_compute_global_address" "private_ip_address" {
-  name          = "${var.base_name}-private-ip"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.vpc_network.id
-}
-
-resource "google_project_service" "servicenetworking" {
-  project = var.project
-  service = "servicenetworking.googleapis.com"
-  disable_on_destroy = false
-}
-
-resource "google_service_networking_connection" "private_service_connection" {
-  network                 = google_compute_network.vpc_network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
-  depends_on              = [google_project_service.servicenetworking]
-}
-
 ###############################################################
 # Google Cloud Storage
 ###############################################################
@@ -211,6 +189,26 @@ module "cloud-nat" {
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
 
+resource "google_compute_global_address" "private_ip_address" {
+  name          = "${var.base_name}-private-ip"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.vpc_network.id
+}
+
+resource "google_project_service" "servicenetworking" {
+  project = var.project
+  service = "servicenetworking.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_service_networking_connection" "private_service_connection" {
+  network                 = google_compute_network.vpc_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+  depends_on              = [google_project_service.servicenetworking]
+}
 ###############################################################
 # K8s configuration
 ###############################################################
@@ -349,6 +347,8 @@ resource "google_sql_database_instance" "postgres" {
   name             = "${var.base_name}-postgres"
   database_version = "POSTGRES_14"
   region           = var.region
+
+  depends_on = [google_service_networking_connection.private_service_connection]
 
   settings {
     tier = "db-f1-micro"
