@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   pdf-document-layout-analysis-gpu:
     build:
@@ -8,4 +8,10 @@ services:
       - "8000:8000"
     environment:
       - SERVICE_URL=http://host.docker.internal:3000
-    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
