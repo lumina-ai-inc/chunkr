@@ -85,16 +85,18 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
             if 'image' in segment and segment['image']:
                 image_data = base64.b64decode(segment['image'])
                 image = Image.open(io.BytesIO(image_data))
-                draw = ImageDraw.Draw(image)
+                try:
+                    draw = ImageDraw.Draw(image)
 
-                if 'ocr' in segment and 'results' in segment['ocr']:
-                    for ocr_result in segment['ocr']['results']:
-                        bbox = ocr_result['bbox']
-                        draw.rectangle([
-                            (bbox['top_left'][0], bbox['top_left'][1]),
-                            (bbox['bottom_right'][0], bbox['bottom_right'][1])
-                        ], outline="red", width=2)
-
+                    if 'ocr' in segment and 'results' in segment['ocr']:
+                        for ocr_result in segment['ocr']['results']:
+                            bbox = ocr_result['bbox']
+                            draw.rectangle([
+                                (bbox['top_left'][0], bbox['top_left'][1]),
+                                (bbox['bottom_right'][0], bbox['bottom_right'][1])
+                            ], outline="red", width=1)
+                except Exception as e:
+                    print(f"Error drawing bbox: {e}")
                 image_path = os.path.join(output_dir, f"{index}.jpg")
                 image.save(image_path)
 

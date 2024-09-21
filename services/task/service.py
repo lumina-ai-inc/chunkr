@@ -1,6 +1,7 @@
 from __future__ import annotations
 import base64
 import bentoml
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
@@ -99,6 +100,37 @@ class Task:
     ) -> Dict[int, str]:
         return self.image_service.convert_to_img(file, density, extension)
 
+    def process_segment(self, segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize):
+        try:
+            segment.image = self.image_service.crop_image(
+                page_image_file_paths[segment.page_number],
+                segment.left,
+                segment.top,
+                segment.width,
+                segment.height,
+                segment_image_density,
+                segment_image_extension,
+                segment_image_quality,
+                segment_image_resize
+            )
+            segment_temp_file = tempfile.NamedTemporaryFile(
+                suffix=f".{segment_image_extension}", delete=False)
+            segment_temp_file.write(base64.b64decode(segment.image))
+            segment_temp_file.close()
+            try:
+                if segment.segment_type == SegmentType.Table:
+                    segment.ocr = self.ocr_service.paddle_table(
+                        Path(segment_temp_file.name))
+                else:
+                    segment.ocr = self.ocr_service.paddle_ocr(
+                        Path(segment_temp_file.name))
+                    segment.update_text_ocr()
+            finally:
+                os.unlink(segment_temp_file.name)
+        except Exception as e:
+            print(f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
+        return segment
+
     @bentoml.api
     def process(
             self,
@@ -134,38 +166,13 @@ class Task:
             page_image_file_paths[page_number] = Path(temp_file.name)
         print("Pages converted to images")
         try:
-            print("Segment cropping started")
-            for segment in segments:
-                try:
-                    segment.image = self.image_service.crop_image(
-                        page_image_file_paths[segment.page_number],
-                        segment.left,
-                        segment.top,
-                        segment.width,
-                        segment.height,
-                        segment_image_density,
-                        segment_image_extension,
-                        segment_image_quality,
-                        segment_image_resize
-                    )
-                    segment_temp_file = tempfile.NamedTemporaryFile(
-                        suffix=f".{segment_image_extension}", delete=False)
-                    segment_temp_file.write(base64.b64decode(segment.image))
-                    segment_temp_file.close()
-                    try:
-                        if segment.segment_type == SegmentType.Table:
-                            segment.ocr = self.ocr_service.paddle_table(
-                                Path(segment_temp_file.name))
-                        else:
-                            segment.ocr = self.ocr_service.paddle_ocr(
-                                Path(segment_temp_file.name))
-                            segment.update_text_ocr()
-                    finally:
-                        os.unlink(segment_temp_file.name)
-                except Exception as e:
-                    print(
-                        f"Error cropping segment {segment.segment_type} on page {segment.page_number}: {e}")
-            print("Segment ocr finished")
+            print("Segment processing started")
+            with ThreadPoolExecutor() as executor:
+                futures = [executor.submit(self.process_segment, segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize) for segment in segments]
+                processed_segments = []
+                for future in as_completed(futures):
+                    processed_segments.append(future.result())
+            print("Segment processing finished")
         finally:
             for page_image_file_path in page_image_file_paths.values():
                 os.unlink(page_image_file_path)
