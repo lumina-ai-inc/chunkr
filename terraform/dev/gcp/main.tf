@@ -30,6 +30,11 @@ variable "machine_type" {
   description = "Instance Type of the required VM"
 }
 
+variable "vm_image" {
+  default     = "debian-cloud/debian-11"
+  description = "VM Image"
+}
+
 variable "accelerator_type" {
   default     = "nvidia-l4"
   description = "Accelerator Type"
@@ -113,7 +118,7 @@ resource "google_compute_instance" "vm_instance" {
 
   boot_disk {
     initialize_params {
-      image = "deeplearning-platform-release/common-cu113-v20240730-debian-11-py310"
+      image = var.vm_image
       size  = 256
       type  = "pd-balanced"
     }
