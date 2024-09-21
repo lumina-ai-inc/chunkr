@@ -5,9 +5,12 @@ import os
 import json
 from pathlib import Path
 from annotate import draw_bounding_boxes
+import dotenv
+
+dotenv.load_dotenv(override=True)
 
 class TestPDLAServer(unittest.TestCase):
-    BASE_URL = "http://localhost:5060"
+    BASE_URL = os.getenv("PDLASERVER_URL")
     
     def setUp(self):
         self.input_folder = Path(__file__).parent / "input"
@@ -29,7 +32,7 @@ class TestPDLAServer(unittest.TestCase):
                 print(f"Processing PDF file: {pdf_path}")
                 with open(pdf_path, "rb") as pdf_file:
                     files = {"file": (pdf_path.name, pdf_file, "application/pdf")}
-                    data = {"fast": "false"}
+                    data = {"fast": "false", "density": 300}
                     
                     response = requests.post(url, files=files, data=data)
                 
