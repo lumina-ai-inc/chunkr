@@ -134,7 +134,7 @@ resource "google_compute_instance" "vm_instance" {
   }
 
   metadata = {
-    ssh-keys       = "debian:${file("~/.ssh/id_rsa.pub")}"
+    ssh-keys              = "debian:${file("~/.ssh/id_rsa.pub")}"
     install-nvidia-driver = "True"
   }
 
