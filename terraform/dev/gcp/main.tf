@@ -21,7 +21,7 @@ variable "zone" {
 }
 
 variable "base_name" {
-  default     = "dev"
+  default     = "dev-ishaan"
   description = "Base name"
 }
 
@@ -134,7 +134,7 @@ resource "google_compute_instance" "vm_instance" {
   }
 
   metadata = {
-    ssh-keys       = "debian:${file("~/.ssh/id_rsa.pub")}"
+    ssh-keys              = "debian:${file("~/.ssh/id_rsa.pub")}"
     install-nvidia-driver = "True"
   }
 
