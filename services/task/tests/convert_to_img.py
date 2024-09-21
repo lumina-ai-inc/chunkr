@@ -15,7 +15,7 @@ def convert_file_to_images(file_path, output_dir, density=150, extension="png"):
         raise ValueError("SERVICE_URL not found in environment variables")
 
     # Prepare the URL and files for the request
-    url = f'{service_url}images_from_file'
+    url = f'{service_url}/images_from_file'
     files = {
         'file': open(file_path, 'rb')
     }
@@ -50,8 +50,8 @@ def convert_file_to_images(file_path, output_dir, density=150, extension="png"):
         print(f"Error: {response.status_code} - {response.text}")
 
 # Usage
-file_path = '/Users/ishaankapoor/chunk-my-docs/services/task/input/10_1002_slct_201802657_annotated.pdf'
-base_output_dir = 'output'
+file_path = '/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/process/00c08086-9837-5551-8133-4e22ac28c6a5/00c08086-9837-5551-8133-4e22ac28c6a5.pdf'
+base_output_dir = 'output/convert_to_img/00c08086-9837-5551-8133-4e22ac28c6a5/300'
 
 # Extract the filename without extension
 file_name = Path(file_path).stem
