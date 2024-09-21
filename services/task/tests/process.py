@@ -55,9 +55,9 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
 
     data = {
         'segments': json.dumps(segments),
-        'page_image_density': 500,
+        'page_image_density': 10000,
         'page_image_extension': 'png',
-        'segment_image_extension': 'jpg',
+        'segment_image_extension': 'jpeg',
         'segment_image_density': 500,
         'segment_bbox_offset': 2,
         'segment_image_quality': 100,

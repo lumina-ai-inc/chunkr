@@ -16,17 +16,16 @@ service_logger.info(f"Is PyTorch using GPU: {torch.cuda.is_available()}")
 
 app = FastAPI()
 
+
 @app.get("/readiness")
 def readiness():
     return {"status": "ready"}
 
-# @app.get("/")
-# def read_root():
-#     return {"message": "Hello, World!"}
 
-# @app.get("/")
-# async def info():
-#     return sys.version + " Using GPU: " + str(torch.cuda.is_available())
+@app.get("/")
+async def info():
+    return sys.version + " Using GPU: " + str(torch.cuda.is_available())
+
 
 @app.get("/error")
 async def error():
