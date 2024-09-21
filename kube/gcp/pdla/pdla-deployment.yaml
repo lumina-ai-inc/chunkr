@@ -17,14 +17,14 @@ spec:
     spec:
       containers:
       - name: pdla
-        image: luminainc/pdla:2c8c9355
+        image: luminainc/pdla:a0db098f
         imagePullPolicy: Always
         envFrom:
         - secretRef:
             name: pdla-secrets
         ports:
         - containerPort: 8000
-        command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000", "--workers", "1"]
+        command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
         securityContext:
           privileged: true
           capabilities:
