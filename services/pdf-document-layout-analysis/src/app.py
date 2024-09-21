@@ -34,7 +34,7 @@ async def error():
 
 @app.post("/")
 @catch_exceptions
-async def run(file: UploadFile = File(...), fast: bool = Form(False), density: int = Form(300), extension: str = Form("jpg")):
+async def run(file: UploadFile = File(...), fast: bool = Form(False), density: int = Form(72), extension: str = Form("jpg")):
     if fast:
         return await run_in_threadpool(analyze_pdf_fast, file.file.read(), "")
 
