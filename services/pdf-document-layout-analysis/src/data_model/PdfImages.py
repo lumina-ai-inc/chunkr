@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 from pdf_features.PdfFeatures import PdfFeatures
 from pdf_features.convert_to_img import convert_file_to_images
-
+from pdf2image import convert_from_bytes
 from src.configuration import IMAGES_ROOT_PATH, XMLS_PATH
 
 # Load environment variables
