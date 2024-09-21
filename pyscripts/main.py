@@ -59,7 +59,7 @@ def extract_and_annotate_file(file_path: str, model: Model, table_ocr: TableOcr 
     print(f"File annotated: {file_path}")
 
 
-def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, max_workers=4):
+def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, max_workers=5):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_dir = os.path.join(current_dir, "input")
     
