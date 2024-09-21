@@ -44,7 +44,7 @@ class PdfImages:
         shutil.rmtree(IMAGES_ROOT_PATH)
 
     @staticmethod
-    def from_pdf_path(pdf_path: str | Path, pdf_name: str = "", xml_file_name: str = ""):
+    def from_pdf_path(pdf_path: str | Path, pdf_name: str = "", xml_file_name: str = "", density: int = 300, extension: str = "jpg"):
         xml_path = Path(join(XMLS_PATH, xml_file_name)) if xml_file_name else None
 
         if xml_path and not xml_path.parent.exists():
@@ -61,11 +61,10 @@ class PdfImages:
         # Use the convert_file_to_images function
         output_dir = Path(IMAGES_ROOT_PATH) / pdf_name
         os.makedirs(output_dir, exist_ok=True)
-
-        convert_file_to_images(pdf_path, output_dir, density=300, extension="png")
+        convert_file_to_images(pdf_path, output_dir, density=density, extension=extension)
 
         pdf_images = []
-        for image_file in sorted(output_dir.glob("*.png")):
+        for image_file in sorted(output_dir.glob(f"*.{extension}")):
             with Image.open(image_file) as img:
                 pdf_images.append(img.copy())
             os.remove(image_file)  # Remove the temporary image file
