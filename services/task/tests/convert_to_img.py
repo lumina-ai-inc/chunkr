@@ -63,7 +63,7 @@ os.makedirs(output_dir, exist_ok=True)
 # Start timing
 start_time = time.time()
 
-convert_file_to_images(file_path, output_dir, 300, "png")
+convert_file_to_images(file_path, output_dir, 300, "jpg")
 
 # End timing
 end_time = time.time()
