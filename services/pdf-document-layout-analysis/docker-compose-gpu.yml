@@ -1,12 +1,17 @@
+version: '3.8'
 services:
   pdf-document-layout-analysis-gpu:
-    extends:
-      file: docker-compose.yml
-      service: pdf-document-layout-analysis
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_URL=http://host.docker.internal:3000
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [ gpu ]
+              capabilities: [gpu]

@@ -45,7 +45,7 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io
 apt-get install python3-venv
 usermod -aG docker debian
-
+apt-get install -y docker-compose
 # Pull chunkr git repository
 git clone https://github.com/lumina-ai-inc/chunkr.git ./chunkr
 chown -R debian:debian ./chunkr
