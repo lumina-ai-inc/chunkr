@@ -89,7 +89,12 @@ class OCR:
 )
 class Task:
     image_service = bentoml.depends(Image)
-    ocr_service = bentoml.depends(OCR)
+
+    def __init__(self) -> None:
+        self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
+                             ocr_order_method="tb-xy")
+        self.table_engine = PPStructure(
+            recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2")
 
     @bentoml.api
     def images_from_file(
@@ -120,16 +125,17 @@ class Task:
             segment_temp_file.close()
             try:
                 if segment.segment_type == SegmentType.Table:
-                    segment.ocr = self.ocr_service.paddle_table(
-                        Path(segment_temp_file.name))
+                    segment.ocr = ppstructure_table(
+                        self.table_engine, Path(segment_temp_file.name))
                 else:
-                    segment.ocr = self.ocr_service.paddle_ocr(
-                        Path(segment_temp_file.name))
+                    segment.ocr = ppocr(
+                        self.ocr, Path(segment_temp_file.name))
                     segment.update_text_ocr()
             finally:
                 os.unlink(segment_temp_file.name)
         except Exception as e:
-            print(f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
+            print(
+                f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
         return segment
 
     @bentoml.api
@@ -155,7 +161,8 @@ class Task:
                 default=72, description="Image density in DPI for pdla")
     ) -> list[Segment]:
         print("Processing started")
-        adjust_segments(segments, segment_bbox_offset, page_image_density, pdla_density)
+        adjust_segments(segments, segment_bbox_offset,
+                        page_image_density, pdla_density)
         page_images = self.image_service.convert_to_img(
             file, page_image_density, page_image_extension)
         page_image_file_paths: dict[int, Path] = {}
@@ -171,7 +178,8 @@ class Task:
             with Pool(processes=cpu_count()) as pool:
                 processed_segments = pool.starmap(
                     self.process_segment,
-                    [(segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize) for segment in segments]
+                    [(segment, page_image_file_paths, segment_image_density, segment_image_extension,
+                      segment_image_quality, segment_image_resize) for segment in segments]
                 )
             print("Segment processing finished")
         finally:
