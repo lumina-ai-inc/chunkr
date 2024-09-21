@@ -10,3 +10,10 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [ gpu ]
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_URL=http://0.0.0.0:7000
+    command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
+    networks:
+      - host
