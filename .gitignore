@@ -112,5 +112,3 @@ id_ed25519
 id_ed25519.pub
 *.pem
 commits.md
-terraform/dev/gcp
-terraform/dev
