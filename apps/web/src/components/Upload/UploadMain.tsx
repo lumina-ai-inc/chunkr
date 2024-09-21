@@ -5,6 +5,8 @@ import Upload from "./Upload";
 import "./UploadMain.css";
 import { Model, UploadForm } from "../../models/upload.model";
 import { uploadFile } from "../../services/uploadFileApi";
+import HighQualityImage from "../../assets/cards/highQuality.png";
+import FastImage from "../../assets/cards/fast.png";
 
 export default function UploadMain({
   isAuthenticated,
@@ -165,7 +167,7 @@ export default function UploadMain({
               <div
                 className="card-image"
                 style={{
-                  backgroundImage: "url('src/assets/cards/fast.png')",
+                  backgroundImage: `url(${FastImage})`,
                   zIndex: 0,
                 }}
               />
@@ -264,7 +266,7 @@ export default function UploadMain({
               <div
                 className="card-image"
                 style={{
-                  backgroundImage: "url('src/assets/cards/highQuality.png')",
+                  backgroundImage: `url(${HighQualityImage})`,
                 }}
               />
               <Flex
