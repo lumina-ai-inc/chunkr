@@ -120,7 +120,7 @@ class Task:
                 default=None, description="Image resize dimensions (e.g., '800x600') for segment images")
     ) -> list[Segment]:
         print("Processing started")
-        adjust_segments(segments, segment_bbox_offset)
+        adjust_segments(segments, segment_bbox_offset, 72)
         page_images = self.image_service.convert_to_img(
             file, page_image_density, page_image_extension)
         page_image_file_paths: dict[int, Path] = {}
