@@ -8,10 +8,4 @@ services:
       - "8000:8000"
     environment:
       - SERVICE_URL=http://host.docker.internal:3000
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    runtime: nvidia
