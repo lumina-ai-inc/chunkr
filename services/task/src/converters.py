@@ -42,7 +42,7 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
         shutil.rmtree(temp_dir)
 
 
-def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, density: int = 300, extension: str = "png", quality: int = 100, resize: str = None) -> str:
+def crop_image(input_path: Path, left: int, top: int, right: int, bottom: int, density: int = 300, extension: str = "png", quality: int = 100, resize: str = None) -> str:
     """
     Crop an image using ImageMagick, given the input path and crop coordinates, and return as base64.
 
@@ -58,6 +58,7 @@ def crop_image(input_path: str, left: int, top: int, right: int, bottom: int, de
     :return: Base64 encoded string of the cropped image
     """
     try:
+        input_path = str(input_path)
         print(f"Cropping image: {input_path}")
         if not os.path.exists(input_path):
             raise FileNotFoundError(f"Input file not found: {input_path}")
