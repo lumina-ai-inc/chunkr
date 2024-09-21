@@ -32,7 +32,7 @@ class TestPDLAServer(unittest.TestCase):
                 print(f"Processing PDF file: {pdf_path}")
                 with open(pdf_path, "rb") as pdf_file:
                     files = {"file": (pdf_path.name, pdf_file, "application/pdf")}
-                    data = {"fast": "false", "density": 300}
+                    data = {"fast": "false", "density": 72, "extension": "jpeg"}
                     
                     response = requests.post(url, files=files, data=data)
                 
