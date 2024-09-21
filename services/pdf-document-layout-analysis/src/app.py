@@ -3,6 +3,7 @@ import torch
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import PlainTextResponse
 from starlette.concurrency import run_in_threadpool
+import asyncio
 
 from catch_exceptions import catch_exceptions
 from configuration import service_logger
@@ -15,7 +16,7 @@ from toc.get_toc import get_toc
 service_logger.info(f"Is PyTorch using GPU: {torch.cuda.is_available()}")
 
 app = FastAPI()
-
+processing_lock = asyncio.Lock()
 
 @app.get("/readiness")
 def readiness():
@@ -35,10 +36,11 @@ async def error():
 @app.post("/")
 @catch_exceptions
 async def run(file: UploadFile = File(...), fast: bool = Form(False), density: int = Form(72), extension: str = Form("jpeg")):
-    if fast:
-        return await run_in_threadpool(analyze_pdf_fast, file.file.read(), "")
+    async with processing_lock:
+        if fast:
+            return await run_in_threadpool(analyze_pdf_fast, file.file.read(), "")
 
-    return await run_in_threadpool(analyze_pdf, file.file.read(), "", density, extension)
+        return await run_in_threadpool(analyze_pdf, file.file.read(), "", density, extension)
 
 
 # @app.post("/save_xml/{xml_file_name}")

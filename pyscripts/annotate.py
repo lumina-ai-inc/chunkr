@@ -2,7 +2,7 @@ import json
 import fitz
 import os
 
-def draw_bounding_boxes(pdf_path, json, output_path):
+def draw_bounding_boxes(pdf_path, json_data, output_path):
     # Define colors for different types
     color_map = {
         "Caption": (1, 0, 0),  # Red
@@ -19,7 +19,7 @@ def draw_bounding_boxes(pdf_path, json, output_path):
     }
 
     # Load JSON data
-    data=json
+    data = json_data
 
     # Open the PDF
     pdf_document = fitz.open(pdf_path)
@@ -28,8 +28,11 @@ def draw_bounding_boxes(pdf_path, json, output_path):
     for page_num in range(len(pdf_document)):
         page = pdf_document[page_num]
 
-        # Filter segments for the current page
-        page_segments = [seg for item in data for seg in item.get("segments", []) if seg["page_number"] == page_num + 1]
+        # Check if 'segments' key exists, if not use the data directly
+        if any('segments' in item for item in data):
+            page_segments = [seg for item in data for seg in item.get("segments", []) if seg["page_number"] == page_num + 1]
+        else:
+            page_segments = [item for item in data if item["page_number"] == page_num + 1]
 
         # Draw rectangles for each segment
         for seg in page_segments:
