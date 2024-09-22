@@ -90,7 +90,7 @@ class Task:
     def __init__(self) -> None:
         check_imagemagick_installed()
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy", show_logs=False)
+                             ocr_order_method="tb-xy")
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2")
         self.ocr_lock: threading.Lock = threading.Lock()
@@ -160,7 +160,11 @@ class Task:
                         segment_image_extension,
                         segment_image_quality,
                         segment_image_resize,
-                        ocr_strategy
+                        ocr_strategy,
+                        self.ocr,
+                        self.table_engine,
+                        self.ocr_lock,
+                        self.table_engine_lock
                     )
                     futures[segment.segment_id] = future
 
