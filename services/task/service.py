@@ -6,17 +6,16 @@ import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
-import shutil
 import tempfile
 import tqdm
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 import threading
 
 from src.converters import convert_to_img, crop_image
-from src.models.ocr_model import OCRResponse
-from src.models.segment_model import Segment, SegmentType
+from src.models.ocr_model import OCRResult
+from src.models.segment_model import BaseSegment, Segment, SegmentType
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
-from src.utils import check_imagemagick_installed, ImprovedSpeller
+from src.utils import check_imagemagick_installed
 from src.process import adjust_segments
 
 
@@ -62,7 +61,6 @@ class Image:
 )
 class OCR:
     def __init__(self) -> None:
-        self.spell = ImprovedSpeller(only_replacements=True)
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
                              ocr_order_method="tb-xy")
         self.table_engine = PPStructure(
@@ -73,7 +71,7 @@ class OCR:
         return ppocr_raw(self.ocr, file)
 
     @bentoml.api
-    def paddle_ocr(self, file: Path) -> OCRResponse:
+    def paddle_ocr(self, file: Path) -> List[OCRResult]:
         return ppocr(self.ocr, file)
 
     @bentoml.api
@@ -81,7 +79,7 @@ class OCR:
         return ppstructure_table_raw(self.table_engine, file)
 
     @bentoml.api
-    def paddle_table(self, file: Path) -> OCRResponse:
+    def paddle_table(self, file: Path) -> List[OCRResult]:
         return ppstructure_table(self.table_engine, file)
 
 
@@ -129,13 +127,17 @@ class Task:
             try:
                 if segment.segment_type == SegmentType.Table:
                     with self.table_engine_lock:
-                        segment.ocr = ppstructure_table(
+                        table_ocr_results = ppstructure_table(
                             self.table_engine, Path(segment_temp_file.name))
+                        segment.ocr = table_ocr_results.results
+                        segment.html = table_ocr_results.html
                 else:
                     with self.ocr_lock:
-                        segment.ocr = ppocr(
+                        ocr_results = ppocr(
                             self.ocr, Path(segment_temp_file.name))
-                        segment.update_text_ocr()
+                        segment.ocr = ocr_results.results
+                segment.upsert_html()
+                segment.create_markdown()
             finally:
                 os.unlink(segment_temp_file.name)
         except Exception as e:
@@ -147,7 +149,7 @@ class Task:
     def process(
             self,
             file: Path,
-            segments: list[Segment],
+            base_segments: list[BaseSegment],
             page_image_density: int = Field(
                 default=300, description="Image density in DPI for page images"),
             page_image_extension: str = Field(
@@ -168,6 +170,8 @@ class Task:
                 default=4, description="Number of worker threads for segment processing")
     ) -> list[Segment]:
         print("Processing started")
+        segments = [Segment(**base_segment.model_dump())
+                    for base_segment in base_segments]
         adjust_segments(segments, segment_bbox_offset,
                         page_image_density, pdla_density)
         page_images = convert_to_img(
