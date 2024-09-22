@@ -1,8 +1,8 @@
-use crate::models::server::segment::{Chunk, Segment, SegmentType};
+use crate::models::server::segment::{ Chunk, Segment, SegmentType };
 
-pub async fn hierarchical_chunk(
+pub async fn hierarchical_chunking(
     segments: Vec<Segment>,
-    target_length: Option<i32>,
+    target_length: Option<i32>
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let mut chunks: Vec<Chunk> = Vec::new();
     let target_length = target_length.unwrap_or(512);
@@ -12,7 +12,7 @@ pub async fn hierarchical_chunk(
         for segment in segments {
             chunks.push(Chunk {
                 segments: vec![segment.clone()],
-                chunk_length_words: segment.text.split_whitespace().count() as f32,
+                chunk_length: segment.text.split_whitespace().count() as i32,
             });
         }
     } else {
@@ -21,13 +21,13 @@ pub async fn hierarchical_chunk(
 
         fn finalize_chunk(chunk: &mut Vec<Segment>, chunks: &mut Vec<Chunk>) {
             if !chunk.is_empty() {
-                let chunk_length_words = chunk
+                let chunk_length = chunk
                     .iter()
                     .map(|s| s.text.split_whitespace().count())
-                    .sum::<usize>() as f32;
+                    .sum::<usize>() as i32;
                 chunks.push(Chunk {
                     segments: chunk.clone(),
-                    chunk_length_words,
+                    chunk_length,
                 });
                 chunk.clear();
             }
@@ -41,13 +41,14 @@ pub async fn hierarchical_chunk(
                     finalize_chunk(&mut current_chunk, &mut chunks);
                     chunks.push(Chunk {
                         segments: vec![segment.clone()],
-                        chunk_length_words: segment_word_count as f32,
+                        chunk_length: segment_word_count,
                     });
                     current_word_count = 0;
                 }
                 SegmentType::SectionHeader => {
-                    if !current_chunk.is_empty()
-                        && current_chunk.last().unwrap().segment_type != SegmentType::SectionHeader
+                    if
+                        !current_chunk.is_empty() &&
+                        current_chunk.last().unwrap().segment_type != SegmentType::SectionHeader
                     {
                         finalize_chunk(&mut current_chunk, &mut chunks);
                         current_word_count = 0;
@@ -74,7 +75,7 @@ pub async fn hierarchical_chunk(
                 finalize_chunk(&mut current_chunk, &mut chunks);
                 chunks.push(Chunk {
                     segments: vec![segment.clone()],
-                    chunk_length_words: segment_word_count as f32,
+                    chunk_length: segment_word_count,
                 });
                 current_word_count = 0;
             }
@@ -92,11 +93,11 @@ pub async fn hierarchical_chunk(
 
 pub async fn process_bounding_boxes(
     file_path: &str,
-    target_size: usize,
+    target_size: usize
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let file_content = tokio::fs::read_to_string(file_path).await?;
     let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
-    hierarchical_chunk(segments, Some(target_size as i32)).await
+    hierarchical_chunking(segments, Some(target_size as i32)).await
 }
 
 #[cfg(test)]
@@ -109,8 +110,9 @@ mod tests {
     async fn test_process_bounding_boxes() -> Result<(), Box<dyn std::error::Error>> {
         // Load the bounding_boxes.json file
         let mut input_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        input_path
-            .push("/Users/ishaankapoor/chunk-my-docs/example/input/no_chunk_bounding_boxes.json");
+        input_path.push(
+            "/Users/ishaankapoor/chunk-my-docs/example/input/no_chunk_bounding_boxes.json"
+        );
         let input_file_path = input_path.to_str().unwrap();
 
         // Process the bounding boxes
