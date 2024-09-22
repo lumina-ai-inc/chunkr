@@ -26,12 +26,20 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
             pdf_file = file
         conversion_end = time.time()
         
-        magick_start = time.time()
         output_pattern = os.path.join(temp_dir, f'output-%d.{extension}')
-        subprocess.run(['magick', '-density', str(density), str(pdf_file),
-                        '-background', 'white', '-alpha', 'remove', '-alpha', 'off',
+        magick_start = time.time()
+        subprocess.run(['convert', 
+                        '-density', str(density),
+                        '-limit', 'thread', '8',  
+                        '-define', 'opencl:device=gpu',
+                        '-define', 'opencl:gpu-acceleration=on',
+                        '-opencl', 'enable',
+                        str(pdf_file),
+                        '-background', 'white',
+                        '-alpha', 'remove',
+                        '-alpha', 'off',
                         output_pattern],
-                       check=True, capture_output=True, text=True)
+                    check=True, capture_output=True, text=True)
         magick_end = time.time()
 
         processing_start = time.time()
