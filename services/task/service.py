@@ -6,9 +6,11 @@ import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
+import shutil
 import tempfile
 import tqdm
 from typing import Dict, Optional
+import threading
 
 from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResponse
@@ -92,9 +94,10 @@ class Task:
     def __init__(self) -> None:
         check_imagemagick_installed()
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy")
+                             ocr_order_method="tb-xy", show_logs=False)
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2")
+        self.file_locks = {}
 
     @bentoml.api
     def images_from_file(
@@ -107,31 +110,42 @@ class Task:
 
     def process_segment(self, segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize):
         try:
-            segment.image = crop_image(
-                page_image_file_paths[segment.page_number],
-                segment.left,
-                segment.top,
-                segment.width,
-                segment.height,
-                segment_image_density,
-                segment_image_extension,
-                segment_image_quality,
-                segment_image_resize
-            )
-            segment_temp_file = tempfile.NamedTemporaryFile(
-                suffix=f".{segment_image_extension}", delete=False)
-            segment_temp_file.write(base64.b64decode(segment.image))
-            segment_temp_file.close()
+            original_file = page_image_file_paths[segment.page_number]
+            if segment.page_number not in self.file_locks:
+                self.file_locks[segment.page_number] = threading.Lock()
+            
+            with self.file_locks[segment.page_number]:
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=f".{segment_image_extension}")
+                shutil.copy2(original_file, temp_file.name)
+
             try:
-                if segment.segment_type == SegmentType.Table:
-                    segment.ocr = ppstructure_table(
-                        self.table_engine, Path(segment_temp_file.name))
-                else:
-                    segment.ocr = ppocr(
-                        self.ocr, Path(segment_temp_file.name))
-                    segment.update_text_ocr()
+                segment.image = crop_image(
+                    temp_file.name,
+                    segment.left,
+                    segment.top,
+                    segment.width,
+                    segment.height,
+                    segment_image_density,
+                    segment_image_extension,
+                    segment_image_quality,
+                    segment_image_resize
+                )
+                segment_temp_file = tempfile.NamedTemporaryFile(
+                    suffix=f".{segment_image_extension}", delete=False)
+                segment_temp_file.write(base64.b64decode(segment.image))
+                segment_temp_file.close()
+                try:
+                    if segment.segment_type == SegmentType.Table:
+                        segment.ocr = ppstructure_table(
+                            self.table_engine, Path(segment_temp_file.name))
+                    else:
+                        segment.ocr = ppocr(
+                            self.ocr, Path(segment_temp_file.name))
+                        segment.update_text_ocr()
+                finally:
+                    os.unlink(segment_temp_file.name)
             finally:
-                os.unlink(segment_temp_file.name)
+                os.unlink(temp_file.name)
         except Exception as e:
             print(
                 f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
