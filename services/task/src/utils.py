@@ -23,16 +23,20 @@ def check_imagemagick_installed():
         opencl_support = 'OpenCL' in config_output.stdout
         print(f"OpenCL support: {'Yes' if opencl_support else 'No'}")
 
-        # Check if GPU is being used
-        benchmark_output = subprocess.run(
-            ['magick', 'benchmark', 'rose:', '-resize', '1000x1000', 'null:'], check=True, capture_output=True, text=True)
-        gpu_match = re.search(r'(\d+\.\d+) fps \(GPU\)',
-                              benchmark_output.stdout)
+        # Check if GPU is mentioned in the features
+        gpu_support = 'OpenCL' in version_output.stdout or 'GPU' in version_output.stdout
+        print(
+            f"GPU support mentioned in features: {'Yes' if gpu_support else 'No'}")
 
-        if gpu_match:
-            print(f"GPU acceleration is being used: {gpu_match.group(0)}")
-        else:
-            print("GPU acceleration is not being used")
+        # Additional information about delegates
+        delegates = re.search(
+            r'Delegates \(built-in\): (.+)', version_output.stdout)
+        if delegates:
+            print(f"Built-in delegates: {delegates.group(1)}")
+
+        # Check for HDRI feature
+        hdri_support = 'HDRI' in version_output.stdout
+        print(f"HDRI support: {'Yes' if hdri_support else 'No'}")
 
     except subprocess.CalledProcessError as e:
         print(f"Error running ImageMagick command: {e}")
