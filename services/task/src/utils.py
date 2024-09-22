@@ -62,7 +62,7 @@ def convert_base_segment_to_segment(base_segment: BaseSegment) -> Segment:
                       base_segment.top + base_segment.height],
         bottom_left=[base_segment.left, base_segment.top + base_segment.height]
     )
-    
+
     return Segment(
         segment_id=base_segment.segment_id,
         bbox=bbox,
@@ -70,5 +70,5 @@ def convert_base_segment_to_segment(base_segment: BaseSegment) -> Segment:
         page_width=base_segment.page_width,
         page_height=base_segment.page_height,
         text=base_segment.text,
-        segment_type=base_segment.segment_type
+        type=base_segment.segment_type
     )
