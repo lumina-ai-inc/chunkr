@@ -74,7 +74,7 @@ def process_segment(
     try:
         ocr_needed = ocr_strategy == "on" or (
             ocr_strategy != "off" and (
-                segment.segment_type in [SegmentType.Table, SegmentType.Picture] or
+                segment.segment_type in [SegmentType.Table, SegmentType.Picture, SegmentType.Formula] or
                 (ocr_strategy == "auto" and not segment.text)
             )
         )
