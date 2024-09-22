@@ -1,12 +1,13 @@
 from __future__ import annotations
 import base64
 import bentoml
-from multiprocessing import Pool, cpu_count
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
 import tempfile
+import tqdm
 from typing import Dict, Optional
 
 from src.converters import convert_to_img, crop_image
@@ -158,7 +159,7 @@ class Task:
             pdla_density: int = Field(
                 default=72, description="Image density in DPI for pdla"),
             num_processes: int = Field(
-                default=cpu_count(), description="Number of processes to use for segment processing")
+                default=4, description="Number of processes to use for segment processing")
     ) -> list[Segment]:
         print("Processing started")
         adjust_segments(segments, segment_bbox_offset,
@@ -175,13 +176,24 @@ class Task:
         print("Pages converted to images")
         try:
             print("Segment processing started")
-            with Pool(processes=num_processes) as pool:
-                processed_segments = pool.starmap(
-                    self.process_segment,
-                    [(segment, page_image_file_paths, segment_image_density,
-                      segment_image_extension, segment_image_quality, segment_image_resize)
-                     for segment in segments]
-                )
+            processed_segments = []
+            with ThreadPoolExecutor(max_workers=num_workers) as executor:
+                futures = []
+                for segment in segments:
+                    future = executor.submit(
+                        self.process_segment,
+                        segment,
+                        page_image_file_paths,
+                        segment_image_density,
+                        segment_image_extension,
+                        segment_image_quality,
+                        segment_image_resize
+                    )
+                    futures.append(future)
+
+                for future in tqdm.tqdm(as_completed(futures), total=len(futures), desc="Processing segments"):
+                    processed_segments.append(future.result())
+
             print("Segment processing finished")
         finally:
             for page_image_file_path in page_image_file_paths.values():
