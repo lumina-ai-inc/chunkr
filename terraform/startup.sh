@@ -6,9 +6,9 @@ source $HOME/.cargo/env
 # ... existing code ...
 
 # Install ImageMagick dependencies
-apt-get install -y wget autoconf pkg-config build-essential curl libpng-dev ghostscript libgs-dev libpdf-dev ocl-icd-opencl-dev
-# Add these OpenCL-related packages and libltdl-dev
-apt-get install -y ocl-icd-libopencl1 opencl-headers clinfo libltdl-dev
+# Install ImageMagick dependencies and OpenCL-related packages
+sudo apt-get update
+sudo apt-get install -y wget autoconf pkg-config build-essential curl libpng-dev ghostscript libgs-dev libpdf-dev ocl-icd-opencl-dev ocl-icd-libopencl1 opencl-headers clinfo
 
 # Download and install ImageMagick
 wget https://github.com/ImageMagick/ImageMagick/archive/refs/tags/7.1.0-38.tar.gz
