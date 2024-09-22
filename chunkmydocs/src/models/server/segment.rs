@@ -1,9 +1,8 @@
-use postgres_types::{ FromSql, ToSql };
-use serde::{ Deserialize, Serialize };
-use strum_macros::{ Display, EnumString };
+use postgres_types::{FromSql, ToSql};
+use serde::{Deserialize, Serialize};
+use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 use uuid::Uuid;
-
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct BoundingBox {
@@ -27,16 +26,7 @@ pub struct OCRResponse {
 }
 
 #[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    PartialEq,
-    EnumString,
-    Display,
-    ToSchema,
-    ToSql,
-    FromSql
+    Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema, ToSql, FromSql,
 )]
 pub enum SegmentType {
     Title,
@@ -107,8 +97,5 @@ impl Segment {
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
     pub segments: Vec<Segment>,
-    pub markdown: String,
+    pub chunk_length_words: f32,
 }
-
-
-
