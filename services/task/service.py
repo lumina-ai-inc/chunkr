@@ -15,7 +15,7 @@ from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment, SegmentType
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
-from src.utils import check_imagemagick_installed
+from src.utils import check_imagemagick_installed, convert_base_segment_to_segment
 from src.process import adjust_base_segments
 
 
@@ -166,7 +166,7 @@ class Task:
         print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
                              page_image_density, pdla_density)
-        segments = [Segment(**base_segment.model_dump())
+        segments = [convert_base_segment_to_segment(base_segment)
                     for base_segment in base_segments]
         page_images = convert_to_img(
             file, page_image_density, page_image_extension)
