@@ -175,17 +175,13 @@ class Task:
         print("Pages converted to images")
         try:
             print("Segment processing started")
-            processed_segments = []
-            for segment in segments:
-                processed_segment = self.process_segment(
-                    segment,
-                    page_image_file_paths,
-                    segment_image_density,
-                    segment_image_extension,
-                    segment_image_quality,
-                    segment_image_resize
+            with Pool(processes=num_processes) as pool:
+                processed_segments = pool.starmap(
+                    self.process_segment,
+                    [(segment, page_image_file_paths, segment_image_density,
+                      segment_image_extension, segment_image_quality, segment_image_resize)
+                     for segment in segments]
                 )
-                processed_segments.append(processed_segment)
             print("Segment processing finished")
         finally:
             for page_image_file_path in page_image_file_paths.values():
