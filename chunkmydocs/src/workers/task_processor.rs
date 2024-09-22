@@ -101,7 +101,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                             let img = ImageReader::open(temp_image.path())?.with_guessed_format()?;
                             let format = img.format().ok_or("Unable to determine image format")?;
                             let image_path = format!(
-                                "{}/segments/{}.{}",
+                                "{}/images/{}.{}",
                                 extraction_item.output_location,
                                 item.segment_id,
                                 format.extensions_str()[0]
