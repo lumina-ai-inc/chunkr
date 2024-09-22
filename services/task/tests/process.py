@@ -14,29 +14,27 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-def create_segments_list(json_path):
+def create_base_segments_list(json_path):
     with open(json_path, 'r') as file:
         json_data = json.load(file)
-    segments = []
+    base_segments = []
     for chunk in json_data:
         if 'segments' in chunk:
-            for segment in chunk['segments']:
-                segments.append({
-                    'left': segment['left'],
-                    'top': segment['top'],
-                    'width': segment['width'],
-                    'height': segment['height'],
-                    'page_number': segment['page_number'],
-                    'page_width': segment['page_width'],
-                    'page_height': segment['page_height'],
-                    'text': segment['text'],
-                    'type': segment['type'],
+            for base_segment in chunk['segments']:
+                base_segments.append({
                     'segment_id': str(uuid.uuid4()),
-                    'ocr': None,
-                    'image': None
+                    'left': base_segment['left'],
+                    'top': base_segment['top'],
+                    'width': base_segment['width'],
+                    'height': base_segment['height'],
+                    'page_number': base_segment['page_number'],
+                    'page_width': base_segment['page_width'],
+                    'page_height': base_segment['page_height'],
+                    'text': base_segment['text'],
+                    'type': base_segment['type'],
                 })
     
-    return segments
+    return base_segments
 
 
 def send_files_to_process(pdf_path: str, json_path: str, service_url: str, output_dir: str) -> dict:
@@ -49,14 +47,14 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
     :param output_dir: Directory to save output files
     :return: Dictionary containing OCR results and time taken
     """
-    segments = create_segments_list(json_path)
+    base_segments = create_base_segments_list(json_path)
 
     files = {
         'file': open(pdf_path, 'rb'),
     }
 
     data = {
-        'base_segments': json.dumps(segments),
+        'base_segments': json.dumps(base_segments),
         'page_image_density': 300,
         'page_image_extension': 'jpg',
         'segment_image_extension': 'jpg',
@@ -88,9 +86,8 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
                 image = Image.open(io.BytesIO(image_data))
                 try:
                     draw = ImageDraw.Draw(image)
-
-                    if 'ocr' in segment and 'results' in segment['ocr']:
-                        for ocr_result in segment['ocr']['results']:
+                    if 'ocr' in segment:
+                        for ocr_result in segment['ocr']:
                             bbox = ocr_result['bbox']
                             draw.rectangle([
                                 (bbox['top_left'][0], bbox['top_left'][1]),
@@ -100,7 +97,7 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
                     print(f"Error drawing bbox: {e}")
                 image_path = os.path.join(output_dir, f"{index}.jpg")
                 image.save(image_path)
-
+            
         return results
     else:
         raise Exception(f"Error: {response.status_code} - {response.text}")

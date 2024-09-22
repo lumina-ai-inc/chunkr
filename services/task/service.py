@@ -7,6 +7,7 @@ from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
 import tempfile
+import time
 import tqdm
 from typing import Dict, Optional, List
 import threading
@@ -166,10 +167,13 @@ class Task:
         print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
                              page_image_density, pdla_density)
+        start_time = time.time()
         segments = [convert_base_segment_to_segment(base_segment)
                     for base_segment in base_segments]
         page_images = convert_to_img(
             file, page_image_density, page_image_extension)
+        end_time = time.time()
+        print(f"Conversion to images took {end_time - start_time} seconds")
         page_image_file_paths: dict[int, Path] = {}
         for page_number, page_image in page_images.items():
             temp_file = tempfile.NamedTemporaryFile(
