@@ -101,6 +101,7 @@ class Task:
         self.latex_ocr_engine = LatexOCR()
         self.ocr_lock: threading.Lock = threading.Lock()
         self.table_engine_lock: threading.Lock = threading.Lock()
+
     @bentoml.api
     def images_from_file(
         self,
@@ -177,7 +178,8 @@ class Task:
                     )
                     futures[segment.segment_id] = future
 
-                for segment_id, future in tqdm.tqdm(futures.items(), desc="Processing segments"):
+                total_segments = len(futures)
+                for segment_id, future in tqdm.tqdm(futures.items(), desc="Processing segments", total=total_segments):
                     processed_segments_dict[segment_id] = future.result()
 
             processed_segments = [
