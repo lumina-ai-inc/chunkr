@@ -12,7 +12,7 @@ pub async fn hierarchical_chunk(
         for segment in segments {
             chunks.push(Chunk {
                 segments: vec![segment.clone()],
-                markdown: generate_markdown(&[segment]),
+                chunk_length_words: segment.text.split_whitespace().count() as f32,
             });
         }
     } else {
@@ -21,9 +21,13 @@ pub async fn hierarchical_chunk(
 
         fn finalize_chunk(chunk: &mut Vec<Segment>, chunks: &mut Vec<Chunk>) {
             if !chunk.is_empty() {
+                let chunk_length_words = chunk
+                    .iter()
+                    .map(|s| s.text.split_whitespace().count())
+                    .sum::<usize>() as f32;
                 chunks.push(Chunk {
                     segments: chunk.clone(),
-                    markdown: generate_markdown(chunk),
+                    chunk_length_words,
                 });
                 chunk.clear();
             }
@@ -37,7 +41,7 @@ pub async fn hierarchical_chunk(
                     finalize_chunk(&mut current_chunk, &mut chunks);
                     chunks.push(Chunk {
                         segments: vec![segment.clone()],
-                        markdown: generate_markdown(&[segment.clone()]),
+                        chunk_length_words: segment_word_count as f32,
                     });
                     current_word_count = 0;
                 }
@@ -70,7 +74,7 @@ pub async fn hierarchical_chunk(
                 finalize_chunk(&mut current_chunk, &mut chunks);
                 chunks.push(Chunk {
                     segments: vec![segment.clone()],
-                    markdown: generate_markdown(&[segment.clone()]),
+                    chunk_length_words: segment_word_count as f32,
                 });
                 current_word_count = 0;
             }
@@ -84,68 +88,6 @@ pub async fn hierarchical_chunk(
     chunks.retain(|chunk| !chunk.segments.is_empty());
 
     Ok(chunks)
-}
-
-fn generate_markdown(segments: &[Segment]) -> String {
-    let mut markdown = String::new();
-    let mut list_level = 0;
-
-    for segment in segments {
-        let segment_type = &segment.segment_type;
-
-        match segment_type {
-            SegmentType::Title => {
-                list_level = 0;
-                markdown.push_str(&format!("# {}\n\n", segment.text.trim()));
-            }
-            SegmentType::SectionHeader => {
-                list_level = 0;
-                markdown.push_str(&format!("## {}\n\n", segment.text.trim()));
-            }
-            SegmentType::Text => {
-                list_level = 0;
-                markdown.push_str(&format!("{}\n\n", segment.text.trim()));
-            }
-            SegmentType::ListItem => {
-                if list_level == 0 {
-                    list_level = 1;
-                }
-                markdown.push_str(&format!(
-                    "{}- {}\n",
-                    "  ".repeat(list_level - 1),
-                    segment.text.trim()
-                ));
-            }
-            SegmentType::Caption => {
-                list_level = 0;
-                markdown.push_str(&format!("*{}*\n\n", segment.text.trim()));
-            }
-            SegmentType::Table => {
-                list_level = 0;
-                markdown.push_str(&format!("```\n{}\n```\n\n", segment.text.trim()));
-            }
-            SegmentType::Formula => {
-                list_level = 0;
-                markdown.push_str(&format!("${}$\n\n", segment.text.trim()));
-            }
-            SegmentType::Picture => {
-                list_level = 0;
-                markdown.push_str(&format!("![Image]({})\n\n", segment.text.trim()));
-            }
-            SegmentType::PageHeader => {
-                markdown.push_str(&format!("*Page Header:* {}\n\n", segment.text.trim()));
-            }
-            SegmentType::PageFooter => {
-                markdown.push_str(&format!("*Page Footer:* {}\n\n", segment.text.trim()));
-            }
-            SegmentType::Footnote => {
-                list_level = 0;
-                markdown.push_str(&format!("[^1]: {}\n\n", segment.text.trim()));
-            }
-        }
-    }
-
-    markdown.trim().to_string()
 }
 
 pub async fn process_bounding_boxes(
