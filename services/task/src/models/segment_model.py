@@ -65,7 +65,7 @@ class Segment(BaseModel):
         """
         Generate text representation of the segment based on its type.
         """
-        content = self.get_content()
+        content = self._get_content()
         if not content:
             return
 
@@ -76,7 +76,7 @@ class Segment(BaseModel):
         Extract text from OCR results or use the text field,
         apply HTML formatting based on segment type, and update the html field.
         """
-        content = self.get_content()
+        content = self._get_content()
         if not content:
             return
 
@@ -110,7 +110,7 @@ class Segment(BaseModel):
         """
         Generate markdown representation of the segment based on its type.
         """
-        content = self.get_content()
+        content = self._get_content()
         if not content:
             return
 
