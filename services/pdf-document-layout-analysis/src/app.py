@@ -41,7 +41,7 @@ async def run(file: UploadFile = File(...), fast: bool = Form(False), density: i
             return await run_in_threadpool(analyze_pdf_fast, file.file.read(), "")
 
         return await run_in_threadpool(analyze_pdf, file.file.read(), "", density, extension)
-
+ 
 
 # @app.post("/save_xml/{xml_file_name}")
 # @catch_exceptions
