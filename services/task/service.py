@@ -1,12 +1,11 @@
 from __future__ import annotations
 import base64
 import bentoml
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
 import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
-from rapid_latex_ocr import LatexOCR
 import tempfile
 import tqdm
 from typing import Dict, Optional, List
@@ -15,7 +14,7 @@ import threading
 from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment
-from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw, latex_ocr
+from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
 from src.utils import check_imagemagick_installed, convert_base_segment_to_segment
 from src.process import adjust_base_segments, process_segment
 
@@ -63,7 +62,6 @@ class OCR:
                              ocr_order_method="tb-xy", show_log=False)
         self.table_engine = PPStructure(
             recovery=True, lang="en", return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
-        self.latex_ocr_engine = LatexOCR()
 
     @bentoml.api
     def paddle_ocr_raw(self, file: Path) -> list:
@@ -81,10 +79,6 @@ class OCR:
     def paddle_table(self, file: Path) -> List[OCRResult]:
         return ppstructure_table(self.table_engine, file)
 
-    @bentoml.api
-    def rapid_latex_ocr(self, file: Path) -> str:
-        return latex_ocr(self.latex_ocr_engine, file)
-
 
 @bentoml.service(
     name="task",
@@ -95,10 +89,9 @@ class Task:
     def __init__(self) -> None:
         check_imagemagick_installed()
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy")
+                             ocr_order_method="tb-xy", show_log=False)
         self.table_engine = PPStructure(
-            recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2")
-        self.latex_ocr_engine = LatexOCR()
+            recovery=True, return_ocr_result_in_table=True, lang="en", layout=False, structure_version="PP-StructureV2", show_log=False)
         self.ocr_lock: threading.Lock = threading.Lock()
         self.table_engine_lock: threading.Lock = threading.Lock()
 
@@ -135,9 +128,7 @@ class Task:
         num_workers: int = Field(
             default=4, description="Number of worker threads for segment processing"),
         ocr_strategy: str = Field(
-            default="auto", description="OCR strategy: 'auto', 'on', or 'off'"),
-        ocr_on_formulas: bool = Field(
-            default=True, description="Whether to run OCR on formulas")
+            default="auto", description="OCR strategy: 'auto', 'on', or 'off'")
     ) -> list[Segment]:
         print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
@@ -158,7 +149,7 @@ class Task:
             print("Segment processing started")
             processed_segments_dict = {}
             with ThreadPoolExecutor(max_workers=num_workers) as executor:
-                futures = {}
+                futures: dict[str, Future] = {}
                 for segment in segments:
                     future = executor.submit(
                         process_segment,
@@ -169,10 +160,8 @@ class Task:
                         segment_image_quality,
                         segment_image_resize,
                         ocr_strategy,
-                        ocr_on_formulas,
                         self.ocr,
                         self.table_engine,
-                        self.latex_ocr_engine,
                         self.ocr_lock,
                         self.table_engine_lock
                     )
