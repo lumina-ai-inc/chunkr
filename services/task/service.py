@@ -62,7 +62,7 @@ class OCR:
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
                              ocr_order_method="tb-xy", show_log=False)
         self.table_engine = PPStructure(
-            recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
+            recovery=True, lang="en", return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
         self.latex_ocr_engine = LatexOCR()
 
     @bentoml.api
