@@ -11,13 +11,14 @@ services:
     command: start-dev
     networks:
       - app-network
+      
   postgres:
     deploy:
       replicas: 1
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: ${POSTGRES_PASSWORD}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: chunkmydocs
     healthcheck:
@@ -202,6 +203,14 @@ services:
       - VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI=${VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI}
     ports:
       - "80:8000"
+    networks:
+      - app-network
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
     networks:
       - app-network
 

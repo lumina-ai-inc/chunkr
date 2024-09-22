@@ -115,7 +115,6 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         ],
         task_count: row.get("task_count"),
     };
-    println!("user: {:?}", user);
 
     Ok(user)
 }

@@ -1,7 +1,7 @@
 use chrono::{ DateTime, Utc };
 use chunkmydocs::models::rrq::queue::QueuePayload;
 use chunkmydocs::models::server::extract::ExtractionPayload;
-use chunkmydocs::models::server::segment::{ BaseSegment, Segment };
+use chunkmydocs::models::server::segment::{ PdlaSegment, BaseSegment, Segment };
 use chunkmydocs::models::server::task::Status;
 use chunkmydocs::task::pdla::pdla_extraction;
 use chunkmydocs::task::process::process_segments;
@@ -83,7 +83,11 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
         for temp_file in &split_temp_files {
             let pdla_response = pdla_extraction(temp_file, extraction_item.model.clone()).await?;
-            let base_segments: Vec<BaseSegment> = serde_json::from_str(&pdla_response)?;
+            let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
+            let base_segments: Vec<BaseSegment> = pdla_segments
+                .into_iter()
+                .map(BaseSegment::from)
+                .collect();
             let mut segments: Vec<Segment> = process_segments(
                 temp_file,
                 &base_segments,

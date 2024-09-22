@@ -164,7 +164,6 @@ pub async fn stripe_webhook(
     req: HttpRequest,
     payload: web::Bytes,
 ) -> Result<HttpResponse, Error> {
-    println!("stripewebhook");
     let stripe_config = StripeConfig::from_env().map_err(|e| {
         eprintln!("Error loading Stripe configuration: {:?}", e);
         actix_web::error::ErrorInternalServerError("Configuration error")
@@ -185,7 +184,6 @@ pub async fn stripe_webhook(
 
     let event = stripe::Webhook::construct_event(payload_str, &sig_header, &endpoint_secret)
         .map_err(|_| actix_web::error::ErrorBadRequest("Invalid webhook signature"))?;
-    println!("Received event: {:?}", event);
 
     match event.type_ {
         stripe::EventType::SetupIntentCanceled => {
