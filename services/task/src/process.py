@@ -98,6 +98,7 @@ def process_segment(
                     segment_temp_file.name,
                     ocr,
                     table_engine,
+                    latex_ocr_engine,
                     ocr_lock,
                     table_engine_lock,
                     ocr_needed
