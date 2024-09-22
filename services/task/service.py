@@ -158,8 +158,8 @@ class Task:
                 default=None, description="Image resize dimensions (e.g., '800x600') for segment images"),
             pdla_density: int = Field(
                 default=72, description="Image density in DPI for pdla"),
-            num_processes: int = Field(
-                default=4, description="Number of processes to use for segment processing")
+            num_workers: int = Field(
+                default=4, description="Number of worker threads for segment processing")
     ) -> list[Segment]:
         print("Processing started")
         adjust_segments(segments, segment_bbox_offset,
