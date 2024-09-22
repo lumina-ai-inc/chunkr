@@ -63,17 +63,14 @@ def crop_image(input_path: Path, left: int, top: int, right: int, bottom: int, d
         if not os.path.exists(input_path):
             raise FileNotFoundError(f"Input file not found: {input_path}")
 
-        # Check file size and type
         file_size = os.path.getsize(input_path)
         file_type = subprocess.run(
             ['file', '-b', '--mime-type', input_path], capture_output=True, text=True).stdout.strip()
         print(f"File size: {file_size} bytes, File type: {file_type}")
 
-        # Create a temporary file for the cropped image
         with tempfile.NamedTemporaryFile(suffix=f".{extension}", delete=False) as temp_file:
             temp_output_path = temp_file.name
 
-        # Construct the ImageMagick command
         crop_geometry = f"{right - left}x{bottom - top}+{left}+{top}"
         command = [
             'magick', 'convert',
@@ -82,7 +79,6 @@ def crop_image(input_path: Path, left: int, top: int, right: int, bottom: int, d
             '-crop', crop_geometry,
         ]
 
-        # Add resize option if specified
         if resize:
             command.extend(['-resize', resize])
 
@@ -96,15 +92,12 @@ def crop_image(input_path: Path, left: int, top: int, right: int, bottom: int, d
         command.append(temp_output_path)
 
         # Run the ImageMagick command
-        result = subprocess.run(
+        subprocess.run(
             command, capture_output=True, text=True, check=True)
-        print(f"ImageMagick output: {result.stdout}")
 
-        # Read the cropped image and convert to base64
         with open(temp_output_path, 'rb') as img_file:
             img_str = base64.b64encode(img_file.read()).decode('utf-8')
 
-        # Clean up the temporary file
         os.unlink(temp_output_path)
 
         return img_str
