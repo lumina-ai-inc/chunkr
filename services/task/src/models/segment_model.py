@@ -50,17 +50,35 @@ class Segment(BaseModel):
     markdown: Optional[str] = Field(
         None, description="Markdown representation of the segment")
 
+    def _get_content(self):
+        if self.latex:
+            return self.latex
+        elif self.text:
+            return self.text
+        elif self.ocr:
+            return " ".join([result.text for result in self.ocr])
+        else:
+            return ""
+
+    # todo: review weather to sync for formula and latex
+    def create_text(self):
+        """
+        Generate text representation of the segment based on its type.
+        """
+        content = self.get_content()
+        if not content:
+            return
+
+        self.text = content
+
     def create_html(self):
         """
         Extract text from OCR results or use the text field,
         apply HTML formatting based on segment type, and update the html field.
         """
-        if self.latex:
-            content = self.latex
-        elif self.ocr:
-            content = " ".join([result.text for result in self.ocr])
-        else:
-            content = self.text
+        content = self.get_content()
+        if not content:
+            return
 
         if self.segment_type == SegmentType.Title:
             self.html = f"<h1>{content}</h1>"
@@ -74,6 +92,7 @@ class Segment(BaseModel):
             self.html = f"<img>"
         elif self.segment_type == SegmentType.Table:
             if self.ocr:
+                # Already in HTML
                 pass
             else:
                 rows = content.split('\n')
@@ -91,12 +110,9 @@ class Segment(BaseModel):
         """
         Generate markdown representation of the segment based on its type.
         """
-        if self.latex:
-            content = self.latex
-        elif self.ocr:
-            content = " ".join([result.text for result in self.ocr])
-        else:
-            content = self.text
+        content = self.get_content()
+        if not content:
+            return
 
         if self.segment_type == SegmentType.Title:
             return f"# {content}\n\n"
