@@ -2,13 +2,12 @@ import base64
 import os
 import tempfile
 import threading
-from rapid_latex_ocr import LatexOCR
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 
 from src.converters import crop_image
 from src.models.segment_model import BaseSegment, Segment, SegmentType
-from src.ocr import ppocr, ppstructure_table, latex_ocr
+from src.ocr import ppocr, ppstructure_table
 
 
 def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
