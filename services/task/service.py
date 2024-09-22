@@ -1,7 +1,7 @@
 from __future__ import annotations
 import base64
 import bentoml
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
@@ -134,7 +134,9 @@ class Task:
         num_workers: int = Field(
             default=4, description="Number of worker threads for segment processing"),
         ocr_strategy: str = Field(
-            default="auto", description="OCR strategy: 'auto', 'on', or 'off'")
+            default="auto", description="OCR strategy: 'auto', 'on', or 'off'"),
+        ocr_on_formulas: bool = Field(
+            default=True, description="Whether to run OCR on formulas")
     ) -> list[Segment]:
         print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
@@ -166,6 +168,7 @@ class Task:
                         segment_image_quality,
                         segment_image_resize,
                         ocr_strategy,
+                        ocr_on_formulas,
                         self.ocr,
                         self.table_engine,
                         self.latex_ocr_engine,
