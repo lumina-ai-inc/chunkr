@@ -224,9 +224,7 @@ pub async fn stripe_webhook(
                 }
             }
         }
-        _ => {
-            println!("Unhandled event type: {:?}", event.type_);
-        }
+
         stripe::EventType::InvoicePaid => {
             if let stripe::EventObject::Invoice(invoice) = event.data.object {
                 println!("Invoice Paid: {:?}", invoice);
