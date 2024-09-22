@@ -1,10 +1,10 @@
-from autocorrect import Speller
+from bs4 import BeautifulSoup
 from enum import Enum
 from pydantic import BaseModel, Field
-from typing import Optional
-from src.models.ocr_model import OCRResponse
+from typing import Optional, List
 
-spell = Speller(only_replacements=True)
+from src.models.ocr_model import OCRResult, BoundingBox
+
 
 class SegmentType(str, Enum):
     Title = "Title"
@@ -19,25 +19,127 @@ class SegmentType(str, Enum):
     PageHeader = "Page header"
     PageFooter = "Page footer"
 
-class Segment(BaseModel):
+
+class BaseSegment(BaseModel):
     segment_id: str
     left: float
     top: float
     width: float
     height: float
+    text: str
+    segment_type: SegmentType = Field(..., alias="type")
+    page_number: int
+    page_width: float
+    page_height: float
+
+
+class Segment(BaseModel):
+    segment_id: str
+    bbox: BoundingBox
     page_number: int
     page_width: float
     page_height: float
     text: str
-    text_ocr: Optional[str] = None
     segment_type: SegmentType = Field(..., alias="type")
-    ocr: Optional[OCRResponse] = None
+    ocr: Optional[List[OCRResult]] = None
     image: Optional[str] = None
+    html: Optional[str] = Field(
+        None, description="HTML representation of the segment")
+    latex: Optional[str] = Field(
+        None, description="LaTeX representation of the formula")
+    markdown: Optional[str] = Field(
+        None, description="Markdown representation of the segment")
 
-    def update_text_ocr(self):
+    def upsert_html(self):
         """
-        Extract all text from OCR results and update the text_ocr field.
+        Extract text from OCR results or use the text field,
+        apply HTML formatting based on segment type, and update the html field.
         """
-        if self.ocr and self.ocr.results:
-            ocr_texts = [spell(result.text) for result in self.ocr.results]
-            self.text_ocr = " ".join(ocr_texts)
+        if self.latex:
+            content = self.latex
+        elif self.ocr:
+            content = " ".join([result.text for result in self.ocr])
+        else:
+            content = self.text
+
+        if self.segment_type == SegmentType.Title:
+            self.html = f"<h1>{content}</h1>"
+        elif self.segment_type == SegmentType.SectionHeader:
+            self.html = f"<h2>{content}</h2>"
+        elif self.segment_type == SegmentType.ListItem:
+            self.html = f"<li>{content}</li>"
+        elif self.segment_type == SegmentType.Text:
+            self.html = f"<p>{content}</p>"
+        elif self.segment_type == SegmentType.Picture:
+            self.html = f"<img>"
+        elif self.segment_type == SegmentType.Table:
+            if self.ocr:
+                pass
+            else:
+                rows = content.split('\n')
+                table_html = "<table>"
+                for row in rows:
+                    cells = row.split()
+                    table_html += "<tr>" + \
+                        "".join(f"<td>{cell}</td>" for cell in cells) + "</tr>"
+                table_html += "</table>"
+                self.html = table_html
+        else:
+            self.html = f'<span class="{self.segment_type.value.lower().replace(" ", "-")}">{content}</span>'
+
+    def create_markdown(self):
+        """
+        Generate markdown representation of the segment based on its type.
+        """
+        if self.latex:
+            content = self.latex
+        elif self.ocr:
+            content = " ".join([result.text for result in self.ocr])
+        else:
+            content = self.text
+
+        if self.segment_type == SegmentType.Title:
+            return f"# {content}\n\n"
+        elif self.segment_type == SegmentType.SectionHeader:
+            return f"## {content}\n\n"
+        elif self.segment_type == SegmentType.ListItem:
+            return f"- {content}\n"
+        elif self.segment_type == SegmentType.Text:
+            return f"{content}\n\n"
+        elif self.segment_type == SegmentType.Picture:
+            return f"![Image]()\n\n" if self.image else ""
+        elif self.segment_type == SegmentType.Table:
+            if self.html and self.html.startswith("<table>"):
+                return self._html_table_to_markdown()
+            else:
+                # Fallback to simple table representation
+                rows = content.split('\n')
+                header = "| " + " | ".join(rows[0].split()) + " |"
+                separator = "|" + \
+                    "|".join(["---" for _ in rows[0].split()]) + "|"
+                body = "\n".join("| " + " | ".join(row.split()
+                                                   ) + " |" for row in rows[1:])
+                return f"{header}\n{separator}\n{body}\n\n"
+        else:
+            return f"*{content}*\n\n"
+
+    def _html_table_to_markdown(self):
+        """
+        Convert HTML table to markdown format.
+        """
+        soup = BeautifulSoup(self.html, 'html.parser')
+        table = soup.find('table')
+        markdown_table = []
+
+        header = table.find('tr')
+        header_cells = [cell.get_text(strip=True)
+                        for cell in header.find_all(['th', 'td'])]
+        markdown_table.append("| " + " | ".join(header_cells) + " |")
+        markdown_table.append(
+            "|" + "|".join(["---" for _ in header_cells]) + "|")
+
+        for row in table.find_all('tr')[1:]:
+            cells = [cell.get_text(strip=True) for cell in row.find_all('td')]
+            markdown_table.append("| " + " | ".join(cells) + " |")
+
+        return "\n".join(markdown_table) + "\n\n"
