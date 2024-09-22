@@ -6,16 +6,16 @@ import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
+from rapid_latex_ocr import LatexOCR
 import tempfile
-import time
 import tqdm
 from typing import Dict, Optional, List
 import threading
 
 from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResult, BoundingBox
-from src.models.segment_model import BaseSegment, Segment, SegmentType
-from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
+from src.models.segment_model import BaseSegment, Segment
+from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw, latex_ocr
 from src.utils import check_imagemagick_installed, convert_base_segment_to_segment
 from src.process import adjust_base_segments, process_segment
 
@@ -63,6 +63,7 @@ class OCR:
                              ocr_order_method="tb-xy")
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2")
+        self.latex_ocr_engine = LatexOCR()
 
     @bentoml.api
     def paddle_ocr_raw(self, file: Path) -> list:
@@ -80,6 +81,10 @@ class OCR:
     def paddle_table(self, file: Path) -> List[OCRResult]:
         return ppstructure_table(self.table_engine, file)
 
+    @bentoml.api
+    def rapid_latex_ocr(self, file: Path) -> str:
+        return latex_ocr(self.latex_ocr_engine, file)
+
 
 @bentoml.service(
     name="task",
@@ -93,9 +98,9 @@ class Task:
                              ocr_order_method="tb-xy")
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2")
+        self.latex_ocr_engine = LatexOCR()
         self.ocr_lock: threading.Lock = threading.Lock()
         self.table_engine_lock: threading.Lock = threading.Lock()
-
     @bentoml.api
     def images_from_file(
         self,
@@ -163,6 +168,7 @@ class Task:
                         ocr_strategy,
                         self.ocr,
                         self.table_engine,
+                        self.latex_ocr_engine,
                         self.ocr_lock,
                         self.table_engine_lock
                     )
