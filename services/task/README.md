@@ -13,3 +13,8 @@ On Linux, you need to install the dependencies with the following command:
 ```bash
 uv run pip install .[linux]
 ```
+
+On Windows, you need to install the dependencies with the following command:
+```bash
+uv run pip install .[windows]
+```
