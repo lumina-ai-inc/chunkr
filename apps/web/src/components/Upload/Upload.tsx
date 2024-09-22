@@ -4,7 +4,6 @@ import { useDropzone } from "react-dropzone";
 // import { useNavigate } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import "./Upload.css";
-import useUser from "../../hooks/useUser";
 
 interface UploadProps {
   onFileUpload: (file: File, fileContent: ArrayBuffer) => void;
@@ -21,9 +20,6 @@ export default function Upload({
   fileName,
   isAuthenticated,
 }: UploadProps) {
-  const user = useUser();
-  console.log(user);
-
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {

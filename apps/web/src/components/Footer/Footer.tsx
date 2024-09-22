@@ -26,9 +26,9 @@ export default function Footer() {
                   <path
                     d="M7.84 13.04C8.56691 13.331 9.36323 13.4022 10.1302 13.2449C10.8973 13.0875 11.6012 12.7085 12.1549 12.1549C12.7085 11.6012 13.0875 10.8973 13.2449 10.1302C13.4022 9.36323 13.331 8.56691 13.04 7.84C13.8857 7.61229 14.6334 7.11328 15.1681 6.41958C15.7028 5.72588 15.9951 4.87585 16 4C18.3734 4 20.6935 4.70379 22.6668 6.02236C24.6402 7.34094 26.1783 9.21509 27.0866 11.4078C27.9948 13.6005 28.2324 16.0133 27.7694 18.3411C27.3064 20.6689 26.1635 22.8071 24.4853 24.4853C22.8071 26.1635 20.6689 27.3064 18.3411 27.7694C16.0133 28.2324 13.6005 27.9948 11.4078 27.0866C9.21509 26.1783 7.34094 24.6402 6.02236 22.6668C4.70379 20.6935 4 18.3734 4 16C4.87585 15.9951 5.72588 15.7028 6.41958 15.1681C7.11328 14.6334 7.61229 13.8857 7.84 13.04Z"
                     stroke="white"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </div>
@@ -39,7 +39,7 @@ export default function Footer() {
           </Flex>
           <Flex direction="row" gap="8" className="footer-links">
             <FooterColumn title="Product" links={["API Docs", "Github"]} />
-            <FooterColumn title="Contact" links={["Book a call"]} />
+            <FooterColumn title="Contact" links={["Book a call", "Email"]} />
           </Flex>
         </Flex>
         <Separator size="4" className="footer-separator" />
@@ -108,13 +108,16 @@ const FooterColumn = ({ title, links }: { title: string; links: string[] }) => {
         let href = "#";
         switch (link) {
           case "API Docs":
-            href = `${import.meta.env.VITE_API_URL}/redoc`;
+            href = `https://docs.chunkr.ai`;
             break;
           case "Github":
             href = "https://github.com/lumina-ai-inc/chunk-my-docs";
             break;
           case "Book a call":
             href = "https://cal.com/mehulc/15min";
+            break;
+          case "Email":
+            href = "mailto:mehul@lumina.sh";
             break;
         }
         return (

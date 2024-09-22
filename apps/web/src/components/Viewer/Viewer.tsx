@@ -146,7 +146,7 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
               viewBox="0 0 12 12"
               fill="none"
             >
-              <rect width="12" height="12" fill="white" fill-opacity="0.01" />
+              <rect width="12" height="12" fill="white" fillOpacity="0.01" />
               <path
                 fill-rule="evenodd"
                 clip-rule="evenodd"
