@@ -157,7 +157,9 @@ class Task:
             segment_image_resize: str = Field(
                 default=None, description="Image resize dimensions (e.g., '800x600') for segment images"),
             pdla_density: int = Field(
-                default=72, description="Image density in DPI for pdla")
+                default=72, description="Image density in DPI for pdla"),
+            num_processes: int = Field(
+                default=cpu_count(), description="Number of processes to use for segment processing")
     ) -> list[Segment]:
         print("Processing started")
         adjust_segments(segments, segment_bbox_offset,
@@ -174,12 +176,17 @@ class Task:
         print("Pages converted to images")
         try:
             print("Segment processing started")
-            with Pool(processes=cpu_count()) as pool:
-                processed_segments = pool.starmap(
-                    self.process_segment,
-                    [(segment, page_image_file_paths, segment_image_density, segment_image_extension,
-                      segment_image_quality, segment_image_resize) for segment in segments]
+            processed_segments = []
+            for segment in segments:
+                processed_segment = self.process_segment(
+                    segment,
+                    page_image_file_paths,
+                    segment_image_density,
+                    segment_image_extension,
+                    segment_image_quality,
+                    segment_image_resize
                 )
+                processed_segments.append(processed_segment)
             print("Segment processing finished")
         finally:
             for page_image_file_path in page_image_file_paths.values():
