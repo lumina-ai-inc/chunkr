@@ -127,7 +127,7 @@ class Task:
         pdla_density: int = Field(
             default=72, description="Image density in DPI for pdla"),
         num_workers: int = Field(
-            default=4, description="Number of worker threads for segment processing"),
+            default=None, description="Number of worker threads for segment processing"),
         ocr_strategy: str = Field(
             default="auto", description="OCR strategy: 'auto', 'on', or 'off'")
     ) -> list[Segment]:
@@ -149,7 +149,7 @@ class Task:
         try:
             print("Segment processing started")
             processed_segments_dict = {}
-            with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            with ThreadPoolExecutor(max_workers=num_workers or len(segments)) as executor:
                 futures: dict[str, Future] = {}
                 for segment in segments:
                     future = executor.submit(

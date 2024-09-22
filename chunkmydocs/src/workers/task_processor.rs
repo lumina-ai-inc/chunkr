@@ -8,7 +8,7 @@ use chunkmydocs::task::process::process_segments;
 use chunkmydocs::task::pdf::split_pdf;
 use chunkmydocs::utils::configs::extraction_config;
 use chunkmydocs::utils::db::deadpool_postgres::{ create_pool, Client, Pool };
-use chunkmydocs::utils::json2mkd::json_2_mkd::hierarchical_chunk;
+use chunkmydocs::utils::json2mkd::json_2_mkd::hierarchical_chunking;
 use chunkmydocs::utils::rrq::consumer::consumer;
 use chunkmydocs::utils::storage::config_s3::create_client;
 use chunkmydocs::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
@@ -93,7 +93,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             page_offset += extraction_item.batch_size.unwrap_or(1) as u32;
         }
 
-        let chunks = hierarchical_chunk(
+        let chunks = hierarchical_chunking(
             combined_output,
             extraction_item.target_chunk_length
         ).await?;

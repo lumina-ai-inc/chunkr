@@ -97,5 +97,5 @@ impl Segment {
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
     pub segments: Vec<Segment>,
-    pub chunk_length_words: f32,
+    pub chunk_length: i32,
 }
