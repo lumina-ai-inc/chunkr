@@ -66,9 +66,9 @@ fn run_migrations(url: &str) {
             models::server::segment::SegmentType,
             models::server::segment::Segment,
             models::server::segment::Chunk,
-            models::server::segment::OCRResponse,
             models::server::segment::OCRResult,
             models::server::segment::BoundingBox,
+            models::server::extract::OcrStrategy,
         )
     ),
     tags(

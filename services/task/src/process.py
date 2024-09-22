@@ -68,7 +68,7 @@ def process_segment(
     table_engine_lock: threading.Lock
 ) -> Segment:
     try:
-        ocr_needed = ocr_strategy == "on" or (
+        ocr_needed = ocr_strategy == "all" or (
             ocr_strategy != "off" and (
                 segment.segment_type in [SegmentType.Table, SegmentType.Picture] or
                 (ocr_strategy == "auto" and not segment.text)

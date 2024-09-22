@@ -1,7 +1,7 @@
 use chrono::{ DateTime, Utc };
 use chunkmydocs::models::rrq::queue::QueuePayload;
 use chunkmydocs::models::server::extract::ExtractionPayload;
-use chunkmydocs::models::server::segment::Segment;
+use chunkmydocs::models::server::segment::{ BaseSegment, Segment };
 use chunkmydocs::models::server::task::Status;
 use chunkmydocs::task::pdla::pdla_extraction;
 use chunkmydocs::task::process::process_segments;
@@ -12,6 +12,8 @@ use chunkmydocs::utils::json2mkd::json_2_mkd::hierarchical_chunking;
 use chunkmydocs::utils::rrq::consumer::consumer;
 use chunkmydocs::utils::storage::config_s3::create_client;
 use chunkmydocs::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
+use base64::{ engine::general_purpose::STANDARD, Engine };
+use image::ImageReader;
 use std::{ io::Write, path::PathBuf };
 use tempdir::TempDir;
 use tempfile::NamedTempFile;
@@ -81,13 +83,43 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
         for temp_file in &split_temp_files {
             let pdla_response = pdla_extraction(temp_file, extraction_item.model.clone()).await?;
-
-            let base_segments: Vec<Segment> = serde_json::from_str(&pdla_response)?;
-
-            let mut segments: Vec<Segment> = process_segments(temp_file, &base_segments).await?;
+            let base_segments: Vec<BaseSegment> = serde_json::from_str(&pdla_response)?;
+            let mut segments: Vec<Segment> = process_segments(
+                temp_file,
+                &base_segments,
+                &extraction_item.configuration.ocr_strategy
+            ).await?;
 
             for item in &mut segments {
                 item.page_number = item.page_number + page_offset;
+                if let Some(image) = &item.image {
+                    match
+                        (async {
+                            let image_data = STANDARD.decode(image)?;
+                            let mut temp_image = NamedTempFile::new()?;
+                            temp_image.write_all(&image_data)?;
+                            let img = ImageReader::open(temp_image.path())?.with_guessed_format()?;
+                            let format = img.format().ok_or("Unable to determine image format")?;
+                            let image_path = format!(
+                                "{}/segments/{}.{}",
+                                extraction_item.output_location,
+                                item.segment_id,
+                                format.extensions_str()[0]
+                            );
+                            upload_to_s3(&s3_client, &image_path, temp_image.path()).await?;
+                            Ok::<(), Box<dyn std::error::Error>>(())
+                        }).await
+                    {
+                        Ok(_) => {}
+                        Err(e) =>
+                            eprintln!(
+                                "Error processing image for segment {}: {:?}",
+                                item.segment_id,
+                                e
+                            ),
+                    }
+                    item.image = None;
+                }
             }
             combined_output.extend(segments);
             page_offset += extraction_item.batch_size.unwrap_or(1) as u32;

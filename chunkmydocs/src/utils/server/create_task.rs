@@ -138,7 +138,7 @@ pub async fn create_task(
                 batch_size: Some(ingest_batch_size),
                 task_id: task_id.clone(),
                 target_chunk_length: Some(target_chunk_length),
-                configuration: Some(configuration.clone()),
+                configuration: configuration.clone(),
             };
 
             produce_extraction_payloads(extraction_payload).await?;

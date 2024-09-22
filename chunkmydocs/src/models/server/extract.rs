@@ -5,6 +5,18 @@ use std::time::Duration;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
+#[derive(Debug, MultipartForm, ToSchema)]
+pub struct UploadForm {
+    #[schema(value_type = String, format = "binary")]
+    pub file: TempFile,
+    #[schema(value_type = Model)]
+    pub model: Text<Model>,
+    #[schema(value_type = Option<i32>)]
+    pub target_chunk_length: Option<Text<i32>>,
+    #[schema(value_type = Option<OcrStrategy>, default = OcrStrategy::default)]
+    pub ocr_strategy: Option<Text<OcrStrategy>>,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct ExtractionPayload {
     pub model: SegmentationModel,
@@ -15,7 +27,7 @@ pub struct ExtractionPayload {
     #[serde(with = "humantime_serde")]
     pub expiration: Option<Duration>,
     pub target_chunk_length: Option<i32>,
-    pub configuration: Option<Configuration>,
+    pub configuration: Configuration,
 }
 
 #[derive(
@@ -32,21 +44,11 @@ pub enum Model {
     HighQuality,
 }
 
-#[derive(Debug, MultipartForm, ToSchema)]
-pub struct UploadForm {
-    #[schema(value_type = String, format = "binary")]
-    pub file: TempFile,
-    #[schema(value_type = Model)]
-    pub model: Text<Model>,
-    #[schema(value_type = Option<i32>)]
-    pub target_chunk_length: Option<Text<i32>>,
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 pub struct Configuration {
     pub model: Model,
+    pub ocr_strategy: OcrStrategy,
     pub target_chunk_length: Option<i32>,
-    // pub LLM: Option<LLMConfig>,
 }
 
 impl Model {
@@ -71,5 +73,20 @@ impl SegmentationModel {
             SegmentationModel::PdlaFast => "json",
             SegmentationModel::Pdla => "json",
         }
+    }
+}
+
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString)]
+#[serde(rename_all = "lowercase")]
+pub enum OcrStrategy {
+    Auto,
+    All,
+    Off,
+}
+
+impl Default for OcrStrategy {
+    fn default() -> Self {
+        OcrStrategy::Auto
     }
 }

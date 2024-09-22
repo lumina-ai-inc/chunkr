@@ -129,7 +129,7 @@ class Task:
         num_workers: int = Field(
             default=None, description="Number of worker threads for segment processing"),
         ocr_strategy: str = Field(
-            default="auto", description="OCR strategy: 'auto', 'on', or 'off'")
+            default="auto", description="OCR strategy: 'auto', 'all', or 'off'")
     ) -> list[Segment]:
         print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
