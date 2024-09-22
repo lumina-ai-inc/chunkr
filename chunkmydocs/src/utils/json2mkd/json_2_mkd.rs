@@ -1,6 +1,6 @@
 use crate::models::server::segment::{Chunk, Segment, SegmentType};
 
-pub async fn hierarchical_chunk_and_add_markdown(
+pub async fn hierarchical_chunk(
     segments: Vec<Segment>,
     target_length: Option<i32>,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
@@ -154,7 +154,7 @@ pub async fn process_bounding_boxes(
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let file_content = tokio::fs::read_to_string(file_path).await?;
     let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
-    hierarchical_chunk_and_add_markdown(segments, Some(target_size as i32)).await
+    hierarchical_chunk(segments, Some(target_size as i32)).await
 }
 
 #[cfg(test)]
