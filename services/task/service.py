@@ -12,11 +12,11 @@ from typing import Dict, Optional, List
 import threading
 
 from src.converters import convert_to_img, crop_image
-from src.models.ocr_model import OCRResult
+from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment, SegmentType
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
 from src.utils import check_imagemagick_installed
-from src.process import adjust_segments
+from src.process import adjust_base_segments
 
 
 @bentoml.service(
@@ -41,17 +41,14 @@ class Image:
     def crop_image(
         self,
         file: Path,
-        left: float,
-        top: float,
-        width: float,
-        height: float,
+        bbox: BoundingBox,
         density: int = Field(default=300, description="Image density in DPI"),
         extension: str = Field(default="png", description="Image extension"),
         quality: int = Field(default=100, description="Image quality (0-100)"),
         resize: Optional[str] = Field(
             default=None, description="Image resize dimensions (e.g., '800x600')")
     ) -> str:
-        return crop_image(file, left, top, left + width, top + height, density, extension, quality, resize)
+        return crop_image(file, bbox, density, extension, quality, resize)
 
 
 @bentoml.service(
@@ -111,10 +108,7 @@ class Task:
         try:
             segment.image = crop_image(
                 page_image_file_paths[segment.page_number],
-                segment.left,
-                segment.top,
-                segment.width,
-                segment.height,
+                segment.bbox,
                 segment_image_density,
                 segment_image_extension,
                 segment_image_quality,
@@ -147,33 +141,33 @@ class Task:
 
     @bentoml.api
     def process(
-            self,
-            file: Path,
-            base_segments: list[BaseSegment],
-            page_image_density: int = Field(
-                default=300, description="Image density in DPI for page images"),
-            page_image_extension: str = Field(
-                default="png", description="Image extension for page images"),
-            segment_image_extension: str = Field(
-                default="jpg", description="Image extension for segment images"),
-            segment_image_density: int = Field(
-                default=300, description="Image density in DPI for segment images"),
-            segment_bbox_offset: float = Field(
-                default=1.5, description="Offset for segment bbox"),
-            segment_image_quality: int = Field(
-                default=100, description="Image quality (0-100) for segment images"),
-            segment_image_resize: str = Field(
-                default=None, description="Image resize dimensions (e.g., '800x600') for segment images"),
-            pdla_density: int = Field(
-                default=72, description="Image density in DPI for pdla"),
-            num_workers: int = Field(
-                default=4, description="Number of worker threads for segment processing")
+        self,
+        file: Path,
+        base_segments: list[BaseSegment],
+        page_image_density: int = Field(
+            default=300, description="Image density in DPI for page images"),
+        page_image_extension: str = Field(
+            default="png", description="Image extension for page images"),
+        segment_image_extension: str = Field(
+            default="jpg", description="Image extension for segment images"),
+        segment_image_density: int = Field(
+            default=300, description="Image density in DPI for segment images"),
+        segment_bbox_offset: float = Field(
+            default=1.5, description="Offset for segment bbox"),
+        segment_image_quality: int = Field(
+            default=100, description="Image quality (0-100) for segment images"),
+        segment_image_resize: str = Field(
+            default=None, description="Image resize dimensions (e.g., '800x600') for segment images"),
+        pdla_density: int = Field(
+            default=72, description="Image density in DPI for pdla"),
+        num_workers: int = Field(
+            default=4, description="Number of worker threads for segment processing")
     ) -> list[Segment]:
         print("Processing started")
+        adjust_base_segments(base_segments, segment_bbox_offset,
+                             page_image_density, pdla_density)
         segments = [Segment(**base_segment.model_dump())
                     for base_segment in base_segments]
-        adjust_segments(segments, segment_bbox_offset,
-                        page_image_density, pdla_density)
         page_images = convert_to_img(
             file, page_image_density, page_image_extension)
         page_image_file_paths: dict[int, Path] = {}

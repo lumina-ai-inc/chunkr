@@ -1,6 +1,6 @@
-from src.models.segment_model import Segment
+from src.models.segment_model import BaseSegment
 
-def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
+def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
     scale_factor = density / pdla_density
     for segment in segments:
         # Scale dimensions and positions
