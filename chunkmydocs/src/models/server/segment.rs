@@ -19,11 +19,6 @@ pub struct OCRResult {
     pub confidence: Option<f32>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct OCRResponse {
-    pub results: Vec<OCRResult>,
-    pub html: Option<String>,
-}
 
 #[derive(
     Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema, ToSql, FromSql,
@@ -47,41 +42,52 @@ pub enum SegmentType {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct Segment {
+pub struct BaseSegment {
+    pub segment_id: String,
     pub left: f32,
     pub top: f32,
     pub width: f32,
     pub height: f32,
+    pub text: String,
+    #[serde(rename = "type")]
+    pub segment_type: SegmentType,
+    pub page_number: u32,
+    pub page_width: f32,
+    pub page_height: f32,
+}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct Segment {
+    pub segment_id: String,
+    pub bbox: BoundingBox,
     pub page_number: u32,
     pub page_width: f32,
     pub page_height: f32,
     pub text: String,
     #[serde(rename = "type")]
     pub segment_type: SegmentType,
-    pub segment_id: String,
-    pub ocr: Option<OCRResponse>,
+    pub ocr: Option<Vec<OCRResult>>,
     pub image: Option<String>,
+    pub html: Option<String>,
+    pub markdown: Option<String>,
 }
 
 impl Segment {
     pub fn new(
-        left: f32,
-        top: f32,
-        width: f32,
-        height: f32,
+        bbox: BoundingBox,
         page_number: u32,
         page_width: f32,
         page_height: f32,
         text: String,
         segment_type: SegmentType,
-        ocr: Option<OCRResponse>,
+        ocr: Option<Vec<OCRResult>>,
         image: Option<String>,
+        html: Option<String>,
+        markdown: Option<String>,
     ) -> Self {
         Self {
-            left,
-            top,
-            width,
-            height,
+            bbox,
             page_number,
             page_width,
             page_height,
@@ -90,6 +96,8 @@ impl Segment {
             segment_id: Uuid::new_v4().to_string(),
             ocr,
             image,
+            html,
+            markdown,
         }
     }
 }
