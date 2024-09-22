@@ -62,7 +62,8 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
         'segment_bbox_offset': 2,
         'segment_image_quality': 100,
         'segment_image_resize': None,
-        'ocr_strategy': 'auto'
+        'ocr_strategy': 'auto',
+        'ocr_on_formulas': False
     }
 
     start_time = time.time()
