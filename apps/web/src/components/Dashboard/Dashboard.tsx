@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Text, Flex, ScrollArea } from "@radix-ui/themes";
 import "./Dashboard.css";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
 import TaskCard from "../TaskCard/TaskCard";
 import DashBoardHeader from "./DashBoardHeader";
 import Loader from "../../pages/Loader/Loader";
@@ -13,31 +11,25 @@ import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
 import {
   calculateBillingDueDate,
   calculateDiscountedBilling,
-  MonthlyUsageData,
 } from "../../models/usage.model";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
 import Pagination from "../Pagination/Pagination";
 import BetterButton from "../BetterButton/BetterButton";
+import useUser from "../../hooks/useUser";
 
 export default function Dashboard() {
   const [showApiKey, setShowApiKey] = useState(false);
-  const [monthlyUsage, setMonthlyUsage] = useState<MonthlyUsageData>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const user = useSelector((state: RootState) => state.user.data);
+  const { data: user } = useUser();
+
   const navigate = useNavigate();
 
   const totalTasks = user?.task_count || 0;
   const totalPages = Math.ceil(totalTasks / itemsPerPage);
 
-  const { data: monthlyUsageData } = useMonthlyUsage();
-
-  useEffect(() => {
-    if (monthlyUsageData) {
-      setMonthlyUsage(monthlyUsageData);
-    }
-  }, [monthlyUsageData]);
+  const { data: monthlyUsage } = useMonthlyUsage();
 
   const {
     data: tasks,
@@ -71,14 +63,6 @@ export default function Dashboard() {
     user?.usage?.find((u) => u.usage_type === "Fast")?.usage_limit || 0;
   const highQualityLimit =
     user?.usage?.find((u) => u.usage_type === "HighQuality")?.usage_limit || 0;
-
-  console.log("fastUsage", fastUsage, "fastLimit", fastLimit);
-  console.log(
-    "highQualityUsage",
-    highQualityUsage,
-    "highQualityLimit",
-    highQualityLimit
-  );
 
   const fastDiscount =
     user?.usage?.find((u) => u.usage_type === "Fast")?.discounts?.[0]?.amount ||
@@ -664,7 +648,7 @@ export default function Dashboard() {
                   {tasks?.length === 0 && (
                     <Text
                       size="4"
-                      weight="medium"
+                      weight="regular"
                       style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
                     >
                       Create a task through the homepage or by hitting our API.

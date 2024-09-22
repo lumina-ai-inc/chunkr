@@ -61,7 +61,7 @@ const router = createBrowserRouter([
 ]);
 
 const queryClient = new QueryClient();
-console.log(import.meta.env);
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Theme
     scaling="100%"

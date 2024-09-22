@@ -34,7 +34,6 @@ export async function createCustomerSession(accessToken: string) {
 export async function getUserInvoices() {
   try {
     const response = await axiosInstance.get("/api/stripe/get-user-invoices");
-    console.log("response", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching user invoices:", error);
