@@ -1,7 +1,8 @@
+from bs4 import BeautifulSoup
 import cv2
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
-from bs4 import BeautifulSoup
+from rapid_latex_ocr import LatexOCR
 
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
 
@@ -77,3 +78,13 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> OCRRespons
 
     response = OCRResponse(results=ocr_result, html=html)
     return response
+
+def latex_ocr(model: LatexOCR, image_path: Path) -> str:
+    with open(image_path, "rb") as f:
+        data = f.read()
+
+    res, elapse = model(data)
+
+    print(res)
+    print(elapse)
+    return res

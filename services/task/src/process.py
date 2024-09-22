@@ -2,12 +2,13 @@ import base64
 import os
 import tempfile
 import threading
+from rapid_latex_ocr import LatexOCR
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 
 from src.converters import crop_image
 from src.models.segment_model import BaseSegment, Segment, SegmentType
-from src.ocr import ppocr, ppstructure_table
+from src.ocr import ppocr, ppstructure_table, latex_ocr
 
 
 def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
@@ -29,9 +30,9 @@ def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, densi
 def process_segment_ocr(
     segment: Segment,
     segment_temp_file: str,
-    ocr_strategy: str,
     ocr: PaddleOCR,
     table_engine: PPStructure,
+    latex_ocr_engine: LatexOCR,
     ocr_lock: threading.Lock,
     table_engine_lock: threading.Lock,
     ocr_needed: bool
@@ -49,6 +50,8 @@ def process_segment_ocr(
         with ocr_lock:
             ocr_results = ppocr(ocr, Path(segment_temp_file))
             segment.ocr = ocr_results.results
+    elif segment.segment_type == SegmentType.Formula:
+        segment.latex = latex_ocr(latex_ocr_engine, Path(segment_temp_file))
     else:
         with ocr_lock:
             ocr_results = ppocr(ocr, Path(segment_temp_file))
@@ -64,6 +67,7 @@ def process_segment(
     ocr_strategy: str,
     ocr: PaddleOCR,
     table_engine: PPStructure,
+    latex_ocr_engine: LatexOCR,
     ocr_lock: threading.Lock,
     table_engine_lock: threading.Lock
 ) -> Segment:
@@ -92,7 +96,6 @@ def process_segment(
                 process_segment_ocr(
                     segment,
                     segment_temp_file.name,
-                    ocr_strategy,
                     ocr,
                     table_engine,
                     ocr_lock,
