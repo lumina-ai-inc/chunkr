@@ -26,20 +26,12 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
             pdf_file = file
         conversion_end = time.time()
         
-        output_pattern = os.path.join(temp_dir, f'output-%d.{extension}')
         magick_start = time.time()
-        subprocess.run(['convert', 
-                        '-density', str(density),
-                        '-limit', 'thread', '8',  
-                        '-define', 'opencl:device=gpu',
-                        '-define', 'opencl:gpu-acceleration=on',
-                        '-opencl', 'enable',
-                        str(pdf_file),
-                        '-background', 'white',
-                        '-alpha', 'remove',
-                        '-alpha', 'off',
+        output_pattern = os.path.join(temp_dir, f'output-%d.{extension}')
+        subprocess.run(['convert', '-density', str(density), str(pdf_file),
+                        '-background', 'white', '-alpha', 'remove', '-alpha', 'off',
                         output_pattern],
-                    check=True, capture_output=True, text=True)
+                       check=True, capture_output=True, text=True)
         magick_end = time.time()
 
         processing_start = time.time()
@@ -91,7 +83,7 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, density: int = 300, 
 
             crop_geometry = f"{width}x{height}+{left}+{top}"
             command = [
-                'magick', 'convert',
+                'convert',
                 str(temp_input),
                 '-density', str(density),
                 '-crop', crop_geometry,
