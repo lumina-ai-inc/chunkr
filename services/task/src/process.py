@@ -57,6 +57,7 @@ def process_segment_ocr(
             ocr_results = ppocr(ocr, Path(segment_temp_file))
         segment.ocr = ocr_results.results
 
+
 def process_segment(
     segment: Segment,
     page_image_file_paths: dict[int, Path],
@@ -65,6 +66,7 @@ def process_segment(
     segment_image_quality: int,
     segment_image_resize: str,
     ocr_strategy: str,
+    ocr_on_formulas: bool,
     ocr: PaddleOCR,
     table_engine: PPStructure,
     latex_ocr_engine: LatexOCR,
@@ -74,7 +76,8 @@ def process_segment(
     try:
         ocr_needed = ocr_strategy == "on" or (
             ocr_strategy != "off" and (
-                segment.segment_type in [SegmentType.Table, SegmentType.Picture, SegmentType.Formula] or
+                segment.segment_type in [SegmentType.Table, SegmentType.Picture] or
+                (segment.segment_type == SegmentType.Formula and ocr_on_formulas) or
                 (ocr_strategy == "auto" and not segment.text)
             )
         )
