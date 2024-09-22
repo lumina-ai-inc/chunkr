@@ -17,7 +17,7 @@ from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment, SegmentType
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
 from src.utils import check_imagemagick_installed, convert_base_segment_to_segment
-from src.process import adjust_base_segments
+from src.process import adjust_base_segments, process_segment
 
 
 @bentoml.service(
@@ -93,8 +93,8 @@ class Task:
                              ocr_order_method="tb-xy", show_logs=False)
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2")
-        self.ocr_lock = threading.Lock()
-        self.table_engine_lock = threading.Lock()
+        self.ocr_lock: threading.Lock = threading.Lock()
+        self.table_engine_lock: threading.Lock = threading.Lock()
 
     @bentoml.api
     def images_from_file(
@@ -104,41 +104,6 @@ class Task:
         extension: str = Field(default="png", description="Image extension")
     ) -> Dict[int, str]:
         return convert_to_img(file, density, extension)
-
-    def process_segment(self, segment: Segment, page_image_file_paths: dict[int, Path], segment_image_density: int, segment_image_extension: str, segment_image_quality: int, segment_image_resize: str) -> Segment:
-        try:
-            segment.image = crop_image(
-                page_image_file_paths[segment.page_number],
-                segment.bbox,
-                segment_image_density,
-                segment_image_extension,
-                segment_image_quality,
-                segment_image_resize
-            )
-            segment_temp_file = tempfile.NamedTemporaryFile(
-                suffix=f".{segment_image_extension}", delete=False)
-            segment_temp_file.write(base64.b64decode(segment.image))
-            segment_temp_file.close()
-            try:
-                if segment.segment_type == SegmentType.Table:
-                    with self.table_engine_lock:
-                        table_ocr_results = ppstructure_table(
-                            self.table_engine, Path(segment_temp_file.name))
-                        segment.ocr = table_ocr_results.results
-                        segment.html = table_ocr_results.html
-                else:
-                    with self.ocr_lock:
-                        ocr_results = ppocr(
-                            self.ocr, Path(segment_temp_file.name))
-                        segment.ocr = ocr_results.results
-                segment.upsert_html()
-                segment.create_markdown()
-            finally:
-                os.unlink(segment_temp_file.name)
-        except Exception as e:
-            print(
-                f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
-        return segment
 
     @bentoml.api
     def process(
@@ -162,18 +127,17 @@ class Task:
         pdla_density: int = Field(
             default=72, description="Image density in DPI for pdla"),
         num_workers: int = Field(
-            default=4, description="Number of worker threads for segment processing")
+            default=4, description="Number of worker threads for segment processing"),
+        ocr_strategy: str = Field(
+            default="auto", description="OCR strategy: 'auto', 'on', or 'off'")
     ) -> list[Segment]:
         print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
                              page_image_density, pdla_density)
-        start_time = time.time()
         segments = [convert_base_segment_to_segment(base_segment)
                     for base_segment in base_segments]
         page_images = convert_to_img(
             file, page_image_density, page_image_extension)
-        end_time = time.time()
-        print(f"Conversion to images took {end_time - start_time} seconds")
         page_image_file_paths: dict[int, Path] = {}
         for page_number, page_image in page_images.items():
             temp_file = tempfile.NamedTemporaryFile(
@@ -189,20 +153,22 @@ class Task:
                 futures = {}
                 for segment in segments:
                     future = executor.submit(
-                        self.process_segment,
+                        process_segment,
                         segment,
                         page_image_file_paths,
                         segment_image_density,
                         segment_image_extension,
                         segment_image_quality,
-                        segment_image_resize
+                        segment_image_resize,
+                        ocr_strategy
                     )
                     futures[segment.segment_id] = future
 
                 for segment_id, future in tqdm.tqdm(futures.items(), desc="Processing segments"):
                     processed_segments_dict[segment_id] = future.result()
 
-            processed_segments = [processed_segments_dict[base_segment.segment_id] for base_segment in base_segments]
+            processed_segments = [
+                processed_segments_dict[base_segment.segment_id] for base_segment in base_segments]
             print("Segment processing finished")
         finally:
             for page_image_file_path in page_image_file_paths.values():
