@@ -3,8 +3,12 @@ apt-get install -y redis-tools htop git linux-headers-`uname -r` build-essential
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.cargo/env
 
+# ... existing code ...
+
 # Install ImageMagick dependencies
 apt-get install -y wget autoconf pkg-config build-essential curl libpng-dev ghostscript libgs-dev libpdf-dev ocl-icd-opencl-dev
+# Add these OpenCL-related packages and libltdl-dev
+apt-get install -y ocl-icd-libopencl1 opencl-headers clinfo libltdl-dev
 
 # Download and install ImageMagick
 wget https://github.com/ImageMagick/ImageMagick/archive/refs/tags/7.1.0-38.tar.gz
@@ -25,17 +29,23 @@ cd ImageMagick-7.1.0-38
     --with-gs-font-dir=yes \
     --with-gslib=yes \
     --with-pdf=yes \
-    --enable-opencl
-make -j
-make install
-ldconfig /usr/local/lib
+    --enable-opencl \
+    --with-opencl
+make -j $(nproc)
+sudo make install
+sudo ldconfig
 cd ..
 rm -rf ImageMagick-7.1.0-38
 
 # Enable OpenCL at runtime
-echo 'export MAGICK_OCL_DEVICE=true' >> /etc/profile.d/imagemagick.sh
+echo 'export MAGICK_OCL_DEVICE=true' | sudo tee -a /etc/profile.d/imagemagick.sh
+# Add this line to ensure the environment variable is set for all users
+echo 'export MAGICK_OCL_DEVICE=true' | sudo tee -a /etc/bash.bashrc
 
-sudo 
+# Add diagnostic commands
+clinfo
+magick -version
+magick identify -list configure | grep -i opencl
 
 # Install Docker
 apt-get install -y apt-transport-https ca-certificates curl software-properties-common

@@ -1,19 +1,43 @@
-import subprocess
-import mimetypes
-from pathlib import Path
-import os
 import cv2
 import matplotlib.pyplot as plt
+import mimetypes
+import os
 from paddleocr import draw_ocr
+from pathlib import Path
+import re
+import subprocess
 
 from src.models.segment_model import Segment, BoundingBox, BaseSegment
 
 
 def check_imagemagick_installed():
     try:
-        subprocess.run(['magick', '-version'], check=True, capture_output=True)
-        print("ImageMagick is installed")
-    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Check ImageMagick version
+        version_output = subprocess.run(
+            ['magick', '-version'], check=True, capture_output=True, text=True)
+        print(f"ImageMagick is installed: {version_output.stdout.strip()}")
+
+        # Check for OpenCL support
+        config_output = subprocess.run(
+            ['magick', 'identify', '-list', 'configure'], check=True, capture_output=True, text=True)
+        opencl_support = 'OpenCL' in config_output.stdout
+        print(f"OpenCL support: {'Yes' if opencl_support else 'No'}")
+
+        # Check if GPU is being used
+        benchmark_output = subprocess.run(
+            ['magick', 'benchmark', 'rose:', '-resize', '1000x1000', 'null:'], check=True, capture_output=True, text=True)
+        gpu_match = re.search(r'(\d+\.\d+) fps \(GPU\)',
+                              benchmark_output.stdout)
+
+        if gpu_match:
+            print(f"GPU acceleration is being used: {gpu_match.group(0)}")
+        else:
+            print("GPU acceleration is not being used")
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error running ImageMagick command: {e}")
+        raise RuntimeError("ImageMagick is not functioning correctly")
+    except FileNotFoundError:
         raise RuntimeError(
             "ImageMagick is not installed or not in the system PATH")
 
