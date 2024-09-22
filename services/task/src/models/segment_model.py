@@ -50,7 +50,7 @@ class Segment(BaseModel):
     markdown: Optional[str] = Field(
         None, description="Markdown representation of the segment")
 
-    def upsert_html(self):
+    def create_html(self):
         """
         Extract text from OCR results or use the text field,
         apply HTML formatting based on segment type, and update the html field.
