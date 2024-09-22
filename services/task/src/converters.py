@@ -10,29 +10,43 @@ from src.utils import needs_conversion
 from src.models.ocr_model import BoundingBox
 
 
+import time
+
 def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int, str]:
+    start_time = time.time()
     temp_dir = tempfile.mkdtemp()
     result = {}
     try:
+        conversion_start = time.time()
         if needs_conversion(file):
             subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', temp_dir, str(file)],
                            check=True, capture_output=True, text=True)
             pdf_file = next(Path(temp_dir).glob('*.pdf'))
         else:
             pdf_file = file
-
+        conversion_end = time.time()
+        
+        magick_start = time.time()
         output_pattern = os.path.join(temp_dir, f'output-%d.{extension}')
         subprocess.run(['magick', '-density', str(density), str(pdf_file),
                         '-background', 'white', '-alpha', 'remove', '-alpha', 'off',
                         output_pattern],
                        check=True, capture_output=True, text=True)
+        magick_end = time.time()
 
+        processing_start = time.time()
         for img_file in sorted(os.listdir(temp_dir)):
             if img_file.startswith('output-') and img_file.endswith(f".{extension}"):
                 page_num = int(img_file.split('-')[1].split('.')[0]) + 1
                 with open(os.path.join(temp_dir, img_file), 'rb') as img:
                     img_base64 = base64.b64encode(img.read()).decode('utf-8')
                     result[page_num] = img_base64
+        processing_end = time.time()
+
+        print(f"Conversion time: {conversion_end - conversion_start:.2f}s")
+        print(f"ImageMagick time: {magick_end - magick_start:.2f}s")
+        print(f"Processing time: {processing_end - processing_start:.2f}s")
+        print(f"Total time: {time.time() - start_time:.2f}s")
 
         return result
     except subprocess.CalledProcessError as e:
