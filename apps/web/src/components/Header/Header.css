@@ -69,7 +69,16 @@
   background-color: hsl(0, 0%, 100%);
 }
 
-@media (max-width: 1066px) {
+.rt-DropdownMenuItem {
+  color: #000 !important;
+}
+
+.rt-DropdownMenuItem:hover {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+@media (max-width: 948px) {
   .dropdown-container {
     display: block;
   }

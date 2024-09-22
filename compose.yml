@@ -4,7 +4,7 @@ services:
       replicas: 0
     image: quay.io/keycloak/keycloak:25.0.4
     ports:
-        - "8070:8080"
+      - "8070:8080"
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
@@ -13,7 +13,7 @@ services:
       - app-network
   postgres:
     deploy:
-      replicas: 0
+      replicas: 1
     image: postgres:15
     restart: always
     environment:
@@ -98,7 +98,7 @@ services:
   rrq:
     image: luminainc/rrq:a11fcf8
     deploy:
-      replicas: 0    
+      replicas: 0
     depends_on:
       redis:
         condition: service_healthy
@@ -186,12 +186,12 @@ services:
       - AWS__REGION=${AWS__REGION}
     networks:
       - app-network
-    
+
   web:
     image: luminainc/web:c69d5ff
     restart: on-failure
     deploy:
-      replicas: 1
+      replicas: 0
     environment:
       - VITE_API_URL=${VITE_API_URL}
       - VITE_KEYCLOAK_URL=${VITE_KEYCLOAK_URL}

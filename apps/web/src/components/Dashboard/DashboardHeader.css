@@ -1,0 +1,34 @@
+.dropdown-container {
+  display: none;
+}
+
+.rt-DropdownMenuItem {
+  color: #000 !important;
+}
+
+.rt-DropdownMenuItem:hover {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+.nav-options-container {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+@media (max-width: 948px) {
+  .dropdown-container {
+    display: block;
+  }
+
+  .nav-options-container {
+    display: none;
+  }
+}
+
+@media (max-width: 524px) {
+  .dashboard-header {
+    padding: 24px;
+  }
+}

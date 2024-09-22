@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Text, Flex, ScrollArea } from "@radix-ui/themes";
 import "./Dashboard.css";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
 import TaskCard from "../TaskCard/TaskCard";
 import DashBoardHeader from "./DashBoardHeader";
 import Loader from "../../pages/Loader/Loader";
@@ -13,31 +11,25 @@ import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
 import {
   calculateBillingDueDate,
   calculateDiscountedBilling,
-  MonthlyUsageData,
 } from "../../models/usage.model";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
 import Pagination from "../Pagination/Pagination";
 import BetterButton from "../BetterButton/BetterButton";
+import useUser from "../../hooks/useUser";
 
 export default function Dashboard() {
   const [showApiKey, setShowApiKey] = useState(false);
-  const [monthlyUsage, setMonthlyUsage] = useState<MonthlyUsageData>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const user = useSelector((state: RootState) => state.user.data);
+  const { data: user } = useUser();
+
   const navigate = useNavigate();
 
   const totalTasks = user?.task_count || 0;
   const totalPages = Math.ceil(totalTasks / itemsPerPage);
 
-  const { data: monthlyUsageData } = useMonthlyUsage();
-
-  useEffect(() => {
-    if (monthlyUsageData) {
-      setMonthlyUsage(monthlyUsageData);
-    }
-  }, [monthlyUsageData]);
+  const { data: monthlyUsage } = useMonthlyUsage();
 
   const {
     data: tasks,
@@ -71,14 +63,6 @@ export default function Dashboard() {
     user?.usage?.find((u) => u.usage_type === "Fast")?.usage_limit || 0;
   const highQualityLimit =
     user?.usage?.find((u) => u.usage_type === "HighQuality")?.usage_limit || 0;
-
-  console.log("fastUsage", fastUsage, "fastLimit", fastLimit);
-  console.log(
-    "highQualityUsage",
-    highQualityUsage,
-    "highQualityLimit",
-    highQualityLimit
-  );
 
   const fastDiscount =
     user?.usage?.find((u) => u.usage_type === "Fast")?.discounts?.[0]?.amount ||
@@ -165,7 +149,7 @@ export default function Dashboard() {
                     width="16"
                     height="16"
                     fill="white"
-                    fill-opacity="0.01"
+                    fillOpacity="0.01"
                   />
                   <path
                     fill-rule="evenodd"
@@ -176,7 +160,7 @@ export default function Dashboard() {
                 </svg>
               </Flex>
             )}
-            <Flex direction="row" gap="6" justify="between" mt="5">
+            <Flex direction="row" gap="6" justify="between" mt="5" wrap="wrap">
               <Flex
                 flexGrow="1"
                 direction="column"
@@ -210,11 +194,11 @@ export default function Dashboard() {
                         width="16"
                         height="16"
                         fill="white"
-                        fill-opacity="0.01"
+                        fillOpacity="0.01"
                       />
                       <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
                         d="M9.27645 0.0430443C9.5025 0.139774 9.63313 0.378514 9.5927 0.621051L8.62955 6.40001H13.3333C13.5353 6.40001 13.72 6.51414 13.8103 6.69484C13.9007 6.87552 13.8812 7.09173 13.7599 7.25334L7.35997 15.7867C7.21245 15.9834 6.94956 16.0537 6.7235 15.957C6.49744 15.8603 6.36681 15.6215 6.40723 15.379L7.37039 9.6H2.66666C2.46465 9.6 2.27998 9.48587 2.18963 9.30518C2.0993 9.1245 2.11878 8.90828 2.23999 8.74667L8.63997 0.213374C8.7875 0.0166672 9.05039 -0.0536855 9.27645 0.0430443ZM3.73332 8.53334H7.99997C8.15675 8.53334 8.30558 8.60231 8.40691 8.72194C8.50825 8.84156 8.55182 8.99971 8.52605 9.15435L7.81895 13.3969L12.2667 7.46668H7.99997C7.8432 7.46668 7.69437 7.3977 7.59302 7.27808C7.49169 7.15845 7.44812 7.00031 7.4739 6.84566L8.18099 2.60311L3.73332 8.53334Z"
                         fill="hsla(180, 100%, 100%, 1)"
                       />
@@ -341,7 +325,7 @@ export default function Dashboard() {
                         width="16"
                         height="16"
                         fill="white"
-                        fill-opacity="0.01"
+                        fillOpacity="0.01"
                       />
                       <path
                         fill-rule="evenodd"
@@ -474,7 +458,7 @@ export default function Dashboard() {
                           width="16"
                           height="16"
                           fill="white"
-                          fill-opacity="0.01"
+                          fillOpacity="0.01"
                         />
                         <path
                           fill-rule="evenodd"
@@ -537,7 +521,7 @@ export default function Dashboard() {
                       width="16"
                       height="16"
                       fill="white"
-                      fill-opacity="0.01"
+                      fillOpacity="0.01"
                     />
                     <path
                       fill-rule="evenodd"
@@ -637,11 +621,11 @@ export default function Dashboard() {
                         width="24"
                         height="24"
                         fill="white"
-                        fill-opacity="0.01"
+                        fillOpacity="0.01"
                       />
                       <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
                         d="M12.4069 2.91125C12.1559 2.7629 11.844 2.7629 11.5929 2.91125L2.79294 8.11125C2.54937 8.25517 2.39993 8.51706 2.39993 8.79999C2.39993 9.08292 2.54937 9.3448 2.79294 9.48872L11.5929 14.6887C11.844 14.8371 12.1559 14.8371 12.4069 14.6887L21.2069 9.48872C21.4506 9.3448 21.6 9.08292 21.6 8.79999C21.6 8.51706 21.4506 8.25517 21.2069 8.11125L12.4069 2.91125ZM11.9999 13.0708L4.77248 8.79999L11.9999 4.52922L19.2274 8.79999L11.9999 13.0708ZM3.60691 13.3113C3.22653 13.0865 2.73597 13.2126 2.51118 13.593C2.28641 13.9734 2.41256 14.464 2.79294 14.6887L11.5929 19.8888C11.844 20.0371 12.1559 20.0371 12.4069 19.8888L21.2069 14.6887C21.5874 14.464 21.7134 13.9734 21.4886 13.593C21.2638 13.2126 20.7733 13.0865 20.393 13.3113L11.9999 18.2707L3.60691 13.3113Z"
                         fill="var(--cyan-2)"
                       />
@@ -664,7 +648,7 @@ export default function Dashboard() {
                   {tasks?.length === 0 && (
                     <Text
                       size="4"
-                      weight="medium"
+                      weight="regular"
                       style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
                     >
                       Create a task through the homepage or by hitting our API.
