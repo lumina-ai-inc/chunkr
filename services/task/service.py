@@ -184,9 +184,9 @@ class Task:
         print("Pages converted to images")
         try:
             print("Segment processing started")
-            processed_segments = []
+            processed_segments_dict = {}
             with ThreadPoolExecutor(max_workers=num_workers) as executor:
-                futures = []
+                futures = {}
                 for segment in segments:
                     future = executor.submit(
                         self.process_segment,
@@ -197,11 +197,12 @@ class Task:
                         segment_image_quality,
                         segment_image_resize
                     )
-                    futures.append(future)
+                    futures[segment.segment_id] = future
 
-                for future in tqdm.tqdm(as_completed(futures), total=len(futures), desc="Processing segments"):
-                    processed_segments.append(future.result())
+                for segment_id, future in tqdm.tqdm(futures.items(), desc="Processing segments"):
+                    processed_segments_dict[segment_id] = future.result()
 
+            processed_segments = [processed_segments_dict[base_segment.segment_id] for base_segment in base_segments]
             print("Segment processing finished")
         finally:
             for page_image_file_path in page_image_file_paths.values():
