@@ -6,6 +6,7 @@ export default function useMonthlyUsage() {
   const auth = useAuth();
   const { data, isLoading, error } = useQuery("monthlyUsage", getMonthlyUsage, {
     enabled: auth.isAuthenticated,
+    refetchInterval: 3000,
   });
   return { data, isLoading, error };
 }

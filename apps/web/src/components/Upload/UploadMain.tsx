@@ -30,8 +30,10 @@ export default function UploadMain({
     setFileName("");
   };
 
-  const handleModelToggle = () => {
-    setModel(model === Model.Fast ? Model.HighQuality : Model.Fast);
+  const handleModelToggle = (selectedModel: Model) => {
+    if (model !== selectedModel) {
+      setModel(selectedModel);
+    }
   };
 
   const handleRun = async () => {
@@ -150,7 +152,6 @@ export default function UploadMain({
             mt="16px"
             p="16px"
             className="toggle-container"
-            onClick={handleModelToggle}
           >
             <Flex
               direction="column"
@@ -162,6 +163,7 @@ export default function UploadMain({
                 position: "relative",
                 overflow: "hidden",
               }}
+              onClick={() => handleModelToggle(Model.Fast)}
             >
               <div className="card-gradient-overlay"></div>
               <div
@@ -174,7 +176,6 @@ export default function UploadMain({
               <Flex
                 direction="column"
                 className="toggle-icon-container"
-                justify="end"
                 height="100%"
                 style={{
                   position: "relative",
@@ -234,11 +235,12 @@ export default function UploadMain({
                 <Text
                   size="4"
                   weight="medium"
-                  mt="3"
+                  mt="5"
                   style={{ maxWidth: "400px" }}
                 >
                   <b>LightGBM</b>
-                  <br />
+                </Text>
+                <Text size="4" weight="medium" mt="2">
                   Blazing speed - perfect for high volume tasks
                 </Text>
                 <Text size="3" weight="medium" mt="2">
@@ -261,6 +263,7 @@ export default function UploadMain({
                 position: "relative",
                 overflow: "hidden",
               }}
+              onClick={() => handleModelToggle(Model.HighQuality)}
             >
               <div className="card-gradient-overlay"></div>
               <div
@@ -272,7 +275,6 @@ export default function UploadMain({
               <Flex
                 direction="column"
                 className="toggle-icon-container"
-                justify="end"
                 height="100%"
                 style={{
                   position: "relative",
@@ -331,18 +333,24 @@ export default function UploadMain({
                 <Text
                   size="4"
                   weight="medium"
-                  mt="3"
+                  mt="5"
                   style={{ maxWidth: "400px" }}
                 >
                   <b>VGT</b>
-                  <br />
+                </Text>
+                <Text
+                  size="4"
+                  weight="medium"
+                  mt="2"
+                  style={{ maxWidth: "400px" }}
+                >
                   Higher accuracy + better image segmentation
                 </Text>
                 <Text size="3" weight="medium" mt="2">
-                  ~2 pages per second
+                  ~1 page per second
                 </Text>
                 <Text size="2" weight="light" style={{ opacity: 0.8 }}>
-                  $0.02/page | 250 pages for free
+                  $0.01/page | 500 pages for free
                 </Text>
               </Flex>
             </Flex>

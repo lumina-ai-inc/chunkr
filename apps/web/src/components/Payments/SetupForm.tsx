@@ -45,7 +45,6 @@ export default function SetupForm({
       const paymentElement = elements.getElement("payment");
       if (paymentElement) {
         paymentElement.on("change", (event) => {
-          console.log("Payment Element change event:", event);
           setHasPaymentMethod(!!event.value?.payment_method);
         });
       }

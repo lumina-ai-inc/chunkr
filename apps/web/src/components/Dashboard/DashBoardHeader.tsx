@@ -9,6 +9,7 @@ import {
   createSetupIntent,
 } from "../../services/stripeService";
 import PaymentSetup from "../Payments/PaymentSetup";
+import "./DashboardHeader.css";
 
 export default function DashBoardHeader(user: User) {
   const [showPaymentSetup, setShowPaymentSetup] = useState(false);
