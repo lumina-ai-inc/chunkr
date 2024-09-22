@@ -1,7 +1,6 @@
 use chrono::{DateTime, Utc};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
-use stripe::InvoiceStatus as StripeInvoiceStatus;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 #[derive(
