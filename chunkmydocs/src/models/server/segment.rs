@@ -44,16 +44,31 @@ pub enum SegmentType {
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct BaseSegment {
     pub segment_id: String,
+    #[serde(flatten)]
+    pub pdla_segment: PdlaSegment,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct PdlaSegment {
     pub left: f32,
     pub top: f32,
     pub width: f32,
     pub height: f32,
-    pub text: String,
-    #[serde(rename = "type")]
-    pub segment_type: SegmentType,
     pub page_number: u32,
     pub page_width: f32,
     pub page_height: f32,
+    pub text: String,
+    #[serde(rename = "type")]
+    pub segment_type: SegmentType,
+}
+
+impl From<PdlaSegment> for BaseSegment {
+    fn from(pdla_segment: PdlaSegment) -> Self {
+        Self {
+            segment_id: Uuid::new_v4().to_string(),
+            pdla_segment,
+        }
+    }
 }
 
 
@@ -73,34 +88,6 @@ pub struct Segment {
     pub markdown: Option<String>,
 }
 
-impl Segment {
-    pub fn new(
-        bbox: BoundingBox,
-        page_number: u32,
-        page_width: f32,
-        page_height: f32,
-        text: String,
-        segment_type: SegmentType,
-        ocr: Option<Vec<OCRResult>>,
-        image: Option<String>,
-        html: Option<String>,
-        markdown: Option<String>,
-    ) -> Self {
-        Self {
-            bbox,
-            page_number,
-            page_width,
-            page_height,
-            text,
-            segment_type,
-            segment_id: Uuid::new_v4().to_string(),
-            ocr,
-            image,
-            html,
-            markdown,
-        }
-    }
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
