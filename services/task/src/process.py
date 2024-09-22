@@ -33,9 +33,10 @@ def process_segment_ocr(
     ocr: PaddleOCR,
     table_engine: PPStructure,
     ocr_lock: threading.Lock,
-    table_engine_lock: threading.Lock
+    table_engine_lock: threading.Lock,
+    ocr_needed: bool
 ):
-    if ocr_strategy == "off":
+    if not ocr_needed:
         return
 
     if segment.segment_type == SegmentType.Table:
@@ -49,12 +50,9 @@ def process_segment_ocr(
             ocr_results = ppocr(ocr, Path(segment_temp_file))
             segment.ocr = ocr_results.results
     else:
-        if ocr_strategy == "auto" and segment.text:
-            return
         with ocr_lock:
             ocr_results = ppocr(ocr, Path(segment_temp_file))
         segment.ocr = ocr_results.results
-
 
 def process_segment(
     segment: Segment,
@@ -70,33 +68,41 @@ def process_segment(
     table_engine_lock: threading.Lock
 ) -> Segment:
     try:
-        segment.image = crop_image(
-            page_image_file_paths[segment.page_number],
-            segment.bbox,
-            segment_image_density,
-            segment_image_extension,
-            segment_image_quality,
-            segment_image_resize
+        ocr_needed = ocr_strategy != "off" and (
+            segment.segment_type in [SegmentType.Table, SegmentType.Picture] or
+            (ocr_strategy == "auto" and not segment.text)
         )
-        segment_temp_file = tempfile.NamedTemporaryFile(
-            suffix=f".{segment_image_extension}", delete=False)
-        segment_temp_file.write(base64.b64decode(segment.image))
-        segment_temp_file.close()
-        try:
-            process_segment_ocr(
-                segment,
-                segment_temp_file.name,
-                ocr_strategy,
-                ocr,
-                table_engine,
-                ocr_lock,
-                table_engine_lock
+
+        if ocr_needed:
+            segment.image = crop_image(
+                page_image_file_paths[segment.page_number],
+                segment.bbox,
+                segment_image_density,
+                segment_image_extension,
+                segment_image_quality,
+                segment_image_resize
             )
-            segment.create_html()
-            segment.create_markdown()
-        finally:
-            os.unlink(segment_temp_file.name)
+            segment_temp_file = tempfile.NamedTemporaryFile(
+                suffix=f".{segment_image_extension}", delete=False)
+            segment_temp_file.write(base64.b64decode(segment.image))
+            segment_temp_file.close()
+            try:
+                process_segment_ocr(
+                    segment,
+                    segment_temp_file.name,
+                    ocr_strategy,
+                    ocr,
+                    table_engine,
+                    ocr_lock,
+                    table_engine_lock,
+                    ocr_needed
+                )
+            finally:
+                os.unlink(segment_temp_file.name)
     except Exception as e:
         print(
             f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
+    finally:
+        segment.create_html()
+        segment.create_markdown()
     return segment
