@@ -4,7 +4,6 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
-from src.utils import ImprovedSpeller
 
 
 def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
