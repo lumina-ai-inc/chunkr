@@ -104,7 +104,6 @@ class Task:
     ) -> Dict[int, str]:
         return convert_to_img(file, density, extension)
 
-    @staticmethod
     def process_segment(self, segment, page_image_file_paths, segment_image_density, segment_image_extension, segment_image_quality, segment_image_resize):
         try:
             segment.image = crop_image(
