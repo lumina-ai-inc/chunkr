@@ -7,13 +7,29 @@ from pathlib import Path
 from annotate import draw_bounding_boxes
 import dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from enum import Enum
+import uuid
+import time
+import numpy as np
+import glob
+import shutil
+import csv
+from PyPDF2 import PdfReader, PdfWriter
+import concurrent.futures
 
 dotenv.load_dotenv(override=True)
+
+class GrowthFunc(Enum):
+    LINEAR = 'linear'
+    EXPONENTIAL = 'exponential'
+    LOGARITHMIC = 'logarithmic'
+    QUADRATIC = 'quadratic'
+    CUBIC = 'cubic'
 
 class TestPDLAServer(unittest.TestCase):
     BASE_URL = os.getenv("PDLASERVER_URL")
     MAX_WORKERS = 4  # Adjust this value based on your system's capabilities
-    
+
     def setUp(self):
         print("Setting up test environment...")
         self.input_folder = Path(__file__).parent / "input"
@@ -74,8 +90,136 @@ class TestPDLAServer(unittest.TestCase):
             for future in as_completed(futures):
                 future.result()  # This will raise any exceptions that occurred during execution
 
-if __name__ == "__main__":
-    print("Starting PDLA server tests...")
-    unittest.main()
-    print("PDLA server tests completed.")
+    def throughput_test(self, growth_func: GrowthFunc, start_page: int, end_page: int, num_pdfs: int):
+        print("Starting throughput test...")
+        if not isinstance(growth_func, GrowthFunc):
+            raise ValueError("growth_func must be an instance of GrowthFunc Enum")
 
+        run_id = f"run_{uuid.uuid4().hex}"
+        run_dir = self.input_folder / run_id
+        run_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Created run directory: {run_dir}")
+
+        original_pdf = self.test_pdfs[0]
+        pdf_test_paths = []
+
+        # Create a new PDF with only the specified page range
+        base_pdf_writer = PdfWriter()
+        with open(original_pdf, 'rb') as file:
+            pdf_reader = PdfReader(file)
+            for page_num in range(start_page - 1, end_page):
+                base_pdf_writer.add_page(pdf_reader.pages[page_num])
+
+        base_pdf_path = run_dir / f"{original_pdf.stem}_base.pdf"
+        with open(base_pdf_path, 'wb') as output_file:
+            base_pdf_writer.write(output_file)
+
+        # Create all test PDFs
+        for i in range(num_pdfs):
+            if growth_func == GrowthFunc.LINEAR:
+                multiplier = i + 1
+            elif growth_func == GrowthFunc.EXPONENTIAL:
+                multiplier = 2 ** i
+            elif growth_func == GrowthFunc.LOGARITHMIC:
+                multiplier = max(1, int(np.log2(i + 2)))
+            elif growth_func == GrowthFunc.QUADRATIC:
+                multiplier = (i + 1) ** 2
+            elif growth_func == GrowthFunc.CUBIC:
+                multiplier = (i + 1) ** 3
+            else:
+                raise ValueError("Unsupported growth function")
+
+            test_pdf_name = f"{original_pdf.stem}_{multiplier}x.pdf"
+            test_pdf_path = run_dir / test_pdf_name
+
+            # Create the test PDF by duplicating the base PDF
+            test_pdf_writer = PdfWriter()
+            for _ in range(multiplier):
+                with open(base_pdf_path, 'rb') as base_file:
+                    base_reader = PdfReader(base_file)
+                    for page in base_reader.pages:
+                        test_pdf_writer.add_page(page)
+
+            with open(test_pdf_path, 'wb') as output_file:
+                test_pdf_writer.write(output_file)
+
+            print(f"Created {test_pdf_path} with multiplier {multiplier}x")
+            pdf_test_paths.append(test_pdf_path)
+
+        # Process all created PDFs and log results
+        csv_path = self.output_folder / f"throughput_results_{growth_func.value}_{run_id}.csv"
+        fieldnames = ['PDF Name', 'Number of Pages', 'Processing Time (seconds)', 'Throughput (pages/sec)']
+        
+        with open(csv_path, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            csvfile.flush()
+
+            for pdf_path in pdf_test_paths:
+                start_time = time.time()
+                self.process_pdf(pdf_path)
+                end_time = time.time()
+                
+                processing_time = end_time - start_time
+                num_pages = len(PdfReader(pdf_path).pages)
+                throughput = num_pages / processing_time
+                
+                row_data = {
+                    'PDF Name': pdf_path.name,
+                    'Number of Pages': num_pages,
+                    'Processing Time (seconds)': processing_time,
+                    'Throughput (pages/sec)': throughput
+                }
+                
+                writer.writerow(row_data)
+                csvfile.flush()  # Ensure data is written to file
+                print(f"Processed {pdf_path.name}: {num_pages} pages in {processing_time:.2f} seconds. Throughput: {throughput:.2f} pages/sec")
+
+        print(f"Throughput test results saved to {csv_path}")
+        print("Throughput test completed successfully.")
+    def test_parallel_requests(self, num_parallel_requests=5):
+        print("Starting parallel requests test...")
+        input_folder = Path("input")
+        pdf_files = list(input_folder.glob("*.pdf"))
+        
+        if not pdf_files:
+            raise ValueError("No PDF files found in the input folder.")
+        
+        # Duplicate the first PDF file
+        original_pdf = pdf_files[0]
+        test_pdfs = [original_pdf] * num_parallel_requests
+        
+        def process_pdf(pdf_path):
+            start_time = time.time()
+            self.process_pdf(pdf_path)
+            end_time = time.time()
+            processing_time = end_time - start_time
+            return pdf_path.name, processing_time
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_parallel_requests) as executor:
+            results = list(executor.map(process_pdf, test_pdfs))
+        
+        # Log results
+        csv_path = self.output_folder / f"parallel_requests_results_{num_parallel_requests}_requests.csv"
+        fieldnames = ['PDF Name', 'Processing Time (seconds)']
+        
+        with open(csv_path, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            
+            for pdf_name, processing_time in results:
+                row_data = {
+                    'PDF Name': pdf_name,
+                    'Processing Time (seconds)': processing_time
+                }
+                writer.writerow(row_data)
+                print(f"Processed {pdf_name} in {processing_time:.2f} seconds.")
+        
+        print(f"Parallel requests test results saved to {csv_path}")
+        print("Parallel requests test completed successfully.")
+if __name__ == "__main__":
+    tester = TestPDLAServer()
+    tester.setUp()
+    # Example of running throughput_test with user-provided parameters
+    tester.throughput_test(GrowthFunc.LINEAR, start_page=18, end_page=88, num_pdfs=5)
+    # tester.test_parallel_requests(num_parallel_requests=2)
