@@ -107,4 +107,5 @@ def process_segment(
     finally:
         segment.create_html()
         segment.create_markdown()
+        segment.create_text()
     return segment
