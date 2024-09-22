@@ -62,7 +62,7 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
         'segment_bbox_offset': 2,
         'segment_image_quality': 100,
         'segment_image_resize': None,
-        'ocr_strategy': 'on'
+        'ocr_strategy': 'auto'
     }
 
     start_time = time.time()
@@ -123,8 +123,8 @@ if __name__ == "__main__":
         raise ValueError("SERVICE_URL not found in environment variables")
 
     run = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    input_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/process/00c08086-9837-5551-8133-4e22ac28c6a5"
-    output_dir = f"/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/process/{run}/00c08086-9837-5551-8133-4e22ac28c6a5"
+    input_dir = "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/process/2403.12313"
+    output_dir = f"/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/output/process/{run}/2403.12313"
 
     pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
     if not pdf_files:
