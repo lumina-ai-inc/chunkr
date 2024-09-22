@@ -45,15 +45,11 @@ class Segment(BaseModel):
     image: Optional[str] = None
     html: Optional[str] = Field(
         None, description="HTML representation of the segment")
-    latex: Optional[str] = Field(
-        None, description="LaTeX representation of the formula")
     markdown: Optional[str] = Field(
         None, description="Markdown representation of the segment")
 
     def _get_content(self):
-        if self.latex:
-            return self.latex
-        elif self.text:
+        if self.text:
             return self.text
         elif self.ocr:
             return " ".join([result.text for result in self.ocr])

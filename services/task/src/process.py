@@ -32,7 +32,6 @@ def process_segment_ocr(
     segment_temp_file: str,
     ocr: PaddleOCR,
     table_engine: PPStructure,
-    latex_ocr_engine: LatexOCR,
     ocr_lock: threading.Lock,
     table_engine_lock: threading.Lock,
     ocr_needed: bool
@@ -50,8 +49,6 @@ def process_segment_ocr(
         with ocr_lock:
             ocr_results = ppocr(ocr, Path(segment_temp_file))
             segment.ocr = ocr_results.results
-    elif segment.segment_type == SegmentType.Formula:
-        segment.latex = latex_ocr(latex_ocr_engine, Path(segment_temp_file))
     else:
         with ocr_lock:
             ocr_results = ppocr(ocr, Path(segment_temp_file))
@@ -66,10 +63,8 @@ def process_segment(
     segment_image_quality: int,
     segment_image_resize: str,
     ocr_strategy: str,
-    ocr_on_formulas: bool,
     ocr: PaddleOCR,
     table_engine: PPStructure,
-    latex_ocr_engine: LatexOCR,
     ocr_lock: threading.Lock,
     table_engine_lock: threading.Lock
 ) -> Segment:
@@ -77,7 +72,6 @@ def process_segment(
         ocr_needed = ocr_strategy == "on" or (
             ocr_strategy != "off" and (
                 segment.segment_type in [SegmentType.Table, SegmentType.Picture] or
-                (segment.segment_type == SegmentType.Formula and ocr_on_formulas) or
                 (ocr_strategy == "auto" and not segment.text)
             )
         )
@@ -101,7 +95,6 @@ def process_segment(
                     segment_temp_file.name,
                     ocr,
                     table_engine,
-                    latex_ocr_engine,
                     ocr_lock,
                     table_engine_lock,
                     ocr_needed
