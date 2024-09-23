@@ -1,4 +1,6 @@
 use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream, Client as S3Client};
+use aws_sdk_s3::error::SdkError;
+use aws_sdk_s3::operation::head_object::HeadObjectError;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use reqwest::Client;
@@ -46,6 +48,33 @@ pub async fn generate_presigned_url(
         .await?;
 
     Ok(presigned_request.uri().to_string())
+}
+
+pub async fn generate_presigned_url_if_exists(
+    s3_client: &S3Client,
+    location: &str,
+    expires_in: Option<Duration>,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let expiration = expires_in.unwrap_or(Duration::from_secs(3600));
+
+    let (bucket, key) = extract_bucket_and_key(location)?;
+
+    match s3_client.head_object().bucket(&bucket).key(&key).send().await {
+        Ok(_) => {
+            let presigned_request = s3_client
+                .get_object()
+                .bucket(bucket)
+                .key(key)
+                .presigned(PresigningConfig::expires_in(expiration)?)
+                .await?;
+
+            Ok(presigned_request.uri().to_string())
+        }
+        Err(SdkError::ServiceError(err)) if matches!(err.err(), HeadObjectError::NotFound(_)) => {
+            Err(format!("Object does not exist: {}", location).into())
+        }
+        Err(err) => Err(format!("Error checking object existence: {}", err).into()),
+    }
 }
 
 pub async fn upload_to_s3(

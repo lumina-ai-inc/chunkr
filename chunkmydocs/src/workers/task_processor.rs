@@ -14,7 +14,7 @@ use chunkmydocs::utils::storage::config_s3::create_client;
 use chunkmydocs::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use base64::{ engine::general_purpose::STANDARD, Engine };
 use image::ImageReader;
-use std::{ io::Write, path::PathBuf };
+use std::{ io::Write, path::{ Path, PathBuf } };
 use tempdir::TempDir;
 use tempfile::NamedTempFile;
 
@@ -101,9 +101,16 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
                             temp_image.write_all(&image_data)?;
                             let img = ImageReader::open(temp_image.path())?.with_guessed_format()?;
                             let format = img.format().ok_or("Unable to determine image format")?;
+                            
+                            let output_path = Path::new(&extraction_item.output_location);
+                            let parent_dir = output_path.parent()
+                                .ok_or("Unable to determine parent directory")?
+                                .to_str()
+                                .ok_or("Invalid parent directory path")?;
+    
                             let image_path = format!(
                                 "{}/images/{}.{}",
-                                extraction_item.output_location,
+                                parent_dir,
                                 item.segment_id,
                                 format.extensions_str()[0]
                             );
