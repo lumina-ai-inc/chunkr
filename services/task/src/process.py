@@ -7,6 +7,7 @@ from pathlib import Path
 
 from src.converters import crop_image
 from src.models.segment_model import BaseSegment, Segment, SegmentType
+
 from src.ocr import ppocr, ppstructure_table
 
 
@@ -24,6 +25,9 @@ def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, densi
         segment.height += offset * 2
         segment.left -= offset
         segment.top -= offset
+
+        segment.page_height /= scale_factor
+        segment.page_width /= scale_factor
 
 
 def process_segment_ocr(
