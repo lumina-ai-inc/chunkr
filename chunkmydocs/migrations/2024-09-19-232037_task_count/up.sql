@@ -8,7 +8,6 @@ SET task_count = (
     SELECT COUNT(*)
     FROM tasks
     WHERE tasks.user_id = users.user_id
-
 );
 
 
