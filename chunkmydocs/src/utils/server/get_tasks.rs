@@ -1,16 +1,16 @@
 use crate::models::server::extract::Configuration;
-use crate::models::server::task::{Status, TaskResponse};
-use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::models::server::task::{ Status, TaskResponse };
+use crate::utils::db::deadpool_postgres::{ Client, Pool };
 use crate::utils::storage::services::generate_presigned_url;
 use aws_sdk_s3::Client as S3Client;
-use chrono::{DateTime, Utc};
+use chrono::{ DateTime, Utc };
 
 pub async fn get_tasks(
     pool: &Pool,
     s3_client: &S3Client,
     user_id: String,
     page: i64,
-    limit: i64,
+    limit: i64
 ) -> Result<Vec<TaskResponse>, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
     let offset = (page - 1) * limit;
@@ -26,61 +26,55 @@ pub async fn get_tasks(
     let mut task_responses = Vec::new();
 
     for row in tasks {
-        let task_id: String = row.get("task_id");
-        let expires_at: Option<DateTime<Utc>> = row.get("expires_at");
-        if expires_at.is_some() && expires_at.as_ref().unwrap() < &Utc::now() {
-            continue;
+        match process_task_row(&row, s3_client).await {
+            Ok(task_response) => task_responses.push(task_response),
+            Err(e) => eprintln!("Error processing task row: {}", e),
         }
-
-        let file_name: Option<String> = row.get("file_name");
-        let page_count: Option<i32> = row.get("page_count");
-
-        let status: Status = row
-            .get::<_, Option<String>>("status")
-            .and_then(|m| m.parse().ok())
-            .ok_or("Invalid status")?;
-        let created_at: DateTime<Utc> = row.get("created_at");
-        let finished_at: Option<DateTime<Utc>> = row.get("finished_at");
-        let message = row.get::<_, Option<String>>("message").unwrap_or_default();
-
-        let input_location: String = row.get("input_location");
-        let input_file_url = generate_presigned_url(s3_client, &input_location, None)
-            .await
-            .ok();
-        // let output_location: String = row.get("output_location");
-        // let mut output = None;
-        // if status == Status::Succeeded {
-        //     if let Ok(temp_file) =
-        //         download_to_tempfile(s3_client, &reqwest::Client::new(), &output_location, None)
-        //             .await
-        //     {
-        //         if let Ok(json_content) = tokio::fs::read_to_string(temp_file.path()).await {
-        //             output = serde_json::from_str(&json_content).ok();
-        //         }
-        //     }
-        // }
-
-        let task_url: Option<String> = row.get("task_url");
-        let configuration: Configuration = row
-            .get::<_, Option<String>>("configuration")
-            .and_then(|c| serde_json::from_str(&c).ok())
-            .ok_or("Invalid configuration")?;
-
-        task_responses.push(TaskResponse {
-            task_id,
-            status,
-            created_at,
-            finished_at,
-            expires_at,
-            message,
-            output: None,
-            input_file_url,
-            task_url,
-            configuration,
-            file_name,
-            page_count,
-        });
     }
 
     Ok(task_responses)
+}
+
+async fn process_task_row(
+    row: &tokio_postgres::Row,
+    s3_client: &S3Client
+) -> Result<TaskResponse, Box<dyn std::error::Error>> {
+    let task_id: String = row.try_get("task_id")?;
+    let expires_at: Option<DateTime<Utc>> = row.try_get("expires_at")?;
+
+    if expires_at.is_some() && expires_at.unwrap() < Utc::now() {
+        return Err("Task expired".into());
+    }
+
+    let file_name: Option<String> = row.try_get("file_name")?;
+    let page_count: Option<i32> = row.try_get("page_count")?;
+    let status: Status = row
+        .try_get::<_, Option<String>>("status")?
+        .ok_or("Status is None")?
+        .parse()?;
+    let created_at: DateTime<Utc> = row.try_get("created_at")?;
+    let finished_at: Option<DateTime<Utc>> = row.try_get("finished_at")?;
+    let message = row.try_get::<_, Option<String>>("message")?.unwrap_or_default();
+    let input_location: String = row.try_get("input_location")?;
+    let input_file_url = generate_presigned_url(s3_client, &input_location, None).await.ok();
+    let task_url: Option<String> = row.try_get("task_url")?;
+    let configuration: Configuration = serde_json::from_str(
+        &row.try_get::<_, Option<String>>("configuration")?
+            .ok_or("Configuration is None")?
+    )?;
+
+    Ok(TaskResponse {
+        task_id,
+        status,
+        created_at,
+        finished_at,
+        expires_at,
+        message,
+        output: None,
+        input_file_url,
+        task_url,
+        configuration,
+        file_name,
+        page_count,
+    })
 }
