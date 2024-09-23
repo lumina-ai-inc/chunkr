@@ -27,7 +27,7 @@ class BaseSegment(BaseModel):
     width: float
     height: float
     text: str
-    segment_type: SegmentType = Field(..., alias="type")
+    segment_type: SegmentType
     page_number: int
     page_width: float
     page_height: float
