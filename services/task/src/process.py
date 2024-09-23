@@ -1,5 +1,6 @@
 import base64
 import os
+import time
 import tempfile
 import threading
 from paddleocr import PaddleOCR, PPStructure
@@ -8,6 +9,7 @@ from pathlib import Path
 from src.converters import crop_image
 from src.models.segment_model import BaseSegment, Segment, SegmentType
 from src.ocr import ppocr, ppstructure_table
+from src.s3 import upload_file_to_s3
 
 
 def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
@@ -24,6 +26,9 @@ def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, densi
         segment.height += offset * 2
         segment.left -= offset
         segment.top -= offset
+
+        segment.page_height *= scale_factor
+        segment.page_width *= scale_factor
 
 
 def process_segment_ocr(
@@ -52,6 +57,7 @@ def process_segment_ocr(
 
 def process_segment(
     segment: Segment,
+    image_folder_location: str,
     page_image_file_paths: dict[int, Path],
     segment_image_density: int,
     segment_image_extension: str,
@@ -72,7 +78,8 @@ def process_segment(
         )
 
         if ocr_needed:
-            segment.image = crop_image(
+            crop_start_time = time.time()
+            base64_image = crop_image(
                 page_image_file_paths[segment.page_number],
                 segment.bbox,
                 segment_image_density,
@@ -80,21 +87,39 @@ def process_segment(
                 segment_image_quality,
                 segment_image_resize
             )
-            segment_temp_file = tempfile.NamedTemporaryFile(
+            crop_end_time = time.time()
+            crop_duration = crop_end_time - crop_start_time
+
+            image_s3_path = f"{image_folder_location}/{segment.segment_id}.{segment_image_extension}"
+            temp_image_file = tempfile.NamedTemporaryFile(
                 suffix=f".{segment_image_extension}", delete=False)
-            segment_temp_file.write(base64.b64decode(segment.image))
-            segment_temp_file.close()
             try:
+                temp_image_file.write(base64.b64decode(base64_image))
+                temp_image_file.close()
+                upload_file_to_s3(
+                    temp_image_file.name,
+                    image_s3_path,
+                )
+                segment.image = image_s3_path
+         
+                ocr_start_time = time.time()
                 process_segment_ocr(
                     segment,
-                    segment_temp_file.name,
+                    temp_image_file.name,
                     ocr,
                     table_engine,
                     ocr_lock,
                     table_engine_lock
                 )
+                ocr_end_time = time.time()
+                ocr_duration = ocr_end_time - ocr_start_time
+
+                print(
+                    f"Segment {segment.segment_type} on page {segment.page_number}:")
+                print(f"  Cropping time: {crop_duration:.2f} seconds")
+                print(f"  OCR time: {ocr_duration:.2f} seconds")
             finally:
-                os.unlink(segment_temp_file.name)
+                os.remove(temp_image_file.name)
     except Exception as e:
         print(
             f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
@@ -103,5 +128,3 @@ def process_segment(
         segment.create_html()
         segment.create_markdown()
     return segment
-
-

@@ -22,6 +22,7 @@ pub struct ExtractionPayload {
     pub model: SegmentationModel,
     pub input_location: String,
     pub output_location: String,
+    pub image_folder_location: String,
     pub task_id: String,
     pub batch_size: Option<i32>,
     #[serde(with = "humantime_serde")]
