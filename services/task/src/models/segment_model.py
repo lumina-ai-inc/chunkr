@@ -48,6 +48,29 @@ class Segment(BaseModel):
     markdown: Optional[str] = Field(
         None, description="Markdown representation of the segment")
 
+    @classmethod
+    def from_base_segment(cls, base_segment: BaseSegment) -> 'Segment':
+        """
+        Create a Segment instance from a BaseSegment instance.
+        """
+        bbox = BoundingBox(
+            top_left=[base_segment.left, base_segment.top],
+            top_right=[base_segment.left + base_segment.width, base_segment.top],
+            bottom_right=[base_segment.left + base_segment.width,
+                          base_segment.top + base_segment.height],
+            bottom_left=[base_segment.left, base_segment.top + base_segment.height]
+        )
+
+        return cls(
+            segment_id=base_segment.segment_id,
+            bbox=bbox,
+            page_number=base_segment.page_number,
+            page_width=base_segment.page_width,
+            page_height=base_segment.page_height,
+            text=base_segment.text,
+            segment_type=base_segment.segment_type
+        )
+
     def _get_content(self):
         if self.text:
             return self.text

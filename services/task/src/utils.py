@@ -74,29 +74,3 @@ def save_ocr(img_path, out_path, result, font):
 
     img = cv2.cvtColor(im_show, cv2.COLOR_BGR2RGB)
     plt.imshow(img)
-
-
-def convert_base_segment_to_segment(base_segment: BaseSegment) -> Segment:
-    """
-    Convert a BaseSegment instance to a Segment instance.
-
-    This function creates a new Segment object using the data from a BaseSegment,
-    constructing a BoundingBox from the individual position attributes.
-    """
-    bbox = BoundingBox(
-        top_left=[base_segment.left, base_segment.top],
-        top_right=[base_segment.left + base_segment.width, base_segment.top],
-        bottom_right=[base_segment.left + base_segment.width,
-                      base_segment.top + base_segment.height],
-        bottom_left=[base_segment.left, base_segment.top + base_segment.height]
-    )
-
-    return Segment(
-        segment_id=base_segment.segment_id,
-        bbox=bbox,
-        page_number=base_segment.page_number,
-        page_width=base_segment.page_width,
-        page_height=base_segment.page_height,
-        text=base_segment.text,
-        type=base_segment.segment_type
-    )
