@@ -4,18 +4,9 @@ export enum Model {
   HighQuality = "HighQuality",
 }
 
-export enum TableOcr {
-  HTML = "HTML",
-  JSON = "JSON",
-}
-
-export enum TableOcrModel {
-  EasyOcr = "EasyOcr",
-  Tesseract = "Tesseract",
-}
-
 export interface UploadForm {
   file: File;
   model: Model;
+  ocr_strategy: "auto" | "all" | "off";
   target_chunk_length?: number;
 }
