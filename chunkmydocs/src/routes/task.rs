@@ -15,7 +15,7 @@ use uuid::Uuid;
     get,
     path = "/task/{task_id}",
     context_path = "/api",
-    tag = "task",
+    tag = "Task",
     params(
         ("task_id" = Option<String>, Path, description = "Id of the task to get."),
     ),
@@ -56,7 +56,7 @@ pub async fn get_task_status(
     post,
     path = "/task",
     context_path = "/api",
-    tag = "task",
+    tag = "Task",
     request_body(content = UploadForm, description = "Multipart form encoded data to create an task", content_type = "multipart/form-data"),
     responses(
         (status = 200, description = "Detailed information describing the task such that it's status can be polled for", body = TaskResponse),

@@ -8,7 +8,7 @@ use actix_web::HttpResponse;
     get,
     path = "/health",
     context_path = "",
-    tag = "health",
+    tag = "Health",
     responses(
         (status = 200, description = "Confirmation that the service can respond to requests and the version of the service", body = String),
     ),
