@@ -29,13 +29,20 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
         conversion_end = time.time()
 
         pdf_to_img_start = time.time()
-        pdf_images = convert_from_path(str(pdf_file), dpi=density, fmt=extension)
+        extension = extension.lower()
+        if not extension.startswith('.'):
+            extension = f'.{extension}'
+        
+        format_mapping = {'.jpg': 'JPEG', '.jpeg': 'JPEG', '.png': 'PNG', '.tiff': 'TIFF'}
+        pil_format = format_mapping.get(extension, extension[1:].upper())
+        
+        pdf_images = convert_from_path(str(pdf_file), dpi=density, fmt=pil_format)
         pdf_to_img_end = time.time()
 
         processing_start = time.time()
         for i, img in enumerate(pdf_images, start=1):
             with io.BytesIO() as output:
-                img.save(output, format=extension.upper())
+                img.save(output, format=pil_format)
                 img_base64 = base64.b64encode(output.getvalue()).decode('utf-8')
                 result[i] = img_base64
         processing_end = time.time()
