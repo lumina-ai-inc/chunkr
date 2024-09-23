@@ -1,7 +1,7 @@
 import boto3
 from urllib.parse import urlparse
 
-from configs.aws_config import AWS__ACCESS_KEY, AWS__SECRET_KEY, AWS__ENDPOINT, AWS__REGION
+from src.configs.aws_config import AWS__ACCESS_KEY, AWS__SECRET_KEY, AWS__ENDPOINT, AWS__REGION
 
 def upload_file_to_s3(local_file_path, s3_path):
     """
