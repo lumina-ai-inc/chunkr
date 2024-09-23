@@ -40,7 +40,7 @@ class Segment(BaseModel):
     page_width: float
     page_height: float
     text: str
-    segment_type: SegmentType = Field(..., alias="type")
+    segment_type: SegmentType
     ocr: Optional[List[OCRResult]] = None
     image: Optional[str] = None
     html: Optional[str] = Field(
