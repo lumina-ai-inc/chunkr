@@ -44,7 +44,7 @@ pub enum SegmentType {
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct BaseSegment {
     pub segment_id: String,
-    #[serde(flatten)]
+    #[serde(flatten, rename(serialize = "segment_type", deserialize = "segment_type"))]
     pub pdla_segment: PdlaSegment,
 }
 
@@ -80,7 +80,6 @@ pub struct Segment {
     pub page_width: f32,
     pub page_height: f32,
     pub text: String,
-    #[serde(rename = "type")]
     pub segment_type: SegmentType,
     pub ocr: Option<Vec<OCRResult>>,
     pub image: Option<String>,
