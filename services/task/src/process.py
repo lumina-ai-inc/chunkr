@@ -32,12 +32,8 @@ def process_segment_ocr(
     ocr: PaddleOCR,
     table_engine: PPStructure,
     ocr_lock: threading.Lock,
-    table_engine_lock: threading.Lock,
-    ocr_needed: bool
+    table_engine_lock: threading.Lock
 ):
-    if not ocr_needed:
-        return
-
     if segment.segment_type == SegmentType.Table:
         with table_engine_lock:
             table_ocr_results = ppstructure_table(
@@ -68,10 +64,10 @@ def process_segment(
     table_engine_lock: threading.Lock
 ) -> Segment:
     try:
-        ocr_needed = ocr_strategy == "all" or (
-            ocr_strategy != "off" and (
+        ocr_needed = ocr_strategy == "All" or (
+            ocr_strategy != "Off" and (
                 segment.segment_type in [SegmentType.Table, SegmentType.Picture] or
-                (ocr_strategy == "auto" and not segment.text)
+                (ocr_strategy == "Auto" and not segment.text)
             )
         )
 
@@ -95,8 +91,7 @@ def process_segment(
                     ocr,
                     table_engine,
                     ocr_lock,
-                    table_engine_lock,
-                    ocr_needed
+                    table_engine_lock
                 )
             finally:
                 os.unlink(segment_temp_file.name)
