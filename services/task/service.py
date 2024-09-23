@@ -84,7 +84,7 @@ class OCR:
 class Task:
     def __init__(self) -> None:
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy", show_log=False)
+                             ocr_order_method="tb-xy", show_log=True)
         # todo: add lang support
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
@@ -105,6 +105,7 @@ class Task:
         self,
         file: Path,
         base_segments: list[BaseSegment],
+        image_s3_path: str = Field(description="S3 path for page images"),
         page_image_density: int = Field(
             default=300, description="Image density in DPI for page images"),
         page_image_extension: str = Field(
@@ -150,6 +151,7 @@ class Task:
                     future = executor.submit(
                         process_segment,
                         segment,
+                        image_s3_path,
                         page_image_file_paths,
                         segment_image_density,
                         segment_image_extension,
