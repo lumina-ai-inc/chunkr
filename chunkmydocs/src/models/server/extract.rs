@@ -78,7 +78,6 @@ impl SegmentationModel {
 
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString)]
-#[serde(rename_all = "lowercase")]
 pub enum OcrStrategy {
     Auto,
     All,
