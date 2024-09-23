@@ -105,7 +105,7 @@ class Task:
         self,
         file: Path,
         base_segments: list[BaseSegment],
-        image_s3_path: str = Field(description="S3 path for page images"),
+        image_folder_location: str = Field(description="S3 path for page images"),
         page_image_density: int = Field(
             default=300, description="Image density in DPI for page images"),
         page_image_extension: str = Field(
@@ -151,7 +151,7 @@ class Task:
                     future = executor.submit(
                         process_segment,
                         segment,
-                        image_s3_path,
+                        image_folder_location,
                         page_image_file_paths,
                         segment_image_density,
                         segment_image_extension,

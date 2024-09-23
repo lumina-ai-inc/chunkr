@@ -57,7 +57,7 @@ def process_segment_ocr(
 
 def process_segment(
     segment: Segment,
-    image_s3_folder: str,
+    image_folder_location: str,
     page_image_file_paths: dict[int, Path],
     segment_image_density: int,
     segment_image_extension: str,
@@ -90,7 +90,7 @@ def process_segment(
             crop_end_time = time.time()
             crop_duration = crop_end_time - crop_start_time
 
-            image_s3_path = f"{image_s3_folder}/{segment.segment_id}.{segment_image_extension}"
+            image_s3_path = f"{image_folder_location}/{segment.segment_id}.{segment_image_extension}"
             upload_file_to_s3(
                 segment.image,
                 image_s3_path,
