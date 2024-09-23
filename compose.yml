@@ -114,10 +114,10 @@ services:
       - "8010:8000"
 
   pdla:
-    image: luminainc/pdla:7bd05a1
+    image: luminainc/pdla:872866a3
     restart: on-failure
     deploy:
-      replicas: 0
+      replicas: 1
     networks:
       - app-network
     ports:
