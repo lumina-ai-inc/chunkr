@@ -1,13 +1,12 @@
 use crate::models::server::extract::Configuration;
 use crate::models::server::task::{ Status, TaskResponse };
-use crate::models::server::segment::Chunk;
+use crate::models::server::segment::{ Chunk, SegmentType };
 use crate::utils::db::deadpool_postgres::{ Client, Pool };
-use crate::utils::storage::services::{ download_to_tempfile, generate_presigned_url_if_exists };
+use crate::utils::storage::services::{ download_to_tempfile, generate_presigned_url };
 use aws_sdk_s3::Client as S3Client;
 use chrono::{ DateTime, Utc };
 use reqwest;
 use serde_json;
-use std::path::Path;
 
 pub async fn get_task(
     pool: &Pool,
@@ -16,87 +15,49 @@ pub async fn get_task(
     user_id: String
 ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
-    let task_and_files = client.query(
-        "SELECT status, created_at, finished_at, expires_at, message, input_location, output_location, task_url, configuration, file_name, page_count
-         FROM TASKS
-         WHERE task_id = $1 AND user_id = $2",
+    let task = client.query_one(
+        "SELECT * FROM TASKS WHERE task_id = $1 AND user_id = $2",
         &[&task_id, &user_id]
     ).await?;
-    let file_name = task_and_files[0].get::<_, Option<String>>("file_name");
-    let page_count = task_and_files[0].get::<_, Option<i32>>("page_count");
-    if task_and_files.is_empty() {
-        return Err("Task not found".into());
-    }
 
-    let first_row = &task_and_files[0];
-
-    let expires_at: Option<DateTime<Utc>> = first_row.get("expires_at");
-    if expires_at.is_some() && expires_at.as_ref().unwrap() < &Utc::now() {
+    let expires_at: Option<DateTime<Utc>> = task.get("expires_at");
+    if expires_at.is_some() && expires_at.unwrap() < Utc::now() {
         return Err("Task expired".into());
     }
 
-    let status: Status = first_row
+    create_task_from_row(&task, s3_client).await
+}
+
+pub async fn create_task_from_row(
+    row: &tokio_postgres::Row,
+    s3_client: &S3Client
+) -> Result<TaskResponse, Box<dyn std::error::Error>> {
+    let task_id: String = row.get("task_id");
+    let status: Status = row
         .get::<_, Option<String>>("status")
         .and_then(|m| m.parse().ok())
         .ok_or("Invalid status")?;
-    let created_at: DateTime<Utc> = first_row.get("created_at");
-    let finished_at: Option<DateTime<Utc>> = first_row.get("finished_at");
-    let message = first_row.get::<_, Option<String>>("message").unwrap_or_default();
+    let created_at: DateTime<Utc> = row.get("created_at");
+    let finished_at: Option<DateTime<Utc>> = row.get("finished_at");
+    let expires_at: Option<DateTime<Utc>> = row.get("expires_at");
+    let message = row.get::<_, Option<String>>("message").unwrap_or_default();
+    let file_name = row.get::<_, Option<String>>("file_name");
+    let page_count = row.get::<_, Option<i32>>("page_count");
 
-    let input_location: String = first_row.get("input_location");
-    let input_file_url = match
-        generate_presigned_url_if_exists(s3_client, &input_location, None).await
-    {
-        Ok(response) => {
-            println!("Successfully generated input file URL");
-            Some(response)
-        }
-        Err(e) => {
-            println!("Error getting input file url: {}", e);
-            return Err("Error getting input file url".into());
-        }
+    let input_location: String = row.get("input_location");
+    let input_file_url = generate_presigned_url(s3_client, &input_location, None).await.map_err(
+        |_| "Error getting input file url"
+    )?;
+
+    let output_location: String = row.get("output_location");
+    let output = if status == Status::Succeeded {
+        Some(process_output(s3_client, &output_location).await?)
+    } else {
+        None
     };
 
-    let output_location: String = first_row.get("output_location");
-    let mut output: Option<Vec<Chunk>> = None;
-    if status == Status::Succeeded {
-        let temp_file = download_to_tempfile(
-            s3_client,
-            &reqwest::Client::new(),
-            &output_location,
-            None
-        ).await?;
-        let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
-        let mut chunks: Vec<Chunk> = serde_json::from_str(&json_content)?;
-
-        let output_path = Path::new(&output_location);
-        let parent_dir = output_path
-            .parent()
-            .ok_or("Unable to determine parent directory")?
-            .to_str()
-            .ok_or("Invalid parent directory path")?;
-
-        for chunk in &mut chunks {
-            for segment in &mut chunk.segments {
-                if let Some(_) = segment.image {
-                    let image_path = format!("{}/images/{}.jpg", parent_dir, segment.segment_id);
-
-                    match generate_presigned_url_if_exists(s3_client, &image_path, None).await {
-                        Ok(image_url) => {
-                            segment.image = Some(image_url);
-                        }
-                        Err(_) => {
-                            segment.image = None;
-                        }
-                    }
-                }
-            }
-        }
-        output = Some(chunks);
-    }
-
-    let task_url: Option<String> = first_row.get("task_url");
-    let configuration: Configuration = first_row
+    let task_url: Option<String> = row.get("task_url");
+    let configuration: Configuration = row
         .get::<_, Option<String>>("configuration")
         .and_then(|c| serde_json::from_str(&c).ok())
         .ok_or("Invalid configuration")?;
@@ -109,10 +70,39 @@ pub async fn get_task(
         expires_at,
         message,
         output,
-        input_file_url,
+        input_file_url: Some(input_file_url),
         task_url,
         configuration,
         file_name,
         page_count,
     })
+}
+
+async fn process_output(
+    s3_client: &S3Client,
+    output_location: &str
+) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
+    let temp_file = download_to_tempfile(
+        s3_client,
+        &reqwest::Client::new(),
+        output_location,
+        None
+    ).await?;
+    let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
+    let mut chunks: Vec<Chunk> = serde_json::from_str(&json_content)?;
+
+    for chunk in &mut chunks {
+        for segment in &mut chunk.segments {
+            if let Some(image) = segment.image.as_ref() {
+                let url = generate_presigned_url(s3_client, image, None).await.ok();
+                segment.image = url.clone();
+                if segment.segment_type == SegmentType::Picture {
+                    segment.html = Some(format!("<img src=\"{}\" />", url.clone().unwrap_or_default()));
+                    segment.markdown = Some(format!("![Image]({})", url.clone().unwrap_or_default()));
+                }
+            }
+        }
+    }
+
+    Ok(chunks)
 }

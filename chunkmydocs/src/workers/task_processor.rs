@@ -12,9 +12,7 @@ use chunkmydocs::utils::json2mkd::json_2_mkd::hierarchical_chunking;
 use chunkmydocs::utils::rrq::consumer::consumer;
 use chunkmydocs::utils::storage::config_s3::create_client;
 use chunkmydocs::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
-use base64::{ engine::general_purpose::STANDARD, Engine };
-use image::ImageReader;
-use std::{ io::Write, path::{ Path, PathBuf } };
+use std::{ io::Write, path::PathBuf };
 use tempdir::TempDir;
 use tempfile::NamedTempFile;
 
@@ -80,11 +78,30 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
         let mut combined_output: Vec<Segment> = Vec::new();
         let mut page_offset: u32 = 0;
+        let mut batch_number: i32 = 0;
 
         for temp_file in &split_temp_files {
+            batch_number += 1;
+            log_task(
+                task_id.clone(),
+                Status::Processing,
+                Some(format!("Segmenting batch {} of {}", batch_number, split_temp_files.len())),
+                None,
+                &pg_pool
+            ).await?;
             let pdla_response = pdla_extraction(temp_file, extraction_item.model.clone()).await?;
             let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
-            let base_segments: Vec<BaseSegment> = pdla_segments.iter().map(|segment| segment.to_base_segment()).collect();
+            let base_segments: Vec<BaseSegment> = pdla_segments
+                .iter()
+                .map(|segment| segment.to_base_segment())
+                .collect();
+            log_task(
+                task_id.clone(),
+                Status::Processing,
+                Some(format!("OCR on batch {} of {}", batch_number, split_temp_files.len())),
+                None,
+                &pg_pool
+            ).await?;
             let mut segments: Vec<Segment> = process_segments(
                 temp_file,
                 &base_segments,
@@ -93,41 +110,6 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
             for item in &mut segments {
                 item.page_number = item.page_number + page_offset;
-                if let Some(image) = &item.image {
-                    match
-                        (async {
-                            let image_data = STANDARD.decode(image)?;
-                            let mut temp_image = NamedTempFile::new()?;
-                            temp_image.write_all(&image_data)?;
-                            let img = ImageReader::open(temp_image.path())?.with_guessed_format()?;
-                            let format = img.format().ok_or("Unable to determine image format")?;
-                            
-                            let output_path = Path::new(&extraction_item.output_location);
-                            let parent_dir = output_path.parent()
-                                .ok_or("Unable to determine parent directory")?
-                                .to_str()
-                                .ok_or("Invalid parent directory path")?;
-    
-                            let image_path = format!(
-                                "{}/images/{}.{}",
-                                parent_dir,
-                                item.segment_id,
-                                format.extensions_str()[0]
-                            );
-                            upload_to_s3(&s3_client, &image_path, temp_image.path()).await?;
-                            Ok::<(), Box<dyn std::error::Error>>(())
-                        }).await
-                    {
-                        Ok(_) => {}
-                        Err(e) =>
-                            eprintln!(
-                                "Error processing image for segment {}: {:?}",
-                                item.segment_id,
-                                e
-                            ),
-                    }
-                    item.image = None;
-                }
             }
             combined_output.extend(segments);
             page_offset += extraction_item.batch_size.unwrap_or(1) as u32;

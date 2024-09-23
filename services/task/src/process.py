@@ -8,8 +8,8 @@ from pathlib import Path
 
 from src.converters import crop_image
 from src.models.segment_model import BaseSegment, Segment, SegmentType
-
 from src.ocr import ppocr, ppstructure_table
+from src.s3 import upload_file_to_s3
 
 
 def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
@@ -57,6 +57,7 @@ def process_segment_ocr(
 
 def process_segment(
     segment: Segment,
+    image_s3_folder: str,
     page_image_file_paths: dict[int, Path],
     segment_image_density: int,
     segment_image_extension: str,
@@ -88,6 +89,13 @@ def process_segment(
             )
             crop_end_time = time.time()
             crop_duration = crop_end_time - crop_start_time
+
+            image_s3_path = f"{image_s3_folder}/{segment.segment_id}.{segment_image_extension}"
+            upload_file_to_s3(
+                segment.image,
+                image_s3_path,
+            )
+            segment.image = image_s3_path
 
             segment_temp_file = tempfile.NamedTemporaryFile(
                 suffix=f".{segment_image_extension}", delete=False)
