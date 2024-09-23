@@ -8,7 +8,7 @@ SET task_count = (
     SELECT COUNT(*)
     FROM tasks
     WHERE tasks.user_id = users.user_id
-    AND tasks.status = 'Succeeded'
+
 );
 
 
@@ -21,7 +21,6 @@ BEGIN
         SELECT COUNT(*)
         FROM tasks
         WHERE tasks.user_id = NEW.user_id
-        AND tasks.status = 'Succeeded'
     )
     WHERE users.user_id = NEW.user_id;
     RETURN NEW;
@@ -32,5 +31,4 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER update_task_count_trigger
 AFTER UPDATE OF status ON tasks
 FOR EACH ROW
-WHEN (NEW.status = 'Succeeded')
 EXECUTE FUNCTION update_user_task_count();
