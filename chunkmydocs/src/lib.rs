@@ -42,14 +42,13 @@ fn run_migrations(url: &str) {
 #[derive(OpenApi)]
 #[openapi(
     info(
-        title = "ChunkMyDocs API",
+        title = "Chunkr API",
         description = "API service for document layout analysis and chunking to convert document into RAG/LLM-ready data.",
         contact(name = "Lumina", url = "https://lumina.sh", email = "ishaan@lumina.sh"),
         version = "0.0.0"
     ),
     servers(
-        (url = "https://chunkmydocs.com", description = "Production server"),
-        (url = "http://localhost:8000", description = "Local development server")
+        (url = "https://chunkr.ai", description = "Production server"),
     ),
     paths(
         routes::health::health_check,   
