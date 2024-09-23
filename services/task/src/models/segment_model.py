@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from enum import Enum
+from markdownify import markdownify as md
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
@@ -56,10 +57,12 @@ class Segment(BaseModel):
         """
         bbox = BoundingBox(
             top_left=[base_segment.left, base_segment.top],
-            top_right=[base_segment.left + base_segment.width, base_segment.top],
+            top_right=[base_segment.left +
+                       base_segment.width, base_segment.top],
             bottom_right=[base_segment.left + base_segment.width,
                           base_segment.top + base_segment.height],
-            bottom_left=[base_segment.left, base_segment.top + base_segment.height]
+            bottom_left=[base_segment.left,
+                         base_segment.top + base_segment.height]
         )
 
         return cls(
@@ -144,8 +147,8 @@ class Segment(BaseModel):
         elif self.segment_type == SegmentType.Picture:
             self.markdown = f"![Image]()\n\n" if self.image else ""
         elif self.segment_type == SegmentType.Table:
-            if self.html and self.html.startswith("<table>"):
-                self.markdown = self._html_table_to_markdown()
+            if self.html:
+                self.markdown = md(self.html)
             else:
                 # Fallback to simple table representation
                 rows = content.split('\n')
@@ -158,23 +161,5 @@ class Segment(BaseModel):
         else:
             self.markdown = f"*{content}*\n\n"
 
-    def _html_table_to_markdown(self):
-        """
-        Convert HTML table to markdown format.
-        """
-        soup = BeautifulSoup(self.html, 'html.parser')
-        table = soup.find('table')
-        markdown_table = []
 
-        header = table.find('tr')
-        header_cells = [cell.get_text(strip=True)
-                        for cell in header.find_all(['th', 'td'])]
-        markdown_table.append("| " + " | ".join(header_cells) + " |")
-        markdown_table.append(
-            "|" + "|".join(["---" for _ in header_cells]) + "|")
 
-        for row in table.find_all('tr')[1:]:
-            cells = [cell.get_text(strip=True) for cell in row.find_all('td')]
-            markdown_table.append("| " + " | ".join(cells) + " |")
-
-        return "\n".join(markdown_table) + "\n\n"

@@ -784,6 +784,25 @@ wheels = [
 ]
 
 [[package]]
+name = "html2markdown"
+version = "0.1.7"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "beautifulsoup4", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ba/05/666b8105c1c45ee05fcbcb210176c73638710e402b99c5968c5dfdf3c67d/html2markdown-0.1.7.tar.gz", hash = "sha256:92baf932c7f216be6d9459a191d45b6401e204bda7a5413febafa875512cfa8c", size = 5253 }
+
+[[package]]
+name = "htmltabletomd"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "beautifulsoup4", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "html2markdown", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a9/e4/0aaa9345b9c013a0b71ee1526d561dcae08530087034c59d09abb5b86fe1/htmltabletomd-1.0.0.tar.gz", hash = "sha256:53e16a63fe97cdf28393dcff01d265bbe675447eac15737bf5823641e6cfa82b", size = 3801 }
+
+[[package]]
 name = "httpcore"
 version = "1.0.5"
 source = { registry = "https://pypi.org/simple" }
@@ -1137,6 +1156,19 @@ wheels = [
 ]
 
 [[package]]
+name = "markdownify"
+version = "0.13.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "beautifulsoup4", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "six", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/19/5a/bd1b685ee9efbfb0b22774a30188dfb4048c64e8a6c80a65a7f207af4ea1/markdownify-0.13.1.tar.gz", hash = "sha256:ab257f9e6bd4075118828a28c9d02f8a4bfeb7421f558834aa79b2dfeb32a098", size = 13609 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6c/e9/6e2757a670b8c48bc48eff1c20cb9d71f1476e844038bdbdb76f17e6a12b/markdownify-0.13.1-py3-none-any.whl", hash = "sha256:1d181d43d20902bcc69d7be85b5316ed174d0dda72ff56e14ae4c95a4a407d22", size = 10800 },
+]
+
+[[package]]
 name = "markupsafe"
 version = "2.1.5"
 source = { registry = "https://pypi.org/simple" }
@@ -1390,7 +1422,7 @@ name = "nvidia-cudnn-cu12"
 version = "9.1.0.70"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'win32')" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'win32')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9f/fd/713452cd72343f682b1c7b9321e23829f00b842ceaedcda96e742ea0b0b3/nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl", hash = "sha256:165764f44ef8c61fcdfdfdbe769d687e06374059fbb388b6c89ecb0e28793a6f", size = 664752741 },
@@ -1417,9 +1449,9 @@ name = "nvidia-cusolver-cu12"
 version = "11.4.5.107"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'win32')" },
-    { name = "nvidia-cusparse-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'win32')" },
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'win32')" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'win32')" },
+    { name = "nvidia-cusparse-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'win32')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'win32')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bc/1d/8de1e5c67099015c834315e333911273a8c6aaba78923dd1d1e25fc5f217/nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl", hash = "sha256:8a7ec542f0412294b15072fa7dab71d31334014a69f953004ea7a118206fe0dd", size = 124161928 },
@@ -1430,7 +1462,7 @@ name = "nvidia-cusparse-cu12"
 version = "12.1.0.106"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'win32')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'win32') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'darwin') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'linux') or (platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'win32')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/65/5b/cfaeebf25cd9fdec14338ccb16f6b2c4c7fa9163aefcf057d86b9cc248bb/nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl", hash = "sha256:f3b50f42cf363f86ab21f720998517a659a48131e8d538dc02f8768237bd884c", size = 195958278 },
@@ -2626,6 +2658,8 @@ source = { virtual = "." }
 dependencies = [
     { name = "beautifulsoup4", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "bentoml", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "htmltabletomd", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "markdownify", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "opencv-python", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "paddleocr", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "pydantic", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
@@ -2649,6 +2683,8 @@ windows = [
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.12.3" },
     { name = "bentoml", specifier = ">=1.3.5" },
+    { name = "htmltabletomd", specifier = ">=1.0.0" },
+    { name = "markdownify", specifier = ">=0.13.1" },
     { name = "opencv-python", specifier = ">=4.10.0.84" },
     { name = "paddleocr", specifier = ">=2.8.1" },
     { name = "paddlepaddle", marker = "extra == 'macos'", specifier = ">=2.6.2" },
@@ -2848,7 +2884,7 @@ name = "triton"
 version = "3.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "filelock", marker = "(python_full_version < '3.13' and platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'darwin') or (python_full_version < '3.13' and platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'linux') or (python_full_version < '3.13' and platform_machine != 'aarch64' and platform_system != 'Darwin' and sys_platform == 'win32') or (python_full_version < '3.13' and platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'darwin') or (python_full_version < '3.13' and platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'linux') or (python_full_version < '3.13' and platform_system != 'Darwin' and platform_system != 'Linux' and sys_platform == 'win32')" },
+    { name = "filelock", marker = "(python_full_version < '3.13' and platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'darwin') or (python_full_version < '3.13' and platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'linux') or (python_full_version < '3.13' and platform_machine != 'aarch64' and platform_system != 'Darwin' and platform_system != 'Windows' and sys_platform == 'win32') or (python_full_version < '3.13' and platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'darwin') or (python_full_version < '3.13' and platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'linux') or (python_full_version < '3.13' and platform_system != 'Darwin' and platform_system != 'Linux' and platform_system != 'Windows' and sys_platform == 'win32')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/45/27/14cc3101409b9b4b9241d2ba7deaa93535a217a211c86c4cc7151fb12181/triton-3.0.0-1-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:e1efef76935b2febc365bfadf74bcb65a6f959a9872e5bddf44cc9e0adce1e1a", size = 209376304 },
