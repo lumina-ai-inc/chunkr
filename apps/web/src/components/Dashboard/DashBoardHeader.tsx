@@ -1,42 +1,30 @@
 import { Flex, Text, Dialog, DropdownMenu, Button } from "@radix-ui/themes";
 import BetterButton from "../BetterButton/BetterButton";
 import { User } from "../../models/user.model";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
-import {
-  createCustomerSession,
-  createSetupIntent,
-} from "../../services/stripeService";
 import PaymentSetup from "../Payments/PaymentSetup";
 import "./DashboardHeader.css";
 
-export default function DashBoardHeader(user: User) {
-  const [showPaymentSetup, setShowPaymentSetup] = useState(false);
-  const [customerSessionSecret, setCustomerSessionSecret] = useState<
-    string | null
-  >(null);
-  const [customerSessionClientSecret, setCustomerSessionClientSecret] =
-    useState<string | null>(null);
-  const auth = useAuth();
-  const accessToken = auth.user?.access_token;
-  const tier = user.tier;
+interface DashBoardHeaderProps extends User {
+  showPaymentSetup: boolean;
+  setShowPaymentSetup: (show: boolean) => void;
+  customerSessionSecret: string | null;
+  customerSessionClientSecret: string | null;
+  handleAddPaymentMethod: () => Promise<void>;
+}
 
-  const handleAddPaymentMethod = async () => {
-    try {
-      const customerSessionSecret = await createCustomerSession(
-        accessToken as string
-      );
-      const customerSessionClientSecret = await createSetupIntent(
-        accessToken as string
-      );
-      setCustomerSessionSecret(customerSessionSecret);
-      setCustomerSessionClientSecret(customerSessionClientSecret);
-      setShowPaymentSetup(true);
-    } catch (error) {
-      console.error("Error creating Stripe Setup Intent:", error);
-    }
-  };
+export default function DashBoardHeader({
+  showPaymentSetup,
+  setShowPaymentSetup,
+  customerSessionSecret,
+  customerSessionClientSecret,
+  handleAddPaymentMethod,
+  ...userProps
+}: DashBoardHeaderProps) {
+  const auth = useAuth();
+  const user = userProps;
+  const tier = userProps.tier;
 
   const handleLogout = () => {
     auth.signoutRedirect();

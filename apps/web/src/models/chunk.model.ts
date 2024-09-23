@@ -1,34 +1,47 @@
 export type SegmentType =
-  | "Text"
   | "Title"
-  | "Table"
   | "Section header"
-  | "Picture"
-  | "Page footer"
-  | "Page header"
+  | "Text"
   | "List item"
+  | "Table"
+  | "Picture"
+  | "Caption"
   | "Formula"
   | "Footnote"
-  | "Caption";
+  | "Page header"
+  | "Page footer";
 
-// Define the structure for a single segment
+export interface BoundingBox {
+  top_left: number[];
+  top_right: number[];
+  bottom_right: number[];
+  bottom_left: number[];
+}
+
+export interface OCRResult {
+  bbox: BoundingBox;
+  text: string;
+  confidence?: number;
+}
+
 export interface Segment {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
+  segment_id: string;
+  bbox: BoundingBox;
   page_number: number;
   page_width: number;
   page_height: number;
-  text: string;
-  type: SegmentType;
+  text_layer: string;
+  ocr_text?: string;
+  segment_type: SegmentType;
+  ocr?: OCRResult[];
+  image?: string;
+  html?: string;
+  markdown?: string;
 }
 
-// Define the structure for a chunk, which includes segments and markdown
 export interface Chunk {
   segments: Segment[];
-  markdown: string;
+  chunk_length: number;
 }
 
-// Define the overall structure of the bounding boxes JSON
 export type Chunks = Chunk[];
