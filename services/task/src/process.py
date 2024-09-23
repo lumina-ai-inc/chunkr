@@ -1,5 +1,6 @@
 import base64
 import os
+import time
 import tempfile
 import threading
 from paddleocr import PaddleOCR, PPStructure
@@ -26,8 +27,8 @@ def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, densi
         segment.left -= offset
         segment.top -= offset
 
-        segment.page_height /= scale_factor
-        segment.page_width /= scale_factor
+        segment.page_height *= scale_factor
+        segment.page_width *= scale_factor
 
 
 def process_segment_ocr(
@@ -76,6 +77,7 @@ def process_segment(
         )
 
         if ocr_needed:
+            crop_start_time = time.time()
             segment.image = crop_image(
                 page_image_file_paths[segment.page_number],
                 segment.bbox,
@@ -84,11 +86,15 @@ def process_segment(
                 segment_image_quality,
                 segment_image_resize
             )
+            crop_end_time = time.time()
+            crop_duration = crop_end_time - crop_start_time
+
             segment_temp_file = tempfile.NamedTemporaryFile(
                 suffix=f".{segment_image_extension}", delete=False)
             segment_temp_file.write(base64.b64decode(segment.image))
             segment_temp_file.close()
             try:
+                ocr_start_time = time.time()
                 process_segment_ocr(
                     segment,
                     segment_temp_file.name,
@@ -97,8 +103,15 @@ def process_segment(
                     ocr_lock,
                     table_engine_lock
                 )
+                ocr_end_time = time.time()
+                ocr_duration = ocr_end_time - ocr_start_time
+
+                print(
+                    f"Segment {segment.segment_type} on page {segment.page_number}:")
+                print(f"  Cropping time: {crop_duration:.2f} seconds")
+                print(f"  OCR time: {ocr_duration:.2f} seconds")
             finally:
-                os.unlink(segment_temp_file.name)
+                os.remove(segment_temp_file.name)
     except Exception as e:
         print(
             f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
@@ -107,5 +120,3 @@ def process_segment(
         segment.create_html()
         segment.create_markdown()
     return segment
-
-
