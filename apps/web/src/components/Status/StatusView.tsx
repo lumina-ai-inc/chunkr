@@ -25,14 +25,16 @@ export default function StatusView({ task, pageCount }: StatusViewProps) {
 
   return (
     <Flex direction="column">
-      <Progress
-        duration={durationString}
-        style={{
-          height: "88px",
-          borderRadius: "0px",
-          color: "rgba(255, 255, 255, 0.3)",
-        }}
-      />
+      {task?.status !== Status.Failed && (
+        <Progress
+          duration={durationString}
+          style={{
+            height: "88px",
+            borderRadius: "0px",
+            color: "rgba(255, 255, 255, 0.3)",
+          }}
+        />
+      )}
       <Flex direction="column" gap="4" className="status-title">
         {task?.status === Status.Failed ? (
           <Flex className="retry-button" onClick={handleRetry}>

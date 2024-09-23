@@ -126,15 +126,15 @@ function SegmentOverlay({
   chunkIndex: number;
   segmentIndex: number;
 }) {
-  const scaledLeft = `${(segment.left / segment.page_width) * 100}%`;
-  const scaledTop = `${(segment.top / segment.page_height) * 100}%`;
-  const scaledHeight = `${(segment.height / segment.page_height) * 100}%`;
-  const scaledWidth = `${(segment.width / segment.page_width) * 100}%`;
+  const scaledLeft = `${(segment.bbox.top_left[0] / segment.page_width) * 100}%`;
+  const scaledTop = `${(segment.bbox.top_left[1] / segment.page_height) * 100}%`;
+  const scaledHeight = `${((segment.bbox.bottom_right[1] - segment.bbox.top_left[1]) / segment.page_height) * 100}%`;
+  const scaledWidth = `${((segment.bbox.bottom_right[0] - segment.bbox.top_left[0]) / segment.page_width) * 100}%`;
 
   const baseColor =
-    segmentColors[segment.type as SegmentType] || "--border-black";
+    segmentColors[segment.segment_type as SegmentType] || "--border-black";
   const lightColor =
-    segmentLightColors[segment.type as SegmentType] || "--border-black";
+    segmentLightColors[segment.segment_type as SegmentType] || "--border-black";
 
   return (
     <div
@@ -158,7 +158,7 @@ function SegmentOverlay({
           fontSize: "12px",
         }}
       >
-        {segment.type}
+        {segment.segment_type}
       </div>
     </div>
   );

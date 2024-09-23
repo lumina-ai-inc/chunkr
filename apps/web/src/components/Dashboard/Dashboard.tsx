@@ -16,13 +16,27 @@ import useMonthlyUsage from "../../hooks/useMonthlyUsage";
 import Pagination from "../Pagination/Pagination";
 import BetterButton from "../BetterButton/BetterButton";
 import useUser from "../../hooks/useUser";
+import {
+  createCustomerSession,
+  createSetupIntent,
+} from "../../services/stripeService";
+import { useAuth } from "react-oidc-context";
 
 export default function Dashboard() {
+  const [showPaymentSetup, setShowPaymentSetup] = useState(false);
+  const [customerSessionSecret, setCustomerSessionSecret] = useState<
+    string | null
+  >(null);
+  const [customerSessionClientSecret, setCustomerSessionClientSecret] =
+    useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const { data: user } = useUser();
+
+  const auth = useAuth();
+  const accessToken = auth.user?.access_token;
 
   const navigate = useNavigate();
 
@@ -39,6 +53,22 @@ export default function Dashboard() {
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
+  };
+
+  const handleAddPaymentMethod = async () => {
+    try {
+      const customerSessionSecret = await createCustomerSession(
+        accessToken as string
+      );
+      const customerSessionClientSecret = await createSetupIntent(
+        accessToken as string
+      );
+      setCustomerSessionSecret(customerSessionSecret);
+      setCustomerSessionClientSecret(customerSessionClientSecret);
+      setShowPaymentSetup(true);
+    } catch (error) {
+      console.error("Error creating Stripe Setup Intent:", error);
+    }
   };
 
   if (!user) {
@@ -106,7 +136,14 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
       <Flex className="dashboard-header">
-        <DashBoardHeader {...user} />
+        <DashBoardHeader
+          {...user}
+          showPaymentSetup={showPaymentSetup}
+          setShowPaymentSetup={setShowPaymentSetup}
+          customerSessionSecret={customerSessionSecret}
+          customerSessionClientSecret={customerSessionClientSecret}
+          handleAddPaymentMethod={handleAddPaymentMethod}
+        />
       </Flex>
       <ScrollArea scrollbars="vertical" style={{ height: "100%" }}>
         <Flex direction="row" className="dashboard-content">
@@ -129,7 +166,7 @@ export default function Dashboard() {
               setShowApiKey={setShowApiKey}
             />
             {user?.tier === "Free" && (
-              <Flex className="callout">
+              <Flex className="callout" onClick={handleAddPaymentMethod}>
                 <Text
                   size="2"
                   weight="medium"

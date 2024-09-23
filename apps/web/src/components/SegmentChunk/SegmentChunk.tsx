@@ -1,5 +1,5 @@
 import { useState, useMemo, forwardRef } from "react";
-import { Chunk } from "../../models/chunk.model";
+import { Chunk, Segment } from "../../models/chunk.model";
 import { Text, Flex } from "@radix-ui/themes";
 import * as Accordion from "@radix-ui/react-accordion";
 import Badge from "../Badge";
@@ -24,7 +24,7 @@ export const SegmentChunk = forwardRef<
   const segmentTypeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     chunk.segments.forEach((segment) => {
-      counts[segment.type] = (counts[segment.type] || 0) + 1;
+      counts[segment.segment_type] = (counts[segment.segment_type] || 0) + 1;
     });
     return counts;
   }, [chunk.segments]);
@@ -41,6 +41,13 @@ export const SegmentChunk = forwardRef<
       </Badge>
     ));
   }, [segmentTypeCounts]);
+
+  const combinedMarkdown = useMemo(() => {
+    return chunk.segments
+      .map((segment) => segment.markdown)
+      .filter(Boolean)
+      .join("\n\n");
+  }, [chunk.segments]);
 
   return (
     <div ref={ref}>
@@ -131,10 +138,10 @@ export const SegmentChunk = forwardRef<
                   remarkPlugins={[remarkMath]}
                   rehypePlugins={[rehypeKatex]}
                 >
-                  {chunk.markdown}
+                  {combinedMarkdown}
                 </ReactMarkdown>
               ) : (
-                chunk.segments.map((segment, segmentIndex) => (
+                chunk.segments.map((segment: Segment, segmentIndex: number) => (
                   <div key={segmentIndex}>
                     <ReactJson
                       src={segment}
