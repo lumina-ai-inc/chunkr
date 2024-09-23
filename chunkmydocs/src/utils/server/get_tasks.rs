@@ -13,7 +13,7 @@ pub async fn get_tasks(
     let client: Client = pool.get().await?;
     let offset = (page - 1) * limit;
     let tasks = client.query(
-        "SELECT * FROM TASKS WHERE user_id = $1 AND expires_at > NOW() ORDER BY created_at DESC OFFSET $2 LIMIT $3",
+        "SELECT * FROM TASKS WHERE user_id = $1 AND  (expires_at > NOW() OR expires_at IS NULL) ORDER BY created_at DESC OFFSET $2 LIMIT $3",
         &[&user_id, &offset, &limit]
     ).await?;
 
