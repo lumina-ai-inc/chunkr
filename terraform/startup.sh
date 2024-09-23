@@ -47,6 +47,8 @@ clinfo
 magick -version
 magick identify -list configure | grep -i opencl
 
+sudo apt-get install poppler-utils
+
 # Install Docker
 apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -

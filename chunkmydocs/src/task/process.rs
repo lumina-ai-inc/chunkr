@@ -14,6 +14,7 @@ async fn get_reqwest_client() -> &'static ReqwestClient {
 pub async fn process_segments(
     file_path: &Path,
     base_segments: &Vec<BaseSegment>,
+    image_folder_location: &str,
     ocr_strategy: &OcrStrategy
 ) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
     let client = get_reqwest_client().await;
@@ -33,7 +34,8 @@ pub async fn process_segments(
         ::new()
         .part("file", part)
         .text("base_segments", serde_json::to_string(&base_segments)?)
-        .text("ocr_strategy", ocr_strategy.to_string());
+        .text("ocr_strategy", ocr_strategy.to_string())
+        .text("image_folder_location", image_folder_location.to_string());
 
     if let Some(density) = config.page_image_density {
         form = form.text("page_image_density", density.to_string());

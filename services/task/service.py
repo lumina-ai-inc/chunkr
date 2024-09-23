@@ -15,7 +15,6 @@ from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
-from src.utils import check_imagemagick_installed
 from src.process import adjust_base_segments, process_segment
 
 
@@ -25,9 +24,6 @@ from src.process import adjust_base_segments, process_segment
     traffic={"timeout": 60}
 )
 class Image:
-    def __init__(self) -> None:
-        check_imagemagick_installed()
-
     @bentoml.api
     def convert_to_img(
         self,
@@ -87,9 +83,8 @@ class OCR:
 )
 class Task:
     def __init__(self) -> None:
-        check_imagemagick_installed()
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy", show_log=False)
+                             ocr_order_method="tb-xy", show_log=True)
         # todo: add lang support
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
@@ -110,6 +105,7 @@ class Task:
         self,
         file: Path,
         base_segments: list[BaseSegment],
+        image_folder_location: str = Field(description="S3 path for page images"),
         page_image_density: int = Field(
             default=300, description="Image density in DPI for page images"),
         page_image_extension: str = Field(
@@ -155,6 +151,7 @@ class Task:
                     future = executor.submit(
                         process_segment,
                         segment,
+                        image_folder_location,
                         page_image_file_paths,
                         segment_image_density,
                         segment_image_extension,

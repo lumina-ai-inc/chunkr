@@ -82,6 +82,7 @@ pub async fn create_task(
     let input_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, file_name);
     let output_extension = model_internal.get_extension();
     let output_location = input_location.replace(".pdf", &format!(".{}", output_extension));
+    let image_folder_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, "images");
 
     let message = "Task queued".to_string();
 
@@ -93,10 +94,10 @@ pub async fn create_task(
                     "INSERT INTO TASKS (
                     task_id, user_id, api_key, file_name, file_size, 
                     page_count, segment_count, expires_at,
-                    status, task_url, input_location, output_location, 
+                    status, task_url, input_location, output_location, image_folder_location,
                     configuration, message
                 ) VALUES (
-                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
                 ) ON CONFLICT (task_id) DO NOTHING",
                     &[
                         &task_id,
@@ -111,6 +112,7 @@ pub async fn create_task(
                         &task_url,
                         &input_location,
                         &output_location,
+                        &image_folder_location,
                         &configuration_json,
                         &message,
                     ],
@@ -134,6 +136,7 @@ pub async fn create_task(
                 model: model_internal,
                 input_location: input_location.clone(),
                 output_location,
+                image_folder_location,
                 expiration: None,
                 batch_size: Some(ingest_batch_size),
                 task_id: task_id.clone(),
