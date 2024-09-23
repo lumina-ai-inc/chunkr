@@ -12,7 +12,10 @@ export function useTaskQuery(taskId: string | undefined) {
     {
       enabled: !!taskId,
       refetchInterval: (data) =>
-        data && data.status === Status.Succeeded ? false : 1000,
+        data &&
+        (data.status === Status.Succeeded || data.status === Status.Failed)
+          ? false
+          : 1000,
       staleTime: staleTime,
       onSuccess: (data) => {
         setTaskResponse(data);

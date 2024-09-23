@@ -178,6 +178,7 @@ export default function UploadMain({
                 direction="column"
                 className="toggle-icon-container"
                 height="100%"
+                justify="end"
                 style={{
                   position: "relative",
                   zIndex: 1,
@@ -236,7 +237,7 @@ export default function UploadMain({
                 <Text
                   size="4"
                   weight="medium"
-                  mt="5"
+                  mt="4"
                   style={{ maxWidth: "400px" }}
                 >
                   <b>LightGBM</b>
@@ -281,6 +282,7 @@ export default function UploadMain({
                   position: "relative",
                   zIndex: 1,
                 }}
+                justify="end"
               >
                 <Flex direction="row" gap="2" align="center">
                   <svg
@@ -334,7 +336,7 @@ export default function UploadMain({
                 <Text
                   size="4"
                   weight="medium"
-                  mt="5"
+                  mt="4"
                   style={{ maxWidth: "400px" }}
                 >
                   <b>VGT</b>
