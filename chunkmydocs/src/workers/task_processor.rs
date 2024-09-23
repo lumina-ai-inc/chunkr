@@ -84,10 +84,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
         for temp_file in &split_temp_files {
             let pdla_response = pdla_extraction(temp_file, extraction_item.model.clone()).await?;
             let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
-            let base_segments: Vec<BaseSegment> = pdla_segments
-                .into_iter()
-                .map(BaseSegment::from)
-                .collect();
+            let base_segments: Vec<BaseSegment> = pdla_segments.iter().map(|segment| segment.to_base_segment()).collect();
             let mut segments: Vec<Segment> = process_segments(
                 temp_file,
                 &base_segments,

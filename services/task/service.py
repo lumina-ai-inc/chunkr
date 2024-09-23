@@ -134,7 +134,7 @@ class Task:
         print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
                              page_image_density, pdla_density)
-        segments = [convert_base_segment_to_segment(base_segment)
+        segments = [Segment.from_base_segment(base_segment)
                     for base_segment in base_segments]
         page_images = convert_to_img(
             file, page_image_density, page_image_extension)

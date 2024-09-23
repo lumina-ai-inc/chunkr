@@ -41,12 +41,6 @@ pub enum SegmentType {
     PageFooter,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct BaseSegment {
-    pub segment_id: String,
-    #[serde(flatten, rename(serialize = "segment_type", deserialize = "segment_type"))]
-    pub pdla_segment: PdlaSegment,
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct PdlaSegment {
@@ -62,13 +56,35 @@ pub struct PdlaSegment {
     pub segment_type: SegmentType,
 }
 
-impl From<PdlaSegment> for BaseSegment {
-    fn from(pdla_segment: PdlaSegment) -> Self {
-        Self {
+impl PdlaSegment {
+    pub fn to_base_segment(&self) -> BaseSegment {
+        BaseSegment {
             segment_id: Uuid::new_v4().to_string(),
-            pdla_segment,
+            left: self.left,
+            top: self.top,
+            width: self.width,
+            height: self.height,
+            page_number: self.page_number,
+            page_width: self.page_width,
+            page_height: self.page_height,
+            text: self.text.clone(),
+            segment_type: self.segment_type.clone(),
         }
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct BaseSegment {
+    pub segment_id: String,
+    pub left: f32,
+    pub top: f32,
+    pub width: f32,
+    pub height: f32,
+    pub page_number: u32,
+    pub page_width: f32,
+    pub page_height: f32,
+    pub text: String,
+    pub segment_type: SegmentType
 }
 
 
