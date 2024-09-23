@@ -15,7 +15,6 @@ from src.converters import convert_to_img, crop_image
 from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
-from src.utils import check_imagemagick_installed
 from src.process import adjust_base_segments, process_segment
 
 
@@ -25,9 +24,6 @@ from src.process import adjust_base_segments, process_segment
     traffic={"timeout": 60}
 )
 class Image:
-    def __init__(self) -> None:
-        check_imagemagick_installed()
-
     @bentoml.api
     def convert_to_img(
         self,
@@ -87,7 +83,6 @@ class OCR:
 )
 class Task:
     def __init__(self) -> None:
-        check_imagemagick_installed()
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
                              ocr_order_method="tb-xy", show_log=False)
         # todo: add lang support
