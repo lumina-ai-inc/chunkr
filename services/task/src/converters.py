@@ -85,13 +85,11 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, density: int = 300, 
                 img_gpu = cv2.cuda_GpuMat()
                 img_gpu.upload(img)
 
-            # Calculate crop coordinates
-            left = min(bounding_box.top_left[0], bounding_box.bottom_left[0])
-            top = min(bounding_box.top_left[1], bounding_box.top_right[1])
-            right = max(bounding_box.top_right[0],
-                        bounding_box.bottom_right[0])
-            bottom = max(
-                bounding_box.bottom_left[1], bounding_box.bottom_right[1])
+            # Calculate crop coordinates and ensure they are integers
+            left = int(min(bounding_box.top_left[0], bounding_box.bottom_left[0]))
+            top = int(min(bounding_box.top_left[1], bounding_box.top_right[1]))
+            right = int(max(bounding_box.top_right[0], bounding_box.bottom_right[0]))
+            bottom = int(max(bounding_box.bottom_left[1], bounding_box.bottom_right[1]))
 
             # Crop the image
             if use_gpu:
