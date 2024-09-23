@@ -27,8 +27,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create a trigger to call the function when a task is updated
+-- Create a trigger to call the function when a new task is inserted
 CREATE TRIGGER update_task_count_trigger
-AFTER UPDATE OF status ON tasks
+AFTER INSERT ON tasks
 FOR EACH ROW
 EXECUTE FUNCTION update_user_task_count();
