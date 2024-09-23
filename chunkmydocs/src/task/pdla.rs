@@ -1,19 +1,21 @@
 use crate::models::server::extract::SegmentationModel;
 use crate::utils::configs::extraction_config::Config;
-use reqwest::{ multipart, Client as ReqwestClient };
-use std::{ fs, path::Path };
+use reqwest::{multipart, Client as ReqwestClient};
+use std::{fs, path::Path};
 use tokio::sync::OnceCell;
 
 static REQWEST_CLIENT: OnceCell<ReqwestClient> = OnceCell::const_new();
 
 async fn get_reqwest_client() -> &'static ReqwestClient {
-    REQWEST_CLIENT.get_or_init(|| async { ReqwestClient::new() }).await
+    REQWEST_CLIENT
+        .get_or_init(|| async { ReqwestClient::new() })
+        .await
 }
 
 async fn call_pdla_api(
     url: &str,
     file_path: &Path,
-    fast: bool
+    fast: bool,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let client = get_reqwest_client().await;
 
@@ -27,9 +29,17 @@ async fn call_pdla_api(
     let file_fs = fs::read(file_path).expect("Failed to read file");
     let part = multipart::Part::bytes(file_fs).file_name(file_name);
 
-    let form = multipart::Form::new().part("file", part).text("fast", fast.to_string());
+    let form = multipart::Form::new()
+        .part("file", part)
+        .text("fast", fast.to_string());
 
-    let response = client.post(url).multipart(form).send().await?.error_for_status()?;
+    let response = client
+        .post(url)
+        .multipart(form)
+        .timeout(std::time::Duration::from_secs(3600)) // 1 hour timeout
+        .send()
+        .await?
+        .error_for_status()?;
     Ok(response.text().await?)
 }
 
@@ -40,7 +50,7 @@ async fn handle_fast_requests(file_path: &Path) -> Result<String, Box<dyn std::e
 }
 
 async fn handle_high_quality_requests(
-    file_path: &Path
+    file_path: &Path,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let config = Config::from_env()?;
     let url = config.pdla_url;
@@ -49,7 +59,7 @@ async fn handle_high_quality_requests(
 
 async fn process_file(
     file_path: &Path,
-    model: SegmentationModel
+    model: SegmentationModel,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let json_output = if model == SegmentationModel::PdlaFast {
         handle_fast_requests(file_path).await?
@@ -64,7 +74,7 @@ async fn process_file(
 
 pub async fn pdla_extraction(
     file_path: &Path,
-    model: SegmentationModel
+    model: SegmentationModel,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let json_output = process_file(file_path, model).await?;
     Ok(json_output)
