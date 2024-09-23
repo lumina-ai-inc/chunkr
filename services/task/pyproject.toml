@@ -10,6 +10,7 @@ dependencies = [
     "markdownify>=0.13.1",
     "opencv-python>=4.10.0.84",
     "paddleocr>=2.8.1",
+    "pdf2image>=1.17.0",
     "pydantic>=2.9.1",
     "requests>=2.32.3",
     "torch>=2.4.1",
