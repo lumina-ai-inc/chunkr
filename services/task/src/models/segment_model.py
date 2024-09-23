@@ -39,9 +39,9 @@ class Segment(BaseModel):
     page_number: int
     page_width: float
     page_height: float
+    segment_type: SegmentType
     text_layer: str
     ocr_text: Optional[str] = None
-    segment_type: SegmentType
     ocr: Optional[List[OCRResult]] = None
     image: Optional[str] = None
     html: Optional[str] = Field(
@@ -68,7 +68,7 @@ class Segment(BaseModel):
             page_number=base_segment.page_number,
             page_width=base_segment.page_width,
             page_height=base_segment.page_height,
-            text=base_segment.text_layer,
+            text_layer=base_segment.text_layer,
             segment_type=base_segment.segment_type
         )
 
