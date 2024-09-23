@@ -47,7 +47,7 @@ export default function UploadMain({
     const payload: UploadForm = {
       file,
       model,
-      ocr_strategy: "all",
+      ocr_strategy: "All",
       target_chunk_length: 512,
     };
 

@@ -39,7 +39,8 @@ class Segment(BaseModel):
     page_number: int
     page_width: float
     page_height: float
-    text: str
+    text_layer: str
+    ocr_text: Optional[str] = None
     segment_type: SegmentType
     ocr: Optional[List[OCRResult]] = None
     image: Optional[str] = None
@@ -72,23 +73,22 @@ class Segment(BaseModel):
         )
 
     def _get_content(self):
-        if self.text:
-            return self.text
-        elif self.ocr:
+        if self.ocr:
             return " ".join([result.text for result in self.ocr])
+        elif self.text_layer:
+            return self.text_layer
         else:
             return ""
 
     # todo: review weather to sync for formula and latex
-    def create_text(self):
+    def create_ocr_text(self):
         """
         Generate text representation of the segment based on its type.
         """
-        content = self._get_content()
-        if not content:
+        if not self.ocr:
             return
 
-        self.text = content
+        self.ocr_text = " ".join([result.text for result in self.ocr])
 
     def create_html(self):
         """
@@ -134,18 +134,18 @@ class Segment(BaseModel):
             return
 
         if self.segment_type == SegmentType.Title:
-            return f"# {content}\n\n"
+            self.markdown = f"# {content}\n\n"
         elif self.segment_type == SegmentType.SectionHeader:
-            return f"## {content}\n\n"
+            self.markdown = f"## {content}\n\n"
         elif self.segment_type == SegmentType.ListItem:
-            return f"- {content}\n"
+            self.markdown = f"- {content}\n"
         elif self.segment_type == SegmentType.Text:
-            return f"{content}\n\n"
+            self.markdown = f"{content}\n\n"
         elif self.segment_type == SegmentType.Picture:
-            return f"![Image]()\n\n" if self.image else ""
+            self.markdown = f"![Image]()\n\n" if self.image else ""
         elif self.segment_type == SegmentType.Table:
             if self.html and self.html.startswith("<table>"):
-                return self._html_table_to_markdown()
+                self.markdown = self._html_table_to_markdown()
             else:
                 # Fallback to simple table representation
                 rows = content.split('\n')
@@ -154,9 +154,9 @@ class Segment(BaseModel):
                     "|".join(["---" for _ in rows[0].split()]) + "|"
                 body = "\n".join("| " + " | ".join(row.split()
                                                    ) + " |" for row in rows[1:])
-                return f"{header}\n{separator}\n{body}\n\n"
+                self.markdown = f"{header}\n{separator}\n{body}\n\n"
         else:
-            return f"*{content}*\n\n"
+            self.markdown = f"*{content}*\n\n"
 
     def _html_table_to_markdown(self):
         """

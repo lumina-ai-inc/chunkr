@@ -7,6 +7,6 @@ export enum Model {
 export interface UploadForm {
   file: File;
   model: Model;
-  ocr_strategy: "auto" | "all" | "off";
+  ocr_strategy: "Auto" | "All" | "Off";
   target_chunk_length?: number;
 }

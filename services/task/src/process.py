@@ -67,7 +67,7 @@ def process_segment(
         ocr_needed = ocr_strategy == "All" or (
             ocr_strategy != "Off" and (
                 segment.segment_type in [SegmentType.Table, SegmentType.Picture] or
-                (ocr_strategy == "Auto" and not segment.text)
+                (ocr_strategy == "Auto" and not segment.text_layer)
             )
         )
 
@@ -99,7 +99,7 @@ def process_segment(
         print(
             f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
     finally:
+        segment.create_ocr_text()
         segment.create_html()
         segment.create_markdown()
-        segment.create_text()
     return segment

@@ -31,7 +31,7 @@ def create_base_segments_list(json_path):
                     'page_width': base_segment['page_width'],
                     'page_height': base_segment['page_height'],
                     'text': base_segment['text'],
-                    'type': base_segment['type'],
+                    'segment_type': base_segment['type'],
                 })
     
     return base_segments
@@ -63,7 +63,7 @@ def send_files_to_process(pdf_path: str, json_path: str, service_url: str, outpu
         'segment_image_quality': 100,
         'segment_image_resize': None,
         'num_workers': None,
-        'ocr_strategy': 'auto'
+        'ocr_strategy': 'Auto'
     }
 
     start_time = time.time()
