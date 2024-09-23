@@ -26,7 +26,7 @@ class BaseSegment(BaseModel):
     top: float
     width: float
     height: float
-    text: str
+    text_layer: str
     segment_type: SegmentType
     page_number: int
     page_width: float
@@ -68,7 +68,7 @@ class Segment(BaseModel):
             page_number=base_segment.page_number,
             page_width=base_segment.page_width,
             page_height=base_segment.page_height,
-            text=base_segment.text,
+            text=base_segment.text_layer,
             segment_type=base_segment.segment_type
         )
 
