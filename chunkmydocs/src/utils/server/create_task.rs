@@ -97,7 +97,7 @@ pub async fn create_task(
                     status, task_url, input_location, output_location, image_folder_location,
                     configuration, message
                 ) VALUES (
-                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
                 ) ON CONFLICT (task_id) DO NOTHING",
                     &[
                         &task_id,
@@ -136,6 +136,7 @@ pub async fn create_task(
                 model: model_internal,
                 input_location: input_location.clone(),
                 output_location,
+                image_folder_location,
                 expiration: None,
                 batch_size: Some(ingest_batch_size),
                 task_id: task_id.clone(),

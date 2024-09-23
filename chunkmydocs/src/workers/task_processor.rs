@@ -105,6 +105,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             let mut segments: Vec<Segment> = process_segments(
                 temp_file,
                 &base_segments,
+                &extraction_item.image_folder_location,
                 &extraction_item.configuration.ocr_strategy
             ).await?;
 
