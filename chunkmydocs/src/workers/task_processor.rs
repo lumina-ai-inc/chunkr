@@ -85,7 +85,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             log_task(
                 task_id.clone(),
                 Status::Processing,
-                Some(format!("Segmenting | batch {} of {}", batch_number, split_temp_files.len())),
+                Some(format!("Segmenting | Batch {} of {}", batch_number, split_temp_files.len())),
                 None,
                 &pg_pool
             ).await?;
@@ -98,7 +98,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             log_task(
                 task_id.clone(),
                 Status::Processing,
-                Some(format!("OCR | batch {} of {}", batch_number, split_temp_files.len())),
+                Some(format!("OCR: {} | Batch {} of {}", extraction_item.configuration.ocr_strategy, batch_number, split_temp_files.len())),
                 None,
                 &pg_pool
             ).await?;
