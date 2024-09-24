@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import "./Header.css";
-import Dashboard from "../Dashboard/Dashboard";
+import Dashboard from "../../pages/Dashboard/Dashboard";
 import { useAuth } from "react-oidc-context";
 import { downloadJSON } from "../../utils/utils";
 import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";

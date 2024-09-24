@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { Text, Flex, ScrollArea } from "@radix-ui/themes";
 import "./Dashboard.css";
-import TaskCard from "../TaskCard/TaskCard";
+import TaskCard from "../../components/TaskCard/TaskCard";
 import DashBoardHeader from "./DashBoardHeader";
-import Loader from "../../pages/Loader/Loader";
+import Loader from "../Loader/Loader";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
 import { useNavigate } from "react-router-dom";
 import { TaskResponse } from "../../models/task.model";
-import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
+import ApiKeyDialog from "../../components/ApiDialog.tsx/ApiKeyDialog";
 import {
   calculateBillingDueDate,
   calculateDiscountedBilling,
 } from "../../models/usage.model";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
-import Pagination from "../Pagination/Pagination";
-import BetterButton from "../BetterButton/BetterButton";
+import Pagination from "../../components/Pagination/Pagination";
+import BetterButton from "../../components/BetterButton/BetterButton";
 import useUser from "../../hooks/useUser";
 import {
   createCustomerSession,
