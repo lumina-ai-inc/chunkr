@@ -19,3 +19,4 @@ spec:
             name: chunkmydocs-service
             port:
               number: 8000
+
