@@ -141,17 +141,20 @@ class Segment(BaseModel):
             return
 
         if self.segment_type == SegmentType.Title:
-            self.markdown = f"# {content}\\n\\n"
+            self.markdown = f"# {content}\n\n"
         elif self.segment_type == SegmentType.SectionHeader:
-            self.markdown = f"## {content}\\n\\n"
+            self.markdown = f"## {content}\n\n"
         elif self.segment_type == SegmentType.ListItem:
-            self.markdown = f"- {content}\\n"
+            self.markdown = f"- {content}\n"
         elif self.segment_type == SegmentType.Text:
-            self.markdown = f"{content}\\n\\n"
+            self.markdown = f"{content}\n\n"
         elif self.segment_type == SegmentType.Picture:
-            self.markdown = f"![Image]()\\n\\n" if self.image else ""
+            self.markdown = f"![Image]()\n\n" if self.image else ""
         elif self.segment_type == SegmentType.Table:
             if self.html:
                 self.markdown = md(self.html)
         else:
-            self.markdown = f"*{content}*\\n\\n"
+            self.markdown = f"*{content}*\n\n"
+
+
+
