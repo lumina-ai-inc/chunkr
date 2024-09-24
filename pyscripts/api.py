@@ -24,7 +24,7 @@ def health_check():
     return response
 
 def extract_file(file_to_send, model: Model, table_ocr: TableOcr = None) -> TaskResponse:
-    url = get_base_url() + "/api/task"
+    url = get_base_url() + "/api/v1/task"
     with open(file_to_send, "rb") as file:
         file = {"file": (os.path.basename(file_to_send), file, "application/pdf")}
         file_data = {"model": model.value, "target_chunk_length": 512, "density": 72, "extension": "jpg"}

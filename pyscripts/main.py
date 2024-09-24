@@ -72,6 +72,41 @@ def extract_and_annotate_file(file_path: str, model: Model, table_ocr: TableOcr 
     draw_bounding_boxes(file_path, output, output_annotated_path)
     print(f"File annotated: {file_path}")
 
+import concurrent.futures
+import glob
+
+def main(max_workers: int, model: Model, table_ocr: TableOcr = None):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    input_dir = os.path.join(current_dir, "input")
+    pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
+
+    if not pdf_files:
+        print("No PDF files found in the input folder.")
+        return
+
+    # Set the maximum number of parallel requests
+    max_workers = 1  # You can adjust this number based on your needs
+
+    print(f"Processing {len(pdf_files)} files with {max_workers} parallel workers...")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = []
+        for file_path in pdf_files:
+            future = executor.submit(extract_and_annotate_file, file_path, model, table_ocr)
+            futures.append(future)
+
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
+
+    print("All files processed.")
+
+
+
+
+
 def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num_pdfs: int, model: Model, table_ocr: TableOcr = None):
     print("Starting throughput test...")
     if not isinstance(growth_func, GrowthFunc):
@@ -174,5 +209,6 @@ def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num
 if __name__ == "__main__":
     model = Model.HighQuality
     table_ocr = None
-    throughput_test(GrowthFunc.LINEAR, start_page=1, end_page=40, num_pdfs=10, model=model, table_ocr=table_ocr)
-    print("Throughput test completed.")
+    # throughput_test(GrowthFunc.LINEAR, start_page=1, end_page=40, num_pdfs=10, model=model, table_ocr=table_ocr)
+    # print("Throughput test completed.")
+    main(1, model, table_ocr)
