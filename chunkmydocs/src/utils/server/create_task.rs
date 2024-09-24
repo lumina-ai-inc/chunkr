@@ -1,7 +1,7 @@
 use crate::models::auth::auth::UserInfo;
 use crate::models::rrq::produce::ProducePayload;
 use crate::models::{
-    server::extract::{Configuration, ExtractionPayload},
+    server::extract::{Configuration, ExtractionPayload, Model, SegmentationModel},
     server::task::{Status, TaskResponse},
 };
 use crate::utils::configs::extraction_config::Config;
@@ -27,8 +27,15 @@ async fn produce_extraction_payloads(
 ) -> Result<(), Box<dyn Error>> {
     let config = Config::from_env()?;
 
+    let queue_name = match extraction_payload.model {
+        SegmentationModel::PdlaFast => config.extraction_queue_fast,
+        SegmentationModel::Pdla => config.extraction_queue_high_quality,
+    };
+
+    let queue_name = queue_name.ok_or_else(|| "Queue name not configured".to_string())?;
+
     let produce_payload = ProducePayload {
-        queue_name: config.extraction_queue,
+        queue_name,
         publish_channel: None,
         payload: serde_json::to_value(extraction_payload).unwrap(),
         max_attempts: None,
