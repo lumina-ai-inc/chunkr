@@ -5,8 +5,9 @@ import * as Accordion from "@radix-ui/react-accordion";
 import Badge from "../Badge";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import remarkGfm from 'remark-gfm'
+import remarkGfm from "remark-gfm";
 import "./SegmentChunk.css";
+import DOMPurify from "dompurify";
 
 import ReactMarkdown from "react-markdown";
 import ReactJson from "react-json-view";
@@ -19,7 +20,10 @@ export const SegmentChunk = forwardRef<
     containerWidth: number;
   }
 >(({ chunk, containerWidth }, ref) => {
-  const [markdownSelected, setMarkdownSelected] = useState<boolean>(true);
+  const [selectedView, setSelectedView] = useState<
+    "markdown" | "json" | "html"
+  >("markdown");
+  // const [markdownSelected, setMarkdownSelected] = useState<boolean>(true);
   const accordionWidth = containerWidth - 48;
 
   const segmentTypeCounts = useMemo(() => {
@@ -46,13 +50,19 @@ export const SegmentChunk = forwardRef<
   const combinedMarkdown = useMemo(() => {
     return chunk.segments
       .map((segment) => {
-        const textContent =
-          segment.ocr_text || segment.text_layer || "";
+        const textContent = segment.ocr_text || segment.text_layer || "";
         return segment.markdown ? segment.markdown : textContent;
       })
       .filter(Boolean)
       .join("\n\n")
       .trim();
+  }, [chunk.segments]);
+
+  const combinedHtml = useMemo(() => {
+    return chunk.segments
+      .map((segment) => segment.html || "")
+      .filter(Boolean)
+      .join("");
   }, [chunk.segments]);
 
   return (
@@ -100,45 +110,33 @@ export const SegmentChunk = forwardRef<
                 </Flex>
 
                 <Flex gap="4">
-                  <Text
-                    size="3"
-                    weight="medium"
-                    style={{
-                      color: markdownSelected
-                        ? "hsla(0, 0%, 100%, 0.9)"
-                        : "#8A9BA8",
-                      cursor: "pointer",
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMarkdownSelected(true);
-                    }}
-                  >
-                    Markdown
-                  </Text>
-                  <Text
-                    size="3"
-                    weight="medium"
-                    style={{
-                      color: !markdownSelected
-                        ? "hsla(0, 0%, 100%, 0.9)"
-                        : "#8A9BA8",
-                      cursor: "pointer",
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMarkdownSelected(false);
-                    }}
-                  >
-                    JSON
-                  </Text>
+                  {["markdown", "html", "json"].map((view) => (
+                    <Text
+                      key={view}
+                      size="3"
+                      weight="medium"
+                      style={{
+                        color:
+                          selectedView === view
+                            ? "hsla(0, 0%, 100%, 0.9)"
+                            : "#8A9BA8",
+                        cursor: "pointer",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedView(view as "markdown" | "html" | "json");
+                      }}
+                    >
+                      {view === "markdown" ? "Markdown" : view.toUpperCase()}
+                    </Text>
+                  ))}
                 </Flex>
               </Flex>
             </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Content className="AccordionContent">
             <div className="AccordionContentText">
-              {markdownSelected ? (
+              {selectedView === "markdown" && (
                 <ReactMarkdown
                   className="cyan-2"
                   remarkPlugins={[remarkMath]}
@@ -146,7 +144,8 @@ export const SegmentChunk = forwardRef<
                 >
                   {combinedMarkdown}
                 </ReactMarkdown>
-              ) : (
+              )}
+              {selectedView === "json" &&
                 chunk.segments.map((segment: Segment, segmentIndex: number) => (
                   <div key={segmentIndex}>
                     <ReactJson
@@ -157,7 +156,13 @@ export const SegmentChunk = forwardRef<
                       style={{ backgroundColor: "transparent" }}
                     />
                   </div>
-                ))
+                ))}
+              {selectedView === "html" && (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(combinedHtml),
+                  }}
+                />
               )}
             </div>
           </Accordion.Content>

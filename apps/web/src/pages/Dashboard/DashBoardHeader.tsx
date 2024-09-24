@@ -151,6 +151,16 @@ export default function DashBoardHeader({
                   <Text>Manage Payments</Text>
                 </DropdownMenu.Item>
               )}
+
+              <DropdownMenu.Item onSelect={handleApiDocs}>
+                <ApiKeyDialog
+                  user={user}
+                  showApiKey={showApiKey}
+                  setShowApiKey={setShowApiKey}
+                  phone={true}
+                />
+              </DropdownMenu.Item>
+
               <DropdownMenu.Item onSelect={handleApiDocs}>
                 <Text>API Docs</Text>
               </DropdownMenu.Item>

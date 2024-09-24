@@ -78,6 +78,10 @@
   color: #fff !important;
 }
 
+.rt-DropdownMenuItem:hover > span {
+  color: #fff !important;
+}
+
 @media (max-width: 948px) {
   .dropdown-container {
     display: block;
