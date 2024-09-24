@@ -28,11 +28,13 @@ def extract_file(file_to_send, model: Model, target_chunk_length: int = 512, ocr
     with open(file_to_send, "rb") as file:
 
         headers = get_headers()
-        response = requests.post(url, files={"file": (os.path.basename(file_to_send), file, "application/pdf")}, 
-                                 data={"model": model, 
-                                       "target_chunk_length": target_chunk_length, 
-                                       "ocr_strategy": ocr_strategy}, 
-                                 headers=headers)
+        files = {"file": (os.path.basename(file_to_send), file, "application/pdf")}
+        data = {
+            "model": str(model.value),
+            "target_chunk_length": str(target_chunk_length),
+            "ocr_strategy": str(ocr_strategy.value)
+        }
+        response = requests.post(url, files=files, data=data, headers=headers)
         response.raise_for_status()
         response_data = response.json()
         # Ensure configuration is included in the response
