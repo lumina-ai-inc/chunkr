@@ -1,5 +1,4 @@
 import requests
-from pathlib import Path
 import json
 import cv2
 import os
