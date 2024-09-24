@@ -127,6 +127,7 @@ class Task:
             default="Auto", description="OCR strategy: 'Auto', 'All', or 'Off'")
     ) -> list[Segment]:
         start_time = time.time()
+        page_images = []
         print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
                              page_image_density, pdla_density)
