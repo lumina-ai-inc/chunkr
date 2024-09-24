@@ -45,7 +45,8 @@ export const SegmentChunk = forwardRef<
   const combinedMarkdown = useMemo(() => {
     return chunk.segments
       .map((segment) => {
-        const textContent = segment.text_layer || segment.ocr_text || "";
+        const textContent =
+          segment.ocr_text || segment.text_layer || "";
         return segment.markdown ? segment.markdown : textContent;
       })
       .filter(Boolean)
