@@ -7,6 +7,7 @@ from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
 import tempfile
+import time
 import tqdm
 from typing import Dict, Optional, List
 import threading
@@ -143,6 +144,7 @@ class Task:
         try:
             print("Segment processing started")
             processed_segments_dict = {}
+            start_time = time.time()
             with ThreadPoolExecutor(max_workers=num_workers or len(segments)) as executor:
                 futures: dict[str, Future] = {}
                 for segment in segments:
@@ -168,7 +170,11 @@ class Task:
 
             processed_segments = [
                 processed_segments_dict[base_segment.segment_id] for base_segment in base_segments]
+            end_time = time.time()
             print("Segment processing finished")
+            print(f"Total time taken: {end_time - start_time} seconds")
+            print(f"Total time taken per page: {(end_time - start_time) / len(page_images)} seconds")
+            print(f"Total time taken per segment: {(end_time - start_time) / len(segments)} seconds")
         finally:
             for page_image_file_path in page_image_file_paths.values():
                 os.unlink(page_image_file_path)
