@@ -5,8 +5,10 @@ import Upload from "./Upload";
 import "./UploadMain.css";
 import { Model, UploadForm } from "../../models/upload.model";
 import { uploadFile } from "../../services/uploadFileApi";
-import HighQualityImage from "../../assets/cards/highQuality.png";
-import FastImage from "../../assets/cards/fast.png";
+import HighQualityImage from "../../assets/cards/highQualityImage.webp";
+import HighQualityImageJPG from "../../assets/cards/highQualityImage.jpg";
+import FastImage from "../../assets/cards/fastImage.webp";
+import FastImageJPG from "../../assets/cards/fastImage.jpg";
 
 export default function UploadMain({
   isAuthenticated,
@@ -16,6 +18,9 @@ export default function UploadMain({
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
   const [model, setModel] = useState<Model>(Model.Fast);
+  const [ocrStrategy, setOcrStrategy] = useState<"Auto" | "All" | "Off">(
+    "Auto"
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -36,6 +41,10 @@ export default function UploadMain({
     }
   };
 
+  const handleOcrStrategyChange = (strategy: "Auto" | "All" | "Off") => {
+    setOcrStrategy(strategy);
+  };
+
   const handleRun = async () => {
     if (!file) {
       console.error("No file uploaded");
@@ -47,7 +56,7 @@ export default function UploadMain({
     const payload: UploadForm = {
       file,
       model,
-      ocr_strategy: "Auto",
+      ocr_strategy: ocrStrategy,
       target_chunk_length: 512,
     };
 
@@ -167,13 +176,10 @@ export default function UploadMain({
               onClick={() => handleModelToggle(Model.Fast)}
             >
               <div className="card-gradient-overlay"></div>
-              <div
-                className="card-image"
-                style={{
-                  backgroundImage: `url(${FastImage})`,
-                  zIndex: 0,
-                }}
-              />
+              <picture>
+                <source srcSet={FastImage} type="image/webp" />
+                <img src={FastImageJPG} alt="Fast" className="card-image" />
+              </picture>
               <Flex
                 direction="column"
                 className="toggle-icon-container"
@@ -268,12 +274,14 @@ export default function UploadMain({
               onClick={() => handleModelToggle(Model.HighQuality)}
             >
               <div className="card-gradient-overlay"></div>
-              <div
-                className="card-image"
-                style={{
-                  backgroundImage: `url(${HighQualityImage})`,
-                }}
-              />
+              <picture>
+                <source srcSet={HighQualityImage} type="image/webp" />
+                <img
+                  src={HighQualityImageJPG}
+                  alt="High Quality"
+                  className="card-image"
+                />
+              </picture>
               <Flex
                 direction="column"
                 className="toggle-icon-container"
@@ -356,6 +364,66 @@ export default function UploadMain({
                   $0.01/page | 500 pages for free
                 </Text>
               </Flex>
+            </Flex>
+          </Flex>
+          <Flex
+            className="ocr-strategy-container"
+            direction="column"
+            mt="40px"
+            gap="4"
+            width="fit-content"
+          >
+            <Text
+              size="4"
+              weight="bold"
+              style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+            >
+              OCR STRATEGY
+            </Text>
+            <Flex
+              direction="row"
+              gap="2"
+              className="ocr-strategy-toggle"
+              style={{
+                backgroundColor: "hsla(180, 100%, 100%, 0.1)",
+                borderRadius: "8px",
+                padding: "8px",
+              }}
+            >
+              {["Auto", "All", "Off"].map((strategy) => (
+                <Flex
+                  key={strategy}
+                  align="center"
+                  justify="center"
+                  className={
+                    ocrStrategy === strategy
+                      ? "ocr-strategy-active"
+                      : "ocr-strategy"
+                  }
+                  onClick={() =>
+                    handleOcrStrategyChange(strategy as "Auto" | "All" | "Off")
+                  }
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s ease",
+                  }}
+                >
+                  <Text
+                    size="2"
+                    weight="bold"
+                    style={{
+                      color:
+                        ocrStrategy === strategy
+                          ? "hsl(0, 0%, 0%)"
+                          : "hsl(0, 0%, 100%, 0.7)",
+                    }}
+                  >
+                    {strategy.toUpperCase()}
+                  </Text>
+                </Flex>
+              ))}
             </Flex>
           </Flex>
           <Flex direction="row" width="100%" mt="40px">
