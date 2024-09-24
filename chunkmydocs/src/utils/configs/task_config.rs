@@ -8,7 +8,6 @@ pub struct Config {
     pub page_image_density: Option<u32>,
     pub page_image_extension: Option<String>,
     pub segment_image_extension: Option<String>,
-    pub segment_image_density: Option<u32>,
     pub segment_image_quality: Option<u8>,
     pub segment_image_resize: Option<String>,
     pub segment_bbox_offset: Option<u32>,

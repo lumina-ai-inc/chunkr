@@ -38,13 +38,12 @@ class Image:
         self,
         file: Path,
         bbox: BoundingBox,
-        density: int = Field(default=300, description="Image density in DPI"),
         extension: str = Field(default="png", description="Image extension"),
         quality: int = Field(default=100, description="Image quality (0-100)"),
         resize: Optional[str] = Field(
             default=None, description="Image resize dimensions (e.g., '800x600')")
     ) -> str:
-        return crop_image(file, bbox, density, extension, quality, resize)
+        return crop_image(file, bbox, extension, quality, resize)
 
 
 @bentoml.service(
@@ -84,7 +83,7 @@ class OCR:
 class Task:
     def __init__(self) -> None:
         self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy", show_log=True)
+                             ocr_order_method="tb-xy", show_log=False)
         # todo: add lang support
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
@@ -105,15 +104,14 @@ class Task:
         self,
         file: Path,
         base_segments: list[BaseSegment],
-        image_folder_location: str = Field(description="S3 path for page images"),
+        image_folder_location: str = Field(
+            description="S3 path for page images"),
         page_image_density: int = Field(
             default=300, description="Image density in DPI for page images"),
         page_image_extension: str = Field(
             default="png", description="Image extension for page images"),
         segment_image_extension: str = Field(
             default="jpg", description="Image extension for segment images"),
-        segment_image_density: int = Field(
-            default=300, description="Image density in DPI for segment images"),
         segment_bbox_offset: float = Field(
             default=1.5, description="Offset for segment bbox"),
         segment_image_quality: int = Field(
@@ -153,7 +151,6 @@ class Task:
                         segment,
                         image_folder_location,
                         page_image_file_paths,
-                        segment_image_density,
                         segment_image_extension,
                         segment_image_quality,
                         segment_image_resize,

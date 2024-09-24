@@ -1,6 +1,5 @@
 import base64
 import os
-import time
 import tempfile
 import threading
 from paddleocr import PaddleOCR, PPStructure
@@ -59,7 +58,6 @@ def process_segment(
     segment: Segment,
     image_folder_location: str,
     page_image_file_paths: dict[int, Path],
-    segment_image_density: int,
     segment_image_extension: str,
     segment_image_quality: int,
     segment_image_resize: str,
@@ -78,17 +76,13 @@ def process_segment(
         )
 
         if ocr_needed:
-            crop_start_time = time.time()
             base64_image = crop_image(
                 page_image_file_paths[segment.page_number],
                 segment.bbox,
-                segment_image_density,
                 segment_image_extension,
                 segment_image_quality,
                 segment_image_resize
             )
-            crop_end_time = time.time()
-            crop_duration = crop_end_time - crop_start_time
 
             image_s3_path = f"{image_folder_location}/{segment.segment_id}.{segment_image_extension}"
             temp_image_file = tempfile.NamedTemporaryFile(
@@ -102,7 +96,6 @@ def process_segment(
                 )
                 segment.image = image_s3_path
          
-                ocr_start_time = time.time()
                 process_segment_ocr(
                     segment,
                     temp_image_file.name,
@@ -111,13 +104,6 @@ def process_segment(
                     ocr_lock,
                     table_engine_lock
                 )
-                ocr_end_time = time.time()
-                ocr_duration = ocr_end_time - ocr_start_time
-
-                print(
-                    f"Segment {segment.segment_type} on page {segment.page_number}:")
-                print(f"  Cropping time: {crop_duration:.2f} seconds")
-                print(f"  OCR time: {ocr_duration:.2f} seconds")
             finally:
                 os.remove(temp_image_file.name)
     except Exception as e:

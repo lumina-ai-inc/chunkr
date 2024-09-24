@@ -61,7 +61,7 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
         shutil.rmtree(temp_dir)
 
 
-def crop_image(input_path: Path, bounding_box: BoundingBox, density: int = 300, extension: str = "png", quality: int = 100, resize: str = None) -> str:
+def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "png", quality: int = 100, resize: str = None) -> str:
     """
     Crop an image using OpenCV with GPU acceleration (if available), given the input path and a BoundingBox, and return as base64.
     This function creates a copy of the input image to ensure thread-safety.
