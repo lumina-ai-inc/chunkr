@@ -21,7 +21,7 @@ diesel::table! {
     discounts (user_id, usage_type) {
         user_id -> Text,
         usage_type -> Text,
-        amount -> Float8,
+        amount -> Nullable<Float8>,
     }
 }
 
@@ -81,6 +81,7 @@ diesel::table! {
         output_location -> Nullable<Text>,
         configuration -> Nullable<Text>,
         message -> Nullable<Text>,
+        image_folder_location -> Nullable<Text>,
     }
 }
 
@@ -128,6 +129,7 @@ diesel::table! {
         updated_at -> Nullable<Timestamptz>,
         tier -> Nullable<Text>,
         invoice_status -> Nullable<Text>,
+        task_count -> Nullable<Int4>,
     }
 }
 
