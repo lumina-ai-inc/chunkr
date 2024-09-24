@@ -46,9 +46,6 @@ pub async fn process_segments(
     if let Some(extension) = config.segment_image_extension {
         form = form.text("segment_image_extension", extension);
     }
-    if let Some(segment_density) = config.segment_image_density {
-        form = form.text("segment_image_density", segment_density.to_string());
-    }
     if let Some(quality) = config.segment_image_quality {
         form = form.text("segment_image_quality", quality.to_string());
     }
