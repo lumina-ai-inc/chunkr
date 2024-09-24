@@ -1,7 +1,7 @@
 import dotenv
 import os
 import requests
-from models import Model, TableOcr, TaskResponse
+from models import Model, TableOcr, TaskResponse, UploadForm, OcrStrategy
 import time
 import glob
 
@@ -23,15 +23,16 @@ def health_check():
     response = requests.get(url, headers=get_headers()).raise_for_status()
     return response
 
-def extract_file(file_to_send, model: Model, table_ocr: TableOcr = None) -> TaskResponse:
+def extract_file(file_to_send, model: Model, target_chunk_length: int = 512, ocr_strategy: OcrStrategy = OcrStrategy.Auto) -> TaskResponse:
     url = get_base_url() + "/api/v1/task"
     with open(file_to_send, "rb") as file:
-        file = {"file": (os.path.basename(file_to_send), file, "application/pdf")}
-        file_data = {"model": model.value, "target_chunk_length": 512, "density": 72, "extension": "jpg"}
-        if table_ocr:
-            file_data["table_ocr"] = table_ocr.value
+
         headers = get_headers()
-        response = requests.post(url, files=file, data=file_data, headers=headers)
+        response = requests.post(url, files={"file": (os.path.basename(file_to_send), file, "application/pdf")}, 
+                                 data={"model": model, 
+                                       "target_chunk_length": target_chunk_length, 
+                                       "ocr_strategy": ocr_strategy}, 
+                                 headers=headers)
         response.raise_for_status()
         response_data = response.json()
         # Ensure configuration is included in the response
@@ -56,23 +57,27 @@ def check_task_status(url: str) -> TaskResponse:
         raise Exception(task.message)
     return task
 
-def process_file(file_path: str, model: Model, table_ocr: TableOcr = None) -> TaskResponse:
+def process_file(upload_form: UploadForm) -> TaskResponse:
     health_check()
-    task = extract_file(file_path, model, table_ocr)
+    file_path = upload_form.file
+    model = upload_form.model
+    target_chunk_length = upload_form.target_chunk_length
+    ocr_strategy = upload_form.ocr_strategy
+    task = extract_file(file_path, model, target_chunk_length, ocr_strategy)
     print(f"Task id: {task.task_id}")
     task = check_task_status(task.task_url)
     # print(f"Task completed for {file_path}:")
     # print(task)
     return task
 
-def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None):
+def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, target_chunk_length: int = 512, ocr_strategy: OcrStrategy = OcrStrategy.Auto):
     input_folder = "input"
     pdf_files = glob.glob(os.path.join(input_folder, "*.pdf"))
     
     for file_path in pdf_files:
         print(f"Processing file: {file_path}")
         try:
-            task = process_file(file_path, model, table_ocr)
+            task = process_file(file_path, model, table_ocr, target_chunk_length, ocr_strategy)
             print(f"Task completed for {file_path}:")
             print(task)
         except Exception as e:

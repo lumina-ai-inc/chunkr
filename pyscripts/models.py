@@ -4,6 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel
 import dotenv
 import json
+from fastapi import UploadFile
 dotenv.load_dotenv(override=True)
 
 class TableOcr(str, Enum):
@@ -46,3 +47,15 @@ class TaskResponse(BaseModel):
 
     class Config:
         json_encoders = {datetime: lambda v: v.isoformat()}
+
+
+class OcrStrategy(str, Enum):
+    Auto = "Auto"
+
+
+class UploadForm(BaseModel):
+    file: str
+    model: Model
+    target_chunk_length: Optional[int] = None
+    ocr_strategy: Optional[OcrStrategy] = OcrStrategy.Auto
+
