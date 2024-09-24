@@ -83,8 +83,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         for temp_file in &split_temp_files {
             batch_number += 1;
             let mut segmentation_message = "Segmenting".to_string();
-            let mut ocr_message = format!(
-                "Performing OCR: {}",
+            let mut processing_message = format!(
+                "Processing | OCR: {}",
                 extraction_item.configuration.ocr_strategy
             );
             if batch_number > 1 {
@@ -93,8 +93,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     batch_number,
                     split_temp_files.len()
                 );
-                ocr_message = format!(
-                    "Performing OCR: {} | Batch {} of {}",
+                processing_message = format!(
+                    "Processing | OCR: {} | Batch {} of {}",
                     extraction_item.configuration.ocr_strategy,
                     batch_number,
                     split_temp_files.len()
@@ -112,16 +112,17 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
             let base_segments: Vec<BaseSegment> = pdla_segments
                 .iter()
-                .map(|segment| segment.to_base_segment())
+                .map(|pdla_segment| pdla_segment.to_base_segment())
                 .collect();
+            
             log_task(
                 task_id.clone(),
                 Status::Processing,
-                Some(ocr_message),
+                Some(processing_message),
                 None,
                 &pg_pool,
-            )
-            .await?;
+            ) .await?;
+
             let mut segments: Vec<Segment> = process_segments(
                 temp_file,
                 &base_segments,
