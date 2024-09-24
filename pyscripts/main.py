@@ -174,5 +174,5 @@ def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num
 if __name__ == "__main__":
     model = Model.HighQuality
     table_ocr = None
-    throughput_test(GrowthFunc.LINEAR, start_page=1, end_page=10, num_pdfs=5, model=model, table_ocr=table_ocr)
+    throughput_test(GrowthFunc.LINEAR, start_page=1, end_page=40, num_pdfs=10, model=model, table_ocr=table_ocr)
     print("Throughput test completed.")
