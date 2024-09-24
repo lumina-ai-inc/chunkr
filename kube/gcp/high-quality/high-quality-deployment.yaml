@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: high-quality
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: high-quality
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: high-quality
+  template:
+    metadata:
+      namespace: chunkmydocs
+      labels:
+        app.kubernetes.io/name: high-quality
+    spec:
+      containers:
+      - name: high-quality
+        image: luminainc/high-quality:c62ec6b4
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: chunkmydocs-secrets
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["SYS_ADMIN"]
