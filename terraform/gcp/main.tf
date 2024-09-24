@@ -297,8 +297,8 @@ resource "google_container_node_pool" "gpu_nodes" {
 
   node_config {
     preemptible  = false
-    machine_type = "g2-standard-8"
-    disk_size_gb = 1000
+    machine_type = "a2-highgpu-1g"
+    disk_size_gb = 500
 
     gcfs_config {
       enabled = true
