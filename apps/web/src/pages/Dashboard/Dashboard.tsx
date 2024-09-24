@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, Flex, ScrollArea } from "@radix-ui/themes";
+import { Text, Flex, ScrollArea, Code } from "@radix-ui/themes";
 import "./Dashboard.css";
 import TaskCard from "../../components/TaskCard/TaskCard";
 import DashBoardHeader from "./DashBoardHeader";
@@ -682,21 +682,38 @@ export default function Dashboard() {
                       onPageChange={handlePageChange}
                     />
                   )}
-                  {tasks?.length === 0 && (
-                    <Text
-                      size="4"
-                      weight="regular"
-                      style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
-                    >
-                      Create a task through the homepage or by hitting our API.
-                    </Text>
-                  )}
                 </Flex>
+
+                {tasks?.length === 0 && (
+                  <Code
+                    size="4"
+                    weight="regular"
+                    style={{
+                      color: "hsla(180, 100%, 100%, 0.9)",
+                      backgroundColor: "hsla(180, 100%, 100%, 0.05)",
+                      padding: "24px",
+                    }}
+                  >
+                    <pre>
+                      <code>
+                        {`curl -X POST https://api.chunkmydocs.com/api/task \\
+  -H "Content-Type: multipart/form-data" \\
+  -H "Authorization: ${user?.api_keys[0]}" \\
+  -F "file=@/path/to/your/file.pdf" \\
+  -F "model=Fast" \\
+  -F "target_chunk_length=512" \\
+  -F "ocr_strategy=Auto"`}
+                      </code>
+                    </pre>
+                  </Code>
+                )}
 
                 {isLoading ? (
                   <Loader />
                 ) : isError ? (
-                  <div>Error</div>
+                  <Text style={{ color: "var(--red-9)" }}>
+                    Error - try refreashing the page
+                  </Text>
                 ) : (
                   tasks?.map((task) => (
                     <TaskCard
