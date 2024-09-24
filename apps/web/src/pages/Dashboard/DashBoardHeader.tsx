@@ -1,9 +1,9 @@
 import { Flex, Text, Dialog, DropdownMenu, Button } from "@radix-ui/themes";
-import BetterButton from "../BetterButton/BetterButton";
+import BetterButton from "../../components/BetterButton/BetterButton";
 import { User } from "../../models/user.model";
 import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
-import PaymentSetup from "../Payments/PaymentSetup";
+import PaymentSetup from "../../components/Payments/PaymentSetup";
 import "./DashboardHeader.css";
 
 interface DashBoardHeaderProps extends User {
