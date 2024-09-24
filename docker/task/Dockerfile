@@ -12,6 +12,8 @@ RUN uv run __init__.py
 
 RUN uv pip install .[linux]
 
+RUN uv run download_models.py
+
 EXPOSE 3000
 
 CMD ["uv", "run", "bentoml", "serve", "service:Task"]

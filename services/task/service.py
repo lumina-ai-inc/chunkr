@@ -2,6 +2,7 @@ from __future__ import annotations
 import base64
 import bentoml
 from concurrent.futures import ThreadPoolExecutor, Future
+from multiprocessing import cpu_count
 import os
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
@@ -167,7 +168,8 @@ class Task:
             try:
                 print("Segment processing started")
                 processed_segments_dict = {}
-                with ThreadPoolExecutor(max_workers=num_workers or len(segments)) as executor:
+                num_workers = num_workers or len(segments) if len(segments) > 0 else cpu_count()
+                with ThreadPoolExecutor(max_workers=num_workers) as executor:
                     futures: dict[str, Future] = {}
                     for segment in segments:
                         future = executor.submit(
