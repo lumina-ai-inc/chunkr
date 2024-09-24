@@ -182,16 +182,7 @@ export default function Header({
                   <Text>Download JSON</Text>
                 </DropdownMenu.Item>
               )}
-              {isAuthenticated && (
-                <DropdownMenu.Item>
-                  <ApiKeyDialog
-                    user={user as User}
-                    showApiKey={showApiKey}
-                    setShowApiKey={setShowApiKey}
-                    phone={true}
-                  />
-                </DropdownMenu.Item>
-              )}
+
               <DropdownMenu.Item asChild>
                 <a
                   href="https://cal.com/mehulc/30min"
@@ -224,13 +215,23 @@ export default function Header({
                   <Text>Pricing</Text>
                 </Link>
               </DropdownMenu.Item>
+              {isAuthenticated && (
+                <DropdownMenu.Item>
+                  <ApiKeyDialog
+                    user={user as User}
+                    showApiKey={showApiKey}
+                    setShowApiKey={setShowApiKey}
+                    phone={true}
+                  />
+                </DropdownMenu.Item>
+              )}
               <DropdownMenu.Item>
                 <a
                   href={"https://docs.chunkr.ai/introduction"}
                   target="_blank"
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <Text>Docs</Text>
+                  <Text weight="regular">Docs</Text>
                 </a>
               </DropdownMenu.Item>
               {isAuthenticated ? (
@@ -239,7 +240,7 @@ export default function Header({
                     to="/dashboard"
                     style={{ textDecoration: "none", color: "inherit" }}
                   >
-                    <Text>Dashboard</Text>
+                    <Text weight="regular">Dashboard</Text>
                   </Link>
                 </DropdownMenu.Item>
               ) : (
