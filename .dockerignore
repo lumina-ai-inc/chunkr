@@ -35,3 +35,7 @@ Cargo.lock
 .venv
 
 *secret.yaml
+
+./output
+
+./input

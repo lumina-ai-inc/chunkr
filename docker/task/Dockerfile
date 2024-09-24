@@ -8,7 +8,7 @@ WORKDIR /app
 
 COPY services/task .
 
-RUN uv venv
+RUN uv run service.py
 
 RUN uv pip install .[linux]
 
