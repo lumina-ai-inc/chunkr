@@ -8,7 +8,7 @@ WORKDIR /app
 
 COPY services/task .
 
-RUN uv run service.py
+RUN uv run __init__.py
 
 RUN uv pip install .[linux]
 
