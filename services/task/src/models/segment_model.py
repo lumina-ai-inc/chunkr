@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 from enum import Enum
 from markdownify import markdownify as md
 from pydantic import BaseModel, Field
@@ -118,7 +117,7 @@ class Segment(BaseModel):
         elif self.segment_type == SegmentType.Text:
             self.html = f"<p>{content}</p>"
         elif self.segment_type == SegmentType.Picture:
-            self.html = f"<img>"
+            self.html = "<img>"
         elif self.segment_type == SegmentType.Table:
             if self.ocr:
                 html_content = self.html.strip()
@@ -149,7 +148,7 @@ class Segment(BaseModel):
         elif self.segment_type == SegmentType.Text:
             self.markdown = f"{content}\n\n"
         elif self.segment_type == SegmentType.Picture:
-            self.markdown = f"![Image]()\n\n" if self.image else ""
+            self.markdown = "![Image]()\n\n" if self.image else ""
         elif self.segment_type == SegmentType.Table:
             if self.html:
                 self.markdown = md(self.html)

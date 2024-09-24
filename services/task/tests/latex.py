@@ -2,7 +2,6 @@ import requests
 import os
 import multiprocessing
 import time
-import json
 from typing import List, Tuple
 from dotenv import load_dotenv
 
