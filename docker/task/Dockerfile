@@ -10,7 +10,7 @@ COPY services/task .
 
 RUN uv venv
 
-RUN uv pip install .[linux] --system
+RUN uv pip install .[linux]
 
 EXPOSE 3000
 
