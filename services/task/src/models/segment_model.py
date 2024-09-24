@@ -132,7 +132,7 @@ class Segment(BaseModel):
         else:
             self.html = f'<span class="{self.segment_type.value.lower().replace(" ", "-")}">{content}</span>'
 
-     def create_markdown(self):
+    def create_markdown(self):
         """
         Generate markdown representation of the segment based on its type.
         """
@@ -153,16 +153,16 @@ class Segment(BaseModel):
         elif self.segment_type == SegmentType.Table:
             if self.html:
                 self.markdown = md(self.html)
-                self.markdown = self.markdown.replace('| |', '|\\n\\n|').strip()
+                self.markdown = self.markdown.replace(
+                    '| |', '|\\n\\n|').strip()
             else:
                 # Fallback to simple table representation
                 rows = content.split('\n')
                 header = "| " + " | ".join(rows[0].split()) + " |"
-                separator = "|" + "|".join(["---" for _ in rows[0].split()]) + "|"
-                body = "\\n".join("| " + " | ".join(row.split()) + " |" for row in rows[1:])
+                separator = "|" + \
+                    "|".join(["---" for _ in rows[0].split()]) + "|"
+                body = "\\n".join(
+                    "| " + " | ".join(row.split()) + " |" for row in rows[1:])
                 self.markdown = f"{header}\\n{separator}\\n{body}\\n\\n"
         else:
             self.markdown = f"*{content}*\\n\\n"
-
-
-
