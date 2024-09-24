@@ -134,7 +134,7 @@ pub fn main() -> std::io::Result<()> {
                     SwaggerUi::new("/swagger-ui/{_:.*}").url("/docs/openapi.json", ApiDoc::openapi()),
                 );
 
-            let mut api_scope = web
+            let api_scope = web
                 ::scope("/api/v1")
                 .wrap(AuthMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
