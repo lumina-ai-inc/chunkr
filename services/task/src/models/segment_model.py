@@ -153,7 +153,7 @@ class Segment(BaseModel):
         elif self.segment_type == SegmentType.Table:
             if self.html:
                 self.markdown = md(self.html)
-                self.markdown = self.markdown.replace('| |', '|\n|').strip()
+                self.markdown = self.markdown.replace('| |', '|\n\n|').strip()
             else:
                 # Fallback to simple table representation
                 rows = content.split('\n')
