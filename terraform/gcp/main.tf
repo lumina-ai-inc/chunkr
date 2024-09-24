@@ -343,55 +343,55 @@ resource "google_container_node_pool" "gpu_nodes" {
 ###############################################################
 # PostgreSQL (Cloud SQL)
 ###############################################################
-resource "google_sql_database_instance" "postgres" {
-  name             = "${var.base_name}-postgres"
-  database_version = "POSTGRES_14"
-  region           = var.region
+# resource "google_sql_database_instance" "postgres" {
+#   name             = "${var.base_name}-postgres"
+#   database_version = "POSTGRES_14"
+#   region           = var.region
 
-  depends_on = [google_service_networking_connection.private_service_connection]
+#   depends_on = [google_service_networking_connection.private_service_connection]
 
-  settings {
-    tier = "db-f1-micro"
+#   settings {
+#     tier = "db-f1-micro"
 
-    ip_configuration {
-      ipv4_enabled    = false
-      private_network = google_compute_network.vpc_network.id
-    }
-  }
+#     ip_configuration {
+#       ipv4_enabled    = false
+#       private_network = google_compute_network.vpc_network.id
+#     }
+#   }
 
-  deletion_protection = false
-}
+#   deletion_protection = false
+# }
 
-resource "time_sleep" "wait_30_seconds" {
-  depends_on      = [google_sql_database_instance.postgres]
-  create_duration = "30s"
-}
+# resource "time_sleep" "wait_30_seconds" {
+#   depends_on      = [google_sql_database_instance.postgres]
+#   create_duration = "30s"
+# }
 
-resource "google_sql_database" "chunkkmydocs-database" {
-  name     = var.chunkmydocs_db
-  instance = google_sql_database_instance.postgres.name
+# resource "google_sql_database" "chunkkmydocs-database" {
+#   name     = var.chunkmydocs_db
+#   instance = google_sql_database_instance.postgres.name
 
-  depends_on = [google_sql_database_instance.postgres]
-}
+#   depends_on = [google_sql_database_instance.postgres]
+# }
 
-resource "google_sql_database" "keycloak-database" {
-  name     = var.keycloak_db
-  instance = google_sql_database_instance.postgres.name
+# resource "google_sql_database" "keycloak-database" {
+#   name     = var.keycloak_db
+#   instance = google_sql_database_instance.postgres.name
 
-  depends_on = [google_sql_database_instance.postgres]
-}
+#   depends_on = [google_sql_database_instance.postgres]
+# }
 
-resource "google_sql_user" "users" {
-  name     = var.postgres_username
-  instance = google_sql_database_instance.postgres.name
-  password = var.postgres_password
+# resource "google_sql_user" "users" {
+#   name     = var.postgres_username
+#   instance = google_sql_database_instance.postgres.name
+#   password = var.postgres_password
 
-  depends_on = [
-    time_sleep.wait_30_seconds,
-    google_sql_database.chunkkmydocs-database,
-    google_sql_database.keycloak-database
-  ]
-}
+#   depends_on = [
+#     time_sleep.wait_30_seconds,
+#     google_sql_database.chunkkmydocs-database,
+#     google_sql_database.keycloak-database
+#   ]
+# }
 
 ###############################################################
 # Outputs
@@ -423,16 +423,16 @@ output "postgres_password" {
   sensitive   = true
 }
 
-output "chunkmydocs_postgresql_url" {
-  value       = "postgresql://${var.postgres_username}:${var.postgres_password}@${google_sql_database_instance.postgres.private_ip_address}:5432/${var.chunkmydocs_db}"
-  description = "The connection URL for the PostgreSQL database"
-  sensitive   = true
-}
+# output "chunkmydocs_postgresql_url" {
+#   value       = "postgresql://${var.postgres_username}:${var.postgres_password}@${google_sql_database_instance.postgres.private_ip_address}:5432/${var.chunkmydocs_db}"
+#   description = "The connection URL for the PostgreSQL database"
+#   sensitive   = true
+# }
 
-output "keycloak_postgresql_url" {
-  value       = "postgresql://${google_sql_database_instance.postgres.private_ip_address}:5432/${var.keycloak_db}"
-  description = "The connection URL for the Keycloak database"
-}
+# output "keycloak_postgresql_url" {
+#   value       = "postgresql://${google_sql_database_instance.postgres.private_ip_address}:5432/${var.keycloak_db}"
+#   description = "The connection URL for the Keycloak database"
+# }
 
 output "gcs_s3_compatible_endpoint" {
   value       = "https://storage.googleapis.com"
