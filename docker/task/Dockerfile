@@ -5,7 +5,6 @@ RUN python --version
 # Install system dependencies and tools
 RUN apt-get update && apt-get install -y \
     htop \
-    linux-headers-$(uname -r) \
     build-essential \
     dkms \
     poppler-utils \
@@ -20,6 +19,8 @@ WORKDIR /app
 COPY services/task .
 
 RUN uv run pip install .[linux]
+
+EXPOSE 3000
 
 CMD ["uv", "run", "bentoml", "serve", "service:Task"]
 
