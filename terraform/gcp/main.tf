@@ -294,7 +294,7 @@ resource "google_container_node_pool" "gpu_nodes" {
     min_node_count = 1
     max_node_count = 6
   }
-:
+
   node_config {
     preemptible  = false
     machine_type = "g2-standard-8"
