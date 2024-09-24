@@ -3,7 +3,7 @@ import axiosInstance from "./axios.config";
 export async function createSetupIntent(accessToken: string) {
   try {
     const response = await axiosInstance.get(
-      "/api/stripe/create-setup-intent",
+      "/stripe/create-setup-intent",
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -19,7 +19,7 @@ export async function createSetupIntent(accessToken: string) {
 
 export async function createCustomerSession(accessToken: string) {
   try {
-    const response = await axiosInstance.get("/api/stripe/create-session", {
+    const response = await axiosInstance.get("/stripe/create-session", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -33,7 +33,7 @@ export async function createCustomerSession(accessToken: string) {
 
 export async function getUserInvoices() {
   try {
-    const response = await axiosInstance.get("/api/stripe/get-user-invoices");
+    const response = await axiosInstance.get("/stripe/get-user-invoices");
     return response.data;
   } catch (error) {
     console.error("Error fetching user invoices:", error);
@@ -44,7 +44,7 @@ export async function getUserInvoices() {
 export async function getInvoiceDetail(accessToken: string, invoiceId: string) {
   try {
     const response = await axiosInstance.get(
-      `/api/stripe/get-invoice-detail/${invoiceId}`,
+      `/stripe/get-invoice-detail/${invoiceId}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
