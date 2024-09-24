@@ -30,13 +30,18 @@ async def error():
     raise FileNotFoundError("This is a test error from the error endpoint")
 
 
+from asyncio import Lock
+
+processing_lock = Lock()
+
 @app.post("/")
 @catch_exceptions
 async def run(file: UploadFile = File(...), fast: bool = Form(False), density: int = Form(72), extension: str = Form("jpeg")):
-    if fast:
-        return analyze_pdf_fast(file.file.read(), "")
+    async with processing_lock:
+        if fast:
+            return analyze_pdf_fast(file.file.read(), "")
 
-    return analyze_pdf(file.file.read(), "", density, extension)
+        return analyze_pdf(file.file.read(), "", density, extension)
  
 
 # @app.post("/save_xml/{xml_file_name}")
