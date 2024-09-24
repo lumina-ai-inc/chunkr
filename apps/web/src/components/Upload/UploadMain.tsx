@@ -133,7 +133,7 @@ export default function UploadMain({
               weight="bold"
               style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
             >
-              SELECT PIPELINE
+              SELECT SEGMENTATION
             </Text>
             <Flex
               direction="row"

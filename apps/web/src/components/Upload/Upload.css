@@ -1,11 +1,11 @@
 .upload-container {
-  background-color: hsl(0, 0%, 100%, 0.1);
+  background-color: hsla(0, 0%, 100%, 0.08);
   border-radius: 8px;
   /* border: 2px solid #fff; */
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(24px);
+  backdrop-filter: blur(8px);
   border: 1px solid hsla(0, 0%, 100%, 0.1);
   cursor: pointer;
   opacity: 1;
@@ -13,13 +13,12 @@
 }
 
 .upload-container:hover {
-  background-color: hsl(0, 0%, 100%, 0.15);
+  background-color: hsl(0, 0%, 100%, 0.11);
 }
 
 .upload-container.is-uploaded {
-  border-color: var(--cyan-8);
+  background-color: hsla(0, 0%, 100%, 0.05);
   cursor: default;
-  opacity: 0.7;
 }
 
 .upload-container.is-drag-active {
