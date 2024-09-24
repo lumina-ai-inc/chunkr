@@ -117,7 +117,7 @@ services:
     image: luminainc/pdla:872866a3
     restart: on-failure
     deploy:
-      replicas: 1
+      replicas: 0
     networks:
       - app-network
     ports:
