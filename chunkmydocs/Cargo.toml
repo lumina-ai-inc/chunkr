@@ -67,11 +67,13 @@ log = "0.4.22"
 utoipa-swagger-ui = { version = "7.0", features = ["actix-web"] }
 
 [[bin]]
-name = "task-processor"
-path = "src/workers/task_processor.rs"
-
-
+name = "fast"
+path = "src/workers/fast.rs"
 
 [[bin]]
 name = "invoicer"
 path = "src/workers/invoicer.rs"
+
+[[bin]]
+name = "high-quality"
+path = "src/workers/high_quality.rs"
