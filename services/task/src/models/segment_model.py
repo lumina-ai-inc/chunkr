@@ -116,9 +116,10 @@ class Segment(BaseModel):
             if self.ocr:
                 html_content = self.html.strip()
                 if html_content.startswith('<html>') and html_content.endswith('</html>'):
-                    self.html = html_content[6:-7].strip()
-                else:
-                    self.html = html_content
+                    html_content = html_content[6:-7].strip()
+                if html_content.startswith('<body>') and html_content.endswith('</body>'):
+                    html_content = html_content[6:-7].strip()
+                self.html = html_content
             else:
                 rows = content.split('\n')
                 table_html = "<table>"
