@@ -1,7 +1,7 @@
 use crate::models::auth::auth::UserInfo;
 use crate::models::rrq::produce::ProducePayload;
 use crate::models::{
-    server::extract::{Configuration, ExtractionPayload, Model, SegmentationModel},
+    server::extract::{Configuration, ExtractionPayload, SegmentationModel},
     server::task::{Status, TaskResponse},
 };
 use crate::utils::configs::extraction_config::Config;
