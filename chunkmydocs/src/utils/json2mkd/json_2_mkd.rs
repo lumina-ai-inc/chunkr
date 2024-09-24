@@ -12,7 +12,7 @@ pub async fn hierarchical_chunking(
         for segment in segments {
             chunks.push(Chunk {
                 segments: vec![segment.clone()],
-                chunk_length: segment.text_layer.split_whitespace().count() as i32,
+                chunk_length: segment.content.split_whitespace().count() as i32,
             });
         }
     } else {
@@ -23,7 +23,7 @@ pub async fn hierarchical_chunking(
             if !chunk.is_empty() {
                 let chunk_length = chunk
                     .iter()
-                    .map(|s| s.text_layer.split_whitespace().count())
+                    .map(|s| s.content.split_whitespace().count())
                     .sum::<usize>() as i32;
                 chunks.push(Chunk {
                     segments: chunk.clone(),
@@ -34,7 +34,7 @@ pub async fn hierarchical_chunking(
         }
 
         for segment in segments.iter() {
-            let segment_word_count = segment.text_layer.split_whitespace().count() as i32;
+            let segment_word_count = segment.content.split_whitespace().count() as i32;
 
             match segment.segment_type {
                 SegmentType::Title => {

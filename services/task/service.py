@@ -132,47 +132,68 @@ class Task:
                              page_image_density, pdla_density)
         segments = [Segment.from_base_segment(base_segment)
                     for base_segment in base_segments]
-        page_images = convert_to_img(
-            file, page_image_density, page_image_extension)
-        page_image_file_paths: dict[int, Path] = {}
-        for page_number, page_image in page_images.items():
-            temp_file = tempfile.NamedTemporaryFile(
-                suffix=f".{page_image_extension}", delete=False)
-            temp_file.write(base64.b64decode(page_image))
-            temp_file.close()
-            page_image_file_paths[page_number] = Path(temp_file.name)
-        print("Pages converted to images")
-        try:
-            print("Segment processing started")
+        processed_segments = []
+        if ocr_strategy == "Off":
             processed_segments_dict = {}
+            def finalize_segment(segment: Segment):
+                segment.finalize()
+                return segment
             with ThreadPoolExecutor(max_workers=num_workers or len(segments)) as executor:
                 futures: dict[str, Future] = {}
                 for segment in segments:
                     future = executor.submit(
-                        process_segment,
-                        segment,
-                        image_folder_location,
-                        page_image_file_paths,
-                        segment_image_extension,
-                        segment_image_quality,
-                        segment_image_resize,
-                        ocr_strategy,
-                        self.ocr,
-                        self.table_engine,
-                        self.ocr_lock,
-                        self.table_engine_lock
+                        finalize_segment,
+                        segment
                     )
                     futures[segment.segment_id] = future
 
                 total_segments = len(futures)
                 for segment_id, future in tqdm.tqdm(futures.items(), desc="Processing segments", total=total_segments):
                     processed_segments_dict[segment_id] = future.result()
-
             processed_segments = [
                 processed_segments_dict[base_segment.segment_id] for base_segment in base_segments]
-        finally:
-            for page_image_file_path in page_image_file_paths.values():
-                os.unlink(page_image_file_path)
+        else:
+            page_images = convert_to_img(
+                file, page_image_density, page_image_extension)
+            page_image_file_paths: dict[int, Path] = {}
+            for page_number, page_image in page_images.items():
+                temp_file = tempfile.NamedTemporaryFile(
+                    suffix=f".{page_image_extension}", delete=False)
+                temp_file.write(base64.b64decode(page_image))
+                temp_file.close()
+                page_image_file_paths[page_number] = Path(temp_file.name)
+            print("Pages converted to images")
+            try:
+                print("Segment processing started")
+                processed_segments_dict = {}
+                with ThreadPoolExecutor(max_workers=num_workers or len(segments)) as executor:
+                    futures: dict[str, Future] = {}
+                    for segment in segments:
+                        future = executor.submit(
+                            process_segment,
+                            segment,
+                            image_folder_location,
+                            page_image_file_paths,
+                            segment_image_extension,
+                            segment_image_quality,
+                            segment_image_resize,
+                            ocr_strategy,
+                            self.ocr,
+                            self.table_engine,
+                            self.ocr_lock,
+                            self.table_engine_lock
+                        )
+                        futures[segment.segment_id] = future
+
+                    total_segments = len(futures)
+                    for segment_id, future in tqdm.tqdm(futures.items(), desc="Processing segments", total=total_segments):
+                        processed_segments_dict[segment_id] = future.result()
+
+                processed_segments = [
+                    processed_segments_dict[base_segment.segment_id] for base_segment in base_segments]
+            finally:
+                for page_image_file_path in page_image_file_paths.values():
+                    os.unlink(page_image_file_path)
         end_time = time.time()
         print("Segment processing finished")
         print(f"Total time taken: {end_time - start_time} seconds")
