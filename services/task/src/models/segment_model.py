@@ -79,7 +79,7 @@ class Segment(BaseModel):
         if self.ocr:
             avg_confidence = sum(result.confidence for result in self.ocr if result.confidence is not None) / len(self.ocr)
             
-            if avg_confidence > TASK__OCR_CONFIDENCE_THRESHOLD:
+            if avg_confidence >= TASK__OCR_CONFIDENCE_THRESHOLD:
                 return " ".join([result.text for result in self.ocr])
         
         return self.content if self.content else ""
