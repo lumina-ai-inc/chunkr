@@ -67,12 +67,12 @@ log = "0.4.22"
 utoipa-swagger-ui = { version = "7.0", features = ["actix-web"] }
 
 [[bin]]
-name = "fast"
-path = "src/workers/fast.rs"
-
-[[bin]]
 name = "invoicer"
 path = "src/workers/invoicer.rs"
+
+[[bin]]
+name = "fast"
+path = "src/workers/fast.rs"
 
 [[bin]]
 name = "high-quality"
