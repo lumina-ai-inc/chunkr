@@ -110,7 +110,5 @@ def process_segment(
         print(
             f"Error processing segment {segment.segment_type} on page {segment.page_number}: {e}")
     finally:
-        segment.create_ocr_text()
-        segment.create_html()
-        segment.create_markdown()
+        segment.finalize()
     return segment

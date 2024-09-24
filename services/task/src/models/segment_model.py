@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 
 from src.models.ocr_model import OCRResult, BoundingBox
+from src.configs.task_config import TASK__OCR_CONFIDENCE_THRESHOLD
 
 
 class SegmentType(str, Enum):
@@ -27,7 +28,7 @@ class BaseSegment(BaseModel):
     top: float
     width: float
     height: float
-    text_layer: str
+    text: str
     segment_type: SegmentType
     page_number: int
     page_width: float
@@ -41,8 +42,7 @@ class Segment(BaseModel):
     page_width: float
     page_height: float
     segment_type: SegmentType
-    text_layer: str
-    ocr_text: Optional[str] = None
+    content: str
     ocr: Optional[List[OCRResult]] = None
     image: Optional[str] = None
     html: Optional[str] = Field(
@@ -71,35 +71,34 @@ class Segment(BaseModel):
             page_number=base_segment.page_number,
             page_width=base_segment.page_width,
             page_height=base_segment.page_height,
-            text_layer=base_segment.text_layer,
+            content=base_segment.text,
             segment_type=base_segment.segment_type
         )
-
+    
     def _get_content(self):
         if self.ocr:
-            return " ".join([result.text for result in self.ocr])
-        elif self.text_layer:
-            return self.text_layer
-        else:
-            return ""
+            avg_confidence = sum(result.confidence for result in self.ocr if result.confidence is not None) / len(self.ocr)
+            
+            if avg_confidence > TASK__OCR_CONFIDENCE_THRESHOLD:
+                return " ".join([result.text for result in self.ocr])
+        
+        return self.content if self.content else ""
 
 
-    # todo: review weather to sync for formula and latex
-    def create_ocr_text(self):
+    def _create_content(self):
         """
-        Generate text representation of the segment based on its type.
+        Generate text representation of the segment
         """
-        if not self.ocr:
+        if not self.content:
             return
 
-        self.ocr_text = " ".join([result.text for result in self.ocr])
+        self.content = self._get_content()
 
-    def create_html(self):
+    def _create_html(self):
         """
-        Extract text from OCR results or use the text field,
-        apply HTML formatting based on segment type, and update the html field.
+        Apply HTML formatting based on segment type, and update the html field.
         """
-        content = self._get_content()
+        content = self.content
         if not content:
             return
 
@@ -129,22 +128,15 @@ class Segment(BaseModel):
                     html_content = html_content[6:-7].strip()
                 self.html = html_content
             else:
-                rows = content.split('\n')
-                table_html = "<table>"
-                for row in rows:
-                    cells = row.split()
-                    table_html += "<tr>" + \
-                        "".join(f"<td>{cell}</td>" for cell in cells) + "</tr>"
-                table_html += "</table>"
-                self.html = table_html
+                self.html = f'<span class="{self.segment_type.value.lower().replace(" ", "-")}">{content}</span>'
         else:
             self.html = f'<span class="{self.segment_type.value.lower().replace(" ", "-")}">{content}</span>'
 
-    def create_markdown(self):
+    def _create_markdown(self):
         """
         Generate markdown representation of the segment based on its type.
         """
-        content = self._get_content()
+        content = self.content
         if not content:
             return
 
@@ -164,5 +156,7 @@ class Segment(BaseModel):
         else:
             self.markdown = f"*{content}*\n\n"
 
-
-
+    def finalize(self):
+        self._create_content()
+        self._create_html()
+        self._create_markdown()
