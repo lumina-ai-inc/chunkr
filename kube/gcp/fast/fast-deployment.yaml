@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: task-processor
+  name: fast
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: task-processor
+    app.kubernetes.io/name: fast
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: task-processor
+        app.kubernetes.io/name: fast
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: task-processor
+        app.kubernetes.io/name: fast
     spec:
       containers:
-      - name: task-processor
-        image: luminainc/task-processor:d8511eaf
+      - name: fast
+        image: luminainc/fast:c62ec6b4
         imagePullPolicy: Always
         envFrom:
         - secretRef:
