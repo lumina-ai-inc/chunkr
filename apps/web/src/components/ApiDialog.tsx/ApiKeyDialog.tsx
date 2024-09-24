@@ -19,16 +19,22 @@ export default function ApiKeyDialog({
   return (
     <Dialog.Root open={showApiKey} onOpenChange={setShowApiKey}>
       <Dialog.Trigger>
-        <BetterButton>
-          <Text
-            size="1"
-            weight="medium"
-            mt="2px"
-            style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
-          >
+        {phone ? (
+          <Text size="2" weight="regular" mt="2px" style={{ color: "#000000" }}>
             API Key
           </Text>
-        </BetterButton>
+        ) : (
+          <BetterButton>
+            <Text
+              size="1"
+              weight="medium"
+              mt="2px"
+              style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+            >
+              API Key
+            </Text>
+          </BetterButton>
+        )}
       </Dialog.Trigger>
       <Dialog.Content
         style={{

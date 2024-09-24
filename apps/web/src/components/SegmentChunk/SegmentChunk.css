@@ -9,6 +9,7 @@ h1 {
   line-height: 36px !important;
   color: hsl(0, 0%, 100%, 0.98);
   margin-bottom: 24px !important;
+  font-weight: 700 !important;
 }
 
 h2 {
@@ -16,6 +17,7 @@ h2 {
   line-height: 32px !important;
   color: hsl(0, 0%, 100%, 0.95);
   margin-bottom: 16px !important;
+  font-weight: 600 !important;
 }
 
 h3 {
@@ -47,6 +49,83 @@ p {
   line-height: 24px !important;
   color: hsl(0, 0%, 100%, 0.98);
   margin-bottom: 16px !important;
+}
+
+table {
+  background-color: unset !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin-bottom: 16px !important;
+  width: 100% !important;
+}
+
+thead {
+  margin-bottom: 32px !important;
+  background-color: hsl(0, 0%, 100%, 0.3) !important;
+}
+
+tr {
+  background-color: hsla(0, 0%, 100%, 0.03) !important;
+  color: #fff !important;
+}
+
+tr:nth-child(even) {
+  background-color: hsla(0, 0%, 100%, 0.1) !important;
+}
+
+th {
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  align-content: center !important;
+  justify-content: center !important;
+  border: 1px solid hsl(0, 0%, 100%, 0.6) !important;
+  color: hsl(0, 0%, 100%) !important;
+  padding: 8px 12px !important;
+}
+
+td {
+  font-size: 14px !important;
+  font-weight: 300 !important;
+  border: 1px solid hsl(0, 0%, 100%, 0.4) !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 12px !important;
+  color: hsl(0, 0%, 100%, 0.95) !important;
+  text-align: center !important;
+}
+
+ul,
+ol {
+  margin-bottom: 16px !important;
+  padding-left: 24px !important;
+  color: hsl(0, 0%, 100%, 0.8) !important;
+  background-color: hsl(0, 0%, 100%, 0.05) !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+  padding-right: 12px !important;
+  border-radius: 4px !important;
+}
+
+li {
+  font-size: 16px !important;
+  line-height: 24px !important;
+  color: hsl(0, 0%, 100%, 0.98);
+  margin-bottom: 8px !important;
+}
+
+/* Last list item shouldn't have a bottom margin */
+li:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Ensure bullet points are visible for unordered lists */
+ul {
+  list-style-type: disc !important;
+}
+
+/* Ensure numbers are visible for ordered lists */
+ol {
+  list-style-type: decimal !important;
 }
 
 .AccordionItem {
@@ -126,7 +205,7 @@ p {
 }
 
 .AccordionContentText {
-  padding: 24px 20px;
+  padding: 32px 24px;
 }
 
 .AccordionChevron {
