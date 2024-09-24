@@ -126,6 +126,7 @@ class Task:
         ocr_strategy: str = Field(
             default="Auto", description="OCR strategy: 'Auto', 'All', or 'Off'")
     ) -> list[Segment]:
+        start_time = time.time()
         print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
                              page_image_density, pdla_density)
@@ -144,7 +145,6 @@ class Task:
         try:
             print("Segment processing started")
             processed_segments_dict = {}
-            start_time = time.time()
             with ThreadPoolExecutor(max_workers=num_workers or len(segments)) as executor:
                 futures: dict[str, Future] = {}
                 for segment in segments:
@@ -170,12 +170,14 @@ class Task:
 
             processed_segments = [
                 processed_segments_dict[base_segment.segment_id] for base_segment in base_segments]
-            end_time = time.time()
-            print("Segment processing finished")
-            print(f"Total time taken: {end_time - start_time} seconds")
-            print(f"Total time taken per page: {(end_time - start_time) / len(page_images)} seconds")
-            print(f"Total time taken per segment: {(end_time - start_time) / len(segments)} seconds")
         finally:
             for page_image_file_path in page_image_file_paths.values():
                 os.unlink(page_image_file_path)
+        end_time = time.time()
+        print("Segment processing finished")
+        print(f"Total time taken: {end_time - start_time} seconds")
+        print(
+            f"Total time taken per page: {(end_time - start_time) / len(page_images)} seconds")
+        print(
+            f"Total time taken per segment: {(end_time - start_time) / len(segments)} seconds")
         return processed_segments
