@@ -26,5 +26,6 @@ export interface TaskResponse {
 
 export interface Configuration {
   model: Model;
+  ocr_strategy: "All" | "Auto" | "Off";
   target_chunk_length: number | null;
 }

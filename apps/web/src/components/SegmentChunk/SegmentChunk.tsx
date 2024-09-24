@@ -46,7 +46,8 @@ export const SegmentChunk = forwardRef<
     return chunk.segments
       .map((segment) => segment.markdown)
       .filter(Boolean)
-      .join("\n\n");
+      .join("\n\n")
+      .trim(); // Add this trim() call
   }, [chunk.segments]);
 
   return (

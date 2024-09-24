@@ -1,19 +1,22 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { Flex, ScrollArea } from "@radix-ui/themes";
+import { Flex, ScrollArea, Text } from "@radix-ui/themes";
 import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
 import Header from "../Header/Header";
 import { Chunk } from "../../models/chunk.model";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
+import { TaskResponse } from "../../models/task.model";
+import TaskCard from "../TaskCard/TaskCard";
 
 interface ViewerProps {
   // eslint-disable-next-line
   output: any;
   inputFileUrl: string;
+  task: TaskResponse;
 }
 
-export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
+export const Viewer = ({ output, inputFileUrl, task }: ViewerProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
   const [pdfWidth, setPdfWidth] = useState<number>(50);
@@ -175,17 +178,28 @@ export const Viewer = ({ output, inputFileUrl }: ViewerProps) => {
             justify="center"
           >
             {output.length === 0 ? (
-              <div>No content available for this PDF.</div>
+              <Text
+                size="4"
+                weight="medium"
+                style={{ color: "rgba(255, 255, 255, 0.8)" }}
+              >
+                No content available for this PDF.
+              </Text>
             ) : (
-              output.map((chunk: Chunk, chunkIndex: number) => (
-                <SegmentChunk
-                  key={chunkIndex}
-                  chunk={chunk}
-                  chunkIndex={chunkIndex}
-                  containerWidth={scrollAreaWidth}
-                  ref={(el) => (chunkRefs.current[chunkIndex] = el)}
-                />
-              ))
+              <>
+                <Flex direction="row" width="100%">
+                  <TaskCard {...task}></TaskCard>
+                </Flex>
+                {output.map((chunk: Chunk, chunkIndex: number) => (
+                  <SegmentChunk
+                    key={chunkIndex}
+                    chunk={chunk}
+                    chunkIndex={chunkIndex}
+                    containerWidth={scrollAreaWidth}
+                    ref={(el) => (chunkRefs.current[chunkIndex] = el)}
+                  />
+                ))}
+              </>
             )}
           </Flex>
         </ScrollArea>
