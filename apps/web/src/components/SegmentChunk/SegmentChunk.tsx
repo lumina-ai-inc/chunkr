@@ -5,6 +5,7 @@ import * as Accordion from "@radix-ui/react-accordion";
 import Badge from "../Badge";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import remarkGfm from 'remark-gfm'
 import "./SegmentChunk.css";
 
 import ReactMarkdown from "react-markdown";
@@ -141,7 +142,7 @@ export const SegmentChunk = forwardRef<
                 <ReactMarkdown
                   className="cyan-2"
                   remarkPlugins={[remarkMath]}
-                  rehypePlugins={[rehypeKatex]}
+                  rehypePlugins={[rehypeKatex, remarkGfm]}
                 >
                   {combinedMarkdown}
                 </ReactMarkdown>
