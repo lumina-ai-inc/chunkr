@@ -6,7 +6,7 @@ import { useAuth } from "react-oidc-context";
 import "./Upload.css";
 
 interface UploadProps {
-  onFileUpload: (file: File, fileContent: ArrayBuffer) => void;
+  onFileUpload: (file: File) => void;
   onFileRemove: () => void;
   isUploaded: boolean;
   fileName: string;
@@ -27,7 +27,7 @@ export default function Upload({
         const reader = new FileReader();
         reader.onload = (event) => {
           if (event.target && event.target.result instanceof ArrayBuffer) {
-            onFileUpload(file, event.target.result);
+            onFileUpload(file);
           }
         };
         reader.readAsArrayBuffer(file);
@@ -113,7 +113,7 @@ export default function Upload({
         height="302px"
         align="center"
         justify="center"
-        className={`upload-container ${!isAuthenticated ? "inactive" : ""}`}
+        className={`upload-container ${!isAuthenticated ? "inactive" : ""} ${isUploaded ? "is-uploaded" : ""}`}
         style={{ cursor: "pointer" }}
         onClick={
           isAuthenticated ? handleContainerClick : () => auth.signinRedirect()
