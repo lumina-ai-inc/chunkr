@@ -44,10 +44,13 @@ export const SegmentChunk = forwardRef<
 
   const combinedMarkdown = useMemo(() => {
     return chunk.segments
-      .map((segment) => segment.markdown)
+      .map((segment) => {
+        const textContent = segment.text_layer || segment.ocr_text || "";
+        return segment.markdown ? segment.markdown : textContent;
+      })
       .filter(Boolean)
       .join("\n\n")
-      .trim(); // Add this trim() call
+      .trim();
   }, [chunk.segments]);
 
   return (
