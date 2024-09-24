@@ -67,7 +67,7 @@ impl PdlaSegment {
             page_number: self.page_number,
             page_width: self.page_width,
             page_height: self.page_height,
-            text_layer: self.text.clone(),
+            text: self.text.clone(),
             segment_type: self.segment_type.clone(),
         }
     }
@@ -83,7 +83,7 @@ pub struct BaseSegment {
     pub page_number: u32,
     pub page_width: f32,
     pub page_height: f32,
-    pub text_layer: String,
+    pub text: String,
     pub segment_type: SegmentType
 }
 
@@ -95,8 +95,7 @@ pub struct Segment {
     pub page_number: u32,
     pub page_width: f32,
     pub page_height: f32,
-    pub text_layer: String,
-    pub ocr_text: Option<String>,
+    pub content: String,
     pub segment_type: SegmentType,
     pub ocr: Option<Vec<OCRResult>>,
     pub image: Option<String>,
