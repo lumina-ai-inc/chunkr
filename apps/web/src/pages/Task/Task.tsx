@@ -58,6 +58,7 @@ export default function Task() {
 
   return taskResponse.output && taskResponse.input_file_url ? (
     <Viewer
+      task={taskResponse}
       output={taskResponse.output}
       inputFileUrl={taskResponse.input_file_url}
     />

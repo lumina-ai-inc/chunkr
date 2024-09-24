@@ -1,4 +1,4 @@
-import { Flex, Text, Badge } from "@radix-ui/themes";
+import { Flex, Text, Badge, Separator } from "@radix-ui/themes";
 import "./Taskcard.css";
 import { TaskResponse, Status } from "../../models/task.model";
 
@@ -18,7 +18,12 @@ export default function TaskCard({ onClick, ...task }: TaskCardProps) {
   const statusColor = statusColors[task.status];
 
   return (
-    <Flex direction="column" className="task-card" onClick={onClick} style={{}}>
+    <Flex
+      direction="column"
+      className="task-card"
+      onClick={onClick}
+      width="100%"
+    >
       <Flex justify="between" align="center" mb="2">
         <Text size="1" style={{ color: "rgba(255, 255, 255, 0.6)" }}>
           {new Date(task.created_at).toLocaleString("en-US", {
@@ -54,10 +59,35 @@ export default function TaskCard({ onClick, ...task }: TaskCardProps) {
         {task.message}
       </Text>
       <Flex gap="2" wrap="wrap">
-        <Text size="2" style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+        <Text
+          size="2"
+          weight="medium"
+          style={{ color: "rgba(255, 255, 255, 0.9)" }}
+        >
           Model: {task.configuration.model}
         </Text>
-        <Text size="2" style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+        <Separator
+          size="4"
+          orientation="vertical"
+          style={{ background: "rgba(255, 255, 255, 0.9)" }}
+        />
+        <Text
+          size="2"
+          weight="medium"
+          style={{ color: "rgba(255, 255, 255, 0.9)" }}
+        >
+          OCR: {task.configuration.ocr_strategy}
+        </Text>
+        <Separator
+          size="4"
+          orientation="vertical"
+          style={{ background: "rgba(255, 255, 255, 0.9)" }}
+        />
+        <Text
+          size="2"
+          weight="medium"
+          style={{ color: "rgba(255, 255, 255, 0.9)" }}
+        >
           Target Chunk Length: {task.configuration.target_chunk_length || "N/A"}
         </Text>
       </Flex>
