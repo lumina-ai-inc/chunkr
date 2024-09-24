@@ -7,12 +7,14 @@ interface ApiKeyDialogProps {
   user: User;
   showApiKey: boolean;
   setShowApiKey: (show: boolean) => void;
+  phone?: boolean;
 }
 
 export default function ApiKeyDialog({
   user,
   showApiKey,
   setShowApiKey,
+  phone = false,
 }: ApiKeyDialogProps) {
   return (
     <Dialog.Root open={showApiKey} onOpenChange={setShowApiKey}>

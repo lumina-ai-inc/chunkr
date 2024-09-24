@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
 import { Link, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
 import "./Header.css";
 import Dashboard from "../../pages/Dashboard/Dashboard";
 import { useAuth } from "react-oidc-context";
 import { downloadJSON } from "../../utils/utils";
 import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
 import { useTaskQuery } from "../../hooks/useTaskQuery";
+import useUser from "../../hooks/useUser";
+import { User } from "../../models/user.model";
 
 interface HeaderProps {
   py?: string;
@@ -27,7 +27,7 @@ export default function Header({
   const isAuthenticated = auth.isAuthenticated;
   const { taskId } = useParams<{ taskId: string }>();
   const { data: taskResponse } = useTaskQuery(taskId);
-  const user = useSelector((state: RootState) => state.user.data);
+  const { data: user } = useUser();
 
   const handleDownloadJSON = () => {
     if (taskResponse?.output) {
@@ -180,6 +180,16 @@ export default function Header({
               {download && !home && (
                 <DropdownMenu.Item>
                   <Text>Download JSON</Text>
+                </DropdownMenu.Item>
+              )}
+              {isAuthenticated && (
+                <DropdownMenu.Item>
+                  <ApiKeyDialog
+                    user={user as User}
+                    showApiKey={showApiKey}
+                    setShowApiKey={setShowApiKey}
+                    phone={true}
+                  />
                 </DropdownMenu.Item>
               )}
               <DropdownMenu.Item asChild>
