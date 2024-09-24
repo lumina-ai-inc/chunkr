@@ -10,10 +10,10 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
-RUN cargo chef cook --release --recipe-path recipe.json --bin "task-processor"
+RUN cargo chef cook --release --recipe-path recipe.json --bin "high-quality"
 # Build application
 COPY chunkmydocs/ .
-RUN cargo build --release --bin "task-processor"
+RUN cargo build --release --bin "high-quality"
 
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
@@ -28,7 +28,7 @@ RUN apt-get update -y; \
     ; \
     mkdir -p /app/tmp
 
-COPY --from=builder /app/target/release/task-processor /app/task-processor
+COPY --from=builder /app/target/release/high-quality /app/high-quality
 
 EXPOSE 8000
-ENTRYPOINT ["/app/task-processor"]
+ENTRYPOINT ["/app/high-quality"]
