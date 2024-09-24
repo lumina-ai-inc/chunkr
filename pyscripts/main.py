@@ -108,7 +108,7 @@ def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_st
 
 
 if __name__ == "__main__":
-    model = Model.HighQuality
+    model = Model.Fast
     target_chunk_length = 1000  # Example value, adjust as needed
     ocr_strategy = OcrStrategy.Auto
     main(1, model, target_chunk_length, ocr_strategy)
