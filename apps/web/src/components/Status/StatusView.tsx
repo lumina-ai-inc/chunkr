@@ -53,6 +53,16 @@ export default function StatusView({ task, pageCount }: StatusViewProps) {
             </Text>
           </Flex>
         )}
+        <Flex direction="column" className="status-title-badge">
+          <Text
+            size="6"
+            weight="medium"
+            style={{ color: "rgba(255, 255, 255, 0.8)" }}
+          >
+            OCR: {task?.configuration.ocr_strategy}
+          </Text>
+        </Flex>
+
         <Text
           size="9"
           weight="bold"
