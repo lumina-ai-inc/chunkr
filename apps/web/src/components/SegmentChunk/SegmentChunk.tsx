@@ -26,6 +26,8 @@ export const SegmentChunk = forwardRef<
   // const [markdownSelected, setMarkdownSelected] = useState<boolean>(true);
   const accordionWidth = containerWidth - 48;
 
+  console.log(chunk);
+
   const segmentTypeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     chunk.segments.forEach((segment) => {
