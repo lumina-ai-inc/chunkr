@@ -135,7 +135,7 @@ pub fn main() -> std::io::Result<()> {
                 );
 
             let mut api_scope = web
-                ::scope("/api")
+                ::scope("/api/v1")
                 .wrap(AuthMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
                 .route("/task", web::post().to(create_extraction_task))
@@ -146,16 +146,16 @@ pub fn main() -> std::io::Result<()> {
 
             if std::env::var("STRIPE__API_KEY").is_ok() {
                 app = app.route("/stripe/webhook", web::post().to(stripe_webhook));
-                api_scope = api_scope
-                    .route(
-                        "/stripe/create-setup-intent",
-                        web::get().to(create_setup_intent)
-                    )
-                    .route("/stripe/create-session", web::get().to(create_stripe_session))
-                    .route("/stripe/invoices", web::get().to(get_user_invoices))
-                    .route("/stripe/invoice/{invoice_id}", web::get().to(get_invoice_detail));
+
+                let stripe_scope = web::scope("/stripe")
+                    .wrap(AuthMiddlewareFactory)
+                    .route("/create-setup-intent", web::get().to(create_setup_intent))
+                    .route("/create-session", web::get().to(create_stripe_session))
+                    .route("/invoices", web::get().to(get_user_invoices))
+                    .route("/invoice/{invoice_id}", web::get().to(get_invoice_detail));
+
+                app = app.service(stripe_scope);
             }
-                
             
 
             app.service(api_scope)
