@@ -108,12 +108,13 @@ class Segment(BaseModel):
         elif self.segment_type == SegmentType.SectionHeader:
             self.html = f"<h2>{content}</h2>"
         elif self.segment_type == SegmentType.ListItem:
-            identifier = content.strip().split('.')[0].isdigit()
-            item = content.split('.')[1].strip() if identifier else content
-            if identifier:
-                self.html = f"<ol><li>{item}</li></ol>"
+            parts = content.strip().split('.')
+            if parts[0].isdigit():
+                start_number = int(parts[0])
+                item = '.'.join(parts[1:]).strip()
+                self.html = f"<ol start='{start_number}'><li>{item}</li></ol>"
             else:
-                self.html = f"<ul><li>{item}</li></ul>"
+                self.html = f"<ul><li>{content}</li></ul>"
         elif self.segment_type == SegmentType.Text:
             self.html = f"<p>{content}</p>"
         elif self.segment_type == SegmentType.Picture:
