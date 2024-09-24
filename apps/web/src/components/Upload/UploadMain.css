@@ -21,7 +21,6 @@
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(24px);
 }
 
 .toggle-icon {
@@ -64,7 +63,7 @@
     rgba(2, 8, 9, 0.9) 100%
   );
   z-index: 1;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
 }
 
 .toggle-active .card-gradient-overlay {
@@ -111,6 +110,18 @@
 
 .run-active:hover {
   background: hsl(0, 0%, 100%);
+}
+
+.ocr-strategy {
+  background-color: transparent;
+}
+
+.ocr-strategy-active {
+  background-color: hsla(180, 100%, 100%, 0.9);
+}
+
+.ocr-strategy:hover {
+  background-color: hsla(180, 100%, 100%, 0.15);
 }
 
 @media (max-width: 1036px) {

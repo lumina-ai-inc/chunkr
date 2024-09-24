@@ -19,7 +19,7 @@ export default function ApiKeyDialog({
       <Dialog.Trigger>
         <BetterButton>
           <Text
-            size="2"
+            size="1"
             weight="medium"
             mt="2px"
             style={{ color: "hsla(0, 0%, 100%, 0.9)" }}

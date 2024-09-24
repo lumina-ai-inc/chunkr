@@ -88,7 +88,7 @@ export default function Upload({
           weight="bold"
           style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
         >
-          RUN A TEST
+          CREATE INGESTION TASK
         </Text>
         {isUploaded && (
           <Flex
