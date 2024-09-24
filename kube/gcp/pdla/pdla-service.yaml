@@ -5,6 +5,8 @@ metadata:
   namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: pdla
+  annotations:
+    cloud.google.com/backend-config: '{"default": "pdla-backendconfig"}'
 spec:
   selector:
     app.kubernetes.io/name: pdla
@@ -20,4 +22,4 @@ metadata:
   name: pdla-backendconfig
   namespace: chunkmydocs
 spec:
-  timeoutSec: 10000 
+  timeoutSec: 10000

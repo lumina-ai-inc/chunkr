@@ -82,10 +82,16 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
 
         for temp_file in &split_temp_files {
             batch_number += 1;
+            let mut segmentation_message = "Segmenting".to_string();
+            let mut ocr_message = format!("Performing OCR: {}", extraction_item.configuration.ocr_strategy);
+            if batch_number > 1 {
+                segmentation_message = format!("Segmenting | Batch {} of {}", batch_number, split_temp_files.len());
+                ocr_message = format!("Performing OCR: {} | Batch {} of {}", extraction_item.configuration.ocr_strategy, batch_number, split_temp_files.len());
+            }
             log_task(
                 task_id.clone(),
                 Status::Processing,
-                Some(format!("Segmenting | Batch {} of {}", batch_number, split_temp_files.len())),
+                Some(segmentation_message),
                 None,
                 &pg_pool
             ).await?;
@@ -98,7 +104,7 @@ async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>
             log_task(
                 task_id.clone(),
                 Status::Processing,
-                Some(format!("OCR: {} | Batch {} of {}", extraction_item.configuration.ocr_strategy, batch_number, split_temp_files.len())),
+                Some(ocr_message),
                 None,
                 &pg_pool
             ).await?;
