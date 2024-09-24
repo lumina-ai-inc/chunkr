@@ -8,9 +8,9 @@ WORKDIR /app
 
 COPY services/task .
 
-RUN uv pip sync pyproject.toml
+RUN uv venv
 
-RUN uv pip install .[linux]
+RUN uv pip install .[linux] --system
 
 EXPOSE 3000
 
