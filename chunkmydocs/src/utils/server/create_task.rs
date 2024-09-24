@@ -62,7 +62,7 @@ pub async fn create_task(
     let bucket_name = config.s3_bucket;
     let ingest_batch_size = config.batch_size;
     let base_url = config.base_url;
-    let task_url = format!("{}/task/{}", base_url, task_id);
+    let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
     let buffer: Vec<u8> = std::fs::read(file.file.path())?;
 
@@ -82,7 +82,8 @@ pub async fn create_task(
     let input_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, file_name);
     let output_extension = model_internal.get_extension();
     let output_location = input_location.replace(".pdf", &format!(".{}", output_extension));
-    let image_folder_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, "images");
+    let image_folder_location =
+        format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, "images");
 
     let message = "Task queued".to_string();
 
