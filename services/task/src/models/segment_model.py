@@ -155,6 +155,7 @@ class Segment(BaseModel):
                 self.markdown = md(self.html)
                 self.markdown = self.markdown.replace(
                     '| |', '|\\n\\n|').strip()
+                print(self.markdown)
             else:
                 # Fallback to simple table representation
                 rows = content.split('\n')
