@@ -197,8 +197,10 @@ class Task:
         end_time = time.time()
         print("Segment processing finished")
         print(f"Total time taken: {end_time - start_time} seconds")
-        print(
-            f"Total time taken per page: {(end_time - start_time) / len(page_images)} seconds")
-        print(
-            f"Total time taken per segment: {(end_time - start_time) / len(segments)} seconds")
+        if len(page_images) > 0:
+            print(
+                f"Total time taken per page: {(end_time - start_time) / len(page_images)} seconds")
+        if len(segments) > 0:
+            print(
+                f"Total time taken per segment: {(end_time - start_time) / len(segments)} seconds")
         return processed_segments
