@@ -2,7 +2,7 @@ import json
 import fitz
 import os
 
-def draw_bounding_boxes(pdf_path, json_data, output_path):
+def draw_bounding_boxes(pdf_path, json_data, output_path, draw_ocr=True):
     # Define colors for different types
     color_map = {
         "Caption": (1, 0, 0),  # Red
@@ -36,14 +36,27 @@ def draw_bounding_boxes(pdf_path, json_data, output_path):
 
         # Draw rectangles for each segment
         for seg in page_segments:
-            rect = fitz.Rect(
-                seg["left"],
-                seg["top"],
-                seg["left"] + seg["width"],
-                seg["top"] + seg["height"],
+            # Draw segment bbox
+            segment_rect = fitz.Rect(
+                seg["bbox"]["top_left"][0],
+                seg["bbox"]["top_left"][1],
+                seg["bbox"]["bottom_right"][0],
+                seg["bbox"]["bottom_right"][1]
             )
-            color = color_map.get(seg["type"], (0, 0, 0))  # Default to black if type not found
-            page.draw_rect(rect, color=color, width=1)
+            color = color_map.get(seg["segment_type"], (0, 0, 0))  # Default to black if type not found
+            page.draw_rect(segment_rect, color=color, width=2)
+
+            # Draw OCR bbox if available and draw_ocr is True
+            if draw_ocr and seg.get("ocr"):
+                for ocr_result in seg["ocr"]:
+                    # Calculate absolute coordinates for OCR bbox
+                    ocr_rect = fitz.Rect(
+                        segment_rect.x0 + ocr_result["bbox"]["top_left"][0],
+                        segment_rect.y0 + ocr_result["bbox"]["top_left"][1],
+                        segment_rect.x0 + ocr_result["bbox"]["bottom_right"][0],
+                        segment_rect.y0 + ocr_result["bbox"]["bottom_right"][1]
+                    )
+                    page.draw_rect(ocr_rect, color=(0, 0.5, 0.5), width=1)  # Teal color for OCR boxes
 
     # Save the modified PDF
     pdf_document.save(output_path)
@@ -56,8 +69,11 @@ if __name__ == "__main__":
         print("Please ensure the JSON file has been generated before running this script.")
         exit(1)
 
+    with open(json_path, 'r') as f:
+        json_data = json.load(f)
+
     draw_bounding_boxes(
         "input/De Beers Jewellers Ltd 2021.pdf",
-        json_path,
+        json_data,
         "output/De Beers Jewellers Ltd 2021_Annotated.pdf",
     )

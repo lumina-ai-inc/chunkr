@@ -6,7 +6,7 @@ CURRENT_DIR=$(pwd)
 cd ../../
 
 # Define the Docker image name as a variable
-DOCKER_IMAGE_NAME="luminainc/task-processor"
+DOCKER_IMAGE_NAME="luminainc/fast"
 
 # Get the current commit SHA
 SHA=$(git rev-parse --short HEAD)

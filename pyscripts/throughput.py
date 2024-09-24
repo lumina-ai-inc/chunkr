@@ -7,10 +7,10 @@ from enum import Enum
 import numpy as np
 from PyPDF2 import PdfReader, PdfWriter
 
-from main import extract_and_annotate_file, GrowthFunc
+from main import main, GrowthFunc
 from models import Model, TableOcr, OcrStrategy
 
-def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num_pdfs: int, model: Model, ocr_strategy: OcrStrategy = OcrStrategy.Auto):
+def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num_pdfs: int, model: Model, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto):
     print("Starting throughput test...")
     if not isinstance(growth_func, GrowthFunc):
         raise ValueError("growth_func must be an instance of GrowthFunc Enum")
@@ -85,7 +85,7 @@ def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num
         for pdf_path in pdf_test_paths:
             start_time = time.time()
             try:
-                extract_and_annotate_file(pdf_path, model, ocr_strategy)
+                main(1, model, target_chunk_length, ocr_strategy)
             except Exception as e:
                 print(f"Failed to process {pdf_path}: {str(e)}")
                 continue
@@ -111,9 +111,9 @@ def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num
 
 
 if __name__ == "__main__":
-    model = Model.HighQuality
+    model = Model.Fast
+    target_chunk_length = 1000  # Example value, adjust as needed
     ocr_strategy = OcrStrategy.Auto
-    throughput_test(GrowthFunc.LINEAR, start_page=1, end_page=40, num_pdfs=10, model=model, ocr_strategy=ocr_strategy)
+    throughput_test(GrowthFunc.LINEAR, start_page=1, end_page=40, num_pdfs=10, model=model, target_chunk_length=target_chunk_length, ocr_strategy=ocr_strategy)
     print("Throughput test completed.")
-
 
