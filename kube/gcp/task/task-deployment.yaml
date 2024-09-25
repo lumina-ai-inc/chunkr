@@ -17,11 +17,11 @@ spec:
     spec:
       containers:
       - name: task
-        image: luminainc/task:95bb209b
+        image: luminainc/task:ed72f2c4
         imagePullPolicy: Always
         envFrom:
         - secretRef:
-            name: task-secrets
+            name: chunkmydocs-secrets
         ports:
         - containerPort: 3000
         securityContext:
