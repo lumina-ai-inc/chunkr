@@ -11,7 +11,7 @@ export default function Calculator() {
   };
 
   const calculateTotalCost = () => {
-    const fastCost = fastPages * 0.002;
+    const fastCost = fastPages * 0.005;
     const highQualityCost = highQualityPages * 0.01;
     return (fastCost + highQualityCost).toFixed(2);
   };
