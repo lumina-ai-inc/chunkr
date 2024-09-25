@@ -44,15 +44,28 @@ class TestPDLAServer(unittest.TestCase):
             raise FileNotFoundError(f"No PDF files found in {self.input_folder}")
         print(f"Found {len(self.test_pdfs)} PDF files for testing.")
 
-    def process_pdf(self, pdf_path):
-        url = f"{self.BASE_URL}/"
-        print(f"Processing PDF file: {pdf_path}")
+    def call_fast_pdla(self, pdf_path):
+        url = f"{self.BASE_URL}/analyze/fast"
+        print(f"Processing fast PDF file: {pdf_path}")
         with open(pdf_path, "rb") as pdf_file:
             files = {"file": (pdf_path.name, pdf_file, "application/pdf")}
-            data = {"fast": "false", "density": 72, "extension": "jpeg"}
-            
-            print(f"Sending POST request to PDLA server for {pdf_path.name}...")
+            response = requests.post(url, files=files)
+        return response
+
+    def call_high_quality_pdla(self, pdf_path):
+        url = f"{self.BASE_URL}/analyze/high-quality"
+        print(f"Processing high quality PDF file: {pdf_path}")
+        with open(pdf_path, "rb") as pdf_file:
+            files = {"file": (pdf_path.name, pdf_file, "application/pdf")}
+            data = {"density": 72, "extension": "jpeg"}
             response = requests.post(url, files=files, data=data)
+        return response
+
+    def process_pdf(self, pdf_path, fast=True):
+        if fast:
+            response = self.call_fast_pdla(pdf_path)
+        else:
+            response = self.call_high_quality_pdla(pdf_path)
         
         print(f"Response status code for {pdf_path.name}: {response.status_code}")
         self.assertEqual(response.status_code, 200)
@@ -74,27 +87,27 @@ class TestPDLAServer(unittest.TestCase):
         print(f"Saving JSON output to: {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(json_response, json_file, indent=2)
-        
-        # Annotate the PDF
-        output_pdf_path = self.output_folder / f"{pdf_path.stem}_Annotated.pdf"
-        print(f"Annotating PDF and saving to: {output_pdf_path}")
-        draw_bounding_boxes(str(pdf_path), json_response, str(output_pdf_path))
-        print(f"Finished processing {pdf_path.name}")
 
-    def test_pdla_high_quality_extraction(self):
+        try:
+            # Annotate the PDF
+            output_pdf_path = self.output_folder / f"{pdf_path.stem}_Annotated.pdf"
+            print(f"Annotating PDF and saving to: {output_pdf_path}")
+            draw_bounding_boxes(str(pdf_path), json_response, str(output_pdf_path))
+            print(f"Finished processing {pdf_path.name}")
+        except Exception as e:
+            print(f"Error annotating PDF: {e}")
+
+    def test_pdla_extraction(self, fast=False):
         url = f"{self.BASE_URL}/"
-        print(f"Testing PDLA high quality extraction at URL: {url}")
+        print(f"Testing PDLA extraction at URL: {url}")
         
         with ThreadPoolExecutor(max_workers=self.MAX_WORKERS) as executor:
-            futures = [executor.submit(self.process_pdf, pdf_path) for pdf_path in self.test_pdfs]
+            futures = [executor.submit(self.process_pdf, pdf_path, fast) for pdf_path in self.test_pdfs]
             for future in as_completed(futures):
                 future.result()  # This will raise any exceptions that occurred during execution
 
-    def throughput_test(self, growth_func: GrowthFunc, start_page: int, end_page: int, num_pdfs: int):
+    def throughput_test(self, growth_func: GrowthFunc, start_page: int, end_page: int, num_pdfs: int, fast=False):
         print("Starting throughput test...")
-        if not isinstance(growth_func, GrowthFunc):
-            raise ValueError("growth_func must be an instance of GrowthFunc Enum")
-
         run_id = f"run_{uuid.uuid4().hex}"
         run_dir = self.input_folder / run_id
         run_dir.mkdir(parents=True, exist_ok=True)
@@ -126,8 +139,6 @@ class TestPDLAServer(unittest.TestCase):
                 multiplier = (i + 1) ** 2
             elif growth_func == GrowthFunc.CUBIC:
                 multiplier = (i + 1) ** 3
-            else:
-                raise ValueError("Unsupported growth function")
 
             test_pdf_name = f"{original_pdf.stem}_{multiplier}x.pdf"
             test_pdf_path = run_dir / test_pdf_name
@@ -177,7 +188,8 @@ class TestPDLAServer(unittest.TestCase):
 
         print(f"Throughput test results saved to {csv_path}")
         print("Throughput test completed successfully.")
-    def test_parallel_requests(self, num_parallel_requests=5):
+
+    def test_parallel_requests(self, num_parallel_requests=5, fast=False):
         print("Starting parallel requests test...")
         input_folder = Path("input")
         pdf_files = list(input_folder.glob("*.pdf"))
@@ -191,7 +203,7 @@ class TestPDLAServer(unittest.TestCase):
         
         def process_pdf(pdf_path):
             start_time = time.time()
-            self.process_pdf(pdf_path)
+            self.process_pdf(pdf_path, fast)
             end_time = time.time()
             processing_time = end_time - start_time
             return pdf_path.name, processing_time
@@ -217,9 +229,9 @@ class TestPDLAServer(unittest.TestCase):
         
         print(f"Parallel requests test results saved to {csv_path}")
         print("Parallel requests test completed successfully.")
+
 if __name__ == "__main__":
     tester = TestPDLAServer()
     tester.setUp()
     # Example of running throughput_test with user-provided parameters
-    tester.throughput_test(GrowthFunc.LINEAR, start_page=18, end_page=88, num_pdfs=5)
-    # tester.test_parallel_requests(num_parallel_requests=2)
+    tester.test_parallel_requests(num_parallel_requests=10, fast=True)
