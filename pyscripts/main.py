@@ -76,9 +76,9 @@ def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length:
 import concurrent.futures
 import glob
 
-def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto):
+def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, dir="input"):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    input_dir = os.path.join(current_dir, "input")
+    input_dir = os.path.join(current_dir,dir)
     pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
 
     if not pdf_files:
@@ -86,7 +86,7 @@ def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_st
         return
 
     # Set the maximum number of parallel requests
-    max_workers = 10
+
 
     print(f"Processing {len(pdf_files)} files with {max_workers} parallel workers...")
 
