@@ -14,8 +14,7 @@ async fn get_reqwest_client() -> &'static ReqwestClient {
 
 async fn call_pdla_api(
     url: &str,
-    file_path: &Path,
-    fast: bool,
+    file_path: &Path
 ) -> Result<String, Box<dyn std::error::Error>> {
     let client = get_reqwest_client().await;
 
@@ -30,13 +29,12 @@ async fn call_pdla_api(
     let part = multipart::Part::bytes(file_fs).file_name(file_name);
 
     let form = multipart::Form::new()
-        .part("file", part)
-        .text("fast", fast.to_string());
+        .part("file", part);
 
     let response = client
         .post(url)
         .multipart(form)
-        .timeout(std::time::Duration::from_secs(3600)) // 1 hour timeout
+        .timeout(std::time::Duration::from_secs(10000)) 
         .send()
         .await?
         .error_for_status()?;
@@ -45,16 +43,16 @@ async fn call_pdla_api(
 
 async fn handle_fast_requests(file_path: &Path) -> Result<String, Box<dyn std::error::Error>> {
     let config = Config::from_env()?;
-    let url = config.pdla_fast_url;
-    call_pdla_api(&url, file_path, true).await
+    let url = format!("{}/analyze/fast", config.pdla_fast_url);
+    call_pdla_api(&url, file_path).await
 }
 
 async fn handle_high_quality_requests(
     file_path: &Path,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let config = Config::from_env()?;
-    let url = config.pdla_url;
-    call_pdla_api(&url, file_path, false).await
+    let url = format!("{}/analyze/high-quality", config.pdla_url);
+    call_pdla_api(&url, file_path).await
 }
 
 async fn process_file(
