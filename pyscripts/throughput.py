@@ -12,9 +12,6 @@ from models import Model, TableOcr, OcrStrategy
 
 def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num_pdfs: int, model: Model, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto):
     print("Starting throughput test...")
-    if not isinstance(growth_func, GrowthFunc):
-        raise ValueError("growth_func must be an instance of GrowthFunc Enum")
-
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_dir = os.path.join(current_dir, "input")
     run_id = f"run_{uuid.uuid4().hex}"
@@ -103,7 +100,7 @@ def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num
             }
             
             writer.writerow(row_data)
-            csvfile.flush()  # Ensure data is written to file
+            csvfile.flush()  
             print(f"Processed {os.path.basename(pdf_path)}: {num_pages} pages in {processing_time:.2f} seconds. Throughput: {throughput:.2f} pages/sec")
 
     print(f"Throughput test results saved to {csv_path}")
@@ -112,7 +109,7 @@ def throughput_test(growth_func: GrowthFunc, start_page: int, end_page: int, num
 
 if __name__ == "__main__":
     model = Model.Fast
-    target_chunk_length = 1000  # Example value, adjust as needed
+    target_chunk_length = 1000  
     ocr_strategy = OcrStrategy.Auto
     throughput_test(GrowthFunc.LINEAR, start_page=1, end_page=40, num_pdfs=10, model=model, target_chunk_length=target_chunk_length, ocr_strategy=ocr_strategy)
     print("Throughput test completed.")

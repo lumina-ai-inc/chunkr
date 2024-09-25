@@ -86,7 +86,7 @@ def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_st
         return
 
     # Set the maximum number of parallel requests
-    max_workers = 1  # You can adjust this number based on your needs
+    max_workers = 10
 
     print(f"Processing {len(pdf_files)} files with {max_workers} parallel workers...")
 
@@ -108,7 +108,7 @@ def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_st
 
 
 if __name__ == "__main__":
-    model = Model.Fast
-    target_chunk_length = 1000  # Example value, adjust as needed
+    model = Model.HighQuality
+    target_chunk_length = 1000
     ocr_strategy = OcrStrategy.Auto
     main(1, model, target_chunk_length, ocr_strategy)
