@@ -36,4 +36,4 @@ Cargo.lock
 .env.prod.DS_Store
 .env.loc
 .DS_Store
-
+cmd.txt
