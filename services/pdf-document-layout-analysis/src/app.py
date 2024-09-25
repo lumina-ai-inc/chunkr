@@ -34,14 +34,21 @@ from asyncio import Lock
 
 processing_lock = Lock()
 
-@app.post("/")
+@app.post("/analyze/fast")
 @catch_exceptions
-async def run(file: UploadFile = File(...), fast: bool = Form(False), density: int = Form(72), extension: str = Form("jpeg")):
-    async with processing_lock:
-        if fast:
-            return analyze_pdf_fast(file.file.read(), "")
+async def run_fast(file: UploadFile = File(...)):
+    return analyze_pdf_fast(file.file.read(), "")
 
+@app.post("/analyze/high-quality")
+@catch_exceptions
+async def run_high_quality(
+    file: UploadFile = File(...),
+    density: int = Form(72),
+    extension: str = Form("jpeg")
+):
+    async with processing_lock:
         return analyze_pdf(file.file.read(), "", density, extension)
+
  
 
 # @app.post("/save_xml/{xml_file_name}")
