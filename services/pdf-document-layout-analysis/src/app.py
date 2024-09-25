@@ -3,6 +3,7 @@ import torch
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import PlainTextResponse
 from asyncio import Lock
+from fastapi.concurrency import run_in_threadpool
 
 from catch_exceptions import catch_exceptions
 from configuration import service_logger
@@ -30,7 +31,7 @@ async def info():
 @app.post("/analyze/fast")
 @catch_exceptions
 async def run_fast(file: UploadFile = File(...)):
-    return analyze_pdf_fast(file.file.read(), "")
+    return await run_in_threadpool(analyze_pdf_fast, file.file.read(), "")
 
 
 @app.post("/analyze/high-quality")
