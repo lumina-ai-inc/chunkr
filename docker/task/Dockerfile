@@ -1,8 +1,19 @@
-FROM pytorch/pytorch:2.3.1-cuda11.8-cudnn8-runtime
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+# Install PyTorch
+RUN pip3 install torch==2.3.1 torchvision torchaudio
+
+# Copy uv from the official image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-RUN apt-get update && apt-get install -y poppler-utils ffmpeg libgomp1  libsm6 libxext6  -y
+# Install system dependencies
+RUN apt-get update && apt-get install -y poppler-utils ffmpeg libgomp1 libsm6 libxext6
+
+# Set up CUDA environment variables
+ENV PATH /usr/local/cuda/bin:$PATH
+ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 WORKDIR /app
 
