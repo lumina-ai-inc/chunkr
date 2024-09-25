@@ -17,7 +17,7 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 WORKDIR /app
 
-COPY services/task/src .
+COPY services/task/src /app/src
 COPY services/task/__init__.py .
 COPY services/task/.python-version .
 COPY services/task/download_models.py .
