@@ -12,7 +12,7 @@ RUN uv run __init__.py
 
 RUN uv pip install .[linux]
 
-RUN uv run download_models.py
+RUN uv run download_models.py || true
 
 EXPOSE 3000
 
