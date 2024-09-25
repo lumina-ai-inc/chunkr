@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: task
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: task
+  template:
+    metadata:
+      namespace: chunkmydocs
+      labels:
+        app.kubernetes.io/name: task
+    spec:
+      containers:
+      - name: task
+        image: luminainc/task:95bb209b
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: task-secrets
+        ports:
+        - containerPort: 3000
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["SYS_ADMIN"]
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+          requests:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: dshm
+          mountPath: /dev/shm
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 5Gi
