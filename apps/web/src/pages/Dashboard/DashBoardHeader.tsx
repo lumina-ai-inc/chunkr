@@ -26,7 +26,6 @@ export default function DashBoardHeader({
 }: DashBoardHeaderProps) {
   const auth = useAuth();
   const user = userProps;
-  console.log(user);
   const tier = userProps.tier;
   const [showApiKey, setShowApiKey] = useState(false);
 

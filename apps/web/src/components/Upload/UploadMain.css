@@ -1,3 +1,9 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .toggle-container {
   filter: drop-shadow(0px 2px 3px rgba(0, 0, 51, 0.06))
     drop-shadow(0px 3px 12px rgba(0, 0, 0, 0.1))
@@ -165,5 +171,80 @@
 
   .card-gradient-overlay {
     display: none;
+  }
+}
+
+.chunk-length-container {
+  margin-top: 40px;
+}
+
+.chunk-length-toggle {
+  background-color: hsla(180, 100%, 100%, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.chunk-length {
+  background-color: transparent;
+  color: hsl(0, 0%, 0%, 0.7);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.chunk-length-active {
+  background-color: hsla(180, 100%, 100%, 0.9);
+  color: hsl(0, 0%, 0%);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.chunk-length:hover {
+  background-color: hsla(180, 100%, 100%, 0.15);
+}
+
+.chunk-length-input {
+  background-color: hsla(180, 100%, 100%);
+  color: hsl(0, 0%, 0%, 0.9);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 8px;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.chunk-length-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: transparent;
+}
+
+.chunk-length-input:focus {
+  outline: none;
+  background-color: hsla(180, 100%, 100%);
+  color: hsl(0, 0%, 0%, 0.9);
+}
+
+.chunk-length-input::placeholder {
+  color: hsl(0, 0%, 0%, 0.5);
+}
+
+@media (max-width: 718px) {
+  .chunk-length-container {
+    width: 100%;
   }
 }
