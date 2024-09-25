@@ -96,9 +96,6 @@ class Segment(BaseModel):
         """
         Generate text representation of the segment
         """
-        if not self.content:
-            return
-
         self.content = self._get_content()
 
     def _create_html(self):
