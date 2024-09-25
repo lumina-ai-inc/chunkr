@@ -681,27 +681,38 @@ export default function Dashboard() {
                 </Flex>
 
                 {tasks?.length === 0 && (
-                  <Code
-                    size="4"
-                    weight="regular"
-                    style={{
-                      color: "hsla(180, 100%, 100%, 0.9)",
-                      backgroundColor: "hsla(180, 100%, 100%, 0.05)",
-                      padding: "24px",
-                    }}
-                  >
-                    <pre>
-                      <code>
-                        {`curl -X POST https://api.chunkmydocs.com/api/task \\
+                  <>
+                    <Flex direction="row" gap="4" mb="4">
+                      <Text
+                        size="4"
+                        weight="regular"
+                        style={{ color: "hsla(180, 100%, 100%, 0.9)" }}
+                      >
+                        Create a task through the homepage or API.
+                      </Text>
+                    </Flex>
+                    <Code
+                      size="4"
+                      weight="regular"
+                      style={{
+                        color: "hsla(180, 100%, 100%)",
+                        backgroundColor: "hsla(180, 100%, 100%, 0.05)",
+                        padding: "24px",
+                      }}
+                    >
+                      <pre>
+                        <code>
+                          {`curl -X POST https://api.chunkmydocs.com/api/task \\
   -H "Content-Type: multipart/form-data" \\
   -H "Authorization: ${user?.api_keys[0]}" \\
   -F "file=@/path/to/your/file.pdf" \\
   -F "model=Fast" \\
   -F "target_chunk_length=512" \\
   -F "ocr_strategy=Auto"`}
-                      </code>
-                    </pre>
-                  </Code>
+                        </code>
+                      </pre>
+                    </Code>
+                  </>
                 )}
 
                 {isLoading ? (
