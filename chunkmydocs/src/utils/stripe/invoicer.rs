@@ -2,14 +2,14 @@ use chrono::Datelike;
 use chrono::NaiveDate;
 use chrono::{DateTime, Utc};
 // use chunkmydocs::models::server::user::InvoiceStatus;
-use chunkmydocs::utils::configs::stripe_config::Config as StripeConfig;
-use chunkmydocs::utils::db::deadpool_postgres::{Client, Pool};
+use crate::utils::configs::stripe_config::Config as StripeConfig;
+use crate::utils::db::deadpool_postgres::{Client, Pool};
 use reqwest::Client as ReqwestClient;
 use serde_json::json;
 use tokio_postgres::Row;
 use uuid::Uuid;
 
-pub async fn invoices_to_execute(
+pub async fn invoice(
     pool: &Pool,
     end_of_month: Option<NaiveDate>,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -44,7 +44,7 @@ pub async fn invoices_to_execute(
             "SELECT i.invoice_id, i.invoice_status, MIN(ti.created_at) as oldest_task_date
              FROM invoices i
              JOIN task_invoices ti ON i.invoice_id = ti.invoice_id
-             JOIN users u ON i.user_id = u.id
+             JOIN users u ON i.user_id = u.user_id
              WHERE i.invoice_status IN ('ongoing', 'failed') AND u.tier != 'free'
              GROUP BY i.invoice_id, i.invoice_status",
             &[],
@@ -81,7 +81,7 @@ pub async fn create_and_send_invoice(
                u.stripe_customer_id,
                ti.usage_type, SUM(ti.pages) as pages
         FROM invoices i
-        JOIN users u ON i.user_id = u.id
+        JOIN users u ON i.user_id = u.user_id
         JOIN task_invoices ti ON i.invoice_id = ti.invoice_id
         WHERE i.invoice_id = $1
         GROUP BY i.invoice_id, i.user_id, i.amount_due, i.total_pages, u.stripe_customer_id, ti.usage_type
@@ -226,20 +226,6 @@ pub async fn create_and_send_invoice(
             &[&stripe_invoice_id, &invoice_id],
         )
         .await?;
-
-    Ok(())
-}
-
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    let pg_pool = chunkmydocs::utils::db::deadpool_postgres::create_pool();
-    // process_daily_invoices(&pg_pool)
-    //     .await
-    //     .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
-
-    invoices_to_execute(&pg_pool, None)
-        .await
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
 
     Ok(())
 }

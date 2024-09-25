@@ -49,6 +49,8 @@ class TaskResponse(BaseModel):
 
 class OcrStrategy(str, Enum):
     Auto = "Auto"
+    Off = "Off"
+    All = "All"
 
 
 class UploadForm(BaseModel):

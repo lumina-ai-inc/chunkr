@@ -8,7 +8,9 @@ use actix_web::HttpRequest;
 use actix_web::{ web, App, HttpServer };
 use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
 use env_logger::Env;
-
+use std::time::Duration; // Add this import
+use std::sync::Arc; // Add this import
+use tokio::time; 
 pub mod task;
 pub mod middleware;
 pub mod models;
@@ -28,6 +30,7 @@ use utils::server::admin_user::get_or_create_admin_user;
 use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
+use utils::stripe::invoicer::invoice;
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 fn run_migrations(url: &str) {
@@ -85,7 +88,7 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 pub fn main() -> std::io::Result<()> {
 
     actix_web::rt::System::new().block_on(async move {
-        let pg_pool = deadpool_postgres::create_pool();
+        let pg_pool = deadpool_postgres::create_pool(); // Wrap in Arc
         let s3_client = create_client().await.expect("Failed to create S3 client");
         run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
         get_or_create_admin_user(&pg_pool).await.expect("Failed to create admin user");
@@ -113,9 +116,20 @@ pub fn main() -> std::io::Result<()> {
         let timeout = std::time::Duration::from_secs(timeout.try_into().unwrap());
 
         env_logger::init_from_env(Env::default().default_filter_or("info"));
-
+        let pg_pool_clone = deadpool_postgres::create_pool(); // Clone the Arc
+        actix_web::rt::spawn(async move {
+            let today = chrono::Utc::now().date_naive();
+            let mut interval = time::interval(Duration::from_secs(86400)); // 86400 seconds = 24 hours
+            loop {
+                interval.tick().await;
+                if let Err(e) = invoice(&pg_pool_clone, None).await {
+                    eprintln!("Error processing daily invoices: {}", e);
+                }
+            }
+        });
         HttpServer::new(move || {
             let mut app = App::new()
+            
                 .wrap(Cors::permissive())
                 .wrap(Logger::default())
                 .wrap(Logger::new("%a %{User-Agent}i"))
