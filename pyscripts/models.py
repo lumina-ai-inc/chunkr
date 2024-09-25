@@ -3,8 +3,6 @@ from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel
 import dotenv
-import json
-from fastapi import UploadFile
 dotenv.load_dotenv(override=True)
 
 class TableOcr(str, Enum):
