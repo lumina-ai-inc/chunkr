@@ -21,6 +21,8 @@ export default function UploadMain({
   const [ocrStrategy, setOcrStrategy] = useState<"Auto" | "All" | "Off">(
     "Auto"
   );
+  const [intelligentChunking, setIntelligentChunking] = useState(true);
+  const [chunkLength, setChunkLength] = useState(512);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -45,6 +47,20 @@ export default function UploadMain({
     setOcrStrategy(strategy);
   };
 
+  const handleIntelligentChunkingToggle = () => {
+    setIntelligentChunking(!intelligentChunking);
+    if (intelligentChunking) {
+      setChunkLength(0);
+    } else {
+      setChunkLength(512);
+    }
+  };
+
+  const handleChunkLengthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    setChunkLength(isNaN(value) ? 0 : value);
+  };
+
   const handleRun = async () => {
     if (!file) {
       console.error("No file uploaded");
@@ -57,7 +73,7 @@ export default function UploadMain({
       file,
       model,
       ocr_strategy: ocrStrategy,
-      target_chunk_length: 512,
+      target_chunk_length: intelligentChunking ? chunkLength : 0,
     };
 
     try {
@@ -366,66 +382,199 @@ export default function UploadMain({
               </Flex>
             </Flex>
           </Flex>
-          <Flex
-            className="ocr-strategy-container"
-            direction="column"
-            mt="40px"
-            gap="4"
-            width="fit-content"
-          >
-            <Text
-              size="4"
-              weight="bold"
-              style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
-            >
-              OCR STRATEGY
-            </Text>
+          <Flex direction="row" gap="88px" wrap="wrap">
             <Flex
-              direction="row"
-              gap="2"
-              className="ocr-strategy-toggle"
-              style={{
-                backgroundColor: "hsla(180, 100%, 100%, 0.1)",
-                borderRadius: "8px",
-                padding: "8px",
-              }}
+              className="ocr-strategy-container"
+              direction="column"
+              mt="40px"
+              gap="4"
+              width="fit-content"
             >
-              {["Auto", "All", "Off"].map((strategy) => (
-                <Flex
-                  key={strategy}
-                  align="center"
-                  justify="center"
-                  className={
-                    ocrStrategy === strategy
-                      ? "ocr-strategy-active"
-                      : "ocr-strategy"
-                  }
-                  onClick={() =>
-                    handleOcrStrategyChange(strategy as "Auto" | "All" | "Off")
-                  }
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    transition: "background-color 0.2s ease",
-                  }}
-                >
-                  <Text
-                    size="2"
-                    weight="bold"
+              <Text
+                size="4"
+                weight="bold"
+                style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+              >
+                OCR STRATEGY
+              </Text>
+              <Flex
+                direction="row"
+                gap="2"
+                className="ocr-strategy-toggle"
+                style={{
+                  backgroundColor: "hsla(180, 100%, 100%, 0.1)",
+                  borderRadius: "8px",
+                  padding: "8px",
+                }}
+              >
+                {["Auto", "All", "Off"].map((strategy) => (
+                  <Flex
+                    key={strategy}
+                    align="center"
+                    justify="center"
+                    className={
+                      ocrStrategy === strategy
+                        ? "ocr-strategy-active"
+                        : "ocr-strategy"
+                    }
+                    onClick={() =>
+                      handleOcrStrategyChange(
+                        strategy as "Auto" | "All" | "Off"
+                      )
+                    }
                     style={{
-                      color:
-                        ocrStrategy === strategy
-                          ? "hsl(0, 0%, 0%)"
-                          : "hsl(0, 0%, 100%, 0.7)",
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      transition: "background-color 0.2s ease",
                     }}
                   >
-                    {strategy.toUpperCase()}
-                  </Text>
+                    <Text
+                      size="2"
+                      weight="bold"
+                      style={{
+                        color:
+                          ocrStrategy === strategy
+                            ? "hsl(0, 0%, 0%)"
+                            : "hsl(0, 0%, 100%, 0.7)",
+                      }}
+                    >
+                      {strategy.toUpperCase()}
+                    </Text>
+                  </Flex>
+                ))}
+              </Flex>
+            </Flex>
+            <Flex
+              className="chunk-length-container"
+              direction="column"
+              mt="40px"
+              gap="4"
+              width="fit-content"
+            >
+              <Text
+                size="4"
+                weight="bold"
+                style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+              >
+                INTELLIGENT CHUNKING
+              </Text>
+              <Flex direction="row" gap="5" wrap="wrap">
+                <Flex
+                  direction="row"
+                  gap="2"
+                  width="fit-content"
+                  className="chunk-length-toggle"
+                  style={{
+                    backgroundColor: "hsla(180, 100%, 100%, 0.1)",
+                    borderRadius: "8px",
+                    padding: "8px",
+                  }}
+                >
+                  <Flex
+                    align="center"
+                    justify="center"
+                    className={
+                      intelligentChunking
+                        ? "chunk-length-active"
+                        : "chunk-length"
+                    }
+                    onClick={handleIntelligentChunkingToggle}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      transition: "background-color 0.2s ease",
+                    }}
+                  >
+                    <Text
+                      size="2"
+                      weight="bold"
+                      style={{
+                        color: intelligentChunking
+                          ? "hsl(0, 0%, 0%)"
+                          : "hsl(0, 0%, 100%, 0.7)",
+                      }}
+                    >
+                      ON
+                    </Text>
+                  </Flex>
+                  <Flex
+                    align="center"
+                    justify="center"
+                    className={
+                      !intelligentChunking
+                        ? "chunk-length-active"
+                        : "chunk-length"
+                    }
+                    onClick={handleIntelligentChunkingToggle}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      transition: "background-color 0.2s ease",
+                    }}
+                  >
+                    <Text
+                      size="2"
+                      weight="bold"
+                      style={{
+                        color: !intelligentChunking
+                          ? "hsl(0, 0%, 0%)"
+                          : "hsl(0, 0%, 100%, 0.7)",
+                      }}
+                    >
+                      OFF
+                    </Text>
+                  </Flex>
                 </Flex>
-              ))}
+                {intelligentChunking && (
+                  <Flex
+                    direction="row"
+                    align="center"
+                    justify="center"
+                    style={{
+                      backgroundColor: "hsla(180, 100%, 100%, 0.1)",
+                      borderRadius: "6px",
+                      padding: "8px",
+                      width: "fit-content",
+                    }}
+                  >
+                    <input
+                      type="number"
+                      min="1"
+                      value={chunkLength}
+                      onChange={handleChunkLengthChange}
+                      className="chunk-length-input"
+                      style={{
+                        display: "flex",
+                        border: "none",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        width: "48px",
+                        marginTop: "0px",
+                        marginRight: "12px",
+                        appearance: "textfield",
+                        MozAppearance: "textfield",
+                        WebkitAppearance: "textfield",
+                      }}
+                    />
+                    <Text
+                      size="2"
+                      weight="bold"
+                      style={{
+                        color: "hsl(0, 0%, 100%, 0.7)",
+                        paddingRight: "12px",
+                      }}
+                    >
+                      {chunkLength === 0 ? "" : "max-words/chunk"}
+                    </Text>
+                  </Flex>
+                )}
+              </Flex>
             </Flex>
           </Flex>
+
           <Flex direction="row" width="100%" mt="40px">
             <Flex
               direction="column"

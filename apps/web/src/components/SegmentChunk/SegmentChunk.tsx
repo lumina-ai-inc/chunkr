@@ -21,12 +21,10 @@ export const SegmentChunk = forwardRef<
   }
 >(({ chunk, containerWidth }, ref) => {
   const [selectedView, setSelectedView] = useState<
-    "markdown" | "json" | "html"
-  >("markdown");
+    "html" | "markdown" | "json"
+  >("html");
   // const [markdownSelected, setMarkdownSelected] = useState<boolean>(true);
   const accordionWidth = containerWidth - 48;
-
-  console.log(chunk);
 
   const segmentTypeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -112,7 +110,7 @@ export const SegmentChunk = forwardRef<
                 </Flex>
 
                 <Flex gap="4">
-                  {["markdown", "html", "json"].map((view) => (
+                  {["html", "markdown", "json"].map((view) => (
                     <Text
                       key={view}
                       size="3"
@@ -126,7 +124,7 @@ export const SegmentChunk = forwardRef<
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedView(view as "markdown" | "html" | "json");
+                        setSelectedView(view as "html" | "markdown" | "json");
                       }}
                     >
                       {view === "markdown" ? "Markdown" : view.toUpperCase()}
@@ -138,6 +136,13 @@ export const SegmentChunk = forwardRef<
           </Accordion.Header>
           <Accordion.Content className="AccordionContent">
             <div className="AccordionContentText">
+              {selectedView === "html" && (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(combinedHtml),
+                  }}
+                />
+              )}
               {selectedView === "markdown" && (
                 <ReactMarkdown
                   className="cyan-2"
@@ -159,13 +164,6 @@ export const SegmentChunk = forwardRef<
                     />
                   </div>
                 ))}
-              {selectedView === "html" && (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(combinedHtml),
-                  }}
-                />
-              )}
             </div>
           </Accordion.Content>
         </Accordion.Item>
