@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-service
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: task
+  annotations:
+    cloud.google.com/backend-config: '{"default": "task-backendconfig"}'
+spec:
+  selector:
+    app.kubernetes.io/name: task
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: task-backendconfig
+  namespace: chunkmydocs
+spec:
+  timeoutSec: 10000
