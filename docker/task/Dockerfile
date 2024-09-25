@@ -25,6 +25,8 @@ COPY services/task/pyproject.toml .
 COPY services/task/service.py .
 COPY services/task/uv.lock .
 
+RUN rm -rf /app/src/__pycache__
+
 RUN uv run __init__.py
 
 RUN uv pip install .[linux]
