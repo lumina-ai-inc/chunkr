@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: task
-        image: luminainc/task:ed72f2c4
+        image: luminainc/task:fd702323
         imagePullPolicy: Always
         envFrom:
         - secretRef:
