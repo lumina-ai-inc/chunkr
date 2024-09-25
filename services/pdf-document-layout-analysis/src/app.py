@@ -2,6 +2,7 @@ import sys
 import torch
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import PlainTextResponse
+from asyncio import Lock
 
 from catch_exceptions import catch_exceptions
 from configuration import service_logger
@@ -14,6 +15,8 @@ from toc.get_toc import get_toc
 service_logger.info(f"Is PyTorch using GPU: {torch.cuda.is_available()}")
 
 app = FastAPI()
+processing_lock = Lock()
+
 
 @app.get("/readiness")
 def readiness():
@@ -24,20 +27,11 @@ def readiness():
 async def info():
     return sys.version + " Using GPU: " + str(torch.cuda.is_available())
 
-
-@app.get("/error")
-async def error():
-    raise FileNotFoundError("This is a test error from the error endpoint")
-
-
-from asyncio import Lock
-
-processing_lock = Lock()
-
 @app.post("/analyze/fast")
 @catch_exceptions
 async def run_fast(file: UploadFile = File(...)):
     return analyze_pdf_fast(file.file.read(), "")
+
 
 @app.post("/analyze/high-quality")
 @catch_exceptions
@@ -49,7 +43,6 @@ async def run_high_quality(
     async with processing_lock:
         return analyze_pdf(file.file.read(), "", density, extension)
 
- 
 
 # @app.post("/save_xml/{xml_file_name}")
 # @catch_exceptions
