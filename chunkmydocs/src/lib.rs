@@ -119,10 +119,11 @@ pub fn main() -> std::io::Result<()> {
         let pg_pool_clone = deadpool_postgres::create_pool(); // Clone the Arc
         actix_web::rt::spawn(async move {
             let today = chrono::Utc::now().date_naive();
-            let mut interval = time::interval(Duration::from_secs(86400)); // 86400 seconds = 24 hours
+            let mut interval = time::interval(Duration::from_secs(3)); // 86400 seconds = 24 hours
             loop {
                 interval.tick().await;
-                if let Err(e) = invoice(&pg_pool_clone, None).await {
+                println!("Processing daily invoices");
+                if let Err(e) = invoice(&pg_pool_clone, Some(today)).await {
                     eprintln!("Error processing daily invoices: {}", e);
                 }
             }

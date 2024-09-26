@@ -14,7 +14,6 @@ pub async fn invoice(
     end_of_month: Option<NaiveDate>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
-
     // Determine the end of the month date
     let today = Utc::now().naive_utc();
     let end_of_month_date = match end_of_month {
@@ -45,23 +44,30 @@ pub async fn invoice(
              FROM invoices i
              JOIN task_invoices ti ON i.invoice_id = ti.invoice_id
              JOIN users u ON i.user_id = u.user_id
-             WHERE i.invoice_status IN ('ongoing', 'failed') AND u.tier != 'free'
+             WHERE i.invoice_status IN ('Ongoing', 'Failed') AND u.tier = 'PayAsYouGo'
              GROUP BY i.invoice_id, i.invoice_status",
             &[],
         )
         .await?;
 
+    println!("todays date {:?}", today.date());
+    println!("end of month date {:?}", end_of_month_date);
+    println!("invoices {:?}", invoices);
     for row in invoices {
         let invoice_id: String = row.get("invoice_id");
         let invoice_status: String = row.get("invoice_status");
 
-        if invoice_status == "failed" {
+        if invoice_status == "Failed" {
             // Skip failed invoices
             continue;
         }
 
         // Check if today is the end of the month
-        if invoice_status == "ongoing" && today.date() == end_of_month_date {
+        if invoice_status == "Ongoing" && today.date() == end_of_month_date {
+            println!(
+                "creating and sending invoice for invoice id {:?}",
+                invoice_id
+            );
             create_and_send_invoice(&pool, &invoice_id).await?;
         }
     }
@@ -78,13 +84,13 @@ pub async fn create_and_send_invoice(
     // Query to get invoice details, customer info, and usage
     let query = "
         SELECT i.invoice_id, i.user_id, i.amount_due, i.total_pages,
-               u.stripe_customer_id,
+               u.customer_id,
                ti.usage_type, SUM(ti.pages) as pages
         FROM invoices i
         JOIN users u ON i.user_id = u.user_id
         JOIN task_invoices ti ON i.invoice_id = ti.invoice_id
         WHERE i.invoice_id = $1
-        GROUP BY i.invoice_id, i.user_id, i.amount_due, i.total_pages, u.stripe_customer_id, ti.usage_type
+        GROUP BY i.invoice_id, i.user_id, i.amount_due, i.total_pages, u.customer_id, ti.usage_type
     ";
 
     let rows = client.query(query, &[&invoice_id]).await?;
@@ -94,14 +100,15 @@ pub async fn create_and_send_invoice(
     }
 
     let row = &rows[0];
-    let stripe_customer_id: String = row.get("stripe_customer_id");
+    let stripe_customer_id: String = row.get("customer_id");
 
     // Create line items based on usage
     let mut line_items = Vec::new();
     let mut discount_message = String::new();
+    let mut discount_updates = Vec::new();
     for row in &rows {
         let usage_type: String = row.get("usage_type");
-        let pages: i32 = row.get("pages");
+        let pages: i32 = row.get::<_, i64>("pages") as i32;
 
         // Check for discounts
         let discount_query = "
@@ -125,24 +132,25 @@ pub async fn create_and_send_invoice(
         };
 
         // Apply discount if available
-        if let Some(_) = discount_amount {
-            // let _discounted_price: f64 =
-            //     (pages as f64 * amount).min(row.get::<_, f64>("amount_due"));
+        if let Some(discount) = discount_amount {
+            let remaining_discount = discount - pages as f64;
+            if remaining_discount > 0.0 {
+                discount_updates.push((
+                    row.get::<_, String>("user_id"),
+                    usage_type.clone(),
+                    remaining_discount,
+                ));
+            } else {
+                discount_updates.push((row.get::<_, String>("user_id"), usage_type.clone(), 0.0));
+            }
             line_items.push(json!({
                 "price": price_id,
                 "quantity": quantity,
             }));
             discount_message.push_str(&format!(
                 "DISCOUNT APPLIED for USAGE TYPE: {} and {} PAGES\n",
-                usage_type, pages
+                usage_type, discount
             ));
-            // Remove the discount from the discounts table
-            client
-                .execute(
-                    "DELETE FROM discounts WHERE user_id = $1 AND usage_type = $2",
-                    &[&row.get::<_, String>("user_id"), &usage_type],
-                )
-                .await?;
         } else {
             line_items.push(json!({
                 "price": price_id,
@@ -150,7 +158,7 @@ pub async fn create_and_send_invoice(
             }));
         }
     }
-
+    println!("line items {:?}", line_items);
     // Create invoice in Stripe
     let stripe_config = StripeConfig::from_env()?;
     let reqwest_client = ReqwestClient::new();
@@ -177,24 +185,30 @@ pub async fn create_and_send_invoice(
     let invoice: serde_json::Value = response.json().await?;
     let stripe_invoice_id = invoice["id"].as_str().unwrap();
 
-    // Add line items to the invoice
     for line_item in line_items {
         let response = reqwest_client
-            .post(&format!(
-                "https://api.stripe.com/v1/invoices/{}/lines",
-                stripe_invoice_id
-            ))
+            .post("https://api.stripe.com/v1/invoiceitems")
             .header("Authorization", format!("Bearer {}", stripe_config.api_key))
             .form(&[
+                ("customer", stripe_customer_id.as_str()),
                 ("price", line_item["price"].as_str().unwrap()),
                 ("quantity", &line_item["quantity"].to_string()),
+                ("invoice", stripe_invoice_id), // Attach the item to the invoice
+                (
+                    "description",
+                    &format!(
+                        "DISCOUNT APPLIED for USAGE TYPE: {} and {} PAGES",
+                        line_item["usage_type"], // Adjust based on your actual data structure
+                        line_item["discount_amount"]
+                    ),
+                ),
             ])
             .send()
             .await?;
 
         if !response.status().is_success() {
             return Err(format!(
-                "Failed to add line item to Stripe invoice: {}",
+                "Failed to add invoice item to Stripe invoice: {}",
                 response.text().await?
             )
             .into());
@@ -226,6 +240,16 @@ pub async fn create_and_send_invoice(
             &[&stripe_invoice_id, &invoice_id],
         )
         .await?;
+
+    // Update discounts table
+    for (user_id, usage_type, remaining_discount) in discount_updates {
+        client
+            .execute(
+                "UPDATE discounts SET amount = $1 WHERE user_id = $2 AND usage_type = $3",
+                &[&remaining_discount, &user_id, &usage_type],
+            )
+            .await?;
+    }
 
     Ok(())
 }

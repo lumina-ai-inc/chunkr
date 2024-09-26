@@ -89,20 +89,27 @@ def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_st
 
 
     print(f"Processing {len(pdf_files)} files with {max_workers} parallel workers...")
+    import time
+    elapsed_times = []
+
+    def timed_extract(file_path):
+        start_time = time.time()
+        extract_and_annotate_file(file_path, model, target_chunk_length, ocr_strategy)
+        end_time = time.time()
+        return {'file_path': file_path, 'elapsed_time': end_time - start_time}
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = []
-        for file_path in pdf_files:
-            future = executor.submit(extract_and_annotate_file, file_path, model, target_chunk_length, ocr_strategy)
-            futures.append(future)
+        futures = [executor.submit(timed_extract, file_path) for file_path in pdf_files]
 
         for future in concurrent.futures.as_completed(futures):
             try:
-                future.result()
+                result = future.result()
+                elapsed_times.append(result)
             except Exception as e:
                 print(f"An error occurred: {str(e)}")
 
     print("All files processed.")
+    return elapsed_times
 
 
 
@@ -111,4 +118,6 @@ if __name__ == "__main__":
     model = Model.HighQuality
     target_chunk_length = 1000
     ocr_strategy = OcrStrategy.Auto
-    main(1, model, target_chunk_length, ocr_strategy)
+    times=main(4, model, target_chunk_length, ocr_strategy, "input")
+    print(f"Time taken to process {times:.2f} seconds")
+
