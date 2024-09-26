@@ -8,8 +8,7 @@ use actix_web::HttpRequest;
 use actix_web::{ web, App, HttpServer };
 use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
 use env_logger::Env;
-use std::time::Duration; // Add this import
-use std::sync::Arc; // Add this import
+use std::time::Duration;
 use tokio::time; 
 pub mod task;
 pub mod middleware;
