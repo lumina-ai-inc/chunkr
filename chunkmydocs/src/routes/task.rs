@@ -17,12 +17,15 @@ use uuid::Uuid;
     context_path = "/api/v1",
     tag = "Task",
     params(
-        ("task_id" = Option<String>, Path, description = "Id of the task to get."),
+        ("task_id" = Option<String>, Path, description = "Id of the task to retrieve")
     ),
     responses(
         (status = 200, description = "Detailed information describing the task", body = TaskResponse),
         (status = 500, description = "Internal server error related to getting the task", body = String),
     ),
+    security(
+        ("api_key" = []),
+    )
 )]
 pub async fn get_task_status(
     pool: web::Data<Pool>,
@@ -57,11 +60,14 @@ pub async fn get_task_status(
     path = "/task",
     context_path = "/api/v1",
     tag = "Task",
-    request_body(content = UploadForm, description = "Multipart form encoded data to create an task", content_type = "multipart/form-data"),
+    request_body(content = UploadForm, description = "Multipart form request to create an task", content_type = "multipart/form-data"),
     responses(
         (status = 200, description = "Detailed information describing the task such that it's status can be polled for", body = TaskResponse),
         (status = 500, description = "Internal server error related to creating the task", body = String),
     ),
+    security(
+        ("api_key" = []),
+    )
 )]
 pub async fn create_extraction_task(
     req: HttpRequest,
