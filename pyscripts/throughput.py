@@ -115,17 +115,17 @@ def throughput_test(
     print("Throughput test completed successfully.")
 
 if __name__ == "__main__":
-    model = Model.HighQuality
+    model = Model.Fast
     target_chunk_length = 1000  
     ocr_strategy = OcrStrategy.Off
     throughput_test(
-        growth_func=GrowthFunc.EXPONENTIAL,
+        growth_func=GrowthFunc.LINEAR,
         start_page=1,
-        end_page=5,
-        num_pdfs=7,
+        end_page=10,
+        num_pdfs=5,
         model=model,
         target_chunk_length=target_chunk_length,
         ocr_strategy=ocr_strategy,
-        num_workers=4
+        num_workers=5
     )
     print("Throughput test completed.")

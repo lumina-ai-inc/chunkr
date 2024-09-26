@@ -137,12 +137,16 @@ pub fn main() -> std::io::Result<()> {
         let pg_pool_clone = deadpool_postgres::create_pool(); // Clone the Arc
         if std::env::var("STRIPE__API_KEY").is_ok() {
             actix_web::rt::spawn(async move {
-                let today = chrono::Utc::now().date_naive();
-                let mut interval = time::interval(Duration::from_secs(86400)); // 86400 seconds = 24 hours
+                let _ = chrono::Utc::now().date_naive();
+                let interval = std::env::var("INVOICE_INTERVAL")
+                    .unwrap_or_else(|_| "86400".to_string())
+                    .parse()
+                    .expect("INVOICE_INTERVAL must be a valid usize");
+                let mut interval = time::interval(Duration::from_secs(interval)); // 86400 seconds = 24 hours
                 loop {
                     interval.tick().await;
                     println!("Processing daily invoices");
-                    if let Err(e) = invoice(&pg_pool_clone, Some(today)).await {
+                    if let Err(e) = invoice(&pg_pool_clone, None).await {
                         eprintln!("Error processing daily invoices: {}", e);
                     }
                 }
@@ -193,7 +197,7 @@ pub fn main() -> std::io::Result<()> {
 
             app.service(api_scope)
         })
-        .bind("0.0.0.0:8000")?
+        .bind("0.0.0.0:8010")?
         .keep_alive(timeout)
         .run()
         .await
