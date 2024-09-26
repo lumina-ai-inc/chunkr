@@ -106,6 +106,8 @@ pub async fn create_and_send_invoice(
     let mut line_items = Vec::new();
     let mut discount_message = String::new();
     let mut discount_updates = Vec::new();
+    let mut usage_summary = String::new();
+
     for row in &rows {
         let usage_type: String = row.get("usage_type");
         let pages: i32 = row.get::<_, i64>("pages") as i32;
@@ -131,33 +133,51 @@ pub async fn create_and_send_invoice(
             _ => return Err("Invalid usage type".into()),
         };
 
+        let mut charged_pages = pages;
+        let mut discounted_pages = 0;
+
         // Apply discount if available
         if let Some(discount) = discount_amount {
-            let remaining_discount = discount - pages as f64;
-            if remaining_discount > 0.0 {
+            if discount > 0.0 {
+                if discount >= pages as f64 {
+                    discounted_pages = pages;
+                    charged_pages = 0;
+                } else {
+                    discounted_pages = discount as i32;
+                    charged_pages = pages - discounted_pages;
+                }
+                let remaining_discount = discount - discounted_pages as f64;
                 discount_updates.push((
                     row.get::<_, String>("user_id"),
                     usage_type.clone(),
                     remaining_discount,
                 ));
-            } else {
-                discount_updates.push((row.get::<_, String>("user_id"), usage_type.clone(), 0.0));
             }
+        }
+
+        if charged_pages > 0 {
             line_items.push(json!({
                 "price": price_id,
-                "quantity": quantity,
-            }));
-            discount_message.push_str(&format!(
-                "DISCOUNT APPLIED for USAGE TYPE: {} and {} PAGES\n",
-                usage_type, discount
-            ));
-        } else {
-            line_items.push(json!({
-                "price": price_id,
-                "quantity": quantity,
+                "quantity": charged_pages,
             }));
         }
+
+        usage_summary.push_str(&format!("{} pages: {}\n", usage_type, pages));
+        if discounted_pages > 0 {
+            usage_summary.push_str(&format!(
+                "discounted {} pages: {}\n",
+                usage_type, discounted_pages
+            ));
+        }
+        if charged_pages > 0 {
+            usage_summary.push_str(&format!(
+                "Pages charged {}: {}\n",
+                usage_type, charged_pages
+            ));
+        }
     }
+
+    discount_message.push_str(&usage_summary);
     println!("line items {:?}", line_items);
     // Create invoice in Stripe
     let stripe_config = StripeConfig::from_env()?;
@@ -194,14 +214,6 @@ pub async fn create_and_send_invoice(
                 ("price", line_item["price"].as_str().unwrap()),
                 ("quantity", &line_item["quantity"].to_string()),
                 ("invoice", stripe_invoice_id), // Attach the item to the invoice
-                (
-                    "description",
-                    &format!(
-                        "DISCOUNT APPLIED for USAGE TYPE: {} and {} PAGES",
-                        line_item["usage_type"], // Adjust based on your actual data structure
-                        line_item["discount_amount"]
-                    ),
-                ),
             ])
             .send()
             .await?;
