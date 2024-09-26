@@ -85,9 +85,6 @@ def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_st
         print("No PDF files found in the input folder.")
         return
 
-    # Set the maximum number of parallel requests
-
-
     print(f"Processing {len(pdf_files)} files with {max_workers} parallel workers...")
     import time
     elapsed_times = []

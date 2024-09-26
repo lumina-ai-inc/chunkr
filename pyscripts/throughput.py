@@ -28,11 +28,10 @@ def throughput_test(
     os.makedirs(run_dir, exist_ok=True)
     print(f"Created run directory: {run_dir}")
 
-    # Select only the first PDF from the input directory
     pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
     if not pdf_files:
         raise ValueError("No PDF files found in the input folder.")
-    original_pdf = pdf_files[0]  # Use only the first PDF
+    original_pdf = pdf_files[0]  
 
     # Create a new PDF with only the specified page range from the first PDF
     base_pdf_writer = PdfWriter()
@@ -45,7 +44,6 @@ def throughput_test(
     with open(base_pdf_path, 'wb') as output_file:
         base_pdf_writer.write(output_file)
 
-    # Create all test PDFs by duplicating the base PDF according to the growth function
     for i in range(1, num_pdfs + 1):
         if growth_func == GrowthFunc.LINEAR:
             multiplier = i
@@ -76,7 +74,6 @@ def throughput_test(
 
         print(f"Created {test_pdf_path} with multiplier {multiplier}x")
 
-    # Process all created PDFs and log results
     output_dir = os.path.join(current_dir, "output")
     os.makedirs(output_dir, exist_ok=True)
     csv_path = os.path.join(output_dir, f"throughput_results_{growth_func.value}_{run_id}.csv")
@@ -88,7 +85,6 @@ def throughput_test(
         csvfile.flush()
 
         try:
-            # Pass the run_dir and num_workers to the main function
             elapsed_times = main(num_workers, model, target_chunk_length, ocr_strategy, run_dir)
         except Exception as e:
             print(f"Failed to process {run_dir}: {str(e)}")
