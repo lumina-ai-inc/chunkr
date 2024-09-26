@@ -197,7 +197,7 @@ pub fn main() -> std::io::Result<()> {
 
             app.service(api_scope)
         })
-        .bind("0.0.0.0:8010")?
+        .bind("0.0.0.0:8000")?
         .keep_alive(timeout)
         .run()
         .await
