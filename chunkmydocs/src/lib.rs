@@ -107,7 +107,7 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
-        let pg_pool = deadpool_postgres::create_pool(); // Wrap in Arc
+        let pg_pool = deadpool_postgres::create_pool();
         let s3_client = create_client().await.expect("Failed to create S3 client");
         run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
         get_or_create_admin_user(&pg_pool)
@@ -120,11 +120,11 @@ pub fn main() -> std::io::Result<()> {
         }
 
         let max_size: usize = std::env::var("MAX_TOTAL_LIMIT")
-            .unwrap_or_else(|_| "10485760".to_string()) // Default to 10 MB if not set
+            .unwrap_or_else(|_| "10485760".to_string())
             .parse()
             .expect("MAX_TOTAL_LIMIT must be a valid usize");
         let max_memory_size: usize = std::env::var("MAX_MEMORY_LIMIT")
-            .unwrap_or_else(|_| "10485760".to_string()) // Default to 10 MB if not set
+            .unwrap_or_else(|_| "10485760".to_string())
             .parse()
             .expect("MAX_MEMORY_LIMIT must be a valid usize");
         let timeout: usize = std::env::var("TIMEOUT")
@@ -134,15 +134,19 @@ pub fn main() -> std::io::Result<()> {
         let timeout = std::time::Duration::from_secs(timeout.try_into().unwrap());
 
         env_logger::init_from_env(Env::default().default_filter_or("info"));
-        let pg_pool_clone = deadpool_postgres::create_pool(); // Clone the Arc
+        let pg_pool_clone = deadpool_postgres::create_pool();
         if std::env::var("STRIPE__API_KEY").is_ok() {
             actix_web::rt::spawn(async move {
-                let today = chrono::Utc::now().date_naive();
-                let mut interval = time::interval(Duration::from_secs(86400)); // 86400 seconds = 24 hours
+                let _ = chrono::Utc::now().date_naive();
+                let interval = std::env::var("INVOICE_INTERVAL")
+                    .unwrap_or_else(|_| "86400".to_string())
+                    .parse()
+                    .expect("INVOICE_INTERVAL must be a valid usize");
+                let mut interval = time::interval(Duration::from_secs(interval));
                 loop {
                     interval.tick().await;
                     println!("Processing daily invoices");
-                    if let Err(e) = invoice(&pg_pool_clone, Some(today)).await {
+                    if let Err(e) = invoice(&pg_pool_clone, None).await {
                         eprintln!("Error processing daily invoices: {}", e);
                     }
                 }
@@ -193,7 +197,7 @@ pub fn main() -> std::io::Result<()> {
 
             app.service(api_scope)
         })
-        .bind("0.0.0.0:8000")?
+        .bind("0.0.0.0:8010")?
         .keep_alive(timeout)
         .run()
         .await
