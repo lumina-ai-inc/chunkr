@@ -58,7 +58,7 @@ fn run_migrations(url: &str) {
         version = "1.0.0"
     ),
     servers(
-        (url = "https://www.chunkr.ai", description = "Production server"),
+        (url = "https://api.chunkr.ai", description = "Production server"),
     ),
     servers((url = "https://www.chunkr.ai", description = "Production server")),
     paths(
