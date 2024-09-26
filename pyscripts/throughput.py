@@ -17,7 +17,8 @@ def throughput_test(
     num_pdfs: int,
     model: Model,
     target_chunk_length: int = None,
-    ocr_strategy: OcrStrategy = OcrStrategy.Auto
+    ocr_strategy: OcrStrategy = OcrStrategy.Auto,
+    num_workers: int = 1,
 ):
     print("Starting throughput test...")
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,7 +33,6 @@ def throughput_test(
     if not pdf_files:
         raise ValueError("No PDF files found in the input folder.")
     original_pdf = pdf_files[0]  # Use only the first PDF
-    pdf_test_paths = []
 
     # Create a new PDF with only the specified page range from the first PDF
     base_pdf_writer = PdfWriter()
@@ -60,11 +60,8 @@ def throughput_test(
         else:
             raise ValueError("Unsupported growth function")
 
-        pdf_dir = os.path.join(run_dir, f"pdf_{multiplier}x")
-        os.makedirs(pdf_dir, exist_ok=True)
-
         test_pdf_name = f"{os.path.basename(original_pdf).split('.')[0]}_{multiplier}x.pdf"
-        test_pdf_path = os.path.join(pdf_dir, test_pdf_name)
+        test_pdf_path = os.path.join(run_dir, test_pdf_name)
 
         # Create the test PDF by duplicating the base PDF based on the multiplier
         test_pdf_writer = PdfWriter()
@@ -78,36 +75,33 @@ def throughput_test(
             test_pdf_writer.write(output_file)
 
         print(f"Created {test_pdf_path} with multiplier {multiplier}x")
-        pdf_test_paths.append(pdf_dir)
 
     # Process all created PDFs and log results
     output_dir = os.path.join(current_dir, "output")
     os.makedirs(output_dir, exist_ok=True)
     csv_path = os.path.join(output_dir, f"throughput_results_{growth_func.value}_{run_id}.csv")
     fieldnames = ['PDF Name', 'Number of Pages', 'Processing Time (seconds)', 'Throughput (pages/sec)']
-    print(f"pdf_test_paths: {pdf_test_paths}")
+    
     with open(csv_path, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         csvfile.flush()
 
-        for pdf_dir in pdf_test_paths:
-            start_time = time.time()
-            try:
-                # Pass the specific pdf_dir to the main function
-                main(1, model, target_chunk_length, ocr_strategy, pdf_dir)
-            except Exception as e:
-                print(f"Failed to process {pdf_dir}: {str(e)}")
-                continue
-            end_time = time.time()
+        try:
+            # Pass the run_dir and num_workers to the main function
+            elapsed_times = main(num_workers, model, target_chunk_length, ocr_strategy, run_dir)
+        except Exception as e:
+            print(f"Failed to process {run_dir}: {str(e)}")
+            return
 
-            processing_time = end_time - start_time
-            pdf_path = glob.glob(os.path.join(pdf_dir, "*.pdf"))[0]  # Get the PDF file in the directory
-            num_pages = len(PdfReader(pdf_path).pages)
+        for result in elapsed_times:
+            pdf_file = result['file_path']
+            processing_time = result['elapsed_time']
+            num_pages = len(PdfReader(pdf_file).pages)
             throughput = num_pages / processing_time if processing_time > 0 else float('inf')
 
             row_data = {
-                'PDF Name': os.path.basename(pdf_path),
+                'PDF Name': os.path.basename(pdf_file),
                 'Number of Pages': num_pages,
                 'Processing Time (seconds)': f"{processing_time:.2f}",
                 'Throughput (pages/sec)': f"{throughput:.2f}"
@@ -115,7 +109,7 @@ def throughput_test(
 
             writer.writerow(row_data)
             csvfile.flush()
-            print(f"Processed {os.path.basename(pdf_path)}: {num_pages} pages in {processing_time:.2f} seconds. Throughput: {throughput:.2f} pages/sec")
+            print(f"Processed {os.path.basename(pdf_file)}: {num_pages} pages in {processing_time:.2f} seconds. Throughput: {throughput:.2f} pages/sec")
 
     print(f"Throughput test results saved to {csv_path}")
     print("Throughput test completed successfully.")
@@ -128,9 +122,10 @@ if __name__ == "__main__":
         growth_func=GrowthFunc.LINEAR,
         start_page=1,
         end_page=10,
-        num_pdfs=2,
+        num_pdfs=10,
         model=model,
         target_chunk_length=target_chunk_length,
-        ocr_strategy=ocr_strategy
+        ocr_strategy=ocr_strategy,
+        num_workers=4
     )
     print("Throughput test completed.")
