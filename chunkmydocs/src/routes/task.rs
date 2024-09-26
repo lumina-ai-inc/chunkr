@@ -14,7 +14,7 @@ use uuid::Uuid;
 #[utoipa::path(
     get,
     path = "/task/{task_id}",
-    context_path = "/api",
+    context_path = "/api/v1",
     tag = "Task",
     params(
         ("task_id" = Option<String>, Path, description = "Id of the task to get."),
@@ -55,7 +55,7 @@ pub async fn get_task_status(
 #[utoipa::path(
     post,
     path = "/task",
-    context_path = "/api",
+    context_path = "/api/v1",
     tag = "Task",
     request_body(content = UploadForm, description = "Multipart form encoded data to create an task", content_type = "multipart/form-data"),
     responses(

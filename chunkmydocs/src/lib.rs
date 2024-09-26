@@ -48,7 +48,7 @@ fn run_migrations(url: &str) {
         version = "0.0.0"
     ),
     servers(
-        (url = "https://chunkr.ai", description = "Production server"),
+        (url = "https://www.chunkr.ai", description = "Production server"),
     ),
     paths(
         routes::health::health_check,   
