@@ -111,17 +111,20 @@ export default function Dashboard() {
   const highQualityCost =
     monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "HighQuality")
       ?.cost || 0;
+  const totalCost = fastCost + highQualityCost;
 
-  const adjustedBillingAmount = calculateDiscountedBilling(
-    fastUsage,
-    highQualityUsage,
-    fastDiscount,
-    highQualityDiscount,
-    fastCost,
-    highQualityCost
+  const adjustedBillingAmount = Number(
+    calculateDiscountedBilling(
+      fastUsage,
+      highQualityUsage,
+      fastDiscount,
+      highQualityDiscount,
+      fastCost,
+      highQualityCost
+    ).toFixed(3)
   );
 
-  const billingAmount = Math.max(0, adjustedBillingAmount);
+  const billingAmount = Math.max(0, Number(totalCost.toFixed(3)));
 
   const billingDueDate = monthlyUsage?.[0]?.month
     ? calculateBillingDueDate(monthlyUsage[0].month)
@@ -567,8 +570,9 @@ export default function Dashboard() {
                       : fastDiscount > 0
                         ? `${fastDiscount} fast`
                         : `${highQualityDiscount} high-quality`}{" "}
-                    will be applied to your account for this billing period.
-                    Your adjusted bill is ${adjustedBillingAmount}.
+                    pages will be applied to your account for this billing
+                    period.
+                    <b>Your adjusted bill is ${adjustedBillingAmount}.</b>
                   </Text>
                 </Flex>
               )}
