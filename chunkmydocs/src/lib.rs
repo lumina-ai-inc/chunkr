@@ -21,12 +21,19 @@ use routes::health::health_check;
 use routes::task::{ create_extraction_task, get_task_status };
 use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
-use routes::stripe::{ create_setup_intent, stripe_webhook, create_stripe_session, get_user_invoices, get_invoice_detail, get_monthly_usage };
+use routes::stripe::{
+    create_setup_intent,
+    stripe_webhook,
+    create_stripe_session,
+    get_user_invoices,
+    get_invoice_detail,
+    get_monthly_usage,
+};
 use utils::db::deadpool_postgres;
 use utils::storage::config_s3::create_client;
 use utils::server::admin_user::get_or_create_admin_user;
-use utoipa::OpenApi;
-use utoipa_redoc::{Redoc, Servable};
+use utoipa::{ openapi::security::{ ApiKey, ApiKeyValue, SecurityScheme }, Modify, OpenApi };
+use utoipa_redoc::{ Redoc, Servable };
 use utoipa_swagger_ui::SwaggerUi;
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
@@ -39,37 +46,38 @@ fn run_migrations(url: &str) {
     println!("Migrations ran successfully");
 }
 
+
 #[derive(OpenApi)]
 #[openapi(
     info(
         title = "Chunkr API",
         description = "API service for document layout analysis and chunking to convert document into RAG/LLM-ready data.",
         contact(name = "Lumina", url = "https://lumina.sh", email = "ishaan@lumina.sh"),
-        version = "0.0.0"
+        license(name = "BSL", url = "https://github.com/lumina-ai-inc/chunkr/blob/main/LICENSE"),
+        version = "2.0.0"
     ),
-    servers(
-        (url = "https://www.chunkr.ai", description = "Production server"),
-    ),
+    servers((url = "https://www.chunkr.ai", description = "Production server")),
     paths(
-        routes::health::health_check,   
+        routes::health::health_check,
         routes::task::create_extraction_task,
-        routes::task::get_task_status,
+        routes::task::get_task_status
     ),
     components(
         schemas(
-            models::server::extract::UploadForm,
             models::server::extract::Configuration,
             models::server::extract::Model,
-            models::server::task::TaskResponse,
-            models::server::task::Status,
-            models::server::segment::SegmentType,
-            models::server::segment::Segment,
+            models::server::extract::OcrStrategy,
+            models::server::extract::UploadForm,
+            models::server::segment::BoundingBox,
             models::server::segment::Chunk,
             models::server::segment::OCRResult,
-            models::server::segment::BoundingBox,
-            models::server::extract::OcrStrategy,
+            models::server::segment::Segment,
+            models::server::segment::SegmentType,
+            models::server::task::Status,
+            models::server::task::TaskResponse,
         )
     ),
+    modifiers(&SecurityAddon),
     tags(
         (name = "Health", description = "Endpoint for checking the health of the service."),
         (name = "Task", description = "Endpoints for creating and getting task status")
@@ -77,13 +85,26 @@ fn run_migrations(url: &str) {
 )]
 pub struct ApiDoc;
 
+struct SecurityAddon;
+
+impl Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        let components = openapi.components
+            .as_mut()
+            .expect("Safe to expect since the component was already registered");
+        components.add_security_scheme(
+            "api_key",
+            SecurityScheme::ApiKey(ApiKey::Header(ApiKeyValue::new("Authorization")))
+        );
+    }
+}
+
 #[get("/openapi.json")]
 pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
     web::Json(ApiDoc::openapi())
 }
 
 pub fn main() -> std::io::Result<()> {
-
     actix_web::rt::System::new().block_on(async move {
         let pg_pool = deadpool_postgres::create_pool();
         let s3_client = create_client().await.expect("Failed to create S3 client");
@@ -131,7 +152,10 @@ pub fn main() -> std::io::Result<()> {
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check))
                 .service(
-                    SwaggerUi::new("/swagger-ui/{_:.*}").url("/docs/openapi.json", ApiDoc::openapi()),
+                    SwaggerUi::new("/swagger-ui/{_:.*}").url(
+                        "/docs/openapi.json",
+                        ApiDoc::openapi()
+                    )
                 );
 
             let api_scope = web
@@ -147,7 +171,8 @@ pub fn main() -> std::io::Result<()> {
             if std::env::var("STRIPE__API_KEY").is_ok() {
                 app = app.route("/stripe/webhook", web::post().to(stripe_webhook));
 
-                let stripe_scope = web::scope("/stripe")
+                let stripe_scope = web
+                    ::scope("/stripe")
                     .wrap(AuthMiddlewareFactory)
                     .route("/create-setup-intent", web::get().to(create_setup_intent))
                     .route("/create-session", web::get().to(create_stripe_session))
@@ -156,7 +181,6 @@ pub fn main() -> std::io::Result<()> {
 
                 app = app.service(stripe_scope);
             }
-            
 
             app.service(api_scope)
         })

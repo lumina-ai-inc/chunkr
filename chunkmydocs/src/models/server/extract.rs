@@ -3,17 +3,22 @@ use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use strum_macros::{Display, EnumString};
-use utoipa::ToSchema;
+use utoipa::{IntoParams, ToSchema};
 
-#[derive(Debug, MultipartForm, ToSchema)]
+#[derive(Debug, MultipartForm, ToSchema, IntoParams)]
+#[into_params(parameter_in = Query)]
 pub struct UploadForm {
-    #[schema(value_type = String, format = "binary")]
+    #[param(style = Form, value_type = TempFile)]
+    #[schema(value_type = TempFile, format = "binary")]
     pub file: TempFile,
+    #[param(style = Form, value_type = Model)]
     #[schema(value_type = Model)]
     pub model: Text<Model>,
+    #[param(style = Form, value_type = Option<i32>)]
     #[schema(value_type = Option<i32>)]
     pub target_chunk_length: Option<Text<i32>>,
-    #[schema(value_type = Option<OcrStrategy>, default = OcrStrategy::default)]
+    #[param(style = Form, value_type = Option<OcrStrategy>)]
+    #[schema(value_type = Option<OcrStrategy>)]
     pub ocr_strategy: Option<Text<OcrStrategy>>,
 }
 
