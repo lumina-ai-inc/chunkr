@@ -47,7 +47,7 @@ fn run_migrations(url: &str) {
     info(
         title = "Chunkr API",
         description = "API service for document layout analysis and chunking to convert document into RAG/LLM-ready data.",
-        contact(name = "Lumina", url = "https://lumina.sh", email = "ishaan@lumina.sh"),
+        contact(name = "Chunkr", url = "https://chunkr.ai", email = "ishaan@lumina.sh"),
         version = "0.0.0"
     ),
     servers(
@@ -119,7 +119,7 @@ pub fn main() -> std::io::Result<()> {
         let pg_pool_clone = deadpool_postgres::create_pool(); // Clone the Arc
         actix_web::rt::spawn(async move {
             let today = chrono::Utc::now().date_naive();
-            let mut interval = time::interval(Duration::from_secs(3)); // 86400 seconds = 24 hours
+            let mut interval = time::interval(Duration::from_secs(86400)); // 86400 seconds = 24 hours
             loop {
                 interval.tick().await;
                 println!("Processing daily invoices");

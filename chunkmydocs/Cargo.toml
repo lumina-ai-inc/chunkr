@@ -32,7 +32,7 @@ strum_macros = "0.26.4"
 bytes = "1.4.0"
 tokio-postgres = { version = "0.7", features = ["with-chrono-0_4"] }
 deadpool-postgres = { version = "0.14.0", features = ["serde"] }
-deadpool-redis = { version = "0.16.0", features = ["serde"] }
+deadpool-redis = { version = "0.18.0", features = ["serde"] }
 image = "0.25.2"
 poppler = "0.5.1"
 utoipa = { version = "4.2", features = [
@@ -65,10 +65,6 @@ base64 = "0.22.1"
 async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] }
 log = "0.4.22"
 utoipa-swagger-ui = { version = "7.0", features = ["actix-web"] }
-
-[[bin]]
-name = "invoicer"
-path = "src/workers/invoicer.rs"
 
 [[bin]]
 name = "fast"

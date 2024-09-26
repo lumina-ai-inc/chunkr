@@ -119,10 +119,10 @@ if __name__ == "__main__":
     target_chunk_length = 1000  
     ocr_strategy = OcrStrategy.Off
     throughput_test(
-        growth_func=GrowthFunc.LINEAR,
+        growth_func=GrowthFunc.EXPONENTIAL,
         start_page=1,
-        end_page=10,
-        num_pdfs=10,
+        end_page=5,
+        num_pdfs=7,
         model=model,
         target_chunk_length=target_chunk_length,
         ocr_strategy=ocr_strategy,
