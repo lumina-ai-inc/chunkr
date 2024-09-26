@@ -125,7 +125,7 @@ pub async fn create_and_send_invoice(
             .ok()
             .map(|r: Row| r.get("amount"));
 
-        let (price_id, quantity) = match usage_type.as_str() {
+        let (price_id, _) = match usage_type.as_str() {
             "Fast" => (StripeConfig::from_env()?.page_fast_price_id, pages),
             "HighQuality" => (StripeConfig::from_env()?.page_high_quality_price_id, pages),
             "Segment" => (StripeConfig::from_env()?.segment_price_id, pages),
@@ -242,24 +242,24 @@ pub async fn create_and_send_invoice(
             response.text().await?
         )
         .into());
-    }
-
-    // Update local invoice with Stripe invoice ID
-    client
-        .execute(
-            "UPDATE invoices SET stripe_invoice_id = $1, invoice_status = 'Executed' WHERE invoice_id = $2",
-            &[&stripe_invoice_id, &invoice_id],
-        )
-        .await?;
-
-    // Update discounts table
-    for (user_id, usage_type, remaining_discount) in discount_updates {
+    } else {
+        println!("successfully finalized invoice");
+        // Update local invoice with Stripe invoice ID
         client
-            .execute(
-                "UPDATE discounts SET amount = $1 WHERE user_id = $2 AND usage_type = $3",
-                &[&remaining_discount, &user_id, &usage_type],
+    .execute(
+        "UPDATE invoices SET stripe_invoice_id = $1, invoice_status = 'Executed' WHERE invoice_id = $2",
+        &[&stripe_invoice_id, &invoice_id],
             )
             .await?;
+        // Update discounts table
+        for (user_id, usage_type, remaining_discount) in discount_updates {
+            client
+                .execute(
+                    "UPDATE discounts SET amount = $1 WHERE user_id = $2 AND usage_type = $3",
+                    &[&remaining_discount, &user_id, &usage_type],
+                )
+                .await?;
+        }
     }
 
     Ok(())

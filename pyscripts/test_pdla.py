@@ -28,7 +28,7 @@ class GrowthFunc(Enum):
 
 class TestPDLAServer(unittest.TestCase):
     BASE_URL = os.getenv("PDLASERVER_URL")
-    MAX_WORKERS = 4  # Adjust this value based on your system's capabilities
+    MAX_WORKERS = 4  
 
     def setUp(self):
         print("Setting up test environment...")
