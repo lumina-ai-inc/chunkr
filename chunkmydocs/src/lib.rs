@@ -57,10 +57,7 @@ fn run_migrations(url: &str) {
         contact(name = "Chunkr", url = "https://chunkr.ai", email = "ishaan@lumina.sh"),
         version = "1.0.0"
     ),
-    servers(
-        (url = "https://api.chunkr.ai", description = "Production server"),
-    ),
-    servers((url = "https://www.chunkr.ai", description = "Production server")),
+    servers((url = "https://api.chunkr.ai", description = "Production server")),
     paths(
         routes::health::health_check,
         routes::task::create_extraction_task,
