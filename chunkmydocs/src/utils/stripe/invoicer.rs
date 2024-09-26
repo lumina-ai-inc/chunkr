@@ -1,13 +1,12 @@
 use chrono::Datelike;
 use chrono::NaiveDate;
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 // use chunkmydocs::models::server::user::InvoiceStatus;
 use crate::utils::configs::stripe_config::Config as StripeConfig;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use reqwest::Client as ReqwestClient;
 use serde_json::json;
 use tokio_postgres::Row;
-use uuid::Uuid;
 
 pub async fn invoice(
     pool: &Pool,
