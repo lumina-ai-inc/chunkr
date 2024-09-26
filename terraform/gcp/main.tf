@@ -353,6 +353,11 @@ resource "google_sql_database_instance" "postgres" {
   settings {
     tier = "db-f1-micro"
 
+    database_flags {
+      name  = "max_connections"
+      value = 30000
+    }
+
     ip_configuration {
       ipv4_enabled    = false
       private_network = google_compute_network.vpc_network.id
