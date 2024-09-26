@@ -8,8 +8,8 @@ use utoipa::{IntoParams, ToSchema};
 #[derive(Debug, MultipartForm, ToSchema, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub struct UploadForm {
-    #[param(style = Form, value_type = string, format = "binary")]
-    #[schema(value_type = string, format = "binary")]
+    #[param(style = Form, value_type = String, format = "binary")]
+    #[schema(value_type = String, format = "binary")]
     pub file: TempFile,
     #[param(style = Form, value_type = Model)]
     #[schema(value_type = Model)]
