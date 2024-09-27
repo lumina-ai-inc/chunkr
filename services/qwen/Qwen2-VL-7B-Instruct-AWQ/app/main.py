@@ -17,9 +17,8 @@ MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct-AWQ"
 llm = LLM(
     model=MODEL_PATH,
     limit_mm_per_prompt={"image": 10},
-    dtype="float16", 
+    dtype="float16",
     quantization="awq"  # Specify AWQ quantization
-    
 )
 
 sampling_params = SamplingParams(
@@ -32,6 +31,7 @@ sampling_params = SamplingParams(
 
 processor = AutoProcessor.from_pretrained(MODEL_PATH)
 
+
 @app.post("/generate")
 async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)):
     # Process images
@@ -39,7 +39,7 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
     for img in images:
         image = Image.open(io.BytesIO(await img.read()))
         pil_images.append(image)
-    
+
     # Prepare the messages
     messages = [
         {"role": "system", "content": "You are great at reading charts, tables and images. You are being given multiple images and asked to answer a question about them. Respond for all."},
@@ -50,7 +50,7 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
             ] + [{"type": "image", "image": img} for img in pil_images]
         }
     ]
-    
+
     # Prepare the prompt
     prompt = processor.apply_chat_template(
         messages,
@@ -58,7 +58,7 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
         add_generation_prompt=True,
     )
     image_inputs, _ = process_vision_info(messages)
-    
+
     mm_data = {}
     if image_inputs is not None:
         mm_data["image"] = image_inputs
@@ -74,6 +74,7 @@ async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)
 
     return JSONResponse(content={"generated_text": generated_text})
 
+
 @app.post("/generate/batch")
 async def generate_batch(prompt: str = Form(...), images: List[UploadFile] = File(...)):
     # Process images
@@ -81,7 +82,7 @@ async def generate_batch(prompt: str = Form(...), images: List[UploadFile] = Fil
     for img in images:
         image = Image.open(io.BytesIO(await img.read()))
         pil_images.append(image)
-    
+
     # Prepare individual messages for each image
     messages = []
     for img in pil_images:
@@ -96,15 +97,16 @@ async def generate_batch(prompt: str = Form(...), images: List[UploadFile] = Fil
             }
         ]
         messages.append(message)
-    
+
     # Prepare the prompts
     prompts = [
-        processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
+        processor.apply_chat_template(
+            msg, tokenize=False, add_generation_prompt=True)
         for msg in messages
     ]
-    
+
     image_inputs, _ = process_vision_info(messages)
-    
+
     llm_inputs = []
     for prompt, image_input in zip(prompts, image_inputs):
         llm_inputs.append({
@@ -114,10 +116,11 @@ async def generate_batch(prompt: str = Form(...), images: List[UploadFile] = Fil
 
     # Generate the responses using llm.generate
     outputs = llm.generate(llm_inputs, sampling_params=sampling_params)
-    
+
     generated_texts = [output.outputs[0].text for output in outputs]
 
     return JSONResponse(content={"generated_texts": generated_texts})
+
 
 @app.get("/")
 async def root():
