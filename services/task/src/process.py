@@ -20,14 +20,20 @@ def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, densi
         segment.left *= scale_factor
         segment.top *= scale_factor
 
+        segment.page_height *= scale_factor
+        segment.page_width *= scale_factor
+
         # Apply offset
         segment.width += offset * 2
         segment.height += offset * 2
         segment.left -= offset
         segment.top -= offset
 
-        segment.page_height *= scale_factor
-        segment.page_width *= scale_factor
+        # Ensure segment doesn't go out of bounds
+        segment.left = max(0, segment.left)
+        segment.top = max(0, segment.top)
+        segment.width = min(segment.width, segment.page_width)
+        segment.height = min(segment.height, segment.page_height)
 
 
 def process_segment_ocr(
