@@ -135,3 +135,34 @@ For each file, replace the placeholder values with your actual secret informatio
    ```bash
    kubectl apply -R -f kube/gcp/
    ```
+## 6. Cloudflare SSL certificate
+
+1. Log in to Cloudflare Dashboard:
+   - Navigate to your domain in the Cloudflare dashboard.
+
+2. Access Origin Certificates:
+   - Go to the SSL/TLS tab.
+   - Click on Origin Server in the sub-menu.
+
+3. Create a Certificate:
+   - Click on Create Certificate.
+   - Choose "Let Cloudflare generate a private key and CSR".
+   - Under Hostnames, add your domain and any necessary subdomains (e.g., example.com, *.example.com).
+   - Select Key Type: RSA (2048) is standard.
+   - Set Certificate Validity as desired (default is 15 years).
+
+4. Download Certificate and Key:
+   - After creation, download the Origin Certificate and Private Key.
+   - Save them as `origin.crt` and `origin.key` respectively.
+
+5. Create a tls secret in kubernetes:
+   ```bash
+   kubectl create secret tls tls-secret --cert=kube/gcp/origin.crt --key=kube/gcp/origin.key -n chunkmydocs
+   ```
+6. Update `chunkmydocs-ingress.yaml`, `web-ingress.yaml`, and `keycloak-ingress.yaml` to use the tls secret:
+   ```yaml
+   tls:
+   - hosts:
+     - api.chunkr.ai
+     secretName: tls-secret
+   ```
