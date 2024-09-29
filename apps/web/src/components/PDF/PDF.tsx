@@ -134,7 +134,6 @@ function SegmentOverlay({
   chunkIndex: number;
   segmentIndex: number;
 }) {
-  console.log(segment);
   const [isHovered, setIsHovered] = useState(false);
   const scaledLeft = `${(segment.bbox.top_left[0] / segment.page_width) * 100}%`;
   const scaledTop = `${(segment.bbox.top_left[1] / segment.page_height) * 100}%`;
