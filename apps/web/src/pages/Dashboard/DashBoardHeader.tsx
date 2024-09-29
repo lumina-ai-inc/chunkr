@@ -112,7 +112,7 @@ export default function DashBoardHeader({
               weight="medium"
               style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
             >
-              API Docs
+              Docs
             </Text>
           </BetterButton>
           <BetterButton padding="4px 12px" onClick={handleSupport}>
@@ -161,7 +161,7 @@ export default function DashBoardHeader({
               </DropdownMenu.Item>
 
               <DropdownMenu.Item onSelect={handleApiDocs}>
-                <Text>API Docs</Text>
+                <Text>Docs</Text>
               </DropdownMenu.Item>
               <DropdownMenu.Item onSelect={handleSupport}>
                 <Text>Support</Text>
