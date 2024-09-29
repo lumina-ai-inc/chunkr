@@ -23,7 +23,6 @@ export const SegmentChunk = forwardRef<
   const [selectedView, setSelectedView] = useState<
     "html" | "markdown" | "json"
   >("html");
-  // const [markdownSelected, setMarkdownSelected] = useState<boolean>(true);
   const accordionWidth = containerWidth - 48;
 
   const segmentTypeCounts = useMemo(() => {
@@ -50,7 +49,7 @@ export const SegmentChunk = forwardRef<
   const combinedMarkdown = useMemo(() => {
     return chunk.segments
       .map((segment) => {
-        const textContent = segment.ocr_text || segment.text_layer || "";
+        const textContent = segment.content || "";
         return segment.markdown ? segment.markdown : textContent;
       })
       .filter(Boolean)

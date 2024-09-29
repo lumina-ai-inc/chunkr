@@ -30,8 +30,7 @@ export interface Segment {
   page_number: number;
   page_width: number;
   page_height: number;
-  text_layer: string;
-  ocr_text?: string;
+  content: string;
   segment_type: SegmentType;
   ocr?: OCRResult[];
   image?: string;

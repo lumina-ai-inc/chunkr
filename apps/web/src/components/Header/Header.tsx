@@ -72,7 +72,7 @@ export default function Header({
       >
         <a href={"https://docs.chunkr.ai"} target="_blank" className="nav-item">
           <Text size="2" weight="medium" className="nav-item">
-            API Docs
+            Docs
           </Text>
         </a>
 

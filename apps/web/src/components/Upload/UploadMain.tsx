@@ -22,7 +22,7 @@ export default function UploadMain({
     "Auto"
   );
   const [intelligentChunking, setIntelligentChunking] = useState(true);
-  const [chunkLength, setChunkLength] = useState(512);
+  const [chunkLength, setChunkLength] = useState<number | undefined>(512);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -57,8 +57,27 @@ export default function UploadMain({
   };
 
   const handleChunkLengthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
-    setChunkLength(isNaN(value) ? 0 : value);
+    const value = e.target.value;
+    if (value === "") {
+      setChunkLength(undefined);
+    } else {
+      const numValue = parseInt(value, 10);
+      if (!isNaN(numValue)) {
+        setChunkLength(numValue);
+        if (numValue === 0) {
+          setIntelligentChunking(false);
+        }
+      } else {
+        setChunkLength(undefined);
+      }
+    }
+  };
+
+  const handleChunkLengthBlur = () => {
+    if (chunkLength === undefined || chunkLength === 0) {
+      setChunkLength(512);
+      setIntelligentChunking(true);
+    }
   };
 
   const handleRun = async () => {
@@ -73,7 +92,7 @@ export default function UploadMain({
       file,
       model,
       ocr_strategy: ocrStrategy,
-      target_chunk_length: intelligentChunking ? chunkLength : 0,
+      target_chunk_length: intelligentChunking ? chunkLength : undefined,
     };
 
     try {
@@ -537,21 +556,23 @@ export default function UploadMain({
                       backgroundColor: "hsla(180, 100%, 100%, 0.1)",
                       borderRadius: "6px",
                       padding: "8px",
-                      width: "fit-content",
+                      maxWidth: "fit-content",
                     }}
                   >
                     <input
                       type="number"
-                      min="1"
+                      min="0"
                       value={chunkLength}
                       onChange={handleChunkLengthChange}
+                      onBlur={handleChunkLengthBlur}
                       className="chunk-length-input"
                       style={{
                         display: "flex",
                         border: "none",
                         fontSize: "14px",
                         fontWeight: "bold",
-                        width: "48px",
+                        width: "auto",
+                        maxWidth: "88px",
                         marginTop: "0px",
                         marginRight: "12px",
                         appearance: "textfield",
@@ -567,7 +588,7 @@ export default function UploadMain({
                         paddingRight: "12px",
                       }}
                     >
-                      {chunkLength === 0 ? "" : "max-words/chunk"}
+                      {chunkLength === 0 ? "" : "~words/chunk"}
                     </Text>
                   </Flex>
                 )}

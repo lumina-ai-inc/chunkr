@@ -135,7 +135,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container" style={{ width: "100%" }}>
       <Flex className="dashboard-header">
         <DashBoardHeader
           {...user}
@@ -146,9 +146,16 @@ export default function Dashboard() {
           handleAddPaymentMethod={handleAddPaymentMethod}
         />
       </Flex>
-      <ScrollArea scrollbars="vertical" style={{ height: "100%" }}>
-        <Flex direction="row" className="dashboard-content">
-          <Flex direction="column" className="dashboard-content-left">
+      <ScrollArea
+        scrollbars="vertical"
+        style={{ height: "100%", width: "100%" }}
+      >
+        <Flex direction="row" className="dashboard-content" maxWidth="100vw">
+          <Flex
+            direction="column"
+            className="dashboard-content-left"
+            width="100%"
+          >
             <Text size="9" weight="bold" style={{ color: "var(--cyan-1)" }}>
               Dashboard
             </Text>
@@ -644,9 +651,15 @@ export default function Dashboard() {
               scrollbars="vertical"
               style={{ height: "100%", width: "100%" }}
             >
-              <Flex direction="column" gap="5">
-                <Flex direction="row" justify="between">
-                  <Flex direction="row" align="center" gap="2" mb="2">
+              <Flex direction="column" gap="5" width="100%">
+                <Flex direction="row" justify="between" width="100%">
+                  <Flex
+                    direction="row"
+                    align="center"
+                    gap="2"
+                    mb="2"
+                    width="100%"
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -685,7 +698,7 @@ export default function Dashboard() {
                 </Flex>
 
                 {tasks?.length === 0 && (
-                  <>
+                  <Flex direction="column" width="100%">
                     <Flex direction="row" gap="4" mb="4">
                       <Text
                         size="4"
@@ -716,7 +729,7 @@ export default function Dashboard() {
                         </code>
                       </pre>
                     </Code>
-                  </>
+                  </Flex>
                 )}
 
                 {isLoading ? (
@@ -726,13 +739,15 @@ export default function Dashboard() {
                     Error - try refreashing the page
                   </Text>
                 ) : (
-                  tasks?.map((task) => (
-                    <TaskCard
-                      key={task.task_id}
-                      {...task}
-                      onClick={() => handleTaskClick(task)}
-                    />
-                  ))
+                  <Flex direction="column" width="100%" gap="6">
+                    {tasks?.map((task) => (
+                      <TaskCard
+                        key={task.task_id}
+                        {...task}
+                        onClick={() => handleTaskClick(task)}
+                      />
+                    ))}
+                  </Flex>
                 )}
               </Flex>
             </ScrollArea>
