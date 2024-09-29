@@ -175,8 +175,6 @@ function SegmentOverlay({
         <OCRBoundingBoxes
           ocr={segment.ocr}
           segmentBBox={segment.bbox}
-          pageWidth={segment.page_width}
-          pageHeight={segment.page_height}
           segmentType={segment.segment_type as SegmentType}
         />
       )}
@@ -191,8 +189,6 @@ function OCRBoundingBoxes({
 }: {
   ocr: OCRResult[];
   segmentBBox: BoundingBox;
-  pageWidth: number;
-  pageHeight: number;
   segmentType: SegmentType;
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -236,7 +232,7 @@ function OCRBoundingBoxes({
                 size="1"
                 style={{
                   position: "absolute",
-                  bottom: "100%", // Position above the bounding box
+                  bottom: "100%",
                   left: "0",
                   backgroundColor: `var(${lightColor})`,
                   color: `var(${baseColor})`,
@@ -244,8 +240,8 @@ function OCRBoundingBoxes({
                   borderRadius: "2px",
                   zIndex: 50,
                   width: "fit-content",
-                  whiteSpace: "nowrap", // Prevent text wrapping
-                  marginBottom: "2px", // Add a small gap between text and bounding box
+                  whiteSpace: "nowrap",
+                  marginBottom: "2px",
                 }}
               >
                 {result.text}

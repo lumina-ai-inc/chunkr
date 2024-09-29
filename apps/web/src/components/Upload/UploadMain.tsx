@@ -17,7 +17,7 @@ export default function UploadMain({
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
-  const [model, setModel] = useState<Model>(Model.Fast);
+  const [model, setModel] = useState<Model>(Model.HighQuality);
   const [ocrStrategy, setOcrStrategy] = useState<"Auto" | "All" | "Off">(
     "Auto"
   );
@@ -197,6 +197,9 @@ export default function UploadMain({
             mt="16px"
             p="16px"
             className="toggle-container"
+            style={{
+              borderRadius: "8px",
+            }}
           >
             <Flex
               direction="column"
@@ -206,12 +209,19 @@ export default function UploadMain({
               className={model === Model.Fast ? "toggle-active" : "toggle"}
               style={{
                 position: "relative",
-                overflow: "hidden",
+                overflow: "hidden", // Change from 'visible' to 'hidden'
+                zIndex: 1,
+                borderRadius: "8px", // Add border radius here
               }}
               onClick={() => handleModelToggle(Model.Fast)}
             >
-              <div className="card-gradient-overlay"></div>
-              <picture>
+              <div
+                className="card-gradient-overlay"
+                style={{
+                  zIndex: 2,
+                }}
+              ></div>
+              <picture style={{ zIndex: 1 }}>
                 <source srcSet={FastImage} type="image/webp" />
                 <img src={FastImageJPG} alt="Fast" className="card-image" />
               </picture>
@@ -222,7 +232,7 @@ export default function UploadMain({
                 justify="end"
                 style={{
                   position: "relative",
-                  zIndex: 1,
+                  zIndex: 3,
                 }}
               >
                 <Flex direction="row" gap="2" align="center">
@@ -299,17 +309,25 @@ export default function UploadMain({
               direction="column"
               height="100%"
               justify="end"
+              minHeight="fit-content"
               className={
                 model === Model.HighQuality ? "toggle-active" : "toggle"
               }
               style={{
                 position: "relative",
-                overflow: "hidden",
+                overflow: "hidden", // Change from 'visible' to 'hidden'
+                zIndex: 1,
+                borderRadius: "8px", // Add border radius here
               }}
               onClick={() => handleModelToggle(Model.HighQuality)}
             >
-              <div className="card-gradient-overlay"></div>
-              <picture>
+              <div
+                className="card-gradient-overlay"
+                style={{
+                  zIndex: 2,
+                }}
+              ></div>
+              <picture style={{ zIndex: 1 }}>
                 <source srcSet={HighQualityImage} type="image/webp" />
                 <img
                   src={HighQualityImageJPG}
@@ -321,11 +339,11 @@ export default function UploadMain({
                 direction="column"
                 className="toggle-icon-container"
                 height="100%"
+                justify="end"
                 style={{
                   position: "relative",
-                  zIndex: 1,
+                  zIndex: 3,
                 }}
-                justify="end"
               >
                 <Flex direction="row" gap="2" align="center">
                   <svg
