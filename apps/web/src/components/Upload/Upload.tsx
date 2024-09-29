@@ -1,7 +1,6 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-// import { useNavigate } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import "./Upload.css";
 

@@ -41,6 +41,7 @@ input::-webkit-inner-spin-button {
   width: 50%;
   color: hsl(0, 0%, 100%);
   aspect-ratio: 3 / 1;
+  border-radius: 8px;
 }
 
 .toggle:hover {
@@ -63,13 +64,13 @@ input::-webkit-inner-spin-button {
   height: 100%;
   background: linear-gradient(
     to bottom,
-    rgba(2, 8, 9, 0.15) 0%,
-    rgba(2, 8, 9, 0.6) 50%,
-    rgba(2, 8, 9, 0.8) 75%,
-    rgba(2, 8, 9, 0.9) 100%
+    rgba(2, 8, 9, 0.3) 0%,
+    rgba(2, 8, 9, 0.8) 50%,
+    rgba(2, 8, 9, 0.9) 75%,
+    rgba(2, 8, 9, 1) 100%
   );
-  z-index: 1;
-  backdrop-filter: blur(8px);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .toggle-active .card-gradient-overlay {
@@ -80,7 +81,6 @@ input::-webkit-inner-spin-button {
     rgba(2, 8, 9, 0.75) 75%,
     rgba(2, 8, 9, 0.85) 100%
   );
-  backdrop-filter: blur(0px);
 }
 
 .card-image {
@@ -225,6 +225,9 @@ input::-webkit-inner-spin-button {
   transition:
     background-color 0.2s ease,
     opacity 0.2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .chunk-length-input:disabled {
