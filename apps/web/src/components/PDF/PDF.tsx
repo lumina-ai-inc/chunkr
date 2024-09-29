@@ -3,7 +3,13 @@ import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import { ScrollArea } from "@radix-ui/themes";
-import { Chunk, Segment, SegmentType } from "../../models/chunk.model";
+import {
+  Chunk,
+  Segment,
+  SegmentType,
+  OCRResult,
+  BoundingBox,
+} from "../../models/chunk.model";
 import "./PDF.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -40,6 +46,8 @@ const segmentLightColors: Record<SegmentType, string> = {
   "Page header": "--violet-4",
   "Section header": "--cyan-2",
 };
+
+import { Box, Text } from "@radix-ui/themes";
 
 export function PDF({
   content,
@@ -126,6 +134,8 @@ function SegmentOverlay({
   chunkIndex: number;
   segmentIndex: number;
 }) {
+  console.log(segment);
+  const [isHovered, setIsHovered] = useState(false);
   const scaledLeft = `${(segment.bbox.top_left[0] / segment.page_width) * 100}%`;
   const scaledTop = `${(segment.bbox.top_left[1] / segment.page_height) * 100}%`;
   const scaledHeight = `${((segment.bbox.bottom_right[1] - segment.bbox.top_left[1]) / segment.page_height) * 100}%`;
@@ -147,6 +157,8 @@ function SegmentOverlay({
         borderColor: `var(${baseColor})`,
       }}
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="w-full h-full bg-red-500 hidden"></div>
       <div
@@ -160,6 +172,89 @@ function SegmentOverlay({
       >
         {segment.segment_type}
       </div>
+      {isHovered && segment.ocr && (
+        <OCRBoundingBoxes
+          ocr={segment.ocr}
+          segmentBBox={segment.bbox}
+          pageWidth={segment.page_width}
+          pageHeight={segment.page_height}
+          segmentType={segment.segment_type as SegmentType}
+        />
+      )}
     </div>
+  );
+}
+
+function OCRBoundingBoxes({
+  ocr,
+  segmentBBox,
+  segmentType,
+}: {
+  ocr: OCRResult[];
+  segmentBBox: BoundingBox;
+  pageWidth: number;
+  pageHeight: number;
+  segmentType: SegmentType;
+}) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const segmentWidth = segmentBBox.bottom_right[0] - segmentBBox.top_left[0];
+  const segmentHeight = segmentBBox.bottom_right[1] - segmentBBox.top_left[1];
+
+  const baseColor = segmentColors[segmentType] || "--border-black";
+  const lightColor = segmentLightColors[segmentType] || "--border-black";
+
+  return (
+    <>
+      {ocr.map((result, index) => {
+        const relativeLeft = result.bbox.top_left[0];
+        const relativeTop = result.bbox.top_left[1];
+        const width = result.bbox.bottom_right[0] - result.bbox.top_left[0];
+        const height = result.bbox.bottom_right[1] - result.bbox.top_left[1];
+
+        const scaledRelativeLeft = `${(relativeLeft / segmentWidth) * 100}%`;
+        const scaledRelativeTop = `${(relativeTop / segmentHeight) * 100}%`;
+        const scaledWidth = `${(width / segmentWidth) * 100}%`;
+        const scaledHeight = `${(height / segmentHeight) * 100}%`;
+
+        return (
+          <Box
+            key={index}
+            style={{
+              position: "absolute",
+              left: scaledRelativeLeft,
+              top: scaledRelativeTop,
+              width: scaledWidth,
+              height: scaledHeight,
+              border: `1px solid var(${baseColor})`,
+              zIndex: 40,
+            }}
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
+            {hoveredIndex === index && (
+              <Text
+                size="1"
+                style={{
+                  position: "absolute",
+                  bottom: "100%", // Position above the bounding box
+                  left: "0",
+                  backgroundColor: `var(${lightColor})`,
+                  color: `var(${baseColor})`,
+                  padding: "2px 4px",
+                  borderRadius: "2px",
+                  zIndex: 50,
+                  width: "fit-content",
+                  whiteSpace: "nowrap", // Prevent text wrapping
+                  marginBottom: "2px", // Add a small gap between text and bounding box
+                }}
+              >
+                {result.text}
+              </Text>
+            )}
+          </Box>
+        );
+      })}
+    </>
   );
 }
