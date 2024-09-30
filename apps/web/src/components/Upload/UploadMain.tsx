@@ -209,9 +209,9 @@ export default function UploadMain({
               className={model === Model.Fast ? "toggle-active" : "toggle"}
               style={{
                 position: "relative",
-                overflow: "hidden", // Change from 'visible' to 'hidden'
+                overflow: "hidden",
                 zIndex: 1,
-                borderRadius: "8px", // Add border radius here
+                borderRadius: "8px",
               }}
               onClick={() => handleModelToggle(Model.Fast)}
             >
@@ -296,9 +296,6 @@ export default function UploadMain({
                 <Text size="4" weight="medium" mt="2">
                   Blazing speed - perfect for high volume tasks
                 </Text>
-                <Text size="3" weight="medium" mt="2">
-                  ~10 pages per second
-                </Text>
                 <Text size="2" weight="light" style={{ opacity: 0.8 }}>
                   $0.005/page | 1000 pages for free
                 </Text>
@@ -315,9 +312,9 @@ export default function UploadMain({
               }
               style={{
                 position: "relative",
-                overflow: "hidden", // Change from 'visible' to 'hidden'
+                overflow: "hidden",
                 zIndex: 1,
-                borderRadius: "8px", // Add border radius here
+                borderRadius: "8px",
               }}
               onClick={() => handleModelToggle(Model.HighQuality)}
             >
@@ -409,9 +406,6 @@ export default function UploadMain({
                   style={{ maxWidth: "400px" }}
                 >
                   Higher accuracy + better image segmentation
-                </Text>
-                <Text size="3" weight="medium" mt="2">
-                  ~1 page per second
                 </Text>
                 <Text size="2" weight="light" style={{ opacity: 0.8 }}>
                   $0.01/page | 500 pages for free
