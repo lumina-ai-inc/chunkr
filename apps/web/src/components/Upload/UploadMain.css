@@ -18,7 +18,7 @@ input::-webkit-inner-spin-button {
   color: hsl(0, 0%, 100%, 0.7);
   cursor: pointer;
   transition: color 0.2s ease-in-out;
-  aspect-ratio: 3 / 1;
+  aspect-ratio: 3.5 / 1;
 }
 
 .toggle-container {
@@ -40,7 +40,7 @@ input::-webkit-inner-spin-button {
   border-radius: 8px;
   width: 50%;
   color: hsl(0, 0%, 100%);
-  aspect-ratio: 3 / 1;
+  aspect-ratio: 3.5 / 1;
   border-radius: 8px;
 }
 
