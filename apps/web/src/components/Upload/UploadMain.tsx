@@ -22,7 +22,7 @@ export default function UploadMain({
     "Auto"
   );
   const [intelligentChunking, setIntelligentChunking] = useState(true);
-  const [chunkLength, setChunkLength] = useState<number | undefined>(512);
+  const [chunkLength, setChunkLength] = useState<number>(512);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ export default function UploadMain({
   const handleChunkLengthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value === "") {
-      setChunkLength(undefined);
+      setChunkLength(512);
     } else {
       const numValue = parseInt(value, 10);
       if (!isNaN(numValue)) {
@@ -68,13 +68,13 @@ export default function UploadMain({
           setIntelligentChunking(false);
         }
       } else {
-        setChunkLength(undefined);
+        setChunkLength(512);
       }
     }
   };
 
   const handleChunkLengthBlur = () => {
-    if (chunkLength === undefined || chunkLength === 0) {
+    if (chunkLength === 0) {
       setChunkLength(512);
       setIntelligentChunking(true);
     }
@@ -92,7 +92,7 @@ export default function UploadMain({
       file,
       model,
       ocr_strategy: ocrStrategy,
-      target_chunk_length: intelligentChunking ? chunkLength : undefined,
+      target_chunk_length: intelligentChunking ? chunkLength : 0,
     };
 
     try {
