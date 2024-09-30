@@ -19,9 +19,6 @@ spec:
       - name: pdla
         image: luminainc/pdla:8c4bfb6d
         imagePullPolicy: Always
-        envFrom:
-        - secretRef:
-            name: chunkmydocs-secrets
         ports:
         - containerPort: 8000
         command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
