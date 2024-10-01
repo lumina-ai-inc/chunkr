@@ -6,8 +6,9 @@ import time
 from dotenv import load_dotenv
 import base64
 from typing import List, Dict, Any
+import json
 
-load_dotenv()
+load_dotenv(override=True)
 
 QWEN_URL = os.getenv('QWEN_URL')
 
@@ -27,16 +28,23 @@ def process_images(messages: List[Dict[str, Any]], prompt: str):
         "prompt": prompt
     }
 
+    print(f"QWEN URL: {QWEN_URL}")
+
     try:
+        print(f"Sending request to QWEN URL: {QWEN_URL}")
         response = requests.post(QWEN_URL, files=files, data=data)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
+        print(f"Error occurred while sending request to QWEN URL: {QWEN_URL}")
         return {"error": f"Error processing request: {e}"}
 
 def test_qwen():
     script_dir = os.path.dirname(__file__)
     test_dir = os.path.join(script_dir, "test_images")
+
+    print(f"Script directory: {script_dir}")
+    print(f"Test directory: {test_dir}")
 
     if not os.path.exists(test_dir):
         print(f"Error: Test directory not found at {test_dir}")
@@ -44,6 +52,7 @@ def test_qwen():
 
     image_files = [os.path.join(test_dir, f) for f in os.listdir(test_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
     print(f"Processing {len(image_files)} images")
+    print(f"Image files: {image_files}")
 
     if not image_files:
         print(f"No image files found in {test_dir}")
@@ -60,6 +69,8 @@ def test_qwen():
     Put your plan in <plan></plan> tag for how you will preserve the tables full information and text and hierarchy in json, and then make <json></json> tags. 
     For each table, put the output in its own <json></json> tag. Your final answer will be your <plan>, and then the <json>. Start planning how you will preserve the table:"""
 
+    print(f"Prompt: {prompt}")
+
     messages = []
     for image_file in image_files:
         messages.append({
@@ -73,7 +84,10 @@ def test_qwen():
             ],
         })
 
+    print(f"Messages: {json.dumps(messages, indent=2)}")
+
     start_time = time.time()
+    print("Starting image processing...")
     result = process_images(messages, prompt)
     end_time = time.time()
 
@@ -81,10 +95,12 @@ def test_qwen():
     print("Processing result:")
     
     if "responses" in result:
-        for response in result["responses"]:
+        for i, response in enumerate(result["responses"]):
+            print(f"Response {i + 1}:")
             print(json.dumps(response, indent=2))
             print("-" * 50)
     else:
+        print("No 'responses' in result:")
         print(result)
     
     print(f"Total execution time: {total_time:.2f} seconds")
