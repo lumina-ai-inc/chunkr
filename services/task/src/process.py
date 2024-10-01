@@ -15,7 +15,6 @@ from src.s3 import upload_file_to_s3
 def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
     scale_factor = density / pdla_density
     for segment in segments:
-        # Scale dimensions and positions
         segment.width *= scale_factor
         segment.height *= scale_factor
         segment.left *= scale_factor
@@ -24,13 +23,11 @@ def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, densi
         segment.page_height *= scale_factor
         segment.page_width *= scale_factor
 
-        # Apply offset
         segment.width += offset * 2
         segment.height += offset * 2
         segment.left -= offset
         segment.top -= offset
 
-        # Ensure segment doesn't go out of bounds
         segment.left = max(0, segment.left)
         segment.top = max(0, segment.top)
         segment.width = min(segment.width, segment.page_width)
