@@ -8,7 +8,7 @@ use crate::task::pdf::convert_to_pdf;
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::rrq::service::produce;
-use crate::utils::storage::services::{generate_presigned_url, upload_to_s3_from_memory};
+use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
@@ -18,8 +18,8 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use std::path::PathBuf;
 use uuid::Uuid;
-
 fn detect_file_type(file_path: &Path) -> Result<String, Box<dyn Error>> {
     let guess = MimeGuess::from_path(file_path);
     let mime_type = match guess.first() {
@@ -40,7 +40,7 @@ fn is_valid_file_type(
         .unwrap_or("");
 
     // Create a temporary file with the original extension
-    let temp_file_name = format!("temp_file.{}", extension);
+    let temp_file_name: String = format!("temp_file.{}", extension);
     println!(
         "Creating temporary file '{}' to write the buffer to.",
         temp_file_name
@@ -122,50 +122,98 @@ pub async fn create_task(
     let ingest_batch_size = config.batch_size;
     let base_url = config.base_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
+    // let (buffer, mime_type): (Vec<u8>, String) = if let Some(file_name) = file.file_name.as_deref()
+    // {
+    //     let temp_file_path = file.file.path();
+    //     let temp_file_buffer = std::fs::read(temp_file_path)?;
+    //     // let (is_valid, detected_mime_type) = is_valid_file_type(&temp_file_buffer, file_name)?;
 
-    let buffer: Vec<u8> = if let Some(file_name) = file.file_name.as_deref() {
-        let temp_file_path = file.file.path();
-        let temp_file_buffer = std::fs::read(temp_file_path)?;
-        let (is_valid, mime_type) = is_valid_file_type(&temp_file_buffer, file_name)?;
+    //     // if !is_valid {
+    //     //     return Err(format!("Not a valid file type: {}", detected_mime_type).into());
+    //     // }
+    //     let detected_mime_type = "poop";
+    //     if detected_mime_type == "application/pdf" {
+    //         (temp_file_buffer, detected_mime_type.to_string())
+    //     } else {
+    //         // If it's not a PDF, convert it first
+    //         println!("Converting non-PDF file to PDF...");
+    //         let named_temp_file = NamedTempFile::new()?;
+    //         let output_path = named_temp_file.path().to_path_buf();
+    //         convert_to_pdf(temp_file_path, &output_path)
+    //             .await
+    //             .map_err(|e| {
+    //                 eprintln!("Error converting to PDF: {:?}", e);
+    //                 format!("Error converting to PDF: {}", e)
+    //             })?;
 
-        if !is_valid {
-            return Err(format!("Not a valid file type: {}", mime_type).into());
-        }
+    //         // Read the converted PDF file directly from the named temporary file
+    //         let mime_type = detect_file_type(&output_path)?;
+    //         let pdf_buffer = std::fs::read(output_path.clone())?;
+    //         println!("Converted PDF size: {} bytes", pdf_buffer.len());
 
-        if mime_type == "application/pdf" {
-            // If it's already a PDF, just read the file
-            temp_file_buffer
-        } else {
-            // If it's not a PDF, convert it first
-            println!("Converting non-PDF file to PDF...");
-            let named_temp_file: NamedTempFile =
-                convert_to_pdf(temp_file_path).await.map_err(|e| {
-                    eprintln!("Error converting to PDF: {:?}", e);
-                    format!("Error converting to PDF: {}", e)
-                })?;
+    //         // Optionally, if you want to save a copy of the converted PDF:
+    //         let output_dir = PathBuf::from("output");
+    //         std::fs::create_dir_all(&output_dir).unwrap();
+    //         let output_pdf_path = output_dir.join("output.pdf");
+    //         std::fs::copy(&output_path, &output_pdf_path).unwrap();
+    //         println!("Converted PDF saved to {:?}", output_pdf_path);
 
-            // Read the converted PDF file
-            std::fs::read(named_temp_file.path())?
-        }
-    } else {
-        return Err("File name is missing".into());
-    };
+    //         (pdf_buffer, mime_type)
+    //     }
+    // } else {
+    //     return Err("File name is missing".into());
+    // };
 
     // Use pdf_content instead of reading from a temporary file
-    let page_count = match Document::load_mem(&buffer) {
-        Ok(doc) => {
-            let count = doc.get_pages().len() as i32;
-            println!("Successfully counted pages: {}", count);
-            count
+    // let page_count = match Document::load_mem(&buffer) {
+    //     Ok(doc) => {
+    //         let count = doc.get_pages().len() as i32;
+    //         println!("Successfully counted pages: {}", count);
+    //         count
+    //     }
+    //     Err(e) => {
+    //         eprintln!("Error loading PDF document: {:?}", e);
+    //         // return Err(format!("Unable to count pages: {}", e).into());
+    //         0
+    //     }
+    // };
+    let input_path = PathBuf::from(file.file.path());
+    println!("Input path: {:?}", input_path);
+    // Create a temporary file for the output
+    let output_file = NamedTempFile::new().unwrap();
+    let output_path = output_file.path().to_path_buf();
+
+    // Call the convert_to_pdf function
+    let result = convert_to_pdf(&input_path, &output_path).await;
+    let output_dir = PathBuf::from("output");
+    std::fs::create_dir_all(&output_dir).unwrap();
+    let final_output_path = output_dir.join("test_output.pdf");
+    // Check the result
+    match result {
+        Ok(_) => {
+            std::fs::copy(&output_path, &final_output_path).unwrap();
+            println!("Test output saved to {:?}", final_output_path);
         }
         Err(e) => {
-            eprintln!("Error loading PDF document: {:?}", e);
-            return Err(format!("Unable to count pages: {}", e).into());
+            panic!("PDF conversion failed: {:?}", e);
         }
-    };
+    }
+    let page_count = 1 as i32;
     let file_size = file.size;
 
-    let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
+    let file_name = file
+        .file_name
+        .as_deref()
+        .unwrap_or("unknown.pdf")
+        .to_string();
+    let file_name = if file_name.ends_with(".pdf") {
+        file_name
+    } else {
+        format!(
+            "{}.pdf",
+            file_name.trim_end_matches(|c| c == '.' || char::is_alphanumeric(c))
+        )
+    };
     let input_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, file_name);
     let output_extension = model_internal.get_extension();
     let output_location = input_location.replace(".pdf", &format!(".{}", output_extension));
@@ -174,7 +222,7 @@ pub async fn create_task(
 
     let message = "Task queued".to_string();
 
-    match upload_to_s3_from_memory(s3_client, &input_location, &buffer).await {
+    match upload_to_s3(s3_client, &input_location, &output_path).await {
         Ok(_) => {
             let configuration_json = serde_json::to_string(configuration)?;
             match client

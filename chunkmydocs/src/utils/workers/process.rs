@@ -2,7 +2,7 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
 use crate::models::server::segment::{BaseSegment, PdlaSegment, Segment};
 use crate::models::server::task::Status;
-use crate::task::pdf::{convert_to_pdf, split_pdf};
+use crate::task::pdf::split_pdf;
 use crate::task::pdla::pdla_extraction;
 use crate::task::process::process_segments;
 use crate::utils::db::deadpool_postgres::{create_pool, Client, Pool};
@@ -65,10 +65,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             None,
         )
         .await?;
-        let file_type = match mime_guess::from_path(temp_file.path()).first() {
-            Some(mime) => mime.essence_str().to_string(),
-            None => "unknown".to_string(),
-        };
 
         let mut split_temp_files: Vec<PathBuf> = vec![];
         let split_temp_dir = TempDir::new("split_pdf")?;
@@ -112,9 +108,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 &pg_pool,
             )
             .await?;
-
-            // Convert to PDF if file type is not PDF
-            println!("File type: {:?}", file_type);
 
             let temp_file_path = temp_file.as_path().to_path_buf();
 
