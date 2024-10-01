@@ -92,7 +92,6 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
             temp_input = Path(temp_dir) / f"input_copy{input_path.suffix}"
             shutil.copy2(input_path, temp_input)
 
-            # Read the image
             img = cv2.imread(str(temp_input))
 
             if use_gpu:
@@ -151,21 +150,17 @@ def resize_image(image_path: Path, size: Tuple[int, int], extension: str = "png"
         if not image_path.exists():
             raise FileNotFoundError(f"Input file not found: {image_path}")
 
-        # Check if GPU is available
         use_gpu = cv2.cuda.getCudaEnabledDeviceCount() > 0
 
         # Read the image
         img = cv2.imread(str(image_path))
 
         if use_gpu:
-            # Upload image to GPU
             gpu_img = cv2.cuda_GpuMat()
             gpu_img.upload(img)
 
-        # Get original dimensions
         original_height, original_width = img.shape[:2]
 
-        # Calculate new dimensions while maintaining aspect ratio
         target_width, target_height = size
         aspect_ratio = original_width / original_height
 
@@ -174,21 +169,18 @@ def resize_image(image_path: Path, size: Tuple[int, int], extension: str = "png"
         else:
             target_height = int(target_width / aspect_ratio)
 
-        # Resize the image
         if use_gpu:
             resized_gpu = cv2.cuda.resize(gpu_img, (target_width, target_height))
             resized_img = resized_gpu.download()
         else:
             resized_img = cv2.resize(img, (target_width, target_height))
 
-        # Apply quality settings
         encode_params = []
         if extension.lower() in ['jpg', 'jpeg']:
             encode_params = [cv2.IMWRITE_JPEG_QUALITY, quality]
         elif extension.lower() == 'png':
             encode_params = [cv2.IMWRITE_PNG_COMPRESSION, 9 - quality // 10]
 
-        # Encode the image to bytes
         _, buffer = cv2.imencode(f'.{extension}', resized_img, encode_params)
         img_str = base64.b64encode(buffer).decode('utf-8')
 
