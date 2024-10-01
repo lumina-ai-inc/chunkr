@@ -4,10 +4,11 @@ use crate::models::{
     server::extract::{Configuration, ExtractionPayload, SegmentationModel},
     server::task::{Status, TaskResponse},
 };
+use crate::task::pdf::convert_to_pdf;
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::rrq::service::produce;
-use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
+use crate::utils::storage::services::{generate_presigned_url, upload_to_s3_from_memory};
 use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
@@ -28,44 +29,49 @@ fn detect_file_type(file_path: &Path) -> Result<String, Box<dyn Error>> {
     Ok(mime_type)
 }
 
-fn is_valid_file_type(buffer: &[u8]) -> Result<bool, Box<dyn Error>> {
-    // Create a temporary file to write the buffer to
-    let mut temp_file = File::create("temp_file")?;
+fn is_valid_file_type(
+    buffer: &[u8],
+    original_file_name: &str,
+) -> Result<(bool, String), Box<dyn Error>> {
+    // Extract the file extension
+    let extension = Path::new(original_file_name)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .unwrap_or("");
+
+    // Create a temporary file with the original extension
+    let temp_file_name = format!("temp_file.{}", extension);
+    println!(
+        "Creating temporary file '{}' to write the buffer to.",
+        temp_file_name
+    );
+    let mut temp_file = File::create(&temp_file_name)?;
     temp_file.write_all(buffer)?;
+    println!("Buffer written to temporary file.");
 
     // Detect the file type and extension
-    let file_path = Path::new("temp_file");
+    let file_path = Path::new(&temp_file_name);
+    println!(
+        "Detecting file type for temporary file at path: {:?}",
+        file_path
+    );
     let mime_type = detect_file_type(file_path)?;
+    println!("Detected MIME type: {}", mime_type);
     let is_valid = match mime_type.as_str() {
-        "application/pdf"
-        | "application/msword"
-        | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        | "application/vnd.openxmlformats-officedocument.wordprocessingml.template"
-        | "application/vnd.ms-word.document.macroEnabled.12"
-        | "application/vnd.ms-word.template.macroEnabled.12"
-        | "application/vnd.ms-excel"
-        | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        | "application/vnd.openxmlformats-officedocument.spreadsheetml.template"
-        | "application/vnd.ms-excel.sheet.macroEnabled.12"
-        | "application/vnd.ms-excel.template.macroEnabled.12"
-        | "application/vnd.ms-excel.addin.macroEnabled.12"
-        | "application/vnd.ms-excel.sheet.binary.macroEnabled.12"
-        | "application/vnd.ms-powerpoint"
-        | "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        | "application/vnd.openxmlformats-officedocument.presentationml.template"
-        | "application/vnd.openxmlformats-officedocument.presentationml.slideshow"
-        | "application/vnd.ms-powerpoint.addin.macroEnabled.12"
-        | "application/vnd.ms-powerpoint.presentation.macroEnabled.12"
-        | "application/vnd.ms-powerpoint.template.macroEnabled.12"
-        | "application/vnd.ms-powerpoint.slideshow.macroEnabled.12"
-        | "application/vnd.ms-access" => true,
+        "application/pdf" => true,
+        "application/vnd.ms-powerpoint" => true,
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" => true,
+        "application/msword" => true,
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => true,
         _ => false,
     };
+    println!("Is valid file type: {}", is_valid);
 
     // Clean up the temporary file
-    std::fs::remove_file("temp_file")?;
+    std::fs::remove_file(&temp_file_name)?;
+    println!("Temporary file '{}' deleted.", temp_file_name);
 
-    Ok(is_valid)
+    Ok((is_valid, mime_type.to_string()))
 }
 
 async fn produce_extraction_payloads(
@@ -92,7 +98,7 @@ async fn produce_extraction_payloads(
 
     Ok(())
 }
-
+use tempfile::NamedTempFile;
 pub async fn create_task(
     pool: &Pool,
     s3_client: &S3Client,
@@ -117,19 +123,53 @@ pub async fn create_task(
     let base_url = config.base_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
-    let buffer: Vec<u8> = std::fs::read(file.file.path())?;
+    let buffer: Vec<u8> = if let Some(file_name) = file.file_name.as_deref() {
+        let temp_file_path = file.file.path();
+        let temp_file_buffer = std::fs::read(temp_file_path)?;
+        let (is_valid, mime_type) = is_valid_file_type(&temp_file_buffer, file_name)?;
 
-    // if !is_valid_file_type(&buffer)? {
-    //     return Err("Not a valid PDF".into());
-    // }
+        if !is_valid {
+            return Err(format!("Not a valid file type: {}", mime_type).into());
+        }
 
-    let file_size = file.size;
+        if mime_type == "application/pdf" {
+            // If it's already a PDF, just read the file
+            std::fs::read(temp_file_path).map_err(|e| {
+                eprintln!("Error reading PDF file: {:?}", e);
+                format!("Error reading PDF file: {}", e)
+            })?
+        } else {
+            // If it's not a PDF, convert it first
+            println!("Converting non-PDF file to PDF...");
+            let named_temp_file: NamedTempFile =
+                convert_to_pdf(temp_file_path).await.map_err(|e| {
+                    eprintln!("Error converting to PDF: {:?}", e);
+                    format!("Error converting to PDF: {}", e)
+                })?;
+
+            // Read the converted PDF file
+            std::fs::read(named_temp_file.path()).map_err(|e| {
+                eprintln!("Error reading converted PDF file: {:?}", e);
+                format!("Error reading converted PDF file: {}", e)
+            })?
+        }
+    } else {
+        return Err("File name is missing".into());
+    };
+
+    // Use pdf_content instead of reading from a temporary file
     let page_count = match Document::load_mem(&buffer) {
-        Ok(doc) => doc.get_pages().len() as i32,
-        Err(_) => {
-            return Err("Unable to count pages".into());
+        Ok(doc) => {
+            let count = doc.get_pages().len() as i32;
+            println!("Successfully counted pages: {}", count);
+            count
+        }
+        Err(e) => {
+            eprintln!("Error loading PDF document: {:?}", e);
+            return Err(format!("Unable to count pages: {}", e).into());
         }
     };
+    let file_size = file.size;
 
     let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
     let input_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, file_name);
@@ -140,7 +180,7 @@ pub async fn create_task(
 
     let message = "Task queued".to_string();
 
-    match upload_to_s3(s3_client, &input_location, file.file.path()).await {
+    match upload_to_s3_from_memory(s3_client, &input_location, &buffer).await {
         Ok(_) => {
             let configuration_json = serde_json::to_string(configuration)?;
             match client
