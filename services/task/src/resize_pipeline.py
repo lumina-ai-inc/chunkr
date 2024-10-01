@@ -6,9 +6,7 @@ def resize_pipeline(image_path: Path) -> str:
     with Image.open(image_path) as img:
         width, height = img.size
 
-    print(height, width)
-
-    if height <= LLM__MAX_HEIGHT or width <= LLM__MAX_WIDTH:
-        return 'low'
-    else:
+    if width >= LLM__MAX_WIDTH or height >= LLM__MAX_HEIGHT :
         return 'auto'
+    else:
+        return 'low'
