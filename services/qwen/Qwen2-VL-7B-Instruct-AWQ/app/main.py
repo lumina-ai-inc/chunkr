@@ -31,7 +31,44 @@ sampling_params = SamplingParams(
 processor = AutoProcessor.from_pretrained(MODEL_PATH)
 
 
-@app.post("/generate")
+# @app.post("/v1/chat/completions")
+# async def generate(messages: List[Dict[str, Any]] = Form(...), images: List[UploadFile] = File(...)):
+#     # Process images
+#     pil_images = []
+#     for img in images:
+#         image = Image.open(io.BytesIO(await img.read()))
+#         pil_images.append(image)
+
+#     # Add images to the messages
+#     for message in messages:
+#         if message["role"] == "user":
+#             message["content"] += [{"type": "image", "image": img} for img in pil_images]
+
+#     # Prepare the prompt
+#     prompt = processor.apply_chat_template(
+#         messages,
+#         tokenize=False,
+#         add_generation_prompt=True,
+#     )
+#     image_inputs, _ = process_vision_info(messages)
+
+#     mm_data = {}
+#     if image_inputs is not None:
+#         mm_data["image"] = image_inputs
+
+#     llm_inputs = {
+#         "prompt": prompt,
+#         "multi_modal_data": mm_data,
+#     }
+
+#     # Generate the response
+#     outputs = llm.generate([llm_inputs], sampling_params=sampling_params)
+#     generated_text = outputs[0].outputs[0].text
+
+#     return JSONResponse(content={"generated_text": generated_text})
+
+
+@app.post("/v1/chat/completions")
 async def generate(messages: List[Dict[str, Any]] = Form(...), images: List[UploadFile] = File(...)):
     # Process images
     pil_images = []
@@ -40,9 +77,11 @@ async def generate(messages: List[Dict[str, Any]] = Form(...), images: List[Uplo
         pil_images.append(image)
 
     # Add images to the messages
-    for message in messages:
-        if message["role"] == "user":
-            message["content"] += [{"type": "image", "image": img} for img in pil_images]
+    for i, message in enumerate(messages):
+        if message["role"] == "user" and i < len(pil_images):
+            if isinstance(message["content"], str):
+                message["content"] = [{"type": "text", "text": message["content"]}]
+            message["content"].append({"type": "image", "image": pil_images[i]})
 
     # Prepare the prompt
     prompt = processor.apply_chat_template(
@@ -63,56 +102,19 @@ async def generate(messages: List[Dict[str, Any]] = Form(...), images: List[Uplo
 
     # Generate the response
     outputs = llm.generate([llm_inputs], sampling_params=sampling_params)
-    generated_text = outputs[0].outputs[0].text
-
-    return JSONResponse(content={"generated_text": generated_text})
-
-
-@app.post("/generate/batch")
-async def generate_batch(prompt: str = Form(...), images: List[UploadFile] = File(...)):
-    # Process images
-    pil_images = []
-    for img in images:
-        image = Image.open(io.BytesIO(await img.read()))
-        pil_images.append(image)
-
-    # Prepare individual messages for each image
-    messages = []
-    for img in pil_images:
-        message = [
-            {"role": "system", "content": "You are great at reading charts, tables and images. You are being given an image and asked to answer a question about it. You must be prepared to respond in JSON."},
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image", "image": img}
-                ]
+    
+    # Prepare the list of response dictionaries
+    responses = []
+    for output in outputs:
+        for generated_output in output.outputs:
+            response = {
+                "generated_text": generated_output.text,
+                "finish_reason": generated_output.finish_reason,
+                "token_count": len(generated_output.token_ids)
             }
-        ]
-        messages.append(message)
+            responses.append(response)
 
-    # Prepare the prompts
-    prompts = [
-        processor.apply_chat_template(
-            msg, tokenize=False, add_generation_prompt=True)
-        for msg in messages
-    ]
-
-    image_inputs, _ = process_vision_info(messages)
-
-    llm_inputs = []
-    for prompt, image_input in zip(prompts, image_inputs):
-        llm_inputs.append({
-            "prompt": prompt,
-            "multi_modal_data": {"image": [image_input]}
-        })
-
-    # Generate the responses using llm.generate
-    outputs = llm.generate(llm_inputs, sampling_params=sampling_params)
-
-    generated_texts = [output.outputs[0].text for output in outputs]
-
-    return JSONResponse(content={"generated_texts": generated_texts})
+    return JSONResponse(content={"responses": responses})
 
 
 @app.get("/")
