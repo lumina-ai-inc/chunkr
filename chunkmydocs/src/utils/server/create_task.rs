@@ -134,10 +134,7 @@ pub async fn create_task(
 
         if mime_type == "application/pdf" {
             // If it's already a PDF, just read the file
-            std::fs::read(temp_file_path).map_err(|e| {
-                eprintln!("Error reading PDF file: {:?}", e);
-                format!("Error reading PDF file: {}", e)
-            })?
+            temp_file_buffer
         } else {
             // If it's not a PDF, convert it first
             println!("Converting non-PDF file to PDF...");
@@ -148,10 +145,7 @@ pub async fn create_task(
                 })?;
 
             // Read the converted PDF file
-            std::fs::read(named_temp_file.path()).map_err(|e| {
-                eprintln!("Error reading converted PDF file: {:?}", e);
-                format!("Error reading converted PDF file: {}", e)
-            })?
+            std::fs::read(named_temp_file.path())?
         }
     } else {
         return Err("File name is missing".into());
