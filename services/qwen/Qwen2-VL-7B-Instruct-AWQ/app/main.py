@@ -13,7 +13,7 @@ from typing import Dict, Any
 
 app = FastAPI()
 
-MODEL_PATH = "Qwen/Qwen2-VL-7B-Instruct"
+MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct"
 
 llm = LLM(
     model=MODEL_PATH,
