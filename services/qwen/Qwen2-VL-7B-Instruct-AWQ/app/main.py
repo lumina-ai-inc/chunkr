@@ -13,7 +13,7 @@ from typing import Dict, Any
 
 app = FastAPI()
 
-MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct"
+MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct-AWQ"
 
 llm = LLM(
     model=MODEL_PATH,
@@ -24,7 +24,7 @@ sampling_params = SamplingParams(
     temperature=0.1,
     top_p=0.001,
     repetition_penalty=1.05,
-    max_tokens=256,
+    max_tokens=2024,
     stop_token_ids=[],
 )
 
