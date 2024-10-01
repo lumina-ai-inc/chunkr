@@ -48,22 +48,25 @@ pub async fn split_pdf(
 use reqwest::multipart::{Form, Part}; // Ensure you have this import
 use std::io::Write;
 use tempfile::NamedTempFile;
-pub async fn convert_to_pdf(file_path: &Path) -> Result<NamedTempFile, Box<dyn std::error::Error>> {
-    println!("Starting PDF conversion for file: {:?}", file_path);
+pub async fn convert_to_pdf(
+    input_file_path: &Path,
+    output_file_path: &Path,
+) -> Result<(), Box<dyn std::error::Error>> {
+    println!("Starting PDF conversion for file: {:?}", input_file_path);
     let config = Config::from_env()?;
     let client = Client::new();
 
     let url = format!("{}/to_pdf", config.service_url);
     println!("Sending POST request to: {}", url);
 
-    let file_name = file_path
+    let file_name = input_file_path
         .file_name()
-        .ok_or_else(|| format!("Invalid file name: {:?}", file_path))?
+        .ok_or_else(|| format!("Invalid file name: {:?}", input_file_path))?
         .to_str()
-        .ok_or_else(|| format!("Non-UTF8 file name: {:?}", file_path))?
+        .ok_or_else(|| format!("Non-UTF8 file name: {:?}", input_file_path))?
         .to_string();
 
-    let file_fs = fs::read(file_path)?;
+    let file_fs = fs::read(input_file_path)?;
     let part = Part::bytes(file_fs).file_name(file_name);
 
     let form = Form::new().part("file", part);
@@ -73,19 +76,15 @@ pub async fn convert_to_pdf(file_path: &Path) -> Result<NamedTempFile, Box<dyn s
     println!("Received response with status: {}", response.status());
 
     if response.status().is_success() {
-        println!("PDF conversion successful for file: {:?}", file_path);
+        println!("PDF conversion successful for file: {:?}", input_file_path);
         let content = response.bytes().await?;
         println!("PDF content received, size: {} bytes", content.len());
 
-        // Create a temporary file
-        let mut temp_file = tempfile::NamedTempFile::new()?;
-
-        // Write the content to the temporary file
-        temp_file.write_all(&content)?;
+        fs::write(output_file_path, &content)?;
 
         println!("PDF saved to temporary file");
 
-        Ok(temp_file)
+        Ok(())
     } else {
         let status = response.status();
         let error_message = response
@@ -94,7 +93,7 @@ pub async fn convert_to_pdf(file_path: &Path) -> Result<NamedTempFile, Box<dyn s
             .unwrap_or_else(|_| "Unknown error".to_string());
         println!(
             "Failed to convert to PDF for file: {:?}, Status: {}, Message: {}",
-            file_path, status, error_message
+            input_file_path, status, error_message
         );
         Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::Other,
@@ -105,12 +104,12 @@ pub async fn convert_to_pdf(file_path: &Path) -> Result<NamedTempFile, Box<dyn s
         )))
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
     use std::path::PathBuf;
+    use tempfile::NamedTempFile;
     use tokio;
 
     #[tokio::test]
@@ -118,20 +117,25 @@ mod tests {
         // Use the test.docx file from the input folder
         let input_path = PathBuf::from("input").join("test.docx");
 
-        // Call the convert_to_pdf function
-        let result = convert_to_pdf(&input_path).await;
+        // Create a temporary file for the output
+        let output_file = NamedTempFile::new().unwrap();
+        let output_path = output_file.path().to_path_buf();
 
-        // Save the result to the output folder
+        // Call the convert_to_pdf function
+        let result = convert_to_pdf(&input_path, &output_path).await;
+
+        // Check the result
         match result {
-            Ok(pdf_file) => {
+            Ok(_) => {
                 let output_dir = PathBuf::from("output");
                 fs::create_dir_all(&output_dir).unwrap();
-                let output_path = output_dir.join("test_output.pdf");
-                fs::copy(pdf_file.path(), &output_path).unwrap();
-                println!("Test output saved to {:?}", output_path);
+                let final_output_path = output_dir.join("test_output.pdf");
+                fs::copy(&output_path, &final_output_path).unwrap();
+                println!("Test output saved to {:?}", final_output_path);
+                assert!(final_output_path.exists());
             }
             Err(e) => {
-                println!("PDF conversion failed: {:?}", e);
+                panic!("PDF conversion failed: {:?}", e);
             }
         }
     }
