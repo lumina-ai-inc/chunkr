@@ -13,7 +13,7 @@ LLM__MAX_HEIGHT: int = int(os.getenv("LLM__MAX_HEIGHT") or 1024)
 if LLM__MODEL == "gpt-4o-mini":
     LLM_INPUT_TOKEN_PRICE: float = float(os.getenv("LLM_INPUT_TOKEN_PRICE") or 0.15 / 1_000_000)
     LLM_OUTPUT_TOKEN_PRICE: float = float(os.getenv("LLM_OUTPUT_TOKEN_PRICE") or 0.6 / 1_000_000)
-elif LLM__MODEL == "gpt4o":
+elif LLM__MODEL == "gpt-4o":
     LLM_INPUT_TOKEN_PRICE: float = float(os.getenv("LLM_INPUT_TOKEN_PRICE") or 5 / 1_000_000)
     LLM_OUTPUT_TOKEN_PRICE: float = float(os.getenv("LLM_OUTPUT_TOKEN_PRICE") or 15 / 1_000_000)
 else:
