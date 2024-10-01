@@ -69,19 +69,17 @@ processor = AutoProcessor.from_pretrained(MODEL_PATH)
 
 
 @app.post("/v1/chat/completions")
-async def generate(messages: List[Dict[str, Any]] = Form(...), images: List[UploadFile] = File(...)):
+async def generate(messages: List[Dict[str, Any]], prompt: str):
     # Process images
-    pil_images = []
-    for img in images:
-        image = Image.open(io.BytesIO(await img.read()))
-        pil_images.append(image)
-
-    # Add images to the messages
-    for i, message in enumerate(messages):
-        if message["role"] == "user" and i < len(pil_images):
-            if isinstance(message["content"], str):
-                message["content"] = [{"type": "text", "text": message["content"]}]
-            message["content"].append({"type": "image", "image": pil_images[i]})
+    files = []
+    for message in messages:
+        if message["role"] == "user":
+            for content in message["content"]:
+                if content["type"] == "image":
+                    image_path = content["image"]
+                    with open(image_path, "rb") as image_file:
+                        image_data = image_file.read()
+                    files.append(("images", (os.path.basename(image_path), image_data, "image/png")))
 
     # Prepare the prompt
     prompt = processor.apply_chat_template(
