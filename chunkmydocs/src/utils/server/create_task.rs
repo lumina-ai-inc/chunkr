@@ -30,7 +30,7 @@ fn detect_file_type(file_path: &Path) -> Result<String, Box<dyn Error>> {
 }
 
 fn is_valid_file_type(
-    buffer: &[u8],
+    file_path: &Path,
     original_file_name: &str,
 ) -> Result<(bool, String), Box<dyn Error>> {
     // Extract the file extension
@@ -40,22 +40,21 @@ fn is_valid_file_type(
         .unwrap_or("");
 
     // Create a temporary file with the original extension
-    let temp_file_name: String = format!("temp_file.{}", extension);
+    let temp_file_name = format!("temp_file.{}", extension);
     println!(
-        "Creating temporary file '{}' to write the buffer to.",
+        "Creating temporary file '{}' to process the file.",
         temp_file_name
     );
-    let mut temp_file = File::create(&temp_file_name)?;
-    temp_file.write_all(buffer)?;
-    println!("Buffer written to temporary file.");
+    std::fs::copy(file_path, &temp_file_name)?;
+    println!("File copied to temporary file.");
 
     // Detect the file type and extension
-    let file_path = Path::new(&temp_file_name);
+    let temp_file_path = Path::new(&temp_file_name);
     println!(
         "Detecting file type for temporary file at path: {:?}",
-        file_path
+        temp_file_path
     );
-    let mime_type = detect_file_type(file_path)?;
+    let mime_type = detect_file_type(temp_file_path)?;
     println!("Detected MIME type: {}", mime_type);
     let is_valid = match mime_type.as_str() {
         "application/pdf" => true,
@@ -122,63 +121,29 @@ pub async fn create_task(
     let ingest_batch_size = config.batch_size;
     let base_url = config.base_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
-    // let (buffer, mime_type): (Vec<u8>, String) = if let Some(file_name) = file.file_name.as_deref()
-    // {
-    //     let temp_file_path = file.file.path();
-    //     let temp_file_buffer = std::fs::read(temp_file_path)?;
-    //     // let (is_valid, detected_mime_type) = is_valid_file_type(&temp_file_buffer, file_name)?;
 
-    //     // if !is_valid {
-    //     //     return Err(format!("Not a valid file type: {}", detected_mime_type).into());
-    //     // }
-    //     let detected_mime_type = "poop";
-    //     if detected_mime_type == "application/pdf" {
-    //         (temp_file_buffer, detected_mime_type.to_string())
-    //     } else {
-    //         // If it's not a PDF, convert it first
-    //         println!("Converting non-PDF file to PDF...");
-    //         let named_temp_file = NamedTempFile::new()?;
-    //         let output_path = named_temp_file.path().to_path_buf();
-    //         convert_to_pdf(temp_file_path, &output_path)
-    //             .await
-    //             .map_err(|e| {
-    //                 eprintln!("Error converting to PDF: {:?}", e);
-    //                 format!("Error converting to PDF: {}", e)
-    //             })?;
+    let file_name = file.file_name.as_deref().unwrap_or("unknown");
+    let (is_valid, detected_mime_type) = is_valid_file_type(&file.file.path(), file_name)?;
+    if !is_valid {
+        return Err(format!("Not a valid file type: {}", detected_mime_type).into());
+    }
 
-    //         // Read the converted PDF file directly from the named temporary file
-    //         let mime_type = detect_file_type(&output_path)?;
-    //         let pdf_buffer = std::fs::read(output_path.clone())?;
-    //         println!("Converted PDF size: {} bytes", pdf_buffer.len());
+    let extension = file
+        .file_name
+        .as_deref()
+        .unwrap_or("")
+        .split('.')
+        .last()
+        .unwrap_or("tmp");
+    let original_path = PathBuf::from(file.file.path());
+    let new_path = original_path.with_extension(extension);
 
-    //         // Optionally, if you want to save a copy of the converted PDF:
-    //         let output_dir = PathBuf::from("output");
-    //         std::fs::create_dir_all(&output_dir).unwrap();
-    //         let output_pdf_path = output_dir.join("output.pdf");
-    //         std::fs::copy(&output_path, &output_pdf_path).unwrap();
-    //         println!("Converted PDF saved to {:?}", output_pdf_path);
+    // Rename the actual file on disk
+    std::fs::rename(&original_path, &new_path)?;
 
-    //         (pdf_buffer, mime_type)
-    //     }
-    // } else {
-    //     return Err("File name is missing".into());
-    // };
-
-    // Use pdf_content instead of reading from a temporary file
-    // let page_count = match Document::load_mem(&buffer) {
-    //     Ok(doc) => {
-    //         let count = doc.get_pages().len() as i32;
-    //         println!("Successfully counted pages: {}", count);
-    //         count
-    //     }
-    //     Err(e) => {
-    //         eprintln!("Error loading PDF document: {:?}", e);
-    //         // return Err(format!("Unable to count pages: {}", e).into());
-    //         0
-    //     }
-    // };
-    let input_path = PathBuf::from(file.file.path());
+    let input_path = new_path;
     println!("Input path: {:?}", input_path);
+
     // Create a temporary file for the output
     let output_file = NamedTempFile::new().unwrap();
     let output_path = output_file.path().to_path_buf();
@@ -198,7 +163,10 @@ pub async fn create_task(
             panic!("PDF conversion failed: {:?}", e);
         }
     }
-    let page_count = 1 as i32;
+    let page_count = match Document::load(&output_path) {
+        Ok(doc) => doc.get_pages().len() as i32,
+        Err(_) => 0,
+    };
     let file_size = file.size;
 
     let file_name = file
