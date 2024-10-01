@@ -19,7 +19,7 @@ def table_to_html(image: str, detail: str) -> str:
             {"role": "system", "content": "You are an OCR system that converts table data to HTML."},
             {"role": "user",
              "content": [
-                 {"type": "text", "text": "Convert the following table to HTML"},
+                 {"type": "text", "text": "Convert the following table to HTML exactly"},
                  {
                      "type": "image_url",
                      "image_url": {
@@ -30,6 +30,7 @@ def table_to_html(image: str, detail: str) -> str:
              ],
              }
         ],
+        temperature=0.0
     )
 
     return response
@@ -55,7 +56,6 @@ def extract_html_from_response(response: ChatCompletion) -> str:
 def process_table(image_path: Path) -> str:
     start_time = time.time()
     detail = resize_pipeline(image_path)
-    print(detail)
     image = f"data:image/jpeg;base64,{to_base64(image_path)}"
     response = table_to_html(image, detail)
     html = extract_html_from_response(response)
