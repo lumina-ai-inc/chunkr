@@ -79,13 +79,15 @@ import glob
 def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, dir="input"):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_dir = os.path.join(current_dir,dir)
-    pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
+    input_files = []
+    for extension in ["*.pdf", "*.docx", "*.ppt"]:
+        input_files.extend(glob.glob(os.path.join(input_dir, extension)))
 
-    if not pdf_files:
+    if not input_files:
         print("No PDF files found in the input folder.")
         return
 
-    print(f"Processing {len(pdf_files)} files with {max_workers} parallel workers...")
+    print(f"Processing {len(input_files)} files with {max_workers} parallel workers...")
     import time
     elapsed_times = []
 
@@ -96,7 +98,7 @@ def main(max_workers: int, model: Model, target_chunk_length: int = None, ocr_st
         return {'file_path': file_path, 'elapsed_time': end_time - start_time}
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(timed_extract, file_path) for file_path in pdf_files]
+        futures = [executor.submit(timed_extract, file_path) for file_path in input_files]
 
         for future in concurrent.futures.as_completed(futures):
             try:

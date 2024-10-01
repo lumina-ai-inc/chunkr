@@ -12,14 +12,60 @@ use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
 use lopdf::Document;
+use mime_guess::MimeGuess;
 use std::error::Error;
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 use uuid::Uuid;
 
-fn is_valid_pdf(buffer: &[u8]) -> Result<bool, lopdf::Error> {
-    match Document::load_mem(buffer) {
-        Ok(_) => Ok(true),
-        Err(_) => Ok(false),
-    }
+fn detect_file_type(file_path: &Path) -> Result<String, Box<dyn Error>> {
+    let guess = MimeGuess::from_path(file_path);
+    let mime_type = match guess.first() {
+        Some(mime) => mime.to_string(),
+        None => "application/octet-stream".to_string(),
+    };
+    Ok(mime_type)
+}
+
+fn is_valid_file_type(buffer: &[u8]) -> Result<bool, Box<dyn Error>> {
+    // Create a temporary file to write the buffer to
+    let mut temp_file = File::create("temp_file")?;
+    temp_file.write_all(buffer)?;
+
+    // Detect the file type and extension
+    let file_path = Path::new("temp_file");
+    let mime_type = detect_file_type(file_path)?;
+    let is_valid = match mime_type.as_str() {
+        "application/pdf"
+        | "application/msword"
+        | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        | "application/vnd.openxmlformats-officedocument.wordprocessingml.template"
+        | "application/vnd.ms-word.document.macroEnabled.12"
+        | "application/vnd.ms-word.template.macroEnabled.12"
+        | "application/vnd.ms-excel"
+        | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        | "application/vnd.openxmlformats-officedocument.spreadsheetml.template"
+        | "application/vnd.ms-excel.sheet.macroEnabled.12"
+        | "application/vnd.ms-excel.template.macroEnabled.12"
+        | "application/vnd.ms-excel.addin.macroEnabled.12"
+        | "application/vnd.ms-excel.sheet.binary.macroEnabled.12"
+        | "application/vnd.ms-powerpoint"
+        | "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        | "application/vnd.openxmlformats-officedocument.presentationml.template"
+        | "application/vnd.openxmlformats-officedocument.presentationml.slideshow"
+        | "application/vnd.ms-powerpoint.addin.macroEnabled.12"
+        | "application/vnd.ms-powerpoint.presentation.macroEnabled.12"
+        | "application/vnd.ms-powerpoint.template.macroEnabled.12"
+        | "application/vnd.ms-powerpoint.slideshow.macroEnabled.12"
+        | "application/vnd.ms-access" => true,
+        _ => false,
+    };
+
+    // Clean up the temporary file
+    std::fs::remove_file("temp_file")?;
+
+    Ok(is_valid)
 }
 
 async fn produce_extraction_payloads(
@@ -73,9 +119,9 @@ pub async fn create_task(
 
     let buffer: Vec<u8> = std::fs::read(file.file.path())?;
 
-    if !is_valid_pdf(&buffer)? {
-        return Err("Not a valid PDF".into());
-    }
+    // if !is_valid_file_type(&buffer)? {
+    //     return Err("Not a valid PDF".into());
+    // }
 
     let file_size = file.size;
     let page_count = match Document::load_mem(&buffer) {

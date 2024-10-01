@@ -2,7 +2,7 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
 use crate::models::server::segment::{BaseSegment, PdlaSegment, Segment};
 use crate::models::server::task::Status;
-use crate::task::pdf::split_pdf;
+use crate::task::pdf::{convert_to_pdf, split_pdf};
 use crate::task::pdla::pdla_extraction;
 use crate::task::process::process_segments;
 use crate::utils::db::deadpool_postgres::{create_pool, Client, Pool};
@@ -65,6 +65,10 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             None,
         )
         .await?;
+        let file_type = match temp_file.path().extension() {
+            Some(ext) => ext.to_string_lossy().to_string(),
+            None => "unknown".to_string(),
+        };
 
         let mut split_temp_files: Vec<PathBuf> = vec![];
         let split_temp_dir = TempDir::new("split_pdf")?;
@@ -108,23 +112,33 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 &pg_pool,
             )
             .await?;
-            let pdla_response = pdla_extraction(temp_file, extraction_item.model.clone()).await?;
+
+            // Convert to PDF if file type is not PDF
+            let temp_file_path = if file_type != "pdf" {
+                convert_to_pdf(temp_file.as_path()).await?
+            } else {
+                temp_file.as_path().to_path_buf()
+            };
+
+            let pdla_response =
+                pdla_extraction(&temp_file_path, extraction_item.model.clone()).await?;
             let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
             let base_segments: Vec<BaseSegment> = pdla_segments
                 .iter()
                 .map(|pdla_segment| pdla_segment.to_base_segment())
                 .collect();
-            
+
             log_task(
                 task_id.clone(),
                 Status::Processing,
                 Some(processing_message),
                 None,
                 &pg_pool,
-            ) .await?;
+            )
+            .await?;
 
             let mut segments: Vec<Segment> = process_segments(
-                temp_file,
+                &temp_file_path,
                 &base_segments,
                 &extraction_item.image_folder_location,
                 &extraction_item.configuration.ocr_strategy,
