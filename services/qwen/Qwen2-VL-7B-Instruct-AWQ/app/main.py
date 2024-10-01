@@ -17,7 +17,7 @@ MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct"
 
 llm = LLM(
     model=MODEL_PATH,
-    limit_mm_per_prompt={"image": 10},
+    limit_mm_per_prompt={"image": 50},
     dtype="float16",
     # quantization="awq"  # Specify AWQ quantization
 )
