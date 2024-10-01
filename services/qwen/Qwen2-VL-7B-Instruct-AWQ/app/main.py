@@ -13,7 +13,7 @@ from typing import Dict, Any
 
 app = FastAPI()
 
-MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct"
+MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct-AWQ"
 
 llm = LLM(
     model=MODEL_PATH,
@@ -35,7 +35,7 @@ processor = AutoProcessor.from_pretrained(MODEL_PATH)
 @app.post("/v1/chat/completions")
 async def generate(messages: str = Form(...), prompt: str = Form(...), images: List[UploadFile] = File(...)):
     # Parse messages from JSON string
-    messages = json.loads(messages)
+    messages_batch = json.loads(messages)
 
     # Process images
     pil_images = []
@@ -44,28 +44,39 @@ async def generate(messages: str = Form(...), prompt: str = Form(...), images: L
         pil_images.append(image)
 
     # Add images to the messages
-    for i, image in enumerate(pil_images):
-        messages[i]["content"][0]["image"] = image
+    for i, batch in enumerate(messages_batch):
+        for j, message in enumerate(batch):
+            if message["role"] == "user":
+                for k, content in enumerate(message["content"]):
+                    if content["type"] == "image":
+                        messages_batch[i][j]["content"][k]["image"] = pil_images[i]
 
-    # Prepare the prompt
-    prompt = processor.apply_chat_template(
-        messages,
-        tokenize=False,
-        add_generation_prompt=True,
-    )
-    image_inputs, _ = process_vision_info(messages)
+    # Prepare the prompts
+    prompts = [
+        processor.apply_chat_template(
+            batch,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        for batch in messages_batch
+    ]
+
+    image_inputs, _ = process_vision_info(messages_batch)
 
     mm_data = {}
     if image_inputs is not None:
         mm_data["image"] = image_inputs
 
-    llm_inputs = {
-        "prompt": prompt,
-        "multi_modal_data": mm_data,
-    }
+    llm_inputs = [
+        {
+            "prompt": prompt,
+            "multi_modal_data": mm_data,
+        }
+        for prompt in prompts
+    ]
 
-    # Generate the response
-    outputs = llm.generate([llm_inputs], sampling_params=sampling_params)
+    # Generate the responses
+    outputs = llm.generate(llm_inputs, sampling_params=sampling_params)
     
     # Prepare the list of response dictionaries
     responses = []

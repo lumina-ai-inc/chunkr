@@ -12,32 +12,34 @@ load_dotenv(override=True)
 
 QWEN_URL = os.getenv('QWEN_URL')
 
-def process_images(messages: List[Dict[str, Any]], prompt: str):
+def process_images(messages_batch: List[List[Dict[str, Any]]], prompt: str):
     files = []
-    for message in messages:
-        if message["role"] == "user":
-            for content in message["content"]:
-                if content["type"] == "image":
-                    image_path = content["image"]
-                    with open(image_path, "rb") as image_file:
-                        image_data = image_file.read()
-                    files.append(("images", (os.path.basename(image_path), image_data, "image/png")))
+    
+    for batch_index, messages in enumerate(messages_batch):
+        for message in messages:
+            if message["role"] == "user":
+                for content in message["content"]:
+                    if content["type"] == "image":
+                        image_path = content["image"]
+                        with open(image_path, "rb") as image_file:
+                            image_data = image_file.read()
+                        files.append((f"images_{batch_index}", (os.path.basename(image_path), image_data, "image/png")))
 
     data = {
-        "messages": json.dumps(messages),
+        "messages": json.dumps(messages_batch),
         "prompt": prompt
     }
 
     print(f"QWEN URL: {QWEN_URL}")
 
     try:
-        print(f"Sending request to QWEN URL: {QWEN_URL}")
+        print(f"Sending batch request to QWEN URL: {QWEN_URL}")
         response = requests.post(QWEN_URL, files=files, data=data)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f"Error occurred while sending request to QWEN URL: {QWEN_URL}")
-        return {"error": f"Error processing request: {e}"}
+        print(f"Error occurred while sending batch request to QWEN URL: {QWEN_URL}")
+        return {"error": f"Error processing batch request: {e}"}
 
 def test_qwen():
     script_dir = os.path.dirname(__file__)
@@ -71,9 +73,9 @@ def test_qwen():
 
     print(f"Prompt: {prompt}")
 
-    messages = []
+    messages_batch = []
     for image_file in image_files:
-        messages.append({
+        messages_batch.append([{
             "role": "user",
             "content": [
                 {
@@ -82,13 +84,13 @@ def test_qwen():
                 },
                 {"type": "text", "text": "Analyze this table and convert it to JSON."},
             ],
-        })
+        }])
 
-    print(f"Messages: {json.dumps(messages, indent=2)}")
+    print(f"Messages batch: {json.dumps(messages_batch, indent=2)}")
 
     start_time = time.time()
-    print("Starting image processing...")
-    result = process_images(messages, prompt)
+    print("Starting batch image processing...")
+    result = process_images(messages_batch, prompt)
     end_time = time.time()
 
     total_time = end_time - start_time
