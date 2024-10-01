@@ -1,6 +1,6 @@
-use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream, Client as S3Client};
 use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::head_object::HeadObjectError;
+use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream, Client as S3Client};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use reqwest::Client;
@@ -59,7 +59,13 @@ pub async fn generate_presigned_url_if_exists(
 
     let (bucket, key) = extract_bucket_and_key(location)?;
 
-    match s3_client.head_object().bucket(&bucket).key(&key).send().await {
+    match s3_client
+        .head_object()
+        .bucket(&bucket)
+        .key(&key)
+        .send()
+        .await
+    {
         Ok(_) => {
             let presigned_request = s3_client
                 .get_object()
@@ -76,13 +82,37 @@ pub async fn generate_presigned_url_if_exists(
         Err(err) => Err(format!("Error checking object existence: {}", err).into()),
     }
 }
+use bytes::Bytes;
 
+pub async fn upload_to_s3_from_memory(
+    s3_client: &S3Client,
+    s3_path: &str,
+    content: &[u8],
+) -> Result<(), Box<dyn std::error::Error>> {
+    let (bucket, key) = parse_s3_path(s3_path)?;
+    s3_client
+        .put_object()
+        .bucket(bucket)
+        .key(key)
+        .body(ByteStream::from(Bytes::from(content.to_vec())))
+        .send()
+        .await?;
+    Ok(())
+}
+
+// Helper function to parse S3 path
+fn parse_s3_path(s3_path: &str) -> Result<(String, String), Box<dyn std::error::Error>> {
+    let parts: Vec<&str> = s3_path.trim_start_matches("s3://").split('/').collect();
+    if parts.len() < 2 {
+        return Err("Invalid S3 path".into());
+    }
+    Ok((parts[0].to_string(), parts[1..].join("/")))
+}
 pub async fn upload_to_s3(
     s3_client: &S3Client,
     s3_location: &str,
     file_path: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
-
     let file_content = tokio::fs::read(file_path).await?;
 
     let (bucket, key) = extract_bucket_and_key(s3_location)?;

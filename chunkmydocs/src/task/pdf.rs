@@ -45,24 +45,94 @@ pub async fn split_pdf(
     Ok(split_files)
 }
 
-pub async fn convert_to_pdf(file_path: &Path) -> Result<PathBuf, Box<dyn std::error::Error>> {
+use reqwest::multipart::{Form, Part}; // Ensure you have this import
+use std::io::Write;
+use tempfile::NamedTempFile;
+pub async fn convert_to_pdf(file_path: &Path) -> Result<NamedTempFile, Box<dyn std::error::Error>> {
+    println!("Starting PDF conversion for file: {:?}", file_path);
     let config = Config::from_env()?;
     let client = Client::new();
-    let response = client
-        .post(&format!("{}/to_pdf", config.service_url))
-        .body(fs::read(file_path)?)
-        .send()
-        .await?;
+
+    let url = format!("{}/to_pdf", config.service_url);
+    println!("Sending POST request to: {}", url);
+
+    let file_name = file_path
+        .file_name()
+        .ok_or_else(|| format!("Invalid file name: {:?}", file_path))?
+        .to_str()
+        .ok_or_else(|| format!("Non-UTF8 file name: {:?}", file_path))?
+        .to_string();
+
+    let file_fs = fs::read(file_path)?;
+    let part = Part::bytes(file_fs).file_name(file_name);
+
+    let form = Form::new().part("file", part);
+
+    let response = client.post(&url).multipart(form).send().await?;
+
+    println!("Received response with status: {}", response.status());
 
     if response.status().is_success() {
-        let temp_dir = tempfile::TempDir::new()?;
-        let temp_file_path = temp_dir.path().join(file_path.file_name().unwrap());
-        fs::write(&temp_file_path, response.bytes().await?)?;
-        Ok(temp_file_path)
+        println!("PDF conversion successful for file: {:?}", file_path);
+        let content = response.bytes().await?;
+        println!("PDF content received, size: {} bytes", content.len());
+
+        // Create a temporary file
+        let mut temp_file = tempfile::NamedTempFile::new()?;
+
+        // Write the content to the temporary file
+        temp_file.write_all(&content)?;
+
+        println!("PDF saved to temporary file");
+
+        Ok(temp_file)
     } else {
+        let status = response.status();
+        let error_message = response
+            .text()
+            .await
+            .unwrap_or_else(|_| "Unknown error".to_string());
+        println!(
+            "Failed to convert to PDF for file: {:?}, Status: {}, Message: {}",
+            file_path, status, error_message
+        );
         Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::Other,
-            "Failed to convert to PDF",
+            format!(
+                "Failed to convert to PDF. Status: {}, Message: {}",
+                status, error_message
+            ),
         )))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::PathBuf;
+    use tokio;
+
+    #[tokio::test]
+    async fn test_convert_to_pdf() {
+        // Use the test.docx file from the input folder
+        let input_path = PathBuf::from("input").join("test.docx");
+
+        // Call the convert_to_pdf function
+        let result = convert_to_pdf(&input_path).await;
+
+        // Save the result to the output folder
+        match result {
+            Ok(pdf_file) => {
+                let output_dir = PathBuf::from("output");
+                fs::create_dir_all(&output_dir).unwrap();
+                let output_path = output_dir.join("test_output.pdf");
+                fs::copy(pdf_file.path(), &output_path).unwrap();
+                println!("Test output saved to {:?}", output_path);
+            }
+            Err(e) => {
+                println!("PDF conversion failed: {:?}", e);
+            }
+        }
     }
 }

@@ -65,8 +65,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             None,
         )
         .await?;
-        let file_type = match temp_file.path().extension() {
-            Some(ext) => ext.to_string_lossy().to_string(),
+        let file_type = match mime_guess::from_path(temp_file.path()).first() {
+            Some(mime) => mime.essence_str().to_string(),
             None => "unknown".to_string(),
         };
 
@@ -114,11 +114,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             .await?;
 
             // Convert to PDF if file type is not PDF
-            let temp_file_path = if file_type != "pdf" {
-                convert_to_pdf(temp_file.as_path()).await?
-            } else {
-                temp_file.as_path().to_path_buf()
-            };
+            println!("File type: {:?}", file_type);
+
+            let temp_file_path = temp_file.as_path().to_path_buf();
 
             let pdla_response =
                 pdla_extraction(&temp_file_path, extraction_item.model.clone()).await?;
