@@ -86,7 +86,6 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
         if not input_path.exists():
             raise FileNotFoundError(f"Input file not found: {input_path}")
 
-        # Check if GPU is available
         use_gpu = cv2.cuda.getCudaEnabledDeviceCount() > 0
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -100,7 +99,6 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
                 img_gpu = cv2.cuda_GpuMat()
                 img_gpu.upload(img)
 
-            # Calculate crop coordinates and ensure they are integers
             left = int(
                 min(bounding_box.top_left[0], bounding_box.bottom_left[0]))
             top = int(min(bounding_box.top_left[1], bounding_box.top_right[1]))
@@ -109,14 +107,12 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
             bottom = int(
                 max(bounding_box.bottom_left[1], bounding_box.bottom_right[1]))
 
-            # Crop the image
             if use_gpu:
                 cropped_gpu = img_gpu[top:bottom, left:right]
                 cropped = cropped_gpu.download()
             else:
                 cropped = img[top:bottom, left:right]
 
-            # Resize if specified
             if resize:
                 new_width, new_height = map(int, resize.split('x'))
                 if use_gpu:
@@ -126,7 +122,6 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
                 else:
                     cropped = cv2.resize(cropped, (new_width, new_height))
 
-            # Apply quality settings
             encode_params = []
             if extension.lower() in ['jpg', 'jpeg']:
                 encode_params = [cv2.IMWRITE_JPEG_QUALITY, quality]
@@ -134,7 +129,6 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
                 encode_params = [
                     cv2.IMWRITE_PNG_COMPRESSION, 9 - quality // 10]
 
-            # Encode the image to bytes
             _, buffer = cv2.imencode(f'.{extension}', cropped, encode_params)
             img_str = base64.b64encode(buffer).decode('utf-8')
 
@@ -150,14 +144,23 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
 def resize_image(image_path: Path, size: Tuple[int, int], extension: str = "png", quality: int = 100) -> str:
     """
     Resize an image to the specified width and height while maintaining the aspect ratio, and return as base64.
+    Uses GPU acceleration if available.
     """
     try:
         image_path = Path(image_path)
         if not image_path.exists():
             raise FileNotFoundError(f"Input file not found: {image_path}")
 
+        # Check if GPU is available
+        use_gpu = cv2.cuda.getCudaEnabledDeviceCount() > 0
+
         # Read the image
         img = cv2.imread(str(image_path))
+
+        if use_gpu:
+            # Upload image to GPU
+            gpu_img = cv2.cuda_GpuMat()
+            gpu_img.upload(img)
 
         # Get original dimensions
         original_height, original_width = img.shape[:2]
@@ -172,7 +175,11 @@ def resize_image(image_path: Path, size: Tuple[int, int], extension: str = "png"
             target_height = int(target_width / aspect_ratio)
 
         # Resize the image
-        resized_img = cv2.resize(img, (target_width, target_height))
+        if use_gpu:
+            resized_gpu = cv2.cuda.resize(gpu_img, (target_width, target_height))
+            resized_img = resized_gpu.download()
+        else:
+            resized_img = cv2.resize(img, (target_width, target_height))
 
         # Apply quality settings
         encode_params = []

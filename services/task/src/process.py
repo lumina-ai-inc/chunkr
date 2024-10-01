@@ -5,11 +5,12 @@ import threading
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 
+from src.configs.llm_config import LLM__BASE_URL
 from src.converters import crop_image
+from src.llm import process_table
 from src.models.segment_model import BaseSegment, Segment, SegmentType
 from src.ocr import ppocr, ppstructure_table
 from src.s3 import upload_file_to_s3
-
 
 def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
     scale_factor = density / pdla_density
@@ -38,25 +39,28 @@ def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, densi
 
 def process_segment_ocr(
     segment: Segment,
-    segment_temp_file: str,
+    segment_temp_file: Path,
     ocr: PaddleOCR,
     table_engine: PPStructure,
     ocr_lock: threading.Lock,
     table_engine_lock: threading.Lock
 ):
     if segment.segment_type == SegmentType.Table:
-        with table_engine_lock:
-            table_ocr_results = ppstructure_table(
-                table_engine, Path(segment_temp_file))
-            segment.ocr = table_ocr_results.results
-            segment.html = table_ocr_results.html
+        if LLM__BASE_URL:
+            segment.html = process_table(segment_temp_file)
+        else:
+            with table_engine_lock:
+                table_ocr_results = ppstructure_table(
+                    table_engine, segment_temp_file)
+                segment.ocr = table_ocr_results.results
+                segment.html = table_ocr_results.html
     elif segment.segment_type == SegmentType.Picture:
         with ocr_lock:
-            ocr_results = ppocr(ocr, Path(segment_temp_file))
+            ocr_results = ppocr(ocr, segment_temp_file)
             segment.ocr = ocr_results.results
     else:
         with ocr_lock:
-            ocr_results = ppocr(ocr, Path(segment_temp_file))
+            ocr_results = ppocr(ocr, segment_temp_file)
         segment.ocr = ocr_results.results
 
 
@@ -104,7 +108,7 @@ def process_segment(
          
                 process_segment_ocr(
                     segment,
-                    temp_image_file.name,
+                    Path(temp_image_file.name),
                     ocr,
                     table_engine,
                     ocr_lock,
