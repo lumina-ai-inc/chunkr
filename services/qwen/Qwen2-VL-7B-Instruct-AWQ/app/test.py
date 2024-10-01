@@ -12,18 +12,19 @@ load_dotenv(override=True)
 
 QWEN_URL = os.getenv('QWEN_URL')
 
-def process_images(messages_batch: List[List[Dict[str, Any]]], prompt: str):
+def process_images(messages_batch: List[List[Dict[str, Any]]], prompt: str, image_files: List[str]):
     files = []
     
-    for batch_index, messages in enumerate(messages_batch):
-        for message in messages:
+    for i, image_path in enumerate(image_files):
+        with open(image_path, "rb") as image_file:
+            image_data = image_file.read()
+        files.append(("images", (os.path.basename(image_path), image_data, "image/png")))
+
+    # Remove image paths from messages
+    for batch in messages_batch:
+        for message in batch:
             if message["role"] == "user":
-                for content in message["content"]:
-                    if content["type"] == "image":
-                        image_path = content["image"]
-                        with open(image_path, "rb") as image_file:
-                            image_data = image_file.read()
-                        files.append((f"images_{batch_index}", (os.path.basename(image_path), image_data, "image/png")))
+                message["content"] = [content for content in message["content"] if content["type"] != "image"]
 
     data = {
         "messages": json.dumps(messages_batch),
@@ -74,14 +75,10 @@ def test_qwen():
     print(f"Prompt: {prompt}")
 
     messages_batch = []
-    for image_file in image_files:
+    for _ in image_files:
         messages_batch.append([{
             "role": "user",
             "content": [
-                {
-                    "type": "image",
-                    "image": image_file,
-                },
                 {"type": "text", "text": "Analyze this table and convert it to JSON."},
             ],
         }])
@@ -90,7 +87,7 @@ def test_qwen():
 
     start_time = time.time()
     print("Starting batch image processing...")
-    result = process_images(messages_batch, prompt)
+    result = process_images(messages_batch, prompt, image_files)
     end_time = time.time()
 
     total_time = end_time - start_time
