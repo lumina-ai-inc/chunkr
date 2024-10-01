@@ -108,7 +108,6 @@ def test_qwen_sync():
         print(f"No image files found in {test_dir}")
         return
 
-<<<<<<< HEAD
     prompt = "Return the provided complex table in JSON format that preserves information and heirarchy from the table at 100 percent accuracy." 
     
     total_time = 0
@@ -116,14 +115,6 @@ def test_qwen_sync():
         start_time = time.time()
         result = process_images([image_file], prompt)
         end_time = time.time()
-=======
-    url = "http://localhost:8000/generate"  # Assuming the server is running on localhost:8000
-
-    prompt = "Each image is a segment. First detect what type of segment it is. It can also be a page (a whole page of a document), if it is, then extract the text as OCR for the whole page put it in <page></page> tags. It can also be <type>Table</type> or <type>Graph</type> or <type>Infograph</type> or <type>Text</type> or <type>Image</type> or <type>Formula</type>. If it is a table, extract the table in markdown format that i can then render later. put markdown in <markdown></markdown> tags, along with a description in <description></description> tags. If it is a picture or graph , describe the picture in detail. If it is Text, then do OCR and return the text exactly as written (regardless if its handwrittten or typed)."
-
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = [executor.submit(process_image, img_path, url) for img_path in image_files]
->>>>>>> d33d2f2 (samples)
         
         processing_time = end_time - start_time
         total_time += processing_time

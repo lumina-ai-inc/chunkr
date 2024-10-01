@@ -6,19 +6,18 @@ from vllm import LLM, SamplingParams
 from qwen_vl_utils import process_vision_info
 from PIL import Image
 import io
-import requests
-import base64
+
 from typing import Dict, Any
 
 app = FastAPI()
 
-MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct-AWQ"
+MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct"
 
 llm = LLM(
     model=MODEL_PATH,
     limit_mm_per_prompt={"image": 10},
     dtype="float16",
-    quantization="awq"  # Specify AWQ quantization
+    # quantization="awq"  # Specify AWQ quantization
 )
 
 sampling_params = SamplingParams(
@@ -33,23 +32,17 @@ processor = AutoProcessor.from_pretrained(MODEL_PATH)
 
 
 @app.post("/generate")
-async def generate(prompt: str = Form(...), images: List[UploadFile] = File(...)):
+async def generate(messages: List[Dict[str, Any]] = Form(...), images: List[UploadFile] = File(...)):
     # Process images
     pil_images = []
     for img in images:
         image = Image.open(io.BytesIO(await img.read()))
         pil_images.append(image)
 
-    # Prepare the messages
-    messages = [
-        {"role": "system", "content": "You are great at reading charts, tables and images. You are being given multiple images and asked to answer a question about them. Respond for all."},
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": prompt},
-            ] + [{"type": "image", "image": img} for img in pil_images]
-        }
-    ]
+    # Add images to the messages
+    for message in messages:
+        if message["role"] == "user":
+            message["content"] += [{"type": "image", "image": img} for img in pil_images]
 
     # Prepare the prompt
     prompt = processor.apply_chat_template(
