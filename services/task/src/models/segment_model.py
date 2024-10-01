@@ -117,7 +117,7 @@ class Segment(BaseModel):
         elif self.segment_type == SegmentType.Picture:
             self.html = "<img>"
         elif self.segment_type == SegmentType.Table:
-            if self.ocr:
+            if self.html:
                 html_content = self.html.strip()
                 if html_content.startswith('<html>') and html_content.endswith('</html>'):
                     html_content = html_content[6:-7].strip()

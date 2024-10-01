@@ -49,19 +49,14 @@ pub async fn invoice(
         )
         .await?;
 
-    println!("todays date {:?}", today.date());
-    println!("end of month date {:?}", end_of_month_date);
-    println!("invoices {:?}", invoices);
     for row in invoices {
         let invoice_id: String = row.get("invoice_id");
         let invoice_status: String = row.get("invoice_status");
 
         if invoice_status == "Failed" {
-            // Skip failed invoices
             continue;
         }
 
-        // Check if today is the end of the month
         if invoice_status == "Ongoing" && today.date() == end_of_month_date {
             println!(
                 "creating and sending invoice for invoice id {:?}",
