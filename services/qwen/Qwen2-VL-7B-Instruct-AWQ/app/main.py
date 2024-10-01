@@ -33,7 +33,7 @@ sampling_params = SamplingParams(
 processor = AutoProcessor.from_pretrained(MODEL_PATH)
 
 @app.post("/v1/chat/completions")
-async def generate(messages: str = Form(...), prompt: str = Form(...), images: List[UploadFile] = File(...)):
+async def generate(messages: str = Form(...), images: List[UploadFile] = File(...)):
     # Parse messages from JSON string
     messages_batch = json.loads(messages)
 
