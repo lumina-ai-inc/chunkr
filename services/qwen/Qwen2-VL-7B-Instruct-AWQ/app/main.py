@@ -13,20 +13,18 @@ from typing import Dict, Any
 
 app = FastAPI()
 
-MODEL_PATH = "Qwen/Qwen2-VL-2B-Instruct-AWQ"
+MODEL_PATH = "Qwen/Qwen2-VL-7B-Instruct"
 
 llm = LLM(
     model=MODEL_PATH,
-    limit_mm_per_prompt={"image": 50},
-    dtype="float16",
-    # quantization="awq"  # Specify AWQ quantization
+    limit_mm_per_prompt={"image": 10, "video": 10},
 )
 
 sampling_params = SamplingParams(
-    temperature=0,
+    temperature=0.1,
     top_p=0.001,
     repetition_penalty=1.05,
-    max_tokens=1256,
+    max_tokens=256,
     stop_token_ids=[],
 )
 
@@ -93,4 +91,4 @@ async def generate(messages: str = Form(...), images: List[UploadFile] = File(..
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Qwen2-VL-2B-Instruct-AWQ API"}
+    return {"message": "Welcome to the Qwen2-VL-7B-Instruct API"}
