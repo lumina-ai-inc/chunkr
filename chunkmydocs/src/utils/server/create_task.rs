@@ -134,24 +134,28 @@ pub async fn create_task(
 
     let output_file = NamedTempFile::new().unwrap();
     let output_path = output_file.path().to_path_buf();
+    println!("extension: {}", extension);
+    let mut final_output_path: PathBuf= file.file.path().to_path_buf();
+    if extension != "pdf" {
+        let result = convert_to_pdf(&input_path, &output_path).await;
+        let final_output_file = tempfile::NamedTempFile::new().unwrap();
+        final_output_path = final_output_file.path().to_path_buf();
 
-    let result = convert_to_pdf(&input_path, &output_path).await;
-    let output_dir = PathBuf::from("output");
-    std::fs::create_dir_all(&output_dir).unwrap();
-    let final_output_path = output_dir.join("test_output.pdf");
+        match result {
+            Ok(_) => {
+                std::fs::copy(&output_path, &final_output_path).unwrap();
+                println!("Test output saved to temporary file: {:?}", final_output_path);
+            }
+            Err(e) => {
+                panic!("PDF conversion failed: {:?}", e);
+            }
+        }
+    } 
 
-    match result {
-        Ok(_) => {
-            std::fs::copy(&output_path, &final_output_path).unwrap();
-            println!("Test output saved to {:?}", final_output_path);
-        }
-        Err(e) => {
-            panic!("PDF conversion failed: {:?}", e);
-        }
-    }
-    let page_count = match Document::load(&output_path) {
+
+    let page_count = match Document::load(&final_output_path) {
         Ok(doc) => doc.get_pages().len() as i32,
-        Err(_) => 0,
+        Err(e) => return Err(format!("Failed to get page count: {}", e).into()),
     };
     let file_size = file.size;
 
