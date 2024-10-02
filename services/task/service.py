@@ -14,7 +14,7 @@ from typing import Dict, Optional, List
 import threading
 
 from src.converters import convert_to_img, crop_image, convert_to_pdf
-from src.llm import process_llm
+from src.llm import process_llm, table_to_html, formula_to_latex
 from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
@@ -205,10 +205,17 @@ class Task:
     resources={"cpu": "4"},
     traffic={"timeout": 600}
 )
-class HTML:
+class LLM:
     @bentoml.api
     def table_to_html(
         self,
         file: Path
     ) -> str:
-        return process_llm(file)
+        return process_llm(file, table_to_html)
+
+    @bentoml.api
+    def formula_to_latex(
+        self,
+        file: Path
+    ) -> str:
+        return process_llm(file, formula_to_latex)
