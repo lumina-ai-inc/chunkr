@@ -40,7 +40,7 @@ fn is_valid_file_type(
     let temp_file_name = format!("temp_file.{}", extension);
     std::fs::copy(file_path, &temp_file_name)?;
     let temp_file_path = Path::new(&temp_file_name);
-    let mime_type = detect_file_type(file_path)?;
+    let mime_type = detect_file_type(temp_file_path)?;
     let is_valid = match mime_type.as_str() {
         "application/pdf" => true,
         "application/vnd.ms-powerpoint" => true,
