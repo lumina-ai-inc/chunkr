@@ -9,7 +9,7 @@ from psycopg2 import connect
 from src.configs.llm_config import LLM__BASE_URL
 from src.configs.pgsql_config import PG__URL
 from src.converters import crop_image
-from src.llm import process_llm, extract_html_from_response
+from src.llm import process_llm, extract_html_from_response, table_to_html
 from src.models.ocr_model import ProcessInfo, ProcessType
 from src.models.segment_model import BaseSegment, Segment, SegmentType
 from src.ocr import ppocr, ppstructure_table
@@ -50,7 +50,7 @@ def process_segment_ocr(
 
     if segment.segment_type == SegmentType.Table:
         if LLM__BASE_URL:
-            (detail, response) = process_llm(segment_temp_file)
+            (detail, response) = process_llm(segment_temp_file, table_to_html)
             segment.html = extract_html_from_response(response)
             process_info.detail = detail
             process_info.input_tokens = response.usage.prompt_tokens
