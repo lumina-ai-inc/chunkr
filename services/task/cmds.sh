@@ -21,5 +21,6 @@ mogrify -format jpg -path /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/s
 
 
 curl -X POST localhost:3000/table_to_html \
-    -H "Content-Type: application/json" \
-    -d '{"file": "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/llm/c86ce3d2-295a-4d1b-a8c5-6fe427b6da21.jpg"}'
+    -F 'file=@/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/llm/c86ce3d2-295a-4d1b-a8c5-6fe427b6da21.jpg' \
+    -o output/output.html
+
