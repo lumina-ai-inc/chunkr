@@ -18,3 +18,8 @@ uv pip install .[macos]
 
 mogrify -format jpg -path /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/jpg /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/table_ocr/*.png
 mogrify -format jpg -path /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr/jpg /Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/latex_ocr/*.png
+
+
+curl -X POST localhost:3000/table_to_html \
+    -H "Content-Type: application/json" \
+    -d '{"file": "/Users/akhileshsharma/Documents/Lumina/chunk-my-docs/services/task/input/llm/c86ce3d2-295a-4d1b-a8c5-6fe427b6da21.jpg"}'

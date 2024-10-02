@@ -5,7 +5,7 @@ from pathlib import Path
 from pdf2image import convert_from_path
 import tempfile
 import time
-from typing import Dict
+from typing import Dict, Tuple
 import shutil
 import subprocess
 
@@ -39,18 +39,21 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
         extension = extension.lower()
         if not extension.startswith('.'):
             extension = f'.{extension}'
-        
-        format_mapping = {'.jpg': 'JPEG', '.jpeg': 'JPEG', '.png': 'PNG', '.tiff': 'TIFF'}
+
+        format_mapping = {'.jpg': 'JPEG', '.jpeg': 'JPEG',
+                          '.png': 'PNG', '.tiff': 'TIFF'}
         pil_format = format_mapping.get(extension, extension[1:].upper())
-        
-        pdf_images = convert_from_path(str(pdf_file), dpi=density, fmt=pil_format)
+
+        pdf_images = convert_from_path(
+            str(pdf_file), dpi=density, fmt=pil_format)
         pdf_to_img_end = time.time()
 
         processing_start = time.time()
         for i, img in enumerate(pdf_images, start=1):
             with io.BytesIO() as output:
                 img.save(output, format=pil_format)
-                img_base64 = base64.b64encode(output.getvalue()).decode('utf-8')
+                img_base64 = base64.b64encode(
+                    output.getvalue()).decode('utf-8')
                 result[i] = img_base64
         processing_end = time.time()
 
@@ -93,10 +96,13 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
                 img_gpu.upload(img)
 
             # Calculate crop coordinates and ensure they are integers
-            left = int(min(bounding_box.top_left[0], bounding_box.bottom_left[0]))
+            left = int(
+                min(bounding_box.top_left[0], bounding_box.bottom_left[0]))
             top = int(min(bounding_box.top_left[1], bounding_box.top_right[1]))
-            right = int(max(bounding_box.top_right[0], bounding_box.bottom_right[0]))
-            bottom = int(max(bounding_box.bottom_left[1], bounding_box.bottom_right[1]))
+            right = int(
+                max(bounding_box.top_right[0], bounding_box.bottom_right[0]))
+            bottom = int(
+                max(bounding_box.bottom_left[1], bounding_box.bottom_right[1]))
 
             # Crop the image
             if use_gpu:
@@ -134,3 +140,50 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
         raise RuntimeError(f"OpenCV error: {str(e)}")
     except Exception as e:
         raise RuntimeError(f"Failed to crop image: {str(e)}")
+
+
+def resize_image(image_path: Path, size: Tuple[int, int], extension: str = "png", quality: int = 100) -> str:
+    """
+    Resize an image to the specified width and height while maintaining the aspect ratio, and return as base64.
+    """
+    try:
+        image_path = Path(image_path)
+        if not image_path.exists():
+            raise FileNotFoundError(f"Input file not found: {image_path}")
+
+        # Read the image
+        img = cv2.imread(str(image_path))
+
+        # Get original dimensions
+        original_height, original_width = img.shape[:2]
+
+        # Calculate new dimensions while maintaining aspect ratio
+        target_width, target_height = size
+        aspect_ratio = original_width / original_height
+
+        if target_width / target_height > aspect_ratio:
+            target_width = int(target_height * aspect_ratio)
+        else:
+            target_height = int(target_width / aspect_ratio)
+
+        # Resize the image
+        resized_img = cv2.resize(img, (target_width, target_height))
+
+        # Apply quality settings
+        encode_params = []
+        if extension.lower() in ['jpg', 'jpeg']:
+            encode_params = [cv2.IMWRITE_JPEG_QUALITY, quality]
+        elif extension.lower() == 'png':
+            encode_params = [cv2.IMWRITE_PNG_COMPRESSION, 9 - quality // 10]
+
+        # Encode the image to bytes
+        _, buffer = cv2.imencode(f'.{extension}', resized_img, encode_params)
+        img_str = base64.b64encode(buffer).decode('utf-8')
+
+        return img_str
+    except FileNotFoundError as e:
+        raise e
+    except cv2.error as e:
+        raise RuntimeError(f"OpenCV error: {str(e)}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to resize image: {str(e)}")
