@@ -1,6 +1,6 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { useCallback } from "react";
-import { useDropzone, DropzoneOptions } from "react-dropzone";
+import { useDropzone } from "react-dropzone";
 import { useAuth } from "react-oidc-context";
 import "./Upload.css";
 
@@ -48,7 +48,7 @@ export default function Upload({
     },
     multiple: false,
     noClick: true,
-  } as DropzoneOptions);
+  });
 
   // const navigate = useNavigate();
   const auth = useAuth();
