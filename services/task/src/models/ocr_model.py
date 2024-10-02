@@ -4,7 +4,6 @@ from typing import List, Optional
 import time
 
 from src.configs.llm_config import LLM__MODEL, LLM__BASE_URL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
-from src.models.segment_model import Segment
 
 class BoundingBox(BaseModel):
     top_left: List[float] = Field(...,
