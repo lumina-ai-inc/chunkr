@@ -14,11 +14,11 @@ from typing import Dict, Optional, List
 import threading
 
 from src.converters import convert_to_img, crop_image, convert_to_pdf
+from src.llm import process_table
 from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
 from src.process import adjust_base_segments, process_segment
-
 
 @bentoml.service(
     name="image",
@@ -202,3 +202,14 @@ class Task:
             print(
                 f"Total time taken per segment: {(end_time - start_time) / len(segments)} seconds")
         return processed_segments
+
+@bentoml.service(
+    name="task",
+    resources={"gpu": 1, "cpu": "4"},
+    traffic={"timeout": 600}
+)
+class HTML:
+    @bentoml.api
+    def table_to_html(self, file: Path) -> str:
+        return process_table(file)
+    
