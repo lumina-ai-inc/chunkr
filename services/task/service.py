@@ -13,7 +13,7 @@ import tqdm
 from typing import Dict, Optional, List
 import threading
 
-from src.converters import convert_to_img, crop_image
+from src.converters import convert_to_img, crop_image, convert_to_pdf
 from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
@@ -93,13 +93,8 @@ class Task:
         self.table_engine_lock: threading.Lock = threading.Lock()
 
     @bentoml.api
-    def images_from_file(
-        self,
-        file: Path,
-        density: int = Field(default=300, description="Image density in DPI"),
-        extension: str = Field(default="png", description="Image extension")
-    ) -> Dict[int, str]:
-        return convert_to_img(file, density, extension)
+    def to_pdf(self, file: Path) -> Path:
+        return convert_to_pdf(file)
 
     @bentoml.api
     def process(

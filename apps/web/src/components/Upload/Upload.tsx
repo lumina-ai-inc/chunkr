@@ -37,9 +37,17 @@ export default function Upload({
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
-    accept: { "application/pdf": [".pdf"] },
+    accept: {
+      "application/pdf": [".pdf"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "application/msword": [".doc"],
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+      "application/vnd.ms-powerpoint": [".ppt"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+      "application/vnd.ms-excel": [".xls"]
+    },
     multiple: false,
-    noClick: true, // Prevent opening file dialog on click
+    noClick: true,
   });
 
   // const navigate = useNavigate();
@@ -50,9 +58,9 @@ export default function Upload({
       if (isUploaded) {
         onFileRemove();
       }
-      open(); // Open file dialog
+      open(); 
     } else {
-      auth.signinRedirect(); // Redirect to login when not authenticated
+      auth.signinRedirect(); 
     }
   };
 

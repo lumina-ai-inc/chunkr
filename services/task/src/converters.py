@@ -12,20 +12,27 @@ import subprocess
 from src.utils import needs_conversion
 from src.models.ocr_model import BoundingBox
 
+def convert_to_pdf(file: Path) -> Path:
+    temp_dir = tempfile.mkdtemp()
 
-
+    if needs_conversion(file):
+        subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', temp_dir, str(file)],
+                        check=True, capture_output=True, text=True)
+        pdf_file = next(Path(temp_dir).glob('*.pdf'))
+    else:
+        pdf_file = file
+    
+    return pdf_file
+    
+                
 def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int, str]:
     start_time = time.time()
     temp_dir = tempfile.mkdtemp()
     result = {}
     try:
         conversion_start = time.time()
-        if needs_conversion(file):
-            subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', temp_dir, str(file)],
-                           check=True, capture_output=True, text=True)
-            pdf_file = next(Path(temp_dir).glob('*.pdf'))
-        else:
-            pdf_file = file
+        pdf_file = convert_to_pdf(file)
+            
         conversion_end = time.time()
 
         pdf_to_img_start = time.time()

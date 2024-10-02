@@ -4,6 +4,7 @@ use crate::models::{
     server::extract::{Configuration, ExtractionPayload, SegmentationModel},
     server::task::{Status, TaskResponse},
 };
+use crate::task::pdf::convert_to_pdf;
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::rrq::service::produce;
@@ -12,14 +13,54 @@ use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
 use lopdf::Document;
+use mime_guess::MimeGuess;
 use std::error::Error;
+use std::path::Path;
+use std::path::PathBuf;
 use uuid::Uuid;
 
-fn is_valid_pdf(buffer: &[u8]) -> Result<bool, lopdf::Error> {
-    match Document::load_mem(buffer) {
-        Ok(_) => Ok(true),
-        Err(_) => Ok(false),
-    }
+fn detect_file_type(file_path: &Path) -> Result<String, Box<dyn Error>> {
+    let guess = MimeGuess::from_path(file_path);
+    let mime_type = match guess.first() {
+        Some(mime) => mime.to_string(),
+        None => "application/octet-stream".to_string(),
+    };
+    Ok(mime_type)
+}
+
+fn is_valid_file_type(
+    file_path: &Path,
+    original_file_name: &str,
+) -> Result<(bool, String), Box<dyn Error>> {
+    let extension = Path::new(original_file_name)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .unwrap_or("");
+
+    let temp_file_name = format!("temp_file.{}", extension);
+    std::fs::copy(file_path, &temp_file_name)?;
+    let temp_file_path = Path::new(&temp_file_name);
+    let mime_type = detect_file_type(temp_file_path)?;
+    let is_valid = match mime_type.as_str() {
+        "application/pdf" => true,
+        "application/vnd.ms-powerpoint" => true,
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" => true,
+        "application/msword" => true,
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => true,
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => true,
+        "application/vnd.ms-excel" => true,
+        "application/vnd.google-apps.document" => true,
+        "application/vnd.google-apps.presentation" => true,
+        "application/vnd.google-apps.spreadsheet" => true,
+        "application/vnd.oasis.opendocument.text" => true,
+        "application/vnd.oasis.opendocument.spreadsheet" => true,
+        "application/vnd.oasis.opendocument.presentation" => true,
+        "application/vnd.oasis.opendocument.graphics" => true,
+        "application/vnd.oasis.opendocument.chart" => true,
+        _ => false,
+    };
+    std::fs::remove_file(&temp_file_name)?;
+    Ok((is_valid, mime_type.to_string()))
 }
 
 async fn produce_extraction_payloads(
@@ -46,7 +87,7 @@ async fn produce_extraction_payloads(
 
     Ok(())
 }
-
+use tempfile::NamedTempFile;
 pub async fn create_task(
     pool: &Pool,
     s3_client: &S3Client,
@@ -71,21 +112,62 @@ pub async fn create_task(
     let base_url = config.base_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
-    let buffer: Vec<u8> = std::fs::read(file.file.path())?;
-
-    if !is_valid_pdf(&buffer)? {
-        return Err("Not a valid PDF".into());
+    let file_name = file.file_name.as_deref().unwrap_or("unknown");
+    let (is_valid, detected_mime_type) = is_valid_file_type(&file.file.path(), file_name)?;
+    if !is_valid {
+        return Err(format!("Not a valid file type: {}", detected_mime_type).into());
     }
 
-    let file_size = file.size;
-    let page_count = match Document::load_mem(&buffer) {
-        Ok(doc) => doc.get_pages().len() as i32,
-        Err(_) => {
-            return Err("Unable to count pages".into());
-        }
-    };
+    let extension = file
+        .file_name
+        .as_deref()
+        .unwrap_or("")
+        .split('.')
+        .last()
+        .unwrap_or("tmp");
+    let original_path = PathBuf::from(file.file.path());
+    let new_path = original_path.with_extension(extension);
 
-    let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
+    std::fs::rename(&original_path, &new_path)?;
+
+    let input_path = new_path;
+
+    let output_file = NamedTempFile::new().unwrap();
+    let output_path = output_file.path().to_path_buf();
+
+    let result = convert_to_pdf(&input_path, &output_path).await;
+    let output_dir = PathBuf::from("output");
+    std::fs::create_dir_all(&output_dir).unwrap();
+    let final_output_path = output_dir.join("test_output.pdf");
+
+    match result {
+        Ok(_) => {
+            std::fs::copy(&output_path, &final_output_path).unwrap();
+            println!("Test output saved to {:?}", final_output_path);
+        }
+        Err(e) => {
+            panic!("PDF conversion failed: {:?}", e);
+        }
+    }
+    let page_count = match Document::load(&output_path) {
+        Ok(doc) => doc.get_pages().len() as i32,
+        Err(_) => 0,
+    };
+    let file_size = file.size;
+
+    let file_name = file
+        .file_name
+        .as_deref()
+        .unwrap_or("unknown.pdf")
+        .to_string();
+    let file_name = if file_name.ends_with(".pdf") {
+        file_name
+    } else {
+        format!(
+            "{}.pdf",
+            file_name.trim_end_matches(|c| c == '.' || char::is_alphanumeric(c))
+        )
+    };
     let input_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, file_name);
     let output_extension = model_internal.get_extension();
     let output_location = input_location.replace(".pdf", &format!(".{}", output_extension));
@@ -94,7 +176,7 @@ pub async fn create_task(
 
     let message = "Task queued".to_string();
 
-    match upload_to_s3(s3_client, &input_location, file.file.path()).await {
+    match upload_to_s3(s3_client, &input_location, &output_path).await {
         Ok(_) => {
             let configuration_json = serde_json::to_string(configuration)?;
             match client
