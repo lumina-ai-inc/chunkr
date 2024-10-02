@@ -44,8 +44,7 @@ export default function Upload({
       "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
       "application/vnd.ms-powerpoint": [".ppt"],
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
-      "application/vnd.ms-excel": [".xls"],
-      "text/plain": [".txt"]
+      "application/vnd.ms-excel": [".xls"]
     },
     multiple: false,
     noClick: true,
