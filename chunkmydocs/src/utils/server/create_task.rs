@@ -15,11 +15,10 @@ use chrono::{DateTime, Utc};
 use lopdf::Document;
 use mime_guess::MimeGuess;
 use std::error::Error;
-use std::fs::File;
-use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
 use uuid::Uuid;
+
 fn detect_file_type(file_path: &Path) -> Result<String, Box<dyn Error>> {
     let guess = MimeGuess::from_path(file_path);
     let mime_type = match guess.first() {
@@ -33,43 +32,34 @@ fn is_valid_file_type(
     file_path: &Path,
     original_file_name: &str,
 ) -> Result<(bool, String), Box<dyn Error>> {
-    // Extract the file extension
     let extension = Path::new(original_file_name)
         .extension()
         .and_then(|ext| ext.to_str())
         .unwrap_or("");
 
-    // Create a temporary file with the original extension
     let temp_file_name = format!("temp_file.{}", extension);
-    println!(
-        "Creating temporary file '{}' to process the file.",
-        temp_file_name
-    );
     std::fs::copy(file_path, &temp_file_name)?;
-    println!("File copied to temporary file.");
-
-    // Detect the file type and extension
     let temp_file_path = Path::new(&temp_file_name);
-    println!(
-        "Detecting file type for temporary file at path: {:?}",
-        temp_file_path
-    );
-    let mime_type = detect_file_type(temp_file_path)?;
-    println!("Detected MIME type: {}", mime_type);
+    let mime_type = detect_file_type(file_path)?;
     let is_valid = match mime_type.as_str() {
         "application/pdf" => true,
         "application/vnd.ms-powerpoint" => true,
         "application/vnd.openxmlformats-officedocument.presentationml.presentation" => true,
         "application/msword" => true,
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => true,
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => true,
+        "application/vnd.ms-excel" => true,
+        "application/vnd.google-apps.document" => true,
+        "application/vnd.google-apps.presentation" => true,
+        "application/vnd.google-apps.spreadsheet" => true,
+        "application/vnd.oasis.opendocument.text" => true,
+        "application/vnd.oasis.opendocument.spreadsheet" => true,
+        "application/vnd.oasis.opendocument.presentation" => true,
+        "application/vnd.oasis.opendocument.graphics" => true,
+        "application/vnd.oasis.opendocument.chart" => true,
         _ => false,
     };
-    println!("Is valid file type: {}", is_valid);
-
-    // Clean up the temporary file
     std::fs::remove_file(&temp_file_name)?;
-    println!("Temporary file '{}' deleted.", temp_file_name);
-
     Ok((is_valid, mime_type.to_string()))
 }
 
@@ -138,22 +128,18 @@ pub async fn create_task(
     let original_path = PathBuf::from(file.file.path());
     let new_path = original_path.with_extension(extension);
 
-    // Rename the actual file on disk
     std::fs::rename(&original_path, &new_path)?;
 
     let input_path = new_path;
-    println!("Input path: {:?}", input_path);
 
-    // Create a temporary file for the output
     let output_file = NamedTempFile::new().unwrap();
     let output_path = output_file.path().to_path_buf();
 
-    // Call the convert_to_pdf function
     let result = convert_to_pdf(&input_path, &output_path).await;
     let output_dir = PathBuf::from("output");
     std::fs::create_dir_all(&output_dir).unwrap();
     let final_output_path = output_dir.join("test_output.pdf");
-    // Check the result
+
     match result {
         Ok(_) => {
             std::fs::copy(&output_path, &final_output_path).unwrap();
