@@ -71,8 +71,8 @@ class ProcessInfo(BaseModel):
     process_type: Optional[str] = Field(None, description="Type of the process")
     model_name: Optional[str] = LLM__MODEL or "paddleocr"
     base_url: Optional[str] = LLM__BASE_URL
-    input_tokens: Optional[int] = Field(None, description="Number of input tokens")
-    output_tokens: Optional[int] = Field(None, description="Number of output tokens")
+    input_tokens: Optional[int] = Field(0, description="Number of input tokens")
+    output_tokens: Optional[int] = Field(0, description="Number of output tokens")
     input_price: Optional[float] = LLM__INPUT_TOKEN_PRICE or 0
     output_price: Optional[float] = LLM__OUTPUT_TOKEN_PRICE or 0
     total_cost: Optional[float] = Field(None, description="Total cost of the process")
