@@ -1,3 +1,11 @@
+# For APACHE 2.0:
+# The following code differs from the source version in these key aspects:
+# 1. It includes additional parameters 'density' and 'extension' in the from_pdf_path method.
+# 2. The convert_from_path function now uses the 'density' parameter and explicitly sets the output format to 'jpeg'.
+# 3. The pdf_name assignment logic has been updated to use the new parameters.
+# These changes allow for more flexibility in image conversion settings and file naming.
+
+
 import os
 import shutil
 

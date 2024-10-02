@@ -1,3 +1,25 @@
+# # For APACHE 2.0:
+
+# The following changes have been made to improve the API:
+# 1. Routes have been refactored for convenience.
+# 2. A new 'density' parameter has been added to the '/analyze/high-quality' route.
+# 3. The '/analyze/fast' route now uses run_in_threadpool for better performance.
+# 4. A processing lock has been implemented for the '/analyze/high-quality' route to prevent concurrent processing.
+
+# New routes:
+# - /readiness: GET request to check if the service is ready
+# - /: GET request to get system information
+# - /analyze/fast: POST request for fast PDF analysis
+# - /analyze/high-quality: POST request for high-quality PDF analysis with density and extension parameters
+
+# Removed routes:
+# - /save_xml/{xml_file_name}: POST request to analyze and save XML
+# - /get_xml/{xml_file_name}: GET request to retrieve XML by name
+# - /toc: POST request to get table of contents
+# - /text: POST request to get text extraction
+# - /error: GET request to test error handling
+# - /: POST request for general PDF analysis (replaced by specific /analyze routes)
+
 import sys
 import torch
 from fastapi import FastAPI, UploadFile, File, Form
