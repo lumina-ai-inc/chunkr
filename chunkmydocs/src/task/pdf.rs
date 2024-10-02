@@ -1,6 +1,6 @@
 use crate::utils::configs::task_config::Config;
 use lopdf::Document;
-use reqwest::Client;
+use reqwest::{Client, multipart::{Form, Part}};
 use std::fs;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
@@ -45,19 +45,15 @@ pub async fn split_pdf(
     Ok(split_files)
 }
 
-use reqwest::multipart::{Form, Part}; // Ensure you have this import
-use std::io::Write;
-use tempfile::NamedTempFile;
+
 pub async fn convert_to_pdf(
     input_file_path: &Path,
     output_file_path: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    println!("Starting PDF conversion for file: {:?}", input_file_path);
     let config = Config::from_env()?;
     let client = Client::new();
 
     let url = format!("{}/to_pdf", config.service_url);
-    println!("Sending POST request to: {}", url);
 
     let file_name = input_file_path
         .file_name()
@@ -73,17 +69,10 @@ pub async fn convert_to_pdf(
 
     let response = client.post(&url).multipart(form).send().await?;
 
-    println!("Received response with status: {}", response.status());
 
     if response.status().is_success() {
-        println!("PDF conversion successful for file: {:?}", input_file_path);
         let content = response.bytes().await?;
-        println!("PDF content received, size: {} bytes", content.len());
-
         fs::write(output_file_path, &content)?;
-
-        println!("PDF saved to temporary file");
-
         Ok(())
     } else {
         let status = response.status();
@@ -104,6 +93,7 @@ pub async fn convert_to_pdf(
         )))
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
