@@ -30,7 +30,8 @@ def table_to_html(image: str, detail: str) -> ChatCompletion:
                  },
              ],
              }
-        ]
+        ],
+        temperature=0.0
     )
 
     return response
