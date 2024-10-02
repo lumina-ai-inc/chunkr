@@ -127,9 +127,7 @@ class Task:
         ocr_strategy: str = Field(
             default="Auto", description="OCR strategy: 'Auto', 'All', or 'Off'")
     ) -> list[Segment]:
-        start_time = time.time()
         page_images = []
-        print("Processing started")
         adjust_base_segments(base_segments, segment_bbox_offset,
                              page_image_density, pdla_density)
         segments = [Segment.from_base_segment(base_segment)
@@ -165,9 +163,7 @@ class Task:
                 temp_file.write(base64.b64decode(page_image))
                 temp_file.close()
                 page_image_file_paths[page_number] = Path(temp_file.name)
-            print("Pages converted to images")
             try:
-                print("Segment processing started")
                 processed_segments_dict = {}
                 num_workers = num_workers or len(segments) if len(
                     segments) > 0 else cpu_count()
@@ -202,14 +198,6 @@ class Task:
                 for page_image_file_path in page_image_file_paths.values():
                     os.unlink(page_image_file_path)
         end_time = time.time()
-        print("Segment processing finished")
-        print(f"Total time taken: {end_time - start_time} seconds")
-        if len(page_images) > 0:
-            print(
-                f"Total time taken per page: {(end_time - start_time) / len(page_images)} seconds")
-        if len(segments) > 0:
-            print(
-                f"Total time taken per segment: {(end_time - start_time) / len(segments)} seconds")
         return processed_segments
 
 
