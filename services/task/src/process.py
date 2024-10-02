@@ -68,7 +68,8 @@ def process_segment_ocr(
             segment.ocr = ocr_results.results
             process_info.model_name = "paddleocr"
 
-    process_info.finalize(segment)
+    process_info.avg_ocr_confidence = segment.calculate_avg_ocr_confidence()
+    process_info.finalize()
     print(process_info)
     return process_info
 
