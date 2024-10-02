@@ -87,10 +87,6 @@ class ProcessInfo(BaseModel):
     def calculate_latency(self):
         self.latency = time.time() - self.__start_time
 
-    def calculate_avg_ocr_confidence(self, segment: Segment):
-        self.avg_ocr_confidence = segment.calculate_avg_ocr_confidence()
-
-    def finalize(self, segment: Segment):
+    def finalize(self):
         self.calculate_total_cost()
         self.calculate_latency()
-        self.calculate_avg_ocr_confidence(segment)

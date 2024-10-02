@@ -4,7 +4,7 @@ from pathlib import Path
 import re
 from typing import Tuple
 
-from src.configs.llm_config import LLM__BASE_URL, LLM__API_KEY, LLM__MODEL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
+from src.configs.llm_config import LLM__BASE_URL, LLM__API_KEY, LLM__MODEL
 from src.converters import to_base64
 from src.resize_pipeline import resize_pipeline
 
