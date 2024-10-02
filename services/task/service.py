@@ -197,7 +197,6 @@ class Task:
             finally:
                 for page_image_file_path in page_image_file_paths.values():
                     os.unlink(page_image_file_path)
-        end_time = time.time()
         return processed_segments
 
 
