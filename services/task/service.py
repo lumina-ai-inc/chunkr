@@ -14,7 +14,7 @@ from typing import Dict, Optional, List
 import threading
 
 from src.converters import convert_to_img, crop_image, convert_to_pdf
-from src.llm import process_table
+from src.llm import process_llm
 from src.models.ocr_model import OCRResult, BoundingBox
 from src.models.segment_model import BaseSegment, Segment
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
@@ -211,4 +211,4 @@ class HTML:
         self,
         file: Path
     ) -> str:
-        return process_table(file)
+        return process_llm(file)
