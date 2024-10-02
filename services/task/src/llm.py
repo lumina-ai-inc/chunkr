@@ -2,9 +2,9 @@ from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from pathlib import Path
 import re
-import time
+from typing import Tuple
 
-from src.configs.llm_config import LLM__BASE_URL, LLM__API_KEY, LLM__MODEL, LLM_INPUT_TOKEN_PRICE, LLM_OUTPUT_TOKEN_PRICE
+from src.configs.llm_config import LLM__BASE_URL, LLM__API_KEY, LLM__MODEL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
 from src.converters import to_base64
 from src.resize_pipeline import resize_pipeline
 
@@ -35,13 +35,6 @@ def table_to_html(image: str, detail: str) -> str:
 
     return response
 
-
-def calculate_cost(response: ChatCompletion):
-    cost = LLM_INPUT_TOKEN_PRICE * response.usage.prompt_tokens + \
-        LLM_OUTPUT_TOKEN_PRICE * response.usage.completion_tokens
-    return cost
-
-
 def extract_html_from_response(response: ChatCompletion) -> str:
     text = response.choices[0].message.content
     html_pattern = r'```html\n(.*?)```'
@@ -53,13 +46,8 @@ def extract_html_from_response(response: ChatCompletion) -> str:
         return text.strip()
 
 
-def process_table(image_path: Path) -> str:
-    start_time = time.time()
+def process_table(image_path: Path) -> Tuple[ChatCompletion, float]:
     detail = resize_pipeline(image_path)
     image = f"data:image/jpeg;base64,{to_base64(image_path)}"
     response = table_to_html(image, detail)
-    html = extract_html_from_response(response)
-    cost = calculate_cost(response)
-    print(f"Time taken: {time.time() - start_time} seconds")
-    print(f"Cost: ${cost} | ¢{cost * 100}")
-    return html
+    return (detail, response)

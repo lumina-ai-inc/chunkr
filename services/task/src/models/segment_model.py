@@ -74,10 +74,16 @@ class Segment(BaseModel):
             segment_type=base_segment.segment_type
         )
 
-    def _get_content(self):
+    def calculate_avg_ocr_confidence(self):
         if self.ocr:
             avg_confidence = sum(
                 result.confidence for result in self.ocr if result.confidence is not None) / len(self.ocr)
+            return avg_confidence
+        return None
+
+    def _get_content(self):
+        if self.ocr:
+            avg_confidence = self.calculate_avg_ocr_confidence()
             ocr_text = " ".join([result.text for result in self.ocr])
             if avg_confidence >= TASK__OCR_CONFIDENCE_THRESHOLD:
                 return ocr_text

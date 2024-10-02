@@ -1,5 +1,5 @@
 use crate::models::server::segment::{BaseSegment, Segment};
-use crate::models::server::extract::OcrStrategy;
+use crate::models::server::extract::ExtractionPayload;
 use crate::utils::configs::task_config::Config;
 use std::path::Path;
 use reqwest::{ multipart, Client as ReqwestClient };
@@ -14,8 +14,7 @@ async fn get_reqwest_client() -> &'static ReqwestClient {
 pub async fn process_segments(
     file_path: &Path,
     base_segments: &Vec<BaseSegment>,
-    image_folder_location: &str,
-    ocr_strategy: &OcrStrategy
+    extraction_payload: &ExtractionPayload
 ) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
     let client = get_reqwest_client().await;
     let config = Config::from_env()?;
@@ -30,10 +29,17 @@ pub async fn process_segments(
     let file_content = tokio::fs::read(file_path).await?;
     let part = multipart::Part::bytes(file_content).file_name(file_name.to_string());
 
+    let user_id = extraction_payload.user_id.clone();
+    let task_id = extraction_payload.task_id.clone();
+    let ocr_strategy = extraction_payload.configuration.ocr_strategy.clone();
+    let image_folder_location = extraction_payload.image_folder_location.clone();
+
     let mut form = multipart::Form
         ::new()
         .part("file", part)
         .text("base_segments", serde_json::to_string(&base_segments)?)
+        .text("user_id", user_id.to_string())
+        .text("task_id", task_id.to_string())
         .text("ocr_strategy", ocr_strategy.to_string())
         .text("image_folder_location", image_folder_location.to_string());
 

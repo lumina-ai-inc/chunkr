@@ -87,7 +87,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 "Processing | OCR: {}",
                 extraction_item.configuration.ocr_strategy
             );
-            if batch_number > 1 {
+            if split_temp_files.len() > 1 {
                 segmentation_message = format!(
                     "Segmenting | Batch {} of {}",
                     batch_number,
@@ -118,7 +118,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 .iter()
                 .map(|pdla_segment| pdla_segment.to_base_segment())
                 .collect();
-
             log_task(
                 task_id.clone(),
                 Status::Processing,
@@ -131,8 +130,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             let mut segments: Vec<Segment> = process_segments(
                 &temp_file_path,
                 &base_segments,
-                &extraction_item.image_folder_location,
-                &extraction_item.configuration.ocr_strategy,
+                &extraction_item
             )
             .await?;
 
