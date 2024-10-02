@@ -13,6 +13,7 @@ dependencies = [
     "opencv-python>=4.10.0.84",
     "paddleocr>=2.8.1",
     "pdf2image>=1.17.0",
+    "psycopg2-binary>=2.9.9",
     "pydantic>=2.9.1",
     "python-dotenv>=1.0.1",
     "requests>=2.32.3",

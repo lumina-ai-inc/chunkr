@@ -102,6 +102,10 @@ class Task:
         self,
         file: Path,
         base_segments: list[BaseSegment],
+        user_id: str = Field(
+            description="User ID"),
+        task_id: str = Field(
+            description="Task ID"),
         image_folder_location: str = Field(
             description="S3 path for page images"),
         page_image_density: int = Field(
@@ -172,6 +176,8 @@ class Task:
                     for segment in segments:
                         future = executor.submit(
                             process_segment,
+                            user_id,
+                            task_id,
                             segment,
                             image_folder_location,
                             page_image_file_paths,

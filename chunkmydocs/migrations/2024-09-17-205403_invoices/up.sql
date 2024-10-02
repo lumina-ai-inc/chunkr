@@ -3,8 +3,6 @@
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-
-
 CREATE OR REPLACE FUNCTION handle_task_invoice() RETURNS TRIGGER AS $$
 DECLARE
     v_user_id TEXT;

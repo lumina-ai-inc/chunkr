@@ -24,6 +24,7 @@ pub struct UploadForm {
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct ExtractionPayload {
+    pub user_id: String,
     pub model: SegmentationModel,
     pub input_location: String,
     pub output_location: String,
