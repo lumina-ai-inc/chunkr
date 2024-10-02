@@ -20,6 +20,7 @@ from src.models.segment_model import BaseSegment, Segment
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
 from src.process import adjust_base_segments, process_segment
 
+
 @bentoml.service(
     name="image",
     resources={"cpu": "4"},
@@ -132,6 +133,7 @@ class Task:
         processed_segments = []
         if ocr_strategy == "Off":
             processed_segments_dict = {}
+
             def finalize_segment(segment: Segment):
                 segment.finalize()
                 return segment
@@ -163,7 +165,8 @@ class Task:
             try:
                 print("Segment processing started")
                 processed_segments_dict = {}
-                num_workers = num_workers or len(segments) if len(segments) > 0 else cpu_count()
+                num_workers = num_workers or len(segments) if len(
+                    segments) > 0 else cpu_count()
                 with ThreadPoolExecutor(max_workers=num_workers) as executor:
                     futures: dict[str, Future] = {}
                     for segment in segments:
@@ -203,13 +206,16 @@ class Task:
                 f"Total time taken per segment: {(end_time - start_time) / len(segments)} seconds")
         return processed_segments
 
+
 @bentoml.service(
     name="task",
-    resources={"gpu": 1, "cpu": "4"},
+    resources={"cpu": "4"},
     traffic={"timeout": 600}
 )
 class HTML:
     @bentoml.api
-    def table_to_html(self, file: Path) -> str:
+    def table_to_html(
+        self,
+        file: Path
+    ) -> str:
         return process_table(file)
-    

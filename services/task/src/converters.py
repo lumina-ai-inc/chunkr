@@ -12,19 +12,24 @@ import subprocess
 from src.utils import needs_conversion
 from src.models.ocr_model import BoundingBox
 
+
+def to_base64(image: str) -> str:
+    with open(image, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+
 def convert_to_pdf(file: Path) -> Path:
     temp_dir = tempfile.mkdtemp()
-
     if needs_conversion(file):
         subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', temp_dir, str(file)],
-                        check=True, capture_output=True, text=True)
+                       check=True, capture_output=True, text=True)
         pdf_file = next(Path(temp_dir).glob('*.pdf'))
     else:
         pdf_file = file
-    
+
     return pdf_file
-    
-                
+
+
 def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int, str]:
     start_time = time.time()
     temp_dir = tempfile.mkdtemp()
@@ -32,7 +37,7 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
     try:
         conversion_start = time.time()
         pdf_file = convert_to_pdf(file)
-            
+
         conversion_end = time.time()
 
         pdf_to_img_start = time.time()
