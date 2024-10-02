@@ -223,6 +223,7 @@ pub async fn create_task(
             };
 
             let extraction_payload = ExtractionPayload {
+                user_id: user_id.clone(),
                 model: model_internal,
                 input_location: input_location.clone(),
                 output_location,
