@@ -116,7 +116,7 @@ class Segment(BaseModel):
                 item = '.'.join(parts[1:]).strip()
                 self.html = f"<ol start='{start_number}'><li>{item}</li></ol>"
             else:
-                cleaned_content = content.lstrip('-*• ').strip()
+                cleaned_content = content.lstrip('-*•● ').strip()
                 self.html = f"<ul><li>{cleaned_content}</li></ul>"
         elif self.segment_type == SegmentType.Text:
             self.html = f"<p>{content}</p>"
