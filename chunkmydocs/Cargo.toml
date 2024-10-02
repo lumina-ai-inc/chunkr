@@ -60,7 +60,8 @@ base64 = "0.22.1"
 async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] }
 log = "0.4.22"
 utoipa-swagger-ui = { version = "7.0", features = ["actix-web"] }
-
+mime_guess = "2.0.4"
+mime = "0.3.17"
 [[bin]]
 name = "fast"
 path = "src/workers/fast.rs"

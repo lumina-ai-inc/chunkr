@@ -108,23 +108,28 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 &pg_pool,
             )
             .await?;
-            let pdla_response = pdla_extraction(temp_file, extraction_item.model.clone()).await?;
+
+            let temp_file_path = temp_file.as_path().to_path_buf();
+
+            let pdla_response =
+                pdla_extraction(&temp_file_path, extraction_item.model.clone()).await?;
             let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
             let base_segments: Vec<BaseSegment> = pdla_segments
                 .iter()
                 .map(|pdla_segment| pdla_segment.to_base_segment())
                 .collect();
-            
+
             log_task(
                 task_id.clone(),
                 Status::Processing,
                 Some(processing_message),
                 None,
                 &pg_pool,
-            ) .await?;
+            )
+            .await?;
 
             let mut segments: Vec<Segment> = process_segments(
-                temp_file,
+                &temp_file_path,
                 &base_segments,
                 &extraction_item.image_folder_location,
                 &extraction_item.configuration.ocr_strategy,
