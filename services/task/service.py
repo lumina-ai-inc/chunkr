@@ -133,9 +133,10 @@ class Task:
         segments = [Segment.from_base_segment(base_segment)
                     for base_segment in base_segments]
         processed_segments = []
+        num_workers = num_workers or len(segments) if len(
+            segments) > 0 else cpu_count()
         if ocr_strategy == "Off":
             processed_segments_dict = {}
-
             def finalize_segment(segment: Segment):
                 segment.finalize()
                 return segment
@@ -165,8 +166,7 @@ class Task:
                 page_image_file_paths[page_number] = Path(temp_file.name)
             try:
                 processed_segments_dict = {}
-                num_workers = num_workers or len(segments) if len(
-                    segments) > 0 else cpu_count()
+
                 with ThreadPoolExecutor(max_workers=num_workers) as executor:
                     futures: dict[str, Future] = {}
                     for segment in segments:
