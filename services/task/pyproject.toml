@@ -19,6 +19,7 @@ dependencies = [
     "pydantic>=2.9.1",
     "pypdf2==1.26.0",
     "python-dotenv>=1.0.1",
+    "reportlab>=4.2.5",
     "requests>=2.32.3",
     "ruff>=0.6.7",
     "torch>=2.4.1",
