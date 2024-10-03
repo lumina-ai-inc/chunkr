@@ -165,7 +165,7 @@ pub async fn get_monthly_usage_count(
         GROUP BY
             month, usage_type
         ORDER BY
-            month, usage_type;
+            month DESC, usage_type;
         "#;
 
     let rows = client.query(query, &[&user_id]).await?;

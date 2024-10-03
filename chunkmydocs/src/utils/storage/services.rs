@@ -113,10 +113,17 @@ pub async fn upload_to_s3(
     s3_location: &str,
     file_path: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    println!("Starting upload to S3");
+    println!("File path: {:?}", file_path);
+    println!("S3 location: {}", s3_location);
+
     let file_content = tokio::fs::read(file_path).await?;
+    println!("File content read, size: {} bytes", file_content.len());
 
     let (bucket, key) = extract_bucket_and_key(s3_location)?;
+    println!("Extracted bucket: {}, key: {}", bucket, key);
 
+    println!("Initiating S3 put_object request");
     s3_client
         .put_object()
         .bucket(bucket)
@@ -124,6 +131,8 @@ pub async fn upload_to_s3(
         .body(ByteStream::from(file_content))
         .send()
         .await?;
+    
+    println!("Upload to S3 completed successfully");
     Ok(())
 }
 
