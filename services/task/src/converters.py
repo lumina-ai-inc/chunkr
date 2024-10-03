@@ -1,4 +1,5 @@
 import base64
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import cv2
 import io
 from pathlib import Path
@@ -30,6 +31,14 @@ def convert_to_pdf(file: Path) -> Path:
     return pdf_file
 
 
+def process_image(args):
+    i, img, pil_format = args
+    with io.BytesIO() as output:
+        img.save(output, format=pil_format)
+        img_base64 = base64.b64encode(output.getvalue()).decode('utf-8')
+    return i, img_base64
+
+
 def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int, str]:
     start_time = time.time()
     temp_dir = tempfile.mkdtemp()
@@ -54,11 +63,11 @@ def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int
         pdf_to_img_end = time.time()
 
         processing_start = time.time()
-        for i, img in enumerate(pdf_images, start=1):
-            with io.BytesIO() as output:
-                img.save(output, format=pil_format)
-                img_base64 = base64.b64encode(
-                    output.getvalue()).decode('utf-8')
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(process_image, (i, img, pil_format)) 
+                    for i, img in enumerate(pdf_images, start=1)]
+            for future in as_completed(futures):
+                i, img_base64 = future.result()
                 result[i] = img_base64
         processing_end = time.time()
 

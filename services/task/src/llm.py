@@ -11,16 +11,15 @@ from src.resize_pipeline import resize_pipeline
 
 
 client = OpenAI(base_url=LLM__BASE_URL, api_key=LLM__API_KEY)
-role = 'assistant' if LLM__MODEL.startswith('o1-preview') or LLM__MODEL.startswith('o1-mini') else 'system'
 
 def table_to_html(image: str, detail: str) -> ChatCompletion:
     response = client.chat.completions.create(
         model=LLM__MODEL,
         messages=[
-            {"role": role, "content": "You are an OCR system that converts table data to HTML."},
+            {"role": "system", "content": "You are an OCR system that converts table data to HTML."},
             {"role": "user",
              "content": [
-                 {"type": "text", "text": "Convert the following table to HTML exactly. Dont be lazy and always ocr all rows and columns. Do not add color to the table."},
+                 {"type": "text", "text": "Convert the following table to HTML exactly."},
                  {
                      "type": "image_url",
                      "image_url": {
@@ -40,7 +39,7 @@ def formula_to_latex(image: str, detail: str) -> ChatCompletion:
     response = client.chat.completions.create(
         model=LLM__MODEL,
         messages=[
-            {"role": role, "content": "You are an OCR system that converts formula data to LaTeX."},
+            {"role": "system", "content": "You are an OCR system that converts formula data to LaTeX."},
             {"role": "user",
              "content": [
                  {"type": "text", "text": "Convert the following formula to LaTeX exactly"},
