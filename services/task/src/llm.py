@@ -20,7 +20,7 @@ def table_to_html(image: str, detail: str) -> ChatCompletion:
             {"role": role, "content": "You are an OCR system that converts table data to HTML."},
             {"role": "user",
              "content": [
-                 {"type": "text", "text": "Convert the following table to HTML exactly"},
+                 {"type": "text", "text": "Convert the following table to HTML exactly. Dont be lazy and always ocr all rows and columns. Do not add color to the table."},
                  {
                      "type": "image_url",
                      "image_url": {
