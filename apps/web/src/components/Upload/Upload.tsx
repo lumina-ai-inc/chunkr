@@ -39,12 +39,16 @@ export default function Upload({
     onDrop,
     accept: {
       "application/pdf": [".pdf"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
       "application/msword": [".doc"],
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+        [".pptx"],
       "application/vnd.ms-powerpoint": [".ppt"],
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
-      "application/vnd.ms-excel": [".xls"]
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+        ".xlsx",
+      ],
+      "application/vnd.ms-excel": [".xls"],
     },
     multiple: false,
     noClick: true,
@@ -58,9 +62,9 @@ export default function Upload({
       if (isUploaded) {
         onFileRemove();
       }
-      open(); 
+      open();
     } else {
-      auth.signinRedirect(); 
+      auth.signinRedirect();
     }
   };
 
@@ -149,7 +153,9 @@ export default function Upload({
               weight="light"
               style={{ marginTop: "8px" }}
             >
-              {isUploaded ? fileName : "Drag and drop a PDF or click to select"}
+              {isUploaded
+                ? fileName
+                : "Drag and drop a document or click to select"}
             </Text>
           )}
         </Flex>

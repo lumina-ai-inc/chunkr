@@ -85,6 +85,10 @@ const Home = () => {
                     to convert PDFs into RAG & LLM-ready data.
                   </Text>
 
+                  <Text weight="bold" size="4" mb="12px" className="white">
+                    We support PDF, DOC, PPT, and XLS files.
+                  </Text>
+
                   <Flex direction="row" gap="24px" mb="40px" wrap="wrap">
                     <Flex
                       direction="row"
