@@ -82,7 +82,7 @@ const Home = () => {
                     className="white hero-description"
                   >
                     API service for document layout analysis, OCR and chunking
-                    to convert PDFs into RAG & LLM-ready data.
+                    to convert documents into RAG & LLM-ready data.
                   </Text>
 
                   <Text weight="bold" size="4" mb="12px" className="white">
