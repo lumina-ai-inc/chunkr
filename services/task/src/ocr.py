@@ -27,7 +27,7 @@ def calculate_slice_params(image_size, max_size):
         'merge_y_thres': merge_y_thres
     }
 
-def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
+def ppocr(ocr: PaddleOCR, image_path: Path) -> List[OCRResult]:
     max_size = TASK__OCR_MAX_SIZE
     img = cv2.imread(str(image_path))
     if img is None:
@@ -60,7 +60,7 @@ def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
                 )
             )
 
-    return OCRResponse(results=ocr_results, html=None)
+    return ocr_results
 
 
 def ppstructure_table_raw(table_engine: PPStructure, image_path: Path) -> list:
