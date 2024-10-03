@@ -1,4 +1,5 @@
 import base64
+import concurrent.futures
 import os
 import tempfile
 import threading
@@ -46,15 +47,31 @@ def process_segment_ocr(
     ocr_lock: threading.Lock,
     table_engine_lock: threading.Lock
 ):
-    process_info = ProcessInfo(segment_id=segment.segment_id, process_type=ProcessType.OCR)
+    process_info = ProcessInfo(
+        segment_id=segment.segment_id, process_type=ProcessType.OCR)
 
     if segment.segment_type == SegmentType.Table:
         if LLM__BASE_URL:
-            (detail, response) = process_llm(segment_temp_file, table_to_html)
-            segment.html = extract_html_from_response(response)
+            def llm_task():
+                detail, response = process_llm(
+                    segment_temp_file, table_to_html)
+                return detail, response, extract_html_from_response(response)
+
+            def ocr_task():
+                return ppocr(ocr, segment_temp_file)
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                llm_future = executor.submit(llm_task)
+                ocr_future = executor.submit(ocr_task)
+
+                detail, response, html = llm_future.result()
+                ocr_results = ocr_future.result()
+
+            segment.html = html
             process_info.detail = detail
             process_info.input_tokens = response.usage.prompt_tokens
             process_info.output_tokens = response.usage.completion_tokens
+            segment.ocr = ocr_results.results
         else:
             with table_engine_lock:
                 table_ocr_results = ppstructure_table(
@@ -72,6 +89,7 @@ def process_segment_ocr(
     process_info.finalize()
     print(process_info)
     return process_info
+
 
 def process_segment(
     user_id: str,
