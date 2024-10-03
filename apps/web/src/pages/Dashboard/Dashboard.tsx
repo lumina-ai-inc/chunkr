@@ -76,16 +76,28 @@ export default function Dashboard() {
   if (!monthlyUsage) {
     return <Loader />;
   }
+  console.log(monthlyUsage);
+  const calculateTotalUsage = (usageType: string, tier: string) => {
+    if (tier === "Free") {
+      return (
+        monthlyUsage?.reduce((total, month) => {
+          const usage = month.usage_details.find(
+            (u) => u.usage_type === usageType
+          );
+          return total + (usage?.count || 0);
+        }, 0) || 0
+      );
+    } else {
+      return (
+        monthlyUsage?.[0]?.usage_details.find(
+          (usage) => usage.usage_type === usageType
+        )?.count || 0
+      );
+    }
+  };
 
-  const fastUsage =
-    monthlyUsage?.[0]?.usage_details.find(
-      (usage) => usage.usage_type === "Fast"
-    )?.count || 0;
-
-  const highQualityUsage =
-    monthlyUsage?.[0]?.usage_details.find(
-      (usage) => usage.usage_type === "HighQuality"
-    )?.count || 0;
+  const fastUsage = calculateTotalUsage("Fast", user?.tier);
+  const highQualityUsage = calculateTotalUsage("HighQuality", user?.tier);
 
   const fastLimit =
     user?.usage?.find((u) => u.usage_type === "Fast")?.usage_limit || 0;
@@ -653,13 +665,7 @@ export default function Dashboard() {
             >
               <Flex direction="column" gap="5" width="100%">
                 <Flex direction="row" justify="between" width="100%">
-                  <Flex
-                    direction="row"
-                    align="center"
-                    gap="2"
-                    mb="2"
-                    width="100%"
-                  >
+                  <Flex direction="row" align="center" gap="2" mb="2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
