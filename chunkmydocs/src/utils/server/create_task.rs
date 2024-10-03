@@ -36,31 +36,18 @@ fn is_valid_file_type(
         .extension()
         .and_then(|ext| ext.to_str())
         .unwrap_or("");
+    println!("Extension: {}", extension);
 
-    let temp_file_name = format!("temp_file.{}", extension);
-    std::fs::copy(file_path, &temp_file_name)?;
-    let temp_file_path = Path::new(&temp_file_name);
-    let mime_type = detect_file_type(temp_file_path)?;
-    let is_valid = match mime_type.as_str() {
-        "application/pdf" => true,
-        "application/vnd.ms-powerpoint" => true,
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation" => true,
-        "application/msword" => true,
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => true,
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => true,
-        "application/vnd.ms-excel" => true,
-        "application/vnd.google-apps.document" => true,
-        "application/vnd.google-apps.presentation" => true,
-        "application/vnd.google-apps.spreadsheet" => true,
-        "application/vnd.oasis.opendocument.text" => true,
-        "application/vnd.oasis.opendocument.spreadsheet" => true,
-        "application/vnd.oasis.opendocument.presentation" => true,
-        "application/vnd.oasis.opendocument.graphics" => true,
-        "application/vnd.oasis.opendocument.chart" => true,
+    // Simplify file type validation based on extension
+    let is_valid = match extension.to_lowercase().as_str() {
+        "pdf" | "docx" | "doc" | "pptx" | "ppt" => true,
         _ => false,
     };
-    std::fs::remove_file(&temp_file_name)?;
-    Ok((is_valid, mime_type.to_string()))
+    
+    // We don't need to create a temporary file or detect MIME type
+    // since we're only checking the extension
+    
+    Ok((is_valid, format!("application/{}", extension)))
 }
 
 async fn produce_extraction_payloads(
@@ -113,6 +100,7 @@ pub async fn create_task(
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
     let file_name = file.file_name.as_deref().unwrap_or("unknown");
+    let original_path = PathBuf::from(file.file.path());
     let (is_valid, detected_mime_type) = is_valid_file_type(&file.file.path(), file_name)?;
     if !is_valid {
         return Err(format!("Not a valid file type: {}", detected_mime_type).into());
@@ -125,45 +113,60 @@ pub async fn create_task(
         .split('.')
         .last()
         .unwrap_or("tmp");
-    let original_path = PathBuf::from(file.file.path());
-    let new_path = original_path.with_extension(extension);
 
-    std::fs::rename(&original_path, &new_path)?;
 
-    let input_path = new_path;
-
+    let mut final_output_path: PathBuf = original_path.clone();
+    println!("Initial final output path: {:?}", final_output_path);
+    let final_output_file = tempfile::NamedTempFile::new().unwrap();
     let output_file = NamedTempFile::new().unwrap();
     let output_path = output_file.path().to_path_buf();
-    println!("extension: {}", extension);
-    let mut final_output_path: PathBuf= file.file.path().to_path_buf();
+
     if extension != "pdf" {
+        let new_path = original_path.with_extension(extension).clone();
+        println!("New path: {:?}", new_path);
+    
+        std::fs::rename(&original_path, &new_path)?;
+        println!("File renamed from {:?} to {:?}", original_path, new_path);
+    
+        let input_path = new_path;
+        println!("Input path: {:?}", input_path);
+    
+        println!("Output path: {:?}", output_path);
+    
+        println!("Converting file to PDF");
         let result = convert_to_pdf(&input_path, &output_path).await;
-        let final_output_file = tempfile::NamedTempFile::new().unwrap();
         final_output_path = final_output_file.path().to_path_buf();
+        println!("Final output path after conversion: {:?}", final_output_path);
 
         match result {
             Ok(_) => {
                 std::fs::copy(&output_path, &final_output_path).unwrap();
-                println!("Test output saved to temporary file: {:?}", final_output_path);
+                println!("PDF conversion successful. Output saved to: {:?}", final_output_path);
             }
             Err(e) => {
+                println!("PDF conversion failed: {:?}", e);
                 panic!("PDF conversion failed: {:?}", e);
             }
         }
-    } 
+    } else {
+        println!("File is already in PDF format. No conversion needed.");
+    }
 
-
+    println!("Final output path: {:?}", final_output_path);
     let page_count = match Document::load(&final_output_path) {
         Ok(doc) => doc.get_pages().len() as i32,
         Err(e) => return Err(format!("Failed to get page count: {}", e).into()),
     };
     let file_size = file.size;
+    println!("File size: {}", file_size);
 
     let file_name = file
         .file_name
         .as_deref()
         .unwrap_or("unknown.pdf")
         .to_string();
+    println!("Original file name: {}", file_name);
+
     let file_name = if file_name.ends_with(".pdf") {
         file_name
     } else {
@@ -172,17 +175,30 @@ pub async fn create_task(
             file_name.trim_end_matches(|c| c == '.' || char::is_alphanumeric(c))
         )
     };
+    println!("Processed file name: {}", file_name);
+
     let input_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, file_name);
+    println!("Input location: {}", input_location);
+
     let output_extension = model_internal.get_extension();
+    println!("Output extension: {}", output_extension);
+
     let output_location = input_location.replace(".pdf", &format!(".{}", output_extension));
+    println!("Output location: {}", output_location);
+
     let image_folder_location =
         format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, "images");
+    println!("Image folder location: {}", image_folder_location);
 
     let message = "Task queued".to_string();
+    println!("Task status message: {}", message);
 
-    match upload_to_s3(s3_client, &input_location, &output_path).await {
+    match upload_to_s3(s3_client, &input_location, &final_output_path).await {
         Ok(_) => {
+            println!("Converting configuration to JSON");
             let configuration_json = serde_json::to_string(configuration)?;
+
+            println!("Inserting task into database");
             match client
                 .execute(
                     "INSERT INTO TASKS (
@@ -213,8 +229,11 @@ pub async fn create_task(
                 )
                 .await
             {
-                Ok(_) => {}
+                Ok(_) => {
+                    println!("Task inserted successfully");
+                }
                 Err(e) => {
+                    println!("Error inserting task: {}", e);
                     if e.to_string().contains("usage limit exceeded") {
                         return Err(Box::new(std::io::Error::new(
                             std::io::ErrorKind::Other,
@@ -226,6 +245,7 @@ pub async fn create_task(
                 }
             };
 
+            println!("Creating extraction payload");
             let extraction_payload = ExtractionPayload {
                 user_id: user_id.clone(),
                 model: model_internal,
@@ -239,17 +259,23 @@ pub async fn create_task(
                 configuration: configuration.clone(),
             };
 
+            println!("Producing extraction payloads");
             produce_extraction_payloads(extraction_payload).await?;
 
+            println!("Generating presigned URL for input file");
             let input_file_url =
                 match generate_presigned_url(s3_client, &input_location, None).await {
-                    Ok(response) => Some(response),
+                    Ok(response) => {
+                        println!("Presigned URL generated successfully");
+                        Some(response)
+                    },
                     Err(e) => {
                         println!("Error getting input file url: {}", e);
                         return Err("Error getting input file url".into());
                     }
                 };
 
+            println!("Creating TaskResponse");
             Ok(TaskResponse {
                 task_id: task_id.clone(),
                 status: Status::Starting,
