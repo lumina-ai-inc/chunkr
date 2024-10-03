@@ -135,6 +135,7 @@ class Task:
         processed_segments = []
         num_workers = num_workers or len(segments) if len(
             segments) > 0 else cpu_count()
+        print(num_workers)
         if ocr_strategy == "Off":
             processed_segments_dict = {}
             def finalize_segment(segment: Segment):
