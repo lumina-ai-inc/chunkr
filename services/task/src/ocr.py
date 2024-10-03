@@ -3,17 +3,44 @@ import cv2
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 
+from src.configs.task_config import TASK__OCR_MAX_SIZE
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
-
 
 def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
     return ocr.ocr(str(image_path))
 
+def calculate_slice_params(image_size, max_size):
+    width, height = image_size
+    if width <= max_size and height <= max_size:
+        return None
+
+    h_stride = max(300, width // 8)
+    v_stride = max(300, height // 8)
+
+    merge_x_thres = max(20, h_stride // 10)
+    merge_y_thres = max(20, v_stride // 10)
+
+    return {
+        'horizontal_stride': h_stride,
+        'vertical_stride': v_stride,
+        'merge_x_thres': merge_x_thres,
+        'merge_y_thres': merge_y_thres
+    }
 
 def ppocr(ocr: PaddleOCR, image_path: Path) -> OCRResponse:
-    raw_results = ocr.ocr(str(image_path))
+    max_size = TASK__OCR_MAX_SIZE
+    img = cv2.imread(str(image_path))
+    if img is None:
+        return OCRResponse(results=[], html="")
 
-    # Check if raw_results is None or empty
+    height, width = img.shape[:2]
+    slice_params = calculate_slice_params((width, height), max_size)
+
+    if slice_params:
+        raw_results = ocr.ocr(str(image_path), det=True, rec=True, cls=False, slice=slice_params)
+    else:
+        raw_results = ocr.ocr(str(image_path))
+
     if not raw_results or not raw_results[0]:
         return OCRResponse(results=[], html="")
 
