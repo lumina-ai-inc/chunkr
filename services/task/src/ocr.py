@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import cv2
 from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
-
+from typing import List
 from src.configs.task_config import TASK__OCR_MAX_SIZE
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
 
