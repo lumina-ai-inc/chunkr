@@ -86,8 +86,12 @@ pub async fn create_extraction_task(
 
     let result = create_task(pool, s3_client, file_data, &user_info, &configuration).await;
 
-    if let Err(e) = std::fs::remove_file(file_data.file.path()) {
-        eprintln!("Error deleting temporary file: {:?}", e);
+    if let Ok(metadata) = std::fs::metadata(file_data.file.path()) {
+        if metadata.is_file() {
+            if let Err(e) = std::fs::remove_file(file_data.file.path()) {
+                eprintln!("Error deleting temporary file: {:?}", e);
+            }
+        }
     }
 
     match result {
