@@ -43,6 +43,7 @@ export default function ApiKeyDialog({
           border: "1px solid hsla(0, 0%, 100%, 0.1)",
           outline: "none",
           borderRadius: "8px",
+          width: "fit-content",
         }}
       >
         <Flex direction="row" align="center" gap="4">
