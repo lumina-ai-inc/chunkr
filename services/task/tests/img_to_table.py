@@ -1,9 +1,10 @@
 import camelot
 import concurrent.futures
 import dotenv
+import fitz
 import os
 from pathlib import Path
-import fitz
+from PIL import Image
 import requests
 import sys
 
@@ -17,70 +18,93 @@ def get_ocr_results(image_path):
         response = requests.post(f"{SERVICE_URL}/paddle_ocr", files={"file": image_file})
     return response.json()
 
+def calculate_font_size(rect, text, max_font_size=60, min_font_size=4, padding=2):
+    for font_size in range(max_font_size, min_font_size - 1, -1):
+        font = fitz.Font("helv")
+        text_width = font.text_length(text, fontsize=font_size)
+        text_height = font_size
+        
+        padded_width = rect.width - (2 * padding)
+        padded_height = rect.height - (2 * padding)
+        
+        if text_width <= padded_width and text_height <= padded_height:
+            return font_size
+    return min_font_size
+
 def create_searchable_pdf(input_file, ocr_results, output_file):
     pdf_document = fitz.open()
     
-    img = fitz.open(input_file)
-    page = pdf_document.new_page(width=img[0].rect.width, height=img[0].rect.height)
+    # Use Pillow to get the correct image dimensions
+    with Image.open(input_file) as img:
+        img_width, img_height = img.size
     
-    page.insert_image(page.rect, filename=input_file)
-    
+    # Create a new page with the correct dimensions
+    page = pdf_document.new_page(width=img_width, height=img_height)
+    page_rect = page.rect
+    page.insert_image(page_rect, filename=input_file)
+
+    font_sizes = []
     for result in ocr_results:
-        # Extract all four corners
         tl_x, tl_y = result["bbox"]["top_left"]
         tr_x, tr_y = result["bbox"]["top_right"]
         br_x, br_y = result["bbox"]["bottom_right"]
         bl_x, bl_y = result["bbox"]["bottom_left"]
 
-        # Calculate the maximum rectangle
         x0 = min(tl_x, bl_x)
         y0 = min(tl_y, tr_y)
         x1 = max(tr_x, br_x)
         y1 = max(bl_y, br_y)
 
-        # Apply scaling
-        scale = 72 / 150
-        x0 *= scale
-        y0 *= scale
-        x1 *= scale
-        y1 *= scale
+        fill_rect = fitz.Rect(x0, y0, x1, y1)
+        font_size = calculate_font_size(fill_rect, result["text"])
+        font_sizes.append(font_size)
+    
+    smallest_font_size = min(font_sizes)
+    
+    font = fitz.Font(ordering=0)
+    writer = fitz.TextWriter(page_rect, color=(0, 0, 0, 1))
+    
+    for result in ocr_results:
+        tl_x, tl_y = result["bbox"]["top_left"]
+        tr_x, tr_y = result["bbox"]["top_right"]
+        br_x, br_y = result["bbox"]["bottom_right"]
+        bl_x, bl_y = result["bbox"]["bottom_left"]
 
-        # Draw the bounding box
-        rect = fitz.Rect(x0, y0, x1, y1)
-        page.draw_rect(rect, color=(1, 0, 0, 0.3), fill=(1, 0, 0, 0.1), width=0.5)
+        x0 = min(tl_x, bl_x)
+        y0 = min(tl_y, tr_y)
+        x1 = max(tr_x, br_x)
+        y1 = max(bl_y, br_y)
 
-        # Insert text box with center alignment
-        rect = fitz.Rect(x0, y0, x1, y1)
-        page.insert_textbox(rect, result["text"], color=(1, 1, 1, 0), align=fitz.TEXT_ALIGN_CENTER)
+        fill_rect = fitz.Rect(x0, y0, x1, y1)
+        writer.fill_textbox(fill_rect, result["text"], fontsize=smallest_font_size, align=fitz.TEXT_ALIGN_CENTER, warn=True, font=font)
+    
+    writer.write_text(page)
 
     pdf_document.save(output_file)
     pdf_document.close()
 
 
-def process_pdf(input_file: Path, output_file: Path):
-    if input_file.suffix.lower() in ('.png', '.jpg', '.jpeg'):
-        ocr_results = get_ocr_results(input_file)
-        temp_pdf = input_file.with_suffix('.pdf')
-        create_searchable_pdf(input_file, ocr_results, temp_pdf)
-        input_file = temp_pdf
-
-    tables = camelot.read_pdf(str(input_file), pages="1")
-    tables.export(str(output_file), f='html', compress=False)
+def process_img(input_file: Path, output_file: Path):
     try:
-        print(tables[0].parsing_report)
+        if input_file.suffix.lower() in ('.png', '.jpg', '.jpeg'):
+            ocr_results = get_ocr_results(input_file)
+            temp_pdf = input_file.with_suffix('.pdf')
+            create_searchable_pdf(input_file, ocr_results, temp_pdf)
+            input_file = temp_pdf
+
+        tables = camelot.read_pdf(str(input_file), pages="1")
+        tables.export(str(output_file), f='html', compress=False)
+        print(input_file, tables[0].parsing_report)
     except Exception as e:
         print(f"Error processing {input_file.name}: {e}")
-
-    if input_file.name != temp_pdf.name:
-        temp_pdf.unlink()
 
 
 def process_files(input_files, output_dir):
     with concurrent.futures.ProcessPoolExecutor() as executor:
         futures = []
-        for pdf_file in input_files:
-            output_file = Path(output_dir) / f"{pdf_file.stem}.html"
-            futures.append(executor.submit(process_pdf, pdf_file, output_file))
+        for input_file in input_files:
+            output_file = Path(output_dir) / f"{input_file.stem}.html"
+            futures.append(executor.submit(process_img, input_file, output_file))
 
         for future in concurrent.futures.as_completed(futures):
             future.result()
@@ -93,10 +117,10 @@ def main(input_path: str, output_dir: str):
 
     if input_path.is_file():
         output_file = output_path / f"{input_path.stem}.html"
-        process_pdf(input_path, output_file)
+        process_img(input_path, output_file)
     elif input_path.is_dir():
-        pdf_files = list(input_path.glob("*.pdf"))
-        process_files(pdf_files, output_path)
+        img_files = list(input_path.glob("*.png")) + list(input_path.glob("*.jpg")) + list(input_path.glob("*.jpeg"))
+        process_files(img_files, output_path)
     else:
         print(f"Error: {input_path} is not a valid file or directory")
         sys.exit(1)
