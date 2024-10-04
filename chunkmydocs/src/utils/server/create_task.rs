@@ -4,7 +4,6 @@ use crate::models::{
     server::extract::{Configuration, ExtractionPayload, SegmentationModel},
     server::task::{Status, TaskResponse},
 };
-use crate::task::pdf::convert_to_pdf;
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::rrq::service::produce;
@@ -12,28 +11,9 @@ use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
-use lopdf::Document;
 use std::error::Error;
-use std::path::Path;
 use std::path::PathBuf;
 use uuid::Uuid;
-
-
-fn is_valid_file_type(
-    original_file_name: &str,
-) -> Result<(bool, String), Box<dyn Error>> {
-    let extension = Path::new(original_file_name)
-        .extension()
-        .and_then(|ext| ext.to_str())
-        .unwrap_or("");
-
-    let is_valid = match extension.to_lowercase().as_str() {
-        "pdf" | "docx" | "doc" | "pptx" | "ppt" | "xlsx" | "xls" => true,
-        _ => false,
-    };
-    
-    Ok((is_valid, format!("application/{}", extension)))
-}
 
 async fn produce_extraction_payloads(
     extraction_payload: ExtractionPayload,
@@ -59,7 +39,6 @@ async fn produce_extraction_payloads(
 
     Ok(())
 }
-use tempfile::NamedTempFile;
 pub async fn create_task(
     pool: &Pool,
     s3_client: &S3Client,
@@ -84,53 +63,9 @@ pub async fn create_task(
     let base_url = config.base_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
-    let file_name = file.file_name.as_deref().unwrap_or("unknown");
-    let original_path = PathBuf::from(file.file.path());
-    let (is_valid, detected_mime_type) = is_valid_file_type( file_name)?;
-    if !is_valid {
-        return Err(format!("Not a valid file type: {}", detected_mime_type).into());
-    }
+    let final_output_path: PathBuf = PathBuf::from(file.file.path());
 
-    let extension = file
-        .file_name
-        .as_deref()
-        .unwrap_or("")
-        .split('.')
-        .last()
-        .unwrap_or("tmp");
-
-
-    let mut final_output_path: PathBuf = original_path.clone();
-    let final_output_file = tempfile::NamedTempFile::new().unwrap();
-    let output_file = NamedTempFile::new().unwrap();
-    let output_path = output_file.path().to_path_buf();
-
-    if extension != "pdf" {
-        let new_path = original_path.with_extension(extension).clone();
-    
-        std::fs::rename(&original_path, &new_path)?;
-    
-        let input_path = new_path;
-    
-    
-        let result = convert_to_pdf(&input_path, &output_path).await;
-        final_output_path = final_output_file.path().to_path_buf();
-
-        match result {
-            Ok(_) => {
-                std::fs::copy(&output_path, &final_output_path).unwrap();
-            }
-            Err(e) => {
-                println!("PDF conversion failed: {:?}", e);
-                panic!("PDF conversion failed: {:?}", e);
-            }
-        }
-    } 
-
-    let page_count = match Document::load(&final_output_path) {
-        Ok(doc) => doc.get_pages().len() as i32,
-        Err(e) => return Err(format!("Failed to get page count: {}", e).into()),
-    };
+    let page_count: i32 = 0;
     let file_size = file.size;
 
     let file_name = file
@@ -138,15 +73,6 @@ pub async fn create_task(
         .as_deref()
         .unwrap_or("unknown.pdf")
         .to_string();
-
-    let file_name = if file_name.ends_with(".pdf") {
-        file_name
-    } else {
-        format!(
-            "{}.pdf",
-            file_name.trim_end_matches(|c| c == '.' || char::is_alphanumeric(c))
-        )
-    };
 
     let input_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, file_name);
 
@@ -168,9 +94,9 @@ pub async fn create_task(
                     task_id, user_id, api_key, file_name, file_size, 
                     page_count, segment_count, expires_at,
                     status, task_url, input_location, output_location, image_folder_location,
-                    configuration, message
+                    configuration, message, pdf_location, input_file_type
                 ) VALUES (
-                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
                 ) ON CONFLICT (task_id) DO NOTHING",
                     &[
                         &task_id,
@@ -188,11 +114,13 @@ pub async fn create_task(
                         &image_folder_location,
                         &configuration_json,
                         &message,
+                        &None::<String>,
+                        &None::<String>,
                     ],
                 )
                 .await
             {
-                Ok(_) => { }
+                Ok(_) => {}
                 Err(e) => {
                     println!("Error inserting task: {}", e);
                     if e.to_string().contains("usage limit exceeded") {
@@ -226,7 +154,7 @@ pub async fn create_task(
                     Ok(response) => {
                         println!("Presigned URL generated successfully");
                         Some(response)
-                    },
+                    }
                     Err(e) => {
                         println!("Error getting input file url: {}", e);
                         return Err("Error getting input file url".into());
@@ -246,6 +174,7 @@ pub async fn create_task(
                 configuration: configuration.clone(),
                 file_name: Some(file_name.to_string()),
                 page_count: Some(page_count),
+                pdf_location: None,
             })
         }
         Err(e) => Err(e),
