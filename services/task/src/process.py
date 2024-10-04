@@ -52,26 +52,27 @@ def process_segment_ocr(
 
     if segment.segment_type == SegmentType.Table:
         if LLM__BASE_URL:
-            def llm_task():
-                detail, response = process_llm(
-                    segment_temp_file, table_to_html)
-                return detail, response, extract_html_from_response(response)
+            with ocr_lock:
+                def llm_task():
+                    detail, response = process_llm(
+                        segment_temp_file, table_to_html)
+                    return detail, response, extract_html_from_response(response)
 
-            def ocr_task():
-                return ppocr(ocr, segment_temp_file)
+                def ocr_task():
+                    return ppocr(ocr, segment_temp_file)
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-                llm_future = executor.submit(llm_task)
-                ocr_future = executor.submit(ocr_task)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                    llm_future = executor.submit(llm_task)
+                    ocr_future = executor.submit(ocr_task)
 
-                detail, response, html = llm_future.result()
-                ocr_results = ocr_future.result()
+                    detail, response, html = llm_future.result()
+                    ocr_results = ocr_future.result()
 
-            segment.html = html
-            process_info.detail = detail
-            process_info.input_tokens = response.usage.prompt_tokens
-            process_info.output_tokens = response.usage.completion_tokens
-            segment.ocr = ocr_results
+                segment.html = html
+                process_info.detail = detail
+                process_info.input_tokens = response.usage.prompt_tokens
+                process_info.output_tokens = response.usage.completion_tokens
+                segment.ocr = ocr_results
         else:
             with table_engine_lock:
                 table_ocr_results = ppstructure_table(
@@ -82,7 +83,7 @@ def process_segment_ocr(
     else:
         with ocr_lock:
             ocr_results = ppocr(ocr, segment_temp_file)
-            segment.ocr = ocr_results.results
+            segment.ocr = ocr_results
             process_info.model_name = "paddleocr"
 
     process_info.avg_ocr_confidence = segment.calculate_avg_ocr_confidence()
