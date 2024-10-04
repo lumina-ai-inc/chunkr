@@ -20,6 +20,7 @@ pub struct TaskResponse {
     pub configuration: Configuration,
     pub file_name: Option<String>,
     pub page_count: Option<i32>,
+    pub pdf_location: Option<String>,
 }
 
 #[derive(
