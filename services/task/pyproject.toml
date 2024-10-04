@@ -17,6 +17,7 @@ dependencies = [
     "pdf2image>=1.17.0",
     "psycopg2-binary>=2.9.9",
     "pydantic>=2.9.1",
+    "pymupdf>=1.24.11",
     "pypdf2==1.26.0",
     "python-dotenv>=1.0.1",
     "reportlab>=4.2.5",

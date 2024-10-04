@@ -71,7 +71,7 @@ def process_segment_ocr(
             process_info.detail = detail
             process_info.input_tokens = response.usage.prompt_tokens
             process_info.output_tokens = response.usage.completion_tokens
-            segment.ocr = ocr_results.results
+            segment.ocr = ocr_results
         else:
             with table_engine_lock:
                 table_ocr_results = ppstructure_table(

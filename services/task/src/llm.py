@@ -6,7 +6,6 @@ from typing import Tuple, Callable
 
 from src.configs.llm_config import LLM__BASE_URL, LLM__API_KEY, LLM__MODEL
 from src.converters import to_base64
-from src.models.segment_model import Segment, SegmentType
 from src.resize_pipeline import resize_pipeline
 
 

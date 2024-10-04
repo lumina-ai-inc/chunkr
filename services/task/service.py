@@ -8,7 +8,6 @@ from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
 import tempfile
-import time
 import tqdm
 from typing import Dict, Optional, List
 import threading

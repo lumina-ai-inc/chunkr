@@ -3,10 +3,8 @@ import concurrent.futures
 import dotenv
 import os
 from pathlib import Path
-from PIL import Image
-from PyPDF2 import PdfFileWriter, PdfFileReader
+import fitz
 import requests
-from reportlab.pdfgen import canvas
 import sys
 
 dotenv.load_dotenv(override=True)
@@ -19,24 +17,44 @@ def get_ocr_results(image_path):
         response = requests.post(f"{SERVICE_URL}/paddle_ocr", files={"file": image_file})
     return response.json()
 
-def create_searchable_pdf(image_path, ocr_results, output_pdf_path):
-    img = Image.open(image_path)
-    pdf = canvas.Canvas(str(output_pdf_path), pagesize=img.size)
-    pdf.drawImage(str(image_path), 0, 0)
-    pdf.save()
-
-    output = PdfFileWriter()
-    input_pdf = PdfFileReader(open(str(output_pdf_path), "rb"))
-    page = input_pdf.getPage(0)
+def create_searchable_pdf(input_file, ocr_results, output_file):
+    pdf_document = fitz.open()
+    
+    img = fitz.open(input_file)
+    page = pdf_document.new_page(width=img[0].rect.width, height=img[0].rect.height)
+    
+    page.insert_image(page.rect, filename=input_file)
     
     for result in ocr_results:
-        bbox = result["bbox"]
-        text = result["text"]
-        page.add_text(text, x=bbox["top_left"][0], y=img.size[1] - bbox["top_left"][1], font_size=10)
+        # Extract all four corners
+        tl_x, tl_y = result["bbox"]["top_left"]
+        tr_x, tr_y = result["bbox"]["top_right"]
+        br_x, br_y = result["bbox"]["bottom_right"]
+        bl_x, bl_y = result["bbox"]["bottom_left"]
 
-    output.add_page(page)
-    with open(str(output_pdf_path), "wb") as output_file:
-        output.write(output_file)
+        # Calculate the maximum rectangle
+        x0 = min(tl_x, bl_x)
+        y0 = min(tl_y, tr_y)
+        x1 = max(tr_x, br_x)
+        y1 = max(bl_y, br_y)
+
+        # Apply scaling
+        scale = 72 / 150
+        x0 *= scale
+        y0 *= scale
+        x1 *= scale
+        y1 *= scale
+
+        # Draw the bounding box
+        rect = fitz.Rect(x0, y0, x1, y1)
+        page.draw_rect(rect, color=(1, 0, 0, 0.3), fill=(1, 0, 0, 0.1), width=0.5)
+
+        # Insert text box with center alignment
+        rect = fitz.Rect(x0, y0, x1, y1)
+        page.insert_textbox(rect, result["text"], color=(1, 1, 1, 0), align=fitz.TEXT_ALIGN_CENTER)
+
+    pdf_document.save(output_file)
+    pdf_document.close()
 
 
 def process_pdf(input_file: Path, output_file: Path):
@@ -49,12 +67,10 @@ def process_pdf(input_file: Path, output_file: Path):
     tables = camelot.read_pdf(str(input_file), pages="1")
     tables.export(str(output_file), f='html', compress=False)
     try:
-        print(f"Processing {input_file.name}:")
         print(tables[0].parsing_report)
     except Exception as e:
         print(f"Error processing {input_file.name}: {e}")
 
-    # Remove temporary PDF if created
     if input_file.name != temp_pdf.name:
         temp_pdf.unlink()
 

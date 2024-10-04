@@ -2355,6 +2355,20 @@ wheels = [
 ]
 
 [[package]]
+name = "pymupdf"
+version = "1.24.11"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/a3/3edbb6be649e311107b320141cae0353d4cc9c6593eba7691f16c53c9c71/PyMuPDF-1.24.11.tar.gz", hash = "sha256:6e45e57f14ac902029d4aacf07684958d0e58c769f47d9045b2048d0a3d20155", size = 51199098 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f5/75/b059d603530d99926de2b6a64314f3534e2149ee5496142de550c66907ac/PyMuPDF-1.24.11-cp38-abi3-macosx_10_9_x86_64.whl", hash = "sha256:24c35ba9e731027ff24566b90d4986e9aac75e1ce47589b25de51e3c687ddb73", size = 18895391 },
+    { url = "https://files.pythonhosted.org/packages/16/f8/8396ca7218622cb3600c919b320a24f05b7c14bd81eea03f3f2182844a06/PyMuPDF-1.24.11-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:20c8eb65b855a33411246d6697a3f3166727fe2d8585753cf0db648730104be6", size = 18152689 },
+    { url = "https://files.pythonhosted.org/packages/ca/21/ad66778ad2485f87ef1d5a36f17ec8d4aee8ce247c8e46c673eff776a877/PyMuPDF-1.24.11-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:2efb793644df99db0fe2468149048175cf25c5803997828efc9152aca838f5f2", size = 19563533 },
+    { url = "https://files.pythonhosted.org/packages/6a/92/9ff020892560f80433876ec904c0f2669d1d69403adf412565e54a946615/PyMuPDF-1.24.11-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:9b7ac5b8ec3daec17f2e830962ed091610e576a5e531d2fe28c437fbd69b1969", size = 20691324 },
+    { url = "https://files.pythonhosted.org/packages/28/6b/a0247598f06585d84ae9927d6ed191d89d38686ad6bf0dadc0ed699a77e7/PyMuPDF-1.24.11-cp38-abi3-win32.whl", hash = "sha256:6fda6c7ed7e6ad74d9cfac5c3837ef42efd58c506440e2513a0a200bc3c4dbc0", size = 14685566 },
+    { url = "https://files.pythonhosted.org/packages/f6/03/99895f003d7ff59c83d524aeccecff4e1ee1f39a7724f88acfda4f67b8bc/PyMuPDF-1.24.11-cp38-abi3-win_amd64.whl", hash = "sha256:745ce77532702d6ddeeecb47306d3669629aa5ff82708318cd652881f493b0ba", size = 15984328 },
+]
+
+[[package]]
 name = "pyparsing"
 version = "3.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -3035,6 +3049,7 @@ dependencies = [
     { name = "pdf2image", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "psycopg2-binary", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "pydantic", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "pymupdf", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "pypdf2", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "python-dotenv", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "reportlab", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
@@ -3072,6 +3087,7 @@ requires-dist = [
     { name = "pdf2image", specifier = ">=1.17.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.9" },
     { name = "pydantic", specifier = ">=2.9.1" },
+    { name = "pymupdf", specifier = ">=1.24.11" },
     { name = "pypdf2", specifier = "==1.26.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "reportlab", specifier = ">=4.2.5" },
