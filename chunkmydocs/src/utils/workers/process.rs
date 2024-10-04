@@ -46,7 +46,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let pg_pool = create_pool();
 
     log_task(
-        task_id.clone(),
+        task_id.clone(),    
         Status::Processing,
         Some(format!(
             "Task processing | Tries ({}/{})",
