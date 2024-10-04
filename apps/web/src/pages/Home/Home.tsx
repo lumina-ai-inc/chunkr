@@ -25,12 +25,23 @@ const Home = () => {
     <Flex
       direction="column"
       style={{
-        position: "fixed",
+        position: "relative",
         height: "100%",
         width: "100%",
       }}
       className="pulsing-background"
     >
+      <Flex className="header-container">
+        <div
+          style={{
+            maxWidth: "1312px",
+            width: "100%",
+            height: "fit-content",
+          }}
+        >
+          <Header px="0px" home={true} />
+        </div>
+      </Flex>
       <ScrollArea type="scroll">
         <div>
           <div className="hero-main-container">
@@ -51,11 +62,6 @@ const Home = () => {
               <div className="hero-gradient-overlay"></div>
             </div>
             <div className="hero-content-container">
-              <Flex className="header-container">
-                <div style={{ maxWidth: "1312px", width: "100%" }}>
-                  <Header px="0px" home={true} />
-                </div>
-              </Flex>
               <Flex className="hero-container">
                 <Flex className="text-container" direction="column">
                   {/* <Flex direction="row" gap="16px">
@@ -249,9 +255,7 @@ const Home = () => {
                     gap="16px"
                     align="center"
                   >
-                    <Flex
-                      direction="row"
-                      align="center"
+                    <button
                       className="signup-button"
                       onClick={handleGetStarted}
                     >
@@ -284,7 +288,7 @@ const Home = () => {
                           fill="#000000"
                         />
                       </svg>
-                    </Flex>
+                    </button>
                     {!isAuthenticated && (
                       <Text
                         size="1"

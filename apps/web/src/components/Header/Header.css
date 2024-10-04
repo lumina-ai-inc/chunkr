@@ -63,10 +63,22 @@
   border-radius: 8px;
   color: #000;
   transition: background-color 0.2s ease-in-out;
+  border: none;
+  outline: none;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-item-right:hover {
   background-color: hsl(0, 0%, 100%);
+}
+
+.nav-item-right > span {
+  color: inherit;
 }
 
 .rt-DropdownMenuItem {

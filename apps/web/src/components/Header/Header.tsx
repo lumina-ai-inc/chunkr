@@ -136,38 +136,24 @@ export default function Header({
               style={{ textDecoration: "none" }}
               className="nav-item"
             >
-              <Flex
-                direction="row"
-                gap="3"
-                align="center"
+              <Button
                 className="nav-item-right"
+                onClick={() => setShowAccount(!showAccount)}
               >
-                <Text
-                  size="2"
-                  weight="medium"
-                  onClick={() => setShowAccount(!showAccount)}
-                  style={{ cursor: "pointer" }}
-                >
+                <Text size="2" weight="medium" style={{ cursor: "pointer" }}>
                   Dashboard
                 </Text>
-              </Flex>
+              </Button>
             </Link>
           ) : (
-            <Flex
-              direction="row"
-              gap="3"
-              align="center"
+            <Button
               className="nav-item-right"
+              onClick={() => auth.signinRedirect()}
             >
-              <Text
-                size="2"
-                weight="medium"
-                onClick={() => auth.signinRedirect()}
-                style={{ cursor: "pointer" }}
-              >
+              <Text size="2" weight="medium" style={{ cursor: "pointer" }}>
                 Login
               </Text>
-            </Flex>
+            </Button>
           )}
         </Flex>
 
@@ -239,6 +225,7 @@ export default function Header({
                   <Link
                     to="/dashboard"
                     style={{ textDecoration: "none", color: "inherit" }}
+                    onClick={() => setShowAccount(!showAccount)}
                   >
                     <Text weight="regular">Dashboard</Text>
                   </Link>
