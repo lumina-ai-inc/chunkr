@@ -117,6 +117,14 @@ if __name__ == "__main__":
     model = Model.HighQuality
     target_chunk_length = 1000
     ocr_strategy = OcrStrategy.Auto
-    times=main(4, model, target_chunk_length, ocr_strategy, "input")
-    print(f"Time taken to process {times:.2f} seconds")
+    times = main(4, model, target_chunk_length, ocr_strategy, "input")
+    
+    # Calculate and print total processing time
+    total_time = sum(result['elapsed_time'] for result in times)
+    print(f"Total time taken to process all files: {total_time:.2f} seconds")
+    
+    # Print individual file processing times
+    for result in times:
+        print(f"Time taken to process {result['file_path']}: {result['elapsed_time']:.2f} seconds")
+
 

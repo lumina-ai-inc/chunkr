@@ -19,6 +19,25 @@ pub struct OCRResult {
     pub confidence: Option<f32>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct Segment {
+    pub segment_id: String,
+    pub bbox: BoundingBox,
+    pub page_number: u32,
+    pub page_width: f32,
+    pub page_height: f32,
+    pub content: String,
+    pub segment_type: SegmentType,
+    pub ocr: Option<Vec<OCRResult>>,
+    pub image: Option<String>,
+    pub html: Option<String>,
+    pub markdown: Option<String>,
+}
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct Chunk {
+    pub segments: Vec<Segment>,
+    pub chunk_length: i32,
+}
 
 #[derive(
     Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema, ToSql, FromSql,
@@ -40,7 +59,6 @@ pub enum SegmentType {
     #[serde(rename = "Page footer")]
     PageFooter,
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct PdlaSegment {
@@ -84,28 +102,5 @@ pub struct BaseSegment {
     pub page_width: f32,
     pub page_height: f32,
     pub text: String,
-    pub segment_type: SegmentType
-}
-
-
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct Segment {
-    pub segment_id: String,
-    pub bbox: BoundingBox,
-    pub page_number: u32,
-    pub page_width: f32,
-    pub page_height: f32,
-    pub content: String,
     pub segment_type: SegmentType,
-    pub ocr: Option<Vec<OCRResult>>,
-    pub image: Option<String>,
-    pub html: Option<String>,
-    pub markdown: Option<String>,
-}
-
-
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct Chunk {
-    pub segments: Vec<Segment>,
-    pub chunk_length: i32,
 }
