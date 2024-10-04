@@ -11,13 +11,12 @@
 }
 
 .header-container {
-  position: fixed;
+  position: absolute;
   justify-content: center;
   top: 0;
   left: 0;
   width: 100%;
-  height: 15%;
-  z-index: 1000;
+  z-index: 10;
   background: linear-gradient(
     to bottom,
     hsl(0, 0%, 0%, 0.5) 0%,
@@ -73,11 +72,11 @@
   gap: 124px;
   flex-direction: column;
 
-  z-index: 1;
+  z-index: 2;
 }
 
 .hero-content-container {
-  z-index: 1;
+  z-index: 2;
   width: 100%;
   max-width: 1312px;
 }
@@ -149,6 +148,9 @@
 }
 
 .signup-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   background-color: hsl(0, 0%, 100%, 0.9);
   padding: 10px 24px;
   border-radius: 100px;
@@ -158,6 +160,16 @@
   transition:
     background-color 0.2s ease,
     gap 0.2s ease;
+
+  /* Remove default button styling */
+  border: none;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  text-decoration: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .signup-button:hover {
@@ -270,10 +282,6 @@
   .bottom-image-container {
     height: 300px; /* Adjust for smaller screens */
   }
-
-  .signup-button {
-    margin-bottom: 72px;
-  }
 }
 
 .card-image-container {
@@ -313,7 +321,7 @@
   animation: fadeIn 0.3s ease-in;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 450px) {
   .module-container {
     display: none;
   }
