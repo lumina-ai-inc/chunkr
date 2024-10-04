@@ -34,14 +34,18 @@ def draw_bounding_boxes(pdf_path, json_data, output_path, draw_ocr=True):
         else:
             page_segments = [item for item in data if item["page_number"] == page_num + 1]
 
+        # Get page dimensions
+        page_width = page.rect.width
+        page_height = page.rect.height
+
         # Draw rectangles for each segment
         for seg in page_segments:
-            # Draw segment bbox
+            # Scale coordinates according to input PDF
             segment_rect = fitz.Rect(
-                seg["bbox"]["top_left"][0],
-                seg["bbox"]["top_left"][1],
-                seg["bbox"]["bottom_right"][0],
-                seg["bbox"]["bottom_right"][1]
+                seg["bbox"]["top_left"][0] * page_width / seg["page_width"],
+                seg["bbox"]["top_left"][1] * page_height / seg["page_height"],
+                seg["bbox"]["bottom_right"][0] * page_width / seg["page_width"],
+                seg["bbox"]["bottom_right"][1] * page_height / seg["page_height"]
             )
             color = color_map.get(seg["segment_type"], (0, 0, 0))  # Default to black if type not found
             page.draw_rect(segment_rect, color=color, width=2)
@@ -51,10 +55,10 @@ def draw_bounding_boxes(pdf_path, json_data, output_path, draw_ocr=True):
                 for ocr_result in seg["ocr"]:
                     # Calculate absolute coordinates for OCR bbox
                     ocr_rect = fitz.Rect(
-                        segment_rect.x0 + ocr_result["bbox"]["top_left"][0],
-                        segment_rect.y0 + ocr_result["bbox"]["top_left"][1],
-                        segment_rect.x0 + ocr_result["bbox"]["bottom_right"][0],
-                        segment_rect.y0 + ocr_result["bbox"]["bottom_right"][1]
+                        segment_rect.x0 + ocr_result["bbox"]["top_left"][0] * segment_rect.width,
+                        segment_rect.y0 + ocr_result["bbox"]["top_left"][1] * segment_rect.height,
+                        segment_rect.x0 + ocr_result["bbox"]["bottom_right"][0] * segment_rect.width,
+                        segment_rect.y0 + ocr_result["bbox"]["bottom_right"][1] * segment_rect.height
                     )
                     page.draw_rect(ocr_rect, color=(0, 0.5, 0.5), width=1)  # Teal color for OCR boxes
 

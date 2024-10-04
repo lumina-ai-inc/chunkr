@@ -4,4 +4,4 @@ python-dotenv
 pydantic
 numpy
 PyPDF2
-fas
+fastapi
