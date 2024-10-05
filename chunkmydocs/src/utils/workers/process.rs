@@ -25,8 +25,7 @@ fn is_valid_file_type(original_file_name: &str) -> Result<(bool, String), Box<dy
         .extension()
         .and_then(|ext| ext.to_str())
         .unwrap_or("");
-    println!("Extension: {}", extension);
-    println!("Original file name: {}", original_file_name);
+
 
     let is_valid = match extension.to_lowercase().as_str() {
         "pdf" | "docx" | "doc" | "pptx" | "ppt" | "xlsx" | "xls" => true,
@@ -71,7 +70,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let file_name_row = client.query_one(file_name_query, &[&task_id, &user_id]).await?;
     let file_name: String = file_name_row.get(0);
 
-    println!("File name retrieved: {}", file_name);
     log_task(
         task_id.clone(),
         Status::Processing,
@@ -144,7 +142,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         };
         
         //upload to s3 the pdf file.
-        println!("Uploading PDF to S3: {}", s3_pdf_location);
         let _ = match upload_to_s3(&s3_client, &s3_pdf_location, &final_output_path).await {
             Ok(url) => url,
             Err(e) => return Err(format!("Failed to upload PDF to S3: {}", e).into()),
