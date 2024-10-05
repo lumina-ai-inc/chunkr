@@ -231,7 +231,10 @@ export default function Header({
                   </Link>
                 </DropdownMenu.Item>
               ) : (
-                <DropdownMenu.Item onSelect={() => auth.signinRedirect()}>
+                <DropdownMenu.Item
+                  className="signup-button"
+                  onSelect={() => auth.signinRedirect()}
+                >
                   <Text>Login</Text>
                 </DropdownMenu.Item>
               )}

@@ -161,7 +161,6 @@
     background-color 0.2s ease,
     gap 0.2s ease;
 
-  /* Remove default button styling */
   border: none;
   outline: none;
   font: inherit;
@@ -326,6 +325,14 @@
     display: none;
   }
 
+  .signup-button {
+    display: none;
+  }
+
+  .signup-button-text {
+    display: none;
+  }
+
   .hero-title {
     font-size: 48px !important;
     line-height: 48px !important;
@@ -333,6 +340,11 @@
   }
 
   .hero-description {
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .signup-byline {
     font-size: 16px;
     line-height: 24px;
   }

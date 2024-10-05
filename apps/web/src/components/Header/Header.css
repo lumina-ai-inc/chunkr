@@ -122,6 +122,12 @@
   }
 }
 
+@media (max-width: 450px) {
+  .signup-button {
+    display: none;
+  }
+}
+
 @media (max-width: 384px) {
   .logo-title {
     display: none;
