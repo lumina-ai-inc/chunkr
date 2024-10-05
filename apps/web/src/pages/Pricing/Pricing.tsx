@@ -12,7 +12,7 @@ export default function Pricing() {
     <Flex
       direction="column"
       style={{
-        position: "fixed",
+        position: "relative",
         height: "100%",
         width: "100%",
       }}
@@ -55,10 +55,9 @@ export default function Pricing() {
                     Pricing
                   </Text>
                   <Text
-                    className="white"
+                    className="white pricing-description"
                     size="5"
                     weight="medium"
-                    mb="40px"
                     style={{
                       maxWidth: "542px",
                       lineHeight: "32px",
