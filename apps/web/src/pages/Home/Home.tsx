@@ -17,6 +17,7 @@ const Home = () => {
     if (auth.isAuthenticated) {
       navigate("/dashboard");
     } else {
+      console.log(auth);
       auth.signinRedirect();
     }
   };
@@ -91,7 +92,12 @@ const Home = () => {
                     to convert documents into RAG & LLM-ready data.
                   </Text>
 
-                  <Text weight="bold" size="4" mb="12px" className="white">
+                  <Text
+                    weight="bold"
+                    size="4"
+                    mb="12px"
+                    className="white signup-byline"
+                  >
                     We support PDF, DOC, PPT, and XLS files.
                   </Text>
 
@@ -294,6 +300,7 @@ const Home = () => {
                         size="1"
                         weight="bold"
                         style={{ color: "hsl(0, 0%, 100%, 0.95)" }}
+                        className="signup-button-text"
                       >
                         1500 pages in credits
                       </Text>
