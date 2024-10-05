@@ -9,10 +9,11 @@ import uuid
 from enum import Enum
 import numpy as np
 from PyPDF2 import PdfReader, PdfWriter
-
+import requests
+import urllib.request
 from api import process_file
 from download import download_file
-from models import Model, TableOcr, OcrStrategy, UploadForm
+from models import Model, TableOcr, OcrStrategy, UploadForm, TaskResponse
 from annotate import draw_bounding_boxes
 
 import json
@@ -58,7 +59,7 @@ def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length:
 
     print(f"Processing file: {file_path}")
     upload_form = UploadForm(file=file_path, model=model, target_chunk_length=target_chunk_length, ocr_strategy=ocr_strategy)
-    task = process_file(upload_form)
+    task: TaskResponse = process_file(upload_form)
     output = task.output
     print(f"File processed: {file_path}")
 
@@ -69,8 +70,14 @@ def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length:
     output_json_path = save_to_json(output_json_path, output, file_name)
     print(f"Downloaded bounding boxes for {file_path}")
 
-    print(f"Annotating file: {file_path}")
-    draw_bounding_boxes(file_path, output, output_annotated_path)
+    if task.pdf_location:
+        temp_pdf_path = os.path.join(output_dir, f"{file_name}_temp.pdf")
+        urllib.request.urlretrieve(task.pdf_location, temp_pdf_path)
+        print(f"Annotating file: {temp_pdf_path}")
+        draw_bounding_boxes(temp_pdf_path, output, output_annotated_path)
+        os.remove(temp_pdf_path)
+    else:
+        draw_bounding_boxes(file_path, output, output_annotated_path)
     print(f"File annotated: {file_path}")
 
 import concurrent.futures
