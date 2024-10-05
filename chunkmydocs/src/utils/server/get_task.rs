@@ -45,7 +45,13 @@ pub async fn create_task_from_row(
     let message = row.get::<_, Option<String>>("message").unwrap_or_default();
     let file_name = row.get::<_, Option<String>>("file_name");
     let page_count = row.get::<_, Option<i32>>("page_count");
-    let pdf_location = row.get::<_, Option<String>>("pdf_location");
+    let s3_pdf_location: Option<String> = row.get("pdf_location");
+    let pdf_location = match s3_pdf_location {
+        Some(location) => generate_presigned_url(s3_client, &location, None)
+            .await
+            .ok(),
+        None => None,
+    };
     let input_location: String = row.get("input_location");
     let input_file_url = generate_presigned_url(s3_client, &input_location, None)
         .await
@@ -77,7 +83,7 @@ pub async fn create_task_from_row(
         configuration,
         file_name,
         page_count,
-        pdf_location,
+        pdf_location: pdf_location.map(|s| s.to_string()),
     })
 }
 

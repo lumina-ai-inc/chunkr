@@ -129,13 +129,13 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
         let config = Config::from_env()?;
 
-        let pdf_location = format!(
+        let s3_pdf_location = format!(
             "s3://{}/{}/{}/{}",
             config.s3_bucket, user_id, task_id, 
             if file_name.ends_with(".pdf") {
                 file_name.to_string()
             } else {
-                format!("{}.pdf", file_name.rsplit('.').next().unwrap_or(&file_name))
+                format!("{}.pdf", file_name)
             }
         );
         let page_count = match Document::load(&final_output_path) {
@@ -144,8 +144,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         };
         
         //upload to s3 the pdf file.
-
-        let _ = match upload_to_s3(&s3_client, &pdf_location, &final_output_path).await {
+        println!("Uploading PDF to S3: {}", s3_pdf_location);
+        let _ = match upload_to_s3(&s3_client, &s3_pdf_location, &final_output_path).await {
             Ok(url) => url,
             Err(e) => return Err(format!("Failed to upload PDF to S3: {}", e).into()),
         };
@@ -154,7 +154,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         match client
             .execute(
                 "UPDATE tasks SET pdf_location = $1, page_count = $2, input_file_type = $3 WHERE task_id = $4",
-                &[&pdf_location, &page_count, &extension, &task_id],
+                &[&s3_pdf_location, &page_count, &extension, &task_id],
             )
             .await
         {

@@ -42,6 +42,7 @@ class TaskResponse(BaseModel):
     configuration: Configuration
     file_name: Optional[str] = None
     page_count: Optional[int] = None
+    pdf_location: Optional[str] = None
 
     class Config:
         json_encoders = {datetime: lambda v: v.isoformat()}
