@@ -2,18 +2,38 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
 use crate::models::server::segment::{BaseSegment, PdlaSegment, Segment};
 use crate::models::server::task::Status;
+use crate::task::pdf::convert_to_pdf;
 use crate::task::pdf::split_pdf;
 use crate::task::pdla::pdla_extraction;
 use crate::task::process::process_segments;
+use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{create_pool, Client, Pool};
 use crate::utils::json2mkd::json_2_mkd::hierarchical_chunking;
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::{DateTime, Utc};
-use std::{io::Write, path::PathBuf};
+use lopdf::Document;
+use std::error::Error;
+use std::io::Write;
+use std::path::Path;
+use std::path::PathBuf;
 use tempdir::TempDir;
 use tempfile::NamedTempFile;
 
+fn is_valid_file_type(original_file_name: &str) -> Result<(bool, String), Box<dyn Error>> {
+    let extension = Path::new(original_file_name)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .unwrap_or("");
+
+
+    let is_valid = match extension.to_lowercase().as_str() {
+        "pdf" | "docx" | "doc" | "pptx" | "ppt" | "xlsx" | "xls" => true,
+        _ => false,
+    };
+
+    Ok((is_valid, format!("application/{}", extension)))
+}
 pub async fn log_task(
     task_id: String,
     status: Status,
@@ -42,8 +62,13 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let reqwest_client = reqwest::Client::new();
     let extraction_item: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_item.task_id.clone();
-
+    let user_id = extraction_item.user_id.clone();
     let pg_pool = create_pool();
+    let client: Client = pg_pool.get().await?;
+    // Get file name from tasks table where task_id and user_id match
+    let file_name_query = "SELECT file_name FROM tasks WHERE task_id = $1 AND user_id = $2";
+    let file_name_row = client.query_one(file_name_query, &[&task_id, &user_id]).await?;
+    let file_name: String = file_name_row.get(0);
 
     log_task(
         task_id.clone(),
@@ -66,14 +91,82 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         )
         .await?;
 
+        let (is_valid, detected_mime_type) = is_valid_file_type(&file_name)?;
+        if !is_valid {
+            return Err(format!("Not a valid file type: {}", detected_mime_type).into());
+        }
+        let extension = detected_mime_type.split('/').nth(1).unwrap_or("pdf");
+        let original_path = PathBuf::from(temp_file.path());
+        let mut final_output_path: PathBuf = original_path.clone();
+        let final_output_file = tempfile::NamedTempFile::new().unwrap();
+
+
+
+        let output_file = NamedTempFile::new().unwrap();
+        let output_path = output_file.path().to_path_buf();
+
+        if extension != "pdf" {
+            let new_path = original_path.with_extension(extension).clone();
+
+            std::fs::rename(&original_path, &new_path)?;
+
+            let input_path = new_path;
+
+            let result = convert_to_pdf(&input_path, &output_path).await;
+            final_output_path = final_output_file.path().to_path_buf();
+
+            match result {
+                Ok(_) => {
+                    std::fs::copy(&output_path, &final_output_path).unwrap();
+                }
+                Err(e) => {
+                    println!("PDF conversion failed: {:?}", e);
+                    panic!("PDF conversion failed: {:?}", e);
+                }
+            }
+        }
+        let config = Config::from_env()?;
+
+        let s3_pdf_location = format!(
+            "s3://{}/{}/{}/{}",
+            config.s3_bucket, user_id, task_id, 
+            if file_name.ends_with(".pdf") {
+                file_name.to_string()
+            } else {
+                format!("{}.pdf", file_name)
+            }
+        );
+        let page_count = match Document::load(&final_output_path) {
+            Ok(doc) => doc.get_pages().len() as i32,
+            Err(e) => return Err(format!("Failed to get page count: {}", e).into()),
+        };
+        
+        //upload to s3 the pdf file.
+        let _ = match upload_to_s3(&s3_client, &s3_pdf_location, &final_output_path).await {
+            Ok(url) => url,
+            Err(e) => return Err(format!("Failed to upload PDF to S3: {}", e).into()),
+        };
+
+        //update pg with pdf url and page count
+        match client
+            .execute(
+                "UPDATE tasks SET pdf_location = $1, page_count = $2, input_file_type = $3 WHERE task_id = $4",
+                &[&s3_pdf_location, &page_count, &extension, &task_id],
+            )
+            .await
+        {
+            Ok(_) => println!("Successfully updated task"),
+            Err(e) => eprintln!("Error updating task: {}", e),
+        }
+
         let mut split_temp_files: Vec<PathBuf> = vec![];
         let split_temp_dir = TempDir::new("split_pdf")?;
 
         if let Some(batch_size) = extraction_item.batch_size {
             split_temp_files =
-                split_pdf(temp_file.path(), batch_size as usize, split_temp_dir.path()).await?;
+                split_pdf(&final_output_path, batch_size as usize, split_temp_dir.path()).await?;
         } else {
-            split_temp_files.push(temp_file.path().to_path_buf());
+            split_temp_files.push(final_output_path.to_path_buf());
         }
 
         let mut combined_output: Vec<Segment> = Vec::new();
@@ -127,12 +220,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             )
             .await?;
 
-            let mut segments: Vec<Segment> = process_segments(
-                &temp_file_path,
-                &base_segments,
-                &extraction_item
-            )
-            .await?;
+            let mut segments: Vec<Segment> =
+                process_segments(&temp_file_path, &base_segments, &extraction_item).await?;
 
             for item in &mut segments {
                 item.page_number = item.page_number + page_offset;

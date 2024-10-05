@@ -1,4 +1,5 @@
 import base64
+import concurrent.futures
 import os
 import tempfile
 import threading
@@ -9,7 +10,7 @@ from psycopg2 import connect
 from src.configs.llm_config import LLM__BASE_URL
 from src.configs.pgsql_config import PG__URL
 from src.converters import crop_image
-from src.llm import process_table, extract_html_from_response
+from src.llm import process_llm, extract_html_from_response, table_to_html
 from src.models.ocr_model import ProcessInfo, ProcessType
 from src.models.segment_model import BaseSegment, Segment, SegmentType
 from src.ocr import ppocr, ppstructure_table
@@ -46,15 +47,32 @@ def process_segment_ocr(
     ocr_lock: threading.Lock,
     table_engine_lock: threading.Lock
 ):
-    process_info = ProcessInfo(segment_id=segment.segment_id, process_type=ProcessType.OCR)
+    process_info = ProcessInfo(
+        segment_id=segment.segment_id, process_type=ProcessType.OCR)
 
     if segment.segment_type == SegmentType.Table:
         if LLM__BASE_URL:
-            (detail, response) = process_table(segment_temp_file)
-            segment.html = extract_html_from_response(response)
-            process_info.detail = detail
-            process_info.input_tokens = response.usage.prompt_tokens
-            process_info.output_tokens = response.usage.completion_tokens
+            with ocr_lock:
+                def llm_task():
+                    detail, response = process_llm(
+                        segment_temp_file, table_to_html)
+                    return detail, response, extract_html_from_response(response)
+
+                def ocr_task():
+                    return ppocr(ocr, segment_temp_file)
+
+                with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                    llm_future = executor.submit(llm_task)
+                    ocr_future = executor.submit(ocr_task)
+
+                    detail, response, html = llm_future.result()
+                    ocr_results = ocr_future.result()
+
+                segment.html = html
+                process_info.detail = detail
+                process_info.input_tokens = response.usage.prompt_tokens
+                process_info.output_tokens = response.usage.completion_tokens
+                segment.ocr = ocr_results
         else:
             with table_engine_lock:
                 table_ocr_results = ppstructure_table(
@@ -65,13 +83,14 @@ def process_segment_ocr(
     else:
         with ocr_lock:
             ocr_results = ppocr(ocr, segment_temp_file)
-            segment.ocr = ocr_results.results
+            segment.ocr = ocr_results
             process_info.model_name = "paddleocr"
 
     process_info.avg_ocr_confidence = segment.calculate_avg_ocr_confidence()
     process_info.finalize()
     print(process_info)
     return process_info
+
 
 def process_segment(
     user_id: str,

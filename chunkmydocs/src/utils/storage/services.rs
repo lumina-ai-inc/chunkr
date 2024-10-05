@@ -124,6 +124,7 @@ pub async fn upload_to_s3(
         .body(ByteStream::from(file_content))
         .send()
         .await?;
+
     Ok(())
 }
 
