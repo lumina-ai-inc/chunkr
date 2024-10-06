@@ -6,7 +6,7 @@ use crate::utils::server::get_user::get_monthly_usage_count;
 use crate::utils::server::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe::{
     create_customer_session, create_stripe_customer, create_stripe_setup_intent,
-    update_invoice_status,
+    set_default_payment_method, update_invoice_status,
 };
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use serde::Serialize;
@@ -177,7 +177,7 @@ pub async fn stripe_webhook(
         .to_str()
         .map_err(|_| actix_web::error::ErrorBadRequest("Invalid Stripe-Signature header"))?;
 
-    let endpoint_secret = stripe_config.webhook_secret;
+    let endpoint_secret = stripe_config.clone().webhook_secret;
 
     let payload_str = std::str::from_utf8(&payload)
         .map_err(|_| actix_web::error::ErrorBadRequest("Invalid payload"))?;
@@ -219,6 +219,10 @@ pub async fn stripe_webhook(
                 match upgrade_user(customer_id.to_string(), pool).await {
                     Ok(_) => println!("User upgrade successful"),
                     Err(e) => eprintln!("Error upgrading user: {:?}", e),
+                }
+                match set_default_payment_method(&customer_id.to_string(), &stripe_config).await {
+                    Ok(_) => println!("Default payment method set successfully"),
+                    Err(e) => eprintln!("Error setting default payment method: {:?}", e),
                 }
             }
         }
