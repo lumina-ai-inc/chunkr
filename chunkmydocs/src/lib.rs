@@ -138,6 +138,7 @@ pub fn main() -> std::io::Result<()> {
         if std::env::var("STRIPE__API_KEY").is_ok() {
             actix_web::rt::spawn(async move {
                 let _ = chrono::Utc::now().date_naive();
+                let today = chrono::Utc::now().date_naive();
                 let interval = std::env::var("INVOICE_INTERVAL")
                     .unwrap_or_else(|_| "86400".to_string())
                     .parse()
@@ -146,7 +147,7 @@ pub fn main() -> std::io::Result<()> {
                 loop {
                     interval.tick().await;
                     println!("Processing daily invoices");
-                    if let Err(e) = invoice(&pg_pool_clone, None).await {
+                    if let Err(e) = invoice(&pg_pool_clone, Some(today)).await {
                         eprintln!("Error processing daily invoices: {}", e);
                     }
                 }
