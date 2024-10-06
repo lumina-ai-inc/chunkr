@@ -239,3 +239,70 @@ pub async fn update_payment_method(
 
     Ok(updated_payment_method)
 }
+pub async fn set_default_payment_method(
+    customer_id: &str,
+    stripe_config: &StripeConfig,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    // First, get all payment methods for the customer
+    let list_url = format!(
+        "https://api.stripe.com/v1/payment_methods?customer={}&type=card",
+        customer_id
+    );
+
+    let list_response = client
+        .get(&list_url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .send()
+        .await?;
+
+    if !list_response.status().is_success() {
+        let error_message = list_response.text().await?;
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Failed to list payment methods: {}", error_message),
+        )));
+    }
+
+    let payment_methods: serde_json::Value = list_response.json().await?;
+
+    // Sort payment methods by created date (descending) and get the most recent one
+    let most_recent_payment_method = payment_methods["data"]
+        .as_array()
+        .and_then(|methods| {
+            methods
+                .iter()
+                .max_by_key(|method| method["created"].as_i64())
+        })
+        .ok_or_else(|| {
+            std::io::Error::new(std::io::ErrorKind::Other, "No payment methods found")
+        })?;
+
+    let payment_method_id = most_recent_payment_method["id"].as_str().ok_or_else(|| {
+        std::io::Error::new(std::io::ErrorKind::Other, "Invalid payment method ID")
+    })?;
+
+    // Set the most recent payment method as default
+    let update_url = format!("https://api.stripe.com/v1/customers/{}", customer_id);
+
+    let update_response = client
+        .post(&update_url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&[(
+            "invoice_settings[default_payment_method]",
+            payment_method_id,
+        )])
+        .send()
+        .await?;
+
+    if !update_response.status().is_success() {
+        let error_message = update_response.text().await?;
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Failed to set default payment method: {}", error_message),
+        )));
+    }
+
+    Ok(())
+}
