@@ -1,17 +1,17 @@
 use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
-use crate::models::server::segment::{BaseSegment, PdlaSegment, Segment};
+use crate::models::server::segment::{ BaseSegment, PdlaSegment, Segment };
 use crate::models::server::task::Status;
 use crate::task::pdf::convert_to_pdf;
 use crate::task::pdf::split_pdf;
 use crate::task::pdla::pdla_extraction;
 use crate::task::process::process_segments;
 use crate::utils::configs::extraction_config::Config;
-use crate::utils::db::deadpool_postgres::{create_pool, Client, Pool};
+use crate::utils::db::deadpool_postgres::{ create_pool, Client, Pool };
 use crate::utils::json2mkd::json_2_mkd::hierarchical_chunking;
 use crate::utils::storage::config_s3::create_client;
-use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
-use chrono::{DateTime, Utc};
+use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
+use chrono::{ DateTime, Utc };
 use lopdf::Document;
 use std::error::Error;
 use std::io::Write;
@@ -26,7 +26,6 @@ fn is_valid_file_type(original_file_name: &str) -> Result<(bool, String), Box<dy
         .and_then(|ext| ext.to_str())
         .unwrap_or("");
 
-
     let is_valid = match extension.to_lowercase().as_str() {
         "pdf" | "docx" | "doc" | "pptx" | "ppt" | "xlsx" | "xls" => true,
         _ => false,
@@ -39,7 +38,7 @@ pub async fn log_task(
     status: Status,
     message: Option<String>,
     finished_at: Option<DateTime<Utc>>,
-    pool: &Pool,
+    pool: &Pool
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client: Client = pool.get().await?;
 
@@ -65,31 +64,29 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let user_id = extraction_item.user_id.clone();
     let pg_pool = create_pool();
     let client: Client = pg_pool.get().await?;
-    // Get file name from tasks table where task_id and user_id match
     let file_name_query = "SELECT file_name FROM tasks WHERE task_id = $1 AND user_id = $2";
     let file_name_row = client.query_one(file_name_query, &[&task_id, &user_id]).await?;
     let file_name: String = file_name_row.get(0);
 
+    println!("Sending task to processing");
+
     log_task(
         task_id.clone(),
         Status::Processing,
-        Some(format!(
-            "Task processing | Tries ({}/{})",
-            payload.attempt, payload.max_attempts
-        )),
+        Some(format!("Task processing | Tries ({}/{})", payload.attempt, payload.max_attempts)),
         None,
-        &pg_pool,
-    )
-    .await?;
+        &pg_pool
+    ).await?;
+
+    println!("Updated task to processing");
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         let temp_file = download_to_tempfile(
             &s3_client,
             &reqwest_client,
             &extraction_item.input_location,
-            None,
-        )
-        .await?;
+            None
+        ).await?;
 
         let (is_valid, detected_mime_type) = is_valid_file_type(&file_name)?;
         if !is_valid {
@@ -99,8 +96,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let original_path = PathBuf::from(temp_file.path());
         let mut final_output_path: PathBuf = original_path.clone();
         let final_output_file = tempfile::NamedTempFile::new().unwrap();
-
-
 
         let output_file = NamedTempFile::new().unwrap();
         let output_path = output_file.path().to_path_buf();
@@ -127,44 +122,42 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
         let config = Config::from_env()?;
 
-        let s3_pdf_location = format!(
-            "s3://{}/{}/{}/{}",
-            config.s3_bucket, user_id, task_id, 
-            if file_name.ends_with(".pdf") {
-                file_name.to_string()
-            } else {
-                format!("{}.pdf", file_name)
-            }
-        );
+        let s3_pdf_location = format!("s3://{}/{}/{}/{}", config.s3_bucket, user_id, task_id, if
+            file_name.ends_with(".pdf")
+        {
+            file_name.to_string()
+        } else {
+            format!("{}.pdf", file_name)
+        });
         let page_count = match Document::load(&final_output_path) {
             Ok(doc) => doc.get_pages().len() as i32,
-            Err(e) => return Err(format!("Failed to get page count: {}", e).into()),
+            Err(e) => {
+                return Err(format!("Failed to get page count: {}", e).into());
+            }
         };
-        
+
         //upload to s3 the pdf file.
         let _ = match upload_to_s3(&s3_client, &s3_pdf_location, &final_output_path).await {
             Ok(url) => url,
-            Err(e) => return Err(format!("Failed to upload PDF to S3: {}", e).into()),
+            Err(e) => {
+                return Err(format!("Failed to upload PDF to S3: {}", e).into());
+            }
         };
 
-        //update pg with pdf url and page count
-        match client
-            .execute(
-                "UPDATE tasks SET pdf_location = $1, page_count = $2, input_file_type = $3 WHERE task_id = $4",
-                &[&s3_pdf_location, &page_count, &extension, &task_id],
-            )
-            .await
-        {
-            Ok(_) => println!("Successfully updated task"),
-            Err(e) => eprintln!("Error updating task: {}", e),
-        }
+        client.execute(
+            "UPDATE tasks SET pdf_location = $1, page_count = $2, input_file_type = $3 WHERE task_id = $4",
+            &[&s3_pdf_location, &page_count, &extension, &task_id]
+        ).await?;
 
         let mut split_temp_files: Vec<PathBuf> = vec![];
         let split_temp_dir = TempDir::new("split_pdf")?;
 
         if let Some(batch_size) = extraction_item.batch_size {
-            split_temp_files =
-                split_pdf(&final_output_path, batch_size as usize, split_temp_dir.path()).await?;
+            split_temp_files = split_pdf(
+                &final_output_path,
+                batch_size as usize,
+                split_temp_dir.path()
+            ).await?;
         } else {
             split_temp_files.push(final_output_path.to_path_buf());
         }
@@ -198,14 +191,15 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 Status::Processing,
                 Some(segmentation_message),
                 None,
-                &pg_pool,
-            )
-            .await?;
+                &pg_pool
+            ).await?;
 
             let temp_file_path = temp_file.as_path().to_path_buf();
 
-            let pdla_response =
-                pdla_extraction(&temp_file_path, extraction_item.model.clone()).await?;
+            let pdla_response = pdla_extraction(
+                &temp_file_path,
+                extraction_item.model.clone()
+            ).await?;
             let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
             let base_segments: Vec<BaseSegment> = pdla_segments
                 .iter()
@@ -216,12 +210,14 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 Status::Processing,
                 Some(processing_message),
                 None,
-                &pg_pool,
-            )
-            .await?;
+                &pg_pool
+            ).await?;
 
-            let mut segments: Vec<Segment> =
-                process_segments(&temp_file_path, &base_segments, &extraction_item).await?;
+            let mut segments: Vec<Segment> = process_segments(
+                &temp_file_path,
+                &base_segments,
+                &extraction_item
+            ).await?;
 
             for item in &mut segments {
                 item.page_number = item.page_number + page_offset;
@@ -230,18 +226,15 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             page_offset += extraction_item.batch_size.unwrap_or(1) as u32;
         }
 
-        let chunks =
-            hierarchical_chunking(combined_output, extraction_item.target_chunk_length).await?;
+        let chunks = hierarchical_chunking(
+            combined_output,
+            extraction_item.target_chunk_length
+        ).await?;
 
         let mut output_temp_file = NamedTempFile::new()?;
         output_temp_file.write_all(serde_json::to_string(&chunks)?.as_bytes())?;
 
-        upload_to_s3(
-            &s3_client,
-            &extraction_item.output_location,
-            &output_temp_file.path(),
-        )
-        .await?;
+        upload_to_s3(&s3_client, &extraction_item.output_location, &output_temp_file.path()).await?;
 
         if temp_file.path().exists() {
             if let Err(e) = std::fs::remove_file(temp_file.path()) {
@@ -255,8 +248,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
 
         Ok(())
-    })
-    .await;
+    }).await;
 
     match result {
         Ok(_) => {
@@ -266,9 +258,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 Status::Succeeded,
                 Some("Task succeeded".to_string()),
                 Some(Utc::now()),
-                &pg_pool,
-            )
-            .await?;
+                &pg_pool
+            ).await?;
             Ok(())
         }
         Err(e) => {
@@ -280,9 +271,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     Status::Failed,
                     Some("Task failed".to_string()),
                     Some(Utc::now()),
-                    &pg_pool,
-                )
-                .await?;
+                    &pg_pool
+                ).await?;
             }
             Err(e)
         }
