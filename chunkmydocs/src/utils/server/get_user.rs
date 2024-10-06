@@ -129,14 +129,14 @@ pub struct InvoiceSummary {
     pub amount_due: f32, // Added amount_due field
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct MonthlyUsage {
     pub month: String,
     pub total_cost: f32,
     pub usage_details: Vec<UsageDetail>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct UsageDetail {
     pub usage_type: String,
     pub count: i64,
@@ -211,6 +211,9 @@ pub async fn get_monthly_usage_count(
 
     let monthly_usage_counts: Vec<MonthlyUsage> =
         monthly_usage_map.into_iter().map(|(_, v)| v).collect();
+    // Sort monthly_usage_counts in descending order by month
+    let mut monthly_usage_counts = monthly_usage_counts.clone();
+    monthly_usage_counts.sort_by(|a, b| b.month.cmp(&a.month));
 
     Ok(monthly_usage_counts)
 }
