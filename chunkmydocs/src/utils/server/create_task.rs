@@ -121,7 +121,6 @@ pub async fn create_task(
             {
                 Ok(_) => {}
                 Err(e) => {
-                    println!("Error inserting task: {}", e);
                     if e.to_string().contains("usage limit exceeded") {
                         return Err(Box::new(std::io::Error::new(
                             std::io::ErrorKind::Other,
@@ -150,12 +149,8 @@ pub async fn create_task(
 
             let input_file_url =
                 match generate_presigned_url(s3_client, &input_location, None).await {
-                    Ok(response) => {
-                        println!("Presigned URL generated successfully");
-                        Some(response)
-                    }
-                    Err(e) => {
-                        println!("Error getting input file url: {}", e);
+                    Ok(response) => Some(response),
+                    Err(_e) => {
                         return Err("Error getting input file url".into());
                     }
                 };
