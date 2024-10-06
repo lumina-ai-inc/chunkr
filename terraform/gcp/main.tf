@@ -351,7 +351,7 @@ resource "google_sql_database_instance" "postgres" {
   depends_on = [google_service_networking_connection.private_service_connection]
 
   settings {
-    tier = "db-f1-micro"
+    tier = "db-g1-small"
 
     database_flags {
       name  = "max_connections"
