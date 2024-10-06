@@ -28,7 +28,7 @@ async fn produce_extraction_payloads(
     let queue_name = queue_name.ok_or_else(|| "Queue name not configured".to_string())?;
 
     let produce_payload = ProducePayload {
-        queue_name,
+        queue_name: queue_name.clone(),
         publish_channel: None,
         payload: serde_json::to_value(extraction_payload).unwrap(),
         max_attempts: None,
@@ -36,7 +36,6 @@ async fn produce_extraction_payloads(
     };
 
     produce(vec![produce_payload]).await?;
-
     Ok(())
 }
 pub async fn create_task(
