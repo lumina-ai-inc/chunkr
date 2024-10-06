@@ -1,0 +1,9 @@
+[project]
+name = "table-ocr"
+version = "0.1.0"
+description = "Convert searchable pdf to table"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pypdf2==1.26.0",
+]
