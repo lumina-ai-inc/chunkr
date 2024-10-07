@@ -15,9 +15,9 @@ import threading
 from src.converters import convert_to_img, crop_image, convert_to_pdf
 from src.llm import process_llm, table_to_html, formula_to_latex
 from src.models.ocr_model import OCRResult, BoundingBox
-from src.models.segment_model import BaseSegment, Segment
+from src.models.segment_model import Segment
 from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
-from src.process import adjust_base_segments, process_segment
+from src.process import adjust_segments, process_segment
 
 
 @bentoml.service(
@@ -100,7 +100,7 @@ class Task:
     def process(
         self,
         file: Path,
-        base_segments: list[BaseSegment],
+        segments: list[Segment],
         user_id: str = Field(
             description="User ID"),
         task_id: str = Field(
@@ -127,16 +127,15 @@ class Task:
             default="Auto", description="OCR strategy: 'Auto', 'All', or 'Off'")
     ) -> list[Segment]:
         page_images = []
-        adjust_base_segments(base_segments, segment_bbox_offset,
-                             page_image_density, pdla_density)
-        segments = [Segment.from_base_segment(base_segment)
-                    for base_segment in base_segments]
+        adjust_segments(segments, segment_bbox_offset,
+                        page_image_density, pdla_density)
         processed_segments = []
         num_workers = num_workers or len(segments) if len(
             segments) > 0 else cpu_count()
         print(num_workers)
         if ocr_strategy == "Off":
             processed_segments_dict = {}
+
             def finalize_segment(segment: Segment):
                 segment.finalize()
                 return segment
@@ -153,7 +152,7 @@ class Task:
                 for segment_id, future in tqdm.tqdm(futures.items(), desc="Processing segments", total=total_segments):
                     processed_segments_dict[segment_id] = future.result()
             processed_segments = [
-                processed_segments_dict[base_segment.segment_id] for base_segment in base_segments]
+                processed_segments_dict[segment.segment_id] for segment in segments]
         else:
             page_images = convert_to_img(
                 file, page_image_density, page_image_extension)
@@ -193,7 +192,7 @@ class Task:
                         processed_segments_dict[segment_id] = future.result()
 
                 processed_segments = [
-                    processed_segments_dict[base_segment.segment_id] for base_segment in base_segments]
+                    processed_segments_dict[segment.segment_id] for segment in segments]
             finally:
                 for page_image_file_path in page_image_file_paths.values():
                     os.unlink(page_image_file_path)

@@ -6,8 +6,10 @@ from typing import List
 from src.configs.task_config import TASK__OCR_MAX_SIZE
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
 
+
 def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
     return ocr.ocr(str(image_path))
+
 
 def calculate_slice_params(image_size, max_size):
     width, height = image_size
@@ -27,34 +29,32 @@ def calculate_slice_params(image_size, max_size):
         'merge_y_thres': merge_y_thres
     }
 
+
 def ppocr(ocr: PaddleOCR, image_path: Path) -> List[OCRResult]:
     max_size = TASK__OCR_MAX_SIZE
     img = cv2.imread(str(image_path))
     if img is None:
-        return OCRResponse(results=[], html="")
+        return []
 
     height, width = img.shape[:2]
     slice_params = calculate_slice_params((width, height), max_size)
 
     if slice_params:
-        raw_results = ocr.ocr(str(image_path), det=True, rec=True, cls=False, slice=slice_params)
+        raw_results = ocr.ocr(str(image_path), det=True,
+                              rec=True, cls=False, slice=slice_params)
     else:
         raw_results = ocr.ocr(str(image_path))
 
     if not raw_results or not raw_results[0]:
-        return OCRResponse(results=[], html="")
+        return []
 
     ocr_results = []
     for result in raw_results[0]:
         if result and len(result) == 2 and result[0] and result[1]:
+            polygon = result[0]
             ocr_results.append(
                 OCRResult(
-                    bbox=BoundingBox(
-                        top_left=result[0][0],
-                        top_right=result[0][1],
-                        bottom_right=result[0][2],
-                        bottom_left=result[0][3]
-                    ),
+                    bbox=BoundingBox.calculate_bounding_box(polygon),
                     text=result[1][0],
                     confidence=result[1][1]
                 )
@@ -83,20 +83,20 @@ def ppstructure_table(table_engine: PPStructure, image_path: Path) -> OCRRespons
     cell_bbox_raw = table_result['res'].get('cell_bbox', [])
     html = table_result['res'].get('html', "")
 
-    # Parse the HTML
     soup = BeautifulSoup(html, 'html.parser')
     cells = soup.find_all(['td', 'th'])
 
     ocr_result = []
     for bbox, cell in zip(cell_bbox_raw, cells):
+        polygon = [
+            [bbox[0], bbox[1]],
+            [bbox[2], bbox[3]],
+            [bbox[4], bbox[5]],
+            [bbox[6], bbox[7]]
+        ]
         ocr_result.append(
             OCRResult(
-                bbox=BoundingBox(
-                    top_left=[bbox[0], bbox[1]],
-                    top_right=[bbox[2], bbox[3]],
-                    bottom_right=[bbox[4], bbox[5]],
-                    bottom_left=[bbox[6], bbox[7]],
-                ),
+                bbox=BoundingBox.calculate_bounding_box(polygon),
                 text=cell.get_text(strip=True),
                 confidence=None
             )
