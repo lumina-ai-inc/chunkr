@@ -5,15 +5,33 @@ import time
 
 from src.configs.llm_config import LLM__MODEL, LLM__BASE_URL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
 
+
 class BoundingBox(BaseModel):
-    top_left: List[float] = Field(...,
-                                  description="Top-left coor dinates [x, y]")
-    top_right: List[float] = Field(...,
-                                   description="Top-right coordinates [x, y]")
-    bottom_right: List[float] = Field(...,
-                                      description="Bottom-right coordinates [x, y]")
-    bottom_left: List[float] = Field(...,
-                                     description="Bottom-left coordinates [x, y]")
+    left: float = Field(..., description="Left coordinate of the bounding box")
+    top: float = Field(..., description="Top coordinate of the bounding box")
+    width: float = Field(..., description="Width of the bounding box")
+    height: float = Field(..., description="Height of the bounding box")
+
+    @classmethod
+    def calculate_bounding_box(cls, polygon: List[List[float]]) -> 'BoundingBox':
+        """
+        Calculate the largest bounding box that can fit the given polygon.
+
+        :param polygon: A list of [x, y] coordinates representing the polygon
+        :return: A BoundingBox object
+        """
+        x_coordinates = [point[0] for point in polygon]
+        y_coordinates = [point[1] for point in polygon]
+
+        left = min(x_coordinates)
+        top = min(y_coordinates)
+        right = max(x_coordinates)
+        bottom = max(y_coordinates)
+
+        width = right - left
+        height = bottom - top
+
+        return cls(left=left, top=top, width=width, height=height)
 
 
 class OCRResult(BaseModel):
@@ -23,65 +41,44 @@ class OCRResult(BaseModel):
     confidence: Optional[float] = Field(None,
                                         description="Confidence score of the detection")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "bounding_box": {
-                    "top_left": [819.0, 10.0],
-                    "top_right": [948.0, 10.0],
-                    "bottom_right": [948.0, 41.0],
-                    "bottom_left": [819.0, 41.0]
-                },
-                "text": "Figure 2:",
-                "confidence": 0.99928879737854
-            }
-        }
 
 class OCRResponse(BaseModel):
     results: List[OCRResult] = Field(...,
-                                 description="List of ocr results for each cell")
-    html: Optional[str] = Field(None, description="HTML representation of the table")
+                                     description="List of ocr results for each cell")
+    html: Optional[str] = Field(
+        None, description="HTML representation of the table")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "results": [
-                    {
-                        "bbox": {
-                            "top_left": [10.0, 10.0],
-                            "top_right": [100.0, 10.0],
-                            "bottom_right": [100.0, 50.0],
-                            "bottom_left": [10.0, 50.0]
-                        },
-                        "text": "Sample"
-                    },
-                    # ... more OCR results ...
-                ],
-                "html": "<table><tr><td>Sample</td><td>Table</td></tr></table>"
-            }
-        }
 
 class ProcessType(Enum):
     OCR = "ocr"
     SUMMARY = "summary"
 
+
 class ProcessInfo(BaseModel):
     __start_time = time.time()
     segment_id: str = Field(..., description="ID of the segment")
-    process_type: Optional[str] = Field(None, description="Type of the process")
+    process_type: Optional[str] = Field(
+        None, description="Type of the process")
     model_name: Optional[str] = LLM__MODEL or "paddleocr"
     base_url: Optional[str] = LLM__BASE_URL
-    input_tokens: Optional[int] = Field(0, description="Number of input tokens")
-    output_tokens: Optional[int] = Field(0, description="Number of output tokens")
+    input_tokens: Optional[int] = Field(
+        0, description="Number of input tokens")
+    output_tokens: Optional[int] = Field(
+        0, description="Number of output tokens")
     input_price: Optional[float] = LLM__INPUT_TOKEN_PRICE or 0
     output_price: Optional[float] = LLM__OUTPUT_TOKEN_PRICE or 0
-    total_cost: Optional[float] = Field(None, description="Total cost of the process")
-    detail: Optional[str] = Field(None, description="Additional details about the process")
-    latency: Optional[float] = Field(None, description="Process latency in seconds")
-    avg_ocr_confidence: Optional[float] = Field(None, description="Average OCR confidence score")
+    total_cost: Optional[float] = Field(
+        None, description="Total cost of the process")
+    detail: Optional[str] = Field(
+        None, description="Additional details about the process")
+    latency: Optional[float] = Field(
+        None, description="Process latency in seconds")
+    avg_ocr_confidence: Optional[float] = Field(
+        None, description="Average OCR confidence score")
 
     def calculate_total_cost(self):
-        self.total_cost = self.input_price * self.input_tokens + self.output_price * self.output_tokens
+        self.total_cost = self.input_price * self.input_tokens + \
+            self.output_price * self.output_tokens
 
     def calculate_latency(self):
         self.latency = time.time() - self.__start_time

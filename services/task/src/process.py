@@ -12,31 +12,26 @@ from src.configs.pgsql_config import PG__URL
 from src.converters import crop_image
 from src.llm import process_llm, extract_html_from_response, table_to_html
 from src.models.ocr_model import ProcessInfo, ProcessType
-from src.models.segment_model import BaseSegment, Segment, SegmentType
+from src.models.segment_model import Segment, SegmentType
 from src.ocr import ppocr, ppstructure_table
 from src.s3 import upload_file_to_s3
 
 
-def adjust_base_segments(segments: list[BaseSegment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
+def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
     scale_factor = density / pdla_density
     for segment in segments:
-        segment.width *= scale_factor
-        segment.height *= scale_factor
-        segment.left *= scale_factor
-        segment.top *= scale_factor
+        segment.bbox.width *= scale_factor
+        segment.bbox.height *= scale_factor
+        segment.bbox.left *= scale_factor
+        segment.bbox.top *= scale_factor
 
         segment.page_height *= scale_factor
         segment.page_width *= scale_factor
 
-        segment.width += offset * 2
-        segment.height += offset * 2
-        segment.left -= offset
-        segment.top -= offset
-
-        segment.left = max(0, segment.left)
-        segment.top = max(0, segment.top)
-        segment.width = min(segment.width, segment.page_width)
-        segment.height = min(segment.height, segment.page_height)
+        segment.bbox.width += offset * 2
+        segment.bbox.height += offset * 2
+        segment.bbox.left -= offset
+        segment.bbox.top -= offset
 
 
 def process_segment_ocr(
