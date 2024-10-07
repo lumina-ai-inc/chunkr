@@ -83,7 +83,7 @@ pub async fn create_task_from_row(
         configuration,
         file_name,
         page_count,
-        pdf_location: pdf_location.map(|s| s.to_string()),
+        pdf_url: pdf_location.map(|s| s.to_string()),
     })
 }
 
