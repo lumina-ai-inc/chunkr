@@ -1,6 +1,6 @@
 use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
-use crate::models::server::segment::{ BaseSegment, PdlaSegment, Segment };
+use crate::models::server::segment::{ PdlaSegment, Segment };
 use crate::models::server::task::Status;
 use crate::task::pdf::convert_to_pdf;
 use crate::task::pdf::split_pdf;
@@ -198,9 +198,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 extraction_item.model.clone()
             ).await?;
             let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
-            let base_segments: Vec<BaseSegment> = pdla_segments
+            let base_segments: Vec<Segment> = pdla_segments
                 .iter()
-                .map(|pdla_segment| pdla_segment.to_base_segment())
+                .map(|pdla_segment| pdla_segment.to_segment())
                 .collect();
             log_task(
                 task_id.clone(),

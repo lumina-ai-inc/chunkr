@@ -6,10 +6,10 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct BoundingBox {
-    pub top_left: Vec<f32>,
-    pub top_right: Vec<f32>,
-    pub bottom_right: Vec<f32>,
-    pub bottom_left: Vec<f32>,
+    pub left: f32,
+    pub top: f32,
+    pub width: f32,
+    pub height: f32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -75,32 +75,38 @@ pub struct PdlaSegment {
 }
 
 impl PdlaSegment {
-    pub fn to_base_segment(&self) -> BaseSegment {
-        BaseSegment {
+    pub fn to_segment(&self) -> Segment {
+        Segment {
             segment_id: Uuid::new_v4().to_string(),
-            left: self.left,
-            top: self.top,
-            width: self.width,
-            height: self.height,
+            bbox: BoundingBox {
+                left: self.left,
+                top: self.top,
+                width: self.width,
+                height: self.height,
+            },
             page_number: self.page_number,
             page_width: self.page_width,
             page_height: self.page_height,
-            text: self.text.clone(),
+            content: self.text.clone(),
             segment_type: self.segment_type.clone(),
+            ocr: None,
+            image: None,
+            html: None,
+            markdown: None,
         }
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct BaseSegment {
-    pub segment_id: String,
-    pub left: f32,
-    pub top: f32,
-    pub width: f32,
-    pub height: f32,
-    pub page_number: u32,
-    pub page_width: f32,
-    pub page_height: f32,
-    pub text: String,
-    pub segment_type: SegmentType,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+// pub struct BaseSegment {
+//     pub segment_id: String,
+//     pub left: f32,
+//     pub top: f32,
+//     pub width: f32,
+//     pub height: f32,
+//     pub page_number: u32,
+//     pub page_width: f32,
+//     pub page_height: f32,
+//     pub text: String,
+//     pub segment_type: SegmentType,
+// }
