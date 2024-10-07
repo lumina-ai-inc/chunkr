@@ -14,11 +14,15 @@ import "./PDF.css";
 
 declare global {
   interface PromiseConstructor {
-    withResolvers<T>(): { promise: Promise<T>; resolve: (value: T | PromiseLike<T>) => void; reject: (reason?: unknown) => void };
+    withResolvers<T>(): {
+      promise: Promise<T>;
+      resolve: (value: T | PromiseLike<T>) => void;
+      reject: (reason?: unknown) => void;
+    };
   }
 }
 
-if (typeof Promise.withResolvers !== 'function') {
+if (typeof Promise.withResolvers !== "function") {
   Promise.withResolvers = function <T>() {
     let resolve!: (value: T | PromiseLike<T>) => void;
     let reject!: (reason?: unknown) => void;
@@ -76,6 +80,7 @@ export function PDF({
   inputFileUrl: string;
   onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
 }) {
+  console.log(content);
   const [numPages, setNumPages] = useState<number>();
 
   function onDocumentLoadSuccess(document: pdfjs.PDFDocumentProxy): void {
@@ -153,10 +158,10 @@ function SegmentOverlay({
   segmentIndex: number;
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const scaledLeft = `${(segment.bbox.top_left[0] / segment.page_width) * 100}%`;
-  const scaledTop = `${(segment.bbox.top_left[1] / segment.page_height) * 100}%`;
-  const scaledHeight = `${((segment.bbox.bottom_right[1] - segment.bbox.top_left[1]) / segment.page_height) * 100}%`;
-  const scaledWidth = `${((segment.bbox.bottom_right[0] - segment.bbox.top_left[0]) / segment.page_width) * 100}%`;
+  const scaledLeft = `${(segment.bbox.left / segment.page_width) * 100}%`;
+  const scaledTop = `${(segment.bbox.top / segment.page_height) * 100}%`;
+  const scaledHeight = `${(segment.bbox.height / segment.page_height) * 100}%`;
+  const scaledWidth = `${(segment.bbox.width / segment.page_width) * 100}%`;
 
   const baseColor =
     segmentColors[segment.segment_type as SegmentType] || "--border-black";
@@ -211,8 +216,8 @@ function OCRBoundingBoxes({
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const segmentWidth = segmentBBox.bottom_right[0] - segmentBBox.top_left[0];
-  const segmentHeight = segmentBBox.bottom_right[1] - segmentBBox.top_left[1];
+  const segmentWidth = segmentBBox.width;
+  const segmentHeight = segmentBBox.height;
 
   const baseColor = segmentColors[segmentType] || "--border-black";
   const lightColor = segmentLightColors[segmentType] || "--border-black";
@@ -220,10 +225,10 @@ function OCRBoundingBoxes({
   return (
     <>
       {ocr.map((result, index) => {
-        const relativeLeft = result.bbox.top_left[0];
-        const relativeTop = result.bbox.top_left[1];
-        const width = result.bbox.bottom_right[0] - result.bbox.top_left[0];
-        const height = result.bbox.bottom_right[1] - result.bbox.top_left[1];
+        const relativeLeft = result.bbox.left;
+        const relativeTop = result.bbox.top;
+        const width = result.bbox.width;
+        const height = result.bbox.height;
 
         const scaledRelativeLeft = `${(relativeLeft / segmentWidth) * 100}%`;
         const scaledRelativeTop = `${(relativeTop / segmentHeight) * 100}%`;
