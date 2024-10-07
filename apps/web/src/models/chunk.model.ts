@@ -12,16 +12,16 @@ export type SegmentType =
   | "Page footer";
 
 export interface BoundingBox {
-  top_left: number[];
-  top_right: number[];
-  bottom_right: number[];
-  bottom_left: number[];
+  left: number;
+  top: number;
+  width: number;
+  height: number;
 }
 
 export interface OCRResult {
   bbox: BoundingBox;
   text: string;
-  confidence?: number;
+  confidence: number;
 }
 
 export interface Segment {
