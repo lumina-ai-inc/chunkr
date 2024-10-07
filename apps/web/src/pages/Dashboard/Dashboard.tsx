@@ -76,7 +76,7 @@ export default function Dashboard() {
   if (!monthlyUsage) {
     return <Loader />;
   }
-  console.log(monthlyUsage);
+
   const calculateTotalUsage = (usageType: string, tier: string) => {
     if (tier === "Free") {
       return (
