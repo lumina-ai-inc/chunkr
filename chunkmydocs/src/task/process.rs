@@ -1,4 +1,4 @@
-use crate::models::server::segment::{BaseSegment, Segment};
+use crate::models::server::segment::Segment;
 use crate::models::server::extract::ExtractionPayload;
 use crate::utils::configs::task_config::Config;
 use std::path::Path;
@@ -13,7 +13,7 @@ async fn get_reqwest_client() -> &'static ReqwestClient {
 
 pub async fn process_segments(
     file_path: &Path,
-    base_segments: &Vec<BaseSegment>,
+    segments: &Vec<Segment>,
     extraction_payload: &ExtractionPayload
 ) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
     let client = get_reqwest_client().await;
@@ -37,7 +37,7 @@ pub async fn process_segments(
     let mut form = multipart::Form
         ::new()
         .part("file", part)
-        .text("base_segments", serde_json::to_string(&base_segments)?)
+        .text("segments", serde_json::to_string(&segments)?)
         .text("user_id", user_id.to_string())
         .text("task_id", task_id.to_string())
         .text("ocr_strategy", ocr_strategy.to_string())
