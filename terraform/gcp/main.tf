@@ -351,16 +351,24 @@ resource "google_sql_database_instance" "postgres" {
   depends_on = [google_service_networking_connection.private_service_connection]
 
   settings {
-    tier = "db-g1-small"
+    tier = "db-custom-2-4096"
 
     database_flags {
       name  = "max_connections"
-      value = 30000
+      value = 300
     }
 
     ip_configuration {
       ipv4_enabled    = false
       private_network = google_compute_network.vpc_network.id
+    }
+
+    insights_config {
+      query_insights_enabled  = true
+      query_plans_per_minute  = 5
+      query_string_length     = 1024
+      record_application_tags = true
+      record_client_address   = true
     }
   }
 
