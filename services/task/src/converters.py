@@ -107,13 +107,11 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
                 img_gpu = cv2.cuda_GpuMat()
                 img_gpu.upload(img)
 
-            left = int(
-                min(bounding_box.top_left[0], bounding_box.bottom_left[0]))
-            top = int(min(bounding_box.top_left[1], bounding_box.top_right[1]))
-            right = int(
-                max(bounding_box.top_right[0], bounding_box.bottom_right[0]))
-            bottom = int(
-                max(bounding_box.bottom_left[1], bounding_box.bottom_right[1]))
+            # Calculate cropping coordinates using the new BoundingBox
+            left = round(bounding_box.left)
+            top = round(bounding_box.top)
+            right = round(bounding_box.left + bounding_box.width)
+            bottom = round(bounding_box.top + bounding_box.height)
 
             if use_gpu:
                 cropped_gpu = img_gpu[top:bottom, left:right]
@@ -147,7 +145,6 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
         raise RuntimeError(f"OpenCV error: {str(e)}")
     except Exception as e:
         raise RuntimeError(f"Failed to crop image: {str(e)}")
-
 
 def resize_image(image_path: Path, size: Tuple[int, int], extension: str = "png", quality: int = 100) -> str:
     """
