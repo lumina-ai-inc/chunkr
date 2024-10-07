@@ -13,6 +13,7 @@ use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
 use std::error::Error;
 use std::path::PathBuf;
+use std::time::Instant;
 use uuid::Uuid;
 
 async fn produce_extraction_payloads(
@@ -45,8 +46,9 @@ pub async fn create_task(
     user_info: &UserInfo,
     configuration: &Configuration,
 ) -> Result<TaskResponse, Box<dyn Error>> {
-    let task_id = Uuid::new_v4().to_string();
+    let start_time = Instant::now();
 
+    let task_id = Uuid::new_v4().to_string();
     let user_id = user_info.user_id.clone();
     let api_key = user_info.api_key.clone();
     let model = configuration.model.clone();
@@ -83,8 +85,11 @@ pub async fn create_task(
 
     let message = "Task queued".to_string();
 
+    println!("Time taken to start task: {:?}", start_time.elapsed().as_secs_f32());
+
     match upload_to_s3(s3_client, &input_location, &final_output_path).await {
         Ok(_) => {
+            println!("Time taken to upload to s3: {:?}", start_time.elapsed().as_secs_f32());
             let configuration_json = serde_json::to_string(configuration)?;
 
             match client
@@ -119,7 +124,9 @@ pub async fn create_task(
                 )
                 .await
             {
-                Ok(_) => {}
+                Ok(_) => {
+                    println!("Time taken to insert into database: {:?}", start_time.elapsed().as_secs_f32());
+                }
                 Err(e) => {
                     if e.to_string().contains("usage limit exceeded") {
                         return Err(Box::new(std::io::Error::new(
@@ -147,6 +154,8 @@ pub async fn create_task(
 
             produce_extraction_payloads(extraction_payload).await?;
 
+            println!("Time taken to produce extraction payloads: {:?}", start_time.elapsed().as_secs_f32());
+
             let input_file_url =
                 match generate_presigned_url(s3_client, &input_location, None).await {
                     Ok(response) => Some(response),
@@ -154,6 +163,8 @@ pub async fn create_task(
                         return Err("Error getting input file url".into());
                     }
                 };
+
+            println!("Time taken to generate presigned url: {:?}", start_time.elapsed().as_secs_f32());
 
             Ok(TaskResponse {
                 task_id: task_id.clone(),
