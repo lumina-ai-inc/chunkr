@@ -41,9 +41,7 @@ pub async fn log_task(
     finished_at: Option<DateTime<Utc>>,
     pool: &Pool
 ) -> Result<(), Box<dyn std::error::Error>> {
-    println!("Entering log_task function");
     let client: Client = pool.get().await?;
-    println!("Got client from pool");
 
     let task_query = format!(
         "UPDATE tasks SET status = '{:?}', message = '{}', finished_at = '{:?}' WHERE task_id = '{}'",
@@ -52,13 +50,9 @@ pub async fn log_task(
         finished_at.unwrap_or_default(),
         task_id
     );
-    println!("Executing query: {}", task_query);
 
-    let result = client.execute(&task_query, &[]).await;
-    println!("Query execution result: {:?}", result);
+    client.execute(&task_query, &[]).await?;
 
-    result?;
-    println!("log_task function completed successfully");
     Ok(())
 }
 
@@ -75,8 +69,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let file_name_row = client.query_one(file_name_query, &[&task_id, &user_id]).await?;
     let file_name: String = file_name_row.get(0);
 
-    println!("Sending task to processing");
-
     log_task(
         task_id.clone(),
         Status::Processing,
@@ -84,8 +76,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         None,
         &pg_pool
     ).await?;
-
-    println!("Updated task to processing");
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         let temp_file = download_to_tempfile(

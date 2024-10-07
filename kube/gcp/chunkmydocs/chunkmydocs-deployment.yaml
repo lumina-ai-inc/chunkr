@@ -24,7 +24,7 @@ spec:
             name: chunkmydocs-secrets
         env:
         - name: PG__POOL__MAX_SIZE
-          value: "5"
+          value: "30"
         ports:
         - containerPort: 8000
         securityContext:

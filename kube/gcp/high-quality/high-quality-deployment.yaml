@@ -24,7 +24,7 @@ spec:
             name: chunkmydocs-secrets
         env:
         - name: PG__POOL__MAX_SIZE
-          value: "1"
+          value: "3"
         securityContext:
           privileged: true
           capabilities:

@@ -355,7 +355,7 @@ resource "google_sql_database_instance" "postgres" {
 
     database_flags {
       name  = "max_connections"
-      value = 300
+      value = 3000
     }
 
     ip_configuration {
