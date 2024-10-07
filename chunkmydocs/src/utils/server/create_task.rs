@@ -168,7 +168,7 @@ pub async fn create_task(
                 configuration: configuration.clone(),
                 file_name: Some(file_name.to_string()),
                 page_count: Some(page_count),
-                pdf_location: None,
+                pdf_url: None,
             })
         }
         Err(e) => Err(e),
