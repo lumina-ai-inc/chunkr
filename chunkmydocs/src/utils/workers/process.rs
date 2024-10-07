@@ -33,6 +33,7 @@ fn is_valid_file_type(original_file_name: &str) -> Result<(bool, String), Box<dy
 
     Ok((is_valid, format!("application/{}", extension)))
 }
+
 pub async fn log_task(
     task_id: String,
     status: Status,
@@ -40,7 +41,9 @@ pub async fn log_task(
     finished_at: Option<DateTime<Utc>>,
     pool: &Pool
 ) -> Result<(), Box<dyn std::error::Error>> {
+    println!("Entering log_task function");
     let client: Client = pool.get().await?;
+    println!("Got client from pool");
 
     let task_query = format!(
         "UPDATE tasks SET status = '{:?}', message = '{}', finished_at = '{:?}' WHERE task_id = '{}'",
@@ -49,9 +52,13 @@ pub async fn log_task(
         finished_at.unwrap_or_default(),
         task_id
     );
+    println!("Executing query: {}", task_query);
 
-    client.execute(&task_query, &[]).await?;
+    let result = client.execute(&task_query, &[]).await;
+    println!("Query execution result: {:?}", result);
 
+    result?;
+    println!("log_task function completed successfully");
     Ok(())
 }
 
