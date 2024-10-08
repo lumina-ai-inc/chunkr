@@ -5,10 +5,8 @@ use crate::models::server::task::Status;
 use crate::task::pdf::convert_to_pdf;
 use crate::task::pdf::split_pdf;
 use crate::task::pdla::pdla_extraction;
-use crate::task::process::process_segments;
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{ create_pool, Client, Pool };
-use crate::utils::json2mkd::json_2_mkd::hierarchical_chunking;
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use chrono::{ DateTime, Utc };
@@ -133,7 +131,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             }
         };
 
-        //upload to s3 the pdf file.
         let _ = match upload_to_s3(&s3_client, &s3_pdf_location, &final_output_path).await {
             Ok(url) => url,
             Err(e) => {
@@ -166,23 +163,14 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         for temp_file in &split_temp_files {
             batch_number += 1;
             let mut segmentation_message = "Segmenting".to_string();
-            let mut processing_message = format!(
-                "Processing | OCR: {}",
-                extraction_item.configuration.ocr_strategy
-            );
             if split_temp_files.len() > 1 {
                 segmentation_message = format!(
                     "Segmenting | Batch {} of {}",
                     batch_number,
                     split_temp_files.len()
                 );
-                processing_message = format!(
-                    "Processing | OCR: {} | Batch {} of {}",
-                    extraction_item.configuration.ocr_strategy,
-                    batch_number,
-                    split_temp_files.len()
-                );
             }
+            
             log_task(
                 task_id.clone(),
                 Status::Processing,
@@ -198,23 +186,10 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 extraction_item.model.clone()
             ).await?;
             let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
-            let base_segments: Vec<Segment> = pdla_segments
+            let mut segments: Vec<Segment> = pdla_segments
                 .iter()
                 .map(|pdla_segment| pdla_segment.to_segment())
                 .collect();
-            log_task(
-                task_id.clone(),
-                Status::Processing,
-                Some(processing_message),
-                None,
-                &pg_pool
-            ).await?;
-
-            let mut segments: Vec<Segment> = process_segments(
-                &temp_file_path,
-                &base_segments,
-                &extraction_item
-            ).await?;
 
             for item in &mut segments {
                 item.page_number = item.page_number + page_offset;
@@ -223,13 +198,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             page_offset += extraction_item.batch_size.unwrap_or(1) as u32;
         }
 
-        let chunks = hierarchical_chunking(
-            combined_output,
-            extraction_item.target_chunk_length
-        ).await?;
-
         let mut output_temp_file = NamedTempFile::new()?;
-        output_temp_file.write_all(serde_json::to_string(&chunks)?.as_bytes())?;
+        output_temp_file.write_all(serde_json::to_string(&combined_output)?.as_bytes())?;
 
         upload_to_s3(&s3_client, &extraction_item.output_location, &output_temp_file.path()).await?;
 

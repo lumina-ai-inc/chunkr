@@ -5,7 +5,7 @@ use chunkmydocs::utils::workers::segmentation::process;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = extraction_config::Config::from_env()?;
-    println!("Starting task processor");
-    consumer(process, config.extraction_queue_fast.unwrap(), 1, 600).await?;
+    println!("Starting OCR processor");
+    consumer(process, config.extraction_queue_ocr.unwrap(), 1, 600).await?;
     Ok(())
 }

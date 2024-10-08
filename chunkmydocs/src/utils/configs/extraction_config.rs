@@ -8,6 +8,7 @@ pub struct Config {
     pub version: String,
     pub extraction_queue_fast: Option<String>,
     pub extraction_queue_high_quality: Option<String>,
+    pub extraction_queue_ocr: Option<String>,
     pub pdla_url: String,
     pub pdla_fast_url: String,
     pub grobid_url: Option<String>,
