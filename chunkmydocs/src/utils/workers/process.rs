@@ -261,12 +261,18 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
         Err(e) => {
             eprintln!("Error processing task: {:?}", e);
+            let error_message = if e.to_string().to_lowercase().contains("usage limit exceeded") {
+                "Task failed: Usage limit exceeded".to_string()
+            } else {
+                "Task failed".to_string()
+            };
+            
             if payload.attempt >= payload.max_attempts {
-                println!("Task failed");
+                eprintln!("Task failed after {} attempts", payload.max_attempts);
                 log_task(
                     task_id.clone(),
                     Status::Failed,
-                    Some("Task failed".to_string()),
+                    Some(error_message),
                     Some(Utc::now()),
                     &pg_pool
                 ).await?;
