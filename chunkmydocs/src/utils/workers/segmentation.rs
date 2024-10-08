@@ -220,13 +220,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     match result {
         Ok(_) => {
             println!("Task succeeded");
-            log_task(
-                task_id.clone(),
-                Status::Succeeded,
-                Some("Task succeeded".to_string()),
-                Some(Utc::now()),
-                &pg_pool
-            ).await?;
+            //TODO: Produce for ocr
             Ok(())
         }
         Err(e) => {
