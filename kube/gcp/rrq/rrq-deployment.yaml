@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: rrq
-        image: luminainc/rrq:658e7d5
+        image: luminainc/rrq:fa7b3f7
         imagePullPolicy: Always
         envFrom:
         - secretRef:
