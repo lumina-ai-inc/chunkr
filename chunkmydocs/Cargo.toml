@@ -69,3 +69,7 @@ path = "src/workers/fast.rs"
 [[bin]]
 name = "high-quality"
 path = "src/workers/high_quality.rs"
+
+[[bin]]
+name = "ocr"
+path = "src/workers/ocr.rs"

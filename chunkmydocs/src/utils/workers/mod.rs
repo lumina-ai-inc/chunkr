@@ -1,1 +1,2 @@
-pub mod process;
+pub mod segmentation;
+pub mod ocr;
