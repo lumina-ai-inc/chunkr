@@ -1,14 +1,19 @@
-use crate::models::rrq::{
-    consume::{ConsumePayload, ConsumeResponse},
-    produce::ProducePayload,
-    status::{StatusPayload, StatusResult},
-};
-use config::{Config as ConfigTrait, ConfigError};
+use config::{ Config as ConfigTrait, ConfigError };
 use dotenvy::dotenv;
+use lazy_static::lazy_static;
 use reqwest::Client;
 use serde::Deserialize;
-use std::sync::Once;
-use std::time::Duration;
+use std::{ sync::Once, time::{ Duration, Instant } };
+
+use crate::models::rrq::{
+    consume::{ ConsumePayload, ConsumeResponse },
+    produce::ProducePayload,
+    status::{ StatusPayload, StatusResult },
+};
+
+lazy_static! {
+    static ref CLIENT: Client = Client::new();
+}
 
 static INIT: Once = Once::new();
 
@@ -32,12 +37,9 @@ impl Config {
 
 pub async fn health() -> Result<String, Box<dyn std::error::Error>> {
     let cfg = Config::from_env()?;
-    let client = Client::new();
-    let response = client
-        .get(&cfg.url)
+    let response = CLIENT.get(&cfg.url)
         .timeout(Duration::from_secs(60))
-        .send()
-        .await
+        .send().await
         .map_err(|e| e.to_string())?
         .error_for_status()
         .map_err(|e| {
@@ -51,17 +53,15 @@ pub async fn health() -> Result<String, Box<dyn std::error::Error>> {
 }
 
 pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::error::Error>> {
+    let start_time = Instant::now();
     let cfg = Config::from_env()?;
-    let client: Client = Client::new();
-
     let mut responses = Vec::new();
     for chunk in items.chunks(120) {
-        let response = client
-            .post(&format!("{}/produce", cfg.url))
+        println!("Time taken to start produce: {:?}", start_time.elapsed());
+        let response = CLIENT.post(&format!("{}/produce", cfg.url))
             .timeout(Duration::from_secs(60))
             .json(chunk)
-            .send()
-            .await
+            .send().await
             .map_err(|e| e.to_string())?
             .error_for_status()
             .map_err(|e| {
@@ -71,23 +71,23 @@ pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::
                 format!("HTTP error produce {}: {}", status, error_body)
             })?;
         let body = response.text().await?;
+        println!("Time taken to produce: {:?}", start_time.elapsed());
         responses.push(body);
     }
+
+    println!("Total time taken to produce: {:?}", start_time.elapsed());
 
     Ok(responses.join("\n"))
 }
 
 pub async fn consume(
-    payload: ConsumePayload,
+    payload: ConsumePayload
 ) -> Result<Vec<ConsumeResponse>, Box<dyn std::error::Error>> {
     let cfg = Config::from_env()?;
-    let client = Client::new();
-    let response = client
-        .post(&format!("{}/consume", cfg.url))
+    let response = CLIENT.post(&format!("{}/consume", cfg.url))
         .timeout(Duration::from_secs(180))
         .json(&payload)
-        .send()
-        .await
+        .send().await
         .map_err(|e| e.to_string())?
         .error_for_status()
         .map_err(|e| {
@@ -102,9 +102,6 @@ pub async fn consume(
 
 pub async fn complete(payloads: Vec<StatusPayload>) -> Result<String, Box<dyn std::error::Error>> {
     let cfg = Config::from_env()?;
-    let client = Client::new();
-
-    // Count successes and failures
     let mut success_count = 0;
     let mut failure_count = 0;
     for payload in &payloads {
@@ -117,7 +114,6 @@ pub async fn complete(payloads: Vec<StatusPayload>) -> Result<String, Box<dyn st
             }
         }
     }
-
     println!(
         "Processing {} items: {} successes, {} failures",
         payloads.len(),
@@ -127,12 +123,10 @@ pub async fn complete(payloads: Vec<StatusPayload>) -> Result<String, Box<dyn st
 
     let mut responses = Vec::new();
 
-    let response = client
-        .post(&format!("{}/complete", cfg.url))
+    let response = CLIENT.post(&format!("{}/complete", cfg.url))
         .timeout(Duration::from_secs(60))
         .json(&payloads)
-        .send()
-        .await
+        .send().await
         .map_err(|e| e.to_string())?
         .error_for_status()
         .map_err(|e| {
