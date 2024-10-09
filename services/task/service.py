@@ -8,8 +8,10 @@ from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from pydantic import Field
 import tempfile
-import tqdm
 from threading import Lock
+import time
+import tqdm
+
 from src.converters import convert_to_img, convert_to_pdf
 from src.models.segment_model import Segment
 from src.process import adjust_segments, process_segment
@@ -17,7 +19,7 @@ from src.process import adjust_segments, process_segment
 
 @bentoml.service(
     name="task",
-    resources={"gpu": 1, "cpu": "4"},
+    resources={"gpu": 1},
     traffic={"timeout": 600}
 )
 class Task:
@@ -56,6 +58,7 @@ class Task:
         ocr_strategy: str = Field(
             default="Auto", description="OCR strategy: 'Auto', 'All', or 'Off'")
     ) -> list[Segment]:
+        start_time = time.time()
         page_images = []
         adjust_segments(segments, segment_bbox_offset,
                         page_image_density, pdla_density)
@@ -85,7 +88,7 @@ class Task:
                 processed_segments_dict[segment.segment_id] for segment in segments]
         else:
             self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy", show_log=False)
+                                 ocr_order_method="tb-xy", show_log=False)
             # todo: add lang support
             self.table_engine = PPStructure(
                 recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
@@ -135,4 +138,5 @@ class Task:
             finally:
                 for page_image_file_path in page_image_file_paths.values():
                     os.unlink(page_image_file_path)
+        print(f"Total time: {time.time() - start_time}")
         return processed_segments
