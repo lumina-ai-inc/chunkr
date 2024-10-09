@@ -153,7 +153,22 @@ pub async fn create_task(
                 configuration: configuration.clone(),
             };
 
-            produce_extraction_payloads(extraction_payload).await?;
+            match produce_extraction_payloads(extraction_payload).await {
+                Ok(_) => {
+                    println!("Time taken to produce extraction payloads: {:?}", start_time.elapsed().as_secs_f32());
+                }
+                Err(e) => {
+                    match client.execute("DELETE FROM TASKS WHERE task_id = $1", &[&task_id]).await {
+                        Ok(_) => {
+                            println!("Time taken to delete task from database: {:?}", start_time.elapsed().as_secs_f32());
+                        }
+                        Err(e) => {
+                            println!("Error deleting task from database: {:?}", e);
+                        }
+                    }
+                    return Err(e);
+                }
+            }
 
             println!("Time taken to produce extraction payloads: {:?}", start_time.elapsed().as_secs_f32());
 

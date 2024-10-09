@@ -59,11 +59,11 @@ variable "gpu_max_vm_count" {
 }
 
 variable "gpu_b_vm_count" {
-  default = 2
+  default = 1
 }
 
 variable "gpu_b_min_vm_count" {
-  default = 2
+  default = 1
 }
 
 variable "gpu_b_max_vm_count" {
