@@ -58,6 +58,18 @@ variable "gpu_max_vm_count" {
   default = 6
 }
 
+variable "gpu_b_vm_count" {
+  default = 2
+}
+
+variable "gpu_b_min_vm_count" {
+  default = 2
+}
+
+variable "gpu_b_max_vm_count" {
+  default = 6
+}
+
 provider "google" {
   region  = var.region
   project = var.project
@@ -349,6 +361,61 @@ resource "google_container_node_pool" "gpu_nodes" {
     }
 
     tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-gpu-time-sharing"]
+  }
+}
+
+resource "google_container_node_pool" "gpu_b_nodes" {
+  name       = "gpu-b-compute"
+  location   = "${var.region}-b"
+  cluster    = google_container_cluster.cluster.name
+  node_count = var.gpu_b_vm_count
+  autoscaling {
+    min_node_count = var.gpu_b_min_vm_count  
+    max_node_count = var.gpu_b_max_vm_count  
+  }
+
+  node_config {
+    preemptible  = false
+    machine_type = "g2-standard-4"
+    disk_size_gb = 500
+
+    gcfs_config {
+      enabled = true
+    }
+
+    gvnic {
+      enabled = true
+    }
+
+    guest_accelerator {
+      type  = "nvidia-l4"
+      count = 1
+      gpu_driver_installation_config {
+        gpu_driver_version = "LATEST"
+      }
+      gpu_sharing_config {
+        gpu_sharing_strategy       = "TIME_SHARING"
+        max_shared_clients_per_gpu = 8
+      }
+    }
+
+    workload_metadata_config {
+      mode = "GCE_METADATA"
+    }
+
+    labels = {
+      cluster_name = var.cluster_name
+      purpose      = "gpu-b-time-sharing"
+      node_pool    = "gpu-b-time-sharing"
+    }
+
+    taint {
+      effect = "NO_SCHEDULE"
+      key    = "nvidia.com/gpu"
+      value  = "present"
+    }
+
+    tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-gpu-b-time-sharing"]
   }
 }
 
