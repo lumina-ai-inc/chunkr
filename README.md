@@ -15,7 +15,7 @@ https://docs.chunkr.ai/introduction
 1. Go to chunkr.ai
 2. Make an account and copy your API key
 3. Create a task:
-   `curl -X POST https://api.chunkr.ai/api/task \
+   `curl -X POST https://api.chunkr.ai/api/v1/task \
   -H "Content-Type: multipart/form-data" \
   -H "Authorization: <your_key>" \
   -F "file=@/path/to/your/file.pdf" \
