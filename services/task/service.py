@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import Field
 import tempfile
 import tqdm
-
+from threading import Lock
 from src.converters import convert_to_img, convert_to_pdf
 from src.models.segment_model import Segment
 from src.process import adjust_segments, process_segment
@@ -21,12 +21,6 @@ from src.process import adjust_segments, process_segment
     traffic={"timeout": 600}
 )
 class Task:
-    def __init__(self) -> None:
-        self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy", show_log=False)
-        # todo: add lang support
-        self.table_engine = PPStructure(
-            recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
 
     @bentoml.api
     def to_pdf(self, file: Path) -> Path:
@@ -90,6 +84,15 @@ class Task:
             processed_segments = [
                 processed_segments_dict[segment.segment_id] for segment in segments]
         else:
+            self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
+                             ocr_order_method="tb-xy", show_log=False)
+            # todo: add lang support
+            self.table_engine = PPStructure(
+                recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
+
+            self.ocr_lock = Lock()
+            self.table_engine_lock = Lock()
+
             page_images = convert_to_img(
                 file, page_image_density, page_image_extension)
             page_image_file_paths: dict[int, Path] = {}
@@ -117,7 +120,9 @@ class Task:
                             segment_image_resize,
                             ocr_strategy,
                             self.ocr,
-                            self.table_engine
+                            self.table_engine,
+                            self.ocr_lock,
+                            self.table_engine_lock
                         )
                         futures[segment.segment_id] = future
 
