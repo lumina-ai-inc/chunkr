@@ -27,6 +27,10 @@ spec:
                   values:
                   - pdla
               topologyKey: "kubernetes.io/hostname"
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
       containers:
       - name: pdla
         image: luminainc/pdla:8c4bfb6d

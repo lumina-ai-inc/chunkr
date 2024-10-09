@@ -27,6 +27,10 @@ spec:
                   values:
                   - task
               topologyKey: "kubernetes.io/hostname"
+      tolerations:
+      - key: "nvidia.com/gpu.b"
+        operator: "Exists"
+        effect: "NoSchedule"
       containers:
       - name: task
         image: luminainc/task:47f4e65a
@@ -42,9 +46,9 @@ spec:
             add: ["SYS_ADMIN"]
         resources:
           limits:
-            nvidia.com/gpu.b: 1
+            nvidia.com/gpu: 1
           requests:
-            nvidia.com/gpu.b: 1
+            nvidia.com/gpu: 1
         volumeMounts:
         - name: dshm
           mountPath: /dev/shm
