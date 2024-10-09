@@ -42,7 +42,7 @@ This project is dual-licensed:
 1. [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE)
 2. Commercial License
 
-To use Chunkr privately without complying to the AGPL-3.0 liscence terms you can [contact us](mailto:ishaan@lumina.sh) or visit our [website](https://chunkr.ai).
+To use Chunkr privately without complying to the AGPL-3.0 license terms you can [contact us](mailto:ishaan@lumina.sh) or visit our [website](https://chunkr.ai).
 
 ## Want to talk to a founder?
 https://cal.com/ishaank99/15min
