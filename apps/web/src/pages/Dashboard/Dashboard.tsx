@@ -725,7 +725,7 @@ export default function Dashboard() {
                     >
                       <pre>
                         <code>
-                          {`curl -X POST https://api.chunkmydocs.com/api/task \\
+                          {`curl -X POST https://api.chunkmydocs.ai/api/task \\
   -H "Content-Type: multipart/form-data" \\
   -H "Authorization: ${user?.api_keys[0]}" \\
   -F "file=@/path/to/your/file.pdf" \\
