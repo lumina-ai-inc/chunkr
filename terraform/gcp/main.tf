@@ -376,7 +376,7 @@ resource "google_container_node_pool" "gpu_b_nodes" {
 
   node_config {
     preemptible  = false
-    machine_type = "g2-standard-4"
+    machine_type = "g2-standard-16"
     disk_size_gb = 500
 
     gcfs_config {
