@@ -46,6 +46,18 @@ variable "keycloak_db" {
   default = "keycloak"
 }
 
+variable "gpu_vm_count" {
+  default = 1
+}
+
+variable "gpu_min_vm_count" {
+  default = 1
+}
+
+variable "gpu_max_vm_count" {
+  default = 6
+}
+
 provider "google" {
   region  = var.region
   project = var.project
@@ -288,11 +300,11 @@ resource "google_container_node_pool" "gpu_nodes" {
   name       = "gpu-compute"
   location   = "${var.region}-b"
   cluster    = google_container_cluster.cluster.name
-  node_count = 1
+  node_count = var.gpu_vm_count
 
   autoscaling {
-    min_node_count = 1
-    max_node_count = 6
+    min_node_count = var.gpu_vm_count
+    max_node_count = var.gpu_max_vm_count
   }
 
   node_config {
