@@ -9,72 +9,10 @@ from pathlib import Path
 from pydantic import Field
 import tempfile
 import tqdm
-from typing import Dict, Optional, List
-import threading
 
-from src.converters import convert_to_img, crop_image, convert_to_pdf
-from src.llm import process_llm, table_to_html, formula_to_latex
-from src.models.ocr_model import OCRResult, BoundingBox
+from src.converters import convert_to_img, convert_to_pdf
 from src.models.segment_model import Segment
-from src.ocr import ppocr, ppocr_raw, ppstructure_table, ppstructure_table_raw
 from src.process import adjust_segments, process_segment
-
-
-@bentoml.service(
-    name="image",
-    resources={"cpu": "4"},
-    traffic={"timeout": 60}
-)
-class Image:
-    @bentoml.api
-    def convert_to_img(
-        self,
-        file: Path,
-        density: int = Field(default=300, description="Image density in DPI"),
-        extension: str = Field(default="png", description="Image extension")
-    ) -> Dict[int, str]:
-        return convert_to_img(file, density, extension)
-
-    @bentoml.api
-    def crop_image(
-        self,
-        file: Path,
-        bbox: BoundingBox,
-        extension: str = Field(default="png", description="Image extension"),
-        quality: int = Field(default=100, description="Image quality (0-100)"),
-        resize: Optional[str] = Field(
-            default=None, description="Image resize dimensions (e.g., '800x600')")
-    ) -> str:
-        return crop_image(file, bbox, extension, quality, resize)
-
-
-@bentoml.service(
-    name="ocr",
-    resources={"gpu": 1, "cpu": "4"},
-    traffic={"timeout": 60}
-)
-class OCR:
-    def __init__(self) -> None:
-        self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                             ocr_order_method="tb-xy", show_log=False)
-        self.table_engine = PPStructure(
-            recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
-
-    @bentoml.api
-    def paddle_ocr_raw(self, file: Path) -> list:
-        return ppocr_raw(self.ocr, file)
-
-    @bentoml.api
-    def paddle_ocr(self, file: Path) -> List[OCRResult]:
-        return ppocr(self.ocr, file)
-
-    @bentoml.api
-    def paddle_table_raw(self, file: Path) -> list:
-        return ppstructure_table_raw(self.table_engine, file)
-
-    @bentoml.api
-    def paddle_table(self, file: Path) -> List[OCRResult]:
-        return ppstructure_table(self.table_engine, file)
 
 
 @bentoml.service(
@@ -89,8 +27,6 @@ class Task:
         # todo: add lang support
         self.table_engine = PPStructure(
             recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
-        self.ocr_lock: threading.Lock = threading.Lock()
-        self.table_engine_lock: threading.Lock = threading.Lock()
 
     @bentoml.api
     def to_pdf(self, file: Path) -> Path:
@@ -181,9 +117,7 @@ class Task:
                             segment_image_resize,
                             ocr_strategy,
                             self.ocr,
-                            self.table_engine,
-                            self.ocr_lock,
-                            self.table_engine_lock
+                            self.table_engine
                         )
                         futures[segment.segment_id] = future
 
@@ -197,24 +131,3 @@ class Task:
                 for page_image_file_path in page_image_file_paths.values():
                     os.unlink(page_image_file_path)
         return processed_segments
-
-
-@bentoml.service(
-    name="task",
-    resources={"cpu": "4"},
-    traffic={"timeout": 600}
-)
-class LLM:
-    @bentoml.api
-    def table_to_html(
-        self,
-        file: Path
-    ) -> str:
-        return process_llm(file, table_to_html)
-
-    @bentoml.api
-    def formula_to_latex(
-        self,
-        file: Path
-    ) -> str:
-        return process_llm(file, formula_to_latex)
