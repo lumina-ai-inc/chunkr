@@ -22,4 +22,4 @@ metadata:
   name: chunkmydocs-backendconfig
   namespace: chunkmydocs
 spec:
-  timeoutSec: 180
+  timeoutSec: 30

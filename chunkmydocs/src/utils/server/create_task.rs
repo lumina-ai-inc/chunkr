@@ -39,6 +39,7 @@ async fn produce_extraction_payloads(
     produce(vec![produce_payload]).await?;
     Ok(())
 }
+
 pub async fn create_task(
     pool: &Pool,
     s3_client: &S3Client,

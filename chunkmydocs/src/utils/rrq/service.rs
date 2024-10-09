@@ -59,7 +59,7 @@ pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::
     for chunk in items.chunks(120) {
         println!("Time taken to start produce: {:?}", start_time.elapsed());
         let response = CLIENT.post(&format!("{}/produce", cfg.url))
-            .timeout(Duration::from_secs(60))
+            .timeout(Duration::from_secs(10))
             .json(chunk)
             .send().await
             .map_err(|e| e.to_string())?
