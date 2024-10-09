@@ -5,6 +5,8 @@ metadata:
   namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: chunkmydocs
+  annotations:
+    cloud.google.com/backend-config: '{"default": "chunkmydocs-backendconfig"}'
 spec:
   selector:
     app.kubernetes.io/name: chunkmydocs
@@ -13,3 +15,11 @@ spec:
   - port: 8000
     targetPort: 8000
     protocol: TCP
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: chunkmydocs-backendconfig
+  namespace: chunkmydocs
+spec:
+  timeoutSec: 60
