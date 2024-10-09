@@ -3,8 +3,6 @@ apt-get install -y redis-tools htop git linux-headers-`uname -r` build-essential
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.cargo/env
 
-# ... existing code ...
-
 # Install ImageMagick dependencies
 # Install ImageMagick dependencies and OpenCL-related packages
 sudo apt-get update
