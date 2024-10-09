@@ -85,7 +85,7 @@ pub async fn consume(
 ) -> Result<Vec<ConsumeResponse>, Box<dyn std::error::Error>> {
     let cfg = Config::from_env()?;
     let response = CLIENT.post(&format!("{}/consume", cfg.url))
-        .timeout(Duration::from_secs(180))
+        .timeout(Duration::from_secs(5))
         .json(&payload)
         .send().await
         .map_err(|e| e.to_string())?
