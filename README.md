@@ -12,20 +12,23 @@ https://docs.chunkr.ai/introduction
 
 ## (Super) Quick Start
 
-1. Go to chunkr.ai
+1. Go to [chunkr.ai](https://www.chunkr.ai) 
 2. Make an account and copy your API key
 3. Create a task:
-   `curl -X POST https://api.chunkr.ai/api/v1/task \
-  -H "Content-Type: multipart/form-data" \
-  -H "Authorization: <your_key>" \
-  -F "file=@/path/to/your/file.pdf" \
-  -F "model=Fast" \
-  -F "target_chunk_length=512" \
-  -F "ocr_strategy=Auto"`
+   ```bash
+   curl -X POST https://api.chunkr.ai/api/v1/task \
+      -H "Content-Type: multipart/form-data" \
+      -H "Authorization: ${YOUR_API_KEY}" \
+      -F "file=@/path/to/your/file" \
+      -F "model=HighQuality" \
+      -F "target_chunk_length=512" \
+      -F "ocr_strategy=Auto"
+   ```
 4. Poll your created task:
-   `curl --request GET \
-    --url https://api.chunkr.ai/api/v1/task/{task_id} \
-    --header 'Authorization: <your-key>'`
+    ```bash
+   curl -X GET https://api.chunkr.ai/api/v1/task/${TASK_ID} \
+      -H "Authorization: ${YOUR_API_KEY}"
+   ```
 
 ## Self Deployments
 
