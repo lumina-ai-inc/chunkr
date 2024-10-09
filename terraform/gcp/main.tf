@@ -303,7 +303,7 @@ resource "google_container_node_pool" "gpu_nodes" {
   node_count = var.gpu_vm_count
 
   autoscaling {
-    min_node_count = var.gpu_vm_count
+    min_node_count = var.gpu_min_vm_count
     max_node_count = var.gpu_max_vm_count
   }
 
