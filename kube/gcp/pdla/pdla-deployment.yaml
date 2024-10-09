@@ -15,6 +15,18 @@ spec:
       labels:
         app.kubernetes.io/name: pdla
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - pdla
+              topologyKey: "kubernetes.io/hostname"
       containers:
       - name: pdla
         image: luminainc/pdla:8c4bfb6d

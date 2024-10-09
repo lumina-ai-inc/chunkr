@@ -15,6 +15,18 @@ spec:
       labels:
         app.kubernetes.io/name: task
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - task
+              topologyKey: "kubernetes.io/hostname"
       containers:
       - name: task
         image: luminainc/task:47f4e65a
@@ -30,9 +42,9 @@ spec:
             add: ["SYS_ADMIN"]
         resources:
           limits:
-            nvidia.com/gpu: 1
+            nvidia.com/gpu.b: 1
           requests:
-            nvidia.com/gpu: 1
+            nvidia.com/gpu.b: 1
         volumeMounts:
         - name: dshm
           mountPath: /dev/shm
