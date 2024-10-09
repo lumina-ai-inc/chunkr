@@ -46,6 +46,22 @@ variable "keycloak_db" {
   default = "keycloak"
 }
 
+variable "general_vm_count" {
+  default = 1
+}
+
+variable "general_min_vm_count" {
+  default = 1
+}
+
+variable "general_max_vm_count" {
+  default = 6
+}
+
+variable "general_machine_type" {
+  default = "c2d-highcpu-4"
+}
+
 variable "gpu_vm_count" {
   default = 1
 }
@@ -58,6 +74,10 @@ variable "gpu_max_vm_count" {
   default = 6
 }
 
+variable "gpu_machine_type" {
+  default = "a2-highgpu-1g"
+}
+
 variable "gpu_b_vm_count" {
   default = 1
 }
@@ -68,6 +88,10 @@ variable "gpu_b_min_vm_count" {
 
 variable "gpu_b_max_vm_count" {
   default = 6
+}
+
+variable "gpu_b_machine_type" {
+  default = "a2-highgpu-1g"
 }
 
 provider "google" {
@@ -275,16 +299,16 @@ resource "google_container_node_pool" "general_purpose_nodes" {
   name       = "general-compute"
   location   = "${var.region}-b"
   cluster    = google_container_cluster.cluster.name
-  node_count = 1
+  node_count = var.general_vm_count
 
   autoscaling {
-    min_node_count = 1
-    max_node_count = 6
+    min_node_count = var.general_min_vm_count
+    max_node_count = var.general_max_vm_count
   }
 
   node_config {
     preemptible  = false
-    machine_type = "c2d-highcpu-4"
+    machine_type = var.general_machine_type
 
     gcfs_config {
       enabled = true
@@ -321,7 +345,7 @@ resource "google_container_node_pool" "gpu_nodes" {
 
   node_config {
     preemptible  = false
-    machine_type = "a2-highgpu-1g"
+    machine_type = var.gpu_machine_type
     disk_size_gb = 500
 
     gcfs_config {
@@ -369,14 +393,15 @@ resource "google_container_node_pool" "gpu_b_nodes" {
   location   = "${var.region}-b"
   cluster    = google_container_cluster.cluster.name
   node_count = var.gpu_b_vm_count
+
   autoscaling {
-    min_node_count = var.gpu_b_min_vm_count  
-    max_node_count = var.gpu_b_max_vm_count  
+    min_node_count = var.gpu_b_min_vm_count
+    max_node_count = var.gpu_b_max_vm_count
   }
 
   node_config {
     preemptible  = false
-    machine_type = "g2-standard-16"
+    machine_type = var.gpu_machine_type
     disk_size_gb = 500
 
     gcfs_config {
@@ -388,14 +413,14 @@ resource "google_container_node_pool" "gpu_b_nodes" {
     }
 
     guest_accelerator {
-      type  = "nvidia-l4"
+      type  = "nvidia-tesla-a100"
       count = 1
       gpu_driver_installation_config {
         gpu_driver_version = "LATEST"
       }
       gpu_sharing_config {
         gpu_sharing_strategy       = "TIME_SHARING"
-        max_shared_clients_per_gpu = 8
+        max_shared_clients_per_gpu = 20
       }
     }
 
@@ -411,7 +436,7 @@ resource "google_container_node_pool" "gpu_b_nodes" {
 
     taint {
       effect = "NO_SCHEDULE"
-      key    = "nvidia.com/gpu"
+      key    = "nvidia.com/gpu.b"
       value  = "present"
     }
 
