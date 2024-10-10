@@ -38,8 +38,8 @@ async def to_pdf(file: UploadFile = File(...)):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         pdf_path = Path(temp_file.name)
     try:
-        convert_to_pdf(file_path, pdf_path)
-        return FileResponse(path = pdf_path, filename = pdf_path.name)
+        output_path = convert_to_pdf(file_path, pdf_path)
+        return FileResponse(path = output_path, filename = output_path.name)
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to convert file to PDF")
@@ -48,6 +48,7 @@ async def to_pdf(file: UploadFile = File(...)):
             os.unlink(file_path)
         if pdf_path.exists():
             os.unlink(pdf_path)
+        
 
 @app.post("/process")
 async def process(
