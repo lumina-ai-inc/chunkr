@@ -65,7 +65,7 @@ class Task:
         processed_segments = []
         num_workers = num_workers or len(segments) if len(
             segments) > 0 else cpu_count()
-        print(num_workers)
+        print("num_workers", num_workers)
         if ocr_strategy == "Off":
             processed_segments_dict = {}
 
@@ -112,9 +112,7 @@ class Task:
                             segment_image_extension,
                             segment_image_quality,
                             segment_image_resize,
-                            ocr_strategy,
-                            self.ocr,
-                            self.table_engine
+                            ocr_strategy
                         )
                         futures[segment.segment_id] = future
 
@@ -127,5 +125,5 @@ class Task:
             finally:
                 for page_image_file_path in page_image_file_paths.values():
                     os.unlink(page_image_file_path)
-        print(f"Total time: {time.time() - start_time}")
+        print(f"Total task time: {time.time() - start_time}")
         return processed_segments
