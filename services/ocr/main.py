@@ -17,27 +17,27 @@ async def root():
 async def ocr(image: UploadFile = File(...)):
     async def process_image(image_path):
         try:
-            return await perform_ocr(image_path)
+            return await asyncio.to_thread(perform_ocr, image_path)
         finally:
             os.unlink(image_path)
 
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:    
         image_path = Path(temp_file.name)
         image_path.write_bytes(await image.read())
-        return await asyncio.create_task(process_image(image_path))
+        return await process_image(image_path)
 
 @app.post("/ocr/table")
 async def ocr_table(image: UploadFile = File(...)):
     async def process_image(image_path):
         try:
-            return await perform_ocr_table(image_path)
+            return await asyncio.to_thread(perform_ocr_table, image_path)
         finally:
             os.unlink(image_path)
 
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:    
         image_path = Path(temp_file.name)
         image_path.write_bytes(await image.read())
-        return await asyncio.create_task(process_image(image_path))
+        return await process_image(image_path)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
