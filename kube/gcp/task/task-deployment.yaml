@@ -29,7 +29,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: task
-        image: luminainc/task:7b1a67fa
+        image: luminainc/task:6024770e
         imagePullPolicy: Always
         envFrom:
         - secretRef:
