@@ -15,7 +15,6 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 WORKDIR /app
 
 COPY services/ocr/src /app/src
-COPY services/ocr/__init__.py .
 COPY services/ocr/.python-version .
 COPY services/ocr/download_models.py .
 COPY services/ocr/pyproject.toml .
