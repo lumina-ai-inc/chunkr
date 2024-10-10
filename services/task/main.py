@@ -119,7 +119,7 @@ async def process_segments_with_ocr(
         processed_segments_dict = {}
         num_workers = num_workers or len(segments) if len(
             segments) > 0 else cpu_count()
-
+        logger.debug(f"Number of workers: {num_workers}")
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
             futures = {
                 segment.segment_id: executor.submit(
