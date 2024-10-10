@@ -19,7 +19,5 @@ dependencies = [
     "reportlab>=4.2.5",
     "requests>=2.32.3",
     "ruff>=0.6.7",
-    "torch>=2.4.1",
-    "transformers>=4.44.2",
     "uvicorn>=0.30.6",
 ]

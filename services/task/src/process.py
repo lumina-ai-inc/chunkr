@@ -2,7 +2,6 @@ import base64
 import concurrent.futures
 import os
 import tempfile
-from paddleocr import PaddleOCR, PPStructure
 from pathlib import Path
 from psycopg2 import connect
 from threading import Lock
@@ -118,7 +117,6 @@ def process_segment(
             )
             segment.image = image_s3_path
 
-            print("Processing segment OCR")
 
             if ocr_needed:
                 process_info = process_segment_ocr(
