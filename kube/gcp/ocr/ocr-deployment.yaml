@@ -33,7 +33,7 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: ocr
-        image: luminainc/ocr:546759f3
+        image: luminainc/ocr:61a5b086
         imagePullPolicy: Always
         envFrom:
         - secretRef:
