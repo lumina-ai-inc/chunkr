@@ -6,11 +6,11 @@ import time
 from src.configs.ocr_config import OCR__MAX_SIZE
 
 def get_ocr_engine() -> PaddleOCR:
-    return PaddleOCR(use_angle_cls=True, lang="en", ocr_order_method="tb-xy", show_log=True)
+    return PaddleOCR(use_angle_cls=True, lang="en", ocr_order_method="tb-xy", show_log=False)
 
 def get_table_engine() -> PPStructure:
     # todo: add lang support
-    return PPStructure(recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=True)
+    return PPStructure(recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
 
 
 def calculate_slice_params(image_size, max_size) -> dict:
