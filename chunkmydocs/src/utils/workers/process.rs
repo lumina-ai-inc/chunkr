@@ -113,7 +113,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 }
                 Err(e) => {
                     println!("PDF conversion failed: {:?}", e);
-                    panic!("PDF conversion failed: {:?}", e);
+                    return Err(format!("PDF conversion failed: {:?}", e).into());
                 }
             }
         }
