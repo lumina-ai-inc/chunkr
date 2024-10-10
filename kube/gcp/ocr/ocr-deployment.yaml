@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: task
+  name: ocr
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: task
+    app.kubernetes.io/name: ocr
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: task
+      app.kubernetes.io/name: ocr
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: task
+        app.kubernetes.io/name: ocr
     spec:
       affinity:
         podAntiAffinity:
@@ -25,15 +25,15 @@ spec:
                 - key: app.kubernetes.io/name
                   operator: In
                   values:
-                  - task
+                  - ocr
               topologyKey: "kubernetes.io/hostname"
       tolerations:
       - key: "nvidia.com/gpu.b"
         operator: "Exists"
         effect: "NoSchedule"
       containers:
-      - name: task
-        image: luminainc/task:fe82527c
+      - name: ocr
+        image: luminainc/ocr:35203a94
         imagePullPolicy: Always
         envFrom:
         - secretRef:

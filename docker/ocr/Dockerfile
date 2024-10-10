@@ -19,7 +19,7 @@ COPY services/ocr/__init__.py .
 COPY services/ocr/.python-version .
 COPY services/ocr/download_models.py .
 COPY services/ocr/pyproject.toml .
-COPY services/ocr/service.py .
+COPY services/ocr/main.py .
 COPY services/ocr/uv.lock .
 
 RUN rm -rf /app/src/__pycache__
