@@ -3,5 +3,8 @@
     {
       "mode": "auto"
     }
+  ],
+  "cSpell.words": [
+    "uvicorn"
   ]
 }
