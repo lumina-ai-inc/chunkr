@@ -6,19 +6,8 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115.0",
-    "paddleocr>=2.8.1",
-    "python-dotenv>=1.0.1",
     "uvicorn>=0.31.1",
-]
-
-[project.optional-dependencies]
-linux = ["paddlepaddle-gpu>=2.6.2"]
-macos = ["paddlepaddle>=2.6.2"]
-windows = ["paddlepaddle>=2.6.2"]
-
-[tool.uv]
-environments = [
-    "sys_platform == 'linux'",
-    "sys_platform == 'darwin'",
-    "sys_platform == 'win32'"
+    "python-dotenv>=1.0.1",
+    "paddleocr>=2.8.1",
+    "paddlepaddle-gpu>=2.6.2"
 ]
