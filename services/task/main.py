@@ -29,12 +29,13 @@ def read_root():
 
 @app.post("/to_pdf")
 async def to_pdf(file: UploadFile = File(...)):
+    pdf_path = None
     file_extension = os.path.splitext(file.filename)[1]
     with tempfile.NamedTemporaryFile(delete=False, suffix=file_extension) as temp_file:
         content = await file.read()
         temp_file.write(content)
         file_path = Path(temp_file.name)
-    temp_dir = tempfile.mkdtemp()
+    temp_dir = Path(tempfile.mkdtemp())
     try:
         pdf_path = convert_to_pdf(file_path, temp_dir)
         return FileResponse(path = pdf_path, filename = pdf_path.name)
@@ -44,7 +45,7 @@ async def to_pdf(file: UploadFile = File(...)):
     finally:
         if file_path.exists():
             os.unlink(file_path)
-        if pdf_path.exists():
+        if pdf_path and pdf_path.exists():
             os.unlink(pdf_path)
         
 
