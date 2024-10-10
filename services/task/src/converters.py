@@ -1,7 +1,6 @@
 import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import cv2
-from fastapi import UploadFile
 import io
 from pathlib import Path
 from pdf2image import convert_from_path
@@ -20,23 +19,16 @@ def to_base64(image: str) -> str:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 
-async def convert_to_pdf(file: UploadFile) -> Path:
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_file_path = Path(temp_dir) / file.filename
-        with temp_file_path.open("wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+def convert_to_pdf(file: Path) -> Path:
+    temp_dir = tempfile.mkdtemp()
+    if needs_conversion(file):
+        subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', temp_dir, str(file)],
+                       check=True, capture_output=True, text=True)
+        pdf_file = next(Path(temp_dir).glob('*.pdf'))
+    else:
+        pdf_file = file
 
-        if needs_conversion(temp_file_path):
-            subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', temp_dir, str(temp_file_path)],
-                           check=True, capture_output=True, text=True)
-            pdf_file = next(Path(temp_dir).glob('*.pdf'))
-        else:
-            pdf_file = temp_file_path
-
-        output_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-        shutil.copy(pdf_file, output_pdf.name)
-
-    return Path(output_pdf.name)
+    return pdf_file
 
 
 def process_image(args):
@@ -47,17 +39,13 @@ def process_image(args):
     return i, img_base64
 
 
-async def convert_to_img(file: UploadFile, density: int, extension: str = "png") -> Dict[int, str]:
+async def convert_to_img(file: Path, density: int, extension: str = "png") -> Dict[int, str]:
     start_time = time.time()
     temp_dir = tempfile.mkdtemp()
     result = {}
     try:
-        conversion_start = time.time()
-        pdf_file = await convert_to_pdf(file)
-
-        conversion_end = time.time()
-
         pdf_to_img_start = time.time()
+
         extension = extension.lower()
         if not extension.startswith('.'):
             extension = f'.{extension}'
@@ -67,7 +55,7 @@ async def convert_to_img(file: UploadFile, density: int, extension: str = "png")
         pil_format = format_mapping.get(extension, extension[1:].upper())
 
         pdf_images = convert_from_path(
-            str(pdf_file), dpi=density, fmt=pil_format)
+            str(file), dpi=density, fmt=pil_format)
         pdf_to_img_end = time.time()
 
         processing_start = time.time()
@@ -79,7 +67,6 @@ async def convert_to_img(file: UploadFile, density: int, extension: str = "png")
                 result[i] = img_base64
         processing_end = time.time()
 
-        print(f"Conversion time: {conversion_end - conversion_start:.2f}s")
         print(f"PDF to Image time: {pdf_to_img_end - pdf_to_img_start:.2f}s")
         print(f"Processing time: {processing_end - processing_start:.2f}s")
         print(f"Total time: {time.time() - start_time:.2f}s")

@@ -21,6 +21,7 @@ app = FastAPI()
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
 @app.get("/")
 def read_root():
     return {"message": "Hello World"}
@@ -28,7 +29,16 @@ def read_root():
 
 @app.post("/to_pdf")
 async def to_pdf(file: UploadFile = File(...)):
-    return await convert_to_pdf(file)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+        temp_file.write(await file.read())
+        file_path = Path(temp_file.name)
+    try:
+        pdf_file = await convert_to_pdf(file_path)
+        return pdf_file
+    finally:
+        os.unlink(file_path)
+        if isinstance(pdf_file, Path):
+            os.unlink(pdf_file)
 
 
 @app.post("/process")
@@ -48,22 +58,15 @@ async def process(
     num_workers: int = Form(None),
     ocr_strategy: str = Form("Auto")
 ):
-    logger.debug(f"Received segments: {segments}")
-    logger.debug(f"Received user_id: {user_id}")
-    logger.debug(f"Received task_id: {task_id}")
-    logger.debug(f"Received image_folder_location: {image_folder_location}")
-    logger.debug(f"Received file: {file.filename}")
-
-    segments = json.loads(segments)
-    segment_objects = [Segment(**segment) for segment in segments]
-
-    start_time = time.time()
-
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         temp_file.write(await file.read())
         file_path = Path(temp_file.name)
 
     try:
+        start_time = time.time()
+
+        segments = json.loads(segments)
+        segment_objects = [Segment(**segment) for segment in segments]
         adjust_segments(segment_objects, segment_bbox_offset,
                         page_image_density, pdla_density)
 
@@ -99,7 +102,7 @@ def process_segments_without_ocr(segments: list[Segment], num_workers: int):
 
 
 async def process_segments_with_ocr(
-    file: UploadFile, segments: list[Segment], user_id: str, task_id: str, image_folder_location: str,
+    file: Path, segments: list[Segment], user_id: str, task_id: str, image_folder_location: str,
     page_image_density: int, page_image_extension: str, segment_image_extension: str,
     segment_image_quality: int, segment_image_resize: str, num_workers: int, ocr_strategy: str
 ):
