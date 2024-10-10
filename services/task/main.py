@@ -10,6 +10,7 @@ from pathlib import Path
 import tempfile
 import time
 import tqdm
+from starlette.background import BackgroundTask
 import uvicorn
 
 from src.converters import convert_to_img, convert_to_pdf
@@ -37,16 +38,25 @@ async def to_pdf(file: UploadFile = File(...)):
         file_path = Path(temp_file.name)
     try:
         pdf_path = convert_to_pdf(file_path)
-        return FileResponse(path = str(pdf_path), filename = pdf_path.name)
+
+        def cleanup_files():
+            if file_path.exists():
+                os.unlink(file_path)
+            if pdf_path and pdf_path.exists():
+                os.unlink(pdf_path)
+
+        return FileResponse(
+            path=str(pdf_path),
+            filename=pdf_path.name,
+            background=BackgroundTask(cleanup_files)
+        )
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to convert file to PDF")
-    # finally:
-    #     if file_path.exists():
-    #         os.unlink(file_path)
-    #     if pdf_path and pdf_path.exists():
-    #         os.unlink(pdf_path)
-        
+        if file_path.exists():
+            os.unlink(file_path)
+        raise HTTPException(
+            status_code=500, detail="Failed to convert file to PDF")
+
 
 @app.post("/process")
 async def process(
