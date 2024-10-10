@@ -1,7 +1,4 @@
-import cv2
-import matplotlib.pyplot as plt
 import mimetypes
-import os
 from pathlib import Path
 
 def needs_conversion(file: Path) -> bool:
