@@ -34,6 +34,7 @@ def calculate_slice_params(image_size, max_size) -> dict:
 def perform_ocr(image_path: Path) -> list:
     start_time = time.time()
     ocr = get_ocr_engine()
+    print("time taken for ocr engine: ", time.time() - start_time)
 
     max_size = OCR__MAX_SIZE
     img = cv2.imread(str(image_path))
@@ -42,7 +43,7 @@ def perform_ocr(image_path: Path) -> list:
 
     height, width = img.shape[:2]
     slice_params = calculate_slice_params((width, height), max_size)
-
+    print("time taken for slice params: ", time.time() - start_time)
     if slice_params:
         raw_results = ocr.ocr(str(image_path), det=True,
                               rec=True, cls=False, slice=slice_params)
@@ -57,7 +58,7 @@ def perform_ocr(image_path: Path) -> list:
 def perform_ocr_table(image_path: Path) -> list:
     start_time = time.time()
     table_engine = get_table_engine()
-
+    print("time taken for table engine: ", time.time() - start_time)
     img = cv2.imread(str(image_path))
     result = table_engine(img)
     for line in result:
