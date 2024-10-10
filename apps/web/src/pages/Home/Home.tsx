@@ -17,7 +17,6 @@ const Home = () => {
     if (auth.isAuthenticated) {
       navigate("/dashboard");
     } else {
-      console.log(auth);
       auth.signinRedirect();
     }
   };
