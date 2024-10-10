@@ -63,19 +63,8 @@ async def to_pdf(file: UploadFile = File(...)):
         temp_file.write(content)
         file_path = Path(temp_file.name)
     try:
-        pdf_path = convert_to_pdf(file_path)
-
-        def cleanup_files():
-            if file_path.exists():
-                os.unlink(file_path)
-            if pdf_path and pdf_path.exists():
-                os.unlink(pdf_path)
-
-        return FileResponse(
-            path=str(pdf_path),
-            filename=pdf_path.name,
-            background=BackgroundTask(cleanup_files)
-        )
+        pdf_file = convert_to_pdf(file_path) 
+        return pdf_file
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
         if file_path.exists():
