@@ -16,6 +16,7 @@ async def root():
 
 @app.post("/ocr")
 async def ocr(image: UploadFile = File(...)):
+    print("starting ocr")
     async def process_image(image_path):
         try:
             return await asyncio.to_thread(perform_ocr, image_path)
@@ -29,6 +30,7 @@ async def ocr(image: UploadFile = File(...)):
 
 @app.post("/ocr/table")
 async def ocr_table(image: UploadFile = File(...)):
+    print("starting table ocr")
     async def process_image(image_path):
         try:
             return await asyncio.to_thread(perform_ocr_table, image_path)
