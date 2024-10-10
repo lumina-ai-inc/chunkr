@@ -1,6 +1,6 @@
 import base64
 from concurrent.futures import ThreadPoolExecutor
-from fastapi import FastAPI, UploadFile, File, Form, Body
+from fastapi import FastAPI, UploadFile, File, Form
 import json
 import logging
 from multiprocessing import cpu_count
@@ -10,7 +10,6 @@ from pydantic import Json
 import tempfile
 import time
 import tqdm
-from typing import List, Dict
 import uvicorn
 
 from src.converters import convert_to_img, convert_to_pdf
@@ -35,7 +34,7 @@ async def to_pdf(file: UploadFile = File(...)):
 @app.post("/process")
 async def process(
     file: UploadFile = File(...),
-    segments: List[Dict] = Body(...),
+    segments: str = Form(...),
     user_id: str = Form(...),
     task_id: str = Form(...),
     image_folder_location: str = Form(...),
@@ -55,6 +54,9 @@ async def process(
     logger.debug(f"Received image_folder_location: {image_folder_location}")
     logger.debug(f"Received file: {file.filename}")
 
+    segments = json.loads(segments)
+    segment_objects = [Segment(**segment) for segment in segments]
+
     start_time = time.time()
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
@@ -62,15 +64,15 @@ async def process(
         file_path = Path(temp_file.name)
 
     try:
-        adjust_segments(segments, segment_bbox_offset,
+        adjust_segments(segment_objects, segment_bbox_offset,
                         page_image_density, pdla_density)
 
         if ocr_strategy == "Off":
             processed_segments = await process_segments_without_ocr(
-                segments, num_workers)
+                segment_objects, num_workers)
         else:
             processed_segments = await process_segments_with_ocr(
-                file_path, segments, user_id, task_id, image_folder_location,
+                file_path, segment_objects, user_id, task_id, image_folder_location,
                 page_image_density, page_image_extension, segment_image_extension,
                 segment_image_quality, segment_image_resize, num_workers, ocr_strategy
             )
