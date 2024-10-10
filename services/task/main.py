@@ -31,11 +31,14 @@ def read_root():
 async def to_pdf(file: UploadFile = File(...)):
     pdf_file = None
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-        temp_file.write(await file.read())
+        content = await file.read()
+        temp_file.write(content)
         file_path = Path(temp_file.name)
     try:
-        pdf_file = await convert_to_pdf(file_path)
-        return pdf_file
+        pdf_file = convert_to_pdf(file_path)  # Remove await here
+        with open(pdf_file, "rb") as f:
+            content = f.read()
+        return Response(content=content, media_type="application/pdf")
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to convert file to PDF")
