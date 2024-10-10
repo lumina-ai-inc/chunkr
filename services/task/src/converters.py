@@ -19,15 +19,14 @@ def to_base64(image: str) -> str:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 
-def convert_to_pdf(file: Path, pdf_file: Path) -> Path:
-    temp_dir = pdf_file.parent
+def convert_to_pdf(file: Path, temp_dir: Path) -> Path:
     if needs_conversion(file):
         subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', temp_dir, str(file)],
                        check=True, capture_output=True, text=True)
-        return pdf_file
+        return next(temp_dir.glob('*.pdf'))
     else:
         return file
-        
+
 def process_image(args):
     i, img, pil_format = args
     with io.BytesIO() as output:

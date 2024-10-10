@@ -29,17 +29,15 @@ def read_root():
 
 @app.post("/to_pdf")
 async def to_pdf(file: UploadFile = File(...)):
-    pdf_path = None
     file_extension = os.path.splitext(file.filename)[1]
     with tempfile.NamedTemporaryFile(delete=False, suffix=file_extension) as temp_file:
         content = await file.read()
         temp_file.write(content)
         file_path = Path(temp_file.name)
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-        pdf_path = Path(temp_file.name)
+    temp_dir = tempfile.mkdtemp()
     try:
-        output_path = convert_to_pdf(file_path, pdf_path)
-        return FileResponse(path = output_path, filename = output_path.name)
+        pdf_path = convert_to_pdf(file_path, temp_dir)
+        return FileResponse(path = pdf_path, filename = pdf_path.name)
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to convert file to PDF")
