@@ -32,9 +32,11 @@ def calculate_slice_params(image_size, max_size) -> dict:
     }
 
 def perform_ocr(image_path: Path) -> list:
+    timings = {}
     start_time = time.time()
+
     ocr = get_ocr_engine()
-    print("time taken for ocr engine: ", time.time() - start_time)
+    timings['ocr_engine'] = time.time() - start_time
 
     max_size = OCR__MAX_SIZE
     img = cv2.imread(str(image_path))
@@ -43,25 +45,40 @@ def perform_ocr(image_path: Path) -> list:
 
     height, width = img.shape[:2]
     slice_params = calculate_slice_params((width, height), max_size)
-    print("time taken for slice params: ", time.time() - start_time)
+    timings['slice_params'] = time.time() - start_time
+
     if slice_params:
         raw_results = ocr.ocr(str(image_path), det=True,
                               rec=True, cls=False, slice=slice_params)
     else:
         raw_results = ocr.ocr(str(image_path))
-    print("time taken for ocr: ", time.time() - start_time)
+    
+    timings['ocr_processing'] = time.time() - start_time
+
     if not raw_results or not raw_results[0]:
         return []
+
+    print("OCR Timings: ", timings)
 
     return raw_results
 
 def perform_ocr_table(image_path: Path) -> list:
+    timings = {}
     start_time = time.time()
+
     table_engine = get_table_engine()
-    print("time taken for table engine: ", time.time() - start_time)
+    timings['table_engine_init'] = time.time() - start_time
+
     img = cv2.imread(str(image_path))
+    timings['image_read'] = time.time() - start_time
+
     result = table_engine(img)
+    timings['table_ocr'] = time.time() - start_time
+
     for line in result:
         line.pop('img')
-    print("time taken for table ocr: ", time.time() - start_time)
+    timings['post_processing'] = time.time() - start_time
+
+    print("Table OCR Timings: ", timings)
+
     return result
