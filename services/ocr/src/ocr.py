@@ -1,6 +1,7 @@
 import cv2
 from pathlib import Path
 from paddleocr import PaddleOCR, PPStructure
+import time
 
 from src.configs.ocr_config import OCR__MAX_SIZE
 
@@ -31,6 +32,7 @@ def calculate_slice_params(image_size, max_size) -> dict:
     }
 
 def perform_ocr(image_path: Path) -> list:
+    start_time = time.time()
     ocr = get_ocr_engine()
 
     max_size = OCR__MAX_SIZE
@@ -46,17 +48,19 @@ def perform_ocr(image_path: Path) -> list:
                               rec=True, cls=False, slice=slice_params)
     else:
         raw_results = ocr.ocr(str(image_path))
-
+    print("time taken for ocr: ", time.time() - start_time)
     if not raw_results or not raw_results[0]:
         return []
 
     return raw_results
 
 def perform_ocr_table(image_path: Path) -> list:
+    start_time = time.time()
     table_engine = get_table_engine()
 
     img = cv2.imread(str(image_path))
     result = table_engine(img)
     for line in result:
         line.pop('img')
+    print("time taken for table ocr: ", time.time() - start_time)
     return result

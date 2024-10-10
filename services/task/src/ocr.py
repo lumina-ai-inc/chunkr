@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-import cv2
 from pathlib import Path
 import requests
 from typing import List
@@ -37,11 +36,13 @@ def ppstructure_table_raw(image_path: Path) -> list:
 def ppstructure_table(image_path: Path) -> OCRResponse:
     raw_results = ppstructure_table_raw(image_path)
 
-    if not raw_results:
+    if not raw_results or not raw_results[0]:
         return OCRResponse(results=[], html="")
 
-    cell_bbox_raw = raw_results['res'].get('cell_bbox', [])
-    html = raw_results['res'].get('html', "")
+    table_result = raw_results[0]
+
+    cell_bbox_raw = table_result['res'].get('cell_bbox', [])
+    html = table_result['res'].get('html', "")
 
     soup = BeautifulSoup(html, 'html.parser')
     cells = soup.find_all(['td', 'th'])
