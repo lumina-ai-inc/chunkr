@@ -76,7 +76,6 @@ export function PDF({
   inputFileUrl: string;
   onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
 }) {
-  console.log(content);
   const [numPages, setNumPages] = useState<number>();
 
   function onDocumentLoadSuccess(document: pdfjs.PDFDocumentProxy): void {
