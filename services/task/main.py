@@ -35,9 +35,8 @@ async def to_pdf(file: UploadFile = File(...)):
         content = await file.read()
         temp_file.write(content)
         file_path = Path(temp_file.name)
-    temp_dir = Path(tempfile.mkdtemp())
     try:
-        pdf_path = convert_to_pdf(file_path, temp_dir)
+        pdf_path = convert_to_pdf(file_path)
         return FileResponse(path = str(pdf_path), filename = pdf_path.name)
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
