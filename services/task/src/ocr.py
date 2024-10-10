@@ -9,53 +9,64 @@ from typing import List
 from src.configs.task_config import TASK__OCR_MAX_SIZE
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
 
+
 class OCRPool:
     # todo: add lang support
     def __init__(self, ocr_pool_size: int = 4, table_engine_pool_size: int = 4):
-        self.ocr_queue = Queue(maxsize=ocr_pool_size)
+        self.ocr_engine_queue = Queue(maxsize=ocr_pool_size)
         self.table_engine_queue = Queue(maxsize=table_engine_pool_size)
-        self.lock = threading.Lock()
+        self.ocr_engine_lock = threading.Lock()
+        self.table_engine_lock = threading.Lock()
 
         for _ in range(ocr_pool_size):
             ocr = self.__create_ocr_engine()
-            self.ocr_queue.put(ocr)
+            self.ocr_engine_queue.put(ocr)
 
         for _ in range(table_engine_pool_size):
             table_engine = self.__create_ocr_engine()
             self.table_engine_queue.put(table_engine)
-    
+
     def __create_ocr_engine(self) -> PaddleOCR:
-        with self.lock:
+        with self.ocr_engine_lock:
             return PaddleOCR(use_angle_cls=True, lang="en", ocr_order_method="tb-xy", show_log=False)
-    
+
     def __create_table_engine(self) -> PPStructure:
-        with self.lock:
+        with self.table_engine_lock:
             return PPStructure(recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
 
-
     def get_ocr_engine(self) -> PaddleOCR:
-        with self.lock:
-            return self.ocr_queue.get()
+        with self.ocr_engine_lock:
+            return self.ocr_engine_queue.get()
 
-    def return_ocr_engine(self, ocr: PaddleOCR):
+    def __replace_ocr_engine(self, ocr: PaddleOCR):
         # Note: del engine to stop memory leak https://github.com/PaddlePaddle/PaddleOCR/issues/11639
-        with self.lock:
+        with self.ocr_engine_lock:
             del ocr
             new_ocr = self.__create_ocr_engine()
-            self.ocr_queue.put(new_ocr)
+            self.ocr_engine_queue.put(new_ocr)
 
-    def get_table_engine(self) -> PPStructure:
-        with self.lock:
-            return self.table_engine_queue.get()
-
-    def return_table_engine(self, table_engine: PPStructure):
+    def __replace_table_engine(self, table_engine: PPStructure):
         # Note: del engine to stop memory leak https://github.com/PaddlePaddle/PaddleOCR/issues/11639
-        with self.lock:
+        with self.table_engine_lock:
             del table_engine
             new_table_engine = self.__create_table_engine()
             self.table_engine_queue.put(new_table_engine)
 
+    def return_ocr_engine(self, ocr: PaddleOCR):
+        with self.ocr_engine_lock:
+            self.ocr_engine_queue.put(ocr)
+
+    def get_table_engine(self) -> PPStructure:
+        with self.table_engine_lock:
+            return self.table_engine_queue.get()
+
+    def return_table_engine(self, table_engine: PPStructure):
+        with self.table_engine_lock:
+            self.table_engine_queue.put(table_engine)
+
+
 ocr_pool = OCRPool()
+
 
 def calculate_slice_params(image_size, max_size):
     width, height = image_size
