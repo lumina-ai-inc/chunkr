@@ -33,7 +33,7 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: task
-        image: luminainc/task:5c3b0e11
+        image: luminainc/task:fe82527c
         imagePullPolicy: Always
         envFrom:
         - secretRef:
