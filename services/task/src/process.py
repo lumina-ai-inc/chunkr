@@ -121,9 +121,7 @@ def process_segment(
             if ocr_needed:
                 process_info = process_segment_ocr(
                     segment,
-                    Path(temp_image_file.name),
-                    ocr,
-                    table_engine
+                    Path(temp_image_file.name)
                 )
                 executor.submit(insert_segment_process, user_id, task_id, process_info)
         finally:
