@@ -1,9 +1,11 @@
 import base64
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import FastAPI, UploadFile, File, Form
+import json
 from multiprocessing import cpu_count
 import os
 from pathlib import Path
+from pydantic import Json
 import tempfile
 import time
 import tqdm
@@ -29,7 +31,7 @@ async def to_pdf(file: UploadFile = File(...)):
 @app.post("/process")
 async def process(
     file: UploadFile = File(...),
-    segments: list[Segment] = Form(...),
+    segments: Json[list[Segment]] = Form(...),
     user_id: str = Form(...),
     task_id: str = Form(...),
     image_folder_location: str = Form(...),
@@ -46,21 +48,25 @@ async def process(
     print(f"Processing file: {file.filename}")
     start_time = time.time()
 
+    parsed_segments = json.loads(segments)
+    segment_objects = [Segment(**segment) for segment in parsed_segments]
+
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         temp_file.write(await file.read())
         file_path = Path(temp_file.name)
 
     print(f"File path: {file_path}")
     try:
-        adjust_segments(segments, segment_bbox_offset,
+        adjust_segments(segment_objects, segment_bbox_offset,
                         page_image_density, pdla_density)
 
         if ocr_strategy == "Off":
             processed_segments = await process_segments_without_ocr(
-                segments, num_workers)
+                segment_objects, num_workers)
         else:
             processed_segments = await process_segments_with_ocr(
-                file_path, segments, user_id, task_id, image_folder_location,
+                file_path, segment_objects, user_id, task_id, image_folder_location,
                 page_image_density, page_image_extension, segment_image_extension,
                 segment_image_quality, segment_image_resize, num_workers, ocr_strategy
             )
