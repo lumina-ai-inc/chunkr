@@ -10,7 +10,7 @@ from pydantic import Json
 import tempfile
 import time
 import tqdm
-from typing import List
+from typing import List, Dict, Any
 import uvicorn
 
 from src.converters import convert_to_img, convert_to_pdf
@@ -35,7 +35,7 @@ async def to_pdf(file: UploadFile = File(...)):
 @app.post("/process")
 async def process(
     file: UploadFile = File(...),
-    segments: List[Segment] = Form(...),
+    segments: List[Dict[str, Any]] = Form(...),
     user_id: str = Form(...),
     task_id: str = Form(...),
     image_folder_location: str = Form(...),
@@ -57,9 +57,7 @@ async def process(
 
     start_time = time.time()
 
-    parsed_segments = json.loads(segments)
-    segment_objects = [Segment(**segment) for segment in parsed_segments]
-
+    segment_objects = [Segment(**segment) for segment in segments]
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         temp_file.write(await file.read())
