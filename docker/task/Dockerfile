@@ -22,7 +22,7 @@ COPY services/task/src /app/src
 COPY services/task/__init__.py .
 COPY services/task/.python-version .
 COPY services/task/pyproject.toml .
-COPY services/task/service.py .
+COPY services/task/main.py .
 COPY services/task/uv.lock .
 
 RUN rm -rf /app/src/__pycache__

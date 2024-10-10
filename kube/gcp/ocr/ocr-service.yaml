@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: task-service
+  name: ocr-service
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: task
+    app.kubernetes.io/name: ocr
   annotations:
-    cloud.google.com/backend-config: '{"default": "task-backendconfig"}'
+    cloud.google.com/backend-config: '{"default": "ocr-backendconfig"}'
 spec:
   selector:
-    app.kubernetes.io/name: task
+    app.kubernetes.io/name: ocr
   type: ClusterIP
   ports:
   - port: 8000
@@ -19,7 +19,7 @@ spec:
 apiVersion: cloud.google.com/v1
 kind: BackendConfig
 metadata:
-  name: task-backendconfig
+  name: ocr-backendconfig
   namespace: chunkmydocs
 spec:
   timeoutSec: 10000
