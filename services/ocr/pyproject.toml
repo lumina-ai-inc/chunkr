@@ -11,5 +11,6 @@ dependencies = [
     "paddleocr>=2.8.1",
     "opencv-python>=4.10.0.84",
     "setuptools>=75.1.0",
+    "python-multipart>=0.0.12",
 ]
 
