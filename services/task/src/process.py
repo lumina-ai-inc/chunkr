@@ -118,6 +118,8 @@ def process_segment(
             )
             segment.image = image_s3_path
 
+            print("Processing segment OCR")
+
             if ocr_needed:
                 process_info = process_segment_ocr(
                     segment,

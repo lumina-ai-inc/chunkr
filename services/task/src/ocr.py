@@ -6,7 +6,7 @@ from queue import Queue
 import threading
 from typing import List
 
-from src.configs.task_config import TASK__OCR_MAX_SIZE
+from src.configs.task_config import TASK__OCR_MAX_SIZE, TASK__OCR_POOL_SIZE, TASK__TABLE_ENGINE_POOL_SIZE
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
 
 
@@ -18,10 +18,12 @@ class OCRPool:
         self.ocr_engine_lock = threading.Lock()
         self.table_engine_lock = threading.Lock()
 
+        print("Creating OCR engines")
         for _ in range(ocr_pool_size):
             ocr = self.__create_ocr_engine()
             self.ocr_engine_queue.put(ocr)
 
+        print("Creating table engines")
         for _ in range(table_engine_pool_size):
             table_engine = self.__create_ocr_engine()
             self.table_engine_queue.put(table_engine)
@@ -65,7 +67,7 @@ class OCRPool:
             self.table_engine_queue.put(table_engine)
 
 
-ocr_pool = OCRPool()
+ocr_pool = OCRPool(ocr_pool_size=TASK__OCR_POOL_SIZE, table_engine_pool_size=TASK__TABLE_ENGINE_POOL_SIZE)
 
 
 def calculate_slice_params(image_size, max_size):
