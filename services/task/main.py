@@ -38,7 +38,7 @@ async def to_pdf(file: UploadFile = File(...)):
     temp_dir = Path(tempfile.mkdtemp())
     try:
         pdf_path = convert_to_pdf(file_path, temp_dir)
-        return FileResponse(path = pdf_path, filename = pdf_path.name)
+        return FileResponse(path = str(pdf_path), filename = pdf_path.name)
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to convert file to PDF")
