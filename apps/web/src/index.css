@@ -26,6 +26,11 @@ a:hover {
   color: hsl(0, 0%, 100%);
 }
 
+::selection {
+  background: #fff !important;
+  color: #000 !important;
+}
+
 body {
   margin: 0;
   display: flex;
