@@ -88,9 +88,7 @@ def process_segment(
     segment_image_extension: str,
     segment_image_quality: int,
     segment_image_resize: str,
-    ocr_strategy: str,
-    ocr: PaddleOCR,
-    table_engine: PPStructure
+    ocr_strategy: str
 ) -> Segment:
     try:
         ocr_needed = ocr_strategy == "All" or (
