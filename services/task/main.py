@@ -1,6 +1,7 @@
 import base64
 from concurrent.futures import ThreadPoolExecutor
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.responses import FileResponse
 import json
 import logging
 from multiprocessing import cpu_count
@@ -36,7 +37,7 @@ async def to_pdf(file: UploadFile = File(...)):
         file_path = Path(temp_file.name)
     try:
         pdf_file = convert_to_pdf(file_path) 
-        return pdf_file
+        return FileResponse(path = pdf_file, filename = pdf_file.name)
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to convert file to PDF")
