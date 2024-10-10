@@ -20,8 +20,9 @@ def to_base64(image: str) -> str:
 
 
 def convert_to_pdf(file: Path, temp_dir: Path) -> Path:
+    temp_dir = Path(tempfile.mkdtemp())
     if needs_conversion(file):
-        subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', temp_dir, str(file)],
+        subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', str(temp_dir), str(file)],
                        check=True, capture_output=True, text=True)
         return next(temp_dir.glob('*.pdf'))
     else:
