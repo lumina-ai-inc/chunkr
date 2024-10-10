@@ -7,8 +7,15 @@ from src.configs.task_config import TASK__OCR_MAX_SIZE
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
 
 
-def ppocr_raw(ocr: PaddleOCR, image_path: Path) -> list:
-    return ocr.ocr(str(image_path))
+def get_ocr():
+    return PaddleOCR(use_angle_cls=True, lang="en",
+                     ocr_order_method="tb-xy", show_log=False)
+
+
+def get_table_engine():
+    # todo: add lang support
+    return PPStructure(
+        recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
 
 
 def calculate_slice_params(image_size, max_size):
@@ -30,7 +37,14 @@ def calculate_slice_params(image_size, max_size):
     }
 
 
-def ppocr(ocr: PaddleOCR, image_path: Path) -> List[OCRResult]:
+def ppocr_raw(image_path: Path) -> list:
+    ocr = get_ocr()
+    return ocr.ocr(str(image_path))
+
+
+def ppocr(image_path: Path) -> List[OCRResult]:
+    ocr = get_ocr()
+
     max_size = TASK__OCR_MAX_SIZE
     img = cv2.imread(str(image_path))
     if img is None:
@@ -63,7 +77,9 @@ def ppocr(ocr: PaddleOCR, image_path: Path) -> List[OCRResult]:
     return ocr_results
 
 
-def ppstructure_table_raw(table_engine: PPStructure, image_path: Path) -> list:
+def ppstructure_table_raw(image_path: Path) -> list:
+    table_engine = get_table_engine()
+
     img = cv2.imread(str(image_path))
     result = table_engine(img)
     for line in result:
@@ -71,7 +87,9 @@ def ppstructure_table_raw(table_engine: PPStructure, image_path: Path) -> list:
     return result
 
 
-def ppstructure_table(table_engine: PPStructure, image_path: Path) -> OCRResponse:
+def ppstructure_table(image_path: Path) -> OCRResponse:
+    table_engine = get_table_engine()
+
     img = cv2.imread(str(image_path))
     result = table_engine(img)
 
