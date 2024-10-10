@@ -28,6 +28,7 @@ def convert_to_pdf(file: Path) -> Path:
     else:
         return file
 
+
 def process_image(args):
     i, img, pil_format = args
     with io.BytesIO() as output:
