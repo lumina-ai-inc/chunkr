@@ -10,6 +10,7 @@ from pydantic import Json
 import tempfile
 import time
 import tqdm
+from typing import List
 import uvicorn
 
 from src.converters import convert_to_img, convert_to_pdf
@@ -34,6 +35,7 @@ async def to_pdf(file: UploadFile = File(...)):
 @app.post("/process")
 async def process(
     file: UploadFile = File(...),
+    segments: List[Segment] = Form(...),
     user_id: str = Form(...),
     task_id: str = Form(...),
     image_folder_location: str = Form(...),
