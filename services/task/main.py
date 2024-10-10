@@ -2,6 +2,7 @@ import base64
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import FastAPI, UploadFile, File, Form
 import json
+import logging
 from multiprocessing import cpu_count
 import os
 from pathlib import Path
@@ -17,6 +18,8 @@ from src.process import adjust_segments, process_segment
 
 app = FastAPI()
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 @app.get("/")
 def read_root():
@@ -45,7 +48,12 @@ async def process(
     num_workers: int = Form(None),
     ocr_strategy: str = Form("Auto")
 ):
-    print(f"Processing file: {file.filename}")
+    logger.debug(f"Received segments: {segments}")
+    logger.debug(f"Received user_id: {user_id}")
+    logger.debug(f"Received task_id: {task_id}")
+    logger.debug(f"Received image_folder_location: {image_folder_location}")
+    logger.debug(f"Received file: {file.filename}")
+
     start_time = time.time()
 
     parsed_segments = json.loads(segments)
@@ -56,7 +64,6 @@ async def process(
         temp_file.write(await file.read())
         file_path = Path(temp_file.name)
 
-    print(f"File path: {file_path}")
     try:
         adjust_segments(segment_objects, segment_bbox_offset,
                         page_image_density, pdla_density)
@@ -71,7 +78,7 @@ async def process(
                 segment_image_quality, segment_image_resize, num_workers, ocr_strategy
             )
 
-        print(f"Total task time: {time.time() - start_time}")
+        logger.debug(f"Total task time: {time.time() - start_time}")
         return processed_segments
     finally:
         os.unlink(file_path)
