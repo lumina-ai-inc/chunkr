@@ -87,15 +87,6 @@ class Task:
             processed_segments = [
                 processed_segments_dict[segment.segment_id] for segment in segments]
         else:
-            self.ocr = PaddleOCR(use_angle_cls=True, lang="en",
-                                 ocr_order_method="tb-xy", show_log=False)
-            # todo: add lang support
-            self.table_engine = PPStructure(
-                recovery=True, return_ocr_result_in_table=True, layout=False, structure_version="PP-StructureV2", show_log=False)
-
-            self.ocr_lock = Lock()
-            self.table_engine_lock = Lock()
-
             page_images = convert_to_img(
                 file, page_image_density, page_image_extension)
             page_image_file_paths: dict[int, Path] = {}
@@ -123,9 +114,7 @@ class Task:
                             segment_image_resize,
                             ocr_strategy,
                             self.ocr,
-                            self.table_engine,
-                            self.ocr_lock,
-                            self.table_engine_lock
+                            self.table_engine
                         )
                         futures[segment.segment_id] = future
 
