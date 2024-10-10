@@ -19,16 +19,11 @@ def to_base64(image: str) -> str:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 
-def convert_to_pdf(file: Path) -> Path:
-    temp_dir = tempfile.mkdtemp()
+def convert_to_pdf(file: Path, pdf_file: Path):
+    temp_dir = pdf_file.parent
     if needs_conversion(file):
         subprocess.run(['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', temp_dir, str(file)],
                        check=True, capture_output=True, text=True)
-        pdf_file = next(Path(temp_dir).glob('*.pdf'))
-    else:
-        pdf_file = file
-
-    return pdf_file
 
 
 def process_image(args):
@@ -60,8 +55,8 @@ async def convert_to_img(file: Path, density: int, extension: str = "png") -> Di
 
         processing_start = time.time()
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(process_image, (i, img, pil_format)) 
-                    for i, img in enumerate(pdf_images, start=1)]
+            futures = [executor.submit(process_image, (i, img, pil_format))
+                       for i, img in enumerate(pdf_images, start=1)]
             for future in as_completed(futures):
                 i, img_base64 = future.result()
                 result[i] = img_base64
@@ -141,6 +136,7 @@ def crop_image(input_path: Path, bounding_box: BoundingBox, extension: str = "pn
     except Exception as e:
         raise RuntimeError(f"Failed to crop image: {str(e)}")
 
+
 def resize_image(image_path: Path, size: Tuple[int, int], extension: str = "png", quality: int = 100) -> str:
     """
     Resize an image to the specified width and height while maintaining the aspect ratio, and return as base64.
@@ -171,7 +167,8 @@ def resize_image(image_path: Path, size: Tuple[int, int], extension: str = "png"
             target_height = int(target_width / aspect_ratio)
 
         if use_gpu:
-            resized_gpu = cv2.cuda.resize(gpu_img, (target_width, target_height))
+            resized_gpu = cv2.cuda.resize(
+                gpu_img, (target_width, target_height))
             resized_img = resized_gpu.download()
         else:
             resized_img = cv2.resize(img, (target_width, target_height))

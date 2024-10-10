@@ -7,7 +7,6 @@ import logging
 from multiprocessing import cpu_count
 import os
 from pathlib import Path
-from pydantic import Json
 import tempfile
 import time
 import tqdm
@@ -30,19 +29,25 @@ def read_root():
 
 @app.post("/to_pdf")
 async def to_pdf(file: UploadFile = File(...)):
-    pdf_file = None
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+    pdf_path = None
+    file_extension = os.path.splitext(file.filename)[1]
+    with tempfile.NamedTemporaryFile(delete=False, suffix=file_extension) as temp_file:
         content = await file.read()
         temp_file.write(content)
         file_path = Path(temp_file.name)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+        pdf_path = Path(temp_file.name)
     try:
-        pdf_file = convert_to_pdf(file_path) 
-        return FileResponse(path = pdf_file, filename = pdf_file.name)
+        convert_to_pdf(file_path, pdf_path)
+        return FileResponse(path = pdf_path, filename = pdf_path.name)
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to convert file to PDF")
     finally:
-        os.unlink(file_path)
+        if file_path.exists():
+            os.unlink(file_path)
+        if pdf_path.exists():
+            os.unlink(pdf_path)
 
 @app.post("/process")
 async def process(
