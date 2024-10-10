@@ -9,6 +9,7 @@ dependencies = [
     "uvicorn>=0.31.1",
     "python-dotenv>=1.0.1",
     "paddleocr>=2.8.1",
-    "paddlepaddle-gpu>=2.6.2",
-    "opencv-python>=4.10.0.84"
+    "opencv-python>=4.10.0.84",
+    "setuptools>=75.1.0",
 ]
+
