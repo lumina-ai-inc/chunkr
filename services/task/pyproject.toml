@@ -16,6 +16,7 @@ dependencies = [
     "pydantic>=2.9.1",
     "pymupdf>=1.24.11",
     "python-dotenv>=1.0.1",
+    "python-multipart>=0.0.12",
     "reportlab>=4.2.5",
     "requests>=2.32.3",
     "ruff>=0.6.7",

@@ -673,6 +673,15 @@ wheels = [
 ]
 
 [[package]]
+name = "python-multipart"
+version = "0.0.12"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/6e/7ecfe1366b9270f7f475c76fcfa28812493a6a1abd489b2433851a444f4f/python_multipart-0.0.12.tar.gz", hash = "sha256:045e1f98d719c1ce085ed7f7e1ef9d8ccc8c02ba02b5566d5f7521410ced58cb", size = 35713 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f5/0b/c316262244abea7481f95f1e91d7575f3dfcf6455d56d1ffe9839c582eb1/python_multipart-0.0.12-py3-none-any.whl", hash = "sha256:43dcf96cf65888a9cd3423544dd0d75ac10f7aa0c3c28a175bbcd00c9ce1aebf", size = 23246 },
+]
+
+[[package]]
 name = "reportlab"
 version = "4.2.5"
 source = { registry = "https://pypi.org/simple" }
@@ -792,6 +801,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pymupdf" },
     { name = "python-dotenv" },
+    { name = "python-multipart" },
     { name = "reportlab" },
     { name = "requests" },
     { name = "ruff" },
@@ -811,6 +821,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.9.1" },
     { name = "pymupdf", specifier = ">=1.24.11" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "python-multipart", specifier = ">=0.0.12" },
     { name = "reportlab", specifier = ">=4.2.5" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "ruff", specifier = ">=0.6.7" },
