@@ -41,11 +41,11 @@ async def to_pdf(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"Error converting file to PDF: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to convert file to PDF")
-    finally:
-        if file_path.exists():
-            os.unlink(file_path)
-        if pdf_path and pdf_path.exists():
-            os.unlink(pdf_path)
+    # finally:
+    #     if file_path.exists():
+    #         os.unlink(file_path)
+    #     if pdf_path and pdf_path.exists():
+    #         os.unlink(pdf_path)
         
 
 @app.post("/process")
