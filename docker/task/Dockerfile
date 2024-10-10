@@ -34,6 +34,6 @@ RUN uv pip install .[linux]
 
 RUN uv run download_models.py || true
 
-EXPOSE 3000
+EXPOSE 8000
 
-CMD ["uv", "run", "bentoml", "serve", "service:Task"]
+CMD ["uv", "run", "uvicorn", "service:app", "--host", "0.0.0.0", "--port", "8000"]

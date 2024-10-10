@@ -139,6 +139,8 @@ def insert_segment_process(
     task_id: str,
     process_info: ProcessInfo
 ):
+    if not PG__URL:
+        return
     try:
         with connect(PG__URL) as conn:
             with conn.cursor() as cur:
