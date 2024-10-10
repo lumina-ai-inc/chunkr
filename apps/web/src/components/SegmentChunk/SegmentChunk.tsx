@@ -11,6 +11,7 @@ import DOMPurify from "dompurify";
 
 import ReactMarkdown from "react-markdown";
 import ReactJson from "react-json-view";
+import BetterButton from "../BetterButton/BetterButton";
 
 export const SegmentChunk = forwardRef<
   HTMLDivElement,
@@ -64,6 +65,25 @@ export const SegmentChunk = forwardRef<
       .join("");
   }, [chunk.segments]);
 
+  const handleCopy = () => {
+    let textToCopy = "";
+    if (selectedView === "html") {
+      textToCopy = combinedHtml;
+    } else if (selectedView === "markdown") {
+      textToCopy = combinedMarkdown;
+    } else if (selectedView === "json") {
+      textToCopy = JSON.stringify(chunk.segments, null, 2);
+    }
+    navigator.clipboard
+      .writeText(textToCopy)
+      .then(() => {
+        console.log("Copied to clipboard");
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
+
   return (
     <div ref={ref}>
       <Accordion.Root
@@ -108,26 +128,43 @@ export const SegmentChunk = forwardRef<
                   </Flex>
                 </Flex>
 
-                <Flex gap="4">
+                <Flex gap="4" align="center">
                   {["html", "markdown", "json"].map((view) => (
-                    <Text
-                      key={view}
-                      size="3"
-                      weight="medium"
-                      style={{
-                        color:
-                          selectedView === view
-                            ? "hsla(0, 0%, 100%, 0.9)"
-                            : "#8A9BA8",
-                        cursor: "pointer",
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedView(view as "html" | "markdown" | "json");
-                      }}
-                    >
-                      {view === "markdown" ? "Markdown" : view.toUpperCase()}
-                    </Text>
+                    <Flex key={view} align="center" gap="2">
+                      <Text
+                        size="2"
+                        weight="medium"
+                        style={{
+                          color:
+                            selectedView === view
+                              ? "hsla(0, 0%, 100%, 0.9)"
+                              : "#8A9BA8",
+                          cursor: "pointer",
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedView(view as "html" | "markdown" | "json");
+                        }}
+                      >
+                        {view === "markdown" ? "Markdown" : view.toUpperCase()}
+                      </Text>
+                      {selectedView === view && (
+                        <BetterButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopy();
+                          }}
+                        >
+                          <Text
+                            weight="medium"
+                            className="white"
+                            style={{ fontSize: "10px" }}
+                          >
+                            Copy
+                          </Text>
+                        </BetterButton>
+                      )}
+                    </Flex>
                   ))}
                 </Flex>
               </Flex>
