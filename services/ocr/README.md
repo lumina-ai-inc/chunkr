@@ -12,7 +12,7 @@ uv add paddlepaddle>=2.6.2
 
 On Linux, you need to install the dependencies with the following command:
 ```bash
-uv pip install paddlepaddle-gpu>=2.6.2
+uv add paddlepaddle-gpu>=2.6.2
 ```
 
 On Windows, you need to install the dependencies with the following command:
