@@ -19,7 +19,7 @@ from src.process import adjust_segments, process_segment
 
 app = FastAPI()
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -136,7 +136,7 @@ async def process_segments_with_ocr(
         processed_segments_dict = {}
         num_workers = num_workers or len(segments) if len(
             segments) > 0 else cpu_count()
-        logger.debug(f"Number of workers: {num_workers}")
+        logger.info(f"Number of workers: {num_workers}")
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
             futures = {
                 segment.segment_id: executor.submit(
@@ -164,4 +164,4 @@ async def process_segments_with_ocr(
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
+    uvicorn.run(app, host="0.0.0.0", port=8081)
