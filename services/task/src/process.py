@@ -23,7 +23,7 @@ from textractor.visualizers.entitylist import EntityList
 from textractor.data.constants import TextractFeatures
 from types import SimpleNamespace
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
-from src.configs.aws_config import TASK__AWS__ACCESS_KEY, TASK__AWS__SECRET_KEY, TASK__AWS__REGION
+from src.configs.aws_config import TASK__AWS_ACCESS_KEY, TASK__AWS_SECRET_KEY, TASK__AWS_REGION
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
 def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
@@ -98,7 +98,7 @@ def process_textract(image_path: Path):
 
     # Set up default AWS profile with the session
   
-    client=boto3.client('textract',region_name=TASK__AWS__REGION, aws_access_key_id=TASK__AWS__ACCESS_KEY, aws_secret_access_key=TASK__AWS__SECRET_KEY)
+    client=boto3.client('textract',region_name=TASK__AWS_REGION, aws_access_key_id=TASK__AWS_ACCESS_KEY, aws_secret_access_key=TASK__AWS_SECRET_KEY)
 
 
 
@@ -122,7 +122,7 @@ def process_table_textract(image_path: Path, feature: TextractFeatures):
     loaded_img = Image.open(image_path)
     import boto3
     client=boto3.client('textract',region_name=TASK__AWS__REGION, aws_access_key_id=TASK__AWS__ACCESS_KEY, aws_secret_access_key=TASK__AWS__SECRET_KEY)
-    
+
 
 
     response = client.analyze_document(
