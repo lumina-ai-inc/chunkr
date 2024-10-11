@@ -108,7 +108,6 @@ def process_textract(image_path: Path):
 
 def process_table_textract(image_path: Path, feature: TextractFeatures):
     from src.configs.llm_config import LLM__MODEL, LLM__BASE_URL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
-    print("process_table_textract")
     loaded_img = Image.open(image_path)
     extractor = Textractor(profile_name="default")
 
@@ -121,7 +120,6 @@ def process_table_textract(image_path: Path, feature: TextractFeatures):
     html = None
 
   
-    print(f"Processing table with Textract")
     if response.tables:
         table = response.tables[0]
         if table:
