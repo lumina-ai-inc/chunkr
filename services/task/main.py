@@ -15,6 +15,7 @@ import tqdm
 from starlette.background import BackgroundTask
 import uvicorn
 
+from src.configs.aws_config import login_aws
 from src.converters import convert_to_img, convert_to_pdf
 from src.models.segment_model import Segment
 from src.process import adjust_segments, process_segment
@@ -62,6 +63,7 @@ async def to_pdf(file: UploadFile = File(...)):
 
 @app.post("/process")
 async def process(
+    
     file: UploadFile = File(...),
     segments: str = Form(...),
     user_id: str = Form(...),
@@ -78,6 +80,8 @@ async def process(
     ocr_strategy: str = Form("Auto")
 ):
     # ocr_strategy = "Off"
+    login_aws()
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         temp_file.write(await file.read())
         file_path = Path(temp_file.name)
@@ -151,4 +155,5 @@ async def process_segments(
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8081)
+    login_aws()
+    uvicorn.run(app, host="0.0.0.0", port=8070)
