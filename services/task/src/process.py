@@ -4,8 +4,7 @@ import os
 import tempfile
 from pathlib import Path
 from psycopg2 import connect
-from threading import Lock
-from textractor.entities.document import Document
+
 
 import pandas as pd
 from src.configs.llm_config import LLM__BASE_URL
@@ -19,11 +18,8 @@ from src.ocr import ppocr, ppstructure_table
 from src.s3 import upload_file_to_s3
 from PIL import Image
 from textractor import Textractor
-from textractor.visualizers.entitylist import EntityList
 from textractor.data.constants import TextractFeatures
-from types import SimpleNamespace
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
-from src.configs.aws_config import TASK__AWS_ACCESS_KEY, TASK__AWS_SECRET_KEY, TASK__AWS_REGION
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
 def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
@@ -146,9 +142,7 @@ def process_table_textract(image_path: Path, feature: TextractFeatures)->OCRResp
                     confidence=0.0
                 )
                 ocr_results.append(ocr_result)
-            print(f"Processed {len(ocr_results)} cells in the table")
         else:
-            print("No table found in the response")
             html = ""
     else:
         print("No tables found in the response")
