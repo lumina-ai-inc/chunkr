@@ -1,5 +1,7 @@
+import aiofiles
+import asyncio
 import base64
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
 import json
@@ -108,19 +110,23 @@ async def process_segments(
         file, page_image_density, page_image_extension)
     page_image_file_paths = {}
 
-    for page_number, page_image in page_images.items():
-        with tempfile.NamedTemporaryFile(suffix=f".{page_image_extension}", delete=False) as temp_file:
-            temp_file.write(base64.b64decode(page_image))
+    async def write_temp_file(page_number, page_image):
+        async with aiofiles.tempfile.NamedTemporaryFile(suffix=f".{page_image_extension}", delete=False) as temp_file:
+            await temp_file.write(base64.b64decode(page_image))
             page_image_file_paths[page_number] = Path(temp_file.name)
+
+    await asyncio.gather(*[write_temp_file(page_number, page_image) for page_number, page_image in page_images.items()])
 
     try:
         processed_segments_dict = {}
-        num_workers = num_workers or len(segments) if len(
-            segments) > 0 else cpu_count()
+        num_workers = num_workers or len(segments) if len(segments) > 0 else cpu_count()
         logger.info(f"Number of workers: {num_workers}")
-        with ThreadPoolExecutor(max_workers=num_workers) as executor:
-            futures = {
-                segment.segment_id: executor.submit(
+
+        with ProcessPoolExecutor(max_workers=num_workers) as executor:
+            loop = asyncio.get_event_loop()
+            futures = [
+                loop.run_in_executor(
+                    executor,
                     process_segment,
                     user_id,
                     task_id,
@@ -133,15 +139,15 @@ async def process_segments(
                     ocr_strategy
                 )
                 for segment in segments
-            }
+            ]
 
-            for segment_id, future in tqdm.tqdm(futures.items(), desc="Processing segments", total=len(futures)):
-                processed_segments_dict[segment_id] = future.result()
+            for future in asyncio.as_completed(futures):
+                result = await future
+                processed_segments_dict[result.segment_id] = result
 
         return [processed_segments_dict[segment.segment_id] for segment in segments]
     finally:
-        for page_image_file_path in page_image_file_paths.values():
-            os.unlink(page_image_file_path)
+        await asyncio.gather(*[asyncio.to_thread(os.unlink, path) for path in page_image_file_paths.values()])
 
 
 if __name__ == "__main__":

@@ -59,7 +59,7 @@ class ProcessInfo(BaseModel):
     segment_id: str = Field(..., description="ID of the segment")
     process_type: Optional[str] = Field(
         None, description="Type of the process")
-    model_name: Optional[str] = LLM__MODEL or "paddleocr"
+    llm_model_name: Optional[str] = LLM__MODEL or "paddleocr"
     base_url: Optional[str] = LLM__BASE_URL
     input_tokens: Optional[int] = Field(
         0, description="Number of input tokens")

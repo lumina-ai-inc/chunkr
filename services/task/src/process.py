@@ -67,11 +67,11 @@ def process_segment_ocr(
             table_ocr_results = ppstructure_table(segment_temp_file)
             segment.ocr = table_ocr_results.results
             segment.html = table_ocr_results.html
-            process_info.model_name = "paddleocr"
+            process_info.llm_model_name = "paddleocr"
     else:
         ocr_results = ppocr(segment_temp_file)
         segment.ocr = ocr_results
-        process_info.model_name = "paddleocr"
+        process_info.llm_model_name = "paddleocr"
 
     process_info.avg_ocr_confidence = segment.calculate_avg_ocr_confidence()
     process_info.finalize()
@@ -154,7 +154,7 @@ def insert_segment_process(
                     )
                 """
                 values = (
-                    user_id, task_id, process_info.segment_id, process_info.process_type, process_info.model_name,
+                    user_id, task_id, process_info.segment_id, process_info.process_type, process_info.llm_model_name,
                     process_info.base_url, process_info.input_tokens, process_info.output_tokens, process_info.input_price,
                     process_info.output_price, process_info.total_cost, process_info.detail, process_info.latency, process_info.avg_ocr_confidence
                 )
