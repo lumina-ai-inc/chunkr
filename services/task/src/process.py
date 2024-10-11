@@ -8,13 +8,19 @@ from threading import Lock
 
 from src.configs.llm_config import LLM__BASE_URL
 from src.configs.pgsql_config import PG__URL
+from src.configs.task_config import TASK__OCR_MODEL, TASK__TABLE_OCR_MODEL
 from src.converters import crop_image
 from src.llm import process_llm, extract_html_from_response, table_to_html
 from src.models.ocr_model import ProcessInfo, ProcessType
 from src.models.segment_model import Segment, SegmentType
 from src.ocr import ppocr, ppstructure_table
 from src.s3 import upload_file_to_s3
-
+from PIL import Image
+from textractor import Textractor
+from textractor.visualizers.entitylist import EntityList
+from textractor.data.constants import TextractFeatures
+from types import SimpleNamespace
+from models.ocr_model import OCRResult, OCRResponse, BoundingBox
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
 def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
@@ -33,7 +39,6 @@ def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int =
         segment.bbox.left -= offset
         segment.bbox.top -= offset
 
-
 def process_segment_ocr(
     segment: Segment,
     segment_temp_file: Path
@@ -42,7 +47,7 @@ def process_segment_ocr(
         segment_id=segment.segment_id, process_type=ProcessType.OCR)
 
     if segment.segment_type == SegmentType.Table:
-        if LLM__BASE_URL:
+        if TASK__TABLE_OCR_MODEL == "LLM" and LLM__BASE_URL:
             def llm_task():
                 detail, response = process_llm(
                     segment_temp_file, table_to_html)
@@ -63,20 +68,111 @@ def process_segment_ocr(
             process_info.input_tokens = response.usage.prompt_tokens
             process_info.output_tokens = response.usage.completion_tokens
             segment.ocr = ocr_results
-        else:
+            process_info.model_name = "LLM"
+        elif TASK__TABLE_OCR_MODEL == "ppstructure_table":
             table_ocr_results = ppstructure_table(segment_temp_file)
             segment.ocr = table_ocr_results.results
             segment.html = table_ocr_results.html
-            process_info.llm_model_name = "paddleocr"
+            process_info.model_name = "paddleocr"
+        elif TASK__TABLE_OCR_MODEL == "textract":
+            textract_results = process_table_textract(segment_temp_file, TextractFeatures.TABLES)
+            segment.ocr = textract_results.ocr
+            segment.html = textract_results.html
+            process_info.model_name = "textract"
     else:
-        ocr_results = ppocr(segment_temp_file)
-        segment.ocr = ocr_results
-        process_info.llm_model_name = "paddleocr"
+        if TASK__OCR_MODEL == "paddleocr":
+            ocr_results = ppocr(segment_temp_file)
+            segment.ocr = ocr_results
+            process_info.model_name = "paddleocr"
+        elif TASK__OCR_MODEL == "textract":
+            textract_results = process_textract(segment_temp_file)
+            segment.ocr = textract_results.ocr
+            process_info.model_name = "textract"
 
     process_info.avg_ocr_confidence = segment.calculate_avg_ocr_confidence()
     process_info.finalize()
     return process_info
 
+def process_textract(image_path: Path, feature: TextractFeatures):
+    loaded_img = Image.open(image_path)
+    extractor = Textractor(profile_name="default")
+
+    response = extractor.detect_document_text(
+        file_source=loaded_img,
+        features=[feature],
+        save_image=True
+    )
+
+    ocr_results = []
+    for block in response.blocks:
+        if block.BlockType in ['LINE', 'WORD']:
+            bbox = BoundingBox(
+                left=block.Geometry.BoundingBox.Left,
+                top=block.Geometry.BoundingBox.Top,
+                width=block.Geometry.BoundingBox.Width,
+                height=block.Geometry.BoundingBox.Height
+            )
+            ocr_result = OCRResult(
+                bbox=bbox,
+                text=block.Text,
+                confidence=block.Confidence
+            )
+            ocr_results.append(ocr_result)
+    
+    return ocr_results
+
+
+def process_table_textract(image_path: Path, feature: TextractFeatures):
+    from src.configs.llm_config import LLM__MODEL, LLM__BASE_URL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
+
+    loaded_img = Image.open(image_path)
+    extractor = Textractor(profile_name="default")
+
+    response = extractor.analyze_document(
+        file_source=loaded_img,
+        features=[feature],
+        save_image=True
+    )
+
+    ocr_results = []
+    html = None
+
+    if feature == TextractFeatures.TABLES:
+        table = EntityList(response.tables[0])
+        df = table[0].to_pandas()
+        html = table[0].to_html()
+
+        for row_idx, row in df.iterrows():
+            for col_idx, cell in enumerate(row):
+                bbox = BoundingBox(
+                    left=col_idx / len(df.columns),
+                    top=row_idx / len(df),
+                    width=1 / len(df.columns),
+                    height=1 / len(df)
+                )
+                ocr_result = OCRResult(
+                    bbox=bbox,
+                    text=str(cell),
+                    confidence=None  # Textract doesn't provide confidence for table cells
+                )
+                ocr_results.append(ocr_result)
+    else:
+        for block in response.blocks:
+            if block.BlockType in ['LINE', 'WORD']:
+                bbox = BoundingBox(
+                    left=block.Geometry.BoundingBox.Left,
+                    top=block.Geometry.BoundingBox.Top,
+                    width=block.Geometry.BoundingBox.Width,
+                    height=block.Geometry.BoundingBox.Height
+                )
+                ocr_result = OCRResult(
+                    bbox=bbox,
+                    text=block.Text,
+                    confidence=block.Confidence
+                )
+                ocr_results.append(ocr_result)
+
+    return OCRResponse(results=ocr_results, html=html)
 
 def process_segment(
     user_id: str,
