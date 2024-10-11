@@ -17,6 +17,30 @@ use std::path::Path;
 use std::path::PathBuf;
 use tempdir::TempDir;
 use tempfile::NamedTempFile;
+use uuid::Uuid;
+use crate::models::rrq::produce::ProducePayload;
+use crate::utils::rrq::service::produce;
+
+pub async fn produce_ocr_payload(
+    extraction_payload: ExtractionPayload,
+) -> Result<(), Box<dyn Error>> {
+    let config = Config::from_env()?;
+
+    let queue_name = config.extraction_queue_ocr
+        .ok_or_else(|| "OCR queue name not configured".to_string())?;
+
+    let produce_payload = ProducePayload {
+        queue_name: queue_name.clone(),
+        publish_channel: None,
+        payload: serde_json::to_value(extraction_payload)?,
+        max_attempts: None,
+        item_id: Uuid::new_v4().to_string(),
+    };
+
+    produce(vec![produce_payload]).await?;
+    println!("Produced OCR payload");
+    Ok(())
+}
 
 fn is_valid_file_type(original_file_name: &str) -> Result<(bool, String), Box<dyn Error>> {
     let extension = Path::new(original_file_name)
@@ -111,7 +135,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 }
                 Err(e) => {
                     println!("PDF conversion failed: {:?}", e);
-                    return Err(format!("PDF conversion failed: {:?}", e).into());
                 }
             }
         }
@@ -221,6 +244,22 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         Ok(_) => {
             println!("Task succeeded");
             //TODO: Produce for ocr
+
+            let ocr_extraction_payload = ExtractionPayload {
+                user_id: extraction_item.user_id.clone(),
+                model: extraction_item.model.clone(),
+                input_location: extraction_item.input_location.clone(),
+                output_location: extraction_item.output_location.clone(),
+                image_folder_location: extraction_item.image_folder_location.clone(),
+                expiration: extraction_item.expiration,
+                batch_size: extraction_item.batch_size,
+                task_id: extraction_item.task_id.clone(),
+                target_chunk_length: extraction_item.target_chunk_length,
+                configuration: extraction_item.configuration.clone(),
+            };
+
+            produce_ocr_payload(ocr_extraction_payload).await?;
+
             Ok(())
         }
         Err(e) => {
