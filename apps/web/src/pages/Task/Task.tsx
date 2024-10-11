@@ -56,11 +56,11 @@ export default function Task() {
     );
   }
 
-  return taskResponse.output && taskResponse.input_file_url ? (
+  return taskResponse.output && taskResponse.pdf_url ? (
     <Viewer
       task={taskResponse}
       output={taskResponse.output}
-      inputFileUrl={taskResponse.pdf_file_url || taskResponse.input_file_url}
+      inputFileUrl={taskResponse.pdf_url}
     />
   ) : (
     <Link to="/" style={{ textDecoration: "none" }}>
