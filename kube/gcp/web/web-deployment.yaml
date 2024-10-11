@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: luminainc/web:2635f690
+        image: luminainc/web:56fd1747
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
