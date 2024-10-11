@@ -4,9 +4,10 @@ import os
 import tempfile
 from pathlib import Path
 from psycopg2 import connect
+from PIL import Image
+from textractor import Textractor
+from textractor.data.constants import TextractFeatures
 
-
-import pandas as pd
 from src.configs.llm_config import LLM__BASE_URL
 from src.configs.pgsql_config import PG__URL
 from src.configs.task_config import TASK__OCR_MODEL, TASK__TABLE_OCR_MODEL
@@ -16,10 +17,8 @@ from src.models.ocr_model import ProcessInfo, ProcessType
 from src.models.segment_model import Segment, SegmentType
 from src.ocr import ppocr, ppstructure_table
 from src.s3 import upload_file_to_s3
-from PIL import Image
-from textractor import Textractor
-from textractor.data.constants import TextractFeatures
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
+
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
 def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
@@ -37,6 +36,7 @@ def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int =
         segment.bbox.height += offset * 2
         segment.bbox.left -= offset
         segment.bbox.top -= offset
+
 
 def process_segment_ocr(
     segment: Segment,
@@ -73,7 +73,8 @@ def process_segment_ocr(
             segment.html = table_ocr_results.html
         elif TASK__TABLE_OCR_MODEL == "textract":
             print("textract!")
-            textract_results = process_table_textract(segment_temp_file, TextractFeatures.TABLES)
+            textract_results = process_table_textract(
+                segment_temp_file, TextractFeatures.TABLES)
             segment.ocr = textract_results.results
             segment.html = textract_results.html
     else:
@@ -88,13 +89,10 @@ def process_segment_ocr(
     process_info.finalize()
     return process_info
 
-def process_textract(image_path: Path)->list[OCRResult]:
+def process_textract(image_path: Path) -> list[OCRResult]:
     loaded_img = Image.open(image_path)
 
-    # Set up default AWS profile with the session
-  
-    extractor=Textractor(profile_name="default")
-
+    extractor = Textractor(profile_name="default")
 
     response = extractor.detect_document_text(
         file_source=loaded_img,
@@ -106,14 +104,14 @@ def process_textract(image_path: Path)->list[OCRResult]:
         bbox=BoundingBox(left=0, top=0, width=0, height=0),
         confidence=0.0,
     )
-   
+
     return [ocr_result]
 
 
-def process_table_textract(image_path: Path, feature: TextractFeatures)->OCRResponse:
+def process_table_textract(image_path: Path, feature: TextractFeatures) -> OCRResponse:
     loaded_img = Image.open(image_path)
-    extractor=Textractor(profile_name="default")
 
+    extractor = Textractor(profile_name="default")
 
     response = extractor.analyze_document(
         file_source=loaded_img,
@@ -123,13 +121,11 @@ def process_table_textract(image_path: Path, feature: TextractFeatures)->OCRResp
     ocr_results = []
     html = None
 
-  
     if response.tables:
         table = response.tables[0]
         if table:
-            df = table.to_pandas()
             html = table.to_html()
-            
+
             for cell in table.table_cells:
                 bbox = BoundingBox(
                     left=cell.bbox.x,
@@ -148,8 +144,8 @@ def process_table_textract(image_path: Path, feature: TextractFeatures)->OCRResp
         print("No tables found in the response")
         html = ""
 
-
     return OCRResponse(results=ocr_results, html=html)
+
 
 def process_segment(
     user_id: str,
@@ -190,13 +186,13 @@ def process_segment(
             )
             segment.image = image_s3_path
 
-
             if ocr_needed:
                 process_info = process_segment_ocr(
                     segment,
                     Path(temp_image_file.name)
                 )
-                executor.submit(insert_segment_process, user_id, task_id, process_info)
+                executor.submit(insert_segment_process,
+                                user_id, task_id, process_info)
         finally:
             os.remove(temp_image_file.name)
     except Exception as e:
