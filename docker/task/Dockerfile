@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y python3 python3-pip
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y poppler-utils ffmpeg libgomp1 libsm6 libxext6 curl
+RUN apt-get update && apt-get install -y poppler-utils ffmpeg libgomp1 libsm6 libxext6 curl unzip
 RUN apt-get install -y libreoffice
 
 # Set up CUDA environment variables
