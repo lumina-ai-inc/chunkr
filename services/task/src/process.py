@@ -5,6 +5,8 @@ import tempfile
 from pathlib import Path
 from psycopg2 import connect
 from threading import Lock
+from textractor.entities.document import Document
+
 import pandas as pd
 from src.configs.llm_config import LLM__BASE_URL
 from src.configs.pgsql_config import PG__URL
@@ -21,6 +23,7 @@ from textractor.visualizers.entitylist import EntityList
 from textractor.data.constants import TextractFeatures
 from types import SimpleNamespace
 from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
+from src.configs.aws_config import TASK__AWS__ACCESS_KEY, TASK__AWS__SECRET_KEY, TASK__AWS__REGION
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
 def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
@@ -91,15 +94,27 @@ def process_segment_ocr(
 
 def process_textract(image_path: Path):
     loaded_img = Image.open(image_path)
+    import boto3
+
+    # Set up default AWS profile with the session
+  
+    payload={
+        "aws_access_key_id": TASK__AWS__ACCESS_KEY,
+        "aws_secret_access_key": TASK__AWS__SECRET_KEY,
+        "region_name": TASK__AWS__REGION
+    }
+    boto3.setup_default_session(**payload)
     extractor = Textractor(profile_name="default")
 
-    response = extractor.detect_document_text(
+
+    response: Document = extractor.detect_document_text(
         file_source=loaded_img,
         save_image=True
     )
 
     ocr_result = OCRResult(
         text=response.text,
+        bbox=None,
         confidence=None
     )
    
@@ -109,6 +124,14 @@ def process_textract(image_path: Path):
 def process_table_textract(image_path: Path, feature: TextractFeatures):
     from src.configs.llm_config import LLM__MODEL, LLM__BASE_URL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
     loaded_img = Image.open(image_path)
+    import boto3
+
+    payload={
+        "aws_access_key_id": TASK__AWS__ACCESS_KEY,
+        "aws_secret_access_key": TASK__AWS__SECRET_KEY,
+        "region_name": TASK__AWS__REGION
+    }
+    boto3.setup_default_session(**payload)
     extractor = Textractor(profile_name="default")
 
     response = extractor.analyze_document(
