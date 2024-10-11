@@ -50,6 +50,9 @@ export const SegmentChunk = forwardRef<
     return chunk.segments
       .map((segment) => {
         const textContent = segment.content || "";
+        if (segment.segment_type === "Table"  && segment.html?.startsWith("<span class=")) {
+          return `![Image](${segment.image})`;
+        }
         return segment.markdown ? segment.markdown : textContent;
       })
       .filter(Boolean)
@@ -59,7 +62,12 @@ export const SegmentChunk = forwardRef<
 
   const combinedHtml = useMemo(() => {
     return chunk.segments
-      .map((segment) => segment.html || "")
+      .map((segment) => {
+        if (segment.segment_type === "Table" && segment.html?.startsWith("<span class=")) {
+          return `<img src="${segment.image}" />`;
+        }
+        return segment.html || "";
+      })
       .filter(Boolean)
       .join("");
   }, [chunk.segments]);
