@@ -94,7 +94,6 @@ def process_segment_ocr(
 
 def process_textract(image_path: Path):
     loaded_img = Image.open(image_path)
-    import boto3
 
     # Set up default AWS profile with the session
   
@@ -108,17 +107,15 @@ def process_textract(image_path: Path):
 
     ocr_result = OCRResult(
         text=response.text,
-        bbox=None,
-        confidence=None
+        bbox=BoundingBox{left=0, top=0, width=0, height=0},
+        confidence=0.0
     )
    
     return ocr_result
 
 
 def process_table_textract(image_path: Path, feature: TextractFeatures):
-    from src.configs.llm_config import LLM__MODEL, LLM__BASE_URL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
     loaded_img = Image.open(image_path)
-    import boto3
     extractor=Textractor(profile_name="default")
 
 

@@ -80,7 +80,6 @@ async def process(
     ocr_strategy: str = Form("Auto")
 ):
     # ocr_strategy = "Off"
-    login_aws()
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         temp_file.write(await file.read())
