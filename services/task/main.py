@@ -88,38 +88,18 @@ async def process(
         adjust_segments(segment_objects, segment_bbox_offset,
                         page_image_density, pdla_density)
 
-        if ocr_strategy == "Off":
-            processed_segments = await process_segments_without_ocr(
-                segment_objects, num_workers)
-        else:
-            processed_segments = await process_segments_with_ocr(
-                file_path, segment_objects, user_id, task_id, image_folder_location,
-                page_image_density, page_image_extension, segment_image_extension,
-                segment_image_quality, segment_image_resize, num_workers, ocr_strategy
-            )
+        processed_segments = await process_segments(
+            file_path, segment_objects, user_id, task_id, image_folder_location,
+            page_image_density, page_image_extension, segment_image_extension,
+            segment_image_quality, segment_image_resize, num_workers, ocr_strategy
+        )
 
         logger.debug(f"Total task time: {time.time() - start_time}")
         return processed_segments
     finally:
         os.unlink(file_path)
 
-
-def process_segments_without_ocr(segments: list[Segment], num_workers: int):
-    processed_segments_dict = {}
-    num_workers = num_workers or len(segments) if len(
-        segments) > 0 else cpu_count()
-
-    with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        futures = {segment.segment_id: executor.submit(
-            lambda s: s.finalize(), segment) for segment in segments}
-
-        for segment_id, future in tqdm.tqdm(futures.items(), desc="Processing segments without OCR", total=len(futures)):
-            processed_segments_dict[segment_id] = future.result()
-
-    return [processed_segments_dict[segment.segment_id] for segment in segments]
-
-
-async def process_segments_with_ocr(
+async def process_segments(
     file: Path, segments: list[Segment], user_id: str, task_id: str, image_folder_location: str,
     page_image_density: int, page_image_extension: str, segment_image_extension: str,
     segment_image_quality: int, segment_image_resize: str, num_workers: int, ocr_strategy: str
