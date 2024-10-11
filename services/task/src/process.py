@@ -143,7 +143,7 @@ def process_table_textract(image_path: Path, feature: TextractFeatures):
                 ocr_result = OCRResult(
                     bbox=bbox,
                     text=cell.text,
-                    confidence=cell.confidence
+                    confidence=0.0
                 )
                 ocr_results.append(ocr_result)
             print(f"Processed {len(ocr_results)} cells in the table")
