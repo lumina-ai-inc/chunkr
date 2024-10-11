@@ -72,7 +72,6 @@ def process_segment_ocr(
             segment.ocr = table_ocr_results.results
             segment.html = table_ocr_results.html
         elif TASK__TABLE_OCR_MODEL == "textract":
-            print("textract!")
             textract_results = process_table_textract(
                 segment_temp_file, TextractFeatures.TABLES)
             segment.ocr = textract_results.results
@@ -138,11 +137,6 @@ def process_table_textract(image_path: Path, feature: TextractFeatures) -> OCRRe
                     confidence=0.0
                 )
                 ocr_results.append(ocr_result)
-        else:
-            html = ""
-    else:
-        print("No tables found in the response")
-        html = ""
 
     return OCRResponse(results=ocr_results, html=html)
 
