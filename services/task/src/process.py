@@ -107,8 +107,8 @@ def process_textract(image_path: Path):
 
     ocr_result = OCRResult(
         text=response.text,
-        bbox=BoundingBox{left=0, top=0, width=0, height=0},
-        confidence=0.0
+        bbox=BoundingBox(left=0, top=0, width=0, height=0),
+        confidence=0.0,
     )
    
     return ocr_result
