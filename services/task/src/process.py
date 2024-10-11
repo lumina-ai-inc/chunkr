@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 from psycopg2 import connect
 from threading import Lock
-
+import pandas as pd
 from src.configs.llm_config import LLM__BASE_URL
 from src.configs.pgsql_config import PG__URL
 from src.configs.task_config import TASK__OCR_MODEL, TASK__TABLE_OCR_MODEL
@@ -20,7 +20,7 @@ from textractor import Textractor
 from textractor.visualizers.entitylist import EntityList
 from textractor.data.constants import TextractFeatures
 from types import SimpleNamespace
-from models.ocr_model import OCRResult, OCRResponse, BoundingBox
+from src.models.ocr_model import OCRResult, OCRResponse, BoundingBox
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
 def adjust_segments(segments: list[Segment], offset: float = 5.0, density: int = 300, pdla_density: int = 72):
@@ -75,6 +75,7 @@ def process_segment_ocr(
             segment.html = table_ocr_results.html
             process_info.model_name = "paddleocr"
         elif TASK__TABLE_OCR_MODEL == "textract":
+            print("textract!")
             textract_results = process_table_textract(segment_temp_file, TextractFeatures.TABLES)
             segment.ocr = textract_results.ocr
             segment.html = textract_results.html
@@ -138,17 +139,29 @@ def process_table_textract(image_path: Path, feature: TextractFeatures):
     html = None
 
     if feature == TextractFeatures.TABLES:
-        table = EntityList(response.tables[0])
-        df = table[0].to_pandas()
-        html = table[0].to_html()
+        print(f"Processing table with Textract")
+        if response.tables:
+            table = EntityList(response.tables[0])
+            if table:
+                df = table[0].to_pandas()
+                html = table[0].to_html()
+            else:
+                print("No table found in the response")
+                df = pd.DataFrame()
+                html = "<p>No table found</p>"
+        else:
+            print("No tables found in the response")
+            df = pd.DataFrame()
+            html = "<p>No table found</p>"
+        print(f"Table shape: {df.shape}")
 
         for row_idx, row in df.iterrows():
             for col_idx, cell in enumerate(row):
                 bbox = BoundingBox(
-                    left=col_idx / len(df.columns),
-                    top=row_idx / len(df),
-                    width=1 / len(df.columns),
-                    height=1 / len(df)
+                    left=table[0].cells[row_idx][col_idx].geometry.bounding_box.left,
+                    top=table[0].cells[row_idx][col_idx].geometry.bounding_box.top,
+                    width=table[0].cells[row_idx][col_idx].geometry.bounding_box.width,
+                    height=table[0].cells[row_idx][col_idx].geometry.bounding_box.height
                 )
                 ocr_result = OCRResult(
                     bbox=bbox,
@@ -156,7 +169,9 @@ def process_table_textract(image_path: Path, feature: TextractFeatures):
                     confidence=None  # Textract doesn't provide confidence for table cells
                 )
                 ocr_results.append(ocr_result)
+        print(f"Processed {len(ocr_results)} cells in the table")
     else:
+        print(f"Processing non-table content with Textract")
         for block in response.blocks:
             if block.BlockType in ['LINE', 'WORD']:
                 bbox = BoundingBox(
@@ -171,6 +186,7 @@ def process_table_textract(image_path: Path, feature: TextractFeatures):
                     confidence=block.Confidence
                 )
                 ocr_results.append(ocr_result)
+        print(f"Processed {len(ocr_results)} text blocks")
 
     return OCRResponse(results=ocr_results, html=html)
 
