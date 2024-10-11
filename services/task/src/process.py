@@ -98,16 +98,12 @@ def process_textract(image_path: Path):
 
     # Set up default AWS profile with the session
   
-    payload={
-        "aws_access_key_id": TASK__AWS__ACCESS_KEY,
-        "aws_secret_access_key": TASK__AWS__SECRET_KEY,
-        "region_name": TASK__AWS__REGION
-    }
-    boto3.setup_default_session(**payload)
-    extractor = Textractor(profile_name="default")
+    client=boto3.client('textract',region_name=TASK__AWS__REGION, aws_access_key_id=TASK__AWS__ACCESS_KEY, aws_secret_access_key=TASK__AWS__SECRET_KEY)
 
 
-    response: Document = extractor.detect_document_text(
+
+
+    response: Document = client.detect_document_text(
         file_source=loaded_img,
         save_image=True
     )
@@ -125,16 +121,11 @@ def process_table_textract(image_path: Path, feature: TextractFeatures):
     from src.configs.llm_config import LLM__MODEL, LLM__BASE_URL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
     loaded_img = Image.open(image_path)
     import boto3
+    client=boto3.client('textract',region_name=TASK__AWS__REGION, aws_access_key_id=TASK__AWS__ACCESS_KEY, aws_secret_access_key=TASK__AWS__SECRET_KEY)
+    
 
-    payload={
-        "aws_access_key_id": TASK__AWS__ACCESS_KEY,
-        "aws_secret_access_key": TASK__AWS__SECRET_KEY,
-        "region_name": TASK__AWS__REGION
-    }
-    boto3.setup_default_session(**payload)
-    extractor = Textractor(profile_name="default")
 
-    response = extractor.analyze_document(
+    response = client.analyze_document(
         file_source=loaded_img,
         features=[feature],
         save_image=True
