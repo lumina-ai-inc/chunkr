@@ -1,3 +1,7 @@
+###Status Updates (Only for hosted API on www.chunkr.ai)
+1. We have temporarily switch to Textract for OCR from PaddleOCR. Textract is provided for free until we resolve PaddleOCR issues. Textract opccasionally miosses tables that PaddleOCR wouldn't. For self-deploys you can still set PaddleOCR as your OCR strategy in the task service .env variables.
+2. We are still experiencing extremely high loads and this has affected throughputs. We're working hard to get ingestion speeds back to our standard. 
+
 # Chunkr
 
 We're Lumina. We've built a search engine that's 5x more relevant than Google Scholar. You can check us out at [lumina.sh](https://www.lumina.sh). We achieved this by bringing state of the art search technology (the best in dense and sparse vector embeddings) to academic research. 
