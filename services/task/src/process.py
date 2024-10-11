@@ -68,64 +68,47 @@ def process_segment_ocr(
             process_info.input_tokens = response.usage.prompt_tokens
             process_info.output_tokens = response.usage.completion_tokens
             segment.ocr = ocr_results
-            process_info.model_name = "LLM"
         elif TASK__TABLE_OCR_MODEL == "ppstructure_table":
             table_ocr_results = ppstructure_table(segment_temp_file)
             segment.ocr = table_ocr_results.results
             segment.html = table_ocr_results.html
-            process_info.model_name = "paddleocr"
         elif TASK__TABLE_OCR_MODEL == "textract":
             print("textract!")
             textract_results = process_table_textract(segment_temp_file, TextractFeatures.TABLES)
-            segment.ocr = textract_results.ocr
+            segment.ocr = textract_results.results
             segment.html = textract_results.html
-            process_info.model_name = "textract"
     else:
         if TASK__OCR_MODEL == "paddleocr":
             ocr_results = ppocr(segment_temp_file)
             segment.ocr = ocr_results
-            process_info.model_name = "paddleocr"
         elif TASK__OCR_MODEL == "textract":
             textract_results = process_textract(segment_temp_file)
-            segment.ocr = textract_results.ocr
-            process_info.model_name = "textract"
+            segment.ocr = textract_results
 
     process_info.avg_ocr_confidence = segment.calculate_avg_ocr_confidence()
     process_info.finalize()
     return process_info
 
-def process_textract(image_path: Path, feature: TextractFeatures):
+def process_textract(image_path: Path):
     loaded_img = Image.open(image_path)
     extractor = Textractor(profile_name="default")
 
     response = extractor.detect_document_text(
         file_source=loaded_img,
-        features=[feature],
         save_image=True
     )
 
-    ocr_results = []
-    for block in response.blocks:
-        if block.BlockType in ['LINE', 'WORD']:
-            bbox = BoundingBox(
-                left=block.Geometry.BoundingBox.Left,
-                top=block.Geometry.BoundingBox.Top,
-                width=block.Geometry.BoundingBox.Width,
-                height=block.Geometry.BoundingBox.Height
-            )
-            ocr_result = OCRResult(
-                bbox=bbox,
-                text=block.Text,
-                confidence=block.Confidence
-            )
-            ocr_results.append(ocr_result)
-    
-    return ocr_results
+    ocr_result = OCRResult(
+        text=response.text,
+        confidence=None
+    )
+   
+    return ocr_result
 
 
 def process_table_textract(image_path: Path, feature: TextractFeatures):
     from src.configs.llm_config import LLM__MODEL, LLM__BASE_URL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
-
+    print("process_table_textract")
     loaded_img = Image.open(image_path)
     extractor = Textractor(profile_name="default")
 
@@ -134,59 +117,37 @@ def process_table_textract(image_path: Path, feature: TextractFeatures):
         features=[feature],
         save_image=True
     )
-
     ocr_results = []
     html = None
 
-    if feature == TextractFeatures.TABLES:
-        print(f"Processing table with Textract")
-        if response.tables:
-            table = EntityList(response.tables[0])
-            if table:
-                df = table[0].to_pandas()
-                html = table[0].to_html()
-            else:
-                print("No table found in the response")
-                df = pd.DataFrame()
-                html = "<p>No table found</p>"
+  
+    print(f"Processing table with Textract")
+    if response.tables:
+        table = response.tables[0]
+        if table:
+            df = table.to_pandas()
+            html = table.to_html()
+            
+            for cell in table.table_cells:
+                bbox = BoundingBox(
+                    left=cell.bbox.x,
+                    top=cell.bbox.y,
+                    width=cell.bbox.width,
+                    height=cell.bbox.height)
+                ocr_result = OCRResult(
+                    bbox=bbox,
+                    text=cell.text,
+                    confidence=cell.confidence
+                )
+                ocr_results.append(ocr_result)
+            print(f"Processed {len(ocr_results)} cells in the table")
         else:
-            print("No tables found in the response")
-            df = pd.DataFrame()
-            html = "<p>No table found</p>"
-        print(f"Table shape: {df.shape}")
-
-        for row_idx, row in df.iterrows():
-            for col_idx, cell in enumerate(row):
-                bbox = BoundingBox(
-                    left=table[0].cells[row_idx][col_idx].geometry.bounding_box.left,
-                    top=table[0].cells[row_idx][col_idx].geometry.bounding_box.top,
-                    width=table[0].cells[row_idx][col_idx].geometry.bounding_box.width,
-                    height=table[0].cells[row_idx][col_idx].geometry.bounding_box.height
-                )
-                ocr_result = OCRResult(
-                    bbox=bbox,
-                    text=str(cell),
-                    confidence=None  # Textract doesn't provide confidence for table cells
-                )
-                ocr_results.append(ocr_result)
-        print(f"Processed {len(ocr_results)} cells in the table")
+            print("No table found in the response")
+            html = ""
     else:
-        print(f"Processing non-table content with Textract")
-        for block in response.blocks:
-            if block.BlockType in ['LINE', 'WORD']:
-                bbox = BoundingBox(
-                    left=block.Geometry.BoundingBox.Left,
-                    top=block.Geometry.BoundingBox.Top,
-                    width=block.Geometry.BoundingBox.Width,
-                    height=block.Geometry.BoundingBox.Height
-                )
-                ocr_result = OCRResult(
-                    bbox=bbox,
-                    text=block.Text,
-                    confidence=block.Confidence
-                )
-                ocr_results.append(ocr_result)
-        print(f"Processed {len(ocr_results)} text blocks")
+        print("No tables found in the response")
+        html = ""
+
 
     return OCRResponse(results=ocr_results, html=html)
 
