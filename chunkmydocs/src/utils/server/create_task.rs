@@ -16,7 +16,7 @@ use std::path::PathBuf;
 use std::time::Instant;
 use uuid::Uuid;
 
-async fn produce_extraction_payloads(
+pub async fn produce_extraction_payloads(
     extraction_payload: ExtractionPayload,
 ) -> Result<(), Box<dyn Error>> {
     let config = Config::from_env()?;
@@ -86,11 +86,17 @@ pub async fn create_task(
 
     let message = "Task queued".to_string();
 
-    println!("Time taken to start task: {:?}", start_time.elapsed().as_secs_f32());
+    println!(
+        "Time taken to start task: {:?}",
+        start_time.elapsed().as_secs_f32()
+    );
 
     match upload_to_s3(s3_client, &input_location, &final_output_path).await {
         Ok(_) => {
-            println!("Time taken to upload to s3: {:?}", start_time.elapsed().as_secs_f32());
+            println!(
+                "Time taken to upload to s3: {:?}",
+                start_time.elapsed().as_secs_f32()
+            );
             let configuration_json = serde_json::to_string(configuration)?;
 
             match client
@@ -126,7 +132,10 @@ pub async fn create_task(
                 .await
             {
                 Ok(_) => {
-                    println!("Time taken to insert into database: {:?}", start_time.elapsed().as_secs_f32());
+                    println!(
+                        "Time taken to insert into database: {:?}",
+                        start_time.elapsed().as_secs_f32()
+                    );
                 }
                 Err(e) => {
                     if e.to_string().contains("usage limit exceeded") {
@@ -155,12 +164,21 @@ pub async fn create_task(
 
             match produce_extraction_payloads(extraction_payload).await {
                 Ok(_) => {
-                    println!("Time taken to produce extraction payloads: {:?}", start_time.elapsed().as_secs_f32());
+                    println!(
+                        "Time taken to produce extraction payloads: {:?}",
+                        start_time.elapsed().as_secs_f32()
+                    );
                 }
                 Err(e) => {
-                    match client.execute("DELETE FROM TASKS WHERE task_id = $1", &[&task_id]).await {
+                    match client
+                        .execute("DELETE FROM TASKS WHERE task_id = $1", &[&task_id])
+                        .await
+                    {
                         Ok(_) => {
-                            println!("Time taken to delete task from database: {:?}", start_time.elapsed().as_secs_f32());
+                            println!(
+                                "Time taken to delete task from database: {:?}",
+                                start_time.elapsed().as_secs_f32()
+                            );
                         }
                         Err(e) => {
                             println!("Error deleting task from database: {:?}", e);
@@ -170,7 +188,10 @@ pub async fn create_task(
                 }
             }
 
-            println!("Time taken to produce extraction payloads: {:?}", start_time.elapsed().as_secs_f32());
+            println!(
+                "Time taken to produce extraction payloads: {:?}",
+                start_time.elapsed().as_secs_f32()
+            );
 
             let input_file_url =
                 match generate_presigned_url(s3_client, &input_location, None).await {
@@ -180,7 +201,10 @@ pub async fn create_task(
                     }
                 };
 
-            println!("Time taken to generate presigned url: {:?}", start_time.elapsed().as_secs_f32());
+            println!(
+                "Time taken to generate presigned url: {:?}",
+                start_time.elapsed().as_secs_f32()
+            );
 
             Ok(TaskResponse {
                 task_id: task_id.clone(),
