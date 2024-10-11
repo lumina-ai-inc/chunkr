@@ -1,7 +1,9 @@
 import aiofiles
 import asyncio
 import base64
+import colorlog
 from concurrent.futures import ProcessPoolExecutor
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
 import json
@@ -19,10 +21,31 @@ from src.converters import convert_to_img, convert_to_pdf
 from src.models.segment_model import Segment
 from src.process import adjust_segments, process_segment
 
-app = FastAPI()
+handler = colorlog.StreamHandler()
+handler.setFormatter(colorlog.ColoredFormatter(
+    '%(log_color)s%(levelname)s%(reset)s:     %(message)s',
+    log_colors={
+        'DEBUG': 'cyan',
+        'INFO': 'green',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'CRITICAL': 'red,bg_white',
+    }
+))
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = colorlog.getLogger(__name__)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Setting up task service")
+    login_aws()
+    yield
+    logger.info("Shutting down")
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
@@ -62,7 +85,7 @@ async def to_pdf(file: UploadFile = File(...)):
 
 @app.post("/process")
 async def process(
-    
+
     file: UploadFile = File(...),
     segments: str = Form(...),
     user_id: str = Form(...),
@@ -103,6 +126,7 @@ async def process(
     finally:
         os.unlink(file_path)
 
+
 async def process_segments(
     file: Path, segments: list[Segment], user_id: str, task_id: str, image_folder_location: str,
     page_image_density: int, page_image_extension: str, segment_image_extension: str,
@@ -121,7 +145,8 @@ async def process_segments(
 
     try:
         processed_segments_dict = {}
-        num_workers = num_workers or len(segments) if len(segments) > 0 else cpu_count()
+        num_workers = num_workers or len(segments) if len(
+            segments) > 0 else cpu_count()
         logger.info(f"Number of workers: {num_workers}")
 
         with ProcessPoolExecutor(max_workers=num_workers) as executor:
@@ -153,5 +178,4 @@ async def process_segments(
 
 
 if __name__ == "__main__":
-    login_aws()
     uvicorn.run(app, host="0.0.0.0", port=8070)
