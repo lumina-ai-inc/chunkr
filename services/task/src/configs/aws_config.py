@@ -23,3 +23,5 @@ def login_aws():
             print("AWS login successful for task-specific credentials.")
         except subprocess.CalledProcessError:
             print("Error: AWS login failed for task-specific credentials.")
+    else:
+        print("No task-specific AWS credentials found.")
