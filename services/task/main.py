@@ -154,5 +154,4 @@ async def process_segments(
 
 if __name__ == "__main__":
     login_aws()
-    
     uvicorn.run(app, host="0.0.0.0", port=8070)
