@@ -1,4 +1,4 @@
-# Chunk My Docs
+# Chunkr
 
 We're Lumina. We've built a search engine that's 5x more relevant than Google Scholar. You can check us out at [lumina.sh](https://www.lumina.sh). We achieved this by bringing state of the art search technology (the best in dense and sparse vector embeddings) to academic research. 
 
