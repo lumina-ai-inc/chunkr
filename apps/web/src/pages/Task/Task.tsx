@@ -60,7 +60,7 @@ export default function Task() {
     <Viewer
       task={taskResponse}
       output={taskResponse.output}
-      inputFileUrl={taskResponse.input_file_url}
+      inputFileUrl={taskResponse.pdf_file_url || taskResponse.input_file_url}
     />
   ) : (
     <Link to="/" style={{ textDecoration: "none" }}>
