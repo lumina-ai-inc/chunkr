@@ -15,6 +15,9 @@ TASK__AWS__SECRET_KEY = os.getenv("TASK__AWS__SECRET_KEY")
 TASK__AWS__REGION = os.getenv("TASK__AWS__REGION")
 
 def login_aws():
+    TASK__AWS__ACCESS_KEY = os.getenv("TASK__AWS__ACCESS_KEY")
+    TASK__AWS__SECRET_KEY = os.getenv("TASK__AWS__SECRET_KEY")
+    TASK__AWS__REGION = os.getenv("TASK__AWS__REGION")
     if TASK__AWS__ACCESS_KEY:
         try:
             subprocess.run(["aws", "configure", "set", "aws_access_key_id", TASK__AWS__ACCESS_KEY], check=True)
