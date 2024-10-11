@@ -75,6 +75,7 @@ async def process(
     num_workers: int = Form(None),
     ocr_strategy: str = Form("Auto")
 ):
+    ocr_strategy = "Off"
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         temp_file.write(await file.read())
         file_path = Path(temp_file.name)
