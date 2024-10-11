@@ -64,7 +64,7 @@ export const SegmentChunk = forwardRef<
     return chunk.segments
       .map((segment) => {
         if (segment.segment_type === "Table" && segment.html?.startsWith("<span class=")) {
-          return `<img src="${segment.image}" />`;
+          return `<br><img src="${segment.image}" />`;
         }
         return segment.html || "";
       })
