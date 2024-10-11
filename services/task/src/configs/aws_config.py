@@ -15,11 +15,10 @@ TASK__AWS__SECRET_KEY = os.getenv("TASK__AWS__SECRET_KEY")
 TASK__AWS__REGION = os.getenv("TASK__AWS__REGION")
 
 def login_aws():
-    login_script = "login.sh"
     try:
-        subprocess.run([login_script, TASK__AWS__ACCESS_KEY, TASK__AWS__SECRET_KEY, TASK__AWS__REGION], check=True)
+        subprocess.run(["aws", "configure", "set", "aws_access_key_id", TASK__AWS__ACCESS_KEY], check=True)
+        subprocess.run(["aws", "configure", "set", "aws_secret_access_key", TASK__AWS__SECRET_KEY], check=True)
+        subprocess.run(["aws", "configure", "set", "default.region", TASK__AWS__REGION], check=True)
         print("AWS login successful for task-specific credentials.")
     except subprocess.CalledProcessError:
         print("Error: AWS login failed for task-specific credentials.")
-    except FileNotFoundError:
-        print(f"Error: Login script not found at {login_script}")
