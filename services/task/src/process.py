@@ -98,12 +98,10 @@ def process_textract(image_path: Path):
 
     # Set up default AWS profile with the session
   
-    client=boto3.client('textract',region_name=TASK__AWS_REGION, aws_access_key_id=TASK__AWS_ACCESS_KEY, aws_secret_access_key=TASK__AWS_SECRET_KEY)
+    extractor=Textractor(profile_name="default")
 
 
-
-
-    response: Document = client.detect_document_text(
+    response = extractor.analyze_document(
         file_source=loaded_img,
         save_image=True
     )
@@ -121,11 +119,10 @@ def process_table_textract(image_path: Path, feature: TextractFeatures):
     from src.configs.llm_config import LLM__MODEL, LLM__BASE_URL, LLM__INPUT_TOKEN_PRICE, LLM__OUTPUT_TOKEN_PRICE
     loaded_img = Image.open(image_path)
     import boto3
-    client=boto3.client('textract',region_name=TASK__AWS__REGION, aws_access_key_id=TASK__AWS__ACCESS_KEY, aws_secret_access_key=TASK__AWS__SECRET_KEY)
+    extractor=Textractor(profile_name="default")
 
 
-
-    response = client.analyze_document(
+    response = extractor.analyze_document(
         file_source=loaded_img,
         features=[feature],
         save_image=True
