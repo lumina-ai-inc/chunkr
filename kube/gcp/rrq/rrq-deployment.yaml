@@ -22,25 +22,25 @@ spec:
         envFrom:
         - secretRef:
             name: rrq-secrets
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
         ports:
         - containerPort: 8000
         securityContext:
           privileged: true
           capabilities:
             add: ["SYS_ADMIN"]
----   
-apiVersion: v1
-kind: Service
-metadata:
-  name: rrq-service
-  namespace: chunkmydocs
-  labels:
-    app.kubernetes.io/name: rrq
-spec:
-  selector:
-    app.kubernetes.io/name: rrq
-  type: ClusterIP
-  ports:
-  - port: 8000
-    targetPort: 8000
-    protocol: TCP
