@@ -101,7 +101,7 @@ def process_textract(image_path: Path):
     extractor=Textractor(profile_name="default")
 
 
-    response = extractor.analyze_document(
+    response = extractor.detect_document_text(
         file_source=loaded_img,
         save_image=True
     )
