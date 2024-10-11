@@ -15,6 +15,7 @@ import tqdm
 from starlette.background import BackgroundTask
 import uvicorn
 
+from src.configs.aws_config import login_aws
 from src.converters import convert_to_img, convert_to_pdf
 from src.models.segment_model import Segment
 from src.process import adjust_segments, process_segment
@@ -151,4 +152,5 @@ async def process_segments(
 
 
 if __name__ == "__main__":
+    login_aws()
     uvicorn.run(app, host="0.0.0.0", port=8070)
