@@ -92,7 +92,7 @@ def process_segment_ocr(
     process_info.finalize()
     return process_info
 
-def process_textract(image_path: Path):
+def process_textract(image_path: Path)->list[OCRResult]:
     loaded_img = Image.open(image_path)
 
     # Set up default AWS profile with the session
@@ -111,10 +111,10 @@ def process_textract(image_path: Path):
         confidence=0.0,
     )
    
-    return ocr_result
+    return [ocr_result]
 
 
-def process_table_textract(image_path: Path, feature: TextractFeatures):
+def process_table_textract(image_path: Path, feature: TextractFeatures)->OCRResponse:
     loaded_img = Image.open(image_path)
     extractor=Textractor(profile_name="default")
 
