@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import { ScrollArea } from "@radix-ui/themes";
+import { ScrollArea, Box, Text } from "@radix-ui/themes";
 import {
   Chunk,
   Segment,
@@ -67,8 +67,6 @@ const segmentLightColors: Record<SegmentType, string> = {
   "Section header": "--cyan-2",
 };
 
-import { Box, Text } from "@radix-ui/themes";
-
 export function PDF({
   content,
   inputFileUrl,
@@ -78,7 +76,6 @@ export function PDF({
   inputFileUrl: string;
   onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
 }) {
-  console.log(content);
   const [numPages, setNumPages] = useState<number>();
 
   function onDocumentLoadSuccess(document: pdfjs.PDFDocumentProxy): void {

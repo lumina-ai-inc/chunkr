@@ -1,4 +1,4 @@
-# Chunk My Docs
+# Chunkr
 
 We're Lumina. We've built a search engine that's 5x more relevant than Google Scholar. You can check us out at [lumina.sh](https://www.lumina.sh). We achieved this by bringing state of the art search technology (the best in dense and sparse vector embeddings) to academic research. 
 
@@ -42,7 +42,7 @@ This project is dual-licensed:
 1. [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE)
 2. Commercial License
 
-To use Chunkr privately without complying to the AGPL-3.0 license terms you can [contact us](mailto:ishaan@lumina.sh) or visit our [website](https://chunkr.ai).
+To use Chunkr without complying with the AGPL-3.0 license terms you can [contact us](mailto:mehul@lumina.sh) or visit our [website](https://chunkr.ai).
 
 ## Want to talk to a founder?
-https://cal.com/ishaank99/15min
+https://cal.com/mehulc/30min
