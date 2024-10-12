@@ -122,10 +122,12 @@ def process_table_textract(image_path: Path, feature: TextractFeatures) -> OCRRe
 
     if response.tables:
         table = response.tables[0]
+       
         if table:
             html = table.to_html()
 
             for cell in table.table_cells:
+               
                 bbox = BoundingBox(
                     left=cell.bbox.x,
                     top=cell.bbox.y,
