@@ -243,22 +243,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     match result {
         Ok(_) => {
             println!("Task succeeded");
-            //TODO: Produce for ocr
 
-            let ocr_extraction_payload = ExtractionPayload {
-                user_id: extraction_item.user_id.clone(),
-                model: extraction_item.model.clone(),
-                input_location: extraction_item.input_location.clone(),
-                output_location: extraction_item.output_location.clone(),
-                image_folder_location: extraction_item.image_folder_location.clone(),
-                expiration: extraction_item.expiration,
-                batch_size: extraction_item.batch_size,
-                task_id: extraction_item.task_id.clone(),
-                target_chunk_length: extraction_item.target_chunk_length,
-                configuration: extraction_item.configuration.clone(),
-            };
-
-            produce_ocr_payload(ocr_extraction_payload).await?;
+            produce_ocr_payload(extraction_item).await?;
 
             Ok(())
         }
