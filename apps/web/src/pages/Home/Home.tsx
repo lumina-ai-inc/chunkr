@@ -39,6 +39,19 @@ const Home = () => {
             height: "fit-content",
           }}
         >
+          <a
+            href="https://github.com/lumina-ai-inc/chunkr#readme"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "white", textDecoration: "none" }}
+          >
+            <Flex direction="row" className="temp-banner" justify="center">
+              <Text className="white" size="2">
+                Due to extremely high load - some services are still affected.
+                Click here to see status updates.
+              </Text>
+            </Flex>
+          </a>
           <Header px="0px" home={true} />
         </div>
       </Flex>
