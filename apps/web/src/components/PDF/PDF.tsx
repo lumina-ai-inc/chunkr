@@ -8,7 +8,7 @@ import {
   Segment,
   SegmentType,
   OCRResult,
-  // BoundingBox,
+  BoundingBox,
 } from "../../models/chunk.model";
 import "./PDF.css";
 
@@ -192,7 +192,7 @@ function SegmentOverlay({
       {isHovered && segment.ocr && (
         <OCRBoundingBoxes
           ocr={segment.ocr}
-          // segmentBBox={segment.bbox}
+          segmentBBox={segment.bbox}
           segmentType={segment.segment_type as SegmentType}
         />
       )}
@@ -202,17 +202,17 @@ function SegmentOverlay({
 
 function OCRBoundingBoxes({
   ocr,
-  // segmentBBox,
+  segmentBBox,
   segmentType,
 }: {
   ocr: OCRResult[];
-  // segmentBBox: BoundingBox;
+  segmentBBox: BoundingBox;
   segmentType: SegmentType;
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  // const segmentWidth = segmentBBox.width;
-  // const segmentHeight = segmentBBox.height;
+  const segmentWidth = segmentBBox.width;
+  const segmentHeight = segmentBBox.height;
 
   const baseColor = segmentColors[segmentType] || "--border-black";
   const lightColor = segmentLightColors[segmentType] || "--border-black";
@@ -225,10 +225,10 @@ function OCRBoundingBoxes({
         const width = result.bbox.width;
         const height = result.bbox.height;
 
-        const scaledRelativeLeft = `${relativeLeft * 100}%`;
-        const scaledRelativeTop = `${relativeTop * 100}%`;
-        const scaledWidth = `${width * 100}%`;
-        const scaledHeight = `${height * 100}%`;
+        const scaledRelativeLeft = `${(relativeLeft / segmentWidth) * 100}%`;
+        const scaledRelativeTop = `${(relativeTop / segmentHeight) * 100}%`;
+        const scaledWidth = `${(width / segmentWidth) * 100}%`;
+        const scaledHeight = `${(height / segmentHeight) * 100}%`;
 
         return (
           <Box
