@@ -36,24 +36,30 @@ pub async fn log_task(
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
     println!("Processing task OCR");
     let s3_client = create_client().await?;
+    println!("S3 client created");
     let reqwest_client = reqwest::Client::new();
+    println!("Reqwest client created");
     let extraction_item: ExtractionPayload = serde_json::from_value(payload.payload)?;
+    println!("Extraction payload deserialized");
     let task_id = extraction_item.task_id.clone();
+    println!("Task ID: {}", task_id);
     let pg_pool = create_pool();
+    println!("Postgres pool created");
 
-    log_task(
-        task_id.clone(),
-        Status::Processing,
-        Some(format!(
-            "Task processing | Tries ({}/{})",
-            payload.attempt, payload.max_attempts
-        )),
-        None,
-        &pg_pool,
-    )
-    .await?;
+    // log_task(
+    //     task_id.clone(),
+    //     Status::Processing,
+    //     Some(format!(
+    //         "Task processing | Tries ({}/{})",
+    //         payload.attempt, payload.max_attempts
+    //     )),
+    //     None,
+    //     &pg_pool,
+    // )
+    // .await?;
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
+        println!("Downloading PDF file");
         let pdf_file: NamedTempFile = download_to_tempfile(
             &s3_client,
             &reqwest_client,
@@ -61,7 +67,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             None,
         )
         .await?;
+        println!("PDF file downloaded");
 
+        println!("Downloading output file");
         let output_file: NamedTempFile = download_to_tempfile(
             &s3_client,
             &reqwest_client,
@@ -69,17 +77,32 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             None,
         )
         .await?;
+        println!("Output file downloaded");
 
         let pdf_file_path = pdf_file.path().to_path_buf();
+        println!("PDF file path: {:?}", pdf_file_path);
+
+        println!("PDF file path: {:?}", pdf_file_path);
 
         let mut file_contents = String::new();
         output_file.as_file().read_to_string(&mut file_contents)?;
-        let incomplete_segments: Vec<Segment> = serde_json::from_str(&file_contents)?;
+        println!("Output file contents read");
+
+        let incomplete_segments: Vec<Segment> = match serde_json::from_str(&file_contents) {
+            Ok(segments) => segments,
+            Err(e) => {
+                eprintln!("Error deserializing file contents: {:?}", e);
+                eprintln!("File contents: {:?}", file_contents);
+                return Err(Box::new(e) as Box<dyn std::error::Error>);
+            }
+        };
+        println!("Incomplete segments deserialized");
 
         let processing_message = format!(
             "Processing | OCR: {}",
             extraction_item.configuration.ocr_strategy
         );
+        println!("Processing message: {}", processing_message);
 
         log_task(
             task_id.clone(),
@@ -89,22 +112,32 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &pg_pool,
         )
         .await?;
+        println!("Task logged");
+        println!("Hitting service");
 
         //TODO: Update task to accept urls for files directly
+        println!("Processing segments");
         let segments: Vec<Segment> =
             process_segments(&pdf_file_path, &incomplete_segments, &extraction_item).await?;
+        println!("Segments processed");
 
+        println!("Performing hierarchical chunking");
         let chunks = hierarchical_chunking(segments, extraction_item.target_chunk_length).await?;
+        println!("Hierarchical chunking completed");
 
+        println!("Creating finalized file");
         let mut finalized_file = NamedTempFile::new()?;
         finalized_file.write_all(serde_json::to_string(&chunks)?.as_bytes())?;
+        println!("Finalized file created");
 
+        println!("Uploading to S3");
         upload_to_s3(
             &s3_client,
             &extraction_item.output_location,
             &finalized_file.path(),
         )
         .await?;
+        println!("Upload to S3 completed");
 
         if pdf_file.path().exists() {
             if let Err(e) = std::fs::remove_file(pdf_file.path()) {
