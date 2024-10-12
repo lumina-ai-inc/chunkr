@@ -73,7 +73,7 @@ def process_segment_ocr(
             segment.html = table_ocr_results.html
         elif TASK__TABLE_OCR_MODEL == "textract":
             textract_results = process_table_textract(
-                segment_temp_file, TextractFeatures.TABLES)
+                segment_temp_file, TextractFeatures.TABLES, segment.bbox)
             segment.ocr = textract_results.results
             segment.html = textract_results.html
     else:
@@ -107,8 +107,10 @@ def process_textract(image_path: Path) -> list[OCRResult]:
     return [ocr_result]
 
 
-def process_table_textract(image_path: Path, feature: TextractFeatures) -> OCRResponse:
+def process_table_textract(image_path: Path, feature: TextractFeatures, segment_bbox: BoundingBox) -> OCRResponse:
     loaded_img = Image.open(image_path)
+    img_width, img_height = segment_bbox.width, segment_bbox.height
+
 
     extractor = Textractor(profile_name="default")
 
@@ -127,12 +129,12 @@ def process_table_textract(image_path: Path, feature: TextractFeatures) -> OCRRe
             html = table.to_html()
 
             for cell in table.table_cells:
-               
                 bbox = BoundingBox(
-                    left=cell.bbox.x,
-                    top=cell.bbox.y,
-                    width=cell.bbox.width,
-                    height=cell.bbox.height)
+                    left=int(cell.bbox.x * img_width),
+                    top=int(cell.bbox.y * img_height),
+                    width=int(cell.bbox.width * img_width),
+                    height=int(cell.bbox.height * img_height)
+                )
                 ocr_result = OCRResult(
                     bbox=bbox,
                     text=cell.text,
