@@ -6,7 +6,7 @@ from rapidocr_paddle import RapidOCR
 from tempfile import NamedTemporaryFile
 import time
 import torch
-
+import cv2
 app = Robyn(__file__)
 
 if torch.cuda.is_available():
