@@ -11,5 +11,6 @@ dependencies = [
     "rapidocr-paddle>=1.3.27",
     "requests>=2.32.3",
     "robyn>=0.61.2",
+    "setuptools>=75.1.0",
     "torch>=2.4.1",
 ]
