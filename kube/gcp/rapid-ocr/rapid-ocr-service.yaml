@@ -22,4 +22,4 @@ metadata:
   name: rapid-ocr-backendconfig
   namespace: chunkmydocs
 spec:
-  timeoutSec: 10000
+  timeoutSec: 30
