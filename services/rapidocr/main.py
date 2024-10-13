@@ -52,8 +52,7 @@ async def perform_ocr(request: Request):
     
     request_to_process_delay = process_start_time - request_received_time
     total_processing_time = process_end_time - request_received_time
-    print(f"Request to process delay: {request_to_process_delay:.2f} seconds")
-    print(f"Total processing time: {total_processing_time:.2f} seconds")
+
     return {
         "result": result,
         "request_to_process_delay": request_to_process_delay,
@@ -75,8 +74,6 @@ def process_ocr(files):
         end_time = time.time()
     
         serializable_result = json.loads(json.dumps(result, default=lambda x: x.item() if isinstance(x, np.generic) else x))
-        processing_time = end_time - start_time
-        print(f"OCR processing completed in {processing_time:.2f} seconds")
         return serializable_result
     except Exception as e:
         print(f"Error during OCR processing: {e}")
