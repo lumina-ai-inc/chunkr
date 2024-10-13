@@ -6,12 +6,13 @@ import json
 import numpy as np
 import os
 from rapidocr_paddle import RapidOCR
-from robyn import Robyn, Request
+from robyn import Robyn, Request, Response, Logger
 from tempfile import NamedTemporaryFile
 import time
 import torch
 
 app = Robyn(__file__)
+logger = Logger(app)
 
 ocr_lock = asyncio.Lock()
 
@@ -24,6 +25,16 @@ else:
                       rec_use_cuda=False, cls_use_cuda=False)
 
 
+@app.before_request()
+async def log_request(request: Request):
+    logger.info(f"Received request: %s", request)
+
+
+@app.after_request()
+async def log_response(response: Response):
+    logger.info(f"Sending response: %s", response)
+
+
 @app.get("/")
 async def health():
     return {"status": "ok"}
@@ -31,14 +42,10 @@ async def health():
 
 @app.post("/ocr")
 async def perform_ocr(request: Request):
-
     loop = asyncio.get_event_loop()
-
     async with ocr_lock:
         result = await loop.run_in_executor(None, process_ocr, request.files)
-
     gc.collect()
-
     return result
 
 
