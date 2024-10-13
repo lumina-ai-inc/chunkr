@@ -5,7 +5,7 @@ from torchtext.vocab import Vocab
 import tokenizers as tk
 
 from src.utils import pred_token_within_range, subsequent_mask
-from src.vocab import (
+from src.vocab.constant import (
     HTML_TOKENS,
     TASK_TOKENS,
     RESERVED_TOKENS,
