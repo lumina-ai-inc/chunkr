@@ -19,6 +19,7 @@ COPY services/rapidocr/pyproject.toml .
 COPY services/rapidocr/main.py .
 COPY services/rapidocr/uv.lock .
 COPY services/rapidocr/__init__.py .
+RUN uv add paddlepaddle-gpu>=2.6.2
 RUN uv run __init__.py || true
 RUN rm -rf /app/src/__pycache__
 

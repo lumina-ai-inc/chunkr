@@ -2,7 +2,7 @@ import asyncio
 import json
 import numpy as np
 from robyn import Robyn, Request
-from rapidocr_onnxruntime import RapidOCR
+from rapidocr_paddle import RapidOCR
 from tempfile import NamedTemporaryFile
 import time
 import torch
@@ -15,7 +15,6 @@ if torch.cuda.is_available():
 else:
     print("CUDA is not available. Using CPU for RapidOCR.")
     engine = RapidOCR(det_use_cuda=False, rec_use_cuda=False)
-print(f"RapidOCR engine initialized with configuration: {engine}")
 
 
 @app.post("/ocr")
