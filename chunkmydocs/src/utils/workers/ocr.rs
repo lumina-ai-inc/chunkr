@@ -59,11 +59,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     // .await?;
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
-<<<<<<< HEAD
-=======
-        println!("Starting OCR processing");
-
->>>>>>> 055912ac (splitting queues)
         println!("Downloading PDF file");
         let pdf_file: NamedTempFile = download_to_tempfile(
             &s3_client,
@@ -122,10 +117,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         println!("Task logged");
         println!("Hitting service");
 
-<<<<<<< HEAD
-        //TODO: Update task to accept urls for files directly
-=======
->>>>>>> 055912ac (splitting queues)
         println!("Processing segments");
         let segments: Vec<Segment> =
             process_segments(&pdf_file_path, &incomplete_segments, &extraction_item).await?;
@@ -135,20 +126,12 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let chunks = hierarchical_chunking(segments, extraction_item.target_chunk_length).await?;
         println!("Hierarchical chunking completed");
 
-<<<<<<< HEAD
-        println!("Creating finalized file");
-=======
         println!("Writing finalized file");
->>>>>>> 055912ac (splitting queues)
         let mut finalized_file = NamedTempFile::new()?;
         finalized_file.write_all(serde_json::to_string(&chunks)?.as_bytes())?;
         println!("Finalized file created");
 
-<<<<<<< HEAD
-        println!("Uploading to S3");
-=======
         println!("Uploading finalized file to S3");
->>>>>>> 055912ac (splitting queues)
         upload_to_s3(
             &s3_client,
             &extraction_item.output_location,
