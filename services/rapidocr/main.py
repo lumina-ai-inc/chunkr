@@ -7,7 +7,9 @@ from tempfile import NamedTemporaryFile
 import time
 import torch
 import cv2
-
+import os
+import psutil
+import gc
 app = Robyn(__file__)
 
 # Create an asyncio lock
@@ -20,21 +22,35 @@ else:
     print("CUDA is not available. Using CPU for RapidOCR.")
     engine = RapidOCR(det_use_cuda=False, rec_use_cuda=False, cls_use_cuda=False)
 
+# Add this function to check open files
+def check_open_files():
+    process = psutil.Process()
+    open_files = process.open_files()
+    print(f"Number of open files: {len(open_files)}")
+    return len(open_files)
 
 @app.post("/ocr")
 async def perform_ocr(request: Request):
-    # Measure delay between receiving request and hitting process_ocr
     request_received_time = time.time()
     
-    # Move the OCR processing to a separate function
+    # Check open files before processing
+    print("Before processing:")
+    check_open_files()
+    
     loop = asyncio.get_event_loop()
     process_start_time = time.time()
     
-    # Use the lock to ensure only one OCR process runs at a time
     async with ocr_lock:
         result = await loop.run_in_executor(None, process_ocr, request.files)
     
     process_end_time = time.time()
+    
+    # Check open files after processing
+    print("After processing:")
+    check_open_files()
+    
+    # Force garbage collection
+    gc.collect()
     
     request_to_process_delay = process_start_time - request_received_time
     total_processing_time = process_end_time - request_received_time
@@ -46,30 +62,34 @@ async def perform_ocr(request: Request):
         "total_processing_time": total_processing_time
     }
 
-import os
-
 def process_ocr(files):
+    temp_file = None
     try:
-        with NamedTemporaryFile(delete=False) as temp_file:
-            file_content = next(iter(files.values()))
-            temp_file.write(file_content)
-            temp_file.flush()
-            temp_file_path = temp_file.name
+        temp_file = NamedTemporaryFile(delete=False)
+        file_content = next(iter(files.values()))
+        temp_file.write(file_content)
+        temp_file.flush()
+        temp_file_path = temp_file.name
+        temp_file.close()  # Explicitly close the file
 
         start_time = time.time()
         result, _ = engine(temp_file_path)
         end_time = time.time()
     
-        # Convert numpy types to Python native types
         serializable_result = json.loads(json.dumps(result, default=lambda x: x.item() if isinstance(x, np.generic) else x))
         processing_time = end_time - start_time
         print(f"OCR processing completed in {processing_time:.2f} seconds")
         return serializable_result
+    except Exception as e:
+        print(f"Error during OCR processing: {e}")
+        raise
     finally:
-        # Ensure the temporary file is closed and removed
+        if temp_file:
+            temp_file.close()  # Ensure the file is closed
         if 'temp_file_path' in locals():
             try:
                 os.unlink(temp_file_path)
+                print(f"Temporary file {temp_file_path} removed")
             except Exception as e:
                 print(f"Error removing temporary file: {e}")
 
