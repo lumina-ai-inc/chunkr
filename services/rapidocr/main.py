@@ -26,7 +26,7 @@ else:
 def check_open_files():
     process = psutil.Process()
     open_files = process.open_files()
-    print(f"Number of open files: {len(open_files)}")
+    # print(f"Number of open files: {len(open_files)}")
     return len(open_files)
 
 @app.post("/ocr")
@@ -34,7 +34,6 @@ async def perform_ocr(request: Request):
     request_received_time = time.time()
     
     # Check open files before processing
-    print("Before processing:")
     check_open_files()
     
     loop = asyncio.get_event_loop()
@@ -46,7 +45,6 @@ async def perform_ocr(request: Request):
     process_end_time = time.time()
     
     # Check open files after processing
-    print("After processing:")
     check_open_files()
     
     # Force garbage collection
