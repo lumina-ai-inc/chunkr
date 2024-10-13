@@ -1,0 +1,2 @@
+total_requests,success_requests,failure_requests,average_time,requests_per_second
+500,475,25,0.060257051467895506,16.59556808107002
