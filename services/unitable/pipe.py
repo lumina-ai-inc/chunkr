@@ -208,33 +208,36 @@ for i in pred_bbox:
 ax.set_axis_off()
 ax.imshow(image)
 
-# Table cell content recognition
-vocab, model = load_vocab_and_model(
-    vocab_path="./vocab/vocab_cell_6k.json",
-    max_seq_len=200,
-    model_weights=MODEL_DIR / MODEL_FILE_NAME[2],
-)
+# # Table cell content recognition
+# vocab, model = load_vocab_and_model(
+#     vocab_path="./vocab/vocab_cell_6k.json",
+#     max_seq_len=200,
+#     model_weights=MODEL_DIR / MODEL_FILE_NAME[2],
+# )
 
-# Cell image cropping and transformation
-image_tensor = [image_to_tensor(image.crop(bbox), size=(112, 448)) for bbox in pred_bbox]
-image_tensor = torch.cat(image_tensor, dim=0)
+# # Cell image cropping and transformation
+# image_tensor = [image_to_tensor(image.crop(bbox), size=(112, 448)) for bbox in pred_bbox]
+# image_tensor = torch.cat(image_tensor, dim=0)
 
-# Inference
-pred_cell = autoregressive_decode(
-    model=model,
-    image=image_tensor,
-    prefix=[vocab.token_to_id("[cell]")],
-    max_decode_len=200,
-    eos_id=vocab.token_to_id("<eos>"),
-    token_whitelist=None,
-    token_blacklist = [vocab.token_to_id(i) for i in INVALID_CELL_TOKEN]
-)
+# # Inference
+# pred_cell = autoregressive_decode(
+#     model=model,
+#     image=image_tensor,
+#     prefix=[vocab.token_to_id("[cell]")],
+#     max_decode_len=200,
+#     eos_id=vocab.token_to_id("<eos>"),
+#     token_whitelist=None,
+#     token_blacklist = [vocab.token_to_id(i) for i in INVALID_CELL_TOKEN]
+# )
 
-# Convert token id to token text
-pred_cell = pred_cell.detach().cpu().numpy()
-pred_cell = vocab.decode_batch(pred_cell, skip_special_tokens=False)
-pred_cell = [cell_str_to_token_list(i) for i in pred_cell]
-pred_cell = [re.sub(r'(\d).\s+(\d)', r'\1.\2', i) for i in pred_cell]
+# # Convert token id to token text
+# pred_cell = pred_cell.detach().cpu().numpy()
+# pred_cell = vocab.decode_batch(pred_cell, skip_special_tokens=False)
+# pred_cell = [cell_str_to_token_list(i) for i in pred_cell]
+# pred_cell = [re.sub(r'(\d).\s+(\d)', r'\1.\2', i) for i in pred_cell]
+
+pred_cell = [""] * len(pred_bbox)
+
 
 # print(pred_cell)
 
