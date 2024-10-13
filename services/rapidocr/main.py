@@ -10,6 +10,7 @@ import cv2
 import os
 import psutil
 import gc
+
 app = Robyn(__file__)
 
 # Create an asyncio lock
@@ -31,33 +32,16 @@ def check_open_files():
 
 @app.post("/ocr")
 async def perform_ocr(request: Request):
-    request_received_time = time.time()
-    
-    # Check open files before processing
     check_open_files()
     
     loop = asyncio.get_event_loop()
-    process_start_time = time.time()
-    
     async with ocr_lock:
         result = await loop.run_in_executor(None, process_ocr, request.files)
     
-    process_end_time = time.time()
-    
-    # Check open files after processing
     check_open_files()
-    
-    # Force garbage collection
     gc.collect()
-    
-    request_to_process_delay = process_start_time - request_received_time
-    total_processing_time = process_end_time - request_received_time
 
-    return {
-        "result": result,
-        "request_to_process_delay": request_to_process_delay,
-        "total_processing_time": total_processing_time
-    }
+    return result
 
 def process_ocr(files):
     temp_file = None
@@ -67,11 +51,9 @@ def process_ocr(files):
         temp_file.write(file_content)
         temp_file.flush()
         temp_file_path = temp_file.name
-        temp_file.close()  # Explicitly close the file
+        temp_file.close() 
 
-        start_time = time.time()
         result, _ = engine(temp_file_path)
-        end_time = time.time()
     
         serializable_result = json.loads(json.dumps(result, default=lambda x: x.item() if isinstance(x, np.generic) else x))
         return serializable_result
