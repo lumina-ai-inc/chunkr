@@ -23,22 +23,16 @@ else:
     print("CUDA is not available. Using CPU for RapidOCR.")
     engine = RapidOCR(det_use_cuda=False, rec_use_cuda=False, cls_use_cuda=False)
 
-# Add this function to check open files
-def check_open_files():
-    process = psutil.Process()
-    open_files = process.open_files()
-    # print(f"Number of open files: {len(open_files)}")
-    return len(open_files)
+@app.get("/")
+async def health():
+    return {"status": "ok"}
 
 @app.post("/ocr")
 async def perform_ocr(request: Request):
-    check_open_files()
-    
     loop = asyncio.get_event_loop()
     async with ocr_lock:
         result = await loop.run_in_executor(None, process_ocr, request.files)
     
-    check_open_files()
     gc.collect()
 
     return result
@@ -74,4 +68,3 @@ if __name__ == "__main__":
     import sys
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
     app.start(host="0.0.0.0", port=port)
-# img_path = 'test/Example-of-a-complex-table-structure-modified-from-16-2.png'
