@@ -120,3 +120,5 @@ test_images
 test.py
 1ea6dca1-b025-47e5-af98-f44f0c3fd5e2.jpg
 c58a36dc-ebce-4969-bdc5-76142825c4e0.jpg
+ocr_log.csv
+ocr_aggregate_results.csv
