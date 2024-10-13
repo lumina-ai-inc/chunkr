@@ -5,7 +5,6 @@ import gc
 import json
 import numpy as np
 import os
-import psutil
 from rapidocr_paddle import RapidOCR
 from robyn import Robyn, Request
 from tempfile import NamedTemporaryFile
