@@ -34,5 +34,5 @@ def handle_request():
 
 if __name__ == "__main__":
     start_workers()
-    print("Load balancer running on http://0.0.0.0:7999")
-    app.run(host='0.0.0.0', port=7999)
+    print("Load balancer running on http://0.0.0.0:8000")
+    app.run(host='0.0.0.0', port=8000)
