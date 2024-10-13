@@ -11,10 +11,10 @@ app = Robyn(__file__)
 
 if torch.cuda.is_available():
     print("CUDA is available. Using GPU for RapidOCR.")
-    engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True)
+    engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True, cls_use_cuda=True)
 else:
     print("CUDA is not available. Using CPU for RapidOCR.")
-    engine = RapidOCR(det_use_cuda=False, rec_use_cuda=False)
+    engine = RapidOCR(det_use_cuda=False, rec_use_cuda=False, cls_use_cuda=False)
 
 
 @app.post("/ocr")
