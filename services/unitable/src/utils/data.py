@@ -5,7 +5,7 @@ import torch
 from torch import Tensor, nn
 import torch.nn.functional as F
 
-from src.vocab import TASK_TOKENS, CELL_SPECIAL
+from src.vocab.constant import TASK_TOKENS, CELL_SPECIAL
 from src.model.encoderdecoder import EncoderDecoder
 from .misc import html_table_template
 
