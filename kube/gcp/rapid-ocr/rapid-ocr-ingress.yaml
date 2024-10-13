@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rapid-ocr-ingress
+  namespace: chunkmydocs
+  labels:
+    app: rapid-ocr
+  annotations:
+    kubernetes.io/ingress.class: gce
+spec:
+  ingressClassName: gce
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: rapid-ocr-service
+            port:
+              number: 8000
