@@ -7,7 +7,8 @@ app = Robyn(__file__)
 @app.get("/")
 async def health():
     return {"status": "ok"}
-    
+
+
 @app.post("/ocr")
 async def perform_ocr(request: Request):
     result = ""
