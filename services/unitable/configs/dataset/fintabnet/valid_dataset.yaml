@@ -1,0 +1,4 @@
+defaults:
+  - train_dataset
+
+jsonl_filename: clean_FinTabNet_1.0.0_cell_val.jsonl

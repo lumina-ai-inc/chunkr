@@ -1,0 +1,29 @@
+defaults:
+  - _self_
+  - augmentation: beit
+  # - pubtabnet@train.d1: train_dataset
+  # - pubtabnet@valid.d1: valid_dataset
+  # - synthtabnet_marketing@train.d2: train_dataset
+  # - synthtabnet_marketing@valid.d2: valid_dataset
+  # - synthtabnet_fintabnet@train.d3: train_dataset
+  # - synthtabnet_fintabnet@valid.d3: valid_dataset
+  # - synthtabnet_sparse@train.d4: train_dataset
+  # - synthtabnet_sparse@valid.d4: valid_dataset
+  # - synthtabnet_pubtabnet@train.d5: train_dataset
+  # - synthtabnet_pubtabnet@valid.d5: valid_dataset
+
+
+label_type: ${trainer.label_type}
+cell_limit: 10
+
+train_dataset:
+  _target_: torch.utils.data.ConcatDataset
+  datasets: ${oc.dict.values:..train}
+
+valid_dataset:
+  _target_: torch.utils.data.ConcatDataset
+  datasets: ${oc.dict.values:..valid}
+
+test_dataset:
+  _target_: torch.utils.data.ConcatDataset
+  datasets: ${oc.dict.values:..test}

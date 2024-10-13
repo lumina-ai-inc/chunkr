@@ -1,0 +1,7 @@
+_target_: src.datamodule.Synthtabnet
+root_dir: ../../../../DATASETS/synthtabnet/sparse
+label_type: ${dataset.label_type}
+split: train
+json_html: clean_html_synthetic_data.jsonl
+transform: ${dataset.augmentation}
+cell_limit: ${dataset.cell_limit}

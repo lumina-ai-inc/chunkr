@@ -1,0 +1,9 @@
+defaults:
+  - _self_
+  - augmentation: beit
+  # - pubtabnet@train_dataset: train_dataset
+  # - pubtabnet@valid_dataset: valid_dataset
+  # - pubtabnet@test_dataset: test_dataset
+
+label_type: ${trainer.label_type}
+cell_limit: 10
