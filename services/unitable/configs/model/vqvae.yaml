@@ -1,0 +1,15 @@
+defaults:
+  - _self_
+
+codebook_tokens: 8192
+hidden_dim: 256
+
+model:
+  _target_: src.model.vqvae.DiscreteVAE
+  image_size: ${trainer.img_size}
+  codebook_tokens: ${model.codebook_tokens}
+  codebook_dim: 512
+  num_layers: 3
+  hidden_dim: ${model.hidden_dim}
+  smooth_l1_loss: false
+  kl_div_loss_weight: 0.0
