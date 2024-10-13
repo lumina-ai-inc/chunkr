@@ -78,6 +78,12 @@ pub async fn log_task(
     Ok(())
 }
 
+pub async fn preprocess() -> Result<(), Box<dyn std::error::Error>> {
+    // Add preprocessing logic here
+    Ok(())
+}
+
+
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
     println!("Processing task");
     let s3_client = create_client().await?;
