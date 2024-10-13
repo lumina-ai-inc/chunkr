@@ -46,20 +46,32 @@ async def perform_ocr(request: Request):
         "total_processing_time": total_processing_time
     }
 
+import os
+
 def process_ocr(files):
-    with NamedTemporaryFile(delete=False) as temp_file:
-        file_content = next(iter(files.values()))
-        temp_file.write(file_content)
-        temp_file.flush()
+    try:
+        with NamedTemporaryFile(delete=False) as temp_file:
+            file_content = next(iter(files.values()))
+            temp_file.write(file_content)
+            temp_file.flush()
+            temp_file_path = temp_file.name
+
         start_time = time.time()
-        result, _ = engine(temp_file.name)
+        result, _ = engine(temp_file_path)
         end_time = time.time()
     
-    # Convert numpy types to Python native types
-    serializable_result = json.loads(json.dumps(result, default=lambda x: x.item() if isinstance(x, np.generic) else x))
-    processing_time = end_time - start_time
-    print(f"OCR processing completed in {processing_time:.2f} seconds")
-    return serializable_result
+        # Convert numpy types to Python native types
+        serializable_result = json.loads(json.dumps(result, default=lambda x: x.item() if isinstance(x, np.generic) else x))
+        processing_time = end_time - start_time
+        print(f"OCR processing completed in {processing_time:.2f} seconds")
+        return serializable_result
+    finally:
+        # Ensure the temporary file is closed and removed
+        if 'temp_file_path' in locals():
+            try:
+                os.unlink(temp_file_path)
+            except Exception as e:
+                print(f"Error removing temporary file: {e}")
 
 if __name__ == "__main__":
     import sys
