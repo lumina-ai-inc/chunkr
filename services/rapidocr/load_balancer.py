@@ -5,7 +5,7 @@ import random
 import subprocess
 
 BASE_PORT = 8000
-NUM_WORKERS = 35
+NUM_WORKERS = 20
 
 app = Flask(__name__)
 
