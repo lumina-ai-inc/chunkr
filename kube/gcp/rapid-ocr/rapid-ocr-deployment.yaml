@@ -29,7 +29,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: rapid-ocr
-        image: luminainc/rapidocr:03180331
+        image: luminainc/rapidocr:11c99f55
         imagePullPolicy: Always
         envFrom:
         - secretRef:
