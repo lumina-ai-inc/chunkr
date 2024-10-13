@@ -46,5 +46,5 @@ def process_ocr(files):
     return serializable_result
 
 if __name__ == "__main__":
-    app.start(port=8088)
+    app.start(host="0.0.0.0", port=8000)
 # img_path = 'test/Example-of-a-complex-table-structure-modified-from-16-2.png'
