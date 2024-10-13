@@ -702,6 +702,7 @@ dependencies = [
     { name = "rapidocr-paddle" },
     { name = "requests" },
     { name = "robyn" },
+    { name = "setuptools" },
     { name = "torch" },
 ]
 
@@ -713,6 +714,7 @@ requires-dist = [
     { name = "rapidocr-paddle", specifier = ">=1.3.27" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "robyn", specifier = ">=0.61.2" },
+    { name = "setuptools", specifier = ">=75.1.0" },
     { name = "torch", specifier = ">=2.4.1" },
 ]
 
@@ -817,6 +819,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/95/83/090f4be41dfbfd120a5fe0ed82b1857083bafe0928e876480d72a63e8bf3/rustimport-1.3.4.tar.gz", hash = "sha256:ba80e3c28af07ba3910ad395613d01f9e421bfb59fbb1ac050e2b5d9b78b4980", size = 28817 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5d/e6/376cc02c6ec2dd29de14225bd322ea742b0b864c05c62abe40208ce64ebd/rustimport-1.3.4-py3-none-any.whl", hash = "sha256:f2b931ff4e0fa931028066a7dacaae449b1a4601fe7a553c35f3dd63aba97ce0", size = 26341 },
+]
+
+[[package]]
+name = "setuptools"
+version = "75.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/27/b8/f21073fde99492b33ca357876430822e4800cdf522011f18041351dfa74b/setuptools-75.1.0.tar.gz", hash = "sha256:d59a21b17a275fb872a9c3dae73963160ae079f1049ed956880cd7c09b120538", size = 1348057 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ff/ae/f19306b5a221f6a436d8f2238d5b80925004093fa3edea59835b514d9057/setuptools-75.1.0-py3-none-any.whl", hash = "sha256:35ab7fd3bcd95e6b7fd704e4a1539513edad446c097797f2985e0e4b960772f2", size = 1248506 },
 ]
 
 [[package]]

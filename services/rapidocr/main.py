@@ -7,7 +7,11 @@ from tempfile import NamedTemporaryFile
 import time
 import torch
 import cv2
+
 app = Robyn(__file__)
+
+# Create an asyncio lock
+ocr_lock = asyncio.Lock()
 
 if torch.cuda.is_available():
     print("CUDA is available. Using GPU for RapidOCR.")
@@ -25,7 +29,11 @@ async def perform_ocr(request: Request):
     # Move the OCR processing to a separate function
     loop = asyncio.get_event_loop()
     process_start_time = time.time()
-    result = await loop.run_in_executor(None, process_ocr, request.files)
+    
+    # Use the lock to ensure only one OCR process runs at a time
+    async with ocr_lock:
+        result = await loop.run_in_executor(None, process_ocr, request.files)
+    
     process_end_time = time.time()
     
     request_to_process_delay = process_start_time - request_received_time
