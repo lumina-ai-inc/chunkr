@@ -1,0 +1,9 @@
+_target_: torchvision.transforms.Compose
+transforms:
+  - _target_: torchvision.transforms.Resize
+    size: ${trainer.img_size}
+  - _target_: torchvision.transforms.ToTensor
+  - _target_: torchvision.transforms.Normalize
+    mean: [0.86597056, 0.88463002, 0.87491087]
+    std: [0.20686628, 0.18201602, 0.18485524]
+

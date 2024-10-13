@@ -1,0 +1,40 @@
+defaults:
+  - _self_
+  - train/lr_scheduler: exponential
+  - train/optimizer: adam
+
+mode: train
+trans_size: 448
+vqvae_size: 224
+grid_size: 28
+num_mask_patches: 300
+min_num_patches: 16
+max_seq_len: null
+
+vqvae_weights: null
+
+train:
+  epochs: 20
+  grad_clip: 5
+  save_every: 3
+  dataloader:
+    _target_: src.datamodule.dataloader.dataloader_beit
+    batch_size: 48
+    grid_size: ${trainer.grid_size}
+    num_mask_patches: ${trainer.num_mask_patches}
+    min_num_patches: ${trainer.min_num_patches}
+valid:
+  dataloader:
+    _target_: src.datamodule.dataloader.dataloader_beit
+    batch_size: 48
+    grid_size: ${trainer.grid_size}
+    num_mask_patches: ${trainer.num_mask_patches}
+    min_num_patches: ${trainer.min_num_patches}
+test:
+  metrics: null
+
+
+trainer:
+  _target_: src.trainer.BeitTrainer
+  snapshot: null
+  model_weights: null

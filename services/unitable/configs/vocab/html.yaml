@@ -1,0 +1,3 @@
+need_vocab: true
+type: html
+dir: ${hydra:runtime.cwd}/../vocab/vocab_html.json
