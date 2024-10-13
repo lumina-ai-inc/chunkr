@@ -89,7 +89,5 @@ def process_ocr(files):
                 print(f"Error removing temporary file: {e}")
 
 if __name__ == "__main__":
-    import sys
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
-    app.start(host="0.0.0.0", port=port)
+    app.start(host="0.0.0.0", port=8000)
 # img_path = 'test/Example-of-a-complex-table-structure-modified-from-16-2.png'
