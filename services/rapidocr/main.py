@@ -1,13 +1,19 @@
-from rapidocr_onnxruntime import RapidOCR
-from tempfile import NamedTemporaryFile
-from robyn import Robyn, Request
+import asyncio
 import json
 import numpy as np
-import asyncio
+from robyn import Robyn, Request
+from rapidocr_onnxruntime import RapidOCR
+from tempfile import NamedTemporaryFile
 import time
+import torch
 
 app = Robyn(__file__)
-engine = RapidOCR()
+
+if torch.cuda.is_available():
+    engine = RapidOCR(get_use_cuda=True)
+else:
+    engine = RapidOCR(get_use_cuda=False)
+
 
 @app.post("/ocr")
 async def perform_ocr(request: Request):
