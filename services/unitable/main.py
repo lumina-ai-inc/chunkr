@@ -1,6 +1,8 @@
 import argparse
+import os
 from PIL import Image
 from robyn import Robyn, Request
+import tempfile
 
 from src.get_models import init_structure_model, init_bbox_model, init_content_model
 from src.inference import run_structure_inference, run_bbox_inference, run_content_inference
@@ -13,6 +15,27 @@ bbox_model = init_bbox_model()
 content_model = init_content_model()
 
 
+def get_image_from_request(request: Request) -> Image.Image:
+    image = next(iter(request.files.values()), None)
+    if image is None:
+        raise ValueError("Image not found in request")
+
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        temp_file.write(image.read())
+        temp_file_path = temp_file.name
+
+    try:
+        return Image.open(temp_file_path).convert("RGB")
+    finally:
+        os.unlink(temp_file_path)
+
+
+def check_models(*models):
+    for model in models:
+        if model is None:
+            raise ValueError(f"{model.__name__} not initialized")
+
+
 @app.get("/")
 async def health():
     return {"status": "ok"}
@@ -20,59 +43,47 @@ async def health():
 
 @app.post("/structure/html")
 async def extract_structure(request: Request):
-    if structure_model is None:
-        return {"error": "Structure model not initialized"}
-
-    image = next(iter(request.files.values()), None)
-    if image is None:
-        return {"error": "Image not found in request"}
-
-    image = Image.open(image).convert("RGB")
-    result = run_structure_inference(structure_model, image)
-    return result
+    try:
+        check_models(structure_model)
+        image = get_image_from_request(request)
+        result = run_structure_inference(structure_model, image)
+        return result
+    except ValueError as e:
+        return {"error": str(e)}
 
 
 @app.post("/bbox")
 async def extract_bbox(request: Request):
-    if bbox_model is None:
-        return {"error": "BBox model not initialized"}
+    try:
+        check_models(bbox_model)
+        image = get_image_from_request(request)
+        result = run_bbox_inference(bbox_model, image)
 
-    image = next(iter(request.files.values()), None)
-    if image is None:
-        return {"error": "Image not found in request"}
+        if content_model is not None:
+            result = run_content_inference(content_model, image, result)
 
-    image = next(iter(request.files.values()), None)
-    result = run_bbox_inference(bbox_model, image)
-
-    if content_model is not None:
-        result = run_content_inference(content_model, image, result)
-
-    return result
+        return result
+    except ValueError as e:
+        return {"error": str(e)}
 
 
 @app.post("/table/html")
 async def extract_table(request: Request):
-    if structure_model is None:
-        return {"error": "Structure model not initialized"}
-    if bbox_model is None:
-        return {"error": "BBox model not initialized"}
+    try:
+        check_models(structure_model, bbox_model)
+        image = get_image_from_request(request)
+        structure = run_structure_inference(structure_model, image)
+        bbox = run_bbox_inference(bbox_model, image, structure)
 
+        if content_model is not None:
+            content = run_content_inference(content_model, image, bbox)
+        else:
+            content = [""] * len(bbox)
 
-    image = next(iter(request.files.values()), None)
-    if image is None:
-        return {"error": "Image not found in request"}
-
-    image = Image.open(image).convert("RGB")
-    structure = run_structure_inference(structure_model, image)
-    bbox = run_bbox_inference(bbox_model, image, structure)
-    if content_model is not None:
-        content = run_content_inference(content_model, image, bbox)
-    else:
-        content = [""] * len(bbox)
-
-    result = build_table_from_html_and_cell(structure, content)
-
-    return result
+        result = build_table_from_html_and_cell(structure, content)
+        return result
+    except ValueError as e:
+        return {"error": str(e)}
 
 
 if __name__ == "__main__":
