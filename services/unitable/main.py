@@ -12,6 +12,7 @@ from src.utils import build_table_from_html_and_cell
 app = Robyn(__file__)
 logger = Logger()
 
+
 class LoggingMiddleware:
 
     def request_info(request: Request):
@@ -20,7 +21,6 @@ class LoggingMiddleware:
         request_path = request.url.path
         request_method = request.method
         request_time = str(datetime.now())
-
 
         return {
             "ip_address": ip_address,
@@ -31,16 +31,12 @@ class LoggingMiddleware:
 
         }
 
+
 @app.before_request()
 def log_request(request: Request):
-    logger.info(f"Received request: %s", 
-        LoggingMiddleware.request_info(request))
+    logger.info(f"Received request: %s",
+                LoggingMiddleware.request_info(request))
     return request
-
-
-@app.after_request()
-async def log_response(response: Response):
-    logger.info(f"Sending response: %s", response)
 
 
 def get_image_from_request(request: Request) -> Image.Image:
@@ -66,10 +62,8 @@ async def extract_structure(request: Request):
     try:
         structure_model = init_structure_model()
         check_models(structure_model)
-
         image = get_image_from_request(request)
         structure = run_structure_inference(structure_model, image)
-        print("structure", structure)
         content = [""] * len(structure)
         result = build_table_from_html_and_cell(structure, content)
         html = "".join(result)
