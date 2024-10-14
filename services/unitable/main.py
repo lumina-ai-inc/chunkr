@@ -42,6 +42,10 @@ async def extract_bbox(request: Request):
 
     image = Image.open(image).convert("RGB")
     result = run_bbox_inference(bbox_model, image)
+
+    if content_model is not None:
+        result = run_content_inference(content_model, image, result)
+
     return result
 
 
