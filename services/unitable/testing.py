@@ -1,6 +1,7 @@
 import concurrent.futures
 import cv2
 import dotenv
+import json
 import numpy as np
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter
@@ -119,37 +120,6 @@ def map_paddle_text_onto_unitable(paddle_bbox, unitable_bbox):
     return mapped_text
 
 
-def process_image(image_path, output_path, preprocess=True):
-    input_paths = [image_path]
-    output_paths = [output_path]
-
-    ocr_image = image_path
-
-    filename = os.path.basename(image_path)
-    filename_without_extension = os.path.splitext(filename)[0]
-    parent_dir = os.path.dirname(output_path)
-    temp_output_path = os.path.join(parent_dir, f"temp_{filename}")
-    temp_input_path = os.path.join(parent_dir, f"temp_input_{filename}")
-    html_output_path = os.path.join(
-        parent_dir, f"{filename_without_extension}.html")
-
-    if preprocess:
-        preprocessed_image = preprocess_image(image_path)
-        preprocessed_image.save(temp_input_path)
-        input_paths.append(temp_input_path)
-        output_paths.append(temp_output_path)
-        ocr_image = temp_input_path
-
-    ocr_results = call_rapidocr(ocr_image)
-    bboxes = call_unitable_bbox(ocr_image)
-    structure = call_unitable_structure(ocr_image)
-
-    html = map_to_html(ocr_results, bboxes, structure)
-    with open(html_output_path, "w") as f:
-        f.write(html)
-    draw_bbox(input_paths, output_paths, bboxes, ocr_results)
-
-
 def map_to_html(ocr_results, bboxes, structure):
     mapped_text = map_paddle_text_onto_unitable(ocr_results, bboxes)
     table = build_table_from_html_and_cell(structure, mapped_text)
@@ -185,6 +155,47 @@ def draw_bbox(input_paths, output_paths, bboxes, ocr_results):
         image.close()
 
 
+def process_image(image_path, output_dir, preprocess=True):
+    filename = os.path.basename(image_path)
+    filename_without_extension = os.path.splitext(filename)[0]
+
+    ocr_image = image_path
+    input_paths = [image_path]
+    output_paths = [f"{output_dir}/{filename}"]
+
+    os.makedirs(output_dir, exist_ok=True)
+    temp_output_path = os.path.join(output_dir, f"temp_{filename}")
+    temp_input_path = os.path.join(output_dir, f"temp_input_{filename}")
+    html_output_path = os.path.join(
+        output_dir, f"{filename_without_extension}.html")
+
+    if preprocess:
+        preprocessed_image = preprocess_image(image_path)
+        preprocessed_image.save(temp_input_path)
+        input_paths.append(temp_input_path)
+        output_paths.append(temp_output_path)
+        ocr_image = temp_input_path
+
+    ocr_results = call_rapidocr(ocr_image)
+    bboxes = call_unitable_bbox(image_path)
+    structure = call_unitable_structure(image_path)
+
+    with open(os.path.join(output_dir, f"ocr.{filename_without_extension}.json"), "w") as f:
+        json.dump(ocr_results, f)
+
+    with open(os.path.join(output_dir, f"bbox.{filename_without_extension}.json"), "w") as f:
+        json.dump(bboxes, f)
+
+    with open(os.path.join(output_dir, f"structure.{filename_without_extension}.json"), "w") as f:
+        json.dump(structure, f)
+
+    html = map_to_html(ocr_results, bboxes, structure)
+    with open(html_output_path, "w") as f:
+        f.write(html)
+
+    draw_bbox(input_paths, output_paths, bboxes, ocr_results)
+
+
 def main(input_dir, output_dir, preprocess=True):
 
     def process_image_wrapper(args):
@@ -194,10 +205,11 @@ def main(input_dir, output_dir, preprocess=True):
         except Exception as e:
             print(f"Error processing {input_path}: {e}")
 
-    image_paths = [os.path.join(input_dir, f) for f in os.listdir(
-        input_dir) if os.path.isfile(os.path.join(input_dir, f))]
-    output_paths = [os.path.join(output_dir, f) for f in os.listdir(
-        input_dir) if os.path.isfile(os.path.join(input_dir, f))]
+    image_paths = [os.path.join(input_dir, f) for f in os.listdir(input_dir)
+                   if os.path.isfile(os.path.join(input_dir, f)) and
+                   f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    output_paths = [os.path.join(output_dir, 'no_preprocess' if not preprocess else 'preprocess', os.path.basename(f))
+                    for f in image_paths]
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(process_image_wrapper, zip(image_paths, output_paths))
@@ -207,4 +219,4 @@ if __name__ == "__main__":
     input_dir = "./input"
     output_dir = "./output"
     os.makedirs(output_dir, exist_ok=True)
-    main(input_dir, output_dir, preprocess=False)
+    main(input_dir, output_dir, preprocess=True)
