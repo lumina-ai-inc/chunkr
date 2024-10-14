@@ -40,7 +40,8 @@ class LoggingMiddleware:
 
 if torch.cuda.is_available():
     print("CUDA is available. Using GPU for RapidOCR.")
-    engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True, cls_use_cuda=True, ocr_order_method="tb-xy")
+    engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True,
+                      cls_use_cuda=True, ocr_order_method="tb-xy")
 else:
     print("CUDA is not available. Using CPU for RapidOCR.")
     engine = RapidOCR(det_use_cuda=False,
@@ -90,7 +91,7 @@ def process_ocr(files) -> list:
             ]
             for item in result
         ]
-        
+
         return serializable_result
     except Exception as e:
         print(f"Error during OCR processing: {e}")

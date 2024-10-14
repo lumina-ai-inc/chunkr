@@ -64,11 +64,10 @@ async def extract_structure(request: Request):
         check_models(structure_model)
         image = get_image_from_request(request)
         structure = run_structure_inference(structure_model, image)
-        content = [""] * len(structure)
-        result = build_table_from_html_and_cell(structure, content)
-        html = "".join(result)
-        print("html", html)
-        return html
+        # content = [""] * len(structure)
+        # result = build_table_from_html_and_cell(structure, content)
+        # html = "".join(result)
+        return structure
     except ValueError as e:
         return {"error": str(e)}
 
