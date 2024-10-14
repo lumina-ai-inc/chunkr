@@ -14,10 +14,12 @@ __all__ = [
     "html_table_template",
 ]
 
-printer = lambda device, output: f"[GPU {device}] " + output
 
-html_table_template = (
-    lambda table: f"""<html>
+def printer(device, output): return f"[GPU {device}] " + output
+
+
+def html_table_template(table: str) -> str:
+    return f"""<html>
         <head> <meta charset="UTF-8">
         <style>
         table, th, td {{
@@ -29,7 +31,6 @@ html_table_template = (
         <table frame="hsides" rules="groups" width="100%%">
             {table}
         </table> </body> </html>"""
-)
 
 
 # adpated from https://github.com/huggingface/transformers/blob/v4.33.0/src/transformers/optimization.py
@@ -50,7 +51,8 @@ def cosine_schedule_with_warmup(
         step = total_step
     progress = float(step - warmup) / float(max(1, total_step - warmup))
     return max(
-        min_ratio, 0.5 * (1.0 + math.cos(math.pi * float(cycle) * 2.0 * progress))
+        min_ratio, 0.5 *
+        (1.0 + math.cos(math.pi * float(cycle) * 2.0 * progress))
     )
 
 
@@ -79,7 +81,8 @@ def bbox_augmentation_resize(
 
 def count_total_parameters(model: nn.Module) -> int:
     """Count total parameters that need training."""
-    total_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    total_parameters = sum(p.numel()
+                           for p in model.parameters() if p.requires_grad)
     return total_parameters
 
 

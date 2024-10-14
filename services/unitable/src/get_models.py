@@ -31,7 +31,7 @@ if MODEL_FILE_MAP:
     assert all([(MODEL_DIR / name).is_file() for name in MODEL_FILE_MAP.values()]), \
         f"Please download model weights from HuggingFace: https://huggingface.co/poloclub/UniTable/tree/main"
 else:
-    print("No models specified in environment variables.")
+    raise ValueError("No models specified in environment variables.")
 
 
 def init_structure_model():
