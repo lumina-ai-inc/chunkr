@@ -42,6 +42,7 @@ def init_structure_model():
         max_seq_len=784,
         model_weights=MODEL_DIR / MODEL_FILE_MAP['structure'],
     )
+    print("structure model loaded")
     return vocab, model
 
 
@@ -53,6 +54,7 @@ def init_bbox_model():
         max_seq_len=1024,
         model_weights=MODEL_DIR / MODEL_FILE_MAP['bbox'],
     )
+    print("bbox model loaded")
     return vocab, model
 
 
@@ -64,4 +66,5 @@ def init_content_model():
         max_seq_len=200,
         model_weights=MODEL_DIR / MODEL_FILE_MAP['content'],
     )
+    print("content model loaded")
     return vocab, model
