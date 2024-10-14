@@ -61,7 +61,7 @@ async def extract_table(request: Request):
         check_models(structure_model, bbox_model)
         image = get_image_from_request(request)
         structure = run_structure_inference(structure_model, image)
-        bbox = run_bbox_inference(bbox_model, image, structure)
+        bbox = run_bbox_inference(bbox_model, image)
         
         if content_model is not None:
             content = run_content_inference(content_model, image, bbox)
