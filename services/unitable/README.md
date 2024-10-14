@@ -142,3 +142,37 @@ torchmetrics 1.4.3
 torchtext 0.17.1
 torchvision 0.17.1
 ```
+
+## API
+
+### Health Check
+
+`GET /`
+
+```bash
+curl -X GET http://localhost:8000/
+```
+
+### Structure Extraction
+
+`POST /structure/html`
+
+```bash
+curl -X POST http://localhost:8000/structure/html -F "image=@path/to/image.png"
+```
+
+### Bounding Box (BBox) Extraction
+
+`POST /bbox`
+
+```bash
+curl -X POST http://localhost:8000/bbox -F "image=@path/to/image.png"
+```
+
+### Full Table Extraction
+
+`POST /table/html`
+
+```bash
+curl -X POST http://localhost:8000/table/html -F "image=@path/to/image.png"
+```

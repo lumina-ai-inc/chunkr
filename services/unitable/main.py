@@ -4,6 +4,7 @@ from robyn import Robyn, Request
 
 from src.get_models import init_structure_model, init_bbox_model, init_content_model
 from src.inference import run_structure_inference, run_bbox_inference, run_content_inference
+from src.utils import build_table_from_html_and_cell
 
 app = Robyn(__file__)
 
@@ -17,7 +18,7 @@ async def health():
     return {"status": "ok"}
 
 
-@app.post("/structure")
+@app.post("/structure/html")
 async def extract_structure(request: Request):
     if structure_model is None:
         return {"error": "Structure model not initialized"}
@@ -49,17 +50,27 @@ async def extract_bbox(request: Request):
     return result
 
 
-@app.post("/content")
-async def extract_content(request: Request):
-    if content_model is None:
-        return {"error": "Content model not initialized"}
+@app.post("/table/html")
+async def extract_table(request: Request):
+    if structure_model is None:
+        return {"error": "Structure model not initialized"}
+    if bbox_model is None:
+        return {"error": "BBox model not initialized"}
 
     image = request.files.get("image")
     if image is None:
         return {"error": "Image not found in request"}
 
     image = Image.open(image).convert("RGB")
-    result = run_content_inference(content_model, image)
+    structure = run_structure_inference(structure_model, image)
+    bbox = run_bbox_inference(bbox_model, image, structure)
+    if content_model is not None:
+        content = run_content_inference(content_model, image, bbox)
+    else:
+        content = [""] * len(bbox)
+
+    result = build_table_from_html_and_cell(structure, content)
+
     return result
 
 
