@@ -19,7 +19,7 @@ def call_rapidocr(image_path):
     response = requests.post(f"{rapidocr_url}/ocr",
                              files={"file": open(image_path, "rb")})
     response.raise_for_status()
-    return response.json()
+    return response.json()["result"]
 
 
 def process_image(image_path, output_path):
