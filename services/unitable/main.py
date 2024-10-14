@@ -50,9 +50,8 @@ async def extract_structure(request: Request):
         image = get_image_from_request(request)
         result = run_structure_inference(structure_model, image)
         content = [""] * len(result)
-        print(result)
+        print("content", content)
         html_code = build_table_from_html_and_cell(result, content)
-        print(html_code)
         return html_code
     except ValueError as e:
         return {"error": str(e)}
