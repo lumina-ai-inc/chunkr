@@ -64,10 +64,7 @@ async def extract_structure(request: Request):
         check_models(structure_model)
         image = get_image_from_request(request)
         structure = run_structure_inference(structure_model, image)
-        # content = [""] * len(structure)
-        # result = build_table_from_html_and_cell(structure, content)
-        # html = "".join(result)
-        return structure
+        return {"result": structure}
     except ValueError as e:
         return {"error": str(e)}
 
@@ -85,7 +82,7 @@ async def extract_bbox(request: Request):
         if content_model is not None:
             result = run_content_inference(content_model, image, result)
 
-        return result
+        return {"result": result}
     except ValueError as e:
         return {"error": str(e)}
 
@@ -109,7 +106,7 @@ async def extract_table(request: Request):
 
         result = build_table_from_html_and_cell(structure, content)
         html = "".join(result)
-        return html
+        return {"result": html}
     except ValueError as e:
         return {"error": str(e)}
 
