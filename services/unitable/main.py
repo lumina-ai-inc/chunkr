@@ -14,23 +14,11 @@ bbox_model = init_bbox_model()
 content_model = init_content_model()
 
 
-import tempfile
-import os
-
 def get_image_from_request(request: Request) -> Image.Image:
     image_file = next(iter(request.files.values()), None)
     if image_file is None:
         raise ValueError("Image not found in request")
-    
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        temp_file.write(image_file)
-        temp_file_path = temp_file.name
-    
-    try:
-        image = Image.open(temp_file_path).convert("RGB")
-        return image
-    finally:
-        os.unlink(temp_file_path)
+    return Image.open(BytesIO(image_file)).convert("RGB")
 
 
 def check_models(*models):
@@ -48,11 +36,14 @@ async def health():
 async def extract_structure(request: Request):
     try:
         check_models(structure_model)
+        structure_model_2 = init_structure_model()
+
         image = get_image_from_request(request)
-        result = run_structure_inference(structure_model, image)
+        result = run_structure_inference(structure_model_2, image)
         return result
     except ValueError as e:
         return {"error": str(e)}
+
 
 @app.post("/bbox")
 async def extract_bbox(request: Request):
