@@ -1,0 +1,3 @@
+_target_: src.model.components.ImgLinearBackbone
+d_model: ${model.d_model}
+patch_size: ${model.backbone_downsampling_factor}
