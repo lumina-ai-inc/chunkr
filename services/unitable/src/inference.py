@@ -23,7 +23,7 @@ def run_structure_inference(structure_model: tuple, image: Image):
 
     pred_html = pred_html.detach().cpu().numpy()[0]
     pred_html = vocab.decode(pred_html, skip_special_tokens=False)
-    # pred_html = html_str_to_token_list(pred_html)
+    pred_html = html_str_to_token_list(pred_html)
 
     return pred_html
 
