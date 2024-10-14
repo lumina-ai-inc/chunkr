@@ -23,7 +23,7 @@ async def extract_structure(request: Request):
     if structure_model is None:
         return {"error": "Structure model not initialized"}
 
-    image = request.files.get("image")
+    image = next(iter(request.files.values()), None)
     if image is None:
         return {"error": "Image not found in request"}
 
@@ -37,11 +37,11 @@ async def extract_bbox(request: Request):
     if bbox_model is None:
         return {"error": "BBox model not initialized"}
 
-    image = request.files.get("image")
+    image = next(iter(request.files.values()), None)
     if image is None:
         return {"error": "Image not found in request"}
 
-    image = Image.open(image).convert("RGB")
+    image = next(iter(request.files.values()), None)
     result = run_bbox_inference(bbox_model, image)
 
     if content_model is not None:
