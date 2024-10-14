@@ -28,4 +28,5 @@ dependencies = [
     "torchvision==0.17.1",
     "wandb==0.18.3",
     "python-dotenv>=1.0.1",
+    "opencv-python>=4.10.0.84",
 ]
