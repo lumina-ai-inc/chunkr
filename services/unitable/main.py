@@ -17,8 +17,7 @@ def get_image_from_request(request: Request) -> Image.Image:
     image_file = next(iter(request.files.values()), None)
     if image_file is None:
         raise ValueError("Image not found in request")
-    image_data = image_file.file.read()
-    return Image.open(BytesIO(image_data)).convert("RGB")
+    return Image.open(BytesIO(image_file)).convert("RGB")
 
 def check_models(*models):
     for model in models:
