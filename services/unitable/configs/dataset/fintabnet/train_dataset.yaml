@@ -1,0 +1,5 @@
+_target_: src.datamodule.FinTabNet
+root_dir: ../../../../DATASETS/finTabNet
+label_type: ${dataset.label_type}
+jsonl_filename: clean_FinTabNet_1.0.0_cell_train.jsonl
+transform: ${dataset.augmentation}

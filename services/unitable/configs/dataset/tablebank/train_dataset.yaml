@@ -1,0 +1,5 @@
+_target_: src.datamodule.TableBank
+root_dir: ../../../../DATASETS/tablebank/Recognition
+label_type: ${dataset.label_type}
+split: train
+transform: ${dataset.augmentation}

@@ -1,0 +1,6 @@
+_target_: src.datamodule.PubTables
+root_dir: ../../../../DATASETS/pubtables1m/PubTables-1M-Structure
+label_type: ${dataset.label_type}
+split: train
+transform: ${dataset.augmentation}
+cell_limit: ${dataset.cell_limit}

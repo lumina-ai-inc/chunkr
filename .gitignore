@@ -122,3 +122,6 @@ test.py
 c58a36dc-ebce-4969-bdc5-76142825c4e0.jpg
 ocr_log.csv
 ocr_aggregate_results.csv
+
+output.json
+output.html
