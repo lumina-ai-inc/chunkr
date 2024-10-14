@@ -82,7 +82,7 @@ def process_ocr(files):
 
         serializable_result = json.loads(json.dumps(
             result, default=lambda x: x.item() if isinstance(x, np.generic) else x))
-        return serializable_result
+        return result
     except Exception as e:
         print(f"Error during OCR processing: {e}")
         raise
