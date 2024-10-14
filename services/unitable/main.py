@@ -15,10 +15,6 @@ content_model = init_content_model()
 
 
 def get_image_from_request(request: Request) -> Image.Image:
-    image_name = "test.jpg"
-    image_path = f"{image_name}"
-    image = Image.open(image_path).convert("RGB")
-    return image
     image_file = next(iter(request.files.values()), None)
     if image_file is None:
         raise ValueError("Image not found in request")
