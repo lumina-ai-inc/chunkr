@@ -1,13 +1,24 @@
 import argparse
 from io import BytesIO
 from PIL import Image
-from robyn import Robyn, Request
+from robyn import Robyn, Request, Response, Logger
 
 from src.get_models import init_structure_model, init_bbox_model, init_content_model
 from src.inference import run_structure_inference, run_bbox_inference, run_content_inference
 from src.utils import build_table_from_html_and_cell
 
 app = Robyn(__file__)
+logger = Logger(app)
+
+
+@app.before_request()
+async def log_request(request: Request):
+    logger.info(f"Received request: %s", request)
+
+
+@app.after_request()
+async def log_response(response: Response):
+    logger.info(f"Sending response: %s", response)
 
 
 def get_image_from_request(request: Request) -> Image.Image:
@@ -36,9 +47,11 @@ async def extract_structure(request: Request):
 
         image = get_image_from_request(request)
         structure = run_structure_inference(structure_model, image)
-        content  = [""] * len(structure)
+        print("structure", structure)
+        content = [""] * len(structure)
         result = build_table_from_html_and_cell(structure, content)
         html = "".join(result)
+        print("html", html)
         return html
     except ValueError as e:
         return {"error": str(e)}
@@ -50,7 +63,7 @@ async def extract_bbox(request: Request):
         bbox_model = init_bbox_model()
         content_model = init_content_model()
         check_models(bbox_model)
-        
+
         image = get_image_from_request(request)
         result = run_bbox_inference(bbox_model, image)
 
