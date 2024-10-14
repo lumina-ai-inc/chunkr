@@ -38,7 +38,8 @@ async def extract_structure(request: Request):
         structure = run_structure_inference(structure_model, image)
         content  = [""] * len(structure)
         result = build_table_from_html_and_cell(structure, content)
-        return result
+        html = "".join(result)
+        return html
     except ValueError as e:
         return {"error": str(e)}
 
@@ -79,7 +80,8 @@ async def extract_table(request: Request):
             content = [""] * len(bbox)
 
         result = build_table_from_html_and_cell(structure, content)
-        return result
+        html = "".join(result)
+        return html
     except ValueError as e:
         return {"error": str(e)}
 
