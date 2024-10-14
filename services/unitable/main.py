@@ -13,20 +13,24 @@ structure_model = init_structure_model()
 bbox_model = init_bbox_model()
 content_model = init_content_model()
 
+
 def get_image_from_request(request: Request) -> Image.Image:
     image_file = next(iter(request.files.values()), None)
     if image_file is None:
         raise ValueError("Image not found in request")
     return Image.open(BytesIO(image_file)).convert("RGB")
 
+
 def check_models(*models):
     for model in models:
         if model is None:
             raise ValueError(f"{model.__name__} not initialized")
 
+
 @app.get("/")
 async def health():
     return {"status": "ok"}
+
 
 @app.post("/structure")
 async def extract_structure(request: Request):
@@ -46,8 +50,8 @@ async def extract_structure(request: Request):
         image = get_image_from_request(request)
         result = run_structure_inference(structure_model, image)
         content = [""] * len(result)
-        result = build_table_from_html_and_cell(result, content)
-        return result
+        html_code = build_table_from_html_and_cell(result, content)
+        return html_code
     except ValueError as e:
         return {"error": str(e)}
 
@@ -74,7 +78,7 @@ async def extract_table(request: Request):
         image = get_image_from_request(request)
         structure = run_structure_inference(structure_model, image)
         bbox = run_bbox_inference(bbox_model, image)
-        
+
         if content_model is not None:
             content = run_content_inference(content_model, image, bbox)
         else:
