@@ -155,10 +155,10 @@ curl -X GET http://localhost:8000/
 
 ### Structure Extraction
 
-`POST /structure/html`
+`POST /structure`
 
 ```bash
-curl -X POST http://localhost:8000/structure/html -F "image=@path/to/image.png"
+curl -X POST http://localhost:8000/structure -F "image=@path/to/image.png" -o output.html
 ```
 
 ### Bounding Box (BBox) Extraction
@@ -166,7 +166,7 @@ curl -X POST http://localhost:8000/structure/html -F "image=@path/to/image.png"
 `POST /bbox`
 
 ```bash
-curl -X POST http://localhost:8000/bbox -F "image=@path/to/image.png"
+curl -X POST http://localhost:8000/bbox -F "image=@path/to/image.png" -o output.json
 ```
 
 ### Full Table Extraction
@@ -174,5 +174,5 @@ curl -X POST http://localhost:8000/bbox -F "image=@path/to/image.png"
 `POST /table/html`
 
 ```bash
-curl -X POST http://localhost:8000/table/html -F "image=@path/to/image.png"
+curl -X POST http://localhost:8000/table/html -F "image=@path/to/image.png" -o output.html
 ```
