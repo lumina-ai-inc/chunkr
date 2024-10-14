@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: task
+  name: rapid-ocr
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: task
+    app.kubernetes.io/name: rapid-ocr
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: task
+      app.kubernetes.io/name: rapid-ocr
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: task
+        app.kubernetes.io/name: rapid-ocr
     spec:
       affinity:
         podAntiAffinity:
@@ -25,11 +25,11 @@ spec:
                 - key: app.kubernetes.io/name
                   operator: In
                   values:
-                  - task
+                  - rapid-ocr
               topologyKey: "kubernetes.io/hostname"
       containers:
-      - name: task
-        image: luminainc/task:00a5b34b
+      - name: rapid-ocr
+        image: luminainc/rapidocr:94590025
         imagePullPolicy: Always
         envFrom:
         - secretRef:
