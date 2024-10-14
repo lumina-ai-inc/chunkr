@@ -27,4 +27,5 @@ dependencies = [
     "torchtext==0.17.1",
     "torchvision==0.17.1",
     "wandb==0.18.3",
+    "python-dotenv>=1.0.1",
 ]
