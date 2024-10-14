@@ -207,4 +207,4 @@ if __name__ == "__main__":
     input_dir = "./input"
     output_dir = "./output"
     os.makedirs(output_dir, exist_ok=True)
-    main(input_dir, output_dir, preprocess=True)
+    main(input_dir, output_dir, preprocess=False)
