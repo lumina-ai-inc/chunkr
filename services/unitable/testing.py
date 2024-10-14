@@ -17,14 +17,14 @@ def call_unitable_structure(image_path):
     response = requests.post(f"{unitable_url}/structure",
                              files={"image": open(image_path, "rb")})
     response.raise_for_status()
-    return response.text
+    return response.json()["result"]
 
 
 def call_unitable_bbox(image_path):
     response = requests.post(f"{unitable_url}/bbox",
                              files={"image": open(image_path, "rb")})
     response.raise_for_status()
-    return response.json()
+    return response.json()["result"]
 
 
 def call_rapidocr(image_path):
@@ -92,6 +92,7 @@ def build_table_from_html_and_cell(
 
     return html_code
 
+
 def map_paddle_text_onto_unitable(paddle_bbox, unitable_bbox):
     """Map paddle text onto unitable bbox"""
     def get_center(bbox):
@@ -104,7 +105,7 @@ def map_paddle_text_onto_unitable(paddle_bbox, unitable_bbox):
         return x1 <= px <= x2 and y1 <= py <= y2
 
     paddle_centers = [get_center(bbox) for bbox, text, _ in paddle_bbox]
-    
+
     mapped_text = []
 
     for unitable_box in unitable_bbox:
@@ -112,10 +113,11 @@ def map_paddle_text_onto_unitable(paddle_bbox, unitable_bbox):
         for (bbox, text, _), center in zip(paddle_bbox, paddle_centers):
             if point_inside_bbox(center, unitable_box):
                 matching_texts.append(text)
-        
+
         combined_text = " ".join(matching_texts)
         mapped_text.append(combined_text)
     return mapped_text
+
 
 def process_image(image_path, output_path, preprocess=True):
     input_paths = [image_path]
@@ -128,7 +130,8 @@ def process_image(image_path, output_path, preprocess=True):
     parent_dir = os.path.dirname(output_path)
     temp_output_path = os.path.join(parent_dir, f"temp_{filename}")
     temp_input_path = os.path.join(parent_dir, f"temp_input_{filename}")
-    html_output_path = os.path.join(parent_dir, f"{filename_without_extension}.html")
+    html_output_path = os.path.join(
+        parent_dir, f"{filename_without_extension}.html")
 
     if preprocess:
         preprocessed_image = preprocess_image(image_path)
@@ -140,14 +143,23 @@ def process_image(image_path, output_path, preprocess=True):
     ocr_results = call_rapidocr(ocr_image)
     bboxes = call_unitable_bbox(ocr_image)
     structure = call_unitable_structure(ocr_image)
+
+    html = map_to_html(ocr_results, bboxes, structure)
+    with open(html_output_path, "w") as f:
+        f.write(html)
+    draw_bbox(input_paths, output_paths, bboxes, ocr_results)
+
+
+def map_to_html(ocr_results, bboxes, structure):
     mapped_text = map_paddle_text_onto_unitable(ocr_results, bboxes)
     table = build_table_from_html_and_cell(structure, mapped_text)
+    table = "".join(table)
     table = html_table_template(table)
-    with open(html_output_path, "w") as f:
-        f.write(table)
+    return table
 
+
+def draw_bbox(input_paths, output_paths, bboxes, ocr_results):
     for input_file, output_file in zip(input_paths, output_paths):
-        print(f"path: {input_file}")
         image = Image.open(input_file)
         draw = ImageDraw.Draw(image)
         font = ImageFont.truetype("arial.ttf", 24)
