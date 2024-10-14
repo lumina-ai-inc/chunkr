@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 from io import BytesIO
 from PIL import Image
 from robyn import Robyn, Request, Response
@@ -11,10 +12,30 @@ from src.utils import build_table_from_html_and_cell
 app = Robyn(__file__)
 logger = Logger()
 
+class LoggingMiddleware:
+
+    def request_info(request: Request):
+        ip_address = request.ip_addr
+        request_url = request.url.host
+        request_path = request.url.path
+        request_method = request.method
+        request_time = str(datetime.now())
+
+
+        return {
+            "ip_address": ip_address,
+            "request_url": request_url,
+            "request_path": request_path,
+            "request_method": request_method,
+            "request_time": request_time,
+
+        }
 
 @app.before_request()
-async def log_request(request: Request):
-    logger.info(f"Received request: %s", request)
+def log_request(request: Request):
+    logger.info(f"Received request: %s", 
+        LoggingMiddleware.request_info(request))
+    return request
 
 
 @app.after_request()
