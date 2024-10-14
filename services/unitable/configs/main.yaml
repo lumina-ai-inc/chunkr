@@ -1,0 +1,23 @@
+defaults:
+  - _self_
+  - dataset: mini_pubtabnet
+  - model: encoderdecoder
+  - trainer: table
+  - vocab: html
+  - override hydra/job_logging: colorlog
+  - override hydra/hydra_logging: colorlog
+
+
+hydra:
+  run:
+    dir: ../experiments/${name}
+  sweep:
+    dir: ../experiments/${name}
+  job:
+    name: ${name}
+    chdir: true
+
+wandb:
+  project: UniTable
+
+seed: 1234

@@ -1,0 +1,56 @@
+defaults:
+  - _self_
+  - train/lr_scheduler: step
+  - train/optimizer: adam
+
+
+mode: train
+img_size: [448,448]
+max_seq_len: 512
+label_type: html+cell+bbox
+
+train:
+  target: ${trainer.label_type}
+  img_size: ${trainer.img_size}
+  loss_weights:
+    table: 0
+    html: 0
+    cell: 0
+    bbox: 0
+  grad_clip: 5
+  epochs: 24
+  save_every: 1
+  max_seq_len: ${trainer.max_seq_len}
+  dataloader:
+    _target_: src.datamodule.dataloader_html
+    batch_size: 48
+    label_type: ${trainer.label_type}
+valid:
+  target: ${trainer.label_type}
+  img_size: ${trainer.img_size}
+  loss_weights: ${trainer.train.loss_weights}
+  max_seq_len: ${trainer.max_seq_len}
+  dataloader:
+    _target_: src.datamodule.dataloader_html
+    batch_size: 48
+    label_type: ${trainer.label_type}
+test:
+  target: ${trainer.train.target}
+  img_size: ${trainer.img_size}
+  loss_weights: ${trainer.train.loss_weights}
+  metrics: teds
+  max_seq_len: ${trainer.max_seq_len}
+  sampling: greedy
+  save_to_prefix: html_table_result
+  dataloader:
+    _target_: src.datamodule.dataloader_html
+    batch_size: 96
+    label_type: ${trainer.label_type}
+
+
+trainer:
+  _target_: src.trainer.TableTrainer
+  snapshot: null
+  model_weights: null
+  beit_pretrained_weights: null
+  freeze_beit_epoch: null

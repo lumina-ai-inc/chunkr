@@ -1,0 +1,5 @@
+_target_: src.datamodule.ICDAR
+root_dir: ../../../../DATASETS/ICDAR-2013
+label_type: ${dataset.label_type}
+split: train
+transform: ${dataset.augmentation}

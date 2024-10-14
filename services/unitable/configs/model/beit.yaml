@@ -1,0 +1,35 @@
+defaults:
+  - _self_
+  - model/backbone: imglinear
+  - model/encoder: transformer
+
+nhead: 12
+ff_ratio: 4
+activation: gelu
+norm_first: true
+d_model: 768
+dropout: 0.0
+backbone_downsampling_factor: 16
+
+codebook_tokens: 8192
+hidden_dim: 256
+
+model:
+  _target_: src.model.beit.BeitEncoder
+  d_model: ${model.d_model}
+  codebook_tokens: ${model.codebook_tokens}
+  dropout: ${model.dropout}
+  norm_layer:
+    _partial_: true
+    _target_: torch.nn.LayerNorm
+    eps: 1e-6
+
+model_vqvae:
+  _target_: src.model.vqvae.DiscreteVAE
+  image_size: ${trainer.vqvae_size}
+  codebook_tokens: ${model.codebook_tokens}
+  codebook_dim: 512
+  num_layers: 3
+  hidden_dim: ${model.hidden_dim}
+  smooth_l1_loss: false
+  kl_div_loss_weight: 0.0
