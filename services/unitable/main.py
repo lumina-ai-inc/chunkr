@@ -1,7 +1,8 @@
 import argparse
 from io import BytesIO
 from PIL import Image
-from robyn import Robyn, Request, Response, Logger
+from robyn import Robyn, Request, Response
+from robyn.logger import Logger
 
 from src.get_models import init_structure_model, init_bbox_model, init_content_model
 from src.inference import run_structure_inference, run_bbox_inference, run_content_inference
