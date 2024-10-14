@@ -5,7 +5,7 @@ from robyn import Robyn, Request
 
 from src.get_models import init_structure_model, init_bbox_model, init_content_model
 from src.inference import run_structure_inference, run_bbox_inference, run_content_inference
-from src.utils import build_table_from_html_and_cell
+from src.utils import build_table_from_html_and_cell, html_table_template
 
 app = Robyn(__file__)
 
@@ -51,6 +51,8 @@ async def extract_structure(request: Request):
         result = run_structure_inference(structure_model, image)
         content = [""] * len(result)
         html_code = build_table_from_html_and_cell(result, content)
+        html_code = "".join(html_code)
+        html_code = html_table_template(html_code)
         return html_code
     except ValueError as e:
         return {"error": str(e)}
