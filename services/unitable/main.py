@@ -14,11 +14,23 @@ bbox_model = init_bbox_model()
 content_model = init_content_model()
 
 
+import tempfile
+import os
+
 def get_image_from_request(request: Request) -> Image.Image:
     image_file = next(iter(request.files.values()), None)
     if image_file is None:
         raise ValueError("Image not found in request")
-    return Image.open(BytesIO(image_file)).convert("RGB")
+    
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        temp_file.write(image_file)
+        temp_file_path = temp_file.name
+    
+    try:
+        image = Image.open(temp_file_path).convert("RGB")
+        return image
+    finally:
+        os.unlink(temp_file_path)
 
 
 def check_models(*models):
