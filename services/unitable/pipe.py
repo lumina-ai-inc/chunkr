@@ -153,11 +153,8 @@ pred_html = autoregressive_decode(
 
 # Convert token id to token text
 pred_html = pred_html.detach().cpu().numpy()[0]
-print("pred_html 0", pred_html)
 pred_html = vocab.decode(pred_html, skip_special_tokens=False)
-print("pred_html 1", pred_html)
 pred_html = html_str_to_token_list(pred_html)
-print("pred_html 2", pred_html)
 
 # Table cell bbox detection
 vocab, model = load_vocab_and_model(
