@@ -40,11 +40,13 @@ class LoggingMiddleware:
 
 if torch.cuda.is_available():
     print("CUDA is available. Using GPU for RapidOCR.")
-    engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True, cls_use_cuda=True)
+    engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True, cls_use_cuda=True, ocr_order_method="tb-xy")
 else:
     print("CUDA is not available. Using CPU for RapidOCR.")
     engine = RapidOCR(det_use_cuda=False,
-                      rec_use_cuda=False, cls_use_cuda=False)
+                      rec_use_cuda=False,
+                      cls_use_cuda=False,
+                      ocr_order_method="tb-xy")
 
 
 @app.before_request()

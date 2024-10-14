@@ -9,11 +9,13 @@ dotenv.load_dotenv(override=True)
 rapidocr_url = os.getenv("RAPIDOCR_URL")
 unitable_url = os.getenv("UNITABLE_URL")
 
+
 def call_unitable_bbox(image_path):
     response = requests.post(f"{unitable_url}/bbox",
                              files={"image": open(image_path, "rb")})
     response.raise_for_status()
     return response.json()
+
 
 def call_rapidocr(image_path):
     response = requests.post(f"{rapidocr_url}/ocr",
@@ -29,23 +31,29 @@ def process_image(image_path, output_path):
         print(f"Error: {e}")
         return
     bboxes = call_unitable_bbox(image_path)
-    
+
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
-    
-    for bbox in bboxes:
+
+    for i, bbox in enumerate(bboxes):
         left, top, right, bottom = bbox
         width = right - left
         height = bottom - top
         draw.rectangle([left, top, left + width, top + height],
                        outline="red", width=2)
-    
-    for result in ocr_results:
+
+    for i, result in enumerate(ocr_results):
         bbox, text, confidence = result
-        points = bbox
-        draw.polygon(points, outline="blue", width=2)
-        
+        top_left, top_right, bottom_right, bottom_left = bbox
+        left = top_left[0]
+        top = top_left[1]
+        width = bottom_right[0] - left
+        height = bottom_right[1] - top
+        draw.rectangle([left, top, left + width, top + height],
+                       outline="blue", width=2)
+
     image.save(output_path)
+
 
 def main(input_dir, output_dir):
 
@@ -62,8 +70,7 @@ def main(input_dir, output_dir):
         input_dir) if os.path.isfile(os.path.join(input_dir, f))]
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(process_image_wrapper, zip(image_paths, output_paths))
-
+        executor.map(process_image_wrapper, zip(image_paths, output_paths))
 
 
 if __name__ == "__main__":
