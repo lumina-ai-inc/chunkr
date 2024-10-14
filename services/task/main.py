@@ -6,6 +6,7 @@ from concurrent.futures import ProcessPoolExecutor
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
+import gc
 import json
 import logging
 from multiprocessing import cpu_count
@@ -81,6 +82,8 @@ async def to_pdf(file: UploadFile = File(...)):
             os.unlink(file_path)
         raise HTTPException(
             status_code=500, detail="Failed to convert file to PDF")
+    finally:
+        gc.collect()  
 
 
 @app.post("/process")
@@ -125,7 +128,7 @@ async def process(
         return processed_segments
     finally:
         os.unlink(file_path)
-
+        gc.collect()
 
 async def process_segments(
     file: Path, segments: list[Segment], user_id: str, task_id: str, image_folder_location: str,
