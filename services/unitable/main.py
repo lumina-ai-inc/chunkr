@@ -15,6 +15,10 @@ content_model = init_content_model()
 
 
 def get_image_from_request(request: Request) -> Image.Image:
+    image_name = "test.jpg"
+    image_path = f"{image_name}"
+    image = Image.open(image_path).convert("RGB")
+    return image
     image_file = next(iter(request.files.values()), None)
     if image_file is None:
         raise ValueError("Image not found in request")
@@ -41,22 +45,6 @@ async def extract_structure(request: Request):
         return result
     except ValueError as e:
         return {"error": str(e)}
-
-
-@app.post("/structure/html")
-async def extract_structure(request: Request):
-    try:
-        check_models(structure_model)
-        image = get_image_from_request(request)
-        result = run_structure_inference(structure_model, image)
-        content = [""] * len(result)
-        html_code = build_table_from_html_and_cell(result, content)
-        html_code = "".join(html_code)
-        html_code = html_table_template(html_code)
-        return html_code
-    except ValueError as e:
-        return {"error": str(e)}
-
 
 @app.post("/bbox")
 async def extract_bbox(request: Request):
