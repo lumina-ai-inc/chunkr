@@ -24,16 +24,28 @@ def call_rapidocr(image_path):
 
 def process_image(image_path, output_path):
     bboxes = call_unitable_bbox(image_path)
+    try:
+        ocr_results = call_rapidocr(image_path)
+    except Exception as e:
+        print(f"Error: {e}")
+        return
+    
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
+    
     for bbox in bboxes:
         left, top, right, bottom = bbox
         width = right - left
         height = bottom - top
         draw.rectangle([left, top, left + width, top + height],
                        outline="red", width=2)
+    
+    for result in ocr_results:
+        bbox, text, confidence = result
+        points = bbox
+        draw.polygon(points, outline="blue", width=2)
+        
     image.save(output_path)
-
 
 def main(input_dir, output_dir):
 
