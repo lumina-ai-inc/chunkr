@@ -88,6 +88,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let mut file_contents = String::new();
         output_file.as_file().read_to_string(&mut file_contents)?;
         println!("Output file contents read");
+        println!("Output file contents: {:?}", file_contents);
 
         let incomplete_segments: Vec<Segment> = match serde_json::from_str(&file_contents) {
             Ok(segments) => segments,
