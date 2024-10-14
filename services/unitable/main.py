@@ -28,6 +28,16 @@ def check_models(*models):
 async def health():
     return {"status": "ok"}
 
+@app.post("/structure")
+async def extract_structure(request: Request):
+    try:
+        check_models(structure_model)
+        image = get_image_from_request(request)
+        result = run_structure_inference(structure_model, image)
+        return result
+    except ValueError as e:
+        return {"error": str(e)}
+
 
 @app.post("/structure/html")
 async def extract_structure(request: Request):
@@ -35,6 +45,8 @@ async def extract_structure(request: Request):
         check_models(structure_model)
         image = get_image_from_request(request)
         result = run_structure_inference(structure_model, image)
+        content = [""] * len(result)
+        result = build_table_from_html_and_cell(result, content)
         return result
     except ValueError as e:
         return {"error": str(e)}
