@@ -60,10 +60,11 @@ async def health():
 
 
 @app.post("/ocr")
-async def perform_ocr(request: Request) -> list:
+async def perform_ocr(request: Request):
     loop = asyncio.get_event_loop()
     async with ocr_lock:
         result = await loop.run_in_executor(None, process_ocr, request.files)
+    gc.collect()
     return result
 
 
@@ -78,7 +79,17 @@ def process_ocr(files) -> list:
         temp_file.close()
 
         result, _ = engine(temp_file_path)
-        return result
+
+        serializable_result = [
+            [
+                [float(coord) for coord in item[0]], 
+                item[1],
+                float(item[2])
+            ]
+            for item in result
+        ]
+        
+        return serializable_result
     except Exception as e:
         print(f"Error during OCR processing: {e}")
         raise
