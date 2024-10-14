@@ -1,20 +1,42 @@
 import asyncio
 import argparse
 import cv2  # do not remove
+from datetime import datetime
 import gc
 import json
 import numpy as np
 import os
 from rapidocr_paddle import RapidOCR
-from robyn import Robyn, Request, Response, Logger
+from robyn import Robyn, Request
+from robyn.logger import Logger
 from tempfile import NamedTemporaryFile
 import time
 import torch
 
 app = Robyn(__file__)
-logger = Logger(app)
+logger = Logger()
 
 ocr_lock = asyncio.Lock()
+
+
+class LoggingMiddleware:
+
+    def request_info(request: Request):
+        ip_address = request.ip_addr
+        request_url = request.url.host
+        request_path = request.url.path
+        request_method = request.method
+        request_time = str(datetime.now())
+
+        return {
+            "ip_address": ip_address,
+            "request_url": request_url,
+            "request_path": request_path,
+            "request_method": request_method,
+            "request_time": request_time,
+
+        }
+
 
 if torch.cuda.is_available():
     print("CUDA is available. Using GPU for RapidOCR.")
@@ -26,13 +48,10 @@ else:
 
 
 @app.before_request()
-async def log_request(request: Request):
-    logger.info(f"Received request: %s", request)
-
-
-@app.after_request()
-async def log_response(response: Response):
-    logger.info(f"Sending response: %s", response)
+def log_request(request: Request):
+    logger.info(f"Received request: %s",
+                LoggingMiddleware.request_info(request))
+    return request
 
 
 @app.get("/")

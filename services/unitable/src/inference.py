@@ -32,7 +32,6 @@ def run_bbox_inference(bbox_model: tuple, image: Image):
     vocab, model = bbox_model
     image_tensor = image_to_tensor(image, size=(448, 448))
     image_size = image.size
-    print("image_size", image_size)
 
     pred_bbox = autoregressive_decode(
         model=model,
