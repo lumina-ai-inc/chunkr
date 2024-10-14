@@ -57,9 +57,8 @@ async def extract_table(request: Request):
     if bbox_model is None:
         return {"error": "BBox model not initialized"}
 
-    print("file names", request.files.keys())
 
-    image = request.files.get("image")
+    image = next(iter(request.files.values()), None)
     if image is None:
         return {"error": "Image not found in request"}
 
