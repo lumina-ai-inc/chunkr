@@ -5,11 +5,19 @@ import numpy as np
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter
 import requests
-import shutil
+from typing import List
+
 dotenv.load_dotenv(override=True)
 
 rapidocr_url = os.getenv("RAPIDOCR_URL")
 unitable_url = os.getenv("UNITABLE_URL")
+
+
+def call_unitable_structure(image_path):
+    response = requests.post(f"{unitable_url}/structure",
+                             files={"image": open(image_path, "rb")})
+    response.raise_for_status()
+    return response.json()
 
 
 def call_unitable_bbox(image_path):
@@ -47,6 +55,69 @@ def preprocess_image(image_path):
     return preprocessed_image
 
 
+def html_table_template(table: str) -> str:
+    return f"""<html>
+        <head> <meta charset="UTF-8">
+        <style>
+        table, th, td {{
+            border: 1px solid black;
+            font-size: 10px;
+        }}
+        </style> </head>
+        <body>
+        <table frame="hsides" rules="groups" width="100%">
+            {table}
+        </table> </body> </html>"""
+
+
+def build_table_from_html_and_cell(
+    structure: List[str], content: List[str] = None
+) -> List[str]:
+    """Build table from html and cell token list"""
+    assert structure is not None
+    html_code = list()
+
+    # deal with empty table
+    if content is None:
+        content = ["placeholder"] * len(structure)
+
+    for tag in structure:
+        if tag in ("<td>[]</td>", ">[]</td>"):
+            if len(content) == 0:
+                continue
+            cell = content.pop(0)
+            html_code.append(tag.replace("[]", cell))
+        else:
+            html_code.append(tag)
+
+    return html_code
+
+def map_paddle_text_onto_unitable(paddle_bbox, unitable_bbox):
+    """Map paddle text onto unitable bbox"""
+    def get_center(bbox):
+        x1, y1, x2, y2 = bbox
+        return ((x1 + x2) / 2, (y1 + y2) / 2)
+
+    def point_inside_bbox(point, bbox):
+        px, py = point
+        x1, y1, x2, y2 = bbox
+        return x1 <= px <= x2 and y1 <= py <= y2
+
+    paddle_centers = [get_center(bbox) for bbox, text, _ in paddle_bbox]
+    
+    mapped_text = []
+
+    for unitable_box in unitable_bbox:
+        matching_texts = []
+        for (bbox, text, _), center in zip(paddle_bbox, paddle_centers):
+            if point_inside_bbox(center, unitable_box):
+                matching_texts.append(text)
+        
+        combined_text = " ".join(matching_texts)
+        mapped_text.append(combined_text)
+
+    return mapped_text
+
 def process_image(image_path, output_path, preprocess=True):
     input_paths = [image_path]
     output_paths = [output_path]
@@ -57,6 +128,7 @@ def process_image(image_path, output_path, preprocess=True):
     parent_dir = os.path.dirname(output_path)
     temp_output_path = os.path.join(parent_dir, f"temp_{filename}")
     temp_input_path = os.path.join(parent_dir, f"temp_input_{filename}")
+    html_output_path = os.path.join(parent_dir, f"{filename}.html")
 
     if preprocess:
         preprocessed_image = preprocess_image(image_path)
@@ -67,7 +139,13 @@ def process_image(image_path, output_path, preprocess=True):
 
     ocr_results = call_rapidocr(ocr_image)
     bboxes = call_unitable_bbox(ocr_image)
-
+    structure = call_unitable_structure(ocr_image)
+    mapped_text = map_paddle_text_onto_unitable(ocr_results, bboxes)
+    table = build_table_from_html_and_cell(structure, mapped_text)
+    table = html_table_template(table)
+    with open(html_output_path, "w") as f:
+        f.write(table)
+        
     for input_file, output_file in zip(input_paths, output_paths):
         print(f"path: {input_file}")
         image = Image.open(input_file)
