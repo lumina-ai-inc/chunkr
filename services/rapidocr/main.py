@@ -82,8 +82,8 @@ def process_ocr(files) -> list:
 
         serializable_result = [
             [
-                [float(coord) for coord in item[0]], 
-                item[1],
+                [[float(coord) for coord in coords] for coords in item[0]],
+                str(item[1]),
                 float(item[2])
             ]
             for item in result
