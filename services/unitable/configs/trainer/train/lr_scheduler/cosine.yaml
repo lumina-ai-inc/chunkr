@@ -1,0 +1,7 @@
+_target_: torch.optim.lr_scheduler.LambdaLR
+lr_lambda:
+  _partial_: true
+  _target_: src.utils.cosine_schedule_with_warmup
+  warmup: 6
+  min_ratio: 5e-3
+  total_step: ${trainer.train.epochs}

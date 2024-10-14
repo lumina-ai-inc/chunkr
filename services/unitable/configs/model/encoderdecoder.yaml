@@ -1,0 +1,29 @@
+defaults:
+  - _self_
+  - model/backbone: imgcnn
+  - model/encoder: transformer
+  - model/decoder: transformer
+
+
+nhead: 4
+ff_ratio: 2
+activation: relu
+norm_first: false
+d_model: 512
+dropout: 0.5
+backbone_downsampling_factor: 16
+
+
+model:
+  _target_: src.model.EncoderDecoder
+  vocab_size: -1
+  d_model: ${model.d_model}
+  padding_idx: -1
+  max_seq_len: ${trainer.max_seq_len}
+  dropout: ${model.dropout}
+  norm_layer:
+    _partial_: true
+    _target_: torch.nn.LayerNorm
+    eps: 1e-6
+
+

@@ -1,0 +1,5 @@
+_target_: torchvision.transforms.Compose
+transforms:
+  - _target_: torchvision.transforms.Resize
+    size: ${trainer.img_size}
+  - _target_: torchvision.transforms.ToTensor

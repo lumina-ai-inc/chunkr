@@ -1,0 +1,5 @@
+_target_: src.model.components.ImgConvStemBackbone
+d_model: ${model.d_model}
+downsample_factor: ${model.backbone_downsampling_factor}
+output_channels: 192
+kernel_size: 3

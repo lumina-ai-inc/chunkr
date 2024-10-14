@@ -3,6 +3,34 @@ apt-get install -y redis-tools htop git linux-headers-`uname -r` build-essential
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.cargo/env
 
+# Install Docker
+apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+apt-get update
+apt-get install -y docker-ce docker-ce-cli containerd.io
+apt-get install python3-venv
+usermod -aG docker debian
+apt-get install -y docker-compose
+
+# Pull chunkr git repository
+git clone https://github.com/lumina-ai-inc/chunkr.git ./chunkr
+chown -R debian:debian ./chunkr
+
+# Install gh
+(type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
+	&& sudo mkdir -p -m 755 /etc/apt/keyrings \
+	&& wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+	&& sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+	&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+	&& sudo apt update \
+	&& sudo apt install gh -y
+
+# Install oh-my-bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
+
+####
+
 # Install ImageMagick dependencies
 # Install ImageMagick dependencies and OpenCL-related packages
 sudo apt-get update
@@ -47,19 +75,8 @@ magick identify -list configure | grep -i opencl
 
 sudo apt-get install poppler-utils
 
-# Install Docker
-apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-apt-get update
-apt-get install -y docker-ce docker-ce-cli containerd.io
-apt-get install python3-venv
-usermod -aG docker debian
-apt-get install -y docker-compose
-
-# Pull chunkr git repository
-git clone https://github.com/lumina-ai-inc/chunkr.git ./chunkr
-chown -R debian:debian ./chunkr
-
 # Install pyenchant and its dependencies
 apt-get install -y libenchant-2-dev
+
+
+
