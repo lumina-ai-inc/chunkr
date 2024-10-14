@@ -131,16 +131,6 @@ def image_to_tensor(image: Image, size: Tuple[int, int]) -> Tensor:
 
     return image_tensor
 
-def rescale_bbox(
-    bbox: Sequence[Sequence[float]],
-    src: Tuple[int, int],
-    tgt: Tuple[int, int]
-) -> Sequence[Sequence[float]]:
-    assert len(src) == len(tgt) == 2
-    ratio = [tgt[0] / src[0], tgt[1] / src[1]] * 2
-    bbox = [[int(round(i * j)) for i, j in zip(entry, ratio)] for entry in bbox]
-    return bbox
-
 
 # Table structure extraction
 vocab, model = load_vocab_and_model(
@@ -170,36 +160,46 @@ pred_html = html_str_to_token_list(pred_html)
 
 # print(pred_html)
 
-# # Table cell bbox detection
-# vocab, model = load_vocab_and_model(
-#     vocab_path="./vocab/vocab_bbox.json",
-#     max_seq_len=1024,
-#     model_weights=MODEL_DIR / MODEL_FILE_NAME[1],
-# )
+# Table cell bbox detection
+vocab, model = load_vocab_and_model(
+    vocab_path="./vocab/vocab_bbox.json",
+    max_seq_len=1024,
+    model_weights=MODEL_DIR / MODEL_FILE_NAME[1],
+)
 
-# # Image transformation
-# image_tensor = image_to_tensor(image, size=(448, 448))
+# Image transformation
+image_tensor = image_to_tensor(image, size=(448, 448))
 
-# # Inference
-# pred_bbox = autoregressive_decode(
-#     model=model,
-#     image=image_tensor,
-#     prefix=[vocab.token_to_id("[bbox]")],
-#     max_decode_len=1024,
-#     eos_id=vocab.token_to_id("<eos>"),
-#     token_whitelist=[vocab.token_to_id(i) for i in VALID_BBOX_TOKEN[: 449]],
-#     token_blacklist = None
-# )
+# Inference
+pred_bbox = autoregressive_decode(
+    model=model,
+    image=image_tensor,
+    prefix=[vocab.token_to_id("[bbox]")],
+    max_decode_len=1024,
+    eos_id=vocab.token_to_id("<eos>"),
+    token_whitelist=[vocab.token_to_id(i) for i in VALID_BBOX_TOKEN[: 449]],
+    token_blacklist = None
+)
 
-# # Convert token id to token text
-# pred_bbox = pred_bbox.detach().cpu().numpy()[0]
-# pred_bbox = vocab.decode(pred_bbox, skip_special_tokens=False)
+# Convert token id to token text
+pred_bbox = pred_bbox.detach().cpu().numpy()[0]
+pred_bbox = vocab.decode(pred_bbox, skip_special_tokens=False)
 
-# print(pred_bbox)
+print(pred_bbox)
 
-# # Visualize detected bbox
-# pred_bbox = bbox_str_to_token_list(pred_bbox)
-# pred_bbox = rescale_bbox(pred_bbox, src=(448, 448), tgt=image_size)
+def rescale_bbox(
+    bbox: Sequence[Sequence[float]],
+    src: Tuple[int, int],
+    tgt: Tuple[int, int]
+) -> Sequence[Sequence[float]]:
+    assert len(src) == len(tgt) == 2
+    ratio = [tgt[0] / src[0], tgt[1] / src[1]] * 2
+    bbox = [[int(round(i * j)) for i, j in zip(entry, ratio)] for entry in bbox]
+    return bbox
+
+# Visualize detected bbox
+pred_bbox = bbox_str_to_token_list(pred_bbox)
+pred_bbox = rescale_bbox(pred_bbox, src=(448, 448), tgt=image_size)
 
 # fig, ax = plt.subplots(figsize=(12, 10))
 # for i in pred_bbox:
