@@ -9,7 +9,7 @@ from src.inference import run_structure_inference, run_bbox_inference, run_conte
 from src.utils import build_table_from_html_and_cell
 
 app = Robyn(__file__)
-logger = Logger(app)
+logger = Logger()
 
 
 @app.before_request()
