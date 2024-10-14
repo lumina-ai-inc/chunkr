@@ -79,7 +79,7 @@ def process_ocr(files):
         temp_file.close()
 
         result, _ = engine(temp_file_path)
-        print(result)
+        print(type(result))
         # serializable_result = json.loads(json.dumps(
         #     result, default=lambda x: x.item() if isinstance(x, np.generic) else x))
         return result
