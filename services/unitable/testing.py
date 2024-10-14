@@ -23,12 +23,12 @@ def call_rapidocr(image_path):
 
 
 def process_image(image_path, output_path):
-    bboxes = call_unitable_bbox(image_path)
     try:
         ocr_results = call_rapidocr(image_path)
     except Exception as e:
         print(f"Error: {e}")
         return
+    bboxes = call_unitable_bbox(image_path)
     
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
