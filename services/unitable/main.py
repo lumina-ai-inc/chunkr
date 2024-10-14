@@ -1,4 +1,5 @@
 import argparse
+from io import BytesIO
 from PIL import Image
 from robyn import Robyn, Request
 
@@ -13,10 +14,11 @@ bbox_model = init_bbox_model()
 content_model = init_content_model()
 
 def get_image_from_request(request: Request) -> Image.Image:
-    image = next(iter(request.files.values()), None)
-    if image is None:
+    image_file = next(iter(request.files.values()), None)
+    if image_file is None:
         raise ValueError("Image not found in request")
-    return Image.frombytes(image).convert("RGB")
+    image_data = image_file.file.read()
+    return Image.open(BytesIO(image_data)).convert("RGB")
 
 def check_models(*models):
     for model in models:
