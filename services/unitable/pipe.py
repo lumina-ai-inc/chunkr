@@ -1,5 +1,3 @@
-from IPython.display import display, HTML
-
 from typing import Tuple, List, Sequence, Optional, Union
 from pathlib import Path
 import re
@@ -158,7 +156,7 @@ pred_html = pred_html.detach().cpu().numpy()[0]
 pred_html = vocab.decode(pred_html, skip_special_tokens=False)
 pred_html = html_str_to_token_list(pred_html)
 
-# print(pred_html)
+print(pred_html)
 
 # Table cell bbox detection
 vocab, model = load_vocab_and_model(
@@ -249,7 +247,5 @@ pred_code = html_table_template(pred_code)
 # Display the HTML table
 soup = bs(pred_code)
 table_code = soup.prettify()
-display(HTML(table_code))
 
-# Raw HTML table code
 print(table_code)
