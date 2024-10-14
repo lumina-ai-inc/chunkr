@@ -5,13 +5,9 @@ from robyn import Robyn, Request
 
 from src.get_models import init_structure_model, init_bbox_model, init_content_model
 from src.inference import run_structure_inference, run_bbox_inference, run_content_inference
-from src.utils import build_table_from_html_and_cell, html_table_template
+from src.utils import build_table_from_html_and_cell
 
 app = Robyn(__file__)
-
-structure_model = init_structure_model()
-bbox_model = init_bbox_model()
-content_model = init_content_model()
 
 
 def get_image_from_request(request: Request) -> Image.Image:
@@ -35,11 +31,13 @@ async def health():
 @app.post("/structure")
 async def extract_structure(request: Request):
     try:
+        structure_model = init_structure_model()
         check_models(structure_model)
-        structure_model_2 = init_structure_model()
 
         image = get_image_from_request(request)
-        result = run_structure_inference(structure_model_2, image)
+        structure = run_structure_inference(structure_model, image)
+        content  = [""] * len(result)
+        result = build_table_from_html_and_cell(structure, content)
         return result
     except ValueError as e:
         return {"error": str(e)}
@@ -48,7 +46,10 @@ async def extract_structure(request: Request):
 @app.post("/bbox")
 async def extract_bbox(request: Request):
     try:
+        bbox_model = init_bbox_model()
+        content_model = init_content_model()
         check_models(bbox_model)
+        
         image = get_image_from_request(request)
         result = run_bbox_inference(bbox_model, image)
 
@@ -63,6 +64,10 @@ async def extract_bbox(request: Request):
 @app.post("/table/html")
 async def extract_table(request: Request):
     try:
+        structure_model = init_structure_model()
+        bbox_model = init_bbox_model()
+        content_model = init_content_model()
+
         check_models(structure_model, bbox_model)
         image = get_image_from_request(request)
         structure = run_structure_inference(structure_model, image)
