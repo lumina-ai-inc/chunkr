@@ -65,7 +65,7 @@ async def perform_ocr(request: Request):
     async with ocr_lock:
         result = await loop.run_in_executor(None, process_ocr, request.files)
     gc.collect()
-    return result
+    return {"result": result}
 
 
 def process_ocr(files) -> list:
