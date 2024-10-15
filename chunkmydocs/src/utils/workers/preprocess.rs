@@ -86,7 +86,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         log_task(
             task_id.clone(),
             Status::Processing,
-            Some("Task processing".to_string()),
+            Some("Task started".to_string()),
             None,
             &pg_pool
         ).await?;
@@ -178,7 +178,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             log_task(
                 task_id.clone(),
                 Status::Processing,
-                Some("Queued for segmentation".to_string()),
+                Some("Segmentation queued".to_string()),
                 None,
                 &pg_pool
             ).await?;

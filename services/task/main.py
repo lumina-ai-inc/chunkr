@@ -77,7 +77,6 @@ async def to_pdf(file: UploadFile = File(...)):
 
 @app.post("/process")
 async def process(
-
     file: UploadFile = File(...),
     segments: str = Form(...),
     user_id: str = Form(...),
