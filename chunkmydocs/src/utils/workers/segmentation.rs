@@ -87,15 +87,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             page_offset += extraction_payload.batch_size.unwrap_or(1) as u32;
         }
 
-        let mut output_temp_file = NamedTempFile::new()?;
-        output_temp_file.write_all(serde_json::to_string(&combined_segments)?.as_bytes())?;
-
-        upload_to_s3(
-            &s3_client,
-            &extraction_payload.output_location,
-            &output_temp_file.path()
-        ).await?;
-
         let image_folder_location = extraction_payload.image_folder_location.clone();
         let page_image_paths = try_join_all(
             (0..extraction_payload.page_count.unwrap()).map(|i| {
@@ -122,7 +113,11 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         combined_segments.par_iter().for_each(|segment| {
             let page_index = segment.page_number as usize;
             if let Some(image_path) = page_image_paths.get(page_index) {
-                crop_image(&image_path.path().to_path_buf(), segment, &cropped_temp_dir.path().to_path_buf());
+                crop_image(
+                    &image_path.path().to_path_buf(),
+                    segment,
+                    &cropped_temp_dir.path().to_path_buf()
+                );
             } else {
                 eprintln!("Image not found for page {}", segment.page_number);
             }
@@ -147,9 +142,19 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &pg_pool
         ).await?;
 
-        let chunks = hierarchical_chunking(combined_segments, extraction_payload.target_chunk_length).await?;
+        let chunks = hierarchical_chunking(
+            combined_segments,
+            extraction_payload.target_chunk_length
+        ).await?;
 
-        
+        let mut output_temp_file = NamedTempFile::new()?;
+        output_temp_file.write_all(serde_json::to_string(&chunks)?.as_bytes())?;
+
+        upload_to_s3(
+            &s3_client,
+            &extraction_payload.output_location,
+            &output_temp_file.path()
+        ).await?;
 
         if output_temp_file.path().exists() {
             if let Err(e) = std::fs::remove_file(output_temp_file.path()) {
