@@ -13,7 +13,6 @@ use tokio::time;
 pub mod middleware;
 pub mod models;
 pub mod routes;
-pub mod task;
 pub mod utils;
 
 use middleware::auth::AuthMiddlewareFactory;

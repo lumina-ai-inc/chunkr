@@ -27,6 +27,7 @@ pub struct ExtractionPayload {
     pub user_id: String,
     pub model: SegmentationModel,
     pub input_location: String,
+    pub pdf_location: String,
     pub output_location: String,
     pub image_folder_location: String,
     pub task_id: String,
@@ -35,6 +36,7 @@ pub struct ExtractionPayload {
     pub expiration: Option<Duration>,
     pub target_chunk_length: Option<i32>,
     pub configuration: Configuration,
+    pub file_name: String,
 }
 
 #[derive(

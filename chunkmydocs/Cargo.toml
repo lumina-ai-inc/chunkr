@@ -5,42 +5,19 @@ edition = "2021"
 default-run = "chunkmydocs"
 
 [dependencies]
-tokio = { version = "1.28.0", features = ["full"] }
-serde = { version = "1.0.204", features = ["derive"] }
-serde_json = "1.0.68"
-dotenvy = "=0.15.7"
-config = "0.14.0"
-chrono = { version = "0.4.38", features = ["serde"] }
-once_cell = "1.19.0"
-uuid = { version = "1.8.0", features = ["v4", "v5"] }
-actix-web = "4.8.0"
 actix-cors = "0.7.0"
-lopdf = "0.34.0"
-reqwest = { version = "0.12.5", features = ["blocking", "json", "multipart"] }
 actix-multipart = "0.7.2"
-tempfile = "3.10.1"
-quick-xml = "0.36.1"
-futures-util = "0.3.30"
-env_logger = "0.11.5"
-tempdir = "0.3.7"
-humantime = "2.1.0"
-humantime-serde = "1.1.1"
-postgres-types = { version = "0.2.7", features = ["derive"] }
-strum = "0.26.3"
-strum_macros = "0.26.4"
+actix-web = "4.8.0"
+anyhow = "1.0.86"
+async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] }
+aws-credential-types = { version = "1.2.0", features = ["hardcoded-credentials"] }
+aws-sdk-s3 = { version = "1.29.0", features = ["behavior-version-latest"] }
+base64 = "0.22.1"
 bytes = "1.4.0"
-tokio-postgres = { version = "0.7", features = ["with-chrono-0_4"] }
+chrono = { version = "0.4.31", features = ["serde"] }
+config = "0.14.0"
 deadpool-postgres = { version = "0.14.0", features = ["serde"] }
 deadpool-redis = { version = "0.18.0", features = ["serde"] }
-utoipa = { version = "4.2", features = [
-  "actix_extras",
-  "uuid",
-  "chrono",
-  "debug",
-] }
-utoipa-redoc = { version = "4.0", features = ["actix-web"] }
-prefixed-api-key = { version = "0.3.0", features = ["sha2"] }
-rand = "0.8.5"
 diesel = { version = "2.2.3", features = [
   "uuid",
   "chrono",
@@ -48,20 +25,45 @@ diesel = { version = "2.2.3", features = [
   "postgres",
 ] }
 diesel_migrations = { version = "2.2.0", features = ["postgres"] }
-aws-sdk-s3 = { version = "1.29.0", features = ["behavior-version-latest"] }
-aws-credential-types = { version = "1.2.0", features = ["hardcoded-credentials"] }
-regex = "1.10.5"
-anyhow = "1.0.86"
-openssl = "0.10.66"
-postgres-openssl = "0.5.0"
+dotenvy = "=0.15.7"
+env_logger = "0.11.5"
+futures-util = "0.3.30"
+humantime = "2.1.0"
+humantime-serde = "1.1.1"
 jsonwebtoken = "9.3.0"
 lazy_static = "1.5.0"
-base64 = "0.22.1"
-async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] }
 log = "0.4.22"
-utoipa-swagger-ui = { version = "7.1.0", features = ["actix-web", "vendored"] }
-mime_guess = "2.0.4"
+lopdf = "0.34.0"
 mime = "0.3.17"
+mime_guess = "2.0.4"
+once_cell = "1.19.0"
+openssl = "0.10.66"
+pdfium-render = "=0.8.25"
+postgres-openssl = "0.5.0"
+postgres-types = { version = "0.2.7", features = ["derive"] }
+prefixed-api-key = { version = "0.3.0", features = ["sha2"] }
+quick-xml = "0.36.1"
+rand = "0.8.5"
+regex = "1.10.5"
+reqwest = { version = "0.12.5", features = ["blocking", "json", "multipart"] }
+serde = { version = "1.0.204", features = ["derive"] }
+serde_json = "1.0.68"
+strum = "0.26.3"
+strum_macros = "0.26.4"
+tempdir = "0.3.7"
+tempfile = "3.10.1"
+tokio = { version = "1.28.0", features = ["full"] }
+tokio-postgres = { version = "0.7", features = ["with-chrono-0_4"] }
+utoipa = { version = "4.2", features = [
+  "actix_extras",
+  "uuid",
+  "chrono",
+  "debug",
+] }
+utoipa-redoc = { version = "4.0", features = ["actix-web"] }
+utoipa-swagger-ui = { version = "7.1.0", features = ["actix-web", "vendored"] }
+uuid = { version = "1.8.0", features = ["v4", "v5"] }
+
 [[bin]]
 name = "fast"
 path = "src/workers/fast.rs"
@@ -73,3 +75,7 @@ path = "src/workers/high_quality.rs"
 [[bin]]
 name = "ocr"
 path = "src/workers/ocr.rs"
+
+[[bin]]
+name = "preprocess"
+path = "src/workers/preprocess.rs"
