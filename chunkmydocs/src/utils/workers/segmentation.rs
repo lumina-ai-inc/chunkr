@@ -4,12 +4,16 @@ use crate::models::server::segment::{ PdlaSegment, Segment };
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::create_pool;
+use crate::utils::json2mkd::json_2_mkd::hierarchical_chunking;
+use crate::utils::services::crop::crop_image;
 use crate::utils::services::pdf::split_pdf;
 use crate::utils::services::pdla::pdla_extraction;
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use crate::utils::workers::{ log::log_task, payload::produce_extraction_payloads };
 use chrono::Utc;
+use futures::future::try_join_all;
+use rayon::prelude::*;
 use std::io::Write;
 use std::path::PathBuf;
 use tempdir::TempDir;
@@ -44,7 +48,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             split_temp_files.push(input_file.path().to_path_buf());
         }
 
-        let mut combined_output: Vec<Segment> = Vec::new();
+        let mut combined_segments: Vec<Segment> = Vec::new();
         let mut page_offset: u32 = 0;
         let mut batch_number: i32 = 0;
 
@@ -79,18 +83,73 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             for item in &mut segments {
                 item.page_number += page_offset;
             }
-            combined_output.extend(segments);
+            combined_segments.extend(segments);
             page_offset += extraction_payload.batch_size.unwrap_or(1) as u32;
         }
 
         let mut output_temp_file = NamedTempFile::new()?;
-        output_temp_file.write_all(serde_json::to_string(&combined_output)?.as_bytes())?;
+        output_temp_file.write_all(serde_json::to_string(&combined_segments)?.as_bytes())?;
 
         upload_to_s3(
             &s3_client,
             &extraction_payload.output_location,
             &output_temp_file.path()
         ).await?;
+
+        let image_folder_location = extraction_payload.image_folder_location.clone();
+        let page_image_paths = try_join_all(
+            (0..extraction_payload.page_count.unwrap()).map(|i| {
+                let image_folder = image_folder_location.clone();
+                let s3_client = s3_client.clone();
+                let reqwest_client = reqwest_client.clone();
+                async move {
+                    let image_name = format!("page_{}.jpg", i);
+                    let image_location = format!("{}/{}", image_folder, image_name);
+                    download_to_tempfile(&s3_client, &reqwest_client, &image_location, None).await
+                }
+            })
+        ).await?;
+
+        log_task(
+            task_id.clone(),
+            Status::Processing,
+            Some("Cropping segments".to_string()),
+            None,
+            &pg_pool
+        ).await?;
+
+        let cropped_temp_dir = TempDir::new("cropped_images")?;
+        combined_segments.par_iter().for_each(|segment| {
+            let page_index = segment.page_number as usize;
+            if let Some(image_path) = page_image_paths.get(page_index) {
+                crop_image(&image_path.path().to_path_buf(), segment, &cropped_temp_dir.path().to_path_buf());
+            } else {
+                eprintln!("Image not found for page {}", segment.page_number);
+            }
+        });
+
+        for entry in std::fs::read_dir(cropped_temp_dir.path())? {
+            let entry = entry?;
+            let file_name = entry.file_name();
+            let s3_key = format!(
+                "{}/{}",
+                extraction_payload.image_folder_location,
+                file_name.to_string_lossy()
+            );
+            upload_to_s3(&s3_client, &s3_key, &entry.path()).await?;
+        }
+
+        log_task(
+            task_id.clone(),
+            Status::Processing,
+            Some("Chunking segments".to_string()),
+            None,
+            &pg_pool
+        ).await?;
+
+        let chunks = hierarchical_chunking(combined_segments, extraction_payload.target_chunk_length).await?;
+
+        
 
         if output_temp_file.path().exists() {
             if let Err(e) = std::fs::remove_file(output_temp_file.path()) {

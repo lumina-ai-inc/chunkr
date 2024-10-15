@@ -148,6 +148,7 @@ pub async fn create_task(
                 target_chunk_length: Some(target_chunk_length),
                 configuration: configuration.clone(),
                 file_name: file_name.to_string(),
+                page_count: Some(page_count),
             };
 
             match produce_extraction_payloads(config.queue_ocr, extraction_payload).await {

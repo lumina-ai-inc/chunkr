@@ -76,7 +76,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     println!("Processing task");
     let s3_client: aws_sdk_s3::Client = create_client().await?;
     let reqwest_client = reqwest::Client::new();
-    let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
+    let mut extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
     let client: Client = pg_pool.get().await?;
@@ -132,6 +132,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let image_paths = pdf_2_images(&pdf_path, &temp_dir.path())?;
 
         let page_count = image_paths.len() as i32;
+        extraction_payload.page_count = Some(page_count);
 
         let update_page_count = client.execute(
             "UPDATE tasks SET page_count = $1, input_file_type = $2 WHERE task_id = $3",
@@ -174,6 +175,13 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 SegmentationModel::Pdla => config.queue_high_quality,
             };
             produce_extraction_payloads(queue_name, extraction_payload).await?;
+            log_task(
+                task_id.clone(),
+                Status::Processing,
+                Some("Queued for segmentation".to_string()),
+                None,
+                &pg_pool
+            ).await?;
             Ok(())
         }
         Err(e) => {
