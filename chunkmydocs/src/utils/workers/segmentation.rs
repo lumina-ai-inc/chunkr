@@ -1,5 +1,5 @@
 use crate::models::rrq::queue::QueuePayload;
-use crate::models::server::extract::ExtractionPayload;
+use crate::models::server::extract::{ ExtractionPayload, OcrStrategy };
 use crate::models::server::segment::{ PdlaSegment, Segment };
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config;
@@ -168,8 +168,18 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     match result {
         Ok(_) => {
             println!("Task succeeded");
-            let config = Config::from_env()?;
-            produce_extraction_payloads(config.queue_ocr, extraction_payload).await?;
+            if extraction_payload.configuration.ocr_strategy == OcrStrategy::Off {
+                log_task(
+                    task_id.clone(),
+                    Status::Succeeded,
+                    Some("Task succeeded".to_string()),
+                    Some(Utc::now()),
+                    &pg_pool
+                ).await?;
+            } else {
+                let config = Config::from_env()?;
+                produce_extraction_payloads(config.queue_ocr, extraction_payload).await?;
+            }
             Ok(())
         }
         Err(e) => {

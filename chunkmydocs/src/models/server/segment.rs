@@ -96,17 +96,3 @@ impl PdlaSegment {
         }
     }
 }
-
-// #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-// pub struct BaseSegment {
-//     pub segment_id: String,
-//     pub left: f32,
-//     pub top: f32,
-//     pub width: f32,
-//     pub height: f32,
-//     pub page_number: u32,
-//     pub page_width: f32,
-//     pub page_height: f32,
-//     pub text: String,
-//     pub segment_type: SegmentType,
-// }

@@ -2,10 +2,10 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
 use crate::models::server::segment::Segment;
 use crate::models::server::task::Status;
-use crate::utils::db::deadpool_postgres::{create_pool, Client, Pool};
+use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use std::io::{Read, Write};
 use tempfile::NamedTempFile;
 
