@@ -1,13 +1,14 @@
+use image::ImageFormat;
 use lopdf::Document;
-use std::fs;
-use std::path::{Path, PathBuf};
-use uuid::Uuid;
 use pdfium_render::prelude::*;
+use std::fs;
+use std::path::{ Path, PathBuf };
+use uuid::Uuid;
 
 pub fn split_pdf(
     file_path: &Path,
     pages_per_split: usize,
-    output_dir: &Path,
+    output_dir: &Path
 ) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
     let doc = match Document::load(file_path) {
         Ok(doc) => doc,
@@ -44,22 +45,24 @@ pub fn split_pdf(
     Ok(split_files)
 }
 
-pub fn pdf_2_images(pdf_path: &Path) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+pub fn pdf_2_images(pdf_path: &Path, temp_dir: &Path) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
     let pdfium = Pdfium::new(
-        Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path(".")).unwrap()
+        Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library("pdfium"))?
     );
 
     let document = pdfium.load_pdf_from_file(pdf_path, None)?;
+    let render_config = PdfRenderConfig::new().set_target_width(2000).set_maximum_height(2000);
     let mut image_paths = Vec::new();
     for (page_index, page) in document.pages().iter().enumerate() {
-        let bitmap = page.render_with_config(&PdfRenderConfig::new()
-            .set_target_width(2000)
-            .set_maximum_height(3000) 
-        )?;
+        let output_path = temp_dir.join(format!("page_{}.jpg", page_index + 1));
 
-        let output_path = format!("page_{}.png", page_index + 1);
-        bitmap.as_image().save(Path::new(&output_path))?;
-        image_paths.push(PathBuf::from(output_path));
+        page.render_with_config(&render_config)?
+            .as_image()
+            .into_rgb8()
+            .save_with_format(output_path.clone(), ImageFormat::Jpeg)
+            .map_err(|_| PdfiumError::ImageError)?;
+
+        image_paths.push(output_path);
     }
 
     Ok(image_paths)

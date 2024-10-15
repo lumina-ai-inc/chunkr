@@ -9,6 +9,7 @@ use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use crate::utils::workers::{ log::log_task, payload::produce_extraction_payloads };
 use chrono::Utc;
 use std::{ error::Error, path::{ Path, PathBuf }, process::Command };
+use tempfile::TempDir;
 
 fn is_valid_file_type(file_path: &str) -> Result<(bool, String), Box<dyn Error>> {
     let output = Command::new("file").arg("--mime-type").arg("-b").arg(file_path).output()?;
@@ -79,6 +80,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
     let client: Client = pg_pool.get().await?;
+    let temp_dir = TempDir::new().unwrap();
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         log_task(
@@ -127,7 +129,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         upload_to_s3(&s3_client, &extraction_payload.pdf_location, &pdf_path).await?;
 
-        let image_paths = pdf_2_images(&pdf_path)?;
+        let image_paths = pdf_2_images(&pdf_path, &temp_dir.path())?;
 
         let page_count = image_paths.len() as i32;
 
