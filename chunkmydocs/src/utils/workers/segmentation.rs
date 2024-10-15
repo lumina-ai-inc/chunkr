@@ -28,7 +28,15 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let pg_pool = create_pool();
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
-        let input_file = download_to_tempfile(
+        log_task(
+            task_id.clone(),
+            Status::Processing,
+            Some("Segmentation started".to_string()),
+            None,
+            &pg_pool
+        ).await?;
+
+        let pdf_file = download_to_tempfile(
             &s3_client,
             &reqwest_client,
             &extraction_payload.input_location,
@@ -40,12 +48,12 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         if let Some(batch_size) = extraction_payload.batch_size {
             split_temp_files = split_pdf(
-                &input_file.path(),
+                &pdf_file.path(),
                 batch_size as usize,
                 split_temp_dir.path()
             )?;
         } else {
-            split_temp_files.push(input_file.path().to_path_buf());
+            split_temp_files.push(pdf_file.path().to_path_buf());
         }
 
         let mut combined_segments: Vec<Segment> = Vec::new();
@@ -117,7 +125,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     &image_path.path().to_path_buf(),
                     segment,
                     &cropped_temp_dir.path().to_path_buf()
-                );
+                ).unwrap();
             } else {
                 eprintln!("Image not found for page {}", segment.page_number);
             }
@@ -179,6 +187,13 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             } else {
                 let config = Config::from_env()?;
                 produce_extraction_payloads(config.queue_ocr, extraction_payload).await?;
+                log_task(
+                    task_id.clone(),
+                    Status::Succeeded,
+                    Some("OCR queued".to_string()),
+                    Some(Utc::now()),
+                    &pg_pool
+                ).await?;
             }
             Ok(())
         }
