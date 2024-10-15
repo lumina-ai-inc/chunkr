@@ -37,6 +37,7 @@ pub struct ExtractionPayload {
     pub target_chunk_length: Option<i32>,
     pub configuration: Configuration,
     pub file_name: String,
+    pub page_count: Option<i32>,
 }
 
 #[derive(
