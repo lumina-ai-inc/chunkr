@@ -1,6 +1,7 @@
+use crate::models::workers::rapid_ocr::RapidOcrPayload;
+use crate::models::server::segment::OCRResult;
 use crate::utils::configs::extraction_config::Config;
 use reqwest::{ multipart, Client as ReqwestClient };
-use serde_json::Value;
 use std::{ fs, path::Path };
 use tokio::sync::OnceCell;
 
@@ -10,8 +11,7 @@ async fn get_reqwest_client() -> &'static ReqwestClient {
     REQWEST_CLIENT.get_or_init(|| async { ReqwestClient::new() }).await
 }
 
-// TODO: Add rapid ocr payload model
-pub async fn call_rapid_ocr_api(file_path: &Path) -> Result<Value, Box<dyn std::error::Error>> {
+pub async fn call_rapid_ocr_api(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
     let config = Config::from_env()?;
     let client = get_reqwest_client().await;
     let url = format!("{}/{}", config.rapid_ocr_url.unwrap(), "ocr");
@@ -35,5 +35,7 @@ pub async fn call_rapid_ocr_api(file_path: &Path) -> Result<Value, Box<dyn std::
         .send().await?
         .error_for_status()?;
 
-    Ok(response.json().await?)
+    let rapid_ocr_payloads: Vec<RapidOcrPayload> = response.json().await?;
+    
+    Ok(rapid_ocr_payloads.into_iter().map(OCRResult::from).collect())
 }
