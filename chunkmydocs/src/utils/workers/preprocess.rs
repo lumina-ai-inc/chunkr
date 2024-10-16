@@ -132,6 +132,14 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         upload_to_s3(&s3_client, &extraction_payload.pdf_location, &pdf_path).await?;
 
+        log_task(
+            task_id.clone(),
+            Status::Processing,
+            Some("Converting file to images".to_string()),
+            None,
+            &pg_pool
+        ).await?;
+
         let start_time = Instant::now();
         let image_paths = pdf_2_images(&pdf_path, &temp_dir.path())?;
         let end_time = Instant::now();
@@ -173,7 +181,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             let image_name = image_path.file_name().unwrap().to_str().unwrap().to_string();
             let image_location = format!(
                 "{}/{}",
-                extraction_payload.input_location,
+                extraction_payload.image_folder_location,
                 image_name.to_string()
             );
             upload_to_s3(&s3_client, &image_location, &image_path).await?;

@@ -4,15 +4,26 @@ use dotenvy::dotenv_override;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    pub service_url: String,
-    pub page_image_density: Option<u32>,
-    pub page_image_extension: Option<String>,
-    pub segment_image_extension: Option<String>,
-    pub segment_image_quality: Option<u8>,
-    pub segment_image_resize: Option<String>,
-    pub segment_bbox_offset: Option<u32>,
-    pub num_workers: Option<u32>,
+    #[serde(default = "default_pdf_density")]
+    pub pdf_density: f32,
+    #[serde(default = "default_page_image_density")]
+    pub page_image_density: f32,
+    #[serde(default = "default_segment_bbox_offset")]
+    pub segment_bbox_offset: f32,
 }
+
+fn default_pdf_density() -> f32 {
+    72.0
+}
+
+fn default_page_image_density() -> f32 {
+    150.0
+}
+
+fn default_segment_bbox_offset() -> f32 {
+    5.0
+}
+
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {

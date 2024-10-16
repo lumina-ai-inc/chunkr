@@ -1,4 +1,5 @@
-use crate::utils::configs::pdfium_config::Config;
+use crate::utils::configs::pdfium_config::Config as PdfiumConfig;
+use crate::utils::configs::task_config::Config as TaskConfig;
 use image::ImageFormat;
 use lopdf::Document;
 use pdfium_render::prelude::*;
@@ -49,13 +50,17 @@ pub fn pdf_2_images(
     pdf_path: &Path,
     temp_dir: &Path
 ) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
-    let config = Config::from_env().unwrap();
+    let pdfium_config = PdfiumConfig::from_env().unwrap();
+    let task_config = TaskConfig::from_env().unwrap();
+
     let pdfium = Pdfium::new(
-        Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&config.path))?
+        Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&pdfium_config.path))?
     );
 
     let document = pdfium.load_pdf_from_file(pdf_path, None)?;
-    let render_config = PdfRenderConfig::new().set_target_width(2000).set_maximum_height(2000);
+    let render_config = PdfRenderConfig::new().scale_page_by_factor(
+        task_config.page_image_density / task_config.pdf_density
+    );
     let mut image_paths = Vec::new();
     for (page_index, page) in document.pages().iter().enumerate() {
         let output_path = temp_dir.join(format!("page_{}.jpg", page_index + 1));
