@@ -24,8 +24,6 @@ pub enum LLMModel {
 impl LLMModel {
     pub fn base_url<'a>(&self, config: &'a Config) -> Option<&'a str> {
         match self {
-            // ... other cases ...
-            LLMModel::Qwen2VL => config.qwen_url.as_deref(),
             _ => None,
         }
     }

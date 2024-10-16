@@ -1,8 +1,8 @@
+use crate::utils::configs::pdfium_config::Config;
 use image::ImageFormat;
 use lopdf::Document;
 use pdfium_render::prelude::*;
-use std::fs;
-use std::path::{ Path, PathBuf };
+use std::{ fs, path::{ Path, PathBuf } };
 use uuid::Uuid;
 
 pub fn split_pdf(
@@ -45,9 +45,13 @@ pub fn split_pdf(
     Ok(split_files)
 }
 
-pub fn pdf_2_images(pdf_path: &Path, temp_dir: &Path) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+pub fn pdf_2_images(
+    pdf_path: &Path,
+    temp_dir: &Path
+) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+    let config = Config::from_env().unwrap();
     let pdfium = Pdfium::new(
-        Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library("pdfium"))?
+        Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&config.path))?
     );
 
     let document = pdfium.load_pdf_from_file(pdf_path, None)?;
@@ -56,7 +60,8 @@ pub fn pdf_2_images(pdf_path: &Path, temp_dir: &Path) -> Result<Vec<PathBuf>, Bo
     for (page_index, page) in document.pages().iter().enumerate() {
         let output_path = temp_dir.join(format!("page_{}.jpg", page_index + 1));
 
-        page.render_with_config(&render_config)?
+        page
+            .render_with_config(&render_config)?
             .as_image()
             .into_rgb8()
             .save_with_format(output_path.clone(), ImageFormat::Jpeg)
