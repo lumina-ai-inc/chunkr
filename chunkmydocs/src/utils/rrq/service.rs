@@ -57,7 +57,6 @@ pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::
     let cfg = Config::from_env()?;
     let mut responses = Vec::new();
     for chunk in items.chunks(120) {
-        println!("Time taken to start produce: {:?}", start_time.elapsed());
         let response = CLIENT.post(&format!("{}/produce", cfg.url))
             .timeout(Duration::from_secs(10))
             .json(chunk)
@@ -71,7 +70,6 @@ pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::
                 format!("HTTP error produce {}: {}", status, error_body)
             })?;
         let body = response.text().await?;
-        println!("Time taken to produce: {:?}", start_time.elapsed());
         responses.push(body);
     }
 

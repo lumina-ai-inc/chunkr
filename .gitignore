@@ -125,3 +125,5 @@ ocr_aggregate_results.csv
 
 output.json
 output.html
+
+*.dylib

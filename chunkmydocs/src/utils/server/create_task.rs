@@ -151,7 +151,7 @@ pub async fn create_task(
                 page_count: Some(page_count),
             };
 
-            match produce_extraction_payloads(config.queue_ocr, extraction_payload).await {
+            match produce_extraction_payloads(config.queue_preprocess, extraction_payload).await {
                 Ok(_) => {
                     println!(
                         "Time taken to produce extraction payloads: {:?}",

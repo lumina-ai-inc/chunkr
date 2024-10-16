@@ -19,7 +19,7 @@ pub struct Config {
     pub s3_bucket: String,
     pub batch_size: i32,
     pub base_url: String,
-    pub qwen_url: Option<String>,
+    pub rapid_ocr_url: Option<String>,
 }
 
 mod duration_seconds {

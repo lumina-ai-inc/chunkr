@@ -6,6 +6,6 @@ use chunkmydocs::utils::workers::segmentation::process;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = extraction_config::Config::from_env()?;
     println!("Starting task processor");
-    consumer(process, config.extraction_queue_fast.unwrap(), 1, 600).await?;
+    consumer(process, config.queue_fast, 1, 600).await?;
     Ok(())
 }

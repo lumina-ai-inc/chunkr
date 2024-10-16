@@ -3,10 +3,13 @@ use crate::models::server::extract::{ ExtractionPayload, OcrStrategy };
 use crate::models::server::segment::{ Chunk, Segment, SegmentType };
 use crate::models::server::task::Status;
 use crate::utils::db::deadpool_postgres::create_pool;
+use crate::utils::services::rapid_ocr;
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use crate::utils::workers::log::log_task;
 use chrono::Utc;
+use futures::stream::{ self, StreamExt };
+use reqwest::multipart;
 use std::io::{ Read, Write };
 use tempfile::NamedTempFile;
 
@@ -29,8 +32,8 @@ pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
     let s3_client = create_client().await?;
     let reqwest_client = reqwest::Client::new();
-    let extraction_item: ExtractionPayload = serde_json::from_value(payload.payload)?;
-    let task_id = extraction_item.task_id.clone();
+    let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
+    let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
@@ -45,7 +48,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let chunks_file: NamedTempFile = download_to_tempfile(
             &s3_client,
             &reqwest_client,
-            &extraction_item.output_location,
+            &extraction_payload.output_location,
             None
         ).await?;
 
@@ -61,10 +64,36 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let filtered_segments: Vec<&Segment> = chunks
             .iter()
             .flat_map(|chunk| chunk.segments.iter())
-            .filter(|segment| filter_segment(segment, extraction_item.configuration.ocr_strategy.clone()))
+            .filter(|segment|
+                filter_segment(segment, extraction_payload.configuration.ocr_strategy.clone())
+            )
             .collect();
 
-        
+        // let results: Vec<(Segment, serde_json::Value)> = stream::iter(filtered_segments).for_each_concurrent(None, |segment| async {
+        //     let result: Result<(Segment, serde_json::Value), Box<dyn std::error::Error>> = (async {
+        //         let cropped_segment_location = format!(
+        //             "{}/{}",
+        //             extraction_payload.image_folder_location,
+        //             segment.segment_id
+        //         );
+        //         let cropped_image = download_to_tempfile(
+        //             &s3_client,
+        //             &reqwest_client,
+        //             &cropped_segment_location,
+        //             None
+        //         ).await?;
+
+        //         let rapid_ocr_response: serde_json::Value = rapid_ocr::call_rapid_ocr_api(
+        //             &cropped_image.path()
+        //         ).await?;
+
+        //         Ok((segment.clone(), rapid_ocr_response))
+        //     }).await;
+
+        //     if let Err(e) = result {
+        //         eprintln!("Error processing segment: {:?}", e);
+        //     }
+        // }).collect();
 
         Ok(())
     }).await;

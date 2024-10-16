@@ -8,7 +8,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Starting task processor");
     consumer(
         process,
-        config.extraction_queue_high_quality.unwrap(),
+        config.queue_high_quality,
         1,
         600,
     )

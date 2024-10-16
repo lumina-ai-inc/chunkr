@@ -10,9 +10,13 @@ use crate::utils::workers::{ log::log_task, payload::produce_extraction_payloads
 use chrono::Utc;
 use std::{ error::Error, path::{ Path, PathBuf }, process::Command };
 use tempfile::TempDir;
-
-fn is_valid_file_type(file_path: &str) -> Result<(bool, String), Box<dyn Error>> {
-    let output = Command::new("file").arg("--mime-type").arg("-b").arg(file_path).output()?;
+use std::time::Instant;
+fn is_valid_file_type(file_path: &Path) -> Result<(bool, String), Box<dyn Error>> {
+    let output = Command::new("file")
+        .arg("--mime-type")
+        .arg("-b")
+        .arg(file_path.to_str().unwrap())
+        .output()?;
 
     let mime_type = String::from_utf8(output.stdout)?.trim().to_string();
 
@@ -98,9 +102,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             None
         ).await?;
 
-        let (is_valid, detected_mime_type) = is_valid_file_type(
-            &extraction_payload.input_location
-        )?;
+        let (is_valid, detected_mime_type) = is_valid_file_type(&input_file.path())?;
+
         if !is_valid {
             log_task(
                 task_id.clone(),
@@ -129,10 +132,19 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         upload_to_s3(&s3_client, &extraction_payload.pdf_location, &pdf_path).await?;
 
+        let start_time = Instant::now();
         let image_paths = pdf_2_images(&pdf_path, &temp_dir.path())?;
+        let end_time = Instant::now();
 
         let page_count = image_paths.len() as i32;
         extraction_payload.page_count = Some(page_count);
+
+        println!("Time taken: {:?}", end_time.duration_since(start_time));
+        println!("Page count: {}", page_count);
+        println!(
+            "Pages per second: {:?}",
+            (page_count as f32) / (end_time.duration_since(start_time).as_secs() as f32)
+        );
 
         let update_page_count = client.execute(
             "UPDATE tasks SET page_count = $1, input_file_type = $2 WHERE task_id = $3",
@@ -150,16 +162,20 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                         Some(Utc::now()),
                         &pg_pool
                     ).await?;
-                    return Ok(());
+                    Ok(())
                 } else {
-                    return Err(e.into());
+                    Err(e.into())
                 }
             }
         })?;
 
         for image_path in image_paths {
             let image_name = image_path.file_name().unwrap().to_str().unwrap().to_string();
-            let image_location = format!("{}/{}", extraction_payload.input_location, image_name.to_string());
+            let image_location = format!(
+                "{}/{}",
+                extraction_payload.input_location,
+                image_name.to_string()
+            );
             upload_to_s3(&s3_client, &image_location, &image_path).await?;
         }
 
