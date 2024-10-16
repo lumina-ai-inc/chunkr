@@ -2,7 +2,8 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::{ ExtractionPayload, OcrStrategy };
 use crate::models::server::segment::{ PdlaSegment, Segment };
 use crate::models::server::task::Status;
-use crate::utils::configs::extraction_config::Config;
+use crate::utils::configs::extraction_config::Config as ExtractionConfig;
+use crate::utils::configs::task_config::Config as TaskConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::json2mkd::json_2_mkd::hierarchical_chunking;
 use crate::utils::services::crop::crop_image;
@@ -26,6 +27,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
+    let task_config = TaskConfig::from_env().unwrap();
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         log_task(
@@ -86,6 +88,21 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             let mut segments: Vec<Segment> = pdla_segments
                 .iter()
                 .map(|pdla_segment| pdla_segment.to_segment())
+                .map(|mut segment| {
+                    let multipler = task_config.page_image_density / task_config.pdf_density;
+                    segment.bbox.top *= multipler;
+                    segment.bbox.left *= multipler;
+                    segment.bbox.width *= multipler;
+                    segment.bbox.height *= multipler;
+                    segment.page_height = (segment.page_height * multipler).round();
+                    segment.page_width = (segment.page_width * multipler).round();
+                    segment.bbox.width += 5.0 * 2.0;
+                    segment.bbox.height += 5.0 * 2.0;
+                    segment.bbox.left -= 5.0;
+                    segment.bbox.top -= 5.0;
+                    segment.finalize();
+                    segment
+                })
                 .collect();
 
             for item in &mut segments {
@@ -102,7 +119,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 let s3_client = s3_client.clone();
                 let reqwest_client = reqwest_client.clone();
                 async move {
-                    let image_name = format!("page_{}.jpg", i);
+                    let image_name = format!("page_{}.jpg", i + 1);
                     let image_location = format!("{}/{}", image_folder, image_name);
                     download_to_tempfile(&s3_client, &reqwest_client, &image_location, None).await
                 }
@@ -119,13 +136,24 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         let cropped_temp_dir = TempDir::new("cropped_images")?;
         combined_segments.par_iter().for_each(|segment| {
-            let page_index = segment.page_number as usize;
+            let page_index = (segment.page_number as usize) - 1;
             if let Some(image_path) = page_image_paths.get(page_index) {
-                crop_image(
+                let crop_result = crop_image(
                     &image_path.path().to_path_buf(),
                     segment,
                     &cropped_temp_dir.path().to_path_buf()
-                ).unwrap();
+                ).map_err(|e|
+                    format!(
+                        "Failed to crop image for segment {} on page {}: {:?}",
+                        segment.segment_id,
+                        segment.page_number,
+                        e
+                    )
+                );
+                match crop_result {
+                    Ok(_) => (),
+                    Err(err_msg) => eprintln!("{}", err_msg),
+                }
             } else {
                 eprintln!("Image not found for page {}", segment.page_number);
             }
@@ -140,6 +168,16 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 file_name.to_string_lossy()
             );
             upload_to_s3(&s3_client, &s3_key, &entry.path()).await?;
+            combined_segments
+                .iter_mut()
+                .find(
+                    |segment|
+                        segment.segment_id ==
+                        file_name.clone().to_string_lossy().split(".").next().unwrap()
+                )
+                .map(|segment| {
+                    segment.image = Some(s3_key.clone());
+                });
         }
 
         log_task(
@@ -185,11 +223,11 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     &pg_pool
                 ).await?;
             } else {
-                let config = Config::from_env()?;
-                produce_extraction_payloads(config.queue_ocr, extraction_payload).await?;
+                let extraction_config = ExtractionConfig::from_env()?;
+                produce_extraction_payloads(extraction_config.queue_ocr, extraction_payload).await?;
                 log_task(
                     task_id.clone(),
-                    Status::Succeeded,
+                    Status::Processing,
                     Some("OCR queued".to_string()),
                     Some(Utc::now()),
                     &pg_pool

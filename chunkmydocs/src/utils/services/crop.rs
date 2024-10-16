@@ -7,7 +7,8 @@ pub fn crop_image(
     segment: &Segment,
     output_dir: &PathBuf
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut image = image::open(image_path)?;
+    let img = ImageReader::open(image_path)?.with_guessed_format()?.decode()?;
+    let mut image = img.to_rgb8();
     let sub_img = imageops::crop(
         &mut image,
         segment.bbox.left as u32,

@@ -1,6 +1,6 @@
-use postgres_types::{FromSql, ToSql};
-use serde::{Deserialize, Serialize};
-use strum_macros::{Display, EnumString};
+use postgres_types::{ FromSql, ToSql };
+use serde::{ Deserialize, Serialize };
+use strum_macros::{ Display, EnumString };
 use utoipa::ToSchema;
 use uuid::Uuid;
 
@@ -40,7 +40,16 @@ pub struct Chunk {
 }
 
 #[derive(
-    Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema, ToSql, FromSql,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    EnumString,
+    Display,
+    ToSchema,
+    ToSql,
+    FromSql
 )]
 pub enum SegmentType {
     Title,
@@ -94,5 +103,61 @@ impl PdlaSegment {
             html: None,
             markdown: None,
         }
+    }
+}
+
+impl Segment {
+    fn to_html(&self) -> String {
+        match self.segment_type {
+            SegmentType::Title => format!("<h1>{}</h1>", self.content),
+            SegmentType::SectionHeader => format!("<h2>{}</h2>", self.content),
+            SegmentType::Text => format!("<p>{}</p>", self.content),
+            SegmentType::ListItem => {
+                let parts = self.content.trim().split('.').collect::<Vec<&str>>();
+                if parts[0].parse::<i32>().is_ok() {
+                    let start_number = parts[0].parse::<i32>().unwrap();
+                    let item = parts[1..].join(".").trim().to_string();
+                    format!("<ol start='{}'><li>{}</li></ol>", start_number, item)
+                } else {
+                    let cleaned_content = self.content
+                        .trim_start_matches(&['-', '*', '•', '●', ' '][..])
+                        .trim();
+                    format!("<ul><li>{}</li></ul>", cleaned_content)
+                }
+            }
+            _ =>
+                format!(
+                    "<span class=\"{}\">{}</span>",
+                    self.segment_type.to_string().to_lowercase().replace(" ", "-"),
+                    self.content
+                ),
+        }
+    }
+
+    fn to_markdown(&self) -> String {
+        match self.segment_type {
+            SegmentType::Title => format!("# {}\n\n", self.content),
+            SegmentType::SectionHeader => format!("## {}\n\n", self.content),
+            SegmentType::ListItem => {
+                let parts = self.content.trim().split('.').collect::<Vec<&str>>();
+                if parts[0].parse::<i32>().is_ok() {
+                    let start_number = parts[0].parse::<i32>().unwrap();
+                    let item: String = parts[1..].join(".").trim().to_string();
+                    format!("{}. {}", start_number, item)
+                } else {
+                    let cleaned_content = self.content
+                        .trim_start_matches(&['-', '*', '•', '●', ' '][..])
+                        .trim();
+                    format!("- {}\n\n", cleaned_content)
+                }
+            }
+            SegmentType::Picture => format!("![{}]()", self.segment_id),
+            _ => format!("{}\n\n", self.content),
+        }
+    }
+
+    pub fn finalize(&mut self) {
+        self.html = Some(self.to_html());
+        self.markdown = Some(self.to_markdown());
     }
 }
