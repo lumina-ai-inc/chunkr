@@ -11,7 +11,9 @@ async fn get_reqwest_client() -> &'static ReqwestClient {
     REQWEST_CLIENT.get_or_init(|| async { ReqwestClient::new() }).await
 }
 
-pub async fn call_rapid_ocr_api(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
+pub async fn call_rapid_ocr_api(
+    file_path: &Path
+) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
     let config = Config::from_env()?;
     let client = get_reqwest_client().await;
     let url = format!("{}/{}", config.rapid_ocr_url.unwrap(), "ocr");
@@ -36,6 +38,6 @@ pub async fn call_rapid_ocr_api(file_path: &Path) -> Result<Vec<OCRResult>, Box<
         .error_for_status()?;
 
     let rapid_ocr_payloads: Vec<RapidOcrPayload> = response.json().await?;
-    
+
     Ok(rapid_ocr_payloads.into_iter().map(OCRResult::from).collect())
 }

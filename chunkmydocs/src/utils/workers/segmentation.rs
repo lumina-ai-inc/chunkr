@@ -22,7 +22,7 @@ use tempfile::NamedTempFile;
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
     println!("Processing task");
-    let s3_client: aws_sdk_s3::Client = create_client().await?;
+    let s3_client = create_client().await?;
     let reqwest_client = reqwest::Client::new();
     let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_payload.task_id.clone();

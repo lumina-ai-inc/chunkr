@@ -3,17 +3,19 @@ use crate::models::server::extract::{ ExtractionPayload, OcrStrategy };
 use crate::models::server::segment::{ Chunk, Segment, SegmentType };
 use crate::models::server::task::Status;
 use crate::utils::db::deadpool_postgres::create_pool;
-use crate::utils::services::rapid_ocr;
+use crate::utils::services::ocr::download_and_ocr;
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use crate::utils::workers::log::log_task;
 use chrono::Utc;
-use futures::stream::{ self, StreamExt };
-use reqwest::multipart;
+use futures::future::try_join_all;
 use std::io::{ Read, Write };
 use tempfile::NamedTempFile;
 
 pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
+    if segment.image.is_none() {
+        return false;
+    }
     match ocr_strategy {
         OcrStrategy::Off => false,
         OcrStrategy::All => true,
@@ -54,41 +56,57 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         let mut file_contents = String::new();
         chunks_file.as_file().read_to_string(&mut file_contents)?;
-        let chunks: Vec<Chunk> = serde_json::from_str(&file_contents)?;
+        let mut chunks: Vec<Chunk> = serde_json::from_str(&file_contents)?;
 
-        let filtered_segments: Vec<&Segment> = chunks
-            .iter()
-            .flat_map(|chunk| chunk.segments.iter())
-            .filter(|segment|
-                filter_segment(segment, extraction_payload.configuration.ocr_strategy.clone())
-            )
-            .collect();
+        try_join_all(
+            chunks.iter_mut().flat_map(|chunk| {
+                chunk.segments.iter_mut().filter_map(|segment| {
+                    if
+                        filter_segment(
+                            segment,
+                            extraction_payload.configuration.ocr_strategy.clone()
+                        )
+                    {
+                        Some(async {
+                            let s3_client = s3_client.clone();
+                            let reqwest_client = reqwest_client.clone();
+                            let ocr_result = download_and_ocr(
+                                &s3_client,
+                                &reqwest_client,
+                                &segment.image.as_ref().unwrap()
+                            ).await;
+                            match ocr_result {
+                                Ok(ocr_result) => {
+                                    segment.ocr = Some(ocr_result);
+                                    Ok::<_, Box<dyn std::error::Error>>(())
+                                }
+                                Err(e) => {
+                                    eprintln!("Error processing OCR: {:?}", e);
+                                    Ok::<_, Box<dyn std::error::Error>>(())
+                                }
+                            }
+                        })
+                    } else {
+                        None
+                    }
+                })
+            })
+        ).await?;
 
-        // let results: Vec<(Segment, serde_json::Value)> = stream::iter(filtered_segments).for_each_concurrent(None, |segment| async {
-        //     let result: Result<(Segment, serde_json::Value), Box<dyn std::error::Error>> = (async {
-        //         let cropped_segment_location = format!(
-        //             "{}/{}",
-        //             extraction_payload.image_folder_location,
-        //             segment.segment_id
-        //         );
-        //         let cropped_image = download_to_tempfile(
-        //             &s3_client,
-        //             &reqwest_client,
-        //             &cropped_segment_location,
-        //             None
-        //         ).await?;
+        let mut output_temp_file = NamedTempFile::new()?;
+        output_temp_file.write_all(serde_json::to_string(&chunks)?.as_bytes())?;
 
-        //         let rapid_ocr_response: serde_json::Value = rapid_ocr::call_rapid_ocr_api(
-        //             &cropped_image.path()
-        //         ).await?;
+        upload_to_s3(
+            &s3_client,
+            &extraction_payload.output_location,
+            &output_temp_file.path()
+        ).await?;
 
-        //         Ok((segment.clone(), rapid_ocr_response))
-        //     }).await;
-
-        //     if let Err(e) = result {
-        //         eprintln!("Error processing segment: {:?}", e);
-        //     }
-        // }).collect();
+        if output_temp_file.path().exists() {
+            if let Err(e) = std::fs::remove_file(output_temp_file.path()) {
+                eprintln!("Error deleting temporary file: {:?}", e);
+            }
+        }
 
         Ok(())
     }).await;
