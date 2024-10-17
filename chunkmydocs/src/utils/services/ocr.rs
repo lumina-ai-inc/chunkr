@@ -9,6 +9,7 @@ pub async fn download_and_ocr(
     reqwest_client: &ReqwestClient,
     image_location: &str
 ) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
+    println!("Downloading and OCRing image: {:?}", image_location);
     let temp_file = download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
     let ocr_results = call_rapid_ocr_api(&temp_file.path()).await?;
     Ok(ocr_results)

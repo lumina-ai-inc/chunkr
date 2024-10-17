@@ -1,6 +1,6 @@
 use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::{ ExtractionPayload, OcrStrategy };
-use crate::models::server::segment::{ PdlaSegment, Segment };
+use crate::models::server::segment::{Chunk, PdlaSegment, Segment };
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::configs::task_config::Config as TaskConfig;
@@ -188,7 +188,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &pg_pool
         ).await?;
 
-        let chunks = hierarchical_chunking(
+        let chunks: Vec<Chunk> = hierarchical_chunking(
             combined_segments,
             extraction_payload.target_chunk_length
         ).await?;
@@ -224,12 +224,12 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 ).await?;
             } else {
                 let extraction_config = ExtractionConfig::from_env()?;
-                produce_extraction_payloads(extraction_config.queue_ocr, extraction_payload).await?;
+                produce_extraction_payloads(extraction_config.queue_ocr, extraction_payload.clone()).await?;
                 log_task(
                     task_id.clone(),
                     Status::Processing,
                     Some("OCR queued".to_string()),
-                    Some(Utc::now()),
+                    None,
                     &pg_pool
                 ).await?;
             }

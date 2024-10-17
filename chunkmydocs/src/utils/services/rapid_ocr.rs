@@ -16,7 +16,7 @@ pub async fn call_rapid_ocr_api(
 ) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
     let config = Config::from_env()?;
     let client = get_reqwest_client().await;
-    let url = format!("{}/{}", config.rapid_ocr_url.unwrap(), "ocr");
+    let url = format!("{}/{}", config.rapid_ocr_url, "ocr");
 
     let file_name = file_path
         .file_name()
@@ -27,9 +27,7 @@ pub async fn call_rapid_ocr_api(
 
     let file_fs = fs::read(file_path).expect("Failed to read file");
     let part = multipart::Part::bytes(file_fs).file_name(file_name);
-
-    let form = multipart::Form::new().part("file", part);
-
+    let form = multipart::Form::new().part("files", part);
     let response = client
         .post(url)
         .multipart(form)
@@ -37,7 +35,7 @@ pub async fn call_rapid_ocr_api(
         .send().await?
         .error_for_status()?;
 
-    let rapid_ocr_payloads: Vec<RapidOcrPayload> = response.json().await?;
+    let rapid_ocr_payloads: RapidOcrPayload = response.json().await?;
 
-    Ok(rapid_ocr_payloads.into_iter().map(OCRResult::from).collect())
+    Ok(rapid_ocr_payloads.result.into_iter().map(OCRResult::from).collect())
 }

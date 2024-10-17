@@ -71,6 +71,21 @@ async def perform_ocr(request: Request):
     return {"result": result}
 
 
+def serialize_ocr_result(result):
+    print(result)
+    if result is None:
+        return []
+    return [
+        [
+            [[float(coord) for coord in coords if coord is not None]
+             for coords in item[0] if coords],
+            str(item[1]) if item[1] is not None else "",
+            float(item[2]) if item[2] is not None else 0.0
+        ]
+        for item in result if item is not None
+    ]
+
+
 def process_ocr(files) -> list:
     temp_file = None
     try:
@@ -83,16 +98,7 @@ def process_ocr(files) -> list:
 
         result, _ = engine(temp_file_path)
 
-        serializable_result = [
-            [
-                [[float(coord) for coord in coords] for coords in item[0]],
-                str(item[1]),
-                float(item[2])
-            ]
-            for item in result
-        ]
-
-        return serializable_result
+        return serialize_ocr_result(result)
     except Exception as e:
         print(f"Error during OCR processing: {e}")
         raise

@@ -3,13 +3,19 @@ use serde::{ Deserialize, Serialize };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RapidOcrPayload {
+    pub result: Vec<PPOCRPayload>
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+
+pub struct PPOCRPayload {
     pub text: String,
     pub confidence: f32,
     pub bounding_box: [f32; 8],
 }
 
-impl From<RapidOcrPayload> for OCRResult {
-    fn from(payload: RapidOcrPayload) -> Self {
+impl From<PPOCRPayload> for OCRResult {
+    fn from(payload: PPOCRPayload) -> Self {
         let [x1, y1, x2, y2, x3, y3, x4, y4] = payload.bounding_box;
         let left = x1.min(x4);
         let top = y1.min(y2);
