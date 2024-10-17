@@ -12,7 +12,7 @@ pub async fn download_and_ocr(
     s3_client: &S3Client,
     reqwest_client: &ReqwestClient,
     image_location: &str
-) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
+) -> Result<(Vec<OCRResult>, String), Box<dyn std::error::Error>> {
     let temp_file = download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
     let ocr_results = match call_rapid_ocr_api(&temp_file.path()).await {
         Ok(ocr_results) => ocr_results,
@@ -20,14 +20,14 @@ pub async fn download_and_ocr(
             return Err(e.to_string().into());
         }
     };
-    Ok(ocr_results)
+    Ok((ocr_results, "".to_string()))
 }
 
 pub async fn download_and_table_ocr(
     s3_client: &S3Client,
     reqwest_client: &ReqwestClient,
     image_location: &str
-) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
+) -> Result<(Vec<OCRResult>, String), Box<dyn std::error::Error>> {
     let temp_file = download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
     let temp_file_path = temp_file.path().to_owned();
     let temp_file_path_clone = temp_file_path.clone();
@@ -50,7 +50,11 @@ pub async fn download_and_table_ocr(
             return Err(e.to_string().into());
         }
     };
-    Ok(ocr_results)
+
+    let table_structures_with_content = add_content_to_table_structure(table_structures, ocr_results);
+    let html = get_table_html(table_structures_with_content.clone());
+    let table_ocr_results = table_structures_to_ocr_results(table_structures_with_content);
+    Ok((table_ocr_results, html))
 }
 
 fn add_content_to_table_structure(
@@ -86,13 +90,32 @@ fn is_point_in_bbox(x: f32, y: f32, bbox: &BoundingBox) -> bool {
     x >= bbox.left && x <= bbox.left + bbox.width && y >= bbox.top && y <= bbox.top + bbox.height
 }
 
-// fn get_table_html(
-//     table_structures: Vec<TableStructure>
-// ) -> Vec<OCRResult> {
-    
-// }
+fn get_table_html(
+    table_structures: Vec<TableStructure>
+) -> String {
+    let mut html = String::new();
+    html.push_str("<table>");
+    for row in table_structures {
+        html.push_str("<tr>");
+        for cell in row.cells {
+            html.push_str(&format!("<td>{}</td>", cell.content.unwrap_or_default()));
+        }
+        html.push_str("</tr>");
+    }
+    html.push_str("</table>");
+    return html;
+}
 
-// fn get_ocr_results_for_table(
-//     ocr_results: Vec<OCRResult>,
-//     table_structure: TableStructure
-// ) -> Vec<OCRResult> {}
+fn table_structures_to_ocr_results(
+    table_structures: Vec<TableStructure>
+) -> Vec<OCRResult> {
+    table_structures
+        .iter()
+        .flat_map(|table| table.cells.iter())
+        .map(|cell| OCRResult {
+            bbox: cell.cell.clone(),
+            text: cell.content.clone().unwrap_or_default(),
+            confidence: cell.confidence,
+        })
+        .collect()
+}
