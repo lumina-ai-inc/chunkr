@@ -9,6 +9,7 @@ pub struct Config {
     pub queue_preprocess: String,
     pub queue_fast: String,
     pub queue_high_quality: String,
+    pub queue_postprocess: String,
     pub queue_ocr: String,
     pub pdla_url: String,
     pub pdla_fast_url: String,

@@ -82,3 +82,7 @@ path = "src/workers/ocr.rs"
 [[bin]]
 name = "preprocess"
 path = "src/workers/preprocess.rs"
+
+[[bin]]
+name = "postprocess"
+path = "src/workers/postprocess.rs"
