@@ -31,7 +31,8 @@ futures = "0.3.31"
 futures-util = "0.3.30"
 humantime = "2.1.0"
 humantime-serde = "1.1.1"
-image = "0.25.2"
+image = { version = "0.25.4", features = ["png"] }
+imageproc = "0.25.0"
 jsonwebtoken = "9.3.0"
 lazy_static = "1.5.0"
 log = "0.4.22"
@@ -66,6 +67,7 @@ utoipa = { version = "4.2", features = [
 utoipa-redoc = { version = "4.0", features = ["actix-web"] }
 utoipa-swagger-ui = { version = "7.1.0", features = ["actix-web", "vendored"] }
 uuid = { version = "1.8.0", features = ["v4", "v5"] }
+
 
 [[bin]]
 name = "fast"
