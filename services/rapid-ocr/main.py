@@ -90,6 +90,7 @@ def process_ocr(files) -> list:
     temp_file = None
     try:
         temp_file = NamedTemporaryFile(delete=False)
+        #cant send multiple 
         file_content = next(iter(files.values()))
         temp_file.write(file_content)
         temp_file.flush()
