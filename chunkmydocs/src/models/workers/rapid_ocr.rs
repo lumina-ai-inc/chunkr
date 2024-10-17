@@ -7,20 +7,19 @@ pub struct RapidOcrPayload {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-
 pub struct PPOCRPayload {
+    pub bounding_box: Vec<Vec<f32>>,
     pub text: String,
     pub confidence: f32,
-    pub bounding_box: [f32; 8],
 }
 
 impl From<PPOCRPayload> for OCRResult {
     fn from(payload: PPOCRPayload) -> Self {
-        let [x1, y1, x2, y2, x3, y3, x4, y4] = payload.bounding_box;
-        let left = x1.min(x4);
-        let top = y1.min(y2);
-        let right = x2.max(x3);
-        let bottom = y3.max(y4);
+        let bbox = &payload.bounding_box;
+        let left = bbox[0][0].min(bbox[3][0]);
+        let top = bbox[0][1].min(bbox[1][1]);
+        let right = bbox[1][0].max(bbox[2][0]);
+        let bottom = bbox[2][1].max(bbox[3][1]);
 
         OCRResult {
             bbox: BoundingBox {
