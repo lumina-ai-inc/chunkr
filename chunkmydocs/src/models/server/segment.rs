@@ -12,6 +12,12 @@ pub struct BoundingBox {
     pub height: f32,
 }
 
+impl BoundingBox {
+    pub fn get_center(&self) -> (f32, f32) {
+        (self.left + self.width / 2.0, self.top + self.height / 2.0)
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct OCRResult {
     pub bbox: BoundingBox,

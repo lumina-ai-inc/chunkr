@@ -13,7 +13,7 @@ async fn get_reqwest_client() -> &'static ReqwestClient {
 
 pub async fn call_rapid_ocr_api(
     file_path: &Path
-) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
+) -> Result<Vec<OCRResult>, Box<dyn std::error::Error + Send + Sync>> {
     let config = Config::from_env()?;
     let client = get_reqwest_client().await;
     let url = format!("{}/{}", config.rapid_ocr_url, "ocr");

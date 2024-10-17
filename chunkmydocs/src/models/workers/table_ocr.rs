@@ -21,7 +21,6 @@ pub struct TableStructure {
     pub row: BoundingBox,
     pub cells: Vec<Cell>,
     pub cell_count: i32,
-    pub content: Option<String>,
     pub confidence: Option<f32>,
 }
 

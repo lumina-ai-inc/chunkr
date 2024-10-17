@@ -3,7 +3,7 @@ use crate::utils::configs::extraction_config::Config;
 use reqwest::multipart;
 use std::error::Error;
 use std::{fs, path::Path};
-pub async fn recognize_table(file_path: &Path) -> Result<Vec<TableStructure>, Box<dyn Error>> {
+pub async fn recognize_table(file_path: &Path) -> Result<Vec<TableStructure>, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
     let config = Config::from_env()?;
     let url = format!("{}/predict/table", &config.table_structure_url);
@@ -36,15 +36,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_recognize_table() {
-        // Path to the test image
         let image_path = std::path::Path::new(
             "/Users/ishaankapoor/Startup/chunk-my-docs/chunkmydocs/input/test.jpg",
         );
 
-        // Call the recognize_table function
         let result = recognize_table(image_path).await;
 
-        // Assert that the result is Ok
         assert!(result.is_ok(), "recognize_table failed: {:?}", result.err());
     }
 }
