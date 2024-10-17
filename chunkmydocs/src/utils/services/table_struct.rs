@@ -36,7 +36,7 @@ pub async fn preprocess_image(
     Ok(temp_file)
 }
 
-pub async fn recognize_table(file_path: &Path) -> Result<Vec<TableStructure>, Box<dyn Error>> {
+pub async fn recognize_table(file_path: &Path) -> Result<Vec<TableStructure>, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
     let config = Config::from_env()?;
     let url = format!("{}/predict/table", &config.table_structure_url);
