@@ -12,6 +12,7 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "python-multipart>=0.0.12",
     "requests>=2.32.3",
+    "robyn>=0.62.1",
     "transformers>=4.45.2",
     "uvicorn>=0.31.1",
 ]
