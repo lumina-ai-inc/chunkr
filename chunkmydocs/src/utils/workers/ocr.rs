@@ -9,7 +9,7 @@ use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use crate::utils::workers::log::log_task;
 use chrono::Utc;
 use futures::future::try_join_all;
-use std::io::{ Read, Write };
+use std::{ fs::File, io::{ BufReader, Write } };
 use tempfile::NamedTempFile;
 
 pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
@@ -54,9 +54,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             None
         ).await?;
 
-        let mut file_contents = String::new();
-        chunks_file.as_file().read_to_string(&mut file_contents)?;
-        let mut chunks: Vec<Chunk> = serde_json::from_str(&file_contents)?;
+        let file = File::open(chunks_file.path())?;
+        let reader = BufReader::new(file);
+        let mut chunks: Vec<Chunk> = serde_json::from_reader(reader)?;
 
         try_join_all(
             chunks.iter_mut().flat_map(|chunk| {
@@ -129,7 +129,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 eprintln!("Task failed after {} attempts", payload.max_attempts);
                 log_task(
                     task_id.clone(),
-                    Status::Failed,
+                    Status::Succeeded,
                     Some("OCR failed".to_string()),
                     Some(Utc::now()),
                     &pg_pool

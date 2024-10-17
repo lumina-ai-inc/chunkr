@@ -124,7 +124,8 @@ impl Segment {
                         .trim();
                     format!("<ul><li>{}</li></ul>", cleaned_content)
                 }
-            }
+            },
+            SegmentType::Picture => "<img src='' alt='{}' />".to_string(),
             _ =>
                 format!(
                     "<span class=\"{}\">{}</span>",
