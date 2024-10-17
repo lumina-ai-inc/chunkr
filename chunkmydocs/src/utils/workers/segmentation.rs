@@ -131,7 +131,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             println!("Task succeeded");
             let extraction_config = ExtractionConfig::from_env()?;
             produce_extraction_payloads(
-                extraction_config.queue_ocr,
+                extraction_config.queue_postprocess,
                 extraction_payload.clone()
             ).await?;
             log_task(

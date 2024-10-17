@@ -129,7 +129,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 eprintln!("Task failed after {} attempts", payload.max_attempts);
                 log_task(
                     task_id.clone(),
-                    Status::Succeeded,
+                    Status::Failed,
                     Some("OCR failed".to_string()),
                     Some(Utc::now()),
                     &pg_pool

@@ -6,6 +6,6 @@ use chunkmydocs::utils::workers::postprocess::process;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = extraction_config::Config::from_env()?;
     println!("Starting task processor");
-    consumer(process, config.queue_preprocess, 1, 600).await?;
+    consumer(process, config.queue_postprocess, 1, 600).await?;
     Ok(())
 }
