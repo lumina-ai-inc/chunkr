@@ -1,0 +1,2 @@
+[target.aarch64-apple-darwin]
+rustflags = ["-L", "/usr/local/opt/postgresql/lib"]

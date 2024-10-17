@@ -177,7 +177,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 log_task(
                     task_id.clone(),
                     Status::Failed,
-                    Some("Segmentation failed".to_string()),
+                    Some("Chunking failed".to_string()),
                     Some(Utc::now()),
                     &pg_pool
                 ).await?;
