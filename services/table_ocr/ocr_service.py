@@ -31,7 +31,13 @@ async def preprocess_image_path(image_path: str) -> Image.Image:
 async def process_image(file, preprocess=True):
 
     try:
-        image_content = await file.read()
+        # Check if file is already bytes
+        if isinstance(file, bytes):
+            image_content = file
+        else:
+            # Assume it's a file-like object
+            image_content = await file.read()
+        
         image = Image.open(io.BytesIO(image_content))
         if preprocess:
             image = await preprocess_image(image)
