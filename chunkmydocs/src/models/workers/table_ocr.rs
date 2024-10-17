@@ -1,12 +1,5 @@
+use crate::models::server::segment::BoundingBox;
 use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BoundingBox {
-    pub x1: f32,
-    pub y1: f32,
-    pub x2: f32,
-    pub y2: f32,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Cell {
