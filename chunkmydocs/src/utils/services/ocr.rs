@@ -83,15 +83,16 @@ fn add_content_to_table_structure(
 }
 
 fn is_point_in_bbox(x: f32, y: f32, bbox: &BoundingBox) -> bool {
-    x >= bbox.x1 && x <= bbox.x2 && y >= bbox.y1 && y <= bbox.y2
+    x >= bbox.left && x <= bbox.left + bbox.width && y >= bbox.top && y <= bbox.top + bbox.height
 }
 
-fn get_table_html(
-    ocr_results: Vec<OCRResult>,
-    table_structures: Vec<TableStructure>
-) -> Vec<OCRResult> {}
+// fn get_table_html(
+//     table_structures: Vec<TableStructure>
+// ) -> Vec<OCRResult> {
+    
+// }
 
-fn get_ocr_results_for_table(
-    ocr_results: Vec<OCRResult>,
-    table_structure: TableStructure
-) -> Vec<OCRResult> {}
+// fn get_ocr_results_for_table(
+//     ocr_results: Vec<OCRResult>,
+//     table_structure: TableStructure
+// ) -> Vec<OCRResult> {}
