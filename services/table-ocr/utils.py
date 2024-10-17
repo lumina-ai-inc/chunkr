@@ -91,8 +91,6 @@ def get_cell_coordinates_by_row(table_data, merge_threshold=0.16, raw_output=Fal
     rows.sort(key=lambda x: x['bbox'][1])
     columns.sort(key=lambda x: x['bbox'][0])
 
-    # Function to find overlapping cells
-    
     # Generate cell coordinates
     cell_coordinates = []
 
@@ -109,7 +107,12 @@ def get_cell_coordinates_by_row(table_data, merge_threshold=0.16, raw_output=Fal
         row_cells.sort(key=lambda x: x['column'][0])
 
         # Add as a new row
-        cell_coordinates.append({'row': row['bbox'], 'cells': row_cells, 'cell_count': len(row_cells)})
+        cell_coordinates.append({
+            'row': row['bbox'],
+            'cells': row_cells,
+            'cell_count': len(row_cells),
+            'confidence': row['score']
+        })
 
     # Sort rows from top to bottom
     cell_coordinates.sort(key=lambda x: x['row'][1])
@@ -134,7 +137,8 @@ def get_cell_coordinates_by_row(table_data, merge_threshold=0.16, raw_output=Fal
                     max(prev_row['row'][3], row['row'][3])
                 ],
                 'cells': merged_cells,
-                'cell_count': len(merged_cells)
+                'cell_count': len(merged_cells),
+                'confidence': (prev_row['confidence'] + row['confidence']) / 2  # Average confidence
             }
         else:
             # Add as a new row
