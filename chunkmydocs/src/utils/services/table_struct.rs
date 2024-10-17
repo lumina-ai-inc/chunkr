@@ -1,7 +1,7 @@
 use crate::models::workers::table_ocr::{TableStructure, TableStructureResponse};
 use crate::utils::configs::extraction_config::Config;
 use image::imageops;
-use image::{ImageBuffer, Luma};
+use image::ImageBuffer;
 use imageproc::contrast::adaptive_threshold;
 use imageproc::filter::median_filter;
 use reqwest::multipart;

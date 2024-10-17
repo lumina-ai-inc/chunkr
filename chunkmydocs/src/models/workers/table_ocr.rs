@@ -1,7 +1,7 @@
 use crate::models::server::segment::BoundingBox;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Cell {
     pub column: BoundingBox,
     pub cell: BoundingBox,
@@ -9,7 +9,7 @@ pub struct Cell {
     pub confidence: Option<f32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TableStructure {
     pub row: BoundingBox,
     pub cells: Vec<Cell>,
@@ -17,7 +17,8 @@ pub struct TableStructure {
     pub confidence: Option<f32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TableStructureResponse {
     pub result: Vec<TableStructure>,
 }
+

@@ -70,7 +70,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                         Some(async {
                             let s3_client = s3_client.clone();
                             let reqwest_client = reqwest_client.clone();
-                            let ocr_result = if segment.segment_type == SegmentType::Table {
+                            let ocr_result  = if segment.segment_type == SegmentType::Table {
                                 download_and_table_ocr(
                                     &s3_client,
                                     &reqwest_client,
@@ -84,8 +84,11 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                                 ).await
                             };
                             match ocr_result {
-                                Ok(ocr_result) => {
+                                Ok((ocr_result, html)) => {
                                     segment.ocr = Some(ocr_result);
+                                    if !html.is_empty() {
+                                        segment.html = Some(html);
+                                    }
                                     Ok::<_, Box<dyn std::error::Error>>(())
                                 }
                                 Err(e) => {
