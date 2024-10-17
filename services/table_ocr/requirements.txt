@@ -1,0 +1,9 @@
+transformers
+easyocr
+fastapi
+uvicorn
+pydantic
+python-dotenv
+requests
+pillow
+python-multipart
