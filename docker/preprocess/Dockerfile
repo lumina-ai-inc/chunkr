@@ -28,7 +28,13 @@ RUN apt-get update -y; \
     ; \
     mkdir -p /app/tmp
 
+RUN wget https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x86.tgz && \
+    mkdir -p /usr/local/pdfium && \
+    tar -xzvf pdfium-linux-x86.tgz -C /usr/local/pdfium && \
+    rm pdfium-linux-x86.tgz
+
 COPY --from=builder /app/target/release/preprocess /app/preprocess
+COPY --from=builder /usr/local/pdfium/libpdfium.so /usr/local/pdfium/libpdfium.so
 
 EXPOSE 8000
 ENTRYPOINT ["/app/preprocess"]
