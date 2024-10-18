@@ -46,7 +46,6 @@ def get_task(url: str) -> TaskResponse:
     headers = get_headers()
     response = requests.get(url, headers=headers)
     response.raise_for_status()
-    print(response.json())
     task = TaskResponse(**response.json())
     return task
 
@@ -54,7 +53,10 @@ def check_task_status(url: str) -> TaskResponse:
     task = get_task(url)
     while task.status == "Processing" or task.status == "Starting":
         time.sleep(1)
-        task = get_task(url)
+        try:
+            task = get_task(url)
+        except Exception as e:
+            print(f"Error getting task status: {str(e)}")
     if task.status == "Failed":
         raise Exception(task.message)
     return task
@@ -66,10 +68,7 @@ def process_file(upload_form: UploadForm) -> TaskResponse:
     target_chunk_length = upload_form.target_chunk_length
     ocr_strategy = upload_form.ocr_strategy
     task = extract_file(file_path, model, target_chunk_length, ocr_strategy)
-    print(f"Task id: {task.task_id}")
     task = check_task_status(task.task_url)
-    # print(f"Task completed for {file_path}:")
-    # print(task)
     return task
 
 def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, target_chunk_length: int = 512, ocr_strategy: OcrStrategy = OcrStrategy.Auto):
