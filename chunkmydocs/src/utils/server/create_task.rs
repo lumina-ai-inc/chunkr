@@ -6,7 +6,7 @@ use crate::models::{
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{ Client, Pool };
 use crate::utils::storage::services::{ generate_presigned_url, upload_to_s3 };
-use crate::utils::workers::payload::produce_extraction_payloads;
+use crate::utils::services::payload::produce_extraction_payloads;
 use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
 use chrono::{ DateTime, Utc };

@@ -32,8 +32,8 @@ pub async fn download_and_table_ocr(
     image_location: &str
 ) -> Result<(Vec<OCRResult>, String), Box<dyn std::error::Error>> {
     let original_file = download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
-    let preprocessed_file = preprocess_image(&original_file.path()).await?;
-    let temp_file_path = preprocessed_file.path().to_owned();
+    // let preprocessed_file = preprocess_image(&original_file.path()).await?;
+    let temp_file_path = original_file.path().to_owned();
     let temp_file_path_clone = temp_file_path.clone();
 
     let rapid_ocr_task = tokio::task::spawn(async move {
@@ -43,13 +43,13 @@ pub async fn download_and_table_ocr(
         recognize_table(&temp_file_path).await
     });
     let ocr_results = match rapid_ocr_task.await {
-        Ok(ocr_results) => ocr_results.unwrap(),
+        Ok(ocr_results) => ocr_results.unwrap_or_default(),
         Err(e) => {
             return Err(e.to_string().into());
         }
     };
     let table_structures = match table_structure_task.await {
-        Ok(table_structures) => table_structures.unwrap(),
+        Ok(table_structures) => table_structures.unwrap_or_default(),
         Err(e) => {
             return Err(e.to_string().into());
         }

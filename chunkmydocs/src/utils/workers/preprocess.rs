@@ -3,14 +3,18 @@ use crate::models::server::extract::{ ExtractionPayload, SegmentationModel };
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{ Client, create_pool };
-use crate::utils::services::pdf::pdf_2_images;
+use crate::utils::services::{
+    log::log_task,
+    payload::produce_extraction_payloads,
+    pdf::pdf_2_images,
+};
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
-use crate::utils::workers::{ log::log_task, payload::produce_extraction_payloads };
 use chrono::Utc;
 use std::{ error::Error, path::{ Path, PathBuf }, process::Command };
 use tempfile::TempDir;
 use std::time::Instant;
+
 fn is_valid_file_type(file_path: &Path) -> Result<(bool, String), Box<dyn Error>> {
     let output = Command::new("file")
         .arg("--mime-type")
