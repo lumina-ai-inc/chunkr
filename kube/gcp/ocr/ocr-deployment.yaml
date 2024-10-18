@@ -15,45 +15,17 @@ spec:
       labels:
         app.kubernetes.io/name: ocr
     spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app.kubernetes.io/name
-                  operator: In
-                  values:
-                  - ocr
-              topologyKey: "kubernetes.io/hostname"
-      tolerations:
-      - key: "nvidia.com/gpu.b"
-        operator: "Exists"
-        effect: "NoSchedule"
       containers:
       - name: ocr
-        image: luminainc/ocr:9b4ad8f1
+        image: luminainc/ocr:c126fd55
         imagePullPolicy: Always
         envFrom:
         - secretRef:
             name: chunkmydocs-secrets
-        ports:
-        - containerPort: 8000
+        env:
+        - name: PG__POOL__MAX_SIZE
+          value: "3"
         securityContext:
           privileged: true
           capabilities:
             add: ["SYS_ADMIN"]
-        resources:
-          limits:
-            nvidia.com/gpu: 1
-          requests:
-            nvidia.com/gpu: 1
-        volumeMounts:
-        - name: dshm
-          mountPath: /dev/shm
-      volumes:
-      - name: dshm
-        emptyDir:
-          medium: Memory
-          sizeLimit: 5Gi

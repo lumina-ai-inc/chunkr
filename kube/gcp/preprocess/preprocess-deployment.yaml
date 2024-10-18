@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fast
+  name: preprocess
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: fast
+    app.kubernetes.io/name: preprocess
 spec:
   selector:
     matchLabels:
-        app.kubernetes.io/name: fast
+      app.kubernetes.io/name: preprocess
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: fast
+        app.kubernetes.io/name: preprocess
     spec:
       containers:
-      - name: fast
-        image: luminainc/fast:c126fd55
+      - name: preprocess
+        image: luminainc/preprocess:c126fd55
         imagePullPolicy: Always
         envFrom:
         - secretRef:
