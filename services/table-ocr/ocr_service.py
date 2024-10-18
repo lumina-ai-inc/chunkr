@@ -50,7 +50,7 @@ async def process_image(file, preprocess=True):
         cells = get_table_structure(image)
         
         # Get cell coordinates
-        cell_coordinates = get_cell_coordinates_by_row(cells,merge_threshold=0.16, raw_output=False)
+        cell_coordinates = get_cell_coordinates_by_row(cells,merge_threshold=0.14, raw_output=False)
         
         return image, cell_coordinates
         # return image,cells
