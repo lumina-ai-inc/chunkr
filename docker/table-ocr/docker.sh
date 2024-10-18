@@ -4,7 +4,7 @@ CURRENT_DIR=$(pwd)
 
 cd ../../
 
-DOCKER_IMAGE_NAME="luminainc/task"
+DOCKER_IMAGE_NAME="luminainc/table-ocr"
 
 SHA=$(git rev-parse --short HEAD)
 echo "------------------------"
