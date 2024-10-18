@@ -1,5 +1,3 @@
-from fastapi import FastAPI, UploadFile, File, Form
-from config import DEVICE
 from ocr_service import process_table_image
 import asyncio
 
@@ -10,7 +8,6 @@ import argparse
 import gc
 from robyn import Robyn, Request
 from robyn.logger import Logger
-from tempfile import NamedTemporaryFile
 
 
 app = Robyn(__file__)
@@ -42,13 +39,16 @@ class LoggingMiddleware:
 def readiness():
     return {"status": "ready"}
 
+
 @app.get("/")
 def read_root():
     return {"message": "Hello, World!"}
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
 
 @app.post("/predict/table")
 async def process_table(request: Request):
@@ -58,9 +58,7 @@ async def process_table(request: Request):
             result = await process_table_image(file_content)
             table_data.append(result)
     gc.collect()
-    print(table_data[0])
     return {"result": table_data[0]}
-
 
 
 if __name__ == "__main__":
