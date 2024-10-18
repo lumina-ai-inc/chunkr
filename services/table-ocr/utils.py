@@ -22,30 +22,29 @@ class BoundingBox(BaseModel):
 class Cell(BaseModel):
     column: BoundingBox
     cell: BoundingBox
+    col_span: int = Field(default=1)
+    row_span: int = Field(default=1)
 
     def to_dict(self):
         return {
             'column': self.column.to_dict(),
-            'cell': self.cell.to_dict()
+            'cell': self.cell.to_dict(),
+            'col_span': self.col_span,
+            'row_span': self.row_span
         }
-
 
 class Row(BaseModel):
     row: BoundingBox
     cells: List[Cell]
     cell_count: int
     confidence: float
-    col_span: int = Field(default=1)
-    row_span: int = Field(default=1)
 
     def to_dict(self):
         return {
             'row': self.row.to_dict(),
             'cells': [cell.to_dict() for cell in self.cells],
             'cell_count': self.cell_count,
-            'confidence': self.confidence,
-            'col_span': self.col_span,
-            'row_span': self.row_span
+            'confidence': self.confidence
         }
 
 
@@ -150,18 +149,23 @@ def get_cell_coordinates_by_row(table_data, merge_threshold=0.12, raw_output=Fal
 
             spanning_cell = find_best_spanning_cell(cell_bbox, spanning_cells)
             if spanning_cell:
+                col_span, row_span = calculate_span(spanning_cell['bbox'], columns, rows)
                 cell_info = Cell(
                     column=BoundingBox(x1=spanning_cell['bbox'][0], y1=spanning_cell['bbox'][1],
                                        x2=spanning_cell['bbox'][2], y2=spanning_cell['bbox'][3]),
                     cell=BoundingBox(x1=spanning_cell['bbox'][0], y1=spanning_cell['bbox'][1],
-                                     x2=spanning_cell['bbox'][2], y2=spanning_cell['bbox'][3])
+                                     x2=spanning_cell['bbox'][2], y2=spanning_cell['bbox'][3]),
+                    col_span=col_span,
+                    row_span=row_span
                 )
             else:
                 cell_info = Cell(
                     column=BoundingBox(x1=column['bbox'][0], y1=column['bbox'][1],
                                        x2=column['bbox'][2], y2=column['bbox'][3]),
                     cell=BoundingBox(x1=cell_bbox[0], y1=cell_bbox[1],
-                                     x2=cell_bbox[2], y2=cell_bbox[3])
+                                     x2=cell_bbox[2], y2=cell_bbox[3]),
+                    col_span=1,
+                    row_span=1
                 )
 
             row_cells.append(cell_info)
@@ -171,15 +175,17 @@ def get_cell_coordinates_by_row(table_data, merge_threshold=0.12, raw_output=Fal
                             x2=row['bbox'][2], y2=row['bbox'][3]),
             cells=row_cells,
             cell_count=len(row_cells),
-            confidence=row['score'],
-            col_span=1,
-            row_span=1
+            confidence=row['score']
         ))
 
     table_structure.sort(key=lambda x: x.row.y1)
 
     return table_structure
 
+def calculate_span(cell_bbox, columns, rows):
+    col_span = sum(1 for col in columns if calculate_iou(cell_bbox, col['bbox']) > 0.5)
+    row_span = sum(1 for row in rows if calculate_iou(cell_bbox, row['bbox']) > 0.5)
+    return col_span, row_span
 
 def find_best_spanning_cell(cell_bbox, spanning_cells):
     max_iou = 0
