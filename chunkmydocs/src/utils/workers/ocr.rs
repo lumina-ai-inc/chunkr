@@ -3,10 +3,9 @@ use crate::models::server::extract::{ ExtractionPayload, OcrStrategy };
 use crate::models::server::segment::{ Chunk, Segment, SegmentType };
 use crate::models::server::task::Status;
 use crate::utils::db::deadpool_postgres::create_pool;
-use crate::utils::services::ocr::{ download_and_ocr, download_and_table_ocr };
+use crate::utils::services::{ log::log_task, ocr::{ download_and_ocr, download_and_table_ocr } };
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
-use crate::utils::workers::log::log_task;
 use chrono::Utc;
 use futures::future::try_join_all;
 use std::{ fs::File, io::{ BufReader, Write } };
@@ -70,7 +69,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                         Some(async {
                             let s3_client = s3_client.clone();
                             let reqwest_client = reqwest_client.clone();
-                            let ocr_result  = if segment.segment_type == SegmentType::Table {
+                            let ocr_result = if segment.segment_type == SegmentType::Table {
                                 download_and_table_ocr(
                                     &s3_client,
                                     &reqwest_client,

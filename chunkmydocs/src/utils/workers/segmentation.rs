@@ -5,11 +5,14 @@ use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::configs::task_config::Config as TaskConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
-use crate::utils::services::pdf::split_pdf;
-use crate::utils::services::pdla::pdla_extraction;
+use crate::utils::services::{
+    log::log_task,
+    payload::produce_extraction_payloads,
+    pdf::split_pdf,
+    pdla::pdla_extraction,
+};
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
-use crate::utils::workers::{ log::log_task, payload::produce_extraction_payloads };
 use chrono::Utc;
 use std::io::Write;
 use std::path::PathBuf;
