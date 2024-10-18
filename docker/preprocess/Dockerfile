@@ -15,6 +15,11 @@ RUN cargo chef cook --release --recipe-path recipe.json --bin "preprocess"
 COPY chunkmydocs/ .
 RUN cargo build --release --bin "preprocess"
 
+RUN wget https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x86.tgz && \
+    mkdir -p /usr/local/pdfium && \
+    tar -xzvf pdfium-linux-x86.tgz -C /usr/local/pdfium && \
+    rm pdfium-linux-x86.tgz
+
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
@@ -27,11 +32,6 @@ RUN apt-get update -y; \
     ca-certificates \
     wget && \
     mkdir -p /app/tmp
-
-RUN wget https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x86.tgz && \
-    mkdir -p /usr/local/pdfium && \
-    tar -xzvf pdfium-linux-x86.tgz -C /usr/local/pdfium && \
-    rm pdfium-linux-x86.tgz
 
 COPY --from=builder /app/target/release/preprocess /app/preprocess
 COPY --from=builder /usr/local/pdfium/libpdfium.so /usr/local/pdfium/libpdfium.so
