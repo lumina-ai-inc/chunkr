@@ -1,6 +1,6 @@
 use crate::models::server::segment::{BoundingBox, OCRResult};
 use crate::models::workers::table_ocr::TableStructure;
-use crate::utils::services::images::preprocess_image;
+// use crate::utils::services::images::preprocess_image;
 use crate::utils::services::rapid_ocr::call_rapid_ocr_api;
 use crate::utils::services::table_ocr::recognize_table;
 use crate::utils::storage::services::download_to_tempfile;
@@ -15,9 +15,10 @@ pub async fn download_and_ocr(
     image_location: &str
 ) -> Result<(Vec<OCRResult>, String), Box<dyn std::error::Error>> {
     let original_file = download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
-    let preprocessed_file = preprocess_image(&original_file.path()).await?;
-    let temp_file_path = preprocessed_file.path().to_owned();
-    let ocr_results = match call_rapid_ocr_api(&temp_file_path).await {
+    let original_file_path = original_file.path().to_owned();
+    // let preprocessed_file = preprocess_image(&original_file.path()).await?;
+    // let preprocessed_file_path = preprocessed_file.path().to_owned();
+    let ocr_results = match call_rapid_ocr_api(&original_file_path).await {
         Ok(ocr_results) => ocr_results,
         Err(e) => {
             return Err(e.to_string().into());
@@ -32,15 +33,16 @@ pub async fn download_and_table_ocr(
     image_location: &str
 ) -> Result<(Vec<OCRResult>, String), Box<dyn std::error::Error>> {
     let original_file = download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
+    let original_file_path = original_file.path().to_owned();
+    let original_file_path_clone = original_file_path.clone();
     // let preprocessed_file = preprocess_image(&original_file.path()).await?;
-    let temp_file_path = original_file.path().to_owned();
-    let temp_file_path_clone = temp_file_path.clone();
+    // let preprocessed_file_path = preprocessed_file.path().to_owned();
 
-    let rapid_ocr_task = tokio::task::spawn(async move {
-        call_rapid_ocr_api(&temp_file_path_clone).await
-    });
     let table_structure_task = tokio::task::spawn(async move {
-        recognize_table(&temp_file_path).await
+        recognize_table(&original_file_path).await
+    });
+    let rapid_ocr_task = tokio::task::spawn(async move {
+        call_rapid_ocr_api(&original_file_path_clone).await
     });
     let ocr_results = match rapid_ocr_task.await {
         Ok(ocr_results) => ocr_results.unwrap_or_default(),
