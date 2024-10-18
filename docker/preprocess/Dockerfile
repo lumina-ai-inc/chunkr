@@ -20,7 +20,6 @@ RUN wget https://github.com/bblanchon/pdfium-binaries/releases/latest/download/p
     tar -xzvf pdfium-linux-x86.tgz -C /usr/local/pdfium && \
     rm pdfium-linux-x86.tgz
 
-
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
@@ -30,8 +29,11 @@ RUN apt-get update -y; \
     build-essential\
     libssl-dev \
     libpq-dev \
-    ca-certificates \
-    mkdir -p /app/tmp
+    ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+    
+RUN mkdir -p /app/tmp
 
 COPY --from=builder /app/target/release/preprocess /app/preprocess
 COPY --from=builder /usr/local/pdfium/libpdfium.so /usr/local/pdfium/libpdfium.so
