@@ -1,5 +1,5 @@
 FROM rust:1.81-slim-bookworm AS chef
-RUN apt-get update -y && apt-get -y install pkg-config libssl-dev libpq-dev g++ curl libglib2.0-dev
+RUN apt-get update -y && apt-get -y install pkg-config libssl-dev libpq-dev g++ curl libglib2.0-dev wget
 RUN cargo install cargo-chef
 WORKDIR /app
 
@@ -20,6 +20,7 @@ RUN wget https://github.com/bblanchon/pdfium-binaries/releases/latest/download/p
     tar -xzvf pdfium-linux-x86.tgz -C /usr/local/pdfium && \
     rm pdfium-linux-x86.tgz
 
+
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
@@ -30,7 +31,6 @@ RUN apt-get update -y; \
     libssl-dev \
     libpq-dev \
     ca-certificates \
-    wget && \
     mkdir -p /app/tmp
 
 COPY --from=builder /app/target/release/preprocess /app/preprocess
