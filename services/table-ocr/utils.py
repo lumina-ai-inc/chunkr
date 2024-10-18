@@ -4,6 +4,57 @@ from typing import List, Dict
 from tqdm.auto import tqdm
 from torchvision.transforms import functional as F
 from config import DEVICE
+from pydantic import BaseModel, Field, ValidationError, model_validator
+class BoundingBox(BaseModel):
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+
+    def to_dict(self):
+        return {
+            'left': self.x1,
+            'top': self.y1,
+            'width': self.x2 - self.x1,
+            'height': self.y2 - self.y1
+        }
+
+class Cell(BaseModel):
+    column: BoundingBox
+    cell: BoundingBox
+
+    def to_dict(self):
+        return {
+            'column': self.column.to_dict(),
+            'cell': self.cell.to_dict()
+        }
+
+class Row(BaseModel):
+    row: BoundingBox
+    cells: List[Cell]
+    cell_count: int
+    confidence: float
+    col_span: int = Field(default=1)
+    row_span: int = Field(default=1)
+
+    def to_dict(self):
+        return {
+            'row': self.row.to_dict(),
+            'cells': [cell.to_dict() for cell in self.cells],
+            'cell_count': self.cell_count,
+            'confidence': self.confidence,
+            'col_span': self.col_span,
+            'row_span': self.row_span
+        }
+
+class TableStructure(BaseModel):
+    rows: List[Row]
+
+    def to_dict(self):
+        return {
+            'rows': [row.to_dict() for row in self.rows]
+        }
+
 
 class MaxResize:
     def __init__(self, max_size):
@@ -77,63 +128,75 @@ def outputs_to_objects(outputs, img_size, id2label):
     return objects
 
 
-def get_cell_coordinates_by_row(table_data, merge_threshold=0.16, raw_output=False):
-    # print(f"Table data: {table_data}")
-    # Extract rows, columns, and spanning cells
-    rows = [entry for entry in table_data if entry['label'] in ['table row']]
+def get_cell_coordinates_by_row(table_data, merge_threshold=0.12, raw_output=False):
+    # Save table data to JSON
+    import json
+    with open('table_data.json', 'w') as f:
+        json.dump(table_data, f, indent=4)
+    
+    rows = [entry for entry in table_data if entry['label'] == 'table row']
     columns = [entry for entry in table_data if entry['label'] == 'table column']
-    spanning_cells = [entry for entry in table_data if entry['label'] == 'table spanning cell']
-
-    # Merge overlapping boxes
-    rows = merge_boxes(rows, iou_threshold=merge_threshold)
-    columns = merge_boxes(columns, iou_threshold=merge_threshold)
-    spanning_cells = merge_boxes(spanning_cells, iou_threshold=merge_threshold)
+    spanning_cells = [entry for entry in table_data if entry['label'] in ['table spanning cell', 'table spanning row', 'table spanning column']]
 
     # Sort rows and columns by their Y and X coordinates, respectively
     rows.sort(key=lambda x: x['bbox'][1])
     columns.sort(key=lambda x: x['bbox'][0])
 
-    # Generate cell coordinates
-    cell_coordinates = []
+    table_structure = []
 
     for row in rows:
         row_cells = []
         row_x1, row_y1, row_x2, row_y2 = row['bbox']
-        col_span_total = 1
-        row_span_total = 1
 
         for column in columns:
             col_x1, col_y1, col_x2, col_y2 = column['bbox']
             cell_bbox = [col_x1, row_y1, col_x2, row_y2]
-            cell_info = {'column': column['bbox'], 'cell': cell_bbox}
-
-            # Check if the cell is a spanning cell
-            spanning_cell = find_spanning_cell(cell_bbox, spanning_cells)
+            
+            # Check if the cell is inside a spanning cell
+            spanning_cell = find_best_spanning_cell(cell_bbox, spanning_cells)
             if spanning_cell:
-                cell_info['col_span'] = determine_col_span(spanning_cell['bbox'])
-                cell_info['row_span'] = determine_row_span(spanning_cell['bbox'])
-                col_span_total = max(col_span_total, cell_info['col_span'])
-                row_span_total = max(row_span_total, cell_info['row_span'])
+                cell_info = Cell(
+                    column=BoundingBox(x1=spanning_cell['bbox'][0], y1=spanning_cell['bbox'][1], 
+                                       x2=spanning_cell['bbox'][2], y2=spanning_cell['bbox'][3]),
+                    cell=BoundingBox(x1=spanning_cell['bbox'][0], y1=spanning_cell['bbox'][1], 
+                                     x2=spanning_cell['bbox'][2], y2=spanning_cell['bbox'][3])
+                )
             else:
-                cell_info['col_span'] = 1
-                cell_info['row_span'] = 1
+                cell_info = Cell(
+                    column=BoundingBox(x1=column['bbox'][0], y1=column['bbox'][1], 
+                                       x2=column['bbox'][2], y2=column['bbox'][3]),
+                    cell=BoundingBox(x1=cell_bbox[0], y1=cell_bbox[1], 
+                                     x2=cell_bbox[2], y2=cell_bbox[3])
+                )
 
             row_cells.append(cell_info)
 
-        cell_coordinates.append({
-            'row': row['bbox'],
-            'cells': row_cells,
-            'cell_count': len(row_cells),
-            'confidence': row['score'],
-            'col_span': col_span_total,
-            'row_span': row_span_total
-        })
+        table_structure.append(Row(
+            row=BoundingBox(x1=row['bbox'][0], y1=row['bbox'][1], 
+                            x2=row['bbox'][2], y2=row['bbox'][3]),
+            cells=row_cells,
+            cell_count=len(row_cells),
+            confidence=row['score'],
+            col_span=1,  # Default value, adjust if needed
+            row_span=1   # Default value, adjust if needed
+        ))
 
     # Sort rows from top to bottom
-    cell_coordinates.sort(key=lambda x: x['row'][1])
+    table_structure.sort(key=lambda x: x.row.y1)
+
+    return table_structure
 
 
-    return cell_coordinates
+def find_best_spanning_cell(cell_bbox, spanning_cells):
+    max_iou = 0
+    best_spanning_cell = None
+    for spanning_cell in spanning_cells:
+        iou = calculate_iou(cell_bbox, spanning_cell['bbox'])
+        if iou > max_iou:
+            max_iou = iou
+            best_spanning_cell = spanning_cell
+    return best_spanning_cell if max_iou > 0.05 else None
+
 
 
 def merge_boxes(boxes, iou_threshold=0.5):
@@ -183,50 +246,3 @@ def merge_boxes(boxes, iou_threshold=0.5):
     return merged
 
 
-def find_spanning_cell(cell_bbox: List[float], spanning_cells: List[Dict]) -> Dict:
-    """
-    Finds if the given cell_bbox matches any spanning cell.
-
-    Args:
-        cell_bbox (list): Bounding box of the cell [x1, y1, x2, y2].
-        spanning_cells (list): List of spanning cell dictionaries.
-
-    Returns:
-        dict or None: The matching spanning cell dictionary if found, else None.
-    """
-    for spanning_cell in spanning_cells:
-        if calculate_iou(cell_bbox, spanning_cell['bbox']) > 0.5:
-            return spanning_cell
-    return None
-
-
-def determine_col_span(cell_bbox: List[float], average_col_width: float = 100.0) -> int:
-    """
-    Determines the colspan based on the cell bounding box.
-
-    Args:
-        cell_bbox (list): Bounding box of the cell [x1, y1, x2, y2].
-        average_col_width (float): Average width of a single column.
-
-    Returns:
-        int: The colspan value.
-    """
-    width = cell_bbox[2] - cell_bbox[0]
-    colspan = max(1, int(round(width / average_col_width)))
-    return colspan
-
-
-def determine_row_span(cell_bbox: List[float], average_row_height: float = 30.0) -> int:
-    """
-    Determines the rowspan based on the cell bounding box.
-
-    Args:
-        cell_bbox (list): Bounding box of the cell [x1, y1, x2, y2].
-        average_row_height (float): Average height of a single row.
-
-    Returns:
-        int: The rowspan value.
-    """
-    height = cell_bbox[3] - cell_bbox[1]
-    rowspan = max(1, int(round(height / average_row_height)))
-    return rowspan

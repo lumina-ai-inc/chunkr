@@ -5,30 +5,9 @@ from utils import  get_cell_coordinates_by_row
 import logging
 import cv2
 import numpy as np
-from PIL import ImageEnhance, ImageFilter
 
-async def preprocess_image(image: Image.Image) -> Image.Image:
-    gray_image = image.convert('L')
-    enhancer = ImageEnhance.Contrast(gray_image)
-    enhanced_image = enhancer.enhance(2.0)
-    denoised_image = enhanced_image.filter(ImageFilter.MedianFilter(size=3))
-    np_image = np.array(denoised_image)
-    binary_image = cv2.adaptiveThreshold(
-        np_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
-    )
-    return Image.fromarray(binary_image)
-async def preprocess_image_path(image_path: str) -> Image.Image:
-    image = Image.open(image_path)
-    gray_image = image.convert('L')
-    enhancer = ImageEnhance.Contrast(gray_image)
-    enhanced_image = enhancer.enhance(2.0)
-    denoised_image = enhanced_image.filter(ImageFilter.MedianFilter(size=3))
-    np_image = np.array(denoised_image)
-    binary_image = cv2.adaptiveThreshold(
-        np_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
-    )
-    return Image.fromarray(binary_image)
-async def process_image(file, preprocess=True):
+
+async def process_image(file, preprocess=False):
 
     try:
         # Check if file is already bytes
@@ -39,20 +18,37 @@ async def process_image(file, preprocess=True):
             image_content = await file.read()
         
         image = Image.open(io.BytesIO(image_content))
-        if preprocess:
-            image = await preprocess_image(image)
+ 
             
         # Convert image to RGB if it's not already
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
+        # if image.mode != 'RGB':
+        #     image = image.convert('RGB')
         
         # Get table structure
         cells = get_table_structure(image)
-        
+        # Annotate and save cells on image as raw_annotate_output
+        from PIL import ImageDraw
+
+        # Create a copy of the image for annotation
+        annotated_image = image.copy()
+        draw = ImageDraw.Draw(annotated_image)
+
+        # Draw bounding boxes for each detected cell
+        for cell in cells:
+            bbox = cell['bbox']
+            draw.rectangle(bbox, outline='red', width=2)
+
+        # Save the annotated image
+        output_path = 'raw_annotate_output.png'
+        annotated_image.save(output_path)
+        logging.info(f"Raw annotated image saved as {output_path}")
         # Get cell coordinates
         cell_coordinates = get_cell_coordinates_by_row(cells,merge_threshold=0.14, raw_output=False)
         
-        return image, cell_coordinates
+        # Convert cell_coordinates (list of Row objects) to JSON-serializable format
+        serializable_cell_coordinates = [row.to_dict() for row in cell_coordinates]
+        
+        return image, serializable_cell_coordinates
         # return image,cells
     except Exception as e:
         logging.error(f"Error processing image: {str(e)}")
