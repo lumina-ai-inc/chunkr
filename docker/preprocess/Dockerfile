@@ -25,7 +25,7 @@ RUN apt-get update -y; \
     libssl-dev \
     libpq-dev \
     ca-certificates \
-    ; \
+    wget && \
     mkdir -p /app/tmp
 
 RUN wget https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x86.tgz && \
