@@ -10,10 +10,10 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
-RUN cargo chef cook --release --recipe-path recipe.json --bin "ocr"
+RUN cargo chef cook --release --recipe-path recipe.json --bin "preprocess"
 # Build application
 COPY chunkmydocs/ .
-RUN cargo build --release --bin "ocr"
+RUN cargo build --release --bin "preprocess"
 
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
@@ -28,7 +28,7 @@ RUN apt-get update -y; \
     ; \
     mkdir -p /app/tmp
 
-COPY --from=builder /app/target/release/ocr /app/ocr
+COPY --from=builder /app/target/release/preprocess /app/preprocess
 
 EXPOSE 8000
-ENTRYPOINT ["/app/ocr"]
+ENTRYPOINT ["/app/preprocess"]
