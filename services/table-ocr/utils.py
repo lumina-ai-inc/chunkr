@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from typing import List, Dict
 from tqdm.auto import tqdm
 from torchvision.transforms import functional as F
 from config import DEVICE
@@ -26,6 +27,7 @@ def box_cxcywh_to_xyxy(x):
     x_c, y_c, w, h = x.unbind(-1)
     b = [(x_c - 0.5 * w), (y_c - 0.5 * h), (x_c + 0.5 * w), (y_c + 0.5 * h)]
     return torch.stack(b, dim=1)
+
 def calculate_iou(box1, box2):
     """Calculate Intersection over Union (IoU) of two bounding boxes."""
     x1, y1, x2, y2 = box1
@@ -73,10 +75,10 @@ def outputs_to_objects(outputs, img_size, id2label):
                             'bbox': [float(elem) for elem in bbox]})
 
     return objects
-     
+
 
 def get_cell_coordinates_by_row(table_data, merge_threshold=0.16, raw_output=False):
-
+    # print(f"Table data: {table_data}")
     # Extract rows, columns, and spanning cells
     rows = [entry for entry in table_data if entry['label'] in ['table row']]
     columns = [entry for entry in table_data if entry['label'] == 'table column']
@@ -91,56 +93,47 @@ def get_cell_coordinates_by_row(table_data, merge_threshold=0.16, raw_output=Fal
     rows.sort(key=lambda x: x['bbox'][1])
     columns.sort(key=lambda x: x['bbox'][0])
 
-    # Function to find overlapping cells
-    
     # Generate cell coordinates
     cell_coordinates = []
 
     for row in rows:
         row_cells = []
         row_x1, row_y1, row_x2, row_y2 = row['bbox']
+        col_span_total = 1
+        row_span_total = 1
 
         for column in columns:
             col_x1, col_y1, col_x2, col_y2 = column['bbox']
             cell_bbox = [col_x1, row_y1, col_x2, row_y2]
-            row_cells.append({'column': column['bbox'], 'cell': cell_bbox})
+            cell_info = {'column': column['bbox'], 'cell': cell_bbox}
 
-        # Sort cells in the row by X coordinate
-        row_cells.sort(key=lambda x: x['column'][0])
+            # Check if the cell is a spanning cell
+            spanning_cell = find_spanning_cell(cell_bbox, spanning_cells)
+            if spanning_cell:
+                cell_info['col_span'] = determine_col_span(spanning_cell['bbox'])
+                cell_info['row_span'] = determine_row_span(spanning_cell['bbox'])
+                col_span_total = max(col_span_total, cell_info['col_span'])
+                row_span_total = max(row_span_total, cell_info['row_span'])
+            else:
+                cell_info['col_span'] = 1
+                cell_info['row_span'] = 1
 
-        # Add as a new row
-        cell_coordinates.append({'row': row['bbox'], 'cells': row_cells, 'cell_count': len(row_cells)})
+            row_cells.append(cell_info)
+
+        cell_coordinates.append({
+            'row': row['bbox'],
+            'cells': row_cells,
+            'cell_count': len(row_cells),
+            'confidence': row['score'],
+            'col_span': col_span_total,
+            'row_span': row_span_total
+        })
 
     # Sort rows from top to bottom
     cell_coordinates.sort(key=lambda x: x['row'][1])
 
-    if raw_output:
-        return cell_coordinates
 
-    # Merge rows if needed
-    merged_coordinates = []
-    for row in cell_coordinates:
-        if merged_coordinates and row['row'][1] - merged_coordinates[-1]['row'][3] < merge_threshold:
-            # Merge with previous row
-            prev_row = merged_coordinates[-1]
-            merged_cells = prev_row['cells'] + row['cells']
-            merged_cells.sort(key=lambda x: x['column'][0])  # Re-sort cells
-
-            merged_coordinates[-1] = {
-                'row': [
-                    min(prev_row['row'][0], row['row'][0]),
-                    min(prev_row['row'][1], row['row'][1]),
-                    max(prev_row['row'][2], row['row'][2]),
-                    max(prev_row['row'][3], row['row'][3])
-                ],
-                'cells': merged_cells,
-                'cell_count': len(merged_cells)
-            }
-        else:
-            # Add as a new row
-            merged_coordinates.append(row)
-
-    return merged_coordinates
+    return cell_coordinates
 
 
 def merge_boxes(boxes, iou_threshold=0.5):
@@ -188,3 +181,52 @@ def merge_boxes(boxes, iou_threshold=0.5):
         })
 
     return merged
+
+
+def find_spanning_cell(cell_bbox: List[float], spanning_cells: List[Dict]) -> Dict:
+    """
+    Finds if the given cell_bbox matches any spanning cell.
+
+    Args:
+        cell_bbox (list): Bounding box of the cell [x1, y1, x2, y2].
+        spanning_cells (list): List of spanning cell dictionaries.
+
+    Returns:
+        dict or None: The matching spanning cell dictionary if found, else None.
+    """
+    for spanning_cell in spanning_cells:
+        if calculate_iou(cell_bbox, spanning_cell['bbox']) > 0.5:
+            return spanning_cell
+    return None
+
+
+def determine_col_span(cell_bbox: List[float], average_col_width: float = 100.0) -> int:
+    """
+    Determines the colspan based on the cell bounding box.
+
+    Args:
+        cell_bbox (list): Bounding box of the cell [x1, y1, x2, y2].
+        average_col_width (float): Average width of a single column.
+
+    Returns:
+        int: The colspan value.
+    """
+    width = cell_bbox[2] - cell_bbox[0]
+    colspan = max(1, int(round(width / average_col_width)))
+    return colspan
+
+
+def determine_row_span(cell_bbox: List[float], average_row_height: float = 30.0) -> int:
+    """
+    Determines the rowspan based on the cell bounding box.
+
+    Args:
+        cell_bbox (list): Bounding box of the cell [x1, y1, x2, y2].
+        average_row_height (float): Average height of a single row.
+
+    Returns:
+        int: The rowspan value.
+    """
+    height = cell_bbox[3] - cell_bbox[1]
+    rowspan = max(1, int(round(height / average_row_height)))
+    return rowspan
