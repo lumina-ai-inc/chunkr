@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ocr-service
+  name: table-ocr-service
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: ocr
+    app.kubernetes.io/name: table-ocr
   annotations:
-    cloud.google.com/backend-config: '{"default": "ocr-backendconfig"}'
+    cloud.google.com/backend-config: '{"default": "table-ocr-backendconfig"}'
 spec:
   selector:
-    app.kubernetes.io/name: ocr
+    app.kubernetes.io/name: table-ocr
   type: ClusterIP
   ports:
   - port: 8000
@@ -19,7 +19,7 @@ spec:
 apiVersion: cloud.google.com/v1
 kind: BackendConfig
 metadata:
-  name: ocr-backendconfig
+  name: table-ocr-backendconfig
   namespace: chunkmydocs
 spec:
-  timeoutSec: 10000
+  timeoutSec: 30
