@@ -130,9 +130,7 @@ def outputs_to_objects(outputs, img_size, id2label):
 
 def get_cell_coordinates_by_row(table_data, merge_threshold=0.12, raw_output=False):
     # Save table data to JSON
-    import json
-    with open('table_data.json', 'w') as f:
-        json.dump(table_data, f, indent=4)
+
     
     rows = [entry for entry in table_data if entry['label'] == 'table row']
     columns = [entry for entry in table_data if entry['label'] == 'table column']
@@ -187,6 +185,7 @@ def get_cell_coordinates_by_row(table_data, merge_threshold=0.12, raw_output=Fal
     return table_structure
 
 
+
 def find_best_spanning_cell(cell_bbox, spanning_cells):
     max_iou = 0
     best_spanning_cell = None
@@ -195,7 +194,7 @@ def find_best_spanning_cell(cell_bbox, spanning_cells):
         if iou > max_iou:
             max_iou = iou
             best_spanning_cell = spanning_cell
-    return best_spanning_cell if max_iou > 0.05 else None
+    return best_spanning_cell if max_iou > 0.005 else None
 
 
 
