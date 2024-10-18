@@ -27,9 +27,6 @@ COPY services/table-ocr/utils.py .
 RUN uv run __init__.py || true
 RUN rm -rf /app/src/__pycache__
 
-RUN wget -P /microsoft/table-transformer-structure-recognition-v1.1-all https://huggingface.co/microsoft/table-transformer-structure-recognition-v1.1-all/resolve/main/config.json
-RUN wget -P /microsoft/table-transformer-structure-recognition-v1.1-all https://huggingface.co/microsoft/table-transformer-structure-recognition-v1.1-all/resolve/main/model.safetensors
-
 EXPOSE 8000
 
 CMD ["uv", "run", "main.py", "--host", "0.0.0.0", "--port", "8000"]
