@@ -5,7 +5,7 @@ use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::json2mkd::json_2_mkd::hierarchical_chunking;
-use crate::utils::services::crop::crop_image;
+use crate::utils::services::images::crop_image;
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use crate::utils::workers::{ log::log_task, payload::produce_extraction_payloads };
