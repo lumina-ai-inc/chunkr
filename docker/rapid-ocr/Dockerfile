@@ -14,12 +14,11 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 WORKDIR /app
 
-COPY services/rapidocr/.python-version .
-COPY services/rapidocr/pyproject.toml .
-COPY services/rapidocr/main.py .
-COPY services/rapidocr/uv.lock .
-COPY services/rapidocr/__init__.py .
-RUN uv add paddlepaddle-gpu>=2.6.2
+COPY services/rapid-ocr/.python-version .
+COPY services/rapid-ocr/pyproject.toml .
+COPY services/rapid-ocr/main.py .
+COPY services/rapid-ocr/uv.lock .
+COPY services/rapid-ocr/__init__.py .
 RUN uv run __init__.py || true
 RUN rm -rf /app/src/__pycache__
 
