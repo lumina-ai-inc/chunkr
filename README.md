@@ -1,5 +1,5 @@
 ### Status Updates (Only for hosted API on www.chunkr.ai)
-1. Chunkr is currently down - we're deploying fixes and will have a stable system once services resume.
+## 1. Chunkr is currently down - we're deploying fixes and will have a stable system once services resume.
 2. We have temporarily switched to Textract for OCR from PaddleOCR. Textract is provided for free until we resolve PaddleOCR issues. Textract occasionally misses tables that PaddleOCR wouldn't. For self-deploys, you can still set PaddleOCR as your OCR strategy in the task service .env variables.
 3. We are still experiencing extremely high loads, which have affected throughputs. We're working hard to get ingestion speeds back to our standard. 
 
