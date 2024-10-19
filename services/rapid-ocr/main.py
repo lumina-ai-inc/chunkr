@@ -21,7 +21,7 @@ app = Robyn(__file__)
 logger = Logger()
 
 # Define the number of OCR engines to create
-NUM_ENGINES = int(os.getenv('n_engines', 4))
+NUM_ENGINES = int(os.getenv('RAPID_OCR__NUM_ENGINES', 4))
 
 # Create a list of OCR engines and corresponding semaphores
 engines = []
