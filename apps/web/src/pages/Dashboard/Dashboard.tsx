@@ -725,7 +725,7 @@ export default function Dashboard() {
                     >
                       <pre>
                         <code>
-                          {`curl -X POST https://api.chunkr.ai/api/v1/task \\
+                          {`curl -X POST ${import.meta.env.VITE_API_URL}/api/v1/task \\
   -H "Content-Type: multipart/form-data" \\
   -H "Authorization: ${user?.api_keys[0]}" \\
   -F "file=@/path/to/your/file.pdf" \\
