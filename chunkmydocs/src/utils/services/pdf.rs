@@ -51,6 +51,7 @@ pub fn pdf_2_images(
     temp_dir: &Path
 ) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
     let pdfium_config = PdfiumConfig::from_env().unwrap();
+    pdfium_config.validate()?;
     let task_config = TaskConfig::from_env().unwrap();
 
     let pdfium = Pdfium::new(
