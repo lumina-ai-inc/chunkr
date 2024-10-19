@@ -36,7 +36,7 @@ spec:
         effect: "PreferNoSchedule"
       containers:
       - name: table-ocr
-        image: luminainc/tableocr:f5ef83b3
+        image: luminainc/table-ocr:4f4ebc53
         imagePullPolicy: Always
         envFrom:
         - secretRef:
