@@ -57,6 +57,7 @@ strum = "0.26.3"
 strum_macros = "0.26.4"
 tempdir = "0.3.7"
 tempfile = "3.10.1"
+thiserror = "1.0.64"
 tokio = { version = "1.28.0", features = ["full"] }
 tokio-postgres = { version = "0.7", features = ["with-chrono-0_4"] }
 utoipa = { version = "4.2", features = [
