@@ -78,6 +78,10 @@ variable "gpu_machine_type" {
   default = "a2-highgpu-1g"
 }
 
+variable "gpu_accelerator_type" {
+  default = "nvidia-tesla-a100"
+}
+
 variable "gpu_b_vm_count" {
   default = 1
 }
@@ -92,6 +96,10 @@ variable "gpu_b_max_vm_count" {
 
 variable "gpu_b_machine_type" {
   default = "a2-highgpu-1g"
+}
+
+variable "gpu_b_accelerator_type" {
+  default = "nvidia-tesla-a100"
 }
 
 provider "google" {
@@ -357,7 +365,7 @@ resource "google_container_node_pool" "gpu_nodes" {
     }
 
     guest_accelerator {
-      type  = "nvidia-tesla-a100"
+      type  = var.gpu_accelerator_type
       count = 1
       gpu_driver_installation_config {
         gpu_driver_version = "LATEST"
@@ -388,61 +396,61 @@ resource "google_container_node_pool" "gpu_nodes" {
   }
 }
 
-resource "google_container_node_pool" "gpu_b_nodes" {
-  name       = "gpu-b-compute"
-  location   = "${var.region}-b"
-  cluster    = google_container_cluster.cluster.name
-  node_count = var.gpu_b_vm_count
+# resource "google_container_node_pool" "gpu_b_nodes" {
+#   name       = "gpu-b-compute"
+#   location   = "${var.region}-b"
+#   cluster    = google_container_cluster.cluster.name
+#   node_count = var.gpu_b_vm_count
 
-  autoscaling {
-    min_node_count = var.gpu_b_min_vm_count
-    max_node_count = var.gpu_b_max_vm_count
-  }
+#   autoscaling {
+#     min_node_count = var.gpu_b_min_vm_count
+#     max_node_count = var.gpu_b_max_vm_count
+#   }
 
-  node_config {
-    preemptible  = false
-    machine_type = var.gpu_machine_type
-    disk_size_gb = 500
+#   node_config {
+#     preemptible  = false
+#     machine_type = var.gpu_machine_type
+#     disk_size_gb = 500
 
-    gcfs_config {
-      enabled = true
-    }
+#     gcfs_config {
+#       enabled = true
+#     }
 
-    gvnic {
-      enabled = true
-    }
+#     gvnic {
+#       enabled = true
+#     }
 
-    guest_accelerator {
-      type  = "nvidia-tesla-a100"
-      count = 1
-      gpu_driver_installation_config {
-        gpu_driver_version = "LATEST"
-      }
-      gpu_sharing_config {
-        gpu_sharing_strategy       = "TIME_SHARING"
-        max_shared_clients_per_gpu = 20
-      }
-    }
+#     guest_accelerator {
+#       type  = var.gpu_b_accelerator_type
+#       count = 1
+#       gpu_driver_installation_config {
+#         gpu_driver_version = "LATEST"
+#       }
+#       gpu_sharing_config {
+#         gpu_sharing_strategy       = "TIME_SHARING"
+#         max_shared_clients_per_gpu = 20
+#       }
+#     }
 
-    workload_metadata_config {
-      mode = "GCE_METADATA"
-    }
+#     workload_metadata_config {
+#       mode = "GCE_METADATA"
+#     }
 
-    labels = {
-      cluster_name = var.cluster_name
-      purpose      = "gpu-b-time-sharing"
-      node_pool    = "gpu-b-time-sharing"
-    }
+#     labels = {
+#       cluster_name = var.cluster_name
+#       purpose      = "gpu-b-time-sharing"
+#       node_pool    = "gpu-b-time-sharing"
+#     }
 
-    taint {
-      effect = "NO_SCHEDULE"
-      key    = "nvidia.com/gpu.b"
-      value  = "present"
-    }
+#     taint {
+#       effect = "NO_SCHEDULE"
+#       key    = "nvidia.com/gpu.b"
+#       value  = "present"
+#     }
 
-    tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-gpu-b-time-sharing"]
-  }
-}
+#     tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-gpu-b-time-sharing"]
+#   }
+# }
 
 ###############################################################
 # PostgreSQL (Cloud SQL)
