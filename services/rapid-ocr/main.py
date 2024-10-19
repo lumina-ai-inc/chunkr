@@ -12,11 +12,34 @@ from robyn.logger import Logger
 from tempfile import NamedTemporaryFile
 import time
 import torch
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv(override=True)
 
 app = Robyn(__file__)
 logger = Logger()
 
-ocr_lock = asyncio.Lock()
+# Define the number of OCR engines to create
+NUM_ENGINES = int(os.getenv('n_engines', 4))
+
+# Create a list of OCR engines and corresponding semaphores
+engines = []
+engine_semaphores = []
+
+for _ in range(NUM_ENGINES):
+    if torch.cuda.is_available():
+        print("CUDA is available. Using GPU for RapidOCR.")
+        engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True,
+                          cls_use_cuda=True, ocr_order_method="tb-xy")
+    else:
+        print("CUDA is not available. Using CPU for RapidOCR.")
+        engine = RapidOCR(det_use_cuda=False,
+                          rec_use_cuda=False,
+                          cls_use_cuda=False,
+                          ocr_order_method="tb-xy")
+    engines.append(engine)
+    engine_semaphores.append(asyncio.Semaphore(1))
 
 
 class LoggingMiddleware:
@@ -34,20 +57,7 @@ class LoggingMiddleware:
             "request_path": request_path,
             "request_method": request_method,
             "request_time": request_time,
-
         }
-
-
-if torch.cuda.is_available():
-    print("CUDA is available. Using GPU for RapidOCR.")
-    engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True,
-                      cls_use_cuda=True, ocr_order_method="tb-xy")
-else:
-    print("CUDA is not available. Using CPU for RapidOCR.")
-    engine = RapidOCR(det_use_cuda=False,
-                      rec_use_cuda=False,
-                      cls_use_cuda=False,
-                      ocr_order_method="tb-xy")
 
 
 @app.before_request()
@@ -65,10 +75,22 @@ async def health():
 @app.post("/ocr")
 async def perform_ocr(request: Request):
     loop = asyncio.get_event_loop()
-    async with ocr_lock:
-        result = await loop.run_in_executor(None, process_ocr, request.files)
-    gc.collect()
-    return {"result": result}
+    
+    # Find an available engine
+    for i, semaphore in enumerate(engine_semaphores):
+        if semaphore.locked():
+            continue
+        
+        async with semaphore:
+            result = await loop.run_in_executor(None, process_ocr, request.files, engines[i])
+            gc.collect()
+            return {"result": result}
+    
+    # If all engines are busy, wait for the first available one
+    async with engine_semaphores[0]:
+        result = await loop.run_in_executor(None, process_ocr, request.files, engines[0])
+        gc.collect()
+        return {"result": result}
 
 
 def serialize_ocr_result(result):
@@ -86,7 +108,7 @@ def serialize_ocr_result(result):
     ]
 
 
-def process_ocr(files) -> list:
+def process_ocr(files, engine) -> list:
     temp_file = None
     try:
         temp_file = NamedTemporaryFile(delete=False)
