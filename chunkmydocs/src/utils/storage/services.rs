@@ -147,3 +147,24 @@ pub async fn download_to_tempfile(
 
     Ok(temp_file)
 }
+
+
+pub async fn download_to_given_tempfile(
+    mut temp_file: &NamedTempFile,
+    s3_client: &S3Client,
+    reqwest_client: &Client,
+    location: &str,
+    expires_in: Option<Duration>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let unsigned_url = generate_presigned_url(s3_client, location, expires_in).await?;
+
+    let content = reqwest_client
+        .get(&unsigned_url)
+        .send()
+        .await?
+        .bytes()
+        .await?;
+    copy(&mut content.as_ref(), &mut temp_file)?;
+
+    Ok(())
+}

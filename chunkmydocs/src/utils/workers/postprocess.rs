@@ -48,7 +48,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let mut segments: Vec<Segment> = serde_json::from_reader(reader)?;
 
         let image_folder_location = extraction_payload.image_folder_location.clone();
-        let page_image_paths = try_join_all(
+        let page_image_files = try_join_all(
             (0..extraction_payload.page_count.unwrap()).map(|i| {
                 let image_folder = image_folder_location.clone();
                 let s3_client = s3_client.clone();
@@ -72,7 +72,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let cropped_temp_dir = TempDir::new("cropped_images")?;
         segments.par_iter().for_each(|segment| {
             let page_index = (segment.page_number as usize) - 1;
-            if let Some(image_path) = page_image_paths.get(page_index) {
+            if let Some(image_path) = page_image_files.get(page_index) {
                 let crop_result = crop_image(
                     &image_path.path().to_path_buf(),
                     segment,
