@@ -18,16 +18,17 @@ RUN cargo build --release --bin "preprocess"
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
-RUN apt-get update -y; \
+RUN apt-get update -y && \
     apt-get install -y \
     pkg-config \
-    build-essential\
+    build-essential \
     libssl-dev \
     libpq-dev \
     ca-certificates \
-    wget && \
+    wget \
+    file && \
     mkdir -p /app/tmp
-
+    
 RUN wget https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x86.tgz && \
     mkdir -p /usr/local/lib/pdfium && \
     tar -xzvf pdfium-linux-x86.tgz -C /usr/local/lib/pdfium && \
