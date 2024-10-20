@@ -104,9 +104,17 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &reqwest_client,
             &extraction_payload.input_location,
             None
-        ).await?;
+        ).await.map_err(|e| {
+            eprintln!("Failed to download input file: {:?}", e);
+            e
+        })?;
 
-        let (is_valid, detected_mime_type) = is_valid_file_type(&input_file.path())?;
+        println!("Input file downloaded to: {:?}", input_file.path());
+
+        let (is_valid, detected_mime_type) = is_valid_file_type(&input_file.path()).map_err(|e| {
+            eprintln!("Failed to check file type: {:?}", e);
+            e
+        })?;
 
         if !is_valid {
             log_task(
