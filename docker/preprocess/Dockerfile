@@ -29,10 +29,10 @@ RUN apt-get update -y && \
     file && \
     mkdir -p /app/tmp
 
-RUN wget https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x86.tgz && \
+RUN wget https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x64.tgz && \
     mkdir -p /usr/local/lib/pdfium && \
-    tar -xzvf pdfium-linux-x86.tgz -C /usr/local/lib/pdfium && \
-    rm pdfium-linux-x86.tgz
+    tar -xzvf pdfium-linux-x64.tgz -C /usr/local/lib/pdfium && \
+    rm pdfium-linux-x64.tgz
 
 COPY --from=builder /app/target/release/preprocess /app/preprocess
 
