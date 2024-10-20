@@ -9,10 +9,10 @@ use crate::utils::services::{
     pdf::pdf_2_images,
 };
 use crate::utils::storage::config_s3::create_client;
-use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
+use crate::utils::storage::services::{ download_to_given_tempfile, upload_to_s3 };
 use chrono::Utc;
 use std::{ error::Error, path::{ Path, PathBuf }, process::Command };
-use tempfile::TempDir;
+use tempfile::{ NamedTempFile, TempDir };
 use std::time::Instant;
 
 fn is_valid_file_type(file_path: &Path) -> Result<(bool, String), Box<dyn Error>> {
@@ -99,7 +99,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &pg_pool
         ).await?;
 
-        let input_file = download_to_tempfile(
+        let mut input_file: NamedTempFile = NamedTempFile::new()?;
+        download_to_given_tempfile(
+            &mut input_file,
             &s3_client,
             &reqwest_client,
             &extraction_payload.input_location,
