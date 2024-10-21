@@ -293,7 +293,7 @@ grafana:
   forceDeployDashboards: false
   defaultDashboardsEnabled: true
   defaultDashboardsTimezone: utc
-  adminPassword: prom-operator
+  adminPassword: "admin"
   rbac:
     pspEnabled: false
   ingress:
