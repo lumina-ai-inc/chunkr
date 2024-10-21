@@ -19,7 +19,7 @@ export async function makeRequest(
   form.append("model", config.model);
   form.append("target_chunk_length", config.target_chunk_length.toString());
   form.append("ocr_strategy", config.ocr_strategy);
-
+  console.log(`Sending request to API: ${JSON.stringify(form)}`);
   try {
     const response = await axiosInstance.post<TaskResponse>("", form, {
       headers: {

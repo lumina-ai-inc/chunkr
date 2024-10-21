@@ -1,28 +1,26 @@
 import { runBatch } from "./batch/batchProcessor.js";
 import { startLoadTest } from "./loadTest/loadTester.js";
-import { INPUT_FOLDER } from "./config.js";
-import fs from "fs/promises";
-import path from "path";
-import { TaskConfig } from "./models";
+import { TaskConfig } from "./models.js";
+
+const isLoadTest = process.env.LOAD_TEST === "true";
 
 async function main() {
-  const files = await fs.readdir(INPUT_FOLDER);
-  const filePaths = files.map((file) => path.join(INPUT_FOLDER, file));
-
-  if (process.env.LOAD_TEST === "true") {
+  if (isLoadTest) {
+    console.log("Starting load test from index.ts...");
     await startLoadTest();
   } else {
-    // Regular batch processing
+    console.log("Running single batch...");
     const config: TaskConfig = {
       model: "HighQuality",
       ocr_strategy: "Auto",
       target_chunk_length: 512,
     };
-    await runBatch(config, filePaths);
-
-    config.model = "Fast";
+    const filePaths = ["path/to/your/folder"]; // Replace with actual folder path
     await runBatch(config, filePaths);
   }
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error("Error in main:", error);
+  process.exit(1);
+});
