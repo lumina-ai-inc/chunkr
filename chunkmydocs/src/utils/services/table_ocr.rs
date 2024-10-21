@@ -1,7 +1,6 @@
 use crate::{
     models::workers::table_ocr::{TableStructure, TableStructureResponse},
     utils::configs::extraction_config::Config,
-    utils::services::images::preprocess_image,
 };
 use reqwest::multipart;
 use std::error::Error;

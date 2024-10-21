@@ -1,9 +1,7 @@
 use crate::models::server::segment::Segment;
 use crate::models::workers::table_ocr::TableStructure;
 use image::*;
-use imageproc::{
-    contrast::adaptive_threshold, drawing::draw_hollow_rect_mut, filter::median_filter, rect::Rect,
-};
+use imageproc::{drawing::draw_hollow_rect_mut, filter::median_filter, rect::Rect};
 use std::{
     error::Error,
     fs::{self, File},
