@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: rrq-service
+  name: rrq-analytics-service
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: rrq
+    app.kubernetes.io/name: rrq-analytics
 spec:
   selector:
-    app.kubernetes.io/name: rrq
+    app.kubernetes.io/name: rrq-analytics
   type: ClusterIP
   ports:
   - port: 8000
