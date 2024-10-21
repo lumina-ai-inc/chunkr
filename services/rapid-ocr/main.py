@@ -13,13 +13,31 @@ from tempfile import NamedTemporaryFile
 import time
 import torch
 from dotenv import load_dotenv
-
+import cv2
+import numpy as np
+from PIL import Image
 # Load environment variables
 load_dotenv(override=True)
 
 app = Robyn(__file__)
 logger = Logger()
-
+def preprocess_image(image):
+    # Convert PIL Image to OpenCV format
+    opencv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply adaptive thresholding
+    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    
+    # Denoise the image
+    denoised = cv2.fastNlMeansDenoising(thresh, None, 10, 7, 21)
+    
+    # Convert back to PIL Image
+    preprocessed_image = Image.fromarray(cv2.cvtColor(denoised, cv2.COLOR_BGR2RGB))
+    
+    return preprocessed_image
 # Define the number of OCR engines to create
 NUM_ENGINES = int(os.getenv('RAPID_OCR__NUM_ENGINES', 4))
 
