@@ -1,7 +1,9 @@
 {
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "turbo build",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",

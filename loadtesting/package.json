@@ -1,0 +1,25 @@
+{
+  "name": "loadtesting",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^16.4.5",
+    "form-data": "^4.0.1",
+    "p-limit": "^6.1.0"
+  }
+}
