@@ -53,6 +53,7 @@ def health():
 @app.post("/predict/table")
 async def process_table(request: Request):
     async with ocr_lock:
+        print("Processing table")
         table_data = []
         for file_content in request.files.values():
             result = await process_table_image(file_content)
