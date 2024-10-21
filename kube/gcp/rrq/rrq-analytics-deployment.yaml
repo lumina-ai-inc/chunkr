@@ -21,7 +21,7 @@ spec:
         imagePullPolicy: Always
         envFrom:
         - secretRef:
-            name: rrq-analytics-secrets
+            name: rrq-secrets
         livenessProbe:
           httpGet:
             path: /
