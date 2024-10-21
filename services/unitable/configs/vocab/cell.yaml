@@ -1,3 +1,0 @@
-need_vocab: true
-type: cell
-dir: ${hydra:runtime.cwd}/../vocab/vocab_cell_6k.json
