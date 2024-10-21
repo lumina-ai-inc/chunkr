@@ -1,14 +1,17 @@
-use config::{ Config as ConfigTrait, ConfigError };
+use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv;
 use lazy_static::lazy_static;
 use reqwest::Client;
 use serde::Deserialize;
-use std::{ sync::Once, time::{ Duration, Instant } };
+use std::{
+    sync::Once,
+    time::{Duration, Instant},
+};
 
 use crate::models::rrq::{
-    consume::{ ConsumePayload, ConsumeResponse },
+    consume::{ConsumePayload, ConsumeResponse},
     produce::ProducePayload,
-    status::{ StatusPayload, StatusResult },
+    status::{StatusPayload, StatusResult},
 };
 
 lazy_static! {
@@ -20,6 +23,7 @@ static INIT: Once = Once::new();
 #[derive(Debug, Deserialize)]
 struct Config {
     url: String,
+    api_key: String,
 }
 
 impl Config {
@@ -37,9 +41,12 @@ impl Config {
 
 pub async fn health() -> Result<String, Box<dyn std::error::Error>> {
     let cfg = Config::from_env()?;
-    let response = CLIENT.get(&cfg.url)
+    let response = CLIENT
+        .get(&cfg.url)
+        .header("X-API-Key", &cfg.api_key)
         .timeout(Duration::from_secs(60))
-        .send().await
+        .send()
+        .await
         .map_err(|e| e.to_string())?
         .error_for_status()
         .map_err(|e| {
@@ -57,10 +64,13 @@ pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::
     let cfg = Config::from_env()?;
     let mut responses = Vec::new();
     for chunk in items.chunks(120) {
-        let response = CLIENT.post(&format!("{}/produce", cfg.url))
+        let response = CLIENT
+            .post(&format!("{}/produce", cfg.url))
+            .header("X-API-Key", &cfg.api_key)
             .timeout(Duration::from_secs(10))
             .json(chunk)
-            .send().await
+            .send()
+            .await
             .map_err(|e| e.to_string())?
             .error_for_status()
             .map_err(|e| {
@@ -79,13 +89,16 @@ pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::
 }
 
 pub async fn consume(
-    payload: ConsumePayload
+    payload: ConsumePayload,
 ) -> Result<Vec<ConsumeResponse>, Box<dyn std::error::Error>> {
     let cfg = Config::from_env()?;
-    let response = CLIENT.post(&format!("{}/consume", cfg.url))
+    let response = CLIENT
+        .post(&format!("{}/consume", cfg.url))
+        .header("X-API-Key", &cfg.api_key)
         .timeout(Duration::from_secs(5))
         .json(&payload)
-        .send().await
+        .send()
+        .await
         .map_err(|e| e.to_string())?
         .error_for_status()
         .map_err(|e| {
@@ -121,10 +134,13 @@ pub async fn complete(payloads: Vec<StatusPayload>) -> Result<String, Box<dyn st
 
     let mut responses = Vec::new();
 
-    let response = CLIENT.post(&format!("{}/complete", cfg.url))
+    let response = CLIENT
+        .post(&format!("{}/complete", cfg.url))
+        .header("X-API-Key", &cfg.api_key)
         .timeout(Duration::from_secs(60))
         .json(&payloads)
-        .send().await
+        .send()
+        .await
         .map_err(|e| e.to_string())?
         .error_for_status()
         .map_err(|e| {
