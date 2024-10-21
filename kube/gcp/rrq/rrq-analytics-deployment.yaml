@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: rrq-analytics
-        image: luminainc/rrq-analytics:376844a
+        image: luminainc/rrq-analytics:9326b10
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
