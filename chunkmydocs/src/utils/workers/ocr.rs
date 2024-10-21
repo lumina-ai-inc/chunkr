@@ -73,9 +73,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     {
                         Some(async {
                             let semaphore = semaphore.clone();
-                            let _permit = semaphore.acquire().await?;
                             let s3_client = s3_client.clone();
                             let reqwest_client = reqwest_client.clone();
+                            let _permit = semaphore.acquire().await?;
                             let ocr_result = if segment.segment_type == SegmentType::Table {
                                 download_and_table_ocr(
                                     &s3_client,
