@@ -2,14 +2,16 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::{ ExtractionPayload, OcrStrategy };
 use crate::models::server::segment::{ Chunk, Segment, SegmentType };
 use crate::models::server::task::Status;
+use crate::utils::configs::extraction_config;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{ log::log_task, ocr::{ download_and_ocr, download_and_table_ocr } };
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
 use chrono::Utc;
 use futures::future::try_join_all;
-use std::{ fs::File, io::{ BufReader, Write } };
+use std::{ fs::File, io::{ BufReader, Write }, sync::Arc };
 use tempfile::NamedTempFile;
+use tokio::sync::Semaphore;
 
 pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
     if segment.image.is_none() {
@@ -36,6 +38,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
+    let config = extraction_config::Config::from_env()?;
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         log_task(
@@ -57,6 +60,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let reader = BufReader::new(file);
         let mut chunks: Vec<Chunk> = serde_json::from_reader(reader)?;
 
+        let semaphore = Arc::new(Semaphore::new(config.ocr_concurrency));
+
         try_join_all(
             chunks.iter_mut().flat_map(|chunk| {
                 chunk.segments.iter_mut().filter_map(|segment| {
@@ -67,6 +72,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                         )
                     {
                         Some(async {
+                            let semaphore = semaphore.clone();
+                            let _permit = semaphore.acquire().await?;
                             let s3_client = s3_client.clone();
                             let reqwest_client = reqwest_client.clone();
                             let ocr_result = if segment.segment_type == SegmentType::Table {
@@ -82,6 +89,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                                     &segment.image.as_ref().unwrap()
                                 ).await
                             };
+                            drop(_permit);
                             match ocr_result {
                                 Ok((ocr_result, html)) => {
                                     segment.ocr = Some(ocr_result);

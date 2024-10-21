@@ -20,6 +20,12 @@ pub struct Config {
     pub s3_bucket: String,
     pub batch_size: i32,
     pub base_url: String,
+    #[serde(default = "default_ocr_concurrency")]
+    pub ocr_concurrency: usize,
+}
+
+fn default_ocr_concurrency() -> usize {
+    10
 }
 
 mod duration_seconds {
