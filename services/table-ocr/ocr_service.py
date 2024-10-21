@@ -6,8 +6,26 @@ import logging
 import cv2
 import numpy as np
 
+def preprocess_image(image):
+    # Convert PIL Image to OpenCV format
+    opencv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply adaptive thresholding
+    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    
+    # Denoise the image
+    denoised = cv2.fastNlMeansDenoising(thresh, None, 10, 7, 21)
+    
+    # Convert back to PIL Image
+    preprocessed_image = Image.fromarray(cv2.cvtColor(denoised, cv2.COLOR_BGR2RGB))
+    
+    return preprocessed_image
 
-async def process_image(file, preprocess=False):
+
+async def process_image(file, preprocess=True):
 
     try:
         # Check if file is already bytes
@@ -16,9 +34,14 @@ async def process_image(file, preprocess=False):
         else:
             # Assume it's a file-like object
             image_content = await file.read()
-        
+        # Open the image
         image = Image.open(io.BytesIO(image_content))
- 
+        
+        # Preprocess the image
+        if preprocess:
+            image = preprocess_image(image)
+        
+        # Get table structure
         cells = get_table_structure(image)
         # Annotate and save cells on image as raw_annotate_output
         
