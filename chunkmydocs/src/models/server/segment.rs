@@ -1,3 +1,4 @@
+use crate::utils::configs::extraction_config;
 use postgres_types::{ FromSql, ToSql };
 use serde::{ Deserialize, Serialize };
 use strum_macros::{ Display, EnumString };
@@ -130,7 +131,7 @@ impl Segment {
                         .trim();
                     format!("<ul><li>{}</li></ul>", cleaned_content)
                 }
-            },
+            }
             SegmentType::Picture => "<img src='' alt='{}' />".to_string(),
             _ =>
                 format!(
@@ -163,7 +164,24 @@ impl Segment {
         }
     }
 
+    fn update_content(&mut self) {
+        if let Some(ocr) = &self.ocr {
+            let config = match extraction_config::Config::from_env() {
+                Ok(config) => config,
+                Err(e) => {
+                    eprintln!("Error getting extraction config: {}", e);
+                    return;
+                }
+            };
+            let avg_confidence = ocr.iter().map(|ocr_result| ocr_result.confidence.unwrap_or(0.0)).sum::<f32>() / ocr.len() as f32;
+            if avg_confidence >= config.ocr_confidence_threshold {
+                self.content = ocr.iter().map(|ocr_result| ocr_result.text.clone()).collect::<Vec<String>>().join(" ");
+            }
+        }
+    }
+
     pub fn finalize(&mut self) {
+        self.update_content();
         self.html = Some(self.to_html());
         self.markdown = Some(self.to_markdown());
     }

@@ -91,10 +91,14 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                             };
                             drop(_permit);
                             match ocr_result {
-                                Ok((ocr_result, html)) => {
+                                Ok((ocr_result, html, markdown)) => {
                                     segment.ocr = Some(ocr_result);
+                                    segment.finalize();
                                     if !html.is_empty() {
                                         segment.html = Some(html);
+                                    }
+                                    if !markdown.is_empty() {
+                                        segment.markdown = Some(markdown);
                                     }
                                     Ok::<_, Box<dyn std::error::Error>>(())
                                 }
