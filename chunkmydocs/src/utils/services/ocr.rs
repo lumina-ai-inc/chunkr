@@ -13,7 +13,7 @@ pub async fn download_and_ocr(
     s3_client: &S3Client,
     reqwest_client: &ReqwestClient,
     image_location: &str
-) -> Result<(Vec<OCRResult>, String), Box<dyn std::error::Error>> {
+) -> Result<(Vec<OCRResult>, String, String), Box<dyn std::error::Error>> {
     let original_file = download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
     let original_file_path = original_file.path().to_owned();
     // let preprocessed_file = preprocess_image(&original_file.path()).await?;
@@ -24,14 +24,14 @@ pub async fn download_and_ocr(
             return Err(e.to_string().into());
         }
     };
-    Ok((ocr_results, "".to_string()))
+    Ok((ocr_results, "".to_string(), "".to_string()))
 }
 
 pub async fn download_and_table_ocr(
     s3_client: &S3Client,
     reqwest_client: &ReqwestClient,
     image_location: &str
-) -> Result<(Vec<OCRResult>, String), Box<dyn std::error::Error>> {
+) -> Result<(Vec<OCRResult>, String, String), Box<dyn std::error::Error>> {
     let original_file = download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
     let original_file_path = original_file.path().to_owned();
     let original_file_path_clone = original_file_path.clone();
@@ -59,8 +59,9 @@ pub async fn download_and_table_ocr(
 
     let table_structures_with_content = add_content_to_table_structure(table_structures, ocr_results);
     let html = get_table_html(table_structures_with_content.clone());
+    let markdown = get_table_markdown(table_structures_with_content.clone());
     let table_ocr_results = table_structures_to_ocr_results(table_structures_with_content);
-    Ok((table_ocr_results, html))
+    Ok((table_ocr_results, html, markdown))
 }
 
 fn add_content_to_table_structure(
@@ -104,12 +105,27 @@ fn get_table_html(
     for row in table_structures {
         html.push_str("<tr>");
         for cell in row.cells {
-            html.push_str(&format!("<td>{}</td>", cell.content.unwrap_or_default()));
+            html.push_str(&format!("<td colspan='{}' rowspan='{}'>{}</td>", cell.col_span, cell.row_span, cell.content.unwrap_or_default()));
         }
         html.push_str("</tr>");
     }
     html.push_str("</table>");
     return html;
+}
+
+fn get_table_markdown(
+    table_structures: Vec<TableStructure>
+) -> String {
+    let mut markdown = String::new();
+    markdown.push_str("|");
+    for row in table_structures {
+        markdown.push_str("|");
+        for cell in row.cells {
+            markdown.push_str(&format!("{} |", cell.content.unwrap_or_default()));
+        }
+    }
+    markdown.push_str("\n");
+    return markdown;
 }
 
 fn table_structures_to_ocr_results(

@@ -22,6 +22,8 @@ pub struct Config {
     pub base_url: String,
     #[serde(default = "default_ocr_concurrency")]
     pub ocr_concurrency: usize,
+    #[serde(default = "default_ocr_confidence_threshold")]
+    pub ocr_confidence_threshold: f32,
     #[serde(default = "default_pdf_density")]
     pub pdf_density: f32,
     #[serde(default = "default_page_image_density")]
@@ -32,6 +34,10 @@ pub struct Config {
 
 fn default_ocr_concurrency() -> usize {
     10
+}
+
+fn default_ocr_confidence_threshold() -> f32 {
+    0.85
 }
 
 fn default_pdf_density() -> f32 {
