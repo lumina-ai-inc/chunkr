@@ -1,0 +1,27 @@
+{
+  "name": "chunkr-batch-ts",
+  "version": "1.0.0",
+  "description": "Batch processing implementation for Chunkr",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "start:batch": "npm run build && node dist/index.js",
+    "start:loadtest": "npm run build && cross-env LOAD_TEST=true node dist/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "form-data": "^4.0.1",
+    "p-limit": "^6.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.6.3"
+  },
+  "optionalDependencies": {
+    "csv-writer": "^1.6.0"
+  }
+}

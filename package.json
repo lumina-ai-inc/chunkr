@@ -1,13 +1,12 @@
 {
   "private": true,
-  "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "start:loadtest": "LOAD_TEST=true node dist/index.js"
   },
   "devDependencies": {
     "eslint": "^9.9.1",
