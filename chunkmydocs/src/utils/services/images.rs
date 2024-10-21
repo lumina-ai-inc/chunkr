@@ -1,17 +1,12 @@
 use crate::models::server::segment::Segment;
 use crate::models::workers::table_ocr::TableStructure;
 use image::*;
-use imageproc::{
-    contrast::adaptive_threshold, drawing::draw_hollow_rect_mut, filter::median_filter, rect::Rect,
-};
+use imageproc::{drawing::draw_hollow_rect_mut, rect::Rect};
+use std::fs;
 use std::{
     error::Error,
-    fs::{self, File},
-    io::BufWriter,
     path::{Path, PathBuf},
 };
-use tempfile::NamedTempFile;
-
 pub fn annotate_image(
     input_image_path: &Path,
     table_structures: &[TableStructure],
@@ -69,19 +64,19 @@ pub fn crop_image(
     Ok(())
 }
 
-pub async fn preprocess_image(
-    input_path: &std::path::Path,
-) -> Result<NamedTempFile, Box<dyn std::error::Error>> {
-    let img = ImageReader::open(input_path)?
-        .with_guessed_format()?
-        .decode()?;
-    let gray_img = img.to_luma8();
-    let enhanced_img = imageops::contrast(&gray_img, 1.05); // Reduced contrast enhancement
-    let denoised_img = median_filter(&enhanced_img, 2, 2); // Reduced median filter size
+// pub async fn preprocess_image(
+//     input_path: &std::path::Path,
+// ) -> Result<NamedTempFile, Box<dyn std::error::Error>> {
+//     let img = ImageReader::open(input_path)?
+//         .with_guessed_format()?
+//         .decode()?;
+//     // let gray_img = img.to_luma8();
+//     let enhanced_img = imageops::contrast(&img, 1.05); // Reduced contrast enhancement
+//     let denoised_img = median_filter(&enhanced_img, 2, 2); // Reduced median filter size
 
-    let temp_file = NamedTempFile::new()?;
-    let file = File::create(temp_file.path())?;
-    let mut w = BufWriter::new(file);
-    denoised_img.write_to(&mut w, image::ImageFormat::Png)?;
-    Ok(temp_file)
-}
+//     let temp_file = NamedTempFile::new()?;
+//     let file = File::create(temp_file.path())?;
+//     let mut w = BufWriter::new(file);
+//     denoised_img.write_to(&mut w, image::ImageFormat::Png)?;
+//     Ok(temp_file)
+// }
