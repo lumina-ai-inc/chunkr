@@ -19,28 +19,8 @@ spec:
       - name: rrq-analytics
         image: luminainc/rrq-analytics:829378c
         imagePullPolicy: Always
-        envFrom:
-        - secretRef:
-            name: rrq-secrets
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
         ports:
         - containerPort: 8000
-        securityContext:
-          privileged: true
-          capabilities:
-            add: ["SYS_ADMIN"]
+        envFrom:
+        - secretRef:
+            name: rrq-analytics-secrets
