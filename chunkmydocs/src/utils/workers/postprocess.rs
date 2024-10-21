@@ -4,8 +4,8 @@ use crate::models::server::segment::{ Chunk, Segment };
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
-use crate::utils::json2mkd::json_2_mkd::hierarchical_chunking;
 use crate::utils::services::{
+    chunking::hierarchical_chunking,
     images::crop_image,
     log::log_task,
     payload::produce_extraction_payloads,

@@ -51,6 +51,7 @@ pub async fn recognize_table(
     let table_struct_response: TableStructureResponse = response.json().await?;
     Ok(table_struct_response.result)
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
