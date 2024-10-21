@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rrq
+  name: rrq-analytics
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: rrq
+    app.kubernetes.io/name: rrq-analytics
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: rrq
+      app.kubernetes.io/name: rrq-analytics
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: rrq
+        app.kubernetes.io/name: rrq-analytics
     spec:
       containers:
-      - name: rrq
-        image: luminainc/rrq:c6d3187
+      - name: rrq-analytics
+        image: luminainc/rrq-analytics:829378c
         imagePullPolicy: Always
         envFrom:
         - secretRef:
-            name: rrq-secrets
+            name: rrq-analytics-secrets
         livenessProbe:
           httpGet:
             path: /
