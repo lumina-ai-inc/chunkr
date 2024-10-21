@@ -1,6 +1,6 @@
 import { Worker, isMainThread, workerData, parentPort } from "worker_threads";
 import { runBatch } from "../batch/batchProcessor.js";
-import { createCsvWriter, shouldAddNewEntry } from "./csvWriter.js";
+import { createCsvWriter } from "./csvWriter.js";
 import {
   INPUT_FOLDER,
   MAX_FILES_TO_PROCESS,
@@ -8,7 +8,8 @@ import {
 } from "../config.js";
 import fs from "fs/promises";
 import path from "path";
-import { TaskConfig, Model, OCRStrategy, ModelOCRStrategy } from "../models.js";
+import { TaskConfig, ModelOCRStrategy } from "../models.js";
+import { pollTask } from "../api.js";
 
 const NUM_WORKERS = 4;
 
@@ -47,38 +48,77 @@ async function runLoadTest(files: string[]): Promise<void> {
     }
 
     const csvWriter = csvWriters.get(modelOCRStrategy)!;
-    const startTime = new Date().toISOString();
+    const overallStartTime = new Date().toISOString();
+
+    console.log(`Starting task for file: ${file}`);
     const taskResponses = await runBatch(config, [file]);
-    const endTime = new Date().toISOString();
 
     for (const taskResponse of taskResponses) {
-      const filePath = path.join(
-        "output",
-        `load_test_results_${modelOCRStrategy.toLowerCase()}.csv`
-      );
+      let currentTask = taskResponse;
+      let lastMessage = "";
+      let stageStartTime = new Date().toISOString();
 
-      if (
-        shouldAddNewEntry(filePath, taskResponse.task_id, taskResponse.message)
-      ) {
-        await csvWriter.writeRecords([
-          {
-            file_name: file,
-            start_time: startTime,
-            end_time: endTime,
-            model: config.model,
-            ocr_strategy: config.ocr_strategy,
-            target_chunk_length: config.target_chunk_length,
-            task_id: taskResponse.task_id,
-            status: taskResponse.status,
-            message: taskResponse.message,
-          },
-        ]);
+      while (true) {
+        if (currentTask.message !== lastMessage) {
+          if (lastMessage !== "") {
+            // Log the completed stage
+            const stageEndTime = new Date().toISOString();
+            await csvWriter.writeRecords([
+              {
+                file_name: file,
+                start_time: stageStartTime,
+                end_time: stageEndTime,
+                model: config.model,
+                ocr_strategy: config.ocr_strategy,
+                target_chunk_length: config.target_chunk_length,
+                task_id: currentTask.task_id,
+                status: currentTask.status,
+                message: lastMessage,
+              },
+            ]);
+            console.log(
+              `Task ${currentTask.task_id} - Completed stage: ${lastMessage}`
+            );
+          }
+          // Start new stage
+          lastMessage = currentTask.message;
+          stageStartTime = new Date().toISOString();
+        }
+
+        if (
+          currentTask.status === "Succeeded" ||
+          currentTask.status === "Failed"
+        ) {
+          break;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Poll every second
+        currentTask = await pollTask(currentTask.task_id);
       }
+
+      // Log final state
+      const overallEndTime = new Date().toISOString();
+      await csvWriter.writeRecords([
+        {
+          file_name: file,
+          start_time: stageStartTime,
+          end_time: overallEndTime,
+          model: config.model,
+          ocr_strategy: config.ocr_strategy,
+          target_chunk_length: config.target_chunk_length,
+          task_id: currentTask.task_id,
+          status: currentTask.status,
+          message: currentTask.message,
+        },
+      ]);
+      console.log(
+        `Task ${currentTask.task_id} completed - Final Status: ${currentTask.status}, Message: ${currentTask.message}`
+      );
     }
 
     const interval = 1000 / REQUESTS_PER_SECOND;
     const elapsedTime =
-      new Date(endTime).getTime() - new Date(startTime).getTime();
+      new Date().getTime() - new Date(overallStartTime).getTime();
     const delay = Math.max(0, interval - elapsedTime);
     await new Promise((resolve) => setTimeout(resolve, delay));
   }

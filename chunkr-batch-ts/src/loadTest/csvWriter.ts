@@ -1,6 +1,6 @@
 import { createObjectCsvWriter } from "csv-writer";
 import path from "path";
-import { existsSync, mkdirSync, writeFile, readFileSync } from "fs";
+import { existsSync, mkdirSync, writeFile } from "fs";
 import { ModelOCRStrategy } from "../models.js";
 
 const OUTPUT_FOLDER = path.resolve("output");
@@ -38,25 +38,4 @@ export function createCsvWriter(modelOCRStrategy: ModelOCRStrategy) {
     ],
     append: true,
   });
-}
-
-export function shouldAddNewEntry(
-  filePath: string,
-  taskId: string,
-  message: string
-): boolean {
-  if (!existsSync(filePath)) return true;
-
-  const fileContent = readFileSync(filePath, "utf-8");
-  const lines = fileContent.split("\n");
-
-  for (let i = lines.length - 1; i >= 0; i--) {
-    const line = lines[i];
-    if (line.includes(taskId)) {
-      const lastMessage = line.split(",").pop()?.replace(/^"|"$/g, "");
-      return lastMessage !== message;
-    }
-  }
-
-  return true;
 }
