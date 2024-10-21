@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: postprocess
-        image: luminainc/postprocess:4f4ebc53
+        image: luminainc/postprocess:d122c2ea
         imagePullPolicy: Always
         envFrom:
         - secretRef:
