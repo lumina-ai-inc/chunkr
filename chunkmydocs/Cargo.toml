@@ -71,6 +71,11 @@ utoipa-swagger-ui = { version = "7.1.0", features = ["actix-web", "vendored"] }
 uuid = { version = "1.8.0", features = ["v4", "v5"] }
 
 
+[build-dependencies]
+pkg-config = "0.3.19"
+
+[package.metadata.pkg-config]
+postgresql = { version = "14", lib_dir = "/opt/homebrew/opt/postgresql@14/lib" }
 [[bin]]
 name = "fast"
 path = "src/workers/fast.rs"

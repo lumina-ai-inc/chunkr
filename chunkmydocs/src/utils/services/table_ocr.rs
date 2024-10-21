@@ -1,16 +1,31 @@
-use reqwest::multipart;
-use std::{ error::Error, fs, path::Path };
-
 use crate::{
-    models::workers::table_ocr::{ TableStructure, TableStructureResponse },
-    utils::configs::extraction_config::Config
+    models::workers::table_ocr::{TableStructure, TableStructureResponse},
+    utils::configs::extraction_config::Config,
+    utils::services::images::preprocess_image,
 };
+use reqwest::multipart;
+use std::error::Error;
+use std::fmt;
+use std::io::Read;
+use std::path::Path;
 
+#[derive(Debug)]
+struct TableOcrError(String);
+
+impl fmt::Display for TableOcrError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl Error for TableOcrError {}
 pub async fn recognize_table(
-    file_path: &Path
+    file_path: &Path,
 ) -> Result<Vec<TableStructure>, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
-    let config = Config::from_env()?;
+    let config = Config::from_env()
+        .map_err(|e| Box::new(TableOcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
+
     let url = format!("{}/predict/table", &config.table_structure_url);
 
     let file_name = file_path
@@ -20,14 +35,17 @@ pub async fn recognize_table(
         .ok_or_else(|| format!("Non-UTF8 file name: {:?}", file_path))?
         .to_string();
 
-    let file_fs = fs::read(file_path).expect("Failed to read file");
+    let mut file = std::fs::File::open(file_path)?;
+    let mut file_fs = Vec::new();
+    file.read_to_end(&mut file_fs)?;
     let part = multipart::Part::bytes(file_fs).file_name(file_name);
     let form = multipart::Form::new().part("files", part);
     let response = client
         .post(&url)
         .multipart(form)
         .timeout(std::time::Duration::from_secs(30))
-        .send().await?
+        .send()
+        .await?
         .error_for_status()?;
 
     let table_struct_response: TableStructureResponse = response.json().await?;
@@ -47,12 +65,9 @@ mod tests {
         let s3_client = create_client().await.unwrap();
         let reqwest_client = reqwest::Client::new();
 
-        let temp_image = download_to_tempfile(
-            &s3_client,
-            &reqwest_client,
-            url,
-            None
-        ).await.unwrap();
+        let temp_image = download_to_tempfile(&s3_client, &reqwest_client, url, None)
+            .await
+            .unwrap();
 
         let input_folder = Path::new("input");
         fs::create_dir_all(input_folder).unwrap();
@@ -73,7 +88,11 @@ mod tests {
         fs::create_dir_all(output_folder).unwrap();
 
         let annotation_result = annotate_image(input_path, tables, output_folder);
-        assert!(annotation_result.is_ok(), "annotate_image failed: {:?}", annotation_result.err());
+        assert!(
+            annotation_result.is_ok(),
+            "annotate_image failed: {:?}",
+            annotation_result.err()
+        );
     }
 
     #[tokio::test]
