@@ -350,6 +350,12 @@ resource "google_container_node_pool" "gpu_nodes" {
   cluster    = google_container_cluster.cluster.name
   node_count = var.gpu_vm_count
 
+  timeouts {
+    create = "2h"
+    update = "2h"
+    delete = "2h"
+  }
+
   autoscaling {
     min_node_count = var.gpu_min_vm_count
     max_node_count = var.gpu_max_vm_count
