@@ -16,28 +16,64 @@ from dotenv import load_dotenv
 import cv2
 import numpy as np
 from PIL import Image
+import requests
+import tarfile
+import shutil
+
 # Load environment variables
 load_dotenv(override=True)
 
 app = Robyn(__file__)
 logger = Logger()
-def preprocess_image(image):
-    # Convert PIL Image to OpenCV format
-    opencv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
+def download_and_extract_model(url, model_type):
+    models_dir = 'models'
+    os.makedirs(models_dir, exist_ok=True)
     
-    # Convert to grayscale
-    gray = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
+    filename = os.path.join(models_dir, f'{model_type}_model.tar')
     
-    # Apply adaptive thresholding
-    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    # Download the file
+    response = requests.get(url, stream=True)
+    with open(filename, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
     
-    # Denoise the image
-    denoised = cv2.fastNlMeansDenoising(thresh, None, 10, 7, 21)
+    # Extract the tar file
+    with tarfile.open(filename, 'r') as tar:
+        tar.extractall(path=models_dir)
     
-    # Convert back to PIL Image
-    preprocessed_image = Image.fromarray(cv2.cvtColor(denoised, cv2.COLOR_BGR2RGB))
+    # Move the inference.pdmodel file
+    extracted_dir = os.path.join(models_dir, f'ch_PP-OCRv4_{model_type}_infer')
+    src_file = os.path.join(extracted_dir, 'inference.pdmodel')
+    dst_file = os.path.join(models_dir, f'{model_type}_model.pdmodel')
+    shutil.move(src_file, dst_file)
     
-    return preprocessed_image
+    # Clean up
+    os.remove(filename)
+    shutil.rmtree(extracted_dir)
+def download_models():
+    if not os.path.exists('models'):
+        os.makedirs('models')
+    
+    det_model_path = 'models/det_model.pdmodel'
+    rec_model_path = 'models/rec_model.pdmodel'
+    
+    if not os.path.exists(det_model_path):
+        download_and_extract_model('https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_det_infer.tar', 'det')
+    
+    if not os.path.exists(rec_model_path):
+        download_and_extract_model('https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_infer.tar', 'rec')
+
+    # Ensure the model files are extracted and in the correct location
+    if not os.path.exists(det_model_path):
+        raise FileNotFoundError(f"{det_model_path} does not exist after download and extraction.")
+    if not os.path.exists(rec_model_path):
+        raise FileNotFoundError(f"{rec_model_path} does not exist after download and extraction.")
+
+
+# Call the download function
+download_models()
+
 # Define the number of OCR engines to create
 NUM_ENGINES = int(os.getenv('RAPID_OCR__NUM_ENGINES', 4))
 
@@ -49,15 +85,21 @@ for _ in range(NUM_ENGINES):
     if torch.cuda.is_available():
         print("CUDA is available. Using GPU for RapidOCR.")
         engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True,
-                          cls_use_cuda=True, ocr_order_method="tb-xy")
+                          cls_use_cuda=True, ocr_order_method="tb-xy", 
+                          rec_model_dir="models", 
+                          det_model_dir="models")
     else:
         print("CUDA is not available. Using CPU for RapidOCR.")
         engine = RapidOCR(det_use_cuda=False,
                           rec_use_cuda=False,
                           cls_use_cuda=False,
-                          ocr_order_method="tb-xy")
+                          ocr_order_method="tb-xy",
+                          rec_model_dir="models", 
+                          det_model_dir="models")
     engines.append(engine)
     engine_semaphores.append(asyncio.Semaphore(1))
+
+
 
 
 class LoggingMiddleware:
@@ -112,7 +154,6 @@ async def perform_ocr(request: Request):
 
 
 def serialize_ocr_result(result):
-    print(result)
     if result is None:
         return []
     return [
@@ -131,8 +172,27 @@ def process_ocr(files, engine) -> list:
     try:
         temp_file = NamedTemporaryFile(delete=False)
         #cant send multiple 
+        def preprocess_image(image_content):
+            # Read the image content
+            image = cv2.imdecode(np.frombuffer(image_content, np.uint8), cv2.IMREAD_COLOR)
+            
+            # Convert to grayscale
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            
+            # Apply adaptive thresholding
+            thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+            
+            # Denoise the image
+            denoised = cv2.fastNlMeansDenoising(thresh, None, 10, 7, 21)
+            
+            # Encode the preprocessed image back to bytes
+            _, preprocessed_image = cv2.imencode('.png', denoised)
+            
+            return preprocessed_image.tobytes()
+
         file_content = next(iter(files.values()))
-        temp_file.write(file_content)
+        preprocessed_content = preprocess_image(file_content)
+        temp_file.write(preprocessed_content)
         temp_file.flush()
         temp_file_path = temp_file.name
         temp_file.close()
@@ -157,7 +217,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Start the OCR service")
     parser.add_argument("--host", default="0.0.0.0",
                         help="Host to bind the server to")
-    parser.add_argument("--port", type=int, default=8000,
+    parser.add_argument("--port", type=int, default=8020,
                         help="Port to run the server on")
 
     args = parser.parse_args()
