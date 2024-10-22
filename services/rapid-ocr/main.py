@@ -154,7 +154,6 @@ async def perform_ocr(request: Request):
 
 
 def serialize_ocr_result(result):
-    print(result)
     if result is None:
         return []
     return [
