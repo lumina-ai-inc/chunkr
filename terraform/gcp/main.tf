@@ -82,6 +82,10 @@ variable "gpu_accelerator_type" {
   default = "nvidia-tesla-a100"
 }
 
+variable "gpu_accelerator_count" {
+  default = 1
+}
+
 variable "gpu_b_vm_count" {
   default = 1
 }
@@ -366,7 +370,7 @@ resource "google_container_node_pool" "gpu_nodes" {
 
     guest_accelerator {
       type  = var.gpu_accelerator_type
-      count = 1
+      count = var.gpu_accelerator_count
       gpu_driver_installation_config {
         gpu_driver_version = "LATEST"
       }
