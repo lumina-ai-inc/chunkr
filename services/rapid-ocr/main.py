@@ -1,6 +1,6 @@
 import asyncio
 import argparse
-import cv2  # do not remove
+import cv2
 from datetime import datetime
 import gc
 import json
@@ -13,18 +13,22 @@ from tempfile import NamedTemporaryFile
 import time
 import torch
 from dotenv import load_dotenv
-import cv2
-import numpy as np
 from PIL import Image
 import requests
 import tarfile
 import shutil
+from concurrent.futures import ProcessPoolExecutor
+import logging
+import atexit
 
 # Load environment variables
 load_dotenv(override=True)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 app = Robyn(__file__)
-logger = Logger()
 
 def download_and_extract_model(url, model_type):
     models_dir = 'models'
@@ -51,6 +55,7 @@ def download_and_extract_model(url, model_type):
     # Clean up
     os.remove(filename)
     shutil.rmtree(extracted_dir)
+
 def download_models():
     if not os.path.exists('models'):
         os.makedirs('models')
@@ -64,12 +69,10 @@ def download_models():
     if not os.path.exists(rec_model_path):
         download_and_extract_model('https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_infer.tar', 'rec')
 
-    # Ensure the model files are extracted and in the correct location
     if not os.path.exists(det_model_path):
         raise FileNotFoundError(f"{det_model_path} does not exist after download and extraction.")
     if not os.path.exists(rec_model_path):
         raise FileNotFoundError(f"{rec_model_path} does not exist after download and extraction.")
-
 
 # Call the download function
 download_models()
@@ -77,149 +80,151 @@ download_models()
 # Define the number of OCR engines to create
 NUM_ENGINES = int(os.getenv('RAPID_OCR__NUM_ENGINES', 4))
 
-# Create a list of OCR engines and corresponding semaphores
+print(f"Initializing {NUM_ENGINES} OCR engines.")
+
+# Create OCR engines
 engines = []
-engine_semaphores = []
-
-for _ in range(NUM_ENGINES):
+for i in range(NUM_ENGINES):
     if torch.cuda.is_available():
-        print("CUDA is available. Using GPU for RapidOCR.")
-        engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True,
-                          cls_use_cuda=True, ocr_order_method="tb-xy", 
-                          rec_model_dir="models", 
-                          det_model_dir="models")
+        print(f"CUDA is available. Initializing GPU OCR engine {i+1}.")
+        engine = RapidOCR(
+            det_use_cuda=True,
+            rec_use_cuda=True,
+            cls_use_cuda=True,
+            ocr_order_method="tb-xy",
+            rec_model_dir="models",
+            det_model_dir="models"
+        )
     else:
-        print("CUDA is not available. Using CPU for RapidOCR.")
-        engine = RapidOCR(det_use_cuda=False,
-                          rec_use_cuda=False,
-                          cls_use_cuda=False,
-                          ocr_order_method="tb-xy",
-                          rec_model_dir="models", 
-                          det_model_dir="models")
+        print(f"CUDA is not available. Initializing CPU OCR engine {i+1}.")
+        engine = RapidOCR(
+            det_use_cuda=False,
+            rec_use_cuda=False,
+            cls_use_cuda=False,
+            ocr_order_method="tb-xy",
+            rec_model_dir="models",
+            det_model_dir="models"
+        )
     engines.append(engine)
-    engine_semaphores.append(asyncio.Semaphore(1))
 
+# Initialize ProcessPoolExecutor globally
+executor = ProcessPoolExecutor(max_workers=NUM_ENGINES)
 
+# Register shutdown handler
+def shutdown_executor():
+    logger.info("Shutting down ProcessPoolExecutor...")
+    executor.shutdown(wait=True)
+    logger.info("ProcessPoolExecutor has been shut down.")
 
+atexit.register(shutdown_executor)
 
 class LoggingMiddleware:
-
+    @staticmethod
     def request_info(request: Request):
-        ip_address = request.ip_addr
-        request_url = request.url.host
-        request_path = request.url.path
-        request_method = request.method
-        request_time = str(datetime.now())
-
         return {
-            "ip_address": ip_address,
-            "request_url": request_url,
-            "request_path": request_path,
-            "request_method": request_method,
-            "request_time": request_time,
+            "ip_address": request.ip_addr,
+            "request_url": request.url.host,
+            "request_path": request.url.path,
+            "request_method": request.method,
+            "request_time": str(datetime.now()),
         }
 
-
 @app.before_request()
-def log_request(request: Request):
-    logger.info(f"Received request: %s",
-                LoggingMiddleware.request_info(request))
+async def log_request(request: Request):
+    logger.info(f"Received request: {LoggingMiddleware.request_info(request)}")
     return request
-
 
 @app.get("/")
 async def health():
     return {"status": "ok"}
 
-
-@app.post("/ocr")
-async def perform_ocr(request: Request):
-    loop = asyncio.get_event_loop()
-    
-    # Find an available engine
-    for i, semaphore in enumerate(engine_semaphores):
-        if semaphore.locked():
-            continue
-        
-        async with semaphore:
-            result = await loop.run_in_executor(None, process_ocr, request.files, engines[i])
-            gc.collect()
-            return {"result": result}
-    
-    # If all engines are busy, wait for the first available one
-    async with engine_semaphores[0]:
-        result = await loop.run_in_executor(None, process_ocr, request.files, engines[0])
-        gc.collect()
-        return {"result": result}
-
-
 def serialize_ocr_result(result):
     if result is None:
         return []
     return [
-        [
-            [[float(coord) for coord in coords if coord is not None]
-             for coords in item[0] if coords],
-            str(item[1]) if item[1] is not None else "",
-            float(item[2]) if item[2] is not None else 0.0
-        ]
+        {
+            "coordinates": [[float(coord) for coord in coords if coord is not None] for coords in item[0] if coords],
+            "text": str(item[1]) if item[1] is not None else "",
+            "confidence": float(item[2]) if item[2] is not None else 0.0
+        }
         for item in result if item is not None
     ]
 
+def preprocess_image(image_content):
+    image = cv2.imdecode(np.frombuffer(image_content, np.uint8), cv2.IMREAD_COLOR)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    denoised = cv2.fastNlMeansDenoising(thresh, None, 10, 7, 21)
+    _, preprocessed_image = cv2.imencode('.png', denoised)
+    return preprocessed_image.tobytes()
 
-def process_ocr(files, engine) -> list:
-    temp_file = None
+def process_ocr(file_content, engine_index):
+    temp_file_path = None
     try:
-        temp_file = NamedTemporaryFile(delete=False)
-        #cant send multiple 
-        def preprocess_image(image_content):
-            # Read the image content
-            image = cv2.imdecode(np.frombuffer(image_content, np.uint8), cv2.IMREAD_COLOR)
-            
-            # Convert to grayscale
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            
-            # Apply adaptive thresholding
-            thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-            
-            # Denoise the image
-            denoised = cv2.fastNlMeansDenoising(thresh, None, 10, 7, 21)
-            
-            # Encode the preprocessed image back to bytes
-            _, preprocessed_image = cv2.imencode('.png', denoised)
-            
-            return preprocessed_image.tobytes()
+        # Uncomment the following line to enable preprocessing
+        # file_content = preprocess_image(file_content)
+        
+        with NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
+            temp_file.write(file_content)
+            temp_file_path = temp_file.name
 
-        file_content = next(iter(files.values()))
-        preprocessed_content = preprocess_image(file_content)
-        temp_file.write(preprocessed_content)
-        temp_file.flush()
-        temp_file_path = temp_file.name
-        temp_file.close()
-
-        result, _ = engine(temp_file_path)
-
+        result, _ = engines[engine_index](temp_file_path)
         return serialize_ocr_result(result)
     except Exception as e:
-        print(f"Error during OCR processing: {e}")
-        raise
+        logger.error(f"Error during OCR processing: {e}")
+        return []  # Return an empty result or handle the error appropriately
     finally:
-        if temp_file:
-            temp_file.close()
-        if 'temp_file_path' in locals():
+        if temp_file_path and os.path.exists(temp_file_path):
             try:
                 os.unlink(temp_file_path)
             except Exception as e:
-                print(f"Error removing temporary file: {e}")
+                logger.error(f"Error removing temporary file {temp_file_path}: {e}")
 
+# Counter for round-robin engine selection
+engine_counter = -1
+
+def get_next_engine_index():
+    global engine_counter
+    engine_counter = (engine_counter + 1) % len(engines)
+    return engine_counter
+
+@app.post("/ocr")
+async def perform_ocr(request: Request):
+    start_time = time.time()
+    logger.info(f"Start processing request at {datetime.now()}")
+
+    try:
+        files = request.files
+        if not files:
+            logger.warning("No files provided in the request.")
+            return {"error": "No files provided."}
+
+        file_key, file = next(iter(files.items()))
+        file_content = file  # Directly use the bytes object
+
+        # Get the next engine index using round-robin
+        engine_index = get_next_engine_index()
+        
+        # Process the OCR request in the process pool
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(executor, process_ocr, file_content, engine_index)
+        
+        gc.collect()
+        end_time = time.time()
+        logger.info(f"Finished processing request at {datetime.now()}, Time taken: {end_time - start_time:.2f} seconds")
+        return {"result": result}
+    
+    except Exception as e:
+        logger.error(f"Error during OCR processing: {e}")
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Start the OCR service")
-    parser.add_argument("--host", default="0.0.0.0",
-                        help="Host to bind the server to")
-    parser.add_argument("--port", type=int, default=8020,
-                        help="Port to run the server on")
-
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind the server to")
+    parser.add_argument("--port", type=int, default=8020, help="Port to run the server on")
     args = parser.parse_args()
 
-    app.start(host=args.host, port=args.port)
+    try:
+        app.start(host=args.host, port=args.port)
+    except KeyboardInterrupt:
+        logger.info("Server shutdown initiated by user.")
