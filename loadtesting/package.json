@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/uuid": "^10.0.0",
     "typescript": "^5.6.3"
   },
   "dependencies": {
@@ -20,6 +21,8 @@
     "csv-writer": "^1.6.0",
     "dotenv": "^16.4.5",
     "form-data": "^4.0.1",
-    "p-limit": "^6.1.0"
+    "p-limit": "^6.1.0",
+    "pdf-lib": "^1.17.1",
+    "uuid": "^10.0.0"
   }
 }

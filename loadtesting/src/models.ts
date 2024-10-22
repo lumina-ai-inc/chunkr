@@ -16,3 +16,22 @@ export interface TaskResponse {
   task_id: string;
   task_url: string;
 }
+
+export interface AggregateResults {
+  totalTime: number;
+  totalPages: number;
+  pagesPerSecond: number;
+}
+
+export type WorkerResult = {
+  totalPages: number;
+  startTime: number;
+  endTime: number;
+  failureTypes: FailureTypes;
+};
+
+export type FailureTypes = {
+  startTaskFailed: number;
+  pollTaskFailed: number;
+  taskStatusFailed: number;
+};
