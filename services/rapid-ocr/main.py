@@ -51,7 +51,6 @@ def download_and_extract_model(url, model_type):
     # Clean up
     os.remove(filename)
     shutil.rmtree(extracted_dir)
-
 def download_models():
     if not os.path.exists('models'):
         os.makedirs('models')
@@ -64,6 +63,13 @@ def download_models():
     
     if not os.path.exists(rec_model_path):
         download_and_extract_model('https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_infer.tar', 'rec')
+
+    # Ensure the model files are extracted and in the correct location
+    if not os.path.exists(det_model_path):
+        raise FileNotFoundError(f"{det_model_path} does not exist after download and extraction.")
+    if not os.path.exists(rec_model_path):
+        raise FileNotFoundError(f"{rec_model_path} does not exist after download and extraction.")
+
 
 # Call the download function
 download_models()
@@ -80,18 +86,20 @@ for _ in range(NUM_ENGINES):
         print("CUDA is available. Using GPU for RapidOCR.")
         engine = RapidOCR(det_use_cuda=True, rec_use_cuda=True,
                           cls_use_cuda=True, ocr_order_method="tb-xy", 
-                          rec_model_path="models/rec_model.pdmodel", 
-                          det_model_path="models/det_model.pdmodel")
+                          rec_model_dir="models", 
+                          det_model_dir="models")
     else:
         print("CUDA is not available. Using CPU for RapidOCR.")
         engine = RapidOCR(det_use_cuda=False,
                           rec_use_cuda=False,
                           cls_use_cuda=False,
                           ocr_order_method="tb-xy",
-                          rec_model_path="models/rec_model.pdmodel", 
-                          det_model_path="models/det_model.pdmodel")
+                          rec_model_dir="models", 
+                          det_model_dir="models")
     engines.append(engine)
     engine_semaphores.append(asyncio.Semaphore(1))
+
+
 
 
 class LoggingMiddleware:
@@ -210,7 +218,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Start the OCR service")
     parser.add_argument("--host", default="0.0.0.0",
                         help="Host to bind the server to")
-    parser.add_argument("--port", type=int, default=8000,
+    parser.add_argument("--port", type=int, default=8020,
                         help="Port to run the server on")
 
     args = parser.parse_args()
