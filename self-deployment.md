@@ -163,3 +163,5 @@ rules:
      - api.chunkr.ai
      secretName: tls-secret
    ```
+## Grafana and Prometheus
+1. Follow this [guide](https://medium.com/israeli-tech-radar/how-to-create-a-monitoring-stack-using-kube-prometheus-stack-part-1-eff8bf7ba9a9)
