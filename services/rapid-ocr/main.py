@@ -40,28 +40,35 @@ def download_and_extract_model(url, model_type):
     with tarfile.open(filename, 'r') as tar:
         tar.extractall(path=models_dir)
     
-    # Move the inference.pdmodel file
-    extracted_dir = os.path.join(models_dir, f'ch_PP-OCRv4_{model_type}_infer')
+    # Move and rename the inference.pdmodel file
+    extracted_dir = os.path.join(models_dir, os.path.splitext(os.path.basename(url))[0])
     src_file = os.path.join(extracted_dir, 'inference.pdmodel')
-    dst_file = os.path.join(models_dir, f'{model_type}_model.pdmodel')
+    dst_file = os.path.join(models_dir, f'{model_type}_inference.pdmodel')
+    
+    if not os.path.exists(src_file):
+        raise FileNotFoundError(f"Source file not found: {src_file}")
+    
     shutil.move(src_file, dst_file)
     
     # Clean up
     os.remove(filename)
     shutil.rmtree(extracted_dir)
 
+
 def download_models():
     if not os.path.exists('models'):
         os.makedirs('models')
     
-    det_model_path = 'models/det_model.pdmodel'
-    rec_model_path = 'models/rec_model.pdmodel'
+    det_model_path = 'models/det_inference.pdmodel'
+    rec_model_path = 'models/rec_inference.pdmodel'
     
     if not os.path.exists(det_model_path):
-        download_and_extract_model('https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/en_PP-OCRv4_det_infer.tar', 'det')
+        print("Downloading detection model...")
+        download_and_extract_model('https://paddleocr.bj.bcebos.com/PP-OCRv3/english/en_PP-OCRv3_det_slim_infer.tar', 'det')
     
     if not os.path.exists(rec_model_path):
-        download_and_extract_model('https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/en_PP-OCRv4_rec_infer.tar', 'rec')
+        print("Downloading recognition model...")
+        download_and_extract_model('https://paddleocr.bj.bcebos.com/PP-OCRv4/english/en_PP-OCRv4_rec_infer.tar', 'rec')
 
     if not os.path.exists(det_model_path):
         raise FileNotFoundError(f"{det_model_path} does not exist after download and extraction.")
@@ -72,7 +79,7 @@ def download_models():
 download_models()
 
 # Define the number of OCR engines to create
-NUM_ENGINES = int(os.getenv('RAPID_OCR__NUM_ENGINES', 4))
+NUM_ENGINES = int(os.getenv('RAPID_OCR__NUM_ENGINES', 1))
 
 print(f"Initializing {NUM_ENGINES} OCR engines.")
 
@@ -110,7 +117,8 @@ ocr_semaphore = asyncio.Semaphore(NUM_ENGINES)
 
 # Counter for round-robin engine selection
 engine_counter = -1
-# engine_lock = asyncio.Lock()
+# Create a list of locks, one for each engine
+engine_locks = [asyncio.Lock() for _ in range(NUM_ENGINES)]
 
 def serialize_ocr_result(result):
     if result is None:
@@ -199,22 +207,19 @@ async def perform_ocr(request: Request):
             return {"error": "No files provided."}
 
         file_key, file = next(iter(files.items()))
-        file_content = file  # Directly use the bytes object
-
-        async with ocr_semaphore:
-            print(f"Start processing request at {datetime.now()}")
-            start_time = time.time()
-
-            # Get the next engine index using round-robin
-            engine_index = get_next_engine_index()
-            engine = ocr_engines[engine_index]
-            
-            # Process the OCR request using the selected OCR engine
-            result = await run_ocr(file_content, engine)
+        file_content = file 
+        engine_index = get_next_engine_index()
         
+        async with engine_locks[engine_index]:
+            start_time = time.time()
+            print(f"Start processing request at {start_time}")
+            engine = ocr_engines[engine_index]
+            result = await run_ocr(file_content, engine)
+            end_time = time.time()
+            print(f"Finished processing request at {end_time}, Time taken: {end_time - start_time:.2f} seconds")
+    
         gc.collect()
-        end_time = time.time()
-        print(f"Finished processing request at {datetime.now()}, Time taken: {end_time - start_time:.2f} seconds")
+        # print(result)
         return {"result": result}
 
     except Exception as e:
