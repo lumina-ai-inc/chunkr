@@ -40,7 +40,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let pdf_file = download_to_tempfile(
             &s3_client,
             &reqwest_client,
-            &extraction_payload.input_location,
+            &extraction_payload.pdf_location,
             None
         ).await?;
 
