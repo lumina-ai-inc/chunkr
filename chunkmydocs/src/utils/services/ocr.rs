@@ -1,4 +1,4 @@
-use crate::models::server::segment::{BoundingBox, OCRResult};
+use crate::models::server::segment::{ BoundingBox, OCRResult };
 use crate::models::workers::table_ocr::TableStructure;
 // use crate::utils::services::images::preprocess_image;
 // use crate::utils::services::images::preprocess_image;
@@ -12,10 +12,14 @@ use std::collections::HashSet;
 pub async fn download_and_ocr(
     s3_client: &S3Client,
     reqwest_client: &ReqwestClient,
-    image_location: &str,
+    image_location: &str
 ) -> Result<(Vec<OCRResult>, String, String), Box<dyn std::error::Error>> {
-    let original_file =
-        download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
+    let original_file = download_to_tempfile(
+        s3_client,
+        reqwest_client,
+        image_location,
+        None
+    ).await?;
     // let preprocessed_file = preprocess_image(&original_file.path()).await?;
     let preprocessed_file_path = original_file.path().to_owned();
     let ocr_results = match call_rapid_ocr_api(&preprocessed_file_path).await {
@@ -30,19 +34,25 @@ pub async fn download_and_ocr(
 pub async fn download_and_table_ocr(
     s3_client: &S3Client,
     reqwest_client: &ReqwestClient,
-    image_location: &str,
+    image_location: &str
 ) -> Result<(Vec<OCRResult>, String, String), Box<dyn std::error::Error>> {
-    let original_file =
-        download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
+    let original_file = download_to_tempfile(
+        s3_client,
+        reqwest_client,
+        image_location,
+        None
+    ).await?;
     let original_file_path = original_file.path().to_owned();
     let original_file_path_clone = original_file_path.clone();
     // let preprocessed_file = preprocess_image(&original_file.path()).await?;
     // let preprocessed_file_path = preprocessed_file.path().to_owned();
     // let preprocessed_file_path_clone = preprocessed_file_path.clone();
-    let table_structure_task =
-        tokio::task::spawn(async move { recognize_table(&original_file_path).await });
-    let rapid_ocr_task =
-        tokio::task::spawn(async move { call_rapid_ocr_api(&original_file_path_clone).await });
+    let table_structure_task = tokio::task::spawn(async move {
+        recognize_table(&original_file_path).await
+    });
+    let rapid_ocr_task = tokio::task::spawn(async move {
+        call_rapid_ocr_api(&original_file_path_clone).await
+    });
     let ocr_results = match rapid_ocr_task.await {
         Ok(ocr_results) => ocr_results.unwrap_or_default(),
         Err(e) => {
@@ -56,8 +66,10 @@ pub async fn download_and_table_ocr(
         }
     };
 
-    let table_structures_with_content =
-        add_content_to_table_structure(table_structures, ocr_results);
+    let table_structures_with_content = add_content_to_table_structure(
+        table_structures,
+        ocr_results
+    );
     let html = get_table_html(table_structures_with_content.clone());
     let markdown = get_table_markdown(table_structures_with_content.clone());
     let table_ocr_results = table_structures_to_ocr_results(table_structures_with_content);
@@ -66,7 +78,7 @@ pub async fn download_and_table_ocr(
 
 fn add_content_to_table_structure(
     mut table_structures: Vec<TableStructure>,
-    ocr_results: Vec<OCRResult>,
+    ocr_results: Vec<OCRResult>
 ) -> Vec<TableStructure> {
     let mut used_ocr_results = HashSet::new();
 
@@ -104,7 +116,14 @@ fn get_table_html(table_structures: Vec<TableStructure>) -> String {
         html.push_str("<tr>");
         for cell in row.cells {
             if cell.col_span > 1 || cell.row_span > 1 {
-                html.push_str(&format!("<td colspan='{}' rowspan='{}'>{}</td>", cell.col_span, cell.row_span, cell.content.unwrap_or_default()));
+                html.push_str(
+                    &format!(
+                        "<td colspan='{}' rowspan='{}'>{}</td>",
+                        cell.col_span,
+                        cell.row_span,
+                        cell.content.unwrap_or_default()
+                    )
+                );
             } else {
                 html.push_str(&format!("<td>{}</td>", cell.content.unwrap_or_default()));
             }
@@ -115,24 +134,37 @@ fn get_table_html(table_structures: Vec<TableStructure>) -> String {
     return html;
 }
 
-fn get_table_markdown(
-    table_structures: Vec<TableStructure>
-) -> String {
+fn get_table_markdown(table_structures: Vec<TableStructure>) -> String {
     let mut markdown = String::new();
-    markdown.push_str("|");
-    for row in table_structures {
+    let mut first_cell_content = vec![];
+
+    if let Some(first_row) = table_structures.first() {
         markdown.push_str("|");
-        for cell in row.cells {
-            markdown.push_str(&format!("{} |", cell.content.unwrap_or_default()));
+        for cell in first_row.cells.clone() {
+            let content = cell.content.unwrap_or_default();
+            first_cell_content.push(content.clone());
+            markdown.push_str(&format!(" {} |", content));
         }
+        markdown.push_str("\n");
+        markdown.push_str("|");
+        for _ in first_row.cells.clone() {
+            markdown.push_str(" --- |");
+        }
+        markdown.push_str("\n");
     }
-    markdown.push_str("\n");
+
+    for row in table_structures.iter().skip(1) {
+        markdown.push_str("|");
+        for cell in row.cells.clone() {
+            markdown.push_str(&format!(" {} |", cell.content.unwrap_or_default()));
+        }
+        markdown.push_str("\n");
+    }
+
     return markdown;
 }
 
-fn table_structures_to_ocr_results(
-    table_structures: Vec<TableStructure>
-) -> Vec<OCRResult> {
+fn table_structures_to_ocr_results(table_structures: Vec<TableStructure>) -> Vec<OCRResult> {
     table_structures
         .iter()
         .flat_map(|table| table.cells.iter())
