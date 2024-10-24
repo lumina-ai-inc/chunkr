@@ -36,7 +36,7 @@ spec:
         effect: "PreferNoSchedule"
       containers:
       - name: rapid-ocr
-        image: luminainc/rapid-ocr:c3e21902
+        image: luminainc/rapid-ocr:f1ae0b1c
         imagePullPolicy: Always
         envFrom:
         - secretRef:
