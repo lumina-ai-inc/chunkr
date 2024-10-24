@@ -24,7 +24,9 @@ redistribute_pods() {
     local temp_file=$(mktemp)
 
     # Get all pods in the namespace and save to temp file
-    kubectl get pods -n "$namespace" --no-headers -o custom-columns=":metadata.name" > "$temp_file"
+    kubectl get pods -n "$namespace" -o custom-columns=":metadata.name,:spec.nodeName" \
+            | grep "gpu" \
+            | awk '{print $1}' > "$temp_file"
 
     # Use GNU Parallel to process pods concurrently
     parallel -a "$temp_file" evict_and_wait_pod {} "$namespace" "$wait_time"

@@ -33,6 +33,7 @@ pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
 }
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
+    println!("Processing task");
     let s3_client = create_client().await?;
     let reqwest_client = reqwest::Client::new();
     let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
