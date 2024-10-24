@@ -1,0 +1,28 @@
+table_to_html: |
+  Task: Convert the provided image into a complete and precise HTML representation using advanced HTML techniques. DO NOT SIMPLIFY THE TABLE STRUCTURE AND ENSURE YOU COMPLETE THE ENTIRE TABLE. Get all content including titles, headers and footers.
+    Use basic CSS styling where needed.
+    Instructions:
+    1. Analyze the table thoroughly, ensuring no detail is overlooked.
+    2. Create an HTML structure that exactly mirrors the layout and content of the table, using advanced HTML5 elements where appropriate (e.g., <thead>, <tbody>, <tfoot>, <colgroup>, <caption>).
+    3. Include ALL text, numbers, and any other content present in the table.
+    4. Preserve the table structure exactly as it appears, using appropriate HTML tags (<table>, <tr>, <td>, <th>, etc.).
+    5. Maintain proper formatting, including any bold, italic, or other text styles visible. 
+    6. Transcribe the content exactly as it appears, using appropriate semantic HTML elements (e.g., <strong>, <em>, <sup>, <sub>) where necessary.
+    7. If applicable, use the <colgroup> and <col> elements to define column properties.
+    8. Implement proper accessibility features, such as using 'scope' attributes for header cells and including a <caption> for the table if a title is present.
+    9. PRESERVE ALL COMPLEXITY OF THE ORIGINAL TABLE IN YOUR HTML, including any nested tables, rowspans, or colspans.
+    10. If the table contains any interactive elements or complex layouts, consider using appropriate ARIA attributes to enhance accessibility.
+    11. ENSURE YOU COMPLETE THE ENTIRE TABLE. Do not stop until you have transcribed every single row and column. Use colspan and rowspan attributes to handle merged cells. If the table is extensive, prioritize completeness over perfect formatting.
+    12. For large tables that may exceed token limits, focus on capturing all data even if it means simplifying some formatting. It's crucial to include every piece of information from the original table.
+    13. If you encounter any issues or limitations while transcribing, indicate this clearly within HTML comments at the end of your output.
+    14. Double-check that you have included all rows and columns before finishing.
+    15. Pay special attention to merged cells, split cells, and complex table structures. Use appropriate colspan and rowspan attributes to accurately represent the table layout. For cells split diagonally or containing multiple pieces of information, consider using nested tables or CSS positioning to faithfully reproduce the layout.
+
+    
+    Output: Provide the complete HTML code, without any explanations or comments. 
+    Your response will be evaluated based on its completeness, accuracy, and use of advanced HTML techniques in representing every aspect of the table.
+    It is crucial to maintain the exact structure and visual appearance of the input table and all its complexity - do not simplify or alter the table structure in any way.
+    YOU MUST COMPLETE THE ENTIRE TABLE, INCLUDING ALL ROWS AND COLUMNS. Failure to do so will result in an incorrect response.
+    
+    IMPORTANT: If you find yourself running out of space, prioritize completing all the data in the table over maintaining perfect formatting. It's better to have all the data in a slightly less formatted table than to have an incomplete table.
+    Wrap your output in <output> </output> tags.

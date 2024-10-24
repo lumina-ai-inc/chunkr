@@ -1,32 +1,26 @@
-use crate::{
-    // models::workers::table_ocr::{TableStructure, TableStructureResponse},
-    utils::configs::extraction_config::Config,
-};
 use base64::{engine::general_purpose, Engine as _};
-// use reqwest::multipart;
 use serde_json::{json, Value};
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-pub async fn call_llm(
+pub async fn call_llm_with_openai_api(
     file_path: &Path,
+    url: String,
+    key: String,
     prompt: String,
     model: String,
+    max_tokens: Option<u32>,
+    temperature: Option<f32>,
 ) -> Result<String, Box<dyn Error>> {
-    let config = Config::from_env().unwrap();
-    let url = config.ocr_llm_url;
-    let key = config.ocr_llm_key;
     let client = reqwest::Client::new();
 
-    // Read the image file and encode it to base64
     let mut file = File::open(file_path)?;
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer)?;
     let base64_image = general_purpose::STANDARD.encode(&buffer);
 
-    // Construct the request payload
     let payload = json!({
         "model": model,
         "messages": [
@@ -46,11 +40,10 @@ pub async fn call_llm(
                 ]
             }
         ],
-        "max_tokens": 8000,
-        "temperature": 0.0  // Added temperature parameter set to 0 for deterministic output
+        "max_tokens": max_tokens.unwrap_or(8000),
+        "temperature": temperature.unwrap_or(0.0)
     });
 
-    // Send the request to the LLM API
     let response = client
         .post(format!("{}/v1/chat/completions", url))
         .header("Content-Type", "application/json")
@@ -59,7 +52,6 @@ pub async fn call_llm(
         .send()
         .await?;
 
-    // Parse the response
     let response_body: Value = response.json().await?;
     println!("Response body: {}", response_body);
     let completion = response_body["choices"][0]["message"]["content"]
@@ -77,6 +69,7 @@ mod tests {
     use std::path::Path;
     use std::time::Instant;
     use tokio;
+    use crate::utils::configs::extraction_config::Config;
 
     #[tokio::test]
     async fn test_ocr_llm() -> Result<(), Box<dyn Error + Send + Sync>> {
@@ -136,7 +129,9 @@ mod tests {
             .collect();
 
         let mut tasks = Vec::new();
-
+        let config = Config::from_env().unwrap();
+        let url = config.ocr_llm_url;
+        let key = config.ocr_llm_key;
         for input_file in input_files {
             let table_name = input_file
                 .file_stem()
@@ -163,7 +158,16 @@ mod tests {
                 let task = tokio::spawn(async move {
                     let start_time = Instant::now();
 
-                    match call_llm(&input_file, prompt, model.clone()).await {
+                    match call_llm_with_openai_api(
+                        &input_file,
+                        url,
+                        key,
+                        prompt,
+                        model,
+                        None,
+                        None,
+                    )
+                    .await {
                         Ok(response) => {
                             let duration = start_time.elapsed();
                             println!(
