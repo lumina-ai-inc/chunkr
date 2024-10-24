@@ -7,3 +7,4 @@ pub mod images;
 pub mod log;
 pub mod payload;
 pub mod chunking;
+pub mod llm;
