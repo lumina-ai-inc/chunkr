@@ -121,7 +121,7 @@ def serialize_ocr_result(result):
         return []
     return [
         {
-            "coordinates": [[float(coord) for coord in coords if coord is not None] for coords in item[0] if coords],
+            "bounding_box": [[float(coord) for coord in coords if coord is not None] for coords in item[0] if coords],
             "text": str(item[1]) if item[1] is not None else "",
             "confidence": float(item[2]) if item[2] is not None else 0.0
         }
