@@ -8,7 +8,6 @@ import numpy as np
 import os
 from rapidocr_paddle import RapidOCR
 from robyn import Robyn, Request
-from robyn.logger import Logger
 from tempfile import NamedTemporaryFile
 import time
 import torch
@@ -75,20 +74,16 @@ def download_models():
     if not os.path.exists(rec_model_path):
         raise FileNotFoundError(f"{rec_model_path} does not exist after download and extraction.")
 
-# Call the download function
 download_models()
 
-# Define the number of OCR engines to create
 NUM_ENGINES = int(os.getenv('RAPID_OCR__NUM_ENGINES', 1))
 
 print(f"Initializing {NUM_ENGINES} OCR engines.")
 
-# Initialize OCR engines
 ocr_engines = []
 if torch.cuda.is_available():
     print(f"CUDA is available. Initializing GPU OCR engines.")
     for i in range(NUM_ENGINES):
-        print(f"Initializing GPU OCR engine {i + 1}.")
         engine = RapidOCR(
             det_use_cuda=True,
             rec_use_cuda=True,
@@ -97,11 +92,11 @@ if torch.cuda.is_available():
             rec_model_dir="models",
             det_model_dir="models"
         )
+        print(f"Initialized GPU OCR engine {i + 1}.")
         ocr_engines.append(engine)
 else:
     print(f"CUDA is not available. Initializing CPU OCR engines.")
     for i in range(NUM_ENGINES):
-        print(f"Initializing CPU OCR engine {i + 1}.")
         engine = RapidOCR(
             det_use_cuda=False,
             rec_use_cuda=False,
@@ -110,6 +105,7 @@ else:
             rec_model_dir="models",
             det_model_dir="models"
         )
+        print(f"Initialized CPU OCR engine {i + 1}.")
         ocr_engines.append(engine)
 
 # Semaphore to limit concurrent OCR tasks
@@ -177,29 +173,13 @@ def shutdown():
 
 atexit.register(shutdown)
 
-class LoggingMiddleware:
-    @staticmethod
-    def request_info(request: Request):
-        return {
-            "ip_address": request.ip_addr,
-            "request_url": request.url.host,
-            "request_path": request.url.path,
-            "request_method": request.method,
-            "request_time": str(datetime.now()),
-        }
-
-@app.before_request()
-async def log_request(request: Request):
-    print(f"Received request: {LoggingMiddleware.request_info(request)}")
-    return request
-
 @app.get("/")
 async def health():
     return {"status": "ok"}
 
 @app.post("/ocr")
 async def perform_ocr(request: Request):
-
+    print(f"Received request for OCR")
     try:
         files = request.files
         if not files:
@@ -211,15 +191,10 @@ async def perform_ocr(request: Request):
         engine_index = get_next_engine_index()
         
         async with engine_locks[engine_index]:
-            start_time = time.time()
-            print(f"Start processing request at {start_time}")
             engine = ocr_engines[engine_index]
             result = await run_ocr(file_content, engine)
-            end_time = time.time()
-            print(f"Finished processing request at {end_time}, Time taken: {end_time - start_time:.2f} seconds")
-    
-        gc.collect()
-        # print(result)
+        gc.collect()                
+        print(f"Finished processing request for OCR")
         return {"result": result}
 
     except Exception as e:
