@@ -103,7 +103,11 @@ fn get_table_html(table_structures: Vec<TableStructure>) -> String {
     for row in table_structures {
         html.push_str("<tr>");
         for cell in row.cells {
-            html.push_str(&format!("<td colspan='{}' rowspan='{}'>{}</td>", cell.col_span, cell.row_span, cell.content.unwrap_or_default()));
+            if cell.col_span > 1 || cell.row_span > 1 {
+                html.push_str(&format!("<td colspan='{}' rowspan='{}'>{}</td>", cell.col_span, cell.row_span, cell.content.unwrap_or_default()));
+            } else {
+                html.push_str(&format!("<td>{}</td>", cell.content.unwrap_or_default()));
+            }
         }
         html.push_str("</tr>");
     }
