@@ -31,11 +31,11 @@ pub async fn call_rapid_ocr_api(
     let response = client
         .post(url)
         .multipart(form)
-        .timeout(std::time::Duration::from_secs(30))
+        .timeout(std::time::Duration::from_secs(180))
         .send().await?
         .error_for_status()?;
 
-    let rapid_ocr_payloads: RapidOcrPayload = response.json().await?;
-
-    Ok(rapid_ocr_payloads.result.into_iter().map(OCRResult::from).collect())
+    let rapid_ocr_payload: RapidOcrPayload = response.json().await?;
+    
+    Ok(rapid_ocr_payload.result.into_iter().map(OCRResult::from).collect())
 }

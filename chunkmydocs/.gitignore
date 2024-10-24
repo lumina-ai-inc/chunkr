@@ -39,3 +39,5 @@ Cargo.lock
 cmd.txt
 
 pdfium-binaries
+
+.cargo
