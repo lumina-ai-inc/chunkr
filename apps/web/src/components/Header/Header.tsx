@@ -29,7 +29,6 @@ export default function Header({
   const { data: taskResponse } = useTaskQuery(taskId);
   const { data: user } = useUser();
   const [repoStats, setRepoStats] = useState({ stars: 0, forks: 0 });
-  console.log(repoStats);
 
   useEffect(() => {
     const fetchStats = async () => {
