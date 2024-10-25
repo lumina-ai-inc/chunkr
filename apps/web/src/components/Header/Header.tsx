@@ -81,7 +81,7 @@ export default function Header({
         className="nav-center"
         direction="row"
         gap="40px"
-        ml={isAuthenticated ? "88px" : "40px"}
+        ml={isAuthenticated ? "206px" : "88px"}
         align="center"
       >
         <a href={"https://docs.chunkr.ai"} target="_blank" className="nav-item">
@@ -134,7 +134,7 @@ export default function Header({
       <Flex className="nav" direction="row" gap="24px" align="center">
         <Flex
           direction="row"
-          gap="2"
+          gap="4"
           align="center"
           className="auth-container"
           justify="end"
@@ -169,18 +169,6 @@ export default function Header({
               </Text>
             </Flex>
           </BetterButton>
-          <a
-            href="https://github.com/lumina-ai-inc/chunk-my-docs"
-            target="_blank"
-            className="nav-item"
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              gap: "8px",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
-          ></a>
 
           {isAuthenticated && user && (
             <ApiKeyDialog
