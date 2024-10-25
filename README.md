@@ -1,6 +1,6 @@
 ### Status Updates (Only for hosted API on www.chunkr.ai)
-1. We have temporarily switched to Textract for OCR from PaddleOCR. Textract is provided for free until we resolve PaddleOCR issues. Textract occasionally misses tables that PaddleOCR wouldn't. For self-deploys, you can still set PaddleOCR as your OCR strategy in the task service .env variables.
-2. We are still experiencing extremely high loads, which have affected throughputs. We're working hard to get ingestion speeds back to our standard. 
+1. Services are back up and running.
+2. Textract fall back has been removed - we're bacl to using our own system for OCR. 
 
 # Chunkr
 
