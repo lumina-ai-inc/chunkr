@@ -90,7 +90,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let client: Client = pg_pool.get().await?;
     let temp_dir = TempDir::new().unwrap();
 
-    let result: Result<(), Box<dyn std::error::Error>> = (async {
+    let result: Result<bool, Box<dyn std::error::Error>> = (async {
         log_task(
             task_id.clone(),
             Status::Processing,
@@ -126,7 +126,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 Some(Utc::now()),
                 &pg_pool
             ).await?;
-            return Ok(());
+            return Ok(false);
         }
 
         let pdf_path = match detected_mime_type.as_str() {
@@ -201,30 +201,33 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             upload_to_s3(&s3_client, &image_location, &image_path).await?;
         }
 
-        Ok(())
+        Ok(true)
     }).await;
 
     match result {
-        Ok(_) => {
+        Ok(value) => {
             println!("Task succeeded");
-            let config = Config::from_env()?;
-            let queue_name = match extraction_payload.model {
-                SegmentationModel::PdlaFast => config.queue_fast,
-                SegmentationModel::Pdla => config.queue_high_quality,
-            };
-            produce_extraction_payloads(queue_name, extraction_payload).await?;
-            log_task(
-                task_id.clone(),
-                Status::Processing,
-                Some("Segmentation queued".to_string()),
-                None,
-                &pg_pool
-            ).await?;
+            if value {
+                let config = Config::from_env()?;
+                let queue_name = match extraction_payload.model {
+                    SegmentationModel::PdlaFast => config.queue_fast,
+                    SegmentationModel::Pdla => config.queue_high_quality,
+                };
+                produce_extraction_payloads(queue_name, extraction_payload).await?;
+                log_task(
+                    task_id.clone(),
+                    Status::Processing,
+                    Some("Segmentation queued".to_string()),
+                    None,
+                    &pg_pool
+                ).await?;
+            } 
             Ok(())
         }
         Err(e) => {
             eprintln!("Error processing task: {:?}", e);
-            let error_message = if e.to_string().to_lowercase().contains("usage limit exceeded") {
+            let error_message = 
+            if e.to_string().to_lowercase().contains("usage limit exceeded") {
                 "Usage limit exceeded".to_string()
             } else {
                 "Preprocessing failed".to_string()
