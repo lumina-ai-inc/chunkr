@@ -1,29 +1,16 @@
+import axiosInstance from "./axios.config";
+
 interface GithubRepoStats {
   stars: number;
   forks: number;
 }
 
-export async function getRepoStats(
-  owner: string,
-  repo: string
-): Promise<GithubRepoStats> {
-  const response = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}`,
-    {
-      headers: {
-        Accept: "application/vnd.github.v3+json",
-      },
-    }
+export async function getRepoStats(): Promise<GithubRepoStats> {
+  const data = await axiosInstance.get("/github").then(
+    (res) => ({
+      stars: res.data.stargazers_count,
+      forks: res.data.forks_count,
+    })
   );
-
-  if (!response.ok) {
-    throw new Error(`GitHub API request failed: ${response.statusText}`);
-  }
-
-  const data = await response.json();
-
-  return {
-    stars: data.stargazers_count,
-    forks: data.forks_count,
-  };
+  return data;
 }
