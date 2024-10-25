@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DropdownMenu, Flex, Text, Button, Separator } from "@radix-ui/themes";
+import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
 import { Link, useParams } from "react-router-dom";
 import "./Header.css";
 import Dashboard from "../../pages/Dashboard/Dashboard";
@@ -10,6 +10,7 @@ import { useTaskQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
 import { User } from "../../models/user.model";
 import { getRepoStats } from "../../services/githubApi";
+import BetterButton from "../BetterButton/BetterButton";
 interface HeaderProps {
   py?: string;
   px?: string;
@@ -47,6 +48,10 @@ export default function Header({
     }
   };
 
+  const handleGithubRedirect = () => {
+    window.open("https://github.com/lumina-ai-inc/chunk-my-docs", "_blank");
+  };
+
   return (
     <Flex direction="row" justify="between" py="16px" className="header">
       <Link to="/" style={{ textDecoration: "none" }}>
@@ -76,7 +81,7 @@ export default function Header({
         className="nav-center"
         direction="row"
         gap="40px"
-        ml={isAuthenticated ? "104px" : "0"}
+        ml={isAuthenticated ? "88px" : "40px"}
         align="center"
       >
         <a href={"https://docs.chunkr.ai"} target="_blank" className="nav-item">
@@ -101,65 +106,17 @@ export default function Header({
           </Text>
         </Link>
 
-        <a
+        {/* <a
           href="https://github.com/lumina-ai-inc/chunk-my-docs"
           target="_blank"
           className="nav-item"
         >
-          <Flex align="center" gap="2" className="nav-item github-stats">
+          <Flex align="baseline" gap="2" className="nav-item github-stats">
             <Text size="2" weight="medium">
               Github
             </Text>
-            <Flex
-              gap="2"
-              p="4px 8px"
-              align="center"
-              style={{ border: "1px solid white", borderRadius: "4px" }}
-            >
-              <Flex align="center" gap="4px" className="stat-container">
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                </svg>
-                <Text
-                  size="1"
-                  style={{ fontSize: "10px" }}
-                  className="stat-number"
-                >
-                  {repoStats.stars}
-                </Text>
-              </Flex>
-              <Separator
-                orientation="vertical"
-                style={{ background: "white", height: "10px" }}
-              />
-              <Flex align="center" gap="1" className="stat-container">
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M7 3C5.89543 3 5 3.89543 5 5C5 6.10457 5.89543 7 7 7C8.10457 7 9 6.10457 9 5C9 3.89543 8.10457 3 7 3Z" />
-                  <path d="M17 3C15.8954 3 15 3.89543 15 5C15 6.10457 15.8954 7 17 7C18.1046 7 19 6.10457 19 5C19 3.89543 18.1046 3 17 3Z" />
-                  <path d="M12 17C10.8954 17 10 17.8954 10 19C10 20.1046 10.8954 21 12 21C13.1046 21 14 20.1046 14 19C14 17.8954 13.1046 17 12 17Z" />
-                  <path d="M7 9V14C7 15.6569 8.34315 17 10 17H14C15.6569 17 17 15.6569 17 14V9" />
-                </svg>
-                <Text
-                  size="1"
-                  style={{ fontSize: "10px" }}
-                  className="stat-number"
-                >
-                  {repoStats.forks}
-                </Text>
-              </Flex>
-            </Flex>
           </Flex>
-        </a>
+        </a> */}
 
         {download && !home && taskResponse?.output && (
           <Text
@@ -177,11 +134,54 @@ export default function Header({
       <Flex className="nav" direction="row" gap="24px" align="center">
         <Flex
           direction="row"
-          gap="4"
+          gap="2"
           align="center"
           className="auth-container"
           justify="end"
         >
+          <BetterButton onClick={handleGithubRedirect}>
+            <Flex direction="row" gap="2" align="center">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g clip-path="url(#clip0_132_8)">
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.97318 0C4.01125 0 0 4.04082 0 9.03986C0 13.0359 2.57014 16.4184 6.13561 17.6156C6.58139 17.7056 6.74467 17.4211 6.74467 17.1817C6.74467 16.9722 6.72998 16.2538 6.72998 15.5053C4.23386 16.0442 3.71406 14.4277 3.71406 14.4277C3.31292 13.3801 2.71855 13.1108 2.71855 13.1108C1.90157 12.557 2.77806 12.557 2.77806 12.557C3.68431 12.6169 4.15984 13.4849 4.15984 13.4849C4.96194 14.8618 6.25445 14.4727 6.77443 14.2332C6.84863 13.6495 7.08649 13.2454 7.33904 13.021C5.3482 12.8114 3.25359 12.0332 3.25359 8.56084C3.25359 7.57304 3.60992 6.76488 4.17453 6.13635C4.08545 5.9119 3.77339 4.9838 4.2638 3.74161C4.2638 3.74161 5.02145 3.5021 6.7298 4.66953C7.4612 4.47165 8.21549 4.37099 8.97318 4.37014C9.73084 4.37014 10.5032 4.47502 11.2164 4.66953C12.9249 3.5021 13.6826 3.74161 13.6826 3.74161C14.173 4.9838 13.8607 5.9119 13.7717 6.13635C14.3511 6.76488 14.6928 7.57304 14.6928 8.56084C14.6928 12.0332 12.5982 12.7963 10.5924 13.021C10.9194 13.3053 11.2015 13.844 11.2015 14.6972C11.2015 15.9094 11.1868 16.8823 11.1868 17.1816C11.1868 17.4211 11.3503 17.7056 11.7959 17.6158C15.3613 16.4182 17.9315 13.0359 17.9315 9.03986C17.9462 4.04082 13.9202 0 8.97318 0Z"
+                    fill="white"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_132_8">
+                    <rect width="18" height="17.6327" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
+              <Text size="1" weight="bold" className="nav-item">
+                {repoStats.stars >= 1000
+                  ? `${(repoStats.stars / 1000).toFixed(1)}K`
+                  : repoStats.stars}
+              </Text>
+            </Flex>
+          </BetterButton>
+          <a
+            href="https://github.com/lumina-ai-inc/chunk-my-docs"
+            target="_blank"
+            className="nav-item"
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "8px",
+              alignItems: "center",
+              cursor: "pointer",
+            }}
+          ></a>
+
           {isAuthenticated && user && (
             <ApiKeyDialog
               user={user}
