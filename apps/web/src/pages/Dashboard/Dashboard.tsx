@@ -306,7 +306,7 @@ export default function Dashboard() {
                       style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
                     >
                       {" "}
-                      / 1M pages
+                      / {fastLimit} pages
                     </Text>
                   </Text>
                 )}
@@ -329,7 +329,7 @@ export default function Dashboard() {
                       style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
                     >
                       {" "}
-                      / 1000 pages
+                      / {fastLimit} pages
                     </Text>
                   </Text>
                 )}
@@ -437,7 +437,7 @@ export default function Dashboard() {
                       style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
                     >
                       {" "}
-                      <>/ 1M pages</>
+                      <>/ {highQualityLimit} pages</>
                     </Text>
                   </Text>
                 )}
@@ -460,7 +460,7 @@ export default function Dashboard() {
                       style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
                     >
                       {" "}
-                      <>/ 500 pages</>
+                      <>/ {highQualityLimit} pages</>
                     </Text>
                   </Text>
                 )}
