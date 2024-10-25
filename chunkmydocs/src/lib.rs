@@ -25,6 +25,7 @@ use routes::task::{create_extraction_task, get_task_status};
 use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
+use routes::github::get_github_repo_info;
 use utils::db::deadpool_postgres;
 use utils::server::admin_user::get_or_create_admin_user;
 use utils::storage::config_s3::create_client;
@@ -167,6 +168,7 @@ pub fn main() -> std::io::Result<()> {
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .route("/", web::get().to(health_check))
                 .route("/health", web::get().to(health_check))
+                .route("/github", web::get().to(get_github_repo_info))
                 .service(
                     SwaggerUi::new("/swagger-ui/{_:.*}")
                         .url("/docs/openapi.json", ApiDoc::openapi()),
