@@ -30,6 +30,8 @@ pub struct Config {
     pub page_image_density: f32,
     #[serde(default = "default_segment_bbox_offset")]
     pub segment_bbox_offset: f32,
+    #[serde(default = "default_page_limit")]
+    pub page_limit: i32,
 }
 
 fn default_ocr_concurrency() -> usize {
@@ -50,6 +52,10 @@ fn default_page_image_density() -> f32 {
 
 fn default_segment_bbox_offset() -> f32 {
     5.0
+}
+
+fn default_page_limit() -> i32 {
+    500
 }
 
 mod duration_seconds {

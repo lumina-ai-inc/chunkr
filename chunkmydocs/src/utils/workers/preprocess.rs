@@ -13,7 +13,6 @@ use crate::utils::storage::services::{ download_to_given_tempfile, upload_to_s3 
 use chrono::Utc;
 use std::{ error::Error, path::{ Path, PathBuf }, process::Command };
 use tempfile::{ NamedTempFile, TempDir };
-use std::time::Instant;
 
 fn is_valid_file_type(file_path: &Path) -> Result<(bool, String), Box<dyn Error>> {
     let output = Command::new("file")
@@ -89,6 +88,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let pg_pool = create_pool();
     let client: Client = pg_pool.get().await?;
     let temp_dir = TempDir::new().unwrap();
+    let config = Config::from_env()?;
 
     let result: Result<bool, Box<dyn std::error::Error>> = (async {
         log_task(
@@ -110,8 +110,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             eprintln!("Failed to download input file: {:?}", e);
             e
         })?;
-
-        println!("Input file downloaded to: {:?}", input_file.path());
 
         let (is_valid, detected_mime_type) = is_valid_file_type(&input_file.path()).map_err(|e| {
             eprintln!("Failed to check file type: {:?}", e);
@@ -154,19 +152,25 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &pg_pool
         ).await?;
 
-        let start_time = Instant::now();
         let image_paths = pdf_2_images(&pdf_path, &temp_dir.path())?;
-        let end_time = Instant::now();
 
         let page_count = image_paths.len() as i32;
-        extraction_payload.page_count = Some(page_count);
 
-        println!("Time taken: {:?}", end_time.duration_since(start_time));
-        println!("Page count: {}", page_count);
-        println!(
-            "Pages per second: {:?}",
-            (page_count as f32) / (end_time.duration_since(start_time).as_secs() as f32)
-        );
+        println!("Page count: {}", page_count.clone());
+        println!("Page limit: {}", config.page_limit.clone());
+
+        if page_count > config.page_limit {
+            log_task(
+                task_id.clone(),
+                Status::Failed,
+                Some(format!("File must be less than {} pages", config.page_limit)),
+                Some(Utc::now()),
+                &pg_pool
+            ).await?;
+            return Ok(false);
+        }
+        
+        extraction_payload.page_count = Some(page_count);
 
         let update_page_count = client.execute(
             "UPDATE tasks SET page_count = $1, input_file_type = $2 WHERE task_id = $3",
@@ -208,7 +212,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         Ok(value) => {
             println!("Task succeeded");
             if value {
-                let config = Config::from_env()?;
                 let queue_name = match extraction_payload.model {
                     SegmentationModel::PdlaFast => config.queue_fast,
                     SegmentationModel::Pdla => config.queue_high_quality,
