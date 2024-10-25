@@ -35,3 +35,9 @@ export type FailureTypes = {
   pollTaskFailed: number;
   taskStatusFailed: number;
 };
+
+export type ModelConfig = {
+  model: "HighQuality" | "Fast";
+  ocrStrategy: "All" | "Auto" | "Off";
+  percentage: number;
+};

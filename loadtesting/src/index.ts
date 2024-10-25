@@ -4,12 +4,6 @@ import FormData from "form-data";
 import fs from "fs";
 import dotenv from "dotenv";
 import { createObjectCsvWriter } from "csv-writer";
-import {
-  TaskResponse,
-  AggregateResults,
-  WorkerResult,
-  FailureTypes,
-} from "./models.js";
 import pLimit from "p-limit";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -17,6 +11,14 @@ import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import { performance } from "perf_hooks";
 import { PDFDocument } from "pdf-lib";
+
+import {
+  TaskResponse,
+  AggregateResults,
+  WorkerResult,
+  FailureTypes,
+  ModelConfig,
+} from "./models.js";
 
 dotenv.config();
 
@@ -32,7 +34,7 @@ if (!API_KEY || !API_URL) {
 const eventEmitter = new EventEmitter();
 
 const MAX_FILES_TO_PROCESS = 1000; // Adjust this value as needed
-const REQUESTS_PER_SECOND = 50; // You can adjust this value
+const CONCURRENT_REQUESTS_PER_WORKER = 500; // You can adjust this value
 const WORKERS_PER_CONFIG = 4; // Adjust this number as needed
 const INPUT_FOLDER = path.join(__dirname, "..", "input");
 const OUTPUT_FOLDER = path.join(__dirname, "..", "output");
@@ -43,12 +45,6 @@ let RUN_FOLDER = path.join(OUTPUT_FOLDER, RUN_ID);
 if (!fs.existsSync(RUN_FOLDER)) {
   fs.mkdirSync(RUN_FOLDER, { recursive: true });
 }
-
-type ModelConfig = {
-  model: "HighQuality" | "Fast";
-  ocrStrategy: "All" | "Auto";
-  percentage: number;
-};
 
 // Modify the MODEL_CONFIGS to include the number of workers
 const MODEL_CONFIGS: (ModelConfig & { workers: number })[] = [
@@ -65,13 +61,13 @@ const configFilePath = path.join(RUN_FOLDER, "config.txt");
 const configData = {
   MODEL_CONFIGS,
   MAX_FILES_TO_PROCESS,
-  REQUESTS_PER_SECOND,
+  REQUESTS_PER_SECOND: CONCURRENT_REQUESTS_PER_WORKER,
 };
 fs.writeFileSync(configFilePath, JSON.stringify(configData, null, 2));
 
 function createCsvWriter(
   model: "HighQuality" | "Fast",
-  ocrStrategy: "All" | "Auto",
+  ocrStrategy: "All" | "Auto" | "Off",
   type: "progress"
 ) {
   const configFolder = path.join(
@@ -255,7 +251,7 @@ async function runLoadTest(
     taskStatusFailed: 0,
   };
 
-  const limit = pLimit(REQUESTS_PER_SECOND);
+  const limit = pLimit(CONCURRENT_REQUESTS_PER_WORKER);
 
   const tasks = assignedFiles.map((file) => {
     return limit(async () => {
@@ -359,8 +355,6 @@ if (isMainThread) {
   MODEL_CONFIGS.forEach((config) => {
     const configKey = `${config.model}_${config.ocrStrategy}`;
     const assignedFiles = fileDistribution.get(configKey) || [];
-
-    // Distribute files evenly among workers for this config
     const filesPerWorker = Math.ceil(assignedFiles.length / config.workers);
 
     for (let i = 0; i < config.workers; i++) {
@@ -370,13 +364,18 @@ if (isMainThread) {
       );
 
       const worker = new Worker(__filename, {
-        workerData: { config, assignedFiles: workerFiles, RUN_FOLDER },
+        workerData: {
+          config,
+          assignedFiles: workerFiles,
+          RUN_FOLDER,
+          workerId: i + 1, // Add worker ID
+        },
       });
 
       worker.on("message", (message: { type: string; data: WorkerResult }) => {
         if (message.type === "workerComplete") {
           workerResults.push(message.data);
-          updateWorkerResultFile(config, message.data);
+          updateWorkerResultFile(config, message.data, i + 1); // Pass worker ID
           completedWorkers++;
           if (completedWorkers === numWorkers) {
             eventEmitter.emit("allWorkersComplete");
@@ -408,7 +407,12 @@ if (isMainThread) {
   });
 } else {
   // This code runs in worker threads
-  const { config, assignedFiles, RUN_FOLDER: workerRunFolder } = workerData;
+  const {
+    config,
+    assignedFiles,
+    RUN_FOLDER: workerRunFolder,
+    workerId,
+  } = workerData;
   RUN_FOLDER = workerRunFolder;
   const startTime = performance.now();
   runLoadTest(config, assignedFiles).then(({ totalPages, failureTypes }) => {
@@ -445,28 +449,66 @@ function updateConfigFile(results: AggregateResults) {
 
 function updateWorkerResultFile(
   config: ModelConfig,
-  result: WorkerResult & { failureTypes: FailureTypes }
+  result: WorkerResult & { failureTypes: FailureTypes },
+  workerId: number
 ) {
-  const resultFilePath = path.join(
+  // Create individual worker result file
+  const workerResultFilePath = path.join(
     RUN_FOLDER,
-    `${config.model}_${config.ocrStrategy}_results.txt`
+    `${config.model}_${config.ocrStrategy}_worker${workerId}_results.txt`
   );
-  const duration = (result.endTime - result.startTime) / 1000; // Convert to seconds
-  const pagesPerSecond = result.totalPages / duration;
+
+  const duration = (result.endTime - result.startTime) / 1000;
   const totalFailedFiles =
     result.failureTypes.startTaskFailed +
     result.failureTypes.pollTaskFailed +
     result.failureTypes.taskStatusFailed;
 
-  const content = `
+  // Write individual worker results
+  const workerContent = `
+Worker ${workerId} Results:
 Total pages processed: ${result.totalPages}
 Failed to start task: ${result.failureTypes.startTaskFailed}
 Failed to poll task: ${result.failureTypes.pollTaskFailed}
 Tasks completed with failure status: ${result.failureTypes.taskStatusFailed}
 Total failed files: ${totalFailedFiles}
 Duration: ${duration.toFixed(2)} seconds
-Pages per second: ${pagesPerSecond.toFixed(2)}
+Pages per second: ${(result.totalPages / duration).toFixed(2)}
   `.trim();
 
-  fs.writeFileSync(resultFilePath, content);
+  fs.writeFileSync(workerResultFilePath, workerContent);
+
+  // Update combined results file
+  const combinedFilePath = path.join(
+    RUN_FOLDER,
+    `${config.model}_${config.ocrStrategy}_combined_results.txt`
+  );
+
+  let existingResults = {
+    totalPages: 0,
+    startTaskFailed: 0,
+    pollTaskFailed: 0,
+    taskStatusFailed: 0,
+  };
+
+  if (fs.existsSync(combinedFilePath)) {
+    const content = fs.readFileSync(combinedFilePath, "utf-8");
+    const matches = content.match(/Total pages processed: (\d+)/);
+    if (matches) {
+      existingResults.totalPages = parseInt(matches[1]);
+      // Parse other values if needed
+    }
+  }
+
+  const combinedPages = existingResults.totalPages + result.totalPages;
+  const combinedContent = `
+Combined Results:
+Total pages processed: ${combinedPages}
+Failed to start task: ${existingResults.startTaskFailed + result.failureTypes.startTaskFailed}
+Failed to poll task: ${existingResults.pollTaskFailed + result.failureTypes.pollTaskFailed}
+Tasks completed with failure status: ${existingResults.taskStatusFailed + result.failureTypes.taskStatusFailed}
+Total failed files: ${totalFailedFiles}
+  `.trim();
+
+  fs.writeFileSync(combinedFilePath, combinedContent);
 }
