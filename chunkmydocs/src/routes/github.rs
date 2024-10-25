@@ -15,10 +15,7 @@ pub async fn get_github_repo_info() -> Result<HttpResponse, Box<dyn std::error::
         );
 
     if let Some(github_token) = config.github_token {
-        println!("GitHub token found");
         request = request.header("Authorization", format!("Bearer {}", github_token));
-    } else {
-        println!("No GitHub token found");
     }
 
     let response = request.send().await?.error_for_status()?;
