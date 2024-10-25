@@ -33,7 +33,7 @@ export default function Header({
 
   useEffect(() => {
     const fetchStats = async () => {
-      const stats = await getRepoStats("lumina-ai-inc", "chunkr");
+      const stats = await getRepoStats();
       setRepoStats(stats);
     };
     fetchStats();
