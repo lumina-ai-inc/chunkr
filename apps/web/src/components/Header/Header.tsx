@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
+import { useState, useEffect } from "react";
+import { DropdownMenu, Flex, Text, Button, Separator } from "@radix-ui/themes";
 import { Link, useParams } from "react-router-dom";
 import "./Header.css";
 import Dashboard from "../../pages/Dashboard/Dashboard";
@@ -9,7 +9,7 @@ import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
 import { useTaskQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
 import { User } from "../../models/user.model";
-
+import { getRepoStats } from "../../services/githubApi";
 interface HeaderProps {
   py?: string;
   px?: string;
@@ -28,6 +28,16 @@ export default function Header({
   const { taskId } = useParams<{ taskId: string }>();
   const { data: taskResponse } = useTaskQuery(taskId);
   const { data: user } = useUser();
+  const [repoStats, setRepoStats] = useState({ stars: 0, forks: 0 });
+  console.log(repoStats);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const stats = await getRepoStats("lumina-ai-inc", "chunkr");
+      setRepoStats(stats);
+    };
+    fetchStats();
+  }, []);
 
   const handleDownloadJSON = () => {
     if (taskResponse?.output) {
@@ -77,16 +87,6 @@ export default function Header({
         </a>
 
         <a
-          href="https://github.com/lumina-ai-inc/chunk-my-docs"
-          target="_blank"
-          className="nav-item"
-        >
-          <Text size="2" weight="medium" className="nav-item">
-            Github
-          </Text>
-        </a>
-
-        <a
           href="https://cal.com/mehulc/30min"
           target="_blank"
           className="nav-item"
@@ -101,6 +101,66 @@ export default function Header({
             Pricing
           </Text>
         </Link>
+
+        <a
+          href="https://github.com/lumina-ai-inc/chunk-my-docs"
+          target="_blank"
+          className="nav-item"
+        >
+          <Flex align="center" gap="2" className="nav-item github-stats">
+            <Text size="2" weight="medium">
+              Github
+            </Text>
+            <Flex
+              gap="2"
+              p="4px 8px"
+              align="center"
+              style={{ border: "1px solid white", borderRadius: "4px" }}
+            >
+              <Flex align="center" gap="4px" className="stat-container">
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg>
+                <Text
+                  size="1"
+                  style={{ fontSize: "10px" }}
+                  className="stat-number"
+                >
+                  {repoStats.stars}
+                </Text>
+              </Flex>
+              <Separator
+                orientation="vertical"
+                style={{ background: "white", height: "10px" }}
+              />
+              <Flex align="center" gap="1" className="stat-container">
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M7 3C5.89543 3 5 3.89543 5 5C5 6.10457 5.89543 7 7 7C8.10457 7 9 6.10457 9 5C9 3.89543 8.10457 3 7 3Z" />
+                  <path d="M17 3C15.8954 3 15 3.89543 15 5C15 6.10457 15.8954 7 17 7C18.1046 7 19 6.10457 19 5C19 3.89543 18.1046 3 17 3Z" />
+                  <path d="M12 17C10.8954 17 10 17.8954 10 19C10 20.1046 10.8954 21 12 21C13.1046 21 14 20.1046 14 19C14 17.8954 13.1046 17 12 17Z" />
+                  <path d="M7 9V14C7 15.6569 8.34315 17 10 17H14C15.6569 17 17 15.6569 17 14V9" />
+                </svg>
+                <Text
+                  size="1"
+                  style={{ fontSize: "10px" }}
+                  className="stat-number"
+                >
+                  {repoStats.forks}
+                </Text>
+              </Flex>
+            </Flex>
+          </Flex>
+        </a>
 
         {download && !home && taskResponse?.output && (
           <Text
