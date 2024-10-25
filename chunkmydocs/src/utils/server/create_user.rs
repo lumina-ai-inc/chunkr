@@ -3,8 +3,24 @@ use crate::models::server::user::{Tier, UsageLimit, UsageType, User};
 use crate::utils::configs::user_config::Config as UserConfig;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use prefixed_api_key::PrefixedApiKeyController;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;
+
+#[derive(Debug, Serialize, Deserialize)]
+struct PreAppliedPages {
+    usage_type: String,
+    amount: i32,
+}
+
+impl From<tokio_postgres::Row> for PreAppliedPages {
+    fn from(row: tokio_postgres::Row) -> Self {
+        Self {
+            usage_type: row.get("usage_type"),
+            amount: row.get("amount"),
+        }
+    }
+}
 
 pub async fn create_user(
     user_info: UserInfo,
@@ -26,7 +42,9 @@ pub async fn create_user(
         false => Tier::Free,
     };
 
-    let usage_limits: HashMap<UsageType, i32> = HashMap::from([
+    let transaction = client.transaction().await?;
+
+    let mut usage_limits: HashMap<UsageType, i32> = HashMap::from([
         (UsageType::Fast, UsageType::Fast.get_usage_limit(&tier)),
         (
             UsageType::HighQuality,
@@ -37,6 +55,30 @@ pub async fn create_user(
             UsageType::Segment.get_usage_limit(&tier),
         ),
     ]);
+    let check_query = r#"SELECT 1 FROM pre_applied_free_pages WHERE email = $1"#;
+    let check_result = transaction
+        .query_opt(check_query, &[&user_info.email])
+        .await?;
+
+    if check_result.is_some() {
+        let pre_applied_discount_pages_query =
+            r#"SELECT usage_type, amount FROM pre_applied_free_pages WHERE email = $1"#;
+
+        let pre_applied_pages: Vec<PreAppliedPages> = transaction
+            .query(pre_applied_discount_pages_query, &[&user_info.email])
+            .await?
+            .into_iter()
+            .map(PreAppliedPages::from)
+            .collect();
+
+        for pre_applied_page in pre_applied_pages {
+            if let Ok(usage_type) = UsageType::from_str(&pre_applied_page.usage_type) {
+                usage_limits.insert(usage_type, pre_applied_page.amount);
+            }
+        }
+    }
+
+    transaction.commit().await?;
 
     let transaction = client.transaction().await?;
 
@@ -73,7 +115,7 @@ pub async fn create_user(
     VALUES ($1, $2, $3, $4, $5)
     "#;
 
-    for (usage_type, limit) in usage_limits {
+    for (usage_type, limit) in &usage_limits {
         transaction
             .execute(
                 usage_query,
@@ -89,6 +131,20 @@ pub async fn create_user(
     }
 
     transaction.commit().await?;
+    if check_result.is_some() {
+        let transaction2 = client.transaction().await?;
+        let update_pre_applied_query = r#"
+        UPDATE pre_applied_free_pages 
+        SET consumed = TRUE,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE email = $1
+        "#;
+
+        transaction2
+            .execute(update_pre_applied_query, &[&user_info.email])
+            .await?;
+        transaction2.commit().await?;
+    }
 
     let user = User {
         user_id: user_row.get("user_id"),
@@ -106,20 +162,26 @@ pub async fn create_user(
         usage: vec![
             UsageLimit {
                 usage_type: UsageType::Fast,
-                usage_limit: 1000,
-                discounts: None, // Set discounts as None
+                usage_limit: usage_limits.get(&UsageType::Fast).copied().unwrap_or(1000),
+                discounts: None,
             },
             UsageLimit {
                 usage_type: UsageType::HighQuality,
-                usage_limit: 500,
-                discounts: None, // Set discounts as None
+                usage_limit: usage_limits
+                    .get(&UsageType::HighQuality)
+                    .copied()
+                    .unwrap_or(500),
+                discounts: None,
             },
             UsageLimit {
                 usage_type: UsageType::Segment,
-                usage_limit: 250,
-                discounts: None, // Set discounts as None
+                usage_limit: usage_limits
+                    .get(&UsageType::Segment)
+                    .copied()
+                    .unwrap_or(250),
+                discounts: None,
             },
-        ], // Added usage limits for the Free tier
+        ],
         task_count: Some(0),
     };
 
