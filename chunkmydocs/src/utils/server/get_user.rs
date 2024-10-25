@@ -42,6 +42,22 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         .filter(|d| d["usage_type"] != Value::Null && d["amount"] != Value::Null)
         .map(|v| serde_json::from_value(v).unwrap())
         .collect();
+
+    // Get usage limits from database
+    let usage_limits = client
+        .query(
+            "SELECT usage_type, usage_limit FROM usage WHERE user_id = $1",
+            &[&user_id],
+        )
+        .await?;
+
+    let mut usage_map = std::collections::HashMap::new();
+    for usage_row in usage_limits {
+        let usage_type: String = usage_row.get("usage_type");
+        let limit: i32 = usage_row.get("usage_limit");
+        usage_map.insert(usage_type, limit);
+    }
+
     let user = User {
         user_id: row.get("user_id"),
         customer_id: row.get("customer_id"),
@@ -58,11 +74,7 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
         usage: vec![
             UsageLimit {
                 usage_type: UsageType::Fast,
-                usage_limit: UsageType::Fast.get_usage_limit(
-                    &row.get::<_, Option<String>>("tier")
-                        .and_then(|t| Tier::from_str(&t).ok())
-                        .unwrap_or(Tier::Free),
-                ),
+                usage_limit: *usage_map.get("Fast").unwrap_or(&0),
                 discounts: if discounts.is_empty() {
                     None
                 } else {
@@ -77,11 +89,7 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
             },
             UsageLimit {
                 usage_type: UsageType::HighQuality,
-                usage_limit: UsageType::HighQuality.get_usage_limit(
-                    &row.get::<_, Option<String>>("tier")
-                        .and_then(|t| Tier::from_str(&t).ok())
-                        .unwrap_or(Tier::Free),
-                ),
+                usage_limit: *usage_map.get("HighQuality").unwrap_or(&0),
                 discounts: if discounts.is_empty() {
                     None
                 } else {
@@ -96,11 +104,7 @@ pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std:
             },
             UsageLimit {
                 usage_type: UsageType::Segment,
-                usage_limit: UsageType::Segment.get_usage_limit(
-                    &row.get::<_, Option<String>>("tier")
-                        .and_then(|t| Tier::from_str(&t).ok())
-                        .unwrap_or(Tier::Free),
-                ),
+                usage_limit: *usage_map.get("Segment").unwrap_or(&0),
                 discounts: if discounts.is_empty() {
                     None
                 } else {
