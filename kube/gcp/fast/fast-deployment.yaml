@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: fast
-        image: luminainc/fast:10d49c8e
+        image: luminainc/fast:c924bdaa
         imagePullPolicy: Always
         envFrom:
         - secretRef:
