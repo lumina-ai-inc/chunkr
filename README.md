@@ -1,6 +1,6 @@
 ### Status Updates (Only for hosted API on www.chunkr.ai)
 1. Services are back up and running.
-2. Textract fall back has been removed - we're bacl to using our own system for OCR. 
+2. Textract fall back has been removed - we're back to using our own system for OCR. 
 
 # Chunkr
 
