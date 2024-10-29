@@ -58,15 +58,29 @@ pub async fn download_and_table_ocr(
     };
 
     let table_structure = match table_structure_task.await {
-        Ok(table_structures) => table_structures.unwrap_or_default().first().unwrap().clone(),
+        Ok(table_structure) => match table_structure {
+            Ok(table_structure) => table_structure,
+            Err(e) => {
+                return Err(e.to_string().into());
+            }
+        },
         Err(e) => {
             return Err(e.to_string().into());
         }
     };
 
-    let html = extract_table_html(table_structure.html.clone());
-    let markdown = get_table_markdown(html.clone());
-    Ok((ocr_results, html, markdown))
+    let first_table = table_structure.tables.first().cloned();
+
+    match first_table {
+        Some(table) => {
+            let html = extract_table_html(table.html.clone());
+            let markdown = get_table_markdown(html.clone());
+            Ok((ocr_results, html, markdown))
+        },
+        None => {
+            return Err("No table structure found".into());
+        }
+    }
 }
 
 fn extract_table_html(html: String) -> String {
