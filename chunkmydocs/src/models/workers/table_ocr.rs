@@ -25,7 +25,16 @@ pub struct TableStructureResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PaddleTableRecognitionResponse {
+pub struct Table {
     pub bbox: Vec<f32>,
     pub html: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PaddleTableRecognitionResponse {
+    pub tables: Vec<Table>,
+    #[serde(rename = "layoutImage")]
+    pub layout_image: String,
+    #[serde(rename = "ocrImage")]
+    pub ocr_image: String,
 }
