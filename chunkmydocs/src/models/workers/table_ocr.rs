@@ -1,5 +1,5 @@
 use crate::models::server::segment::BoundingBox;
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Cell {
@@ -22,4 +22,10 @@ pub struct TableStructure {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TableStructureResponse {
     pub result: Vec<TableStructure>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PaddleTableRecognitionResponse {
+    pub bbox: Vec<f32>,
+    pub html: String,
 }

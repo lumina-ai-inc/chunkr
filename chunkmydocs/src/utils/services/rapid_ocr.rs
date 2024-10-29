@@ -16,7 +16,12 @@ pub async fn call_rapid_ocr_api(
 ) -> Result<Vec<OCRResult>, Box<dyn std::error::Error + Send + Sync>> {
     let config = Config::from_env()?;
     let client = get_reqwest_client().await;
-    let url = format!("{}/{}", config.rapid_ocr_url, "ocr");
+
+    let rapid_ocr_url = config
+        .rapid_ocr_url
+        .ok_or_else(|| format!("Rapid OCR URL is not set in config"))?;
+
+    let url = format!("{}/{}", &rapid_ocr_url, "ocr");
 
     let file_name = file_path
         .file_name()
