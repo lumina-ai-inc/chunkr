@@ -207,6 +207,7 @@ mod tests {
     use crate::models::server::segment::SegmentType;
 
     use crate::utils::configs::extraction_config::Config;
+    use crate::utils::configs::extraction_config::Config;
     use std::fs;
     use std::path::Path;
     use std::time::Instant;
