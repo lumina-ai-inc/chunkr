@@ -1,4 +1,4 @@
-use crate::models::auth::auth::UserInfo;
+use crate::models::server::auth::UserInfo;
 use crate::models::{
     server::extract::{ Configuration, ExtractionPayload },
     server::task::{ Status, TaskResponse },

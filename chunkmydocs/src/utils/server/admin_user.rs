@@ -1,5 +1,5 @@
+use crate::models::server::auth::UserInfo;
 use crate::models::server::user::User;
-use crate::models::auth::auth::UserInfo;
 use crate::utils::db::deadpool_postgres::Pool;
 use super::{ get_user::get_user, create_user::create_user };
 

@@ -43,7 +43,7 @@ pub fn annotate_image(
 pub fn crop_image(
     image_path: &PathBuf,
     segment: &Segment,
-    output_dir: &PathBuf,
+    output_dir: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let img = ImageReader::open(image_path)?
         .with_guessed_format()?

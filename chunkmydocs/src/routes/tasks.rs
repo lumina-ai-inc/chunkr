@@ -1,4 +1,4 @@
-use crate::models::auth::auth::UserInfo;
+use crate::models::server::auth::UserInfo;
 use crate::models::server::tasks::TasksQuery;
 use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::get_tasks::get_tasks;

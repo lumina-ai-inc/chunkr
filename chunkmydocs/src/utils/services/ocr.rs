@@ -22,7 +22,7 @@ pub async fn download_and_ocr(
         image_location,
         None
     ).await?;
-    let ocr_results = match call_rapid_ocr_api(&original_file.path()).await {
+    let ocr_results = match call_rapid_ocr_api(original_file.path()).await {
         Ok(ocr_results) => ocr_results,
         Err(e) => {
             return Err(e.to_string().into());
@@ -78,7 +78,7 @@ pub async fn download_and_table_ocr(
             Ok((ocr_results, html, markdown))
         },
         None => {
-            return Err("No table structure found".into());
+            Err("No table structure found".into())
         }
     }
 }
@@ -94,6 +94,5 @@ fn extract_table_html(html: String) -> String {
 }
 
 fn get_table_markdown(html: String) -> String {
-    let markdown = html;
-    return markdown;
+    html
 }
