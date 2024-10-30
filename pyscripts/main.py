@@ -1,21 +1,13 @@
 import os
 from datetime import datetime
 import concurrent.futures
-from functools import partial
 import glob
 import time
-import csv
-import uuid
 from enum import Enum
-import numpy as np
-from PyPDF2 import PdfReader, PdfWriter
-import requests
 import urllib.request
 from api import process_file
-from download import download_file
-from models import Model, TableOcr, OcrStrategy, UploadForm, TaskResponse
+from models import Model, OcrStrategy, UploadForm, TaskResponse
 from annotate import draw_bounding_boxes
-
 import json
 
 class GrowthFunc(Enum):
@@ -80,9 +72,6 @@ def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length:
         draw_bounding_boxes(file_path, output, output_annotated_path)
     print(f"File annotated: {file_path}")
 
-import concurrent.futures
-import glob
-
 def main(max_workers: int = None, model: Model = Model.HighQuality, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, dir="input"):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_dir = os.path.join(current_dir,dir)
@@ -116,8 +105,6 @@ def main(max_workers: int = None, model: Model = Model.HighQuality, target_chunk
 
     print("All files processed.")
     return elapsed_times
-
-
 
 
 if __name__ == "__main__":
