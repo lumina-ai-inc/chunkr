@@ -87,7 +87,7 @@ fn extract_table_html(html: String) -> String {
     let mut contents = Vec::new();
     for cap in TABLE_CONTENT_REGEX.captures_iter(&html) {
         if let Some(content) = cap.get(1) {
-            contents.push(content.as_str().to_string());
+            contents.push(format!("<table>{}</table>", content.as_str()));
         }
     }
     contents.first().unwrap().to_string()

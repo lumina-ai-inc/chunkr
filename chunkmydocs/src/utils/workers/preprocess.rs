@@ -97,7 +97,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &pg_pool
         ).await?;
 
-        let mut input_file: NamedTempFile = NamedTempFile::new()?;
+        let input_file: NamedTempFile = NamedTempFile::new()?;
         download_to_given_tempfile(
             &input_file,
             &s3_client,
