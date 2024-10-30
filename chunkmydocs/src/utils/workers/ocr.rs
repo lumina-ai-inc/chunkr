@@ -25,7 +25,7 @@ pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
                 SegmentType::Table => true,
                 SegmentType::Picture => true,
                 _ => {
-                    if segment.content.is_empty() { true } else { false }
+                    segment.content.is_empty()
                 }
             }
         }
@@ -81,13 +81,13 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                                 download_and_table_ocr(
                                     &s3_client,
                                     &reqwest_client,
-                                    &segment.image.as_ref().unwrap()
+                                    segment.image.as_ref().unwrap()
                                 ).await
                             } else {
                                 download_and_ocr(
                                     &s3_client,
                                     &reqwest_client,
-                                    &segment.image.as_ref().unwrap()
+                                    segment.image.as_ref().unwrap()
                                 ).await
                             };
                             drop(_permit);
@@ -122,7 +122,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         upload_to_s3(
             &s3_client,
             &extraction_payload.output_location,
-            &output_temp_file.path()
+            output_temp_file.path()
         ).await?;
 
         if output_temp_file.path().exists() {

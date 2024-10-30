@@ -1,4 +1,4 @@
-use crate::models::auth::auth::UserInfo;
+use crate::models::server::auth::UserInfo;
 use crate::models::server::extract::{Configuration, UploadForm, OcrStrategy};
 use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::create_task::create_task;

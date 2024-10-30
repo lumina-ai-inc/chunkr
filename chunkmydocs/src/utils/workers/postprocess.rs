@@ -76,7 +76,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 let crop_result = crop_image(
                     &image_path.path().to_path_buf(),
                     segment,
-                    &cropped_temp_dir.path().to_path_buf()
+                    cropped_temp_dir.path()
                 ).map_err(|e|
                     format!(
                         "Failed to crop image for segment {} on page {}: {:?}",
@@ -103,16 +103,13 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 file_name.to_string_lossy()
             );
             upload_to_s3(&s3_client, &s3_key, &entry.path()).await?;
-            segments
+            if let Some(segment) = segments
                 .iter_mut()
                 .find(
                     |segment|
                         segment.segment_id ==
                         file_name.clone().to_string_lossy().split(".").next().unwrap()
-                )
-                .map(|segment| {
-                    segment.image = Some(s3_key.clone());
-                });
+                ) { segment.image = Some(s3_key.clone()); }
         }
 
         log_task(
@@ -134,7 +131,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         upload_to_s3(
             &s3_client,
             &extraction_payload.output_location,
-            &output_temp_file.path()
+            output_temp_file.path()
         ).await?;
 
         if output_temp_file.path().exists() {

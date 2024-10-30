@@ -1,4 +1,4 @@
-use crate::models::auth::auth::UserInfo;
+use crate::models::server::auth::UserInfo;
 use crate::models::server::user::{Tier, UsageLimit, UsageType, User};
 use crate::utils::configs::user_config::Config as UserConfig;
 use crate::utils::db::deadpool_postgres::{Client, Pool};

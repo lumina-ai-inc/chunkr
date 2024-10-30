@@ -49,7 +49,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         if let Some(batch_size) = extraction_payload.batch_size {
             split_temp_files = split_pdf(
-                &pdf_file.path(),
+                pdf_file.path(),
                 batch_size as usize,
                 split_temp_dir.path()
             )?;
@@ -117,7 +117,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         upload_to_s3(
             &s3_client,
             &extraction_payload.output_location,
-            &output_temp_file.path()
+            output_temp_file.path()
         ).await?;
 
         if output_temp_file.path().exists() {

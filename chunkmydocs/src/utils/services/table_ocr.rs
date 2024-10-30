@@ -27,7 +27,7 @@ pub async fn paddle_table_ocr(
     )?;
 
     let paddle_table_ocr_url = config.paddle_table_ocr_url.ok_or_else(||
-        format!("Paddle table OCR URL is not set in config")
+        "Paddle table OCR URL is not set in config".to_string()
     )?;
 
     let url = format!("{}/table-recognition", &paddle_table_ocr_url);
@@ -35,6 +35,7 @@ pub async fn paddle_table_ocr(
     let b64 = image_base64::to_base64(file_path.to_str().unwrap());
     let payload = serde_json::json!({ "image": b64 });
 
+    
     let response = client
         .post(&url)
         .json(&payload)

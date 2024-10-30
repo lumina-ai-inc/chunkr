@@ -19,7 +19,7 @@ pub async fn call_rapid_ocr_api(
 
     let rapid_ocr_url = config
         .rapid_ocr_url
-        .ok_or_else(|| format!("Rapid OCR URL is not set in config"))?;
+        .ok_or_else(|| "Rapid OCR URL is not set in config".to_string())?;
 
     let url = format!("{}/{}", &rapid_ocr_url, "ocr");
 

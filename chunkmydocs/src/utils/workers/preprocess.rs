@@ -23,32 +23,30 @@ fn is_valid_file_type(file_path: &Path) -> Result<(bool, String), Box<dyn Error>
 
     let mime_type = String::from_utf8(output.stdout)?.trim().to_string();
 
-    let is_valid = match mime_type.as_str() {
-        | "application/pdf"
-        | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        | "application/msword"
-        | "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        | "application/vnd.ms-powerpoint"
-        | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        | "application/vnd.ms-excel" => true,
-        _ => false,
-    };
+    let is_valid = matches!(
+        mime_type.as_str(),
+        |"application/pdf"|
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" |
+            "application/msword" |
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation" |
+            "application/vnd.ms-powerpoint" |
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" |
+            "application/vnd.ms-excel"
+    );
 
     Ok((is_valid, mime_type))
 }
 
 fn convert_to_pdf(input_file_path: &Path, output_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let output = Command::new("libreoffice")
-        .args(
-            &[
-                "--headless",
-                "--convert-to",
-                "pdf",
-                "--outdir",
-                output_dir.to_str().unwrap(),
-                input_file_path.to_str().unwrap(),
-            ]
-        )
+        .args([
+            "--headless",
+            "--convert-to",
+            "pdf",
+            "--outdir",
+            output_dir.to_str().unwrap(),
+            input_file_path.to_str().unwrap(),
+        ])
         .output()?;
 
     if !output.status.success() {
@@ -101,7 +99,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         let mut input_file: NamedTempFile = NamedTempFile::new()?;
         download_to_given_tempfile(
-            &mut input_file,
+            &input_file,
             &s3_client,
             &reqwest_client,
             &extraction_payload.input_location,
@@ -111,7 +109,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             e
         })?;
 
-        let (is_valid, detected_mime_type) = is_valid_file_type(&input_file.path()).map_err(|e| {
+        let (is_valid, detected_mime_type) = is_valid_file_type(input_file.path()).map_err(|e| {
             eprintln!("Failed to check file type: {:?}", e);
             e
         })?;
@@ -138,7 +136,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     &pg_pool
                 ).await?;
 
-                convert_to_pdf(&input_file.path(), &input_file.path().parent().unwrap())?
+                convert_to_pdf(input_file.path(), input_file.path().parent().unwrap())?
             }
         };
 
@@ -152,7 +150,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &pg_pool
         ).await?;
 
-        let image_paths = pdf_2_images(&pdf_path, &temp_dir.path())?;
+        let image_paths = pdf_2_images(&pdf_path, temp_dir.path())?;
 
         let page_count = image_paths.len() as i32;
 
@@ -169,7 +167,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             ).await?;
             return Ok(false);
         }
-        
+
         extraction_payload.page_count = Some(page_count);
 
         let update_page_count = client.execute(
@@ -200,7 +198,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             let image_location = format!(
                 "{}/{}",
                 extraction_payload.image_folder_location,
-                image_name.to_string()
+                image_name
             );
             upload_to_s3(&s3_client, &image_location, &image_path).await?;
         }
@@ -224,13 +222,12 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     None,
                     &pg_pool
                 ).await?;
-            } 
+            }
             Ok(())
         }
         Err(e) => {
             eprintln!("Error processing task: {:?}", e);
-            let error_message = 
-            if e.to_string().to_lowercase().contains("usage limit exceeded") {
+            let error_message = if e.to_string().to_lowercase().contains("usage limit exceeded") {
                 "Usage limit exceeded".to_string()
             } else {
                 "Preprocessing failed".to_string()
