@@ -19,16 +19,15 @@ impl fmt::Display for TableOcrError {
 impl Error for TableOcrError {}
 
 pub async fn paddle_table_ocr(
-    file_path: &Path
+    file_path: &Path,
 ) -> Result<PaddleTableRecognitionResult, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
-    let config = Config::from_env().map_err(
-        |e| Box::new(TableOcrError(e.to_string())) as Box<dyn Error + Send + Sync>
-    )?;
+    let config = Config::from_env()
+        .map_err(|e| Box::new(TableOcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
 
-    let paddle_table_ocr_url = config.paddle_table_ocr_url.ok_or_else(||
-        "Paddle table OCR URL is not set in config".to_string()
-    )?;
+    let paddle_table_ocr_url = config
+        .table_structure_url
+        .ok_or_else(|| "Paddle table OCR URL is not set in config".to_string())?;
 
     let url = format!("{}/table-recognition", &paddle_table_ocr_url);
 
@@ -42,7 +41,8 @@ pub async fn paddle_table_ocr(
         .post(&url)
         .json(&payload)
         .timeout(std::time::Duration::from_secs(30))
-        .send().await?
+        .send()
+        .await?
         .error_for_status()?;
 
     let paddle_table_response: PaddleTableRecognitionResponse = match response.json().await {

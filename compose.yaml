@@ -1,0 +1,212 @@
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: chunkmydocs
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d chunkmydocs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    command: ["start-dev", "--import-realm"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  chunkmydocs:
+    image: luminainc/chunkmydocs:ba8114d9
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+
+  preprocess:
+    image: luminainc/preprocess:ba8114d9
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+
+  fast:
+    image: luminainc/fast:ba8114d9
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+
+  high-quality:
+    image: luminainc/high-quality:ba8114d9
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+
+  postprocess:
+    image: luminainc/postprocess:ba8114d9
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+
+  ocr:
+    image: luminainc/ocr:ba8114d9
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 0
+
+  web:
+    image: luminainc/web:ba8114d9
+    ports:
+      - "8001:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+
+  rapid-ocr:
+    image: luminainc/rapid-ocr:3a7ac326
+    ports:
+      - "8002:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - /dev/shm:/dev/shm
+
+  table-ocr:
+    image: luminainc/table-ocr:3a7ac326
+    ports:
+      - "8003:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - /dev/shm:/dev/shm
+
+  pdla:
+    image: luminainc/pdla:8c4bfb6d
+    ports:
+      - "8004:8000"
+    command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - /dev/shm:/dev/shm
+
+  rrq:
+    image: luminainc/rrq:9326b10
+    ports:
+      - "8005:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+
+  rrq-analytics:
+    image: luminainc/rrq-analytics:459b00d
+    ports:
+      - "8006:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
