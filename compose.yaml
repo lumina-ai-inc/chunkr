@@ -2,8 +2,8 @@ services:
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: chunkmydocs
     ports:
       - "5432:5432"
@@ -52,6 +52,8 @@ services:
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
     command: ["start-dev", "--import-realm"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
@@ -148,7 +150,7 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              count: all
               capabilities: [gpu]
     volumes:
       - /dev/shm:/dev/shm
@@ -165,7 +167,7 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              count: all
               capabilities: [gpu]
     volumes:
       - /dev/shm:/dev/shm
@@ -183,13 +185,13 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              count: all
               capabilities: [gpu]
     volumes:
       - /dev/shm:/dev/shm
 
   rrq:
-    image: luminainc/rrq:9326b10
+    image: luminainc/rrq:33cd165
     ports:
       - "8005:8000"
     env_file:
