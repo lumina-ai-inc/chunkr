@@ -27,10 +27,8 @@ pub struct UploadForm {
     #[schema(value_type = Option<OcrStrategy>)]
     pub ocr_strategy: Option<Text<OcrStrategy>>,
 
-    /// JSON Schema derived from a Pydantic model
-    /// JSON Schema for structured extraction, should be a valid JSON schema derived from a Pydantic model
+
     pub json_schema: Option<MPJson<JsonSchema>>,
-    pub json: Option<MPJson<serde_json::Value>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
