@@ -1,0 +1,71 @@
+{
+  "clientId": "chunkr",
+  "name": "",
+  "description": "",
+  "rootUrl": "",
+  "adminUrl": "",
+  "baseUrl": "",
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "redirectUris": [
+    "http://localhost:5173/*",
+    "https://www.chunkr.ai/*",
+    "https://chunkr.ai/*"
+  ],
+  "webOrigins": [
+    "https://chunkr.ai",
+    "https://www.chunkr.ai",
+    "http://localhost:5173"
+  ],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": true,
+  "frontchannelLogout": true,
+  "protocol": "openid-connect",
+  "attributes": {
+    "client.introspection.response.allow.jwt.claim.enabled": "false",
+    "post.logout.redirect.uris": "http://localhost:5173/*##https://chunkr.ai/*##https://www.chunkr.ai/*",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "backchannel.logout.revoke.offline.tokens": "false",
+    "use.refresh.tokens": "true",
+    "oidc.ciba.grant.enabled": "false",
+    "client.use.lightweight.access.token.enabled": "false",
+    "backchannel.logout.session.required": "true",
+    "client_credentials.use_refresh_token": "false",
+    "tls.client.certificate.bound.access.tokens": "false",
+    "require.pushed.authorization.requests": "false",
+    "acr.loa.map": "{}",
+    "display.on.consent.screen": "false",
+    "pkce.code.challenge.method": "S256",
+    "token.response.type.bearer.lower-case": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "roles",
+    "profile",
+    "basic",
+    "email"
+  ],
+  "optionalClientScopes": [
+    "address",
+    "phone",
+    "offline_access",
+    "microprofile-jwt"
+  ],
+  "access": {
+    "view": true,
+    "configure": true,
+    "manage": true
+  }
+}
