@@ -11,6 +11,7 @@ pub struct Config {
     pub queue_high_quality: String,
     pub queue_postprocess: String,
     pub queue_ocr: String,
+    pub queue_structured_extract: String,
     pub pdla_url: String,
     pub pdla_fast_url: String,
     pub rapid_ocr_url: String,

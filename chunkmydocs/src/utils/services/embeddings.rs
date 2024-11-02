@@ -9,7 +9,7 @@ pub struct EmbeddingRequest {
 
 #[derive(Clone)]
 pub struct EmbeddingCache {
-    embeddings: HashMap<String, Vec<f32>>,
+    pub embeddings: HashMap<String, Vec<f32>>,
 }
 
 #[derive(Clone, Deserialize)]
@@ -35,14 +35,21 @@ impl EmbeddingCache {
     ) -> Result<Vec<Vec<f32>>, Box<dyn Error + Send + Sync>> {
         let mut all_embeddings = Vec::new();
 
+        let mut futures = Vec::new();
         for chunk in texts.chunks(batch_size) {
             let request = EmbeddingRequest {
                 inputs: chunk.to_vec(),
             };
 
-            let response = client.post(embedding_url).json(&request).send().await?;
-            let response_text = response.text().await?;
+            let future = client.post(embedding_url).json(&request).send();
+            futures.push(future);
+        }
 
+        let responses = futures::future::join_all(futures).await;
+
+        for response in responses {
+            let response = response?;
+            let response_text = response.text().await?;
             let embeddings: Vec<Vec<f32>> = serde_json::from_str(&response_text)?;
             all_embeddings.extend(embeddings);
         }
@@ -71,6 +78,7 @@ impl EmbeddingCache {
             let new_embeddings = self
                 .generate_embeddings(client, embedding_url, texts_to_generate, batch_size)
                 .await?;
+
             result.extend(new_embeddings);
         }
 
@@ -83,7 +91,7 @@ mod tests {
     use crate::models::server::segment::{BoundingBox, Segment, SegmentType};
     use tokio;
     #[tokio::test]
-    async fn get_or_generate_embeddings() {
+    async fn embeddings() {
         // Mock client and response
         let client = reqwest::Client::new();
         let embedding_url = "http://127.0.0.1:8085/embed";
@@ -137,9 +145,14 @@ mod tests {
         };
 
         let result = cache
-            .generate_embeddings(&client, embedding_url, markdown_texts, batch_size)
+            .generate_embeddings(&client, embedding_url, markdown_texts.clone(), batch_size)
             .await;
+        assert!(result.is_ok());
 
-        println!("{:?}", result);
+        let get_or_generate_result = cache
+            .get_or_generate_embeddings(&client, embedding_url, markdown_texts, batch_size)
+            .await;
+        assert!(get_or_generate_result.is_ok());
+        // println!("{:?}", result);
     }
 }
