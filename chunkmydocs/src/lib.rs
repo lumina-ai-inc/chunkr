@@ -16,6 +16,7 @@ pub mod routes;
 pub mod utils;
 
 use middleware::auth::AuthMiddlewareFactory;
+use routes::github::get_github_repo_info;
 use routes::health::health_check;
 use routes::stripe::{
     create_setup_intent, create_stripe_session, get_invoice_detail, get_monthly_usage,
@@ -25,10 +26,9 @@ use routes::task::{create_extraction_task, get_task_status};
 use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
-use routes::github::get_github_repo_info;
+use utils::configs::s3_config::create_client;
 use utils::db::deadpool_postgres;
 use utils::server::admin_user::get_or_create_admin_user;
-use utils::storage::config_s3::create_client;
 use utils::stripe::invoicer::invoice;
 use utoipa::{
     openapi::security::{ApiKey, ApiKeyValue, SecurityScheme},
@@ -120,11 +120,11 @@ pub fn main() -> std::io::Result<()> {
         }
 
         let max_size: usize = std::env::var("MAX_TOTAL_LIMIT")
-            .unwrap_or_else(|_| "10485760".to_string())
+            .unwrap_or_else(|_| "1073741824".to_string())
             .parse()
             .expect("MAX_TOTAL_LIMIT must be a valid usize");
         let max_memory_size: usize = std::env::var("MAX_MEMORY_LIMIT")
-            .unwrap_or_else(|_| "10485760".to_string())
+            .unwrap_or_else(|_| "1073741824".to_string())
             .parse()
             .expect("MAX_MEMORY_LIMIT must be a valid usize");
         let timeout: usize = std::env::var("TIMEOUT")

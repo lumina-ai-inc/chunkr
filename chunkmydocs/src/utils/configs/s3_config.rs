@@ -26,13 +26,13 @@ impl Config {
 pub async fn create_client() -> Result<Client, ConfigError> {
     let config = Config::from_env()?;
     let creds = Credentials::from_keys(config.access_key, config.secret_key, None);
-    
+
     let aws_config = S3Config::builder()
         .credentials_provider(creds)
         .region(Region::new(config.region))
         .endpoint_url(config.endpoint)
         .build();
-    
+
     let client = aws_sdk_s3::Client::from_conf(aws_config);
     Ok(client)
 }
