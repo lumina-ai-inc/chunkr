@@ -4,18 +4,18 @@ use flate2::read::GzDecoder;
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tar::Archive;
 use thiserror::Error;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default = "default_path")]
-    pub path: String,
+    pub dir_path: PathBuf,
 }
 
-fn default_path() -> String {
-    "./pdfium-binaries".to_string()
+fn default_path() -> PathBuf {
+    PathBuf::from("./pdfium-binaries")
 }
 
 #[derive(Error, Debug)]
@@ -24,8 +24,10 @@ pub enum PdfiumError {
     BinaryNotFound(String),
     #[error("Failed to download PDFium binary: {0}")]
     DownloadError(String),
-    #[error("Path neither a file nor a directory")]
-    PathError(String),
+    #[error("Error creating directory: {0}")]
+    DirError(String),
+    #[error("Error loading config: {0}")]
+    ConfigError(String),
 }
 
 impl Config {
@@ -53,27 +55,27 @@ impl Config {
         }
     }
 
-    pub async fn ensure_binary(&self) -> Result<(), PdfiumError> {
-        let path = Path::new(&self.path);
+    pub async fn get_binary(&self) -> Result<String, PdfiumError> {
+        let path = self.dir_path.clone();
+        let binary_name = self.os_binary_name()?;
 
-        if path.is_file() {
-            return Ok(());
+        if !path.clone().exists() {
+            fs::create_dir_all(path.clone())
+                .map_err(|e: std::io::Error| PdfiumError::DirError(e.to_string()))?;
         }
 
-        let target_path = if path.is_dir() {
-            let binary_name = self.os_binary_name()?;
-            path.join(binary_name).to_string_lossy().to_string()
-        } else {
-            fs::create_dir_all(path).map_err(|e| PdfiumError::PathError(e.to_string()))?;
-            path.join(self.os_binary_name()?)
-                .to_string_lossy()
-                .to_string()
-        };
+        let target_path = path
+            .clone()
+            .join(&binary_name)
+            .to_string_lossy()
+            .to_string();
 
-        println!("PDFium binary not found, downloading to {}...", target_path);
-        self.download_binary(&target_path).await?;
+        if !Path::new(&target_path).exists() {
+            println!("PDFium binary not found, downloading to {}...", target_path);
+            self.download_binary(&target_path).await?;
+        }
 
-        Ok(())
+        Ok(target_path)
     }
 
     async fn download_binary(&self, target_path: &str) -> Result<(), PdfiumError> {
@@ -106,10 +108,6 @@ impl Config {
         let binary_name = self.os_binary_name()?;
 
         let source_path = lib_path.join(binary_name);
-
-        if let Some(parent) = Path::new(target_path).parent() {
-            fs::create_dir_all(parent).map_err(|e| PdfiumError::DownloadError(e.to_string()))?;
-        }
 
         fs::copy(&source_path, target_path)
             .map_err(|e| PdfiumError::DownloadError(format!("Failed to copy binary: {}", e)))?;
