@@ -108,6 +108,7 @@ fn parse_s3_path(s3_path: &str) -> Result<(String, String), Box<dyn std::error::
     }
     Ok((parts[0].to_string(), parts[1..].join("/")))
 }
+
 pub async fn upload_to_s3(
     s3_client: &S3Client,
     s3_location: &str,
@@ -116,7 +117,6 @@ pub async fn upload_to_s3(
     let file_content = tokio::fs::read(file_path).await?;
 
     let (bucket, key) = extract_bucket_and_key(s3_location)?;
-
     s3_client
         .put_object()
         .bucket(bucket)
@@ -147,7 +147,6 @@ pub async fn download_to_tempfile(
 
     Ok(temp_file)
 }
-
 
 pub async fn download_to_given_tempfile(
     mut temp_file: &NamedTempFile,

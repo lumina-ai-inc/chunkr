@@ -92,7 +92,7 @@ fn default_base_url() -> String {
 }
 
 fn default_s3_bucket() -> String {
-    "chunkr-bucket".to_string()
+    "chunkr".to_string()
 }
 
 fn default_batch_size() -> i32 {

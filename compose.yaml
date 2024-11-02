@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,7 +25,7 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -42,10 +42,22 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 30s
       timeout: 20s
       retries: 3
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin &&
+        /usr/bin/mc mb myminio/chunkr --ignore-existing &&
+        /usr/bin/mc anonymous set public myminio/chunkr
+      "
 
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.2
@@ -61,9 +73,9 @@ services:
       - KC_DB_PASSWORD=postgres
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-    command: ["start-dev", "--import-realm"]
+    command: [ "start-dev", "--import-realm" ]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/realms/master" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -136,7 +148,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
 
   web:
     image: luminainc/web:ba8114d9
@@ -160,7 +172,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [gpu]
+              capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
 
@@ -177,7 +189,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [gpu]
+              capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
 
@@ -185,7 +197,7 @@ services:
     image: luminainc/pdla:8c4bfb6d
     ports:
       - "8004:8000"
-    command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
+    command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000" ]
     env_file:
       - .env
     deploy:
@@ -195,16 +207,19 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [gpu]
+              capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
 
   rrq:
     image: luminainc/rrq:33cd165
+    depends_on:
+      - redis
     ports:
       - "8005:8000"
-    env_file:
-      - .env
+    environment:
+      - REDIS__URL=redis://redis:6379
+
     deploy:
       replicas: 1
 
@@ -212,8 +227,8 @@ services:
     image: luminainc/rrq-analytics:459b00d
     ports:
       - "8006:8000"
-    env_file:
-      - .env
+    environment:
+      - VITE_API_URL=http://rrq:8000
     deploy:
       replicas: 1
 

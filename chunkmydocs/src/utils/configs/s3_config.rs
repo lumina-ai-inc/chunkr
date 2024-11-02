@@ -31,6 +31,7 @@ pub async fn create_client() -> Result<Client, ConfigError> {
         .credentials_provider(creds)
         .region(Region::new(config.region))
         .endpoint_url(config.endpoint)
+        .force_path_style(true)
         .build();
 
     let client = aws_sdk_s3::Client::from_conf(aws_config);
