@@ -1,2 +1,5 @@
 CREATE DATABASE chunkmydocs;
 CREATE DATABASE keycloak; 
+
+GRANT ALL PRIVILEGES ON DATABASE chunkmydocs TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE keycloak TO postgres;
