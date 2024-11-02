@@ -64,9 +64,10 @@ impl Config {
             let binary_name = self.os_binary_name()?;
             path.join(binary_name).to_string_lossy().to_string()
         } else {
-            return Err(PdfiumError::PathError(
-                "Path neither a file nor a directory".to_string(),
-            ));
+            fs::create_dir_all(path).map_err(|e| PdfiumError::PathError(e.to_string()))?;
+            path.join(self.os_binary_name()?)
+                .to_string_lossy()
+                .to_string()
         };
 
         println!("PDFium binary not found, downloading to {}...", target_path);

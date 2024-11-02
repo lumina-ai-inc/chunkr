@@ -81,9 +81,10 @@ services:
       retries: 3
     depends_on:
       - postgres
+    restart: always
 
   chunkmydocs:
-    image: luminainc/chunkmydocs:0a0bae75
+    image: luminainc/chunkmydocs:88b6fe39
     ports:
       - "8000:8000"
     depends_on:
@@ -94,61 +95,72 @@ services:
       - .env
     deploy:
       replicas: 0
+    restart: always
 
   preprocess:
-    image: luminainc/preprocess:0a0bae75
+    image: luminainc/preprocess:88b6fe39
     depends_on:
       - postgres
       - redis
       - minio
+
     env_file:
       - .env
     deploy:
       replicas: 1
+    restart: always
 
   fast:
-    image: luminainc/fast:0a0bae75
+    image: luminainc/fast:88b6fe39
     depends_on:
       - postgres
       - redis
       - minio
+      - rrq
     env_file:
       - .env
     deploy:
       replicas: 1
+    restart: always
 
   high-quality:
-    image: luminainc/high-quality:0a0bae75
+    image: luminainc/high-quality:88b6fe39
     depends_on:
       - postgres
       - redis
       - minio
+      - rrq
     env_file:
       - .env
     deploy:
       replicas: 1
+    restart: always
 
   postprocess:
-    image: luminainc/postprocess:0a0bae75
+    image: luminainc/postprocess:88b6fe39
     depends_on:
       - postgres
       - redis
       - minio
+      - rrq
     env_file:
       - .env
     deploy:
       replicas: 1
+    restart: always
 
   ocr:
-    image: luminainc/ocr:0a0bae75
+    image: luminainc/ocr:88b6fe39
     depends_on:
       - postgres
       - redis
       - minio
+      - rrq
     env_file:
       - .env
     deploy:
       replicas: 1
+    restart: always
 
   web:
     image: luminainc/web:ba8114d9
@@ -158,6 +170,7 @@ services:
       - .env
     deploy:
       replicas: 1
+    restart: always
 
   rapid-ocr:
     image: luminainc/rapid-ocr:3a7ac326
@@ -175,6 +188,7 @@ services:
               capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
+    restart: always
 
   table-ocr:
     image: luminainc/table-ocr:3a7ac326
@@ -192,6 +206,7 @@ services:
               capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
+    restart: always
 
   pdla:
     image: luminainc/pdla:8c4bfb6d
@@ -210,6 +225,7 @@ services:
               capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
+    restart: always
 
   rrq:
     image: luminainc/rrq:33cd165
@@ -219,9 +235,14 @@ services:
       - "8005:8000"
     environment:
       - REDIS__URL=redis://redis:6379
-
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     deploy:
       replicas: 1
+    restart: always
 
   rrq-analytics:
     image: luminainc/rrq-analytics:459b00d
@@ -231,7 +252,7 @@ services:
       - VITE_API_URL=http://rrq:8000
     deploy:
       replicas: 1
-
+    restart: always
 volumes:
   postgres_data:
   redis_data:
