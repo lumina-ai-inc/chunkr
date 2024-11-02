@@ -3,11 +3,11 @@ use crate::models::server::extract::ExtractionPayload;
 use crate::models::server::segment::{PdlaSegment, Segment};
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config as ExtractionConfig;
+use crate::utils::configs::s3_config::create_client;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{
     log::log_task, payload::produce_extraction_payloads, pdf::split_pdf, pdla::pdla_extraction,
 };
-use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
 use std::io::Write;

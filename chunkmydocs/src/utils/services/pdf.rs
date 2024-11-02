@@ -49,13 +49,13 @@ pub fn split_pdf(
     Ok(split_files)
 }
 
-pub fn pdf_2_images(
+pub async fn pdf_2_images(
     pdf_path: &Path,
     temp_dir: &Path,
 ) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
-    let pdfium_config = PdfiumConfig::from_env().unwrap();
-    pdfium_config.validate()?;
-    let extraction_config = ExtractionConfig::from_env().unwrap();
+    let pdfium_config = PdfiumConfig::from_env()?;
+    pdfium_config.ensure_binary().await?;
+    let extraction_config = ExtractionConfig::from_env()?;
 
     let pdfium = Pdfium::new(
         Pdfium::bind_to_system_library()

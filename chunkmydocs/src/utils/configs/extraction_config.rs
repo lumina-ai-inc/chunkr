@@ -17,14 +17,19 @@ pub struct Config {
     pub queue_postprocess: String,
     #[serde(default = "default_queue_ocr")]
     pub queue_ocr: String,
+    #[serde(default = "default_pdla_url")]
     pub pdla_url: String,
+    #[serde(default = "default_pdla_fast_url")]
     pub pdla_fast_url: String,
+    #[serde(default = "default_rapid_ocr_url")]
     pub rapid_ocr_url: Option<String>,
+    #[serde(default = "default_table_structure_url")]
     pub table_structure_url: Option<String>,
     #[serde(with = "duration_seconds")]
     pub task_expiration: Option<Duration>,
     #[serde(default = "default_s3_bucket")]
     pub s3_bucket: String,
+    #[serde(default = "default_batch_size")]
     pub batch_size: i32,
     #[serde(default = "default_base_url")]
     pub base_url: String,
@@ -66,12 +71,32 @@ fn default_queue_ocr() -> String {
     "ocr".to_string()
 }
 
+fn default_pdla_url() -> String {
+    "http://localhost:8002".to_string()
+}
+
+fn default_pdla_fast_url() -> String {
+    "http://localhost:8002".to_string()
+}
+
+fn default_rapid_ocr_url() -> Option<String> {
+    Some("http://localhost:8002".to_string())
+}
+
+fn default_table_structure_url() -> Option<String> {
+    Some("http://localhost:8003".to_string())
+}
+
 fn default_base_url() -> String {
     "http://localhost:8000".to_string()
 }
 
 fn default_s3_bucket() -> String {
     "chunkr-bucket".to_string()
+}
+
+fn default_batch_size() -> i32 {
+    300
 }
 
 fn default_ocr_concurrency() -> usize {
