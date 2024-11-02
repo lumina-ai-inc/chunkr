@@ -1,5 +1,5 @@
 use crate::models::server::extract::Configuration;
-use crate::models::server::segment::{Chunk, SegmentType};
+use crate::models::server::segment::{OutputResponse, SegmentType};
 use crate::models::server::task::{Status, TaskResponse};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::storage::services::{download_to_tempfile, generate_presigned_url};
@@ -90,13 +90,13 @@ pub async fn create_task_from_row(
 async fn process_output(
     s3_client: &S3Client,
     output_location: &str,
-) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
+) -> Result<OutputResponse, Box<dyn std::error::Error>> {
     let temp_file =
         download_to_tempfile(s3_client, &reqwest::Client::new(), output_location, None).await?;
     let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
-    let mut chunks: Vec<Chunk> = serde_json::from_str(&json_content)?;
+    let mut output_response: OutputResponse = serde_json::from_str(&json_content)?;
 
-    for chunk in &mut chunks {
+    for chunk in &mut output_response.chunks {
         for segment in &mut chunk.segments {
             if let Some(image) = segment.image.as_ref() {
                 let url = generate_presigned_url(s3_client, image, None).await.ok();
@@ -113,5 +113,5 @@ async fn process_output(
         }
     }
 
-    Ok(chunks)
+    Ok(output_response)
 }
