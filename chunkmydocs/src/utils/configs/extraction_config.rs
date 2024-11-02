@@ -25,7 +25,7 @@ pub struct Config {
     pub rapid_ocr_url: Option<String>,
     #[serde(default = "default_table_structure_url")]
     pub table_structure_url: Option<String>,
-    #[serde(with = "duration_seconds")]
+    #[serde(with = "duration_seconds", default = "default_task_expiration")]
     pub task_expiration: Option<Duration>,
     #[serde(default = "default_s3_bucket")]
     pub s3_bucket: String,
@@ -121,6 +121,10 @@ fn default_segment_bbox_offset() -> f32 {
 
 fn default_page_limit() -> i32 {
     500
+}
+
+fn default_task_expiration() -> Option<Duration> {
+    None
 }
 
 mod duration_seconds {

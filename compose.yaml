@@ -10,7 +10,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d chunkmydocs"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d chunkmydocs"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -62,7 +62,7 @@ services:
       retries: 3
 
   chunkmydocs:
-    image: luminainc/chunkmydocs:ba8114d9
+    image: luminainc/chunkmydocs:23febd2c
     ports:
       - "8000:8000"
     depends_on:
@@ -75,7 +75,7 @@ services:
       replicas: 1
 
   preprocess:
-    image: luminainc/preprocess:ba8114d9
+    image: luminainc/preprocess:23febd2c
     depends_on:
       - postgres
       - redis
@@ -86,7 +86,7 @@ services:
       replicas: 1
 
   fast:
-    image: luminainc/fast:ba8114d9
+    image: luminainc/fast:23febd2c
     depends_on:
       - postgres
       - redis
@@ -97,7 +97,7 @@ services:
       replicas: 1
 
   high-quality:
-    image: luminainc/high-quality:ba8114d9
+    image: luminainc/high-quality:23febd2c
     depends_on:
       - postgres
       - redis
@@ -108,7 +108,7 @@ services:
       replicas: 1
 
   postprocess:
-    image: luminainc/postprocess:ba8114d9
+    image: luminainc/postprocess:23febd2c
     depends_on:
       - postgres
       - redis
@@ -119,7 +119,7 @@ services:
       replicas: 1
 
   ocr:
-    image: luminainc/ocr:ba8114d9
+    image: luminainc/ocr:23febd2c
     depends_on:
       - postgres
       - redis
