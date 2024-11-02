@@ -171,66 +171,62 @@ pub async fn perform_structured_extraction(
     > = Vec::new();
     println!("Starting LLM calls");
     for field in fields {
-        if field.field_type == "obj" || field.field_type == "list" {
-            let client = client.clone();
-            let embedding_url = embedding_url.clone();
-            let llm_url = llm_url.clone();
-            let llm_key = llm_key.clone();
-            let model_name = model_name.clone();
-            let mut embedding_cache = embedding_cache.clone();
-            let segment_embeddings = segment_embeddings.clone();
-            let all_segments = all_segments.clone();
-            let field_name = field.name.clone();
-            let field_description = field.description.clone();
-            let field_type = field.field_type.clone();
-            let handle = tokio::spawn(async move {
-                let query = format!("{}: {}", field_name, field_description);
-                let query_embedding = embedding_cache
-                    .get_or_generate_embeddings(&client, &embedding_url, vec![query.clone()], 1)
-                    .await?
-                    .get(0)
-                    .ok_or_else(|| {
-                        std::io::Error::new(
-                            std::io::ErrorKind::Other,
-                            "Failed to get query embedding",
-                        )
-                    })?
-                    .clone();
+        let client = client.clone();
+        let embedding_url = embedding_url.clone();
+        let llm_url = llm_url.clone();
+        let llm_key = llm_key.clone();
+        let model_name = model_name.clone();
+        let mut embedding_cache = embedding_cache.clone();
+        let segment_embeddings = segment_embeddings.clone();
+        let all_segments = all_segments.clone();
+        let field_name = field.name.clone();
+        let field_description = field.description.clone();
+        let field_type = field.field_type.clone();
+        let handle = tokio::spawn(async move {
+            let query = format!("{}: {}", field_name, field_description);
+            let query_embedding = embedding_cache
+                .get_or_generate_embeddings(&client, &embedding_url, vec![query.clone()], 1)
+                .await?
+                .get(0)
+                .ok_or_else(|| {
+                    std::io::Error::new(std::io::ErrorKind::Other, "Failed to get query embedding")
+                })?
+                .clone();
 
-                let search_results =
-                    search_embeddings(&query_embedding, &all_segments, &segment_embeddings, top_k);
-                let context = search_results
-                    .iter()
-                    .map(|res| res.segment.content.clone())
-                    .join("\n");
+            let search_results =
+                search_embeddings(&query_embedding, &all_segments, &segment_embeddings, top_k);
+            let context = search_results
+                .iter()
+                .map(|res| res.segment.content.clone())
+                .join("\n");
 
-                // Adjust prompt based on field type
-                let tag_instruction = match field_type.as_str() {
-                    "obj" | "object" => "Output JSON within <json></json> tags.",
-                    "list" => "Output a list within <list></list> tags.",
-                    _ => "Output the value appropriately.",
-                };
+            // Adjust prompt based on field type
+            let tag_instruction = match field_type.as_str() {
+                "obj" | "object" | "dict" => "Output JSON within <json></json> tags.",
+                "list" => "Output a list within <list></list> tags.",
+                "string" => "Output the value appropriately. Be direct and to the point, no explanations. Just the required information in the type requested.",
+                _ => "Output the value appropriately. Be direct and to the point, no explanations. Just the required information in the type requested.",
+            };
 
-                let prompt = format!(
+            let prompt = format!(
                     "Field Name: {}\nField Description: {}\nField Type: {}\n\nContext:\n{}\n\nExtract the information for the field. {} Ensure the output adheres to the schema without nesting. Supported types: int, float, text, list, obj.",
                     field_name, field_description, field_type, context, tag_instruction,
                 );
 
-                let extracted =
-                    llm_call(llm_url, llm_key, prompt, model_name, Some(8000), Some(0.0))
-                        .await
-                        .map_err(|e| {
-                            // Explicitly annotate the error type here
-                            Box::new(std::io::Error::new(
-                                std::io::ErrorKind::Other,
-                                e.to_string(),
-                            )) as Box<dyn Error + Send + Sync>
-                        })?;
-                Ok((field_name, field_type, extracted))
-            });
+            let extracted = llm_call(llm_url, llm_key, prompt, model_name, Some(8000), Some(0.0))
+                .await
+                .map_err(|e| {
+                    // Explicitly annotate the error type here
+                    Box::new(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        e.to_string(),
+                    )) as Box<dyn Error + Send + Sync>
+                })?;
+            println!("Extracted: {:?}", extracted);
+            Ok((field_name, field_type, extracted))
+        });
 
-            handles.push(handle);
-        }
+        handles.push(handle);
     }
 
     let mut field_results = Vec::new();
@@ -288,6 +284,7 @@ pub async fn perform_structured_extraction(
                 let bool_val = value.trim().to_lowercase();
                 serde_json::Value::Bool(bool_val == "true" || bool_val == "yes" || bool_val == "1")
             }
+            "string" => serde_json::Value::String(value),
             _ => serde_json::Value::String(value),
         };
 
@@ -429,10 +426,10 @@ mod tests {
                     default: None,
                 },
                 Property {
-                    name: "veg".to_string(),
-                    title: Some("Vegetables".to_string()),
-                    prop_type: "obj".to_string(),
-                    description: Some("{\"type\": \"object\", \"properties\": {\"name\": \"string\", \"quantity\": \"number\"}}".to_string()),
+                    name: "greenest_vegetables".to_string(),
+                    title: Some("greenest vegetables".to_string()),
+                    prop_type: "string".to_string(),
+                    description: Some("A summary of the greenest vegetables".to_string()),
                     default: None,
                 },
             ],

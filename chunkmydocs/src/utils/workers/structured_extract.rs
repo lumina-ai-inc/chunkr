@@ -90,23 +90,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     match result {
         Ok(_) => {
             println!("Structured extraction task succeeded");
-
-            let extraction_config = ExtractionConfig::from_env()?;
-            produce_extraction_payloads(
-                extraction_config.queue_postprocess.clone(),
-                extraction_payload.clone(),
-            )
-            .await
-            .map_err(|e| e.to_string())?;
-
-            log_task(
-                task_id.clone(),
-                Status::Processing,
-                Some("Structured extraction completed".to_string()),
-                None,
-                &pg_pool,
-            )
-            .await?;
             log_task(
                 task_id.clone(),
                 Status::Succeeded,
