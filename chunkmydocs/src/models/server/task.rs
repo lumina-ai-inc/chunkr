@@ -1,5 +1,5 @@
 use super::extract::Configuration;
-use crate::models::server::segment::Chunk;
+use crate::models::server::segment::OutputResponse;
 use chrono::{DateTime, Utc};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ pub struct TaskResponse {
     pub finished_at: Option<DateTime<Utc>>,
     pub expires_at: Option<DateTime<Utc>>,
     pub message: String,
-    pub output: Option<Vec<Chunk>>,
+    pub output: Option<OutputResponse>,
     pub input_file_url: Option<String>,
     pub task_url: Option<String>,
     pub configuration: Configuration,
