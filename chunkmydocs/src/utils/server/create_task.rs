@@ -1,16 +1,20 @@
 use crate::models::auth::auth::UserInfo;
 use crate::models::{
-    server::extract::{ Configuration, ExtractionPayload },
-    server::task::{ Status, TaskResponse },
+    server::extract::{Configuration, ExtractionPayload},
+    server::task::{Status, TaskResponse},
 };
 use crate::utils::configs::extraction_config::Config;
-use crate::utils::db::deadpool_postgres::{ Client, Pool };
-use crate::utils::storage::services::{ generate_presigned_url, upload_to_s3 };
+use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::services::payload::produce_extraction_payloads;
+use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use actix_multipart::form::tempfile::TempFile;
 use aws_sdk_s3::Client as S3Client;
-use chrono::{ DateTime, Utc };
-use std::{ error::Error, path::{ Path, PathBuf }, time::Instant };
+use chrono::{DateTime, Utc};
+use std::{
+    error::Error,
+    path::{Path, PathBuf},
+    time::Instant,
+};
 use uuid::Uuid;
 
 pub async fn create_task(
@@ -18,7 +22,7 @@ pub async fn create_task(
     s3_client: &S3Client,
     file: &TempFile,
     user_info: &UserInfo,
-    configuration: &Configuration
+    configuration: &Configuration,
 ) -> Result<TaskResponse, Box<dyn Error>> {
     let start_time = Instant::now();
 
@@ -50,31 +54,22 @@ pub async fn create_task(
         .file_stem()
         .and_then(|s| s.to_str())
         .unwrap_or("unknown");
-    let extension = path
-        .extension()
-        .and_then(|s| s.to_str())
-        .unwrap_or("pdf");
+    let extension = path.extension().and_then(|s| s.to_str()).unwrap_or("pdf");
 
     let input_location = format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, file_name);
-    let pdf_location = format!("s3://{}/{}/{}/{}.pdf", bucket_name, user_id, task_id, file_stem);
+    let pdf_location = format!(
+        "s3://{}/{}/{}/{}.pdf",
+        bucket_name, user_id, task_id, file_stem
+    );
 
     let output_extension = model_internal.get_extension();
     let output_location = format!(
         "s3://{}/{}/{}/{}.{}",
-        bucket_name,
-        user_id,
-        task_id,
-        file_stem,
-        output_extension
+        bucket_name, user_id, task_id, file_stem, output_extension
     );
 
-    let image_folder_location = format!(
-        "s3://{}/{}/{}/{}",
-        bucket_name,
-        user_id,
-        task_id,
-        "images"
-    );
+    let image_folder_location =
+        format!("s3://{}/{}/{}/{}", bucket_name, user_id, task_id, "images");
 
     let message = "Task queued".to_string();
 
@@ -82,8 +77,8 @@ pub async fn create_task(
         Ok(_) => {
             let configuration_json = serde_json::to_string(configuration)?;
 
-            match
-                client.execute(
+            match client
+                .execute(
                     "INSERT INTO TASKS (
                     task_id, user_id, api_key, file_name, file_size, 
                     page_count, segment_count, expires_at,
@@ -110,8 +105,9 @@ pub async fn create_task(
                         &message,
                         &pdf_location,
                         &extension,
-                    ]
-                ).await
+                    ],
+                )
+                .await
             {
                 Ok(_) => {
                     println!(
@@ -121,14 +117,10 @@ pub async fn create_task(
                 }
                 Err(e) => {
                     if e.to_string().contains("usage limit exceeded") {
-                        return Err(
-                            Box::new(
-                                std::io::Error::new(
-                                    std::io::ErrorKind::Other,
-                                    "429 Rate Limit Error: Usage limit exceeded"
-                                )
-                            )
-                        );
+                        return Err(Box::new(std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            "429 Rate Limit Error: Usage limit exceeded",
+                        )));
                     } else {
                         return Err(Box::new(e) as Box<dyn Error>);
                     }
@@ -159,7 +151,10 @@ pub async fn create_task(
                     );
                 }
                 Err(e) => {
-                    match client.execute("DELETE FROM TASKS WHERE task_id = $1", &[&task_id]).await {
+                    match client
+                        .execute("DELETE FROM TASKS WHERE task_id = $1", &[&task_id])
+                        .await
+                    {
                         Ok(_) => {
                             println!(
                                 "Time taken to delete task from database: {:?}",
@@ -179,14 +174,13 @@ pub async fn create_task(
                 start_time.elapsed().as_secs_f32()
             );
 
-            let input_file_url = match
-                generate_presigned_url(s3_client, &input_location, None).await
-            {
-                Ok(response) => Some(response),
-                Err(_e) => {
-                    return Err("Error getting input file url".into());
-                }
-            };
+            let input_file_url =
+                match generate_presigned_url(s3_client, &input_location, None).await {
+                    Ok(response) => Some(response),
+                    Err(_e) => {
+                        return Err("Error getting input file url".into());
+                    }
+                };
 
             println!(
                 "Time taken to generate presigned url: {:?}",

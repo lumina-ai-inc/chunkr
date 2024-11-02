@@ -1,21 +1,22 @@
 use crate::models::rrq::queue::QueuePayload;
-use crate::models::server::extract::{ ExtractionPayload, OcrStrategy };
-use crate::models::server::segment::{ Chunk, Segment };
+use crate::models::server::extract::{ExtractionPayload, OcrStrategy};
+use crate::models::server::segment::{Chunk, OutputResponse, Segment};
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{
-    chunking::hierarchical_chunking,
-    images::crop_image,
-    log::log_task,
+    chunking::hierarchical_chunking, images::crop_image, log::log_task,
     payload::produce_extraction_payloads,
 };
 use crate::utils::storage::config_s3::create_client;
-use crate::utils::storage::services::{ download_to_tempfile, upload_to_s3 };
+use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
 use futures::future::try_join_all;
 use rayon::prelude::*;
-use std::{ fs::File, io::{ BufReader, Write } };
+use std::{
+    fs::File,
+    io::{BufReader, Write},
+};
 use tempdir::TempDir;
 use tempfile::NamedTempFile;
 
@@ -33,41 +34,43 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             Status::Processing,
             Some("Chunking started".to_string()),
             None,
-            &pg_pool
-        ).await?;
+            &pg_pool,
+        )
+        .await?;
 
         let segments_file = download_to_tempfile(
             &s3_client,
             &reqwest_client,
             &extraction_payload.output_location,
-            None
-        ).await?;
+            None,
+        )
+        .await?;
 
         let file = File::open(segments_file.path())?;
         let reader = BufReader::new(file);
         let mut segments: Vec<Segment> = serde_json::from_reader(reader)?;
 
         let image_folder_location = extraction_payload.image_folder_location.clone();
-        let page_image_files = try_join_all(
-            (0..extraction_payload.page_count.unwrap()).map(|i| {
-                let image_folder = image_folder_location.clone();
-                let s3_client = s3_client.clone();
-                let reqwest_client = reqwest_client.clone();
-                async move {
-                    let image_name = format!("page_{}.jpg", i + 1);
-                    let image_location = format!("{}/{}", image_folder, image_name);
-                    download_to_tempfile(&s3_client, &reqwest_client, &image_location, None).await
-                }
-            })
-        ).await?;
+        let page_image_files = try_join_all((0..extraction_payload.page_count.unwrap()).map(|i| {
+            let image_folder = image_folder_location.clone();
+            let s3_client = s3_client.clone();
+            let reqwest_client = reqwest_client.clone();
+            async move {
+                let image_name = format!("page_{}.jpg", i + 1);
+                let image_location = format!("{}/{}", image_folder, image_name);
+                download_to_tempfile(&s3_client, &reqwest_client, &image_location, None).await
+            }
+        }))
+        .await?;
 
         log_task(
             task_id.clone(),
             Status::Processing,
             Some("Cropping segments".to_string()),
             None,
-            &pg_pool
-        ).await?;
+            &pg_pool,
+        )
+        .await?;
 
         let cropped_temp_dir = TempDir::new("cropped_images")?;
         segments.par_iter().for_each(|segment| {
@@ -76,15 +79,14 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 let crop_result = crop_image(
                     &image_path.path().to_path_buf(),
                     segment,
-                    &cropped_temp_dir.path().to_path_buf()
-                ).map_err(|e|
+                    &cropped_temp_dir.path().to_path_buf(),
+                )
+                .map_err(|e| {
                     format!(
                         "Failed to crop image for segment {} on page {}: {:?}",
-                        segment.segment_id,
-                        segment.page_number,
-                        e
+                        segment.segment_id, segment.page_number, e
                     )
-                );
+                });
                 match crop_result {
                     Ok(_) => (),
                     Err(err_msg) => eprintln!("{}", err_msg),
@@ -105,11 +107,15 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             upload_to_s3(&s3_client, &s3_key, &entry.path()).await?;
             segments
                 .iter_mut()
-                .find(
-                    |segment|
-                        segment.segment_id ==
-                        file_name.clone().to_string_lossy().split(".").next().unwrap()
-                )
+                .find(|segment| {
+                    segment.segment_id
+                        == file_name
+                            .clone()
+                            .to_string_lossy()
+                            .split(".")
+                            .next()
+                            .unwrap()
+                })
                 .map(|segment| {
                     segment.image = Some(s3_key.clone());
                 });
@@ -120,22 +126,27 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             Status::Processing,
             Some("Chunking segments".to_string()),
             None,
-            &pg_pool
-        ).await?;
+            &pg_pool,
+        )
+        .await?;
 
-        let chunks: Vec<Chunk> = hierarchical_chunking(
-            segments,
-            extraction_payload.target_chunk_length
-        ).await?;
+        let chunks: Vec<Chunk> =
+            hierarchical_chunking(segments, extraction_payload.target_chunk_length).await?;
+
+        let output_response = OutputResponse {
+            chunks,
+            extracted_data: None,
+        };
 
         let mut output_temp_file = NamedTempFile::new()?;
-        output_temp_file.write_all(serde_json::to_string(&chunks)?.as_bytes())?;
+        output_temp_file.write_all(serde_json::to_string(&output_response)?.as_bytes())?;
 
         upload_to_s3(
             &s3_client,
             &extraction_payload.output_location,
-            &output_temp_file.path()
-        ).await?;
+            &output_temp_file.path(),
+        )
+        .await?;
 
         if output_temp_file.path().exists() {
             if let Err(e) = std::fs::remove_file(output_temp_file.path()) {
@@ -144,7 +155,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
 
         Ok(())
-    }).await;
+    })
+    .await;
 
     match result {
         Ok(_) => {
@@ -155,21 +167,24 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     Status::Succeeded,
                     Some("Task succeeded".to_string()),
                     Some(Utc::now()),
-                    &pg_pool
-                ).await?;
+                    &pg_pool,
+                )
+                .await?;
             } else {
                 let extraction_config = ExtractionConfig::from_env()?;
                 produce_extraction_payloads(
                     extraction_config.queue_ocr,
-                    extraction_payload.clone()
-                ).await?;
+                    extraction_payload.clone(),
+                )
+                .await?;
                 log_task(
                     task_id.clone(),
                     Status::Processing,
                     Some("OCR queued".to_string()),
                     None,
-                    &pg_pool
-                ).await?;
+                    &pg_pool,
+                )
+                .await?;
             }
             Ok(())
         }
@@ -182,8 +197,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     Status::Failed,
                     Some("Chunking failed".to_string()),
                     Some(Utc::now()),
-                    &pg_pool
-                ).await?;
+                    &pg_pool,
+                )
+                .await?;
             }
             Err(e)
         }
