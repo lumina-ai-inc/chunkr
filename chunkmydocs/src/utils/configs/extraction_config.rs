@@ -80,11 +80,11 @@ fn default_pdla_fast_url() -> String {
 }
 
 fn default_rapid_ocr_url() -> Option<String> {
-    Some("http://localhost:8002".to_string())
+    Some("http://localhost:8003".to_string())
 }
 
 fn default_table_structure_url() -> Option<String> {
-    Some("http://localhost:8003".to_string())
+    Some("http://localhost:8004".to_string())
 }
 
 fn default_base_url() -> String {

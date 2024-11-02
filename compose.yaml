@@ -84,7 +84,7 @@ services:
     restart: always
 
   chunkmydocs:
-    image: luminainc/chunkmydocs:a76c7508
+    image: luminainc/chunkmydocs:58f775a0
     ports:
       - "8000:8000"
     depends_on:
@@ -98,7 +98,7 @@ services:
     restart: always
 
   preprocess:
-    image: luminainc/preprocess:a76c7508
+    image: luminainc/preprocess:58f775a0
     depends_on:
       - postgres
       - redis
@@ -111,7 +111,7 @@ services:
     restart: always
 
   fast:
-    image: luminainc/fast:a76c7508
+    image: luminainc/fast:58f775a0
     depends_on:
       - postgres
       - redis
@@ -125,7 +125,7 @@ services:
     restart: always
 
   high-quality:
-    image: luminainc/high-quality:a76c7508
+    image: luminainc/high-quality:58f775a0
     depends_on:
       - postgres
       - redis
@@ -135,11 +135,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   postprocess:
-    image: luminainc/postprocess:a76c7508
+    image: luminainc/postprocess:58f775a0
     depends_on:
       - postgres
       - redis
@@ -152,7 +152,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/ocr:a76c7508
+    image: luminainc/ocr:58f775a0
     depends_on:
       - postgres
       - redis
@@ -176,10 +176,29 @@ services:
       replicas: 1
     restart: always
 
+  pdla:
+    image: luminainc/pdla:8c4bfb6d
+    ports:
+      - "8002:8000"
+    command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000" ]
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    volumes:
+      - /dev/shm:/dev/shm
+    restart: always
+
   rapid-ocr:
     image: luminainc/rapid-ocr:3a7ac326
     ports:
-      - "8002:8000"
+      - "8003:8000"
     env_file:
       - .env
     deploy:
@@ -197,26 +216,7 @@ services:
   table-ocr:
     image: luminainc/table-ocr:3a7ac326
     ports:
-      - "8003:8000"
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    volumes:
-      - /dev/shm:/dev/shm
-    restart: always
-
-  pdla:
-    image: luminainc/pdla:8c4bfb6d
-    ports:
       - "8004:8000"
-    command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000" ]
     env_file:
       - .env
     deploy:
