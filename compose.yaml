@@ -107,7 +107,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   fast:
@@ -117,6 +117,7 @@ services:
       - redis
       - minio
       - rrq
+      - pdla
     env_file:
       - .env
     deploy:
@@ -130,10 +131,11 @@ services:
       - redis
       - minio
       - rrq
+      - pdla
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   postprocess:
@@ -156,6 +158,8 @@ services:
       - redis
       - minio
       - rrq
+      - rapid-ocr
+      - table-ocr
     env_file:
       - .env
     deploy:
@@ -253,6 +257,7 @@ services:
     deploy:
       replicas: 1
     restart: always
+
 volumes:
   postgres_data:
   redis_data:
