@@ -98,5 +98,5 @@ name = "postprocess"
 path = "src/workers/postprocess.rs"
 
 [[bin]]
-name = "structured_extraction"
+name = "structured-extraction"
 path = "src/workers/structured_extraction.rs"
