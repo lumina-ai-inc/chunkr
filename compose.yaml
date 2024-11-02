@@ -84,7 +84,7 @@ services:
     restart: always
 
   chunkmydocs:
-    image: luminainc/chunkmydocs:88b6fe39
+    image: luminainc/chunkmydocs:a76c7508
     ports:
       - "8000:8000"
     depends_on:
@@ -94,11 +94,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   preprocess:
-    image: luminainc/preprocess:88b6fe39
+    image: luminainc/preprocess:a76c7508
     depends_on:
       - postgres
       - redis
@@ -107,11 +107,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   fast:
-    image: luminainc/fast:88b6fe39
+    image: luminainc/fast:a76c7508
     depends_on:
       - postgres
       - redis
@@ -124,7 +124,7 @@ services:
     restart: always
 
   high-quality:
-    image: luminainc/high-quality:88b6fe39
+    image: luminainc/high-quality:a76c7508
     depends_on:
       - postgres
       - redis
@@ -137,7 +137,7 @@ services:
     restart: always
 
   postprocess:
-    image: luminainc/postprocess:88b6fe39
+    image: luminainc/postprocess:a76c7508
     depends_on:
       - postgres
       - redis
@@ -150,7 +150,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/ocr:88b6fe39
+    image: luminainc/ocr:a76c7508
     depends_on:
       - postgres
       - redis

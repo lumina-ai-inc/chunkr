@@ -53,13 +53,12 @@ pub async fn pdf_2_images(
     pdf_path: &Path,
     temp_dir: &Path,
 ) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
-    let pdfium_config = PdfiumConfig::from_env()?;
-    pdfium_config.ensure_binary().await?;
+    let config = PdfiumConfig::from_env()?;
+    let dir_path = config.get_binary().await?;
     let extraction_config = ExtractionConfig::from_env()?;
 
     let pdfium = Pdfium::new(
-        Pdfium::bind_to_system_library()
-            .or_else(|_| Pdfium::bind_to_library(&pdfium_config.path))?,
+        Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&dir_path))?,
     );
 
     let document = pdfium.load_pdf_from_file(pdf_path, None)?;
