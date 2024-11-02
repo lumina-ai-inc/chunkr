@@ -1,16 +1,18 @@
 services:
   postgres:
-    image: postgres:latest
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: chunkmydocs
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d chunkmydocs"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -52,6 +54,11 @@ services:
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_PROXY=edge
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
     command: ["start-dev", "--import-realm"]
@@ -60,9 +67,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    depends_on:
+      - postgres
 
   chunkmydocs:
-    image: luminainc/chunkmydocs:23febd2c
+    image: luminainc/chunkmydocs:0a0bae75
     ports:
       - "8000:8000"
     depends_on:
@@ -72,10 +81,10 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
 
   preprocess:
-    image: luminainc/preprocess:23febd2c
+    image: luminainc/preprocess:0a0bae75
     depends_on:
       - postgres
       - redis
@@ -86,7 +95,7 @@ services:
       replicas: 1
 
   fast:
-    image: luminainc/fast:23febd2c
+    image: luminainc/fast:0a0bae75
     depends_on:
       - postgres
       - redis
@@ -97,7 +106,7 @@ services:
       replicas: 1
 
   high-quality:
-    image: luminainc/high-quality:23febd2c
+    image: luminainc/high-quality:0a0bae75
     depends_on:
       - postgres
       - redis
@@ -108,7 +117,7 @@ services:
       replicas: 1
 
   postprocess:
-    image: luminainc/postprocess:23febd2c
+    image: luminainc/postprocess:0a0bae75
     depends_on:
       - postgres
       - redis
@@ -119,7 +128,7 @@ services:
       replicas: 1
 
   ocr:
-    image: luminainc/ocr:23febd2c
+    image: luminainc/ocr:0a0bae75
     depends_on:
       - postgres
       - redis
@@ -132,7 +141,7 @@ services:
   web:
     image: luminainc/web:ba8114d9
     ports:
-      - "8001:8000"
+      - "5173:8000"
     env_file:
       - .env
     deploy:
