@@ -33,7 +33,7 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: embeddings
-        image: ghcr.io/huggingface/text-embeddings-inference:89-1.5
+        image: ghcr.io/huggingface/text-embeddings-inference:1.5
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
