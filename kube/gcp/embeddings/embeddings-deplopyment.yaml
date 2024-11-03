@@ -36,7 +36,7 @@ spec:
         image: ghcr.io/huggingface/text-embeddings-inference:1.5
         imagePullPolicy: Always
         ports:
-        - containerPort: 8000
+        - containerPort: 80
         args: ["--model-id", "BAAI/bge-m3"]
         securityContext:
           privileged: true
