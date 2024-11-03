@@ -28,7 +28,7 @@ RUN apt-get update -y; \
     ; \
     mkdir -p /app/tmp
 
-COPY --from=builder /app/target/release/structured_extraction /app/structured_extraction
+COPY --from=builder /app/target/release/structured-extraction /app/structured-extraction
 
 EXPOSE 8000
 ENTRYPOINT ["/app/structured_extraction"]

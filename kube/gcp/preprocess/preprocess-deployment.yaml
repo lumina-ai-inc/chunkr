@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: preprocess
-        image: luminainc/preprocess:eb74eb65
+        image: luminainc/preprocess:e8dd547b
         imagePullPolicy: Always
         envFrom:
         - secretRef:

@@ -12,7 +12,7 @@ use std::collections::HashMap;
 use std::error::Error;
 use tokio::task::JoinHandle;
 use utoipa::ToSchema;
-/// Represents the structure of the incoming schema.
+
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 pub struct JsonSchema {
     pub title: String,
@@ -20,7 +20,7 @@ pub struct JsonSchema {
     pub schema_type: String,
     pub properties: Vec<Property>,
 }
-// Implement FromStr for JsonSchema to enable parsing from a string
+
 impl std::str::FromStr for JsonSchema {
     type Err = serde_json::Error;
 
@@ -28,19 +28,17 @@ impl std::str::FromStr for JsonSchema {
         serde_json::from_str(s)
     }
 }
-/// Represents each property within the schema.
+
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 pub struct Property {
     pub name: String,
     pub title: Option<String>,
-    /// Type can be "obj" or "value"
     #[serde(rename = "type")]
     pub prop_type: String,
     pub description: Option<String>,
     pub default: Option<String>,
 }
 
-/// Represents a field extracted from the schema.
 #[derive(Debug)]
 pub struct Field {
     pub name: String,
@@ -49,7 +47,6 @@ pub struct Field {
     pub default: Option<String>,
 }
 
-/// Represents the extracted structured data
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 pub struct ExtractedData {
     pub title: String,
@@ -165,7 +162,6 @@ pub async fn perform_structured_extraction(
         .await;
     let segment_embeddings = embeddings.unwrap();
     println!("Segment embeddings generated");
-    // Parallel API calls at top level
     let mut handles: Vec<
         JoinHandle<Result<(String, String, String), Box<dyn Error + Send + Sync>>>,
     > = Vec::new();
@@ -200,7 +196,6 @@ pub async fn perform_structured_extraction(
                 .map(|res| res.segment.content.clone())
                 .join("\n");
 
-            // Adjust prompt based on field type
             let tag_instruction = match field_type.as_str() {
                 "obj" | "object" | "dict" => "Output JSON within <json></json> tags.",
                 "list" => "Output a list within <list></list> tags.",
@@ -216,7 +211,6 @@ pub async fn perform_structured_extraction(
             let extracted = llm_call(llm_url, llm_key, prompt, model_name, Some(8000), Some(0.0))
                 .await
                 .map_err(|e| {
-                    // Explicitly annotate the error type here
                     Box::new(std::io::Error::new(
                         std::io::ErrorKind::Other,
                         e.to_string(),
@@ -241,7 +235,6 @@ pub async fn perform_structured_extraction(
     for (name, field_type, value) in field_results {
         let parsed_value = match field_type.as_str() {
             "obj" => {
-                // Extract JSON content
                 let content = value
                     .split("<json>")
                     .nth(1)
@@ -256,7 +249,6 @@ pub async fn perform_structured_extraction(
                     .and_then(|s| s.split("</list>").next())
                     .unwrap_or(&value);
 
-                // Split by commas and newlines
                 let list_items: Vec<&str> = content
                     .split(|c| c == ',' || c == '\n')
                     .map(|item| item.trim_matches(|c: char| c == '"' || c.is_whitespace()))
@@ -311,7 +303,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_perform_structured_extraction() -> Result<(), Box<dyn Error + Send + Sync>> {
-        // Setup test data
         let embedding_url = "http://127.0.0.1:8085/embed".to_string();
         let config = Config::from_env().expect("Failed to load Config");
         let llm_url = config.ocr_llm_url;
@@ -413,7 +404,6 @@ mod tests {
             }
         ];
 
-        // Define JSON schema for basket
         let json_schema = JsonSchema {
             title: "Basket".to_string(),
             schema_type: "object".to_string(),
@@ -440,7 +430,6 @@ mod tests {
             chunk_length: 100,
         }];
 
-        // Perform structured extraction
         let results = perform_structured_extraction(
             json_schema,
             chunks,
@@ -454,14 +443,12 @@ mod tests {
         )
         .await?;
 
-        // Verify results
         println!("{:?}", results);
         assert!(
             !results.extracted_fields.is_empty(),
             "Should return at least one extracted field"
         );
 
-        // Additional Assertions for Correct Parsing
 
         Ok(())
     }

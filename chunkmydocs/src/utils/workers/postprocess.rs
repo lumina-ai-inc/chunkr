@@ -162,14 +162,31 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         Ok(_) => {
             println!("Task succeeded");
             if extraction_payload.configuration.ocr_strategy == OcrStrategy::Off {
-                log_task(
-                    task_id.clone(),
-                    Status::Succeeded,
-                    Some("Task succeeded".to_string()),
-                    Some(Utc::now()),
-                    &pg_pool,
-                )
-                .await?;
+                if extraction_payload.configuration.json_schema.is_some() {
+                    let extraction_config = ExtractionConfig::from_env()?;
+                    produce_extraction_payloads(
+                        extraction_config.queue_structured_extract,
+                        extraction_payload.clone(),
+                    )
+                    .await?;
+                    log_task(
+                        task_id.clone(),
+                        Status::Processing,
+                        Some("Structured extraction queued".to_string()),
+                        None,
+                        &pg_pool,
+                    )
+                    .await?;
+                } else {
+                    log_task(
+                        task_id.clone(),
+                        Status::Succeeded,
+                        Some("Task succeeded".to_string()),
+                        Some(Utc::now()),
+                        &pg_pool,
+                    )
+                    .await?;
+                }
             } else {
                 let extraction_config = ExtractionConfig::from_env()?;
                 produce_extraction_payloads(
