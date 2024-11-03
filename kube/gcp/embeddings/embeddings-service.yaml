@@ -10,6 +10,6 @@ spec:
     app.kubernetes.io/name: embeddings
   type: ClusterIP
   ports:
-  - port: 80
-    targetPort: 8000
+  - port: 8000
+    targetPort: 80
     protocol: TCP
