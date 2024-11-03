@@ -37,7 +37,7 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
-        args: ["--model-id", "BAAI/bge-m3", "--volume", "/data"]
+        args: ["--model-id", "BAAI/bge-m3"]
         securityContext:
           privileged: true
           capabilities:
