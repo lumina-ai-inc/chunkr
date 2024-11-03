@@ -94,7 +94,7 @@ mod tests {
     async fn embeddings() {
         // Mock client and response
         let client = reqwest::Client::new();
-        let embedding_url = "http://127.0.0.1:8080/embed";
+        let embedding_url = "http://34.54.118.28/embed";
         let segments = vec![
             Segment {
                 segment_id: "1".to_string(),
