@@ -5,9 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "fastapi>=0.115.4",
     "numpy>=2.1.2",
     "pydantic>=2.9.2",
-    "pymupdf>=1.24.12",
+    "pymupdf>=1.24.13",
     "pypdf2>=3.0.1",
     "python-dotenv>=1.0.1",
     "requests>=2.32.3",
