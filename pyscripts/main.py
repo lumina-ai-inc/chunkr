@@ -149,17 +149,17 @@ if __name__ == "__main__":
         type="object", 
         properties=[
         Property(
-            name="drugs",
-            title="Drugs",
+            name="black holes observed",
+            title="Black Holes Observed",
             type="list",
-            description="A list of drugs",
+            description="A list of black holes observed",
             default=None
         ),
         Property(
-            name="cardiovascular_outcomes",
-            title="Cardiovascular Outcomes",
+            name="implications of data",
+            title="Implications of Data",
             type="string",
-            description="A summary of the cardiovascular outcomes in 10-20 words",
+            description="A summary of the implications of the data in 10-20 words",
             default=None
         )
         ]
