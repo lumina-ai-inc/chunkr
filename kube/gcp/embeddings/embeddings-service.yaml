@@ -5,21 +5,11 @@ metadata:
   namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: embeddings
-  annotations:
-    cloud.google.com/backend-config: '{"default": "embeddings-backendconfig"}'
 spec:
   selector:
     app.kubernetes.io/name: embeddings
   type: ClusterIP
   ports:
-  - port: 8000
+  - port: 80
     targetPort: 8000
     protocol: TCP
----
-apiVersion: cloud.google.com/v1
-kind: BackendConfig
-metadata:
-  name: embeddings-backendconfig
-  namespace: chunkmydocs
-spec:
-  timeoutSec: 10000
