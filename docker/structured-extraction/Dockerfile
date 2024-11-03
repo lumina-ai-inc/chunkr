@@ -31,4 +31,4 @@ RUN apt-get update -y; \
 COPY --from=builder /app/target/release/structured-extraction /app/structured-extraction
 
 EXPOSE 8000
-ENTRYPOINT ["/app/structured_extraction"]
+ENTRYPOINT ["/app/structured-extraction"]
