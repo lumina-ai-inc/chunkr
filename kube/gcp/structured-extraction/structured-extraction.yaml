@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fast
+  name: structured-extraction
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: fast
+    app.kubernetes.io/name: structured-extraction
 spec:
   selector:
     matchLabels:
-        app.kubernetes.io/name: fast
+        app.kubernetes.io/name: structured-extraction
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: fast
+        app.kubernetes.io/name: structured-extraction
     spec:
       containers:
-      - name: fast
+      - name: structured-extraction
         image: luminainc/structured_extraction:df4a364a
         imagePullPolicy: Always
         envFrom:
