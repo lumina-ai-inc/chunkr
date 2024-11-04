@@ -56,7 +56,7 @@ source $HOME/.cargo/env
 cd /paddle
 ```
 
-3. Start the server:
+3. Run service:
 ```bash
 uv run main.py
 ```
@@ -70,12 +70,6 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Run server
+# Run
 python3 main.py
-```
-
-4. API Documentation
-
-```bash
-curl -X POST http://localhost:8000/ocr -F "file=@table_recognition.jpg"
 ```
