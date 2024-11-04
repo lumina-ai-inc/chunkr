@@ -1,0 +1,6 @@
+paddlex
+pillow>=11.0.0
+robyn>=0.63.0
+paddlepaddle-gpu>=2.6.2
+setuptools>=75.3.0
+aiohttp>=3.10.10
