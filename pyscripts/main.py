@@ -12,6 +12,8 @@ import json
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import asyncio
+
+# Models for strucctured extraction. 
 class Property(BaseModel):
     """Represents each property within the schema."""
     name: str = Field(..., description="Name of the property")
@@ -26,13 +28,6 @@ class JsonSchema(BaseModel):
     type: str = Field(..., description="Type of the schema (e.g., 'object')")
     properties: List[Property] = Field(default_factory=list, description="List of properties in the schema")
 
-class GrowthFunc(Enum):
-    LINEAR = 'linear'
-    EXPONENTIAL = 'exponential'
-    LOGARITHMIC = 'logarithmic'
-    QUADRATIC = 'quadratic'
-    CUBIC = 'cubic'
-    NONE = 'none'
 async def print_time_taken(created_at, finished_at):
     if created_at and finished_at:
         try:
@@ -105,7 +100,6 @@ async def extract_and_annotate_file(file_path: str, model: Model, target_chunk_l
 async def main(model: Model = Model.HighQuality, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, dir="input", json_schema: JsonSchema = None):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     json_schema_serialized = json_schema.model_dump() if json_schema else None
-    print("JSON SCHEMA SERIALIZED", json_schema_serialized)
     input_dir = os.path.join(current_dir, dir)
     input_files = []
     for extension in ["*.pdf", "*.docx", "*.ppt"]:
