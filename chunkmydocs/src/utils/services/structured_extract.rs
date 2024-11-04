@@ -201,7 +201,8 @@ pub async fn perform_structured_extraction(
             };
 
             let prompt = format!(
-                    "Field Name: {}\nField Description: {}\nField Type: {}\n\nContext:\n{}\n\nExtract the information for the field. {} Ensure the output adheres to the schema without nesting. Supported types: int, float, text, list, obj.",
+                    "Field Name: {}\nField Description: {}\nField Type: {}\n\nContext:\n{}\n\nExtract the information for the field. {} Ensure the output adheres to the schema without nesting. Supported types: int, float, text, list, obj.
+                    You must accurately find the information for the field based on the name and description.",
                     field_name, field_description, field_type, context, tag_instruction,
                 );
 
