@@ -6,17 +6,17 @@ import Header from "../Header/Header";
 import { Chunk } from "../../models/chunk.model";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
-import { TaskResponse } from "../../models/task.model";
+import { TaskResponse, Output } from "../../models/task.model";
 import TaskCard from "../TaskCard/TaskCard";
 
 interface ViewerProps {
-  // eslint-disable-next-line
-  output: any;
+  output: Output;
   inputFileUrl: string;
   task: TaskResponse;
 }
 
 export const Viewer = ({ output, inputFileUrl, task }: ViewerProps) => {
+  console.log(output);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [scrollAreaWidth, setScrollAreaWidth] = useState<number>(0);
   const [pdfWidth, setPdfWidth] = useState<number>(50);
@@ -120,7 +120,7 @@ export const Viewer = ({ output, inputFileUrl, task }: ViewerProps) => {
         >
           {inputFileUrl && output && (
             <PDF
-              content={output}
+              content={output.chunks}
               inputFileUrl={inputFileUrl}
               onSegmentClick={scrollToSegment}
             />
@@ -177,7 +177,7 @@ export const Viewer = ({ output, inputFileUrl, task }: ViewerProps) => {
             align="center"
             justify="center"
           >
-            {output.length === 0 ? (
+            {output.chunks.length === 0 ? (
               <Text
                 size="4"
                 weight="medium"
@@ -190,7 +190,7 @@ export const Viewer = ({ output, inputFileUrl, task }: ViewerProps) => {
                 <Flex direction="row" width="100%">
                   <TaskCard {...task}></TaskCard>
                 </Flex>
-                {output.map((chunk: Chunk, chunkIndex: number) => (
+                {output.chunks.map((chunk: Chunk, chunkIndex: number) => (
                   <SegmentChunk
                     key={chunkIndex}
                     chunk={chunk}

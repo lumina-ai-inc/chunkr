@@ -5,4 +5,5 @@ pub mod pdfium_config;
 pub mod rrq_config;
 pub mod s3_config;
 pub mod stripe_config;
+pub mod structured_extract;
 pub mod user_config;

@@ -1,6 +1,6 @@
 use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::{ExtractionPayload, OcrStrategy};
-use crate::models::server::segment::{Chunk, Segment};
+use crate::models::server::segment::{Chunk, OutputResponse, Segment};
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::configs::s3_config::create_client;
@@ -9,6 +9,7 @@ use crate::utils::services::{
     chunking::hierarchical_chunking, images::crop_image, log::log_task,
     payload::produce_extraction_payloads,
 };
+use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
 use futures::future::try_join_all;
@@ -130,8 +131,13 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let chunks: Vec<Chunk> =
             hierarchical_chunking(segments, extraction_payload.target_chunk_length).await?;
 
+        let output_response = OutputResponse {
+            chunks,
+            extracted_json: None,
+        };
+
         let mut output_temp_file = NamedTempFile::new()?;
-        output_temp_file.write_all(serde_json::to_string(&chunks)?.as_bytes())?;
+        output_temp_file.write_all(serde_json::to_string(&output_response)?.as_bytes())?;
 
         upload_to_s3(
             &s3_client,
@@ -154,14 +160,31 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         Ok(_) => {
             println!("Task succeeded");
             if extraction_payload.configuration.ocr_strategy == OcrStrategy::Off {
-                log_task(
-                    task_id.clone(),
-                    Status::Succeeded,
-                    Some("Task succeeded".to_string()),
-                    Some(Utc::now()),
-                    &pg_pool,
-                )
-                .await?;
+                if extraction_payload.configuration.json_schema.is_some() {
+                    let extraction_config = ExtractionConfig::from_env()?;
+                    produce_extraction_payloads(
+                        extraction_config.queue_structured_extract,
+                        extraction_payload.clone(),
+                    )
+                    .await?;
+                    log_task(
+                        task_id.clone(),
+                        Status::Processing,
+                        Some("Structured extraction queued".to_string()),
+                        None,
+                        &pg_pool,
+                    )
+                    .await?;
+                } else {
+                    log_task(
+                        task_id.clone(),
+                        Status::Succeeded,
+                        Some("Task succeeded".to_string()),
+                        Some(Utc::now()),
+                        &pg_pool,
+                    )
+                    .await?;
+                }
             } else {
                 let extraction_config = ExtractionConfig::from_env()?;
                 produce_extraction_payloads(

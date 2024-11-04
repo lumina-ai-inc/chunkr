@@ -1,0 +1,10 @@
+Field Name: {name}
+Field Description: {description}
+Field Type: {field_type}
+
+Context:
+{context}
+
+Find information for the field. Please respond directly and plainly with truthfulness according to the field type.
+
+

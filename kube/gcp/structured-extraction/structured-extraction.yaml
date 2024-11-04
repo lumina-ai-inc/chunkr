@@ -1,29 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chunkmydocs
+  name: structured-extraction
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: chunkmydocs
+    app.kubernetes.io/name: structured-extraction
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: chunkmydocs
+        app.kubernetes.io/name: structured-extraction
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: chunkmydocs
+        app.kubernetes.io/name: structured-extraction
     spec:
       containers:
-      - name: chunkmydocs
-        image: luminainc/chunkmydocs:616fdd68
+      - name: structured-extraction
+        image: luminainc/structured-extraction:616fdd68
         imagePullPolicy: Always
         envFrom:
         - secretRef:
             name: chunkmydocs-secrets
-        ports:
-        - containerPort: 8000
+        env:
+        - name: PG__POOL__MAX_SIZE
+          value: "3"
         securityContext:
           privileged: true
           capabilities:
