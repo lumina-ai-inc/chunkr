@@ -1,5 +1,5 @@
 use crate::utils::configs::extraction_config;
-use crate::utils::services::structured_extract::ExtractedData;
+use crate::utils::services::structured_extract::ExtractedJson;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
@@ -46,10 +46,11 @@ pub struct Chunk {
     pub chunk_length: i32,
 }
 
+// TODO: Move to models/server/task.rs
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct OutputResponse {
     pub chunks: Vec<Chunk>,
-    pub extracted_json: Option<ExtractedData>,
+    pub extracted_json: Option<ExtractedJson>,
 }
 
 #[derive(
