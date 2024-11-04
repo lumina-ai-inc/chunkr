@@ -33,7 +33,7 @@ class Configuration(BaseModel):
 
 class OutputResponse(BaseModel):
     chunks: list[dict]
-    extracted_data: Optional[dict] = None
+    extracted_json: Optional[dict] = None
 
 
 class TaskResponse(BaseModel):

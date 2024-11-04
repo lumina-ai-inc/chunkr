@@ -1,13 +1,11 @@
-use crate::models::server::segment::{Chunk, Segment};
+use crate::models::server::segment::Segment;
 use base64::{engine::general_purpose, Engine as _};
-use serde_json::to_string_pretty;
 use serde_json::{json, Value};
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -21,89 +19,6 @@ pub struct Field {
 pub struct Context {
     pub ranked_segments: Vec<Segment>,
     pub field: Field,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct RerankRequest {
-    pub query: String,
-    pub segments: Vec<Segment>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct BatchRerankRequest {
-    pub queries: Vec<String>,
-    pub segments: Vec<Segment>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct RerankerRequest {
-    pub query: String,
-    pub texts: Vec<String>,
-    pub raw_scores: bool,
-}
-
-async fn rerank(
-    client: &Client,
-    reranker_url: &str,
-    chunks: Vec<Chunk>,
-    fields: Vec<Field>,
-) -> Result<Vec<Context>, Box<dyn Error + Send + Sync>> {
-    let mut contexts = Vec::new();
-
-    // Process each field/query separately
-    for field in &fields {
-        let query = format!("{}: {}", field.name, field.description);
-
-        // Extract all texts from segments
-        let texts: Vec<String> = chunks
-            .iter()
-            .flat_map(|chunk| &chunk.segments)
-            .map(|segment| segment.content.clone())
-            .collect();
-
-        let segments: Vec<Segment> = chunks
-            .iter()
-            .flat_map(|chunk| chunk.segments.clone())
-            .collect();
-
-        let reranker_request = RerankerRequest {
-            query,
-            texts,
-            raw_scores: false,
-        };
-
-        println!("Sending request to {}", reranker_url);
-        println!("Request body: {}", to_string_pretty(&reranker_request)?);
-
-        let response = client
-            .post(reranker_url)
-            .json(&reranker_request)
-            .send()
-            .await?;
-
-        let status = response.status();
-        let text = response.text().await?;
-        println!("Response status: {}", status);
-        println!("Response body: {}", text);
-
-        let response_body: Vec<serde_json::Value> = serde_json::from_str(&text)?;
-
-        // Create ranked segments based on the response
-        let mut ranked_segments = Vec::new();
-        for result in &response_body {
-            let index = result["index"]
-                .as_u64()
-                .ok_or("Missing or invalid 'index' field")? as usize;
-            ranked_segments.push(segments[index].clone());
-        }
-
-        contexts.push(Context {
-            ranked_segments,
-            field: field.clone(),
-        });
-    }
-
-    Ok(contexts)
 }
 
 pub async fn llm_call(
@@ -203,10 +118,8 @@ pub async fn vision_llm_call(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::server::segment::BoundingBox;
-    use crate::models::server::segment::SegmentType;
 
-    use crate::utils::configs::extraction_config::Config;
+    use crate::utils::configs::structured_extract::Config;
     use std::fs;
     use std::path::Path;
     use std::time::Instant;
@@ -271,8 +184,8 @@ mod tests {
 
         let mut tasks = Vec::new();
         let config = Config::from_env().unwrap();
-        let url = config.ocr_llm_url;
-        let key = config.ocr_llm_key;
+        let url = config.llm_url;
+        let key = config.llm_key;
         for input_file in input_files {
             let table_name = input_file
                 .file_stem()
@@ -352,92 +265,5 @@ mod tests {
         println!("test_ocr_llm_with_image completed successfully");
         Ok(())
     }
-    #[tokio::test]
-    async fn test_reranker() -> Result<(), Box<dyn Error + Send + Sync>> {
-        // Test data setup
-        let texts = vec!["apple", "orange", "carrot", "lettuce"];
-        let queries = vec!["fruits", "vegetables"];
-
-        // Create segments from texts
-        let segments: Vec<Segment> = texts
-            .iter()
-            .enumerate()
-            .map(|(i, &text)| Segment {
-                segment_id: format!("id-{}", i),
-                bbox: BoundingBox {
-                    left: 0.0,
-                    top: 0.0,
-                    width: 100.0,
-                    height: 100.0,
-                },
-                page_number: 1,
-                page_width: 1000.0,
-                page_height: 1000.0,
-                content: text.to_string(),
-                segment_type: SegmentType::Text,
-                ocr: None,
-                image: None,
-                html: None,
-                markdown: None,
-            })
-            .collect();
-
-        // Create chunks containing the segments
-        let chunks = vec![Chunk {
-            segments: segments.clone(),
-            chunk_length: segments.len() as i32,
-        }];
-
-        // Create fields for each query
-        let fields: Vec<Field> = queries
-            .into_iter()
-            .map(|query| Field {
-                name: query.to_string(),
-                field_type: "extraction_set".to_string(),
-                description: query.to_string(),
-            })
-            .collect();
-
-        // Initialize HTTP client
-        let client = Client::new();
-        let reranker_url = "http://127.0.0.1:8086/rerank";
-
-        // Call rerank function
-        let contexts = rerank(&client, reranker_url, chunks, fields).await?;
-
-        // Validate results
-        for context in &contexts {
-            // Add & here to borrow instead of move
-            println!("Query: {}", context.field.name);
-            println!("Ranked segments:");
-            for segment in &context.ranked_segments {
-                // Add & here as well
-                println!("  - {} ({})", segment.content, segment.segment_id);
-            }
-            println!();
-
-            match context.field.name.as_str() {
-                "fruits" => {
-                    assert!(context.ranked_segments.iter().any(|s| s.content == "apple"));
-                    assert!(context
-                        .ranked_segments
-                        .iter()
-                        .any(|s| s.content == "orange"));
-                }
-                "vegetables" => {
-                    assert!(context
-                        .ranked_segments
-                        .iter()
-                        .any(|s| s.content == "carrot"));
-                    assert!(context
-                        .ranked_segments
-                        .iter()
-                        .any(|s| s.content == "lettuce"));
-                }
-                _ => panic!("Unexpected field name"),
-            }
-        }
-
-        Ok(())
-    }
+    
 }

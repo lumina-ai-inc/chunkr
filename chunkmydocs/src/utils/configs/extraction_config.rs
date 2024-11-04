@@ -16,9 +16,6 @@ pub struct Config {
     pub pdla_fast_url: String,
     pub rapid_ocr_url: String,
     pub table_structure_url: String,
-    pub ocr_llm_url: String,
-    pub ocr_llm_key: String,
-    pub ocr_llm_model: String,
     #[serde(with = "duration_seconds")]
     pub task_expiration: Option<Duration>,
     pub s3_bucket: String,

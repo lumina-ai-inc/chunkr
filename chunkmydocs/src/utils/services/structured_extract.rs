@@ -137,7 +137,6 @@ pub async fn perform_structured_extraction(
     json_schema: JsonSchema,
     chunks: Vec<Chunk>,
     embedding_url: String,
-    embedding_key: String,
     llm_url: String,
     llm_key: String,
     top_k: usize,
@@ -297,20 +296,18 @@ pub async fn perform_structured_extraction(
 mod tests {
     use super::*;
     use crate::models::server::segment::{BoundingBox, Segment, SegmentType};
-    use crate::utils::configs::extraction_config::Config;
-    use std::env;
+    use crate::utils::configs::structured_extract::Config;
     use tokio;
 
     #[tokio::test]
     async fn test_perform_structured_extraction() -> Result<(), Box<dyn Error + Send + Sync>> {
         let embedding_url = "http://127.0.0.1:8085/embed".to_string();
         let config = Config::from_env().expect("Failed to load Config");
-        let llm_url = config.ocr_llm_url;
-        let llm_key = config.ocr_llm_key;
-        let model_name =
-            env::var("EXTRACTION__OCR_LLM_MODEL").unwrap_or_else(|_| "test_model".to_string());
-        let top_k = 10;
-        let batch_size = 10;
+        let llm_url = config.llm_url;
+        let llm_key = config.llm_key;
+        let model_name = config.model_name;
+        let top_k = config.top_k;
+        let batch_size = config.batch_size;
         let segments = vec![
             Segment {
                 segment_id: "1".to_string(),
@@ -434,12 +431,11 @@ mod tests {
             json_schema,
             chunks,
             embedding_url,
-            "test_embedding_key".to_string(),
             llm_url,
             llm_key,
-            top_k,
+            top_k as usize,
             model_name,
-            batch_size,
+            batch_size as usize,
         )
         .await?;
 
