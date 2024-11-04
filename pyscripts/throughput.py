@@ -22,18 +22,20 @@ async def throughput_test(
     ocr_strategy: OcrStrategy = OcrStrategy.Auto,
     max_workers: int = 1,
 ):
-    print("Starting throughput test...")
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_dir = os.path.join(current_dir, "input")
     run_id = f"run_{uuid.uuid4().hex}"
     run_dir = os.path.join(input_dir, run_id)
     os.makedirs(run_dir, exist_ok=True)
-    print(f"Created run directory: {run_dir}")
 
+    # Check for PDFs in the main input directory first
     pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
     if not pdf_files:
-        raise ValueError("No PDF files found in the input folder.")
-    original_pdf = pdf_files[0]  
+        # Also check subdirectories
+        pdf_files = glob.glob(os.path.join(input_dir, "**/*.pdf"), recursive=True)
+        if not pdf_files:
+            raise ValueError("No PDF files found in the input folder or its subdirectories.")
+    original_pdf = pdf_files[0]
 
     # Create a new PDF with only the specified page range from the first PDF
     base_pdf_writer = PdfWriter()
@@ -110,36 +112,12 @@ async def throughput_test(
         )
 
         try:
-            async def process_batch(files):
-                tasks = []
-                for file in files:
-                    # Add random jitter between 0-2 seconds
-                    await asyncio.sleep(random.uniform(0, 2))
-                    # Wait for main to complete and get its result
-                    try:
-                        result = await main(model, target_chunk_length, ocr_strategy, file, json_schema=json_schema)
-                        tasks.append(result)
-                    except Exception as e:
-                        print(f"Error processing file {file}: {str(e)}")
-                        tasks.append(e)
-                return tasks
-
             all_files = glob.glob(os.path.join(run_dir, "*.pdf"))
             if not all_files:
                 raise ValueError(f"No PDF files found in {run_dir}")
-                
-            batches = [all_files[i:i + max_workers] for i in range(0, len(all_files), max_workers)]
-            
-            elapsed_times = []
-            for batch in batches:
-                results = await process_batch(batch)
-                for result in results:
-                    if isinstance(result, Exception):
-                        print(f"Error processing batch: {str(result)}")
-                    elif isinstance(result, list):
-                        elapsed_times.extend(result)
-                    elif result is not None:
-                        elapsed_times.append(result)
+
+            # Process all files in parallel using main.py's async functionality
+            elapsed_times = await main(model, target_chunk_length, ocr_strategy, run_dir, json_schema=json_schema)
 
         except Exception as e:
             print(f"Failed to process {run_dir}: {str(e)}")
