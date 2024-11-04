@@ -157,11 +157,9 @@ pub async fn perform_structured_extraction(
     let mut embedding_cache = EmbeddingCache {
         embeddings: HashMap::new(),
     };
-    let embeddings: Result<Vec<Vec<f32>>, Box<dyn Error + Send + Sync>> = embedding_cache
+    let segment_embeddings: Vec<Vec<f32>> = embedding_cache
         .get_or_generate_embeddings(&client, &embedding_url, chunk_markdowns, batch_size)
-        .await;
-    let segment_embeddings = embeddings.unwrap();
-    println!("Segment embeddings generated");
+        .await?;
     let mut handles: Vec<
         JoinHandle<Result<(String, String, String), Box<dyn Error + Send + Sync>>>,
     > = Vec::new();
