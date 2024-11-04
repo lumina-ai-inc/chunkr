@@ -80,28 +80,3 @@ def process_file(upload_form: UploadForm) -> TaskResponse:
     task = extract_file(file_path, model, target_chunk_length, ocr_strategy, json_schema)
     task = check_task_status(task.task_url)
     return task
-
-def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, target_chunk_length: int = 512, ocr_strategy: OcrStrategy = OcrStrategy.Auto):
-    input_folder = "input"
-    pdf_files = glob.glob(os.path.join(input_folder, "*.pdf"))
-    
-    for file_path in pdf_files:
-        print(f"Processing file: {file_path}")
-        try:
-            # Assuming UploadForm requires 'json_schema' as a dict
-            upload_form = UploadForm(
-                file=file_path,
-                model=model,
-                target_chunk_length=target_chunk_length,
-                ocr_strategy=ocr_strategy,
-                json_schema=table_ocr  # Adjust as necessary
-            )
-            task = process_file(upload_form)
-            print(f"Task completed for {file_path}:")
-            print(task)
-        except Exception as e:
-            print(f"Error processing {file_path}: {str(e)}")
-
-if __name__ == "__main__":
-    model = Model.HighQuality
-    process_all_files_in_input_folder(model)
