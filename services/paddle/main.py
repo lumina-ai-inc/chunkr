@@ -96,7 +96,7 @@ def ocr_service():
             ]
             return await asyncio.gather(*tasks)
 
-    API_URL = "http://localhost:8080/ocr"
+    API_URL = "http://localhost:8000/ocr"
     input_dir = "./input"
     output_dir = "./output/server/ocr"
     os.makedirs(output_dir, exist_ok=True)
@@ -229,8 +229,9 @@ def table_service():
 if __name__ == "__main__":
     ## Uncomment one of the following lines to run the corresponding service
     ## You must have images in ./input directory
+    ## Outputs will be in ./output directory
     
-    # ocr_service()
+    ocr_service()
     # run_ocr_pipeline()
     # table_service()
     # run_table_pipeline()
