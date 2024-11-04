@@ -48,7 +48,7 @@ pub struct Field {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
-pub struct ExtractedData {
+pub struct ExtractedJson {
     pub title: String,
     pub schema_type: String,
     pub extracted_fields: Vec<ExtractedField>,
@@ -142,7 +142,7 @@ pub async fn perform_structured_extraction(
     top_k: usize,
     model_name: String,
     batch_size: usize,
-) -> Result<ExtractedData, Box<dyn Error + Send + Sync>> {
+) -> Result<ExtractedJson, Box<dyn Error + Send + Sync>> {
     let client = Client::new();
 
     let fields = json_schema.to_fields();
@@ -285,7 +285,7 @@ pub async fn perform_structured_extraction(
             value: parsed_value,
         });
     }
-    Ok(ExtractedData {
+    Ok(ExtractedJson {
         title: json_schema.title,
         schema_type: json_schema.schema_type,
         extracted_fields,
@@ -444,7 +444,6 @@ mod tests {
             !results.extracted_fields.is_empty(),
             "Should return at least one extracted field"
         );
-
 
         Ok(())
     }
