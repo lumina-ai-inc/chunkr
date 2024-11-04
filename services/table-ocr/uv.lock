@@ -3077,6 +3077,7 @@ name = "table-ocr"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "aiohttp" },
     { name = "paddlepaddle-gpu" },
     { name = "paddlex" },
     { name = "pillow" },
@@ -3086,6 +3087,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aiohttp", specifier = ">=3.10.10" },
     { name = "paddlepaddle-gpu", specifier = ">=2.6.2" },
     { name = "paddlex", url = "https://paddle-model-ecology.bj.bcebos.com/paddlex/whl/paddlex-3.0.0b1-py3-none-any.whl" },
     { name = "pillow", specifier = ">=11.0.0" },
