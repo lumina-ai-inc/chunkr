@@ -48,8 +48,7 @@ pub struct Field {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
-pub struct ExtractedJson
- {
+pub struct ExtractedJson {
     pub title: String,
     pub schema_type: String,
     pub extracted_fields: Vec<ExtractedField>,
@@ -191,13 +190,13 @@ pub async fn perform_structured_extraction(
                 search_embeddings(&query_embedding, &all_segments, &segment_embeddings, top_k);
             let context = search_results
                 .iter()
-                .map(|res| res.segment.content.clone())
+                .map(|res| res.segment.markdown.clone().unwrap_or_default())
                 .join("\n");
 
             let tag_instruction = match field_type.as_str() {
                 "obj" | "object" | "dict" => "Output JSON within <json></json> tags.",
                 "list" => "Output a list within <list></list> tags.",
-                "string" => "Output the value appropriately. Be direct and to the point, no explanations. Just the required information in the type requested.",
+                "string" => "Read the context and find what the user is asking for directly. Do not make up any information, and report truthfully what is in the document",
                 _ => "Output the value appropriately. Be direct and to the point, no explanations. Just the required information in the type requested.",
             };
 
@@ -449,7 +448,6 @@ mod tests {
             !results.extracted_fields.is_empty(),
             "Should return at least one extracted field"
         );
-
 
         Ok(())
     }

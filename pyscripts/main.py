@@ -141,17 +141,24 @@ if __name__ == "__main__":
         type="object", 
         properties=[
         Property(
-            name="black holes observed",
-            title="Black Holes Observed",
-            type="list",
-            description="A list of black holes observed",
+            name="the_company",
+            title="Company", 
+            type="string",
+            description="The legal name of the company or corporation that is recieving the funds from the investor",
             default=None
         ),
         Property(
-            name="implications of data",
-            title="Implications of Data",
-            type="string",
-            description="A summary of the implications of the data in 10-20 words",
+            name="the_investor",
+            title="Investor",
+            type="string", 
+            description="The legal name of the entity that is investing in the company. The investor could be an individual, a corporation, or a government agency.",
+            default=None
+        ),
+        Property(
+            name="purchase_amount",
+            title="Purchase Amount",
+            type="int",
+            description="The purchase amount of the investment in USD",
             default=None
         )
         ]
