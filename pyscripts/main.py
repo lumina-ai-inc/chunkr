@@ -11,7 +11,7 @@ from annotate import draw_bounding_boxes
 import json
 from pydantic import BaseModel, Field
 from typing import List, Optional
-
+import asyncio
 class Property(BaseModel):
     """Represents each property within the schema."""
     name: str = Field(..., description="Name of the property")
@@ -32,8 +32,8 @@ class GrowthFunc(Enum):
     LOGARITHMIC = 'logarithmic'
     QUADRATIC = 'quadratic'
     CUBIC = 'cubic'
-
-def print_time_taken(created_at, finished_at):
+    NONE = 'none'
+async def print_time_taken(created_at, finished_at):
     if created_at and finished_at:
         try:
             start_time = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
@@ -47,7 +47,7 @@ def print_time_taken(created_at, finished_at):
     else:
         print("Time taken information not available")
 
-def save_to_json(file_path: str, output: json, file_name: str ):
+async def save_to_json(file_path: str, output: json, file_name: str ):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_dir = os.path.join(current_dir, "output")
     os.makedirs(output_dir, exist_ok=True)
@@ -61,7 +61,7 @@ def save_to_json(file_path: str, output: json, file_name: str ):
         json.dump(output, f, indent=4)  # Added indent for readability
     return output_json_path
 
-def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, json_schema_serialized = None):
+async def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, json_schema_serialized = None):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_name = os.path.basename(file_path).split(".")[0]
     output_dir = os.path.join(current_dir, "output")
@@ -84,12 +84,12 @@ def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length:
     task: TaskResponse = process_file(upload_form)
     output = task.output
     print(f"File processed: {file_path}")
-    print("OUTPUT", output.extracted_data)
+    print("OUTPUT", output.extracted_json)
     if output is None:
         raise Exception(f"Output not found for {file_path}")
 
     print(f"Downloading bounding boxes for {file_path}...")
-    output_json_path = save_to_json(output_json_path, output, file_name)
+    output_json_path = await save_to_json(output_json_path, output, file_name)
     print(f"Downloaded bounding boxes for {file_path}")
 
     if task.pdf_url:
@@ -102,9 +102,8 @@ def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length:
         draw_bounding_boxes(file_path, output, output_annotated_path)
     print(f"File annotated: {file_path}")
 
-def main(max_workers: int = None, model: Model = Model.HighQuality, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, dir="input", json_schema: JsonSchema = None):
+async def main(model: Model = Model.HighQuality, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, dir="input", json_schema: JsonSchema = None):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    # Serialize the JSON schema properly to a dict
     json_schema_serialized = json_schema.model_dump() if json_schema else None
     print("JSON SCHEMA SERIALIZED", json_schema_serialized)
     input_dir = os.path.join(current_dir, dir)
@@ -116,25 +115,24 @@ def main(max_workers: int = None, model: Model = Model.HighQuality, target_chunk
         print("No PDF files found in the input folder.")
         return
 
-    print(f"Processing {len(input_files)} files with {max_workers} parallel workers...")
+    print(f"Processing {len(input_files)} files...")
     elapsed_times = []
 
-    def timed_extract(file_path):
+    async def timed_extract(file_path):
         start_time = time.time()
-        extract_and_annotate_file(file_path, model, target_chunk_length, ocr_strategy, json_schema_serialized)
+        await extract_and_annotate_file(file_path, model, target_chunk_length, ocr_strategy, json_schema_serialized)
         end_time = time.time()
         return {'file_path': file_path, 'elapsed_time': end_time - start_time}
         
-    max_workers = max_workers or len(input_files)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(timed_extract, file_path) for file_path in input_files]
-
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                result = future.result()
-                elapsed_times.append(result)
-            except Exception as e:
-                print(f"An error occurred: {str(e)}")
+    tasks = [timed_extract(file_path) for file_path in input_files]
+    
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    for result in results:
+        if isinstance(result, Exception):
+            print(f"An error occurred: {str(result)}")
+        else:
+            elapsed_times.append(result)
 
     print("All files processed.")
     return elapsed_times
@@ -164,7 +162,7 @@ if __name__ == "__main__":
         )
         ]
     )
-    times = main(None, model, target_chunk_length, ocr_strategy, "input", json_schema=json_schema)  
+    times = asyncio.run(main(None, model, target_chunk_length, ocr_strategy, "input", json_schema=json_schema))  
     
     if times:
         total_time = sum(result['elapsed_time'] for result in times)
