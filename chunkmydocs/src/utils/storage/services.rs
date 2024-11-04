@@ -1,6 +1,8 @@
+use crate::utils::configs::s3_config::Config;
 use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::head_object::HeadObjectError;
 use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream, Client as S3Client};
+use bytes::Bytes;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use reqwest::Client;
@@ -29,6 +31,13 @@ pub fn validate_s3_path(s3_path: &str) -> Result<(), Box<dyn std::error::Error>>
     }
 }
 
+fn replace_presigned_url_endpoint(url: &str) -> String {
+    let config = Config::from_env().unwrap();
+    let presigned_url_endpoint = config.presigned_url_endpoint.as_str();
+    let endpoint = config.endpoint.as_str();
+    url.replace(presigned_url_endpoint, endpoint)
+}
+
 pub async fn generate_presigned_url(
     s3_client: &S3Client,
     location: &str,
@@ -47,7 +56,9 @@ pub async fn generate_presigned_url(
         .presigned(PresigningConfig::expires_in(expiration)?)
         .await?;
 
-    Ok(presigned_request.uri().to_string())
+    let output_url = replace_presigned_url_endpoint(presigned_request.uri().to_string().as_str());
+
+    Ok(output_url)
 }
 
 pub async fn generate_presigned_url_if_exists(
@@ -74,7 +85,9 @@ pub async fn generate_presigned_url_if_exists(
                 .presigned(PresigningConfig::expires_in(expiration)?)
                 .await?;
 
-            Ok(presigned_request.uri().to_string())
+            Ok(replace_presigned_url_endpoint(
+                presigned_request.uri().to_string().as_str(),
+            ))
         }
         Err(SdkError::ServiceError(err)) if matches!(err.err(), HeadObjectError::NotFound(_)) => {
             Err(format!("Object does not exist: {}", location).into())
@@ -82,7 +95,6 @@ pub async fn generate_presigned_url_if_exists(
         Err(err) => Err(format!("Error checking object existence: {}", err).into()),
     }
 }
-use bytes::Bytes;
 
 pub async fn upload_to_s3_from_memory(
     s3_client: &S3Client,
