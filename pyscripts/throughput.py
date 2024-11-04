@@ -9,9 +9,15 @@ from enum import Enum
 import numpy as np
 from PyPDF2 import PdfReader, PdfWriter
 
-from main import main, GrowthFunc, JsonSchema, Property
+from main import main, JsonSchema, Property
 from models import Model, TableOcr, OcrStrategy
-
+class GrowthFunc(Enum):
+    LINEAR = 'linear'
+    EXPONENTIAL = 'exponential'
+    LOGARITHMIC = 'logarithmic'
+    QUADRATIC = 'quadratic'
+    CUBIC = 'cubic'
+    NONE = 'none'
 async def throughput_test(
     growth_func: GrowthFunc,
     start_page: int,
