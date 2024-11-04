@@ -6,4 +6,4 @@ COPY services/paddle/config .
 
 EXPOSE 8000
 
-CMD ["paddlex", "--pipeline", "./config/OCR.yaml", "--serve", "--port", "8000"]
+CMD ["paddlex", "--pipeline", "OCR.yaml", "--serve", "--port", "8000"]
