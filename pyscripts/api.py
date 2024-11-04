@@ -4,6 +4,7 @@ import requests
 from models import Model, TableOcr, TaskResponse, UploadForm, OcrStrategy
 import time
 import glob
+import json  # Added import for JSON serialization
 
 dotenv.load_dotenv(override=True)
 
@@ -23,17 +24,25 @@ def health_check():
     response = requests.get(url, headers=get_headers()).raise_for_status()
     return response
 
-def extract_file(file_to_send, model: Model, target_chunk_length: int = 512, ocr_strategy: OcrStrategy = OcrStrategy.Auto) -> TaskResponse:
+def extract_file(file_to_send, model: Model, target_chunk_length: int = 512, ocr_strategy: OcrStrategy = OcrStrategy.Auto, json_schema = None) -> TaskResponse:
     url = get_base_url() + "/api/v1/task"
     with open(file_to_send, "rb") as file:
-
         headers = get_headers()
-        files = {"file": (os.path.basename(file_to_send), file, "application/pdf")}
+        files = {
+            "file": (os.path.basename(file_to_send), file, "application/pdf"),
+        }
+        
+        if json_schema:
+            # Serialize the json_schema to a JSON string
+            json_schema_str = json.dumps(json_schema)
+            files["json_schema"] = (None, json_schema_str, "application/json")
+        
         data = {
             "model": str(model.value),
             "target_chunk_length": str(target_chunk_length),
-            "ocr_strategy": str(ocr_strategy.value)
+            "ocr_strategy": str(ocr_strategy.value),
         }
+        
         response = requests.post(url, files=files, data=data, headers=headers)
         response.raise_for_status()
         response_data = response.json()
@@ -67,7 +76,8 @@ def process_file(upload_form: UploadForm) -> TaskResponse:
     model = upload_form.model
     target_chunk_length = upload_form.target_chunk_length
     ocr_strategy = upload_form.ocr_strategy
-    task = extract_file(file_path, model, target_chunk_length, ocr_strategy)
+    json_schema = upload_form.json_schema
+    task = extract_file(file_path, model, target_chunk_length, ocr_strategy, json_schema)
     task = check_task_status(task.task_url)
     return task
 
@@ -78,7 +88,15 @@ def process_all_files_in_input_folder(model: Model, table_ocr: TableOcr = None, 
     for file_path in pdf_files:
         print(f"Processing file: {file_path}")
         try:
-            task = process_file(file_path, model, table_ocr, target_chunk_length, ocr_strategy)
+            # Assuming UploadForm requires 'json_schema' as a dict
+            upload_form = UploadForm(
+                file=file_path,
+                model=model,
+                target_chunk_length=target_chunk_length,
+                ocr_strategy=ocr_strategy,
+                json_schema=table_ocr  # Adjust as necessary
+            )
+            task = process_file(upload_form)
             print(f"Task completed for {file_path}:")
             print(task)
         except Exception as e:

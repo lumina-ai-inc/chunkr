@@ -1,10 +1,10 @@
 use crate::utils::configs::extraction_config;
-use postgres_types::{ FromSql, ToSql };
-use serde::{ Deserialize, Serialize };
-use strum_macros::{ Display, EnumString };
+use crate::utils::services::structured_extract::ExtractedJson;
+use postgres_types::{FromSql, ToSql};
+use serde::{Deserialize, Serialize};
+use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 use uuid::Uuid;
-
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct BoundingBox {
     pub left: f32,
@@ -46,17 +46,15 @@ pub struct Chunk {
     pub chunk_length: i32,
 }
 
+// TODO: Move to models/server/task.rs
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct OutputResponse {
+    pub chunks: Vec<Chunk>,
+    pub extracted_json: Option<ExtractedJson>,
+}
+
 #[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    PartialEq,
-    EnumString,
-    Display,
-    ToSchema,
-    ToSql,
-    FromSql
+    Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema, ToSql, FromSql,
 )]
 pub enum SegmentType {
     Title,
@@ -126,19 +124,22 @@ impl Segment {
                     let item = parts[1..].join(".").trim().to_string();
                     format!("<ol start='{}'><li>{}</li></ol>", start_number, item)
                 } else {
-                    let cleaned_content = self.content
+                    let cleaned_content = self
+                        .content
                         .trim_start_matches(&['-', '*', '•', '●', ' '][..])
                         .trim();
                     format!("<ul><li>{}</li></ul>", cleaned_content)
                 }
             }
             SegmentType::Picture => "<img src='' alt='{}' />".to_string(),
-            _ =>
-                format!(
-                    "<span class=\"{}\">{}</span>",
-                    self.segment_type.to_string().to_lowercase().replace(" ", "-"),
-                    self.content
-                ),
+            _ => format!(
+                "<span class=\"{}\">{}</span>",
+                self.segment_type
+                    .to_string()
+                    .to_lowercase()
+                    .replace(" ", "-"),
+                self.content
+            ),
         }
     }
 
@@ -153,7 +154,8 @@ impl Segment {
                     let item: String = parts[1..].join(".").trim().to_string();
                     format!("{}. {}", start_number, item)
                 } else {
-                    let cleaned_content = self.content
+                    let cleaned_content = self
+                        .content
                         .trim_start_matches(&['-', '*', '•', '●', ' '][..])
                         .trim();
                     format!("- {}\n\n", cleaned_content)
@@ -173,9 +175,17 @@ impl Segment {
                     return;
                 }
             };
-            let avg_confidence = ocr.iter().map(|ocr_result| ocr_result.confidence.unwrap_or(0.0)).sum::<f32>() / ocr.len() as f32;
+            let avg_confidence = ocr
+                .iter()
+                .map(|ocr_result| ocr_result.confidence.unwrap_or(0.0))
+                .sum::<f32>()
+                / ocr.len() as f32;
             if avg_confidence >= config.ocr_confidence_threshold {
-                self.content = ocr.iter().map(|ocr_result| ocr_result.text.clone()).collect::<Vec<String>>().join(" ");
+                self.content = ocr
+                    .iter()
+                    .map(|ocr_result| ocr_result.text.clone())
+                    .collect::<Vec<String>>()
+                    .join(" ");
             }
         }
     }

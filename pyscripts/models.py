@@ -29,20 +29,27 @@ class Configuration(BaseModel):
     model: Model
     target_chunk_length: int
 
+
+
+class OutputResponse(BaseModel):
+    chunks: list[dict]
+    extracted_json: Optional[dict] = None
+
+
 class TaskResponse(BaseModel):
     task_id: str
     status: Status
     created_at: datetime
     finished_at: Optional[datetime] = None
     expires_at: Optional[datetime] = None
-    message: Optional[str] = None
+    message: str
     input_file_url: Optional[str] = None
-    output: Optional[list[dict]] = None
+    output: Optional[OutputResponse] = None
     task_url: Optional[str] = None
     configuration: Configuration
     file_name: Optional[str] = None
     page_count: Optional[int] = None
-    pdf_location: Optional[str] = None
+    pdf_url: Optional[str] = None
 
     class Config:
         json_encoders = {datetime: lambda v: v.isoformat()}
@@ -59,4 +66,4 @@ class UploadForm(BaseModel):
     model: Model
     target_chunk_length: Optional[int] = None
     ocr_strategy: Optional[OcrStrategy] = OcrStrategy.Auto
-
+    json_schema: Optional[dict] = None

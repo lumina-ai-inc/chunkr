@@ -17,6 +17,8 @@ pub struct Config {
     pub queue_postprocess: String,
     #[serde(default = "default_queue_ocr")]
     pub queue_ocr: String,
+    #[serde(default = "default_queue_structured_extract")]
+    pub queue_structured_extract: String,
     #[serde(default = "default_pdla_url")]
     pub pdla_url: String,
     #[serde(default = "default_pdla_fast_url")]
@@ -69,6 +71,10 @@ fn default_queue_postprocess() -> String {
 
 fn default_queue_ocr() -> String {
     "ocr".to_string()
+}
+
+fn default_queue_structured_extract() -> String {
+    "structured-extract".to_string()
 }
 
 fn default_pdla_url() -> String {

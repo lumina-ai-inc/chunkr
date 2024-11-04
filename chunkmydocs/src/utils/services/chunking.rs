@@ -1,8 +1,8 @@
-use crate::models::server::segment::{ Chunk, Segment, SegmentType };
+use crate::models::server::segment::{Chunk, Segment, SegmentType};
 
 pub async fn hierarchical_chunking(
     segments: Vec<Segment>,
-    target_length: Option<i32>
+    target_length: Option<i32>,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let mut chunks: Vec<Chunk> = Vec::new();
     let target_length = target_length.unwrap_or(512);
@@ -46,9 +46,8 @@ pub async fn hierarchical_chunking(
                     current_word_count = 0;
                 }
                 SegmentType::SectionHeader => {
-                    if
-                        !current_chunk.is_empty() &&
-                        current_chunk.last().unwrap().segment_type != SegmentType::SectionHeader
+                    if !current_chunk.is_empty()
+                        && current_chunk.last().unwrap().segment_type != SegmentType::SectionHeader
                     {
                         finalize_chunk(&mut current_chunk, &mut chunks);
                         current_word_count = 0;
@@ -93,7 +92,7 @@ pub async fn hierarchical_chunking(
 
 pub async fn process_bounding_boxes(
     file_path: &str,
-    target_size: usize
+    target_size: usize,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let file_content = tokio::fs::read_to_string(file_path).await?;
     let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
@@ -110,9 +109,8 @@ mod tests {
     async fn test_process_bounding_boxes() -> Result<(), Box<dyn std::error::Error>> {
         // Load the bounding_boxes.json file
         let mut input_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        input_path.push(
-            "/Users/ishaankapoor/chunk-my-docs/example/input/no_chunk_bounding_boxes.json"
-        );
+        input_path
+            .push("/Users/ishaankapoor/chunk-my-docs/example/input/no_chunk_bounding_boxes.json");
         let input_file_path = input_path.to_str().unwrap();
 
         // Process the bounding boxes

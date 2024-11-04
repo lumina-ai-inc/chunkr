@@ -1,9 +1,13 @@
+pub mod chunking;
+pub mod embeddings;
+pub mod images;
+pub mod llm;
+pub mod log;
 pub mod ocr;
+pub mod payload;
 pub mod pdf;
 pub mod pdla;
 pub mod rapid_ocr;
+pub mod search;
+pub mod structured_extract;
 pub mod table_ocr;
-pub mod images;
-pub mod log;
-pub mod payload;
-pub mod chunking;

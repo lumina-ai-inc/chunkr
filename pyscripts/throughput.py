@@ -3,14 +3,16 @@ import time
 import csv
 import uuid
 import glob
+import random
+import asyncio
 from enum import Enum
 import numpy as np
 from PyPDF2 import PdfReader, PdfWriter
 
-from main import main, GrowthFunc
+from main import main, GrowthFunc, JsonSchema, Property
 from models import Model, TableOcr, OcrStrategy
 
-def throughput_test(
+async def throughput_test(
     growth_func: GrowthFunc,
     start_page: int,
     end_page: int,
@@ -18,20 +20,22 @@ def throughput_test(
     model: Model,
     target_chunk_length: int = None,
     ocr_strategy: OcrStrategy = OcrStrategy.Auto,
-    num_workers: int = 1,
+    max_workers: int = 1,
 ):
-    print("Starting throughput test...")
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_dir = os.path.join(current_dir, "input")
     run_id = f"run_{uuid.uuid4().hex}"
     run_dir = os.path.join(input_dir, run_id)
     os.makedirs(run_dir, exist_ok=True)
-    print(f"Created run directory: {run_dir}")
 
+    # Check for PDFs in the main input directory first
     pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
     if not pdf_files:
-        raise ValueError("No PDF files found in the input folder.")
-    original_pdf = pdf_files[0]  
+        # Also check subdirectories
+        pdf_files = glob.glob(os.path.join(input_dir, "**/*.pdf"), recursive=True)
+        if not pdf_files:
+            raise ValueError("No PDF files found in the input folder or its subdirectories.")
+    original_pdf = pdf_files[0]
 
     # Create a new PDF with only the specified page range from the first PDF
     base_pdf_writer = PdfWriter()
@@ -55,6 +59,8 @@ def throughput_test(
             multiplier = i ** 2
         elif growth_func == GrowthFunc.CUBIC:
             multiplier = i ** 3
+        elif growth_func == GrowthFunc.NONE:
+            multiplier = 1
         else:
             raise ValueError("Unsupported growth function")
 
@@ -84,8 +90,35 @@ def throughput_test(
         writer.writeheader()
         csvfile.flush()
 
+        json_schema = JsonSchema(
+            title="paper info",
+            type="object",
+            properties=[
+                Property(
+                    name="black holes observed",
+                    title="Black Holes Observed", 
+                    type="list",
+                    description="A list of black holes observed",
+                    default=None
+                ),
+                Property(
+                    name="implications of data",
+                    title="Implications of Data",
+                    type="string", 
+                    description="A summary of the implications of the data in 10-20 words",
+                    default=None
+                )
+            ]
+        )
+
         try:
-            elapsed_times = main(num_workers, model, target_chunk_length, ocr_strategy, run_dir)
+            all_files = glob.glob(os.path.join(run_dir, "*.pdf"))
+            if not all_files:
+                raise ValueError(f"No PDF files found in {run_dir}")
+
+            # Process all files in parallel using main.py's async functionality
+            elapsed_times = await main(model, target_chunk_length, ocr_strategy, run_dir, json_schema=json_schema)
+
         except Exception as e:
             print(f"Failed to process {run_dir}: {str(e)}")
             return
@@ -114,14 +147,14 @@ if __name__ == "__main__":
     model = Model.Fast
     target_chunk_length = 1000  
     ocr_strategy = OcrStrategy.Off
-    throughput_test(
-        growth_func=GrowthFunc.LINEAR,
+    asyncio.run(throughput_test(
+        growth_func=GrowthFunc.NONE,
         start_page=1,
         end_page=10,
-        num_pdfs=5,
+        num_pdfs=35,
         model=model,
         target_chunk_length=target_chunk_length,
         ocr_strategy=ocr_strategy,
-        num_workers=5
-    )
+        max_workers=25
+    ))
     print("Throughput test completed.")

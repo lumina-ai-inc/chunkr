@@ -1,3 +1,5 @@
+use crate::utils::services::structured_extract::JsonSchema;
+use actix_multipart::form::json::Json as MPJson;
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
@@ -5,21 +7,28 @@ use std::time::Duration;
 use strum_macros::{Display, EnumString};
 use utoipa::{IntoParams, ToSchema};
 
+// Start of Selection
 #[derive(Debug, MultipartForm, ToSchema, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub struct UploadForm {
     #[param(style = Form, value_type = String, format = "binary")]
     #[schema(value_type = String, format = "binary")]
     pub file: TempFile,
+
     #[param(style = Form, value_type = Model)]
     #[schema(value_type = Model)]
     pub model: Text<Model>,
+
     #[param(style = Form, value_type = Option<i32>)]
     #[schema(value_type = Option<i32>)]
     pub target_chunk_length: Option<Text<i32>>,
+
     #[param(style = Form, value_type = Option<OcrStrategy>)]
     #[schema(value_type = Option<OcrStrategy>)]
     pub ocr_strategy: Option<Text<OcrStrategy>>,
+
+
+    pub json_schema: Option<MPJson<JsonSchema>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -59,6 +68,7 @@ pub struct Configuration {
     pub model: Model,
     pub ocr_strategy: OcrStrategy,
     pub target_chunk_length: Option<i32>,
+    pub json_schema: Option<JsonSchema>,
 }
 
 impl Model {
@@ -86,8 +96,9 @@ impl SegmentationModel {
     }
 }
 
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString)]
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString,
+)]
 pub enum OcrStrategy {
     Auto,
     All,
