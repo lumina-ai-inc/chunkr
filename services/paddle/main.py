@@ -231,7 +231,7 @@ if __name__ == "__main__":
     ## You must have images in ./input directory
     
     # ocr_service()
-    run_ocr_pipeline()
+    # run_ocr_pipeline()
     # table_service()
     # run_table_pipeline()
     # raw_table()
