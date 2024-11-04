@@ -1,18 +1,14 @@
 use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
-use crate::models::server::segment::{Chunk, OutputResponse};
+use crate::models::server::segment::OutputResponse;
 use crate::models::server::task::Status;
-use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::configs::structured_extract::Config as StructuredExtractConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::structured_extract::perform_structured_extraction;
-use crate::utils::services::{
-    log::log_task, payload::produce_extraction_payloads, pdf::split_pdf, pdla::pdla_extraction,
-};
+use crate::utils::services::log::log_task;
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
-use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Write;
@@ -55,7 +51,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             json_schema.ok_or("JSON schema is missing")?,
             output_response.chunks.clone(),
             config.embedding_url.clone(),
-            config.embedding_key.clone(),
             config.llm_url.clone(),
             config.llm_key.clone(),
             config.top_k as usize,
@@ -64,7 +59,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         )
         .await
         .map_err(|e| e.to_string())?;
-        output_response.extracted_data = Some(structured_results);
+        output_response.extracted_json = Some(structured_results);
 
         let mut output_temp_file = NamedTempFile::new()?;
         output_temp_file.write_all(serde_json::to_string(&output_response)?.as_bytes())?;

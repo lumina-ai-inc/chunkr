@@ -49,7 +49,7 @@ pub struct Chunk {
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct OutputResponse {
     pub chunks: Vec<Chunk>,
-    pub extracted_data: Option<ExtractedData>,
+    pub extracted_json: Option<ExtractedData>,
 }
 
 #[derive(

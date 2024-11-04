@@ -1,5 +1,5 @@
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::collections::HashMap;
 use std::error::Error;
 #[derive(Clone, Serialize)]
@@ -12,10 +12,7 @@ pub struct EmbeddingCache {
     pub embeddings: HashMap<String, Vec<f32>>,
 }
 
-#[derive(Clone, Deserialize)]
-struct EmbeddingResponse {
-    data: Vec<HashMap<String, Vec<f32>>>,
-}
+
 impl EmbeddingCache {
     pub fn new() -> Self {
         EmbeddingCache {

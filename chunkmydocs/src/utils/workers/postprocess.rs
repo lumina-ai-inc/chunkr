@@ -135,7 +135,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         let output_response = OutputResponse {
             chunks,
-            extracted_data: None,
+            extracted_json: None,
         };
 
         let mut output_temp_file = NamedTempFile::new()?;

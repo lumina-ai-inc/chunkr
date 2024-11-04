@@ -1,6 +1,6 @@
 use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::{ExtractionPayload, OcrStrategy};
-use crate::models::server::segment::{Chunk, OutputResponse, Segment, SegmentType};
+use crate::models::server::segment::{OutputResponse, Segment, SegmentType};
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config;
 use crate::utils::db::deadpool_postgres::create_pool;
