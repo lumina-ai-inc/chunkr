@@ -11,7 +11,7 @@ export enum Status {
 
 export interface Output {
   chunks: Chunk[];
-  extracted_data: ExtractedData;
+  extracted_json: ExtractedJson;
 }
 
 export interface TaskResponse {
@@ -37,7 +37,7 @@ export interface Configuration {
   target_chunk_length: number | null;
 }
 
-export interface ExtractedData {
+export interface ExtractedJson {
   title: string;
   schema_type: string;
   extracted_fields: ExtractedField[];
