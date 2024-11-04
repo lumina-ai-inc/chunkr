@@ -94,7 +94,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   preprocess:
@@ -167,7 +167,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:ba8114d9
+    image: luminainc/web:a0e43f8b
     ports:
       - "5173:8000"
     env_file:
@@ -219,6 +219,7 @@ services:
       - "8004:8000"
     env_file:
       - .env
+    entrypoint: [ "paddlex", "--pipeline", "table_recognition.yaml", "--serve", "--port", "8000" ]
     deploy:
       replicas: 1
       resources:
