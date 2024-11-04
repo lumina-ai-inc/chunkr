@@ -162,7 +162,7 @@ if __name__ == "__main__":
         )
         ]
     )
-    times = asyncio.run(main(None, model, target_chunk_length, ocr_strategy, "input", json_schema=json_schema))  
+    times = asyncio.run(main( model, target_chunk_length, ocr_strategy, "input", json_schema=json_schema))  
     
     if times:
         total_time = sum(result['elapsed_time'] for result in times)
