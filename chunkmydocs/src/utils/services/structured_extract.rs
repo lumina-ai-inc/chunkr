@@ -48,7 +48,8 @@ pub struct Field {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
-pub struct ExtractedJson {
+pub struct ExtractedJson
+ {
     pub title: String,
     pub schema_type: String,
     pub extracted_fields: Vec<ExtractedField>,
@@ -278,7 +279,13 @@ pub async fn perform_structured_extraction(
             "string" => serde_json::Value::String(value),
             _ => serde_json::Value::String(value),
         };
-
+        let parsed_value = match parsed_value {
+            serde_json::Value::String(s) => {
+                let s = s.replace("<text>", "").replace("</text>", "");
+                serde_json::Value::String(s)
+            }
+            _ => parsed_value,
+        };
         extracted_fields.push(ExtractedField {
             name,
             field_type,
@@ -444,6 +451,7 @@ mod tests {
             !results.extracted_fields.is_empty(),
             "Should return at least one extracted field"
         );
+
 
         Ok(())
     }
