@@ -44,7 +44,7 @@ pub async fn llm_call(
     });
 
     let response = client
-        .post(format!("{}/v1/chat/completions", url))
+        .post(url)
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {}", key))
         .json(&payload)
@@ -265,5 +265,4 @@ mod tests {
         println!("test_ocr_llm_with_image completed successfully");
         Ok(())
     }
-    
 }
