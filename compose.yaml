@@ -94,7 +94,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   preprocess:
@@ -158,12 +158,12 @@ services:
       - redis
       - minio
       - rrq
-      - rapid-ocr
+      - general-ocr
       - table-ocr
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   web:
@@ -195,12 +195,13 @@ services:
       - /dev/shm:/dev/shm
     restart: always
 
-  rapid-ocr:
-    image: luminainc/rapid-ocr:3a7ac326
+  general-ocr:
+    image: luminainc/paddle:3196f3a3
     ports:
       - "8003:8000"
     env_file:
       - .env
+    entrypoint: [ "paddlex", "--pipeline", "OCR.yaml", "--serve", "--port", "8000" ]
     deploy:
       replicas: 1
       resources:

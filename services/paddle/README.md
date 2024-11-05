@@ -56,13 +56,25 @@ source $HOME/.cargo/env
 cd /paddle
 ```
 
-3. Run service:
+3. Run services:
 ```bash
+cd /paddle
+
+# Choose one of the following:
+## General OCR
+paddlex --pipeline ./config/OCR.yaml --serve --port 8000
+
+## Table Recognition
+paddlex --pipeline ./config/table_recognition.yaml --serve --port 8000
+
+## Run local implementation
 uv run main.py
 ```
 
-Alternatively, you can run the server without using UV:
+Alternatively, you can run the local implementation without using UV:
 ```bash
+cd /paddle
+
 # Create virtual environment
 python3 -m venv venv
 source venv/bin/activate

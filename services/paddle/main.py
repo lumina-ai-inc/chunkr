@@ -82,10 +82,12 @@ def ocr_service():
     import glob
     import asyncio
     import aiohttp
+    import json
     
     async def process_single_image(session, image_data):
         print(f"Processing image")
         async with session.post(API_URL, json={"image": image_data}) as response:
+            print(await response.json())
             return await response.json()
 
     async def process_all_images(image_data_list):
@@ -96,7 +98,7 @@ def ocr_service():
             ]
             return await asyncio.gather(*tasks)
 
-    API_URL = "http://localhost:8000/ocr"
+    API_URL = "http://localhost:8003/ocr"
     input_dir = "./input"
     output_dir = "./output/server/ocr"
     os.makedirs(output_dir, exist_ok=True)
@@ -119,8 +121,11 @@ def ocr_service():
     
     for image_path, response in zip(file_paths, responses):
         base_name = os.path.basename(image_path)
+        output_json_path = os.path.join(output_dir, f"{base_name}.json")
         output_image_path = os.path.join(output_dir, base_name)
         result = response["result"]
+        with open(output_json_path, "w") as file:
+            json.dump(result, file, indent=2)
         with open(output_image_path, "wb") as file:
             file.write(base64.b64decode(result["image"]))
 
@@ -227,12 +232,13 @@ def table_service():
     print(f"Images per second: {len(image_files) / total_time}")
     
 if __name__ == "__main__":
-    ## Uncomment one of the following lines to run the corresponding service
-    ## You must have images in ./input directory
-    ## Outputs will be in ./output directory
+    # Uncomment one of the following lines to run the corresponding service
+    # You must have images in ./input directory
+    # Outputs will be in ./output directory
     
     ocr_service()
     # run_ocr_pipeline()
+    # ocr_service()
     # table_service()
     # run_table_pipeline()
     # raw_table()
