@@ -1,14 +1,11 @@
 use crate::models::server::segment::OCRResult;
 use crate::utils::services::general_ocr::paddle_ocr;
+use crate::utils::services::html::{convert_table, extract_table_html};
 use crate::utils::services::table_ocr::paddle_table_ocr;
 use crate::utils::storage::services::download_to_tempfile;
 use aws_sdk_s3::Client as S3Client;
-use once_cell::sync::Lazy;
-use regex::Regex;
-use reqwest::Client as ReqwestClient;
 
-static TABLE_CONTENT_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?i)<table[^>]*>(.*?)<\/table>").unwrap());
+use reqwest::Client as ReqwestClient;
 
 pub async fn download_and_ocr(
     s3_client: &S3Client,
@@ -74,17 +71,6 @@ pub async fn download_and_table_ocr(
     }
 }
 
-fn extract_table_html(html: String) -> String {
-    let mut contents = Vec::new();
-    for cap in TABLE_CONTENT_REGEX.captures_iter(&html) {
-        if let Some(content) = cap.get(1) {
-            contents.push(format!("<table>{}</table>", content.as_str()));
-        }
-    }
-    contents.first().unwrap().to_string()
-}
-
-// TODO: Implement this
 fn get_table_markdown(html: String) -> String {
-    html
+    convert_table(html)
 }

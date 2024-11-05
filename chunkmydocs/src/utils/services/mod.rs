@@ -1,6 +1,7 @@
 pub mod chunking;
 pub mod embeddings;
 pub mod general_ocr;
+pub mod html;
 pub mod images;
 pub mod llm;
 pub mod log;
