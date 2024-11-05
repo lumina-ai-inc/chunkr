@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY services/paddle/config .
 
+RUN for file in *.yaml; do paddlex --pipeline "$file" || true; done
+
 EXPOSE 8000
 
 CMD ["paddlex", "--pipeline", "OCR.yaml", "--serve", "--port", "8000"]

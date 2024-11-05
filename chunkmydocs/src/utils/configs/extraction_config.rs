@@ -24,7 +24,7 @@ pub struct Config {
     #[serde(default = "default_pdla_fast_url")]
     pub pdla_fast_url: String,
     #[serde(default = "default_rapid_ocr_url")]
-    pub rapid_ocr_url: Option<String>,
+    pub general_ocr_url: Option<String>,
     #[serde(default = "default_table_structure_url")]
     pub table_structure_url: Option<String>,
     #[serde(with = "duration_seconds", default = "default_task_expiration")]
