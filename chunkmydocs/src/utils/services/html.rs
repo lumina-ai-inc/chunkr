@@ -4,7 +4,9 @@ use regex::Regex;
 static TABLE_CONTENT_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"(?i)<table[^>]*>(.*?)<\/table>").unwrap());
 static TR_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)<tr[^>]*>(.*?)<\/tr>").unwrap());
-static TD_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)<td[^>]*>(.*?)<\/td>").unwrap());
+static TD_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?i)<td\s*(?:colspan\s*=\s*['"]?(\d+)['"]?)?(?:\s*+rowspan\s*=\s*['"]?(\d+)['"]?)?[^>]*>(.*?)<\/td>"#).unwrap()
+});
 
 pub fn extract_table_html(html: String) -> String {
     let mut contents = Vec::new();
@@ -16,6 +18,7 @@ pub fn extract_table_html(html: String) -> String {
     contents.first().unwrap().to_string()
 }
 
+// TODO: handle rowspan empty cells
 pub fn convert_table(html: String) -> String {
     let mut markdown = String::new();
     let mut row_count = 0;
@@ -34,8 +37,18 @@ pub fn convert_table(html: String) -> String {
             markdown.push_str("|");
             for col_match in TD_REGEX.captures_iter(row.as_str()) {
                 cell_count += 1;
-                if let Some(col) = col_match.get(1) {
+                let colspan = col_match
+                    .get(1)
+                    .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
+                let _ = col_match
+                    .get(2)
+                    .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
+                if let Some(col) = col_match.get(3) {
                     markdown.push_str(format!(" {} |", col.as_str()).as_str());
+                }
+                for _ in 0..(colspan - 1) {
+                    markdown.push_str("  |");
+                    cell_count += 1;
                 }
             }
             markdown.push_str("\n");
