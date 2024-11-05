@@ -4,9 +4,7 @@ use regex::Regex;
 static TABLE_CONTENT_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"(?i)<table[^>]*>(.*?)<\/table>").unwrap());
 static TR_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)<tr[^>]*>(.*?)<\/tr>").unwrap());
-static TD_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?i)<td\s*(?:colspan\s*=\s*['"]?(\d+)['"]?)?(?:\s*+rowspan\s*=\s*['"]?(\d+)['"]?)?[^>]*>(.*?)<\/td>"#).unwrap()
-});
+static TD_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)<td[^>]*>(.*?)<\/td>").unwrap());
 
 pub fn extract_table_html(html: String) -> String {
     let mut contents = Vec::new();
