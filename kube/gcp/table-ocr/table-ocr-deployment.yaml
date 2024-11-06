@@ -29,7 +29,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: table-ocr
-        image: luminainc/table-ocr:616fdd68
+        image: luminainc/paddle:e2a6f48d
         imagePullPolicy: Always
         envFrom:
         - secretRef:
@@ -45,22 +45,6 @@ spec:
             nvidia.com/gpu: 1
           requests:
             nvidia.com/gpu: 1
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 120
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 120
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
         volumeMounts:
         - name: dshm
           mountPath: /dev/shm
