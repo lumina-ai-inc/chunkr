@@ -31,11 +31,11 @@ pub fn validate_s3_path(s3_path: &str) -> Result<(), Box<dyn std::error::Error>>
     }
 }
 
-fn replace_presigned_url_endpoint(url: &str) -> String {
+pub fn replace_presigned_url_endpoint(url: &str) -> String {
     let config = Config::from_env().unwrap();
     let presigned_url_endpoint = config.presigned_url_endpoint.as_str();
     let endpoint = config.endpoint.as_str();
-    url.replace(presigned_url_endpoint, endpoint)
+    url.replace(endpoint, presigned_url_endpoint)
 }
 
 pub async fn generate_presigned_url(
@@ -56,9 +56,7 @@ pub async fn generate_presigned_url(
         .presigned(PresigningConfig::expires_in(expiration)?)
         .await?;
 
-    let output_url = replace_presigned_url_endpoint(presigned_request.uri().to_string().as_str());
-
-    Ok(output_url)
+    Ok(presigned_request.uri().to_string())
 }
 
 pub async fn generate_presigned_url_if_exists(
@@ -85,9 +83,7 @@ pub async fn generate_presigned_url_if_exists(
                 .presigned(PresigningConfig::expires_in(expiration)?)
                 .await?;
 
-            Ok(replace_presigned_url_endpoint(
-                presigned_request.uri().to_string().as_str(),
-            ))
+            Ok(presigned_request.uri().to_string())
         }
         Err(SdkError::ServiceError(err)) if matches!(err.err(), HeadObjectError::NotFound(_)) => {
             Err(format!("Object does not exist: {}", location).into())

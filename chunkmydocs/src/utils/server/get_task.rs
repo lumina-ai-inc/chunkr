@@ -2,7 +2,9 @@ use crate::models::server::extract::Configuration;
 use crate::models::server::segment::{OutputResponse, SegmentType};
 use crate::models::server::task::{Status, TaskResponse};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
-use crate::utils::storage::services::{download_to_tempfile, generate_presigned_url};
+use crate::utils::storage::services::{
+    download_to_tempfile, generate_presigned_url, replace_presigned_url_endpoint,
+};
 use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
 use reqwest;
@@ -49,12 +51,14 @@ pub async fn create_task_from_row(
     let pdf_location = match s3_pdf_location {
         Some(location) => generate_presigned_url(s3_client, &location, None)
             .await
-            .ok(),
+            .ok()
+            .map(|url| replace_presigned_url_endpoint(&url)),
         None => None,
     };
     let input_location: String = row.get("input_location");
     let input_file_url = generate_presigned_url(s3_client, &input_location, None)
         .await
+        .map(|url| replace_presigned_url_endpoint(&url))
         .map_err(|_| "Error getting input file url")?;
 
     let output_location: String = row.get("output_location");
@@ -99,7 +103,10 @@ async fn process_output(
     for chunk in &mut output_response.chunks {
         for segment in &mut chunk.segments {
             if let Some(image) = segment.image.as_ref() {
-                let url = generate_presigned_url(s3_client, image, None).await.ok();
+                let url = generate_presigned_url(s3_client, image, None)
+                    .await
+                    .ok()
+                    .map(|url| replace_presigned_url_endpoint(&url));
                 segment.image = url.clone();
                 if segment.segment_type == SegmentType::Picture {
                     segment.html = Some(format!(
