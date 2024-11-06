@@ -233,6 +233,21 @@ services:
       - /dev/shm:/dev/shm
     restart: always
 
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.5
+    ports:
+      - "8007:80"
+    command: [ "--model-id", "BAAI/bge-m3" ]
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    restart: always
+
   rrq:
     image: luminainc/rrq:33cd165
     depends_on:
