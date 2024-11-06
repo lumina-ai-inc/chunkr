@@ -31,9 +31,6 @@ spec:
       - name: table-ocr
         image: luminainc/paddle:e2a6f48d
         imagePullPolicy: Always
-        envFrom:
-        - secretRef:
-            name: chunkmydocs-secrets
         ports:
         - containerPort: 8000
         securityContext:
