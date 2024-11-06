@@ -1,4 +1,3 @@
-use crate::utils::configs::s3_config::Config;
 use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::head_object::HeadObjectError;
 use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream, Client as S3Client};
@@ -29,13 +28,6 @@ pub fn validate_s3_path(s3_path: &str) -> Result<(), Box<dyn std::error::Error>>
         true => Ok(()),
         false => Err("Invalid S3 path format".into()),
     }
-}
-
-pub fn replace_presigned_url_endpoint(url: &str) -> String {
-    let config = Config::from_env().unwrap();
-    let presigned_url_endpoint = config.presigned_url_endpoint.as_str();
-    let endpoint = config.endpoint.as_str();
-    url.replace(endpoint, presigned_url_endpoint)
 }
 
 pub async fn generate_presigned_url(

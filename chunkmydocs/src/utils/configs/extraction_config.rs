@@ -23,18 +23,18 @@ pub struct Config {
     pub pdla_url: String,
     #[serde(default = "default_pdla_fast_url")]
     pub pdla_fast_url: String,
-    #[serde(default = "default_rapid_ocr_url")]
+    #[serde(default = "default_general_ocr_url")]
     pub general_ocr_url: Option<String>,
-    #[serde(default = "default_table_structure_url")]
-    pub table_structure_url: Option<String>,
+    #[serde(default = "default_table_ocr_url")]
+    pub table_ocr_url: Option<String>,
     #[serde(with = "duration_seconds", default = "default_task_expiration")]
     pub task_expiration: Option<Duration>,
     #[serde(default = "default_s3_bucket")]
     pub s3_bucket: String,
     #[serde(default = "default_batch_size")]
     pub batch_size: i32,
-    #[serde(default = "default_base_url")]
-    pub base_url: String,
+    #[serde(default = "default_server_url")]
+    pub server_url: String,
     #[serde(default = "default_ocr_concurrency")]
     pub ocr_concurrency: usize,
     #[serde(default = "default_ocr_confidence_threshold")]
@@ -50,7 +50,7 @@ pub struct Config {
 }
 
 fn default_version() -> String {
-    "1.0.0".to_string()
+    "1.0.3".to_string()
 }
 
 fn default_queue_preprocess() -> String {
@@ -85,15 +85,15 @@ fn default_pdla_fast_url() -> String {
     "http://localhost:8002".to_string()
 }
 
-fn default_rapid_ocr_url() -> Option<String> {
+fn default_general_ocr_url() -> Option<String> {
     Some("http://localhost:8003".to_string())
 }
 
-fn default_table_structure_url() -> Option<String> {
+fn default_table_ocr_url() -> Option<String> {
     Some("http://localhost:8004".to_string())
 }
 
-fn default_base_url() -> String {
+fn default_server_url() -> String {
     "http://localhost:8000".to_string()
 }
 
