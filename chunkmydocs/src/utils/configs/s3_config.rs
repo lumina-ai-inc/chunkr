@@ -16,6 +16,8 @@ pub struct Config {
     region: String,
 }
 
+pub struct ExternalS3Client(pub Client);
+
 fn default_endpoint() -> String {
     "https://s3.amazonaws.com".to_string()
 }

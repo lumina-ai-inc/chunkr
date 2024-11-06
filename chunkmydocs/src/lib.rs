@@ -26,7 +26,7 @@ use routes::task::{create_extraction_task, get_task_status};
 use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
-use utils::configs::s3_config::{create_client, create_external_client};
+use utils::configs::s3_config::{create_client, create_external_client, ExternalS3Client};
 use utils::db::deadpool_postgres;
 use utils::server::admin_user::get_or_create_admin_user;
 use utils::stripe::invoicer::invoice;
@@ -36,6 +36,7 @@ use utoipa::{
 };
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
+
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 fn run_migrations(url: &str) {
@@ -167,7 +168,7 @@ pub fn main() -> std::io::Result<()> {
                 .wrap(Logger::new("%a %{User-Agent}i"))
                 .app_data(web::Data::new(pg_pool.clone()))
                 .app_data(web::Data::new(s3_client.clone()))
-                .app_data(web::Data::new(s3_external_client.clone()))
+                .app_data(web::Data::new(ExternalS3Client(s3_external_client.clone())))
                 .app_data(
                     MultipartFormConfig::default()
                         .total_limit(max_size)
