@@ -11,6 +11,7 @@ use serde_json;
 pub async fn get_task(
     pool: &Pool,
     s3_client: &S3Client,
+    external_s3_client: &S3Client,
     task_id: String,
     user_id: String,
 ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
@@ -27,12 +28,13 @@ pub async fn get_task(
         return Err("Task expired".into());
     }
 
-    create_task_from_row(&task, s3_client).await
+    create_task_from_row(&task, s3_client, external_s3_client).await
 }
 
 pub async fn create_task_from_row(
     row: &tokio_postgres::Row,
     s3_client: &S3Client,
+    external_s3_client: &S3Client,
 ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
     let task_id: String = row.get("task_id");
     let status: Status = row
@@ -47,19 +49,19 @@ pub async fn create_task_from_row(
     let page_count = row.get::<_, Option<i32>>("page_count");
     let s3_pdf_location: Option<String> = row.get("pdf_location");
     let pdf_location = match s3_pdf_location {
-        Some(location) => generate_presigned_url(s3_client, &location, None)
+        Some(location) => generate_presigned_url(external_s3_client, &location, None)
             .await
             .ok(),
         None => None,
     };
     let input_location: String = row.get("input_location");
-    let input_file_url = generate_presigned_url(s3_client, &input_location, None)
+    let input_file_url = generate_presigned_url(external_s3_client, &input_location, None)
         .await
         .map_err(|_| "Error getting input file url")?;
 
     let output_location: String = row.get("output_location");
     let output = if status == Status::Succeeded {
-        Some(process_output(s3_client, &output_location).await?)
+        Some(process_output(s3_client, external_s3_client, &output_location).await?)
     } else {
         None
     };
@@ -89,6 +91,7 @@ pub async fn create_task_from_row(
 
 async fn process_output(
     s3_client: &S3Client,
+    external_s3_client: &S3Client,
     output_location: &str,
 ) -> Result<OutputResponse, Box<dyn std::error::Error>> {
     let temp_file =
@@ -99,7 +102,9 @@ async fn process_output(
     for chunk in &mut output_response.chunks {
         for segment in &mut chunk.segments {
             if let Some(image) = segment.image.as_ref() {
-                let url = generate_presigned_url(s3_client, image, None).await.ok();
+                let url = generate_presigned_url(external_s3_client, image, None)
+                    .await
+                    .ok();
                 segment.image = url.clone();
                 if segment.segment_type == SegmentType::Picture {
                     segment.html = Some(format!(
