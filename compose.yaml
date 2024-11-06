@@ -196,12 +196,11 @@ services:
     restart: always
 
   general-ocr:
-    image: luminainc/paddle:efa72d21
+    image: luminainc/general-ocr:efa72d21
     ports:
       - "8003:8000"
     env_file:
       - .env
-    entrypoint: [ "paddlex", "--pipeline", "OCR.yaml", "--serve", "--port", "8000" ]
     deploy:
       replicas: 1
       resources:
@@ -215,12 +214,11 @@ services:
     restart: always
 
   table-ocr:
-    image: luminainc/paddle:efa72d21
+    image: luminainc/table-ocr:efa72d21
     ports:
       - "8004:8000"
     env_file:
       - .env
-    entrypoint: [ "paddlex", "--pipeline", "table_recognition.yaml", "--serve", "--port", "8000" ]
     deploy:
       replicas: 1
       resources:
