@@ -29,8 +29,11 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: table-ocr
-        image: luminainc/paddle:e2a6f48d
+        image: luminainc/table-ocr:113807d2
         imagePullPolicy: Always
+        startupProbe: null
+        livenessProbe: null
+        readinessProbe: null
         ports:
         - containerPort: 8000
         securityContext:
