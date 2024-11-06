@@ -12,7 +12,7 @@ pub struct Config {
     #[serde(default = "default_endpoint")]
     pub endpoint: String,
     #[serde(default = "default_presigned_url_endpoint")]
-    pub presigned_url_endpoint: String,
+    pub presigned_url_endpoint: Option<String>,
     region: String,
 }
 
@@ -20,8 +20,8 @@ fn default_endpoint() -> String {
     "https://s3.amazonaws.com".to_string()
 }
 
-fn default_presigned_url_endpoint() -> String {
-    "https://s3.amazonaws.com".to_string()
+fn default_presigned_url_endpoint() -> Option<String> {
+    None
 }
 
 impl Config {
@@ -34,17 +34,30 @@ impl Config {
     }
 }
 
-pub async fn create_client() -> Result<Client, ConfigError> {
+fn get_aws_config(external: bool) -> Result<S3Config, ConfigError> {
     let config = Config::from_env()?;
     let creds = Credentials::from_keys(config.access_key, config.secret_key, None);
-
+    let endpoint_url = if external {
+        config.presigned_url_endpoint.unwrap_or(config.endpoint)
+    } else {
+        config.endpoint
+    };
     let aws_config = S3Config::builder()
         .credentials_provider(creds)
         .region(Region::new(config.region))
         .force_path_style(true)
-        .endpoint_url(config.endpoint)
+        .endpoint_url(endpoint_url)
         .build();
 
-    let client = aws_sdk_s3::Client::from_conf(aws_config);
-    Ok(client)
+    Ok(aws_config)
+}
+
+pub async fn create_client() -> Result<Client, ConfigError> {
+    let aws_config = get_aws_config(false)?;
+    Ok(aws_sdk_s3::Client::from_conf(aws_config))
+}
+
+pub async fn create_external_client() -> Result<Client, ConfigError> {
+    let aws_config = get_aws_config(true)?;
+    Ok(aws_sdk_s3::Client::from_conf(aws_config))
 }

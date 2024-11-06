@@ -26,7 +26,7 @@ pub async fn paddle_table_ocr(
         .map_err(|e| Box::new(TableOcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
 
     let paddle_table_ocr_url = config
-        .table_structure_url
+        .table_ocr_url
         .ok_or_else(|| "Paddle table OCR URL is not set in config".to_string())?;
 
     let url = format!("{}/table-recognition", &paddle_table_ocr_url);
