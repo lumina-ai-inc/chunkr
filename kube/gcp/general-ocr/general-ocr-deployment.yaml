@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rapid-ocr
+  name: general-ocr
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: rapid-ocr
+    app.kubernetes.io/name: general-ocr
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: rapid-ocr
+      app.kubernetes.io/name: general-ocr
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: rapid-ocr
+        app.kubernetes.io/name: general-ocr
     spec:
       affinity:
         podAntiAffinity:
@@ -25,7 +25,7 @@ spec:
                 - key: app.kubernetes.io/name
                   operator: In
                   values:
-                  - rapid-ocr
+                  - general-ocr
               topologyKey: "kubernetes.io/hostname"
       tolerations:
       - key: "nvidia.com/gpu.b"
@@ -35,8 +35,8 @@ spec:
         operator: "Exists"
         effect: "PreferNoSchedule"
       containers:
-      - name: rapid-ocr
-        image: luminainc/rapid-ocr:616fdd68
+      - name: general-ocr
+        image: luminainc/paddle:e2a6f48d
         imagePullPolicy: Always
         envFrom:
         - secretRef:
@@ -52,22 +52,6 @@ spec:
             nvidia.com/gpu: 1
           requests:
             nvidia.com/gpu: 1
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 120
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 120
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
         volumeMounts:
         - name: dshm
           mountPath: /dev/shm
