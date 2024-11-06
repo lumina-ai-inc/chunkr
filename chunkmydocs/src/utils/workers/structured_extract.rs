@@ -49,7 +49,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let structured_results = perform_structured_extraction(
             json_schema.ok_or("JSON schema is missing")?,
             output_response.chunks.clone(),
-            config.embedding_url.clone(),
+            format!("{}/embed", config.embedding_url),
             config.llm_url.clone(),
             config.llm_key.clone(),
             config.top_k as usize,
