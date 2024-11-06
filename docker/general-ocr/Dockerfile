@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY services/paddle/config .
 
-RUN for file in *.yaml; do paddlex --pipeline "$file" || true; done
+RUN paddlex --pipeline OCR.yaml || true
 
 EXPOSE 8000
 
