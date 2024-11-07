@@ -34,7 +34,7 @@ pub struct UploadForm {
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct ExtractionPayload {
     pub user_id: String,
-    pub model: SegmentationModel,
+    pub model: SegmentationStrategy,
     pub input_location: String,
     pub pdf_location: String,
     pub output_location: String,
@@ -52,15 +52,17 @@ pub struct ExtractionPayload {
 #[derive(
     Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq, ToSql, FromSql,
 )]
-pub enum SegmentationModel {
+pub enum SegmentationStrategy {
     PdlaFast,
     Pdla,
+    Page,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema, ToSql, FromSql)]
 pub enum Model {
     Fast,
     HighQuality,
+    None,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
@@ -72,26 +74,29 @@ pub struct Configuration {
 }
 
 impl Model {
-    pub fn to_internal(&self) -> SegmentationModel {
+    pub fn to_internal(&self) -> SegmentationStrategy {
         match self {
-            Model::Fast => SegmentationModel::PdlaFast,
-            Model::HighQuality => SegmentationModel::Pdla,
+            Model::Fast => SegmentationStrategy::PdlaFast,
+            Model::HighQuality => SegmentationStrategy::Pdla,
+            Model::None => SegmentationStrategy::Page,
         }
     }
 }
 
-impl SegmentationModel {
+impl SegmentationStrategy {
     pub fn to_external(&self) -> Model {
         match self {
-            SegmentationModel::PdlaFast => Model::Fast,
-            SegmentationModel::Pdla => Model::HighQuality,
+            SegmentationStrategy::PdlaFast => Model::Fast,
+            SegmentationStrategy::Pdla => Model::HighQuality,
+            SegmentationStrategy::Page => Model::None,
         }
     }
 
     pub fn get_extension(&self) -> &str {
         match self {
-            SegmentationModel::PdlaFast => "json",
-            SegmentationModel::Pdla => "json",
+            SegmentationStrategy::PdlaFast => "json",
+            SegmentationStrategy::Pdla => "json",
+            SegmentationStrategy::Page => "json",
         }
     }
 }

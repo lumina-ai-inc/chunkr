@@ -16,6 +16,12 @@ use std::{
 };
 use tempfile::{NamedTempFile, TempDir};
 
+use crate::models::server::segment::{ Segment, SegmentType, BoundingBox };
+use crate::utils::storage::services::download_to_tempfile;
+use std::io::Write;
+use uuid::Uuid;
+use lopdf::Object;
+
 fn is_valid_file_type(file_path: &Path) -> Result<(bool, String), Box<dyn Error>> {
     let output = Command::new("file")
         .arg("--mime-type")
