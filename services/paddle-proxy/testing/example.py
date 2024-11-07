@@ -15,6 +15,7 @@ async def process_single_image(session, url, image_data):
     print(f"Processing image")
     try:
         async with session.post(url, json={"image": image_data}) as response:
+            response.raise_for_status()
             content_types = ['application/json']
             if response.content_type in content_types:
                 return await response.json()
