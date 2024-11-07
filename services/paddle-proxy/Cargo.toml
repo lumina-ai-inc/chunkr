@@ -1,0 +1,12 @@
+[package]
+name = "paddle-proxy"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-cors = "0.7.0"
+actix-web = "4.9.0"
+awc = "3.5.1"
+clap = { version = "4.5.20", features = ["derive"] }
+env_logger = "0.11.5"
+serde_json = "1.0.132"
