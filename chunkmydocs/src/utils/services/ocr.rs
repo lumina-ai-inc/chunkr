@@ -1,6 +1,6 @@
 use crate::models::server::segment::OCRResult;
 use crate::utils::services::general_ocr::paddle_ocr;
-use crate::utils::services::html::{convert_table, extract_table_html};
+use crate::utils::services::html::{convert_table_to_markdown, extract_table_html};
 use crate::utils::services::table_ocr::paddle_table_ocr;
 use crate::utils::storage::services::download_to_tempfile;
 use aws_sdk_s3::Client as S3Client;
@@ -51,7 +51,7 @@ pub async fn download_and_table_ocr(
                 match first_table {
                     Some(table) => {
                         let html = extract_table_html(table.html.clone());
-                        let markdown = get_table_markdown(html.clone());
+                        let markdown = convert_table_to_markdown(html.clone());
                         Ok((html, markdown))
                     }
                     None => Err("No table structure found".to_string()),
@@ -69,8 +69,4 @@ pub async fn download_and_table_ocr(
             Ok((ocr_results, "".to_string(), "".to_string()))
         }
     }
-}
-
-fn get_table_markdown(html: String) -> String {
-    convert_table(html)
 }
