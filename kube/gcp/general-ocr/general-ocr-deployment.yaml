@@ -36,7 +36,7 @@ spec:
         effect: "PreferNoSchedule"
       containers:
       - name: general-ocr
-        image: luminainc/general-ocr:113807d2
+        image: luminainc/general-ocr:abbea8c7
         imagePullPolicy: Always
         startupProbe: null
         livenessProbe: null
