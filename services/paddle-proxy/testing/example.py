@@ -6,6 +6,11 @@ import asyncio
 import aiohttp
 import json
 
+API_URLS = {
+    "ocr": "http://localhost:8003/ocr",
+    "table": "http://localhost:8000/table-recognition"
+}
+
 async def process_single_image(session, url, image_data):
     print(f"Processing image")
     try:
@@ -31,11 +36,6 @@ async def process_all_images(url, image_data_list):
         return await asyncio.gather(*tasks)
 
 def process_images(service_type):
-    API_URLS = {
-        "ocr": "http://localhost:8000/ocr",
-        "table": "http://localhost:8000/table-recognition"
-    }
-    
     input_dir = "./input"
     output_dir = f"./output/server/{service_type}"
     os.makedirs(output_dir, exist_ok=True)
