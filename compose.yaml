@@ -196,7 +196,7 @@ services:
     restart: always
 
   general-ocr:
-    image: luminainc/general-ocr:113807d2
+    image: luminainc/general-ocr:5a23814d
     ports:
       - "8003:8000"
     env_file:
@@ -214,7 +214,7 @@ services:
     restart: always
 
   table-ocr:
-    image: luminainc/table-ocr:113807d2
+    image: luminainc/table-ocr:5a23814d
     ports:
       - "8004:8000"
     env_file:

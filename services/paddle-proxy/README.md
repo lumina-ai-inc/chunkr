@@ -12,12 +12,12 @@ touch ~/.bash_history_paddlex
 2. Create and run the PaddleX container:
 ```bash
 sudo docker run --gpus all -p 8000:8000 \
-    --name paddlex \
+    --name idk \
     -v $PWD:/paddle \
     -v ~/.bash_history_paddlex:/root/.bash_history \
     --shm-size=8g \
     --network=host \
-    -it registry.baidubce.com/paddlex/paddlex:paddlex3.0.0b1-paddlepaddle3.0.0b1-gpu-cuda12.3-cudnn9.0-trt8.6 \
+    -it luminainc/general-ocr:latest \
     /bin/bash
 ```
 

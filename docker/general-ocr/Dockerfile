@@ -1,4 +1,5 @@
-FROM rust:1.81-slim-bookworm AS chef
+FROM registry.baidubce.com/paddlex/paddlex:paddlex3.0.0b1-paddlepaddle3.0.0b1-gpu-cuda12.3-cudnn9.0-trt8.6 AS chef
+# Install Rust build dependencies
 RUN apt-get update -y && \
     apt-get install -y \
     pkg-config \
@@ -9,6 +10,10 @@ RUN apt-get update -y && \
     libglib2.0-dev \
     python3 \
     python3-pip
+
+# Install Rust and cargo-chef
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo install cargo-chef
 WORKDIR /app
 
@@ -24,14 +29,12 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY services/paddle-proxy/ .
 RUN cargo build --release
 
-FROM registry.baidubce.com/paddlex/paddlex:paddlex3.0.0b1-paddlepaddle3.0.0b1-gpu-cuda12.3-cudnn9.0-trt8.6 AS runtime
+FROM chef AS runtime
 WORKDIR /app
 
 COPY --from=builder /app/target/release/paddle-proxy /app/paddle-proxy
 COPY services/paddle-proxy/config /app/config
 
-RUN paddlex --pipeline /app/config/OCR.yaml || true
-
 EXPOSE 8000
 
-CMD ["./paddle-proxy", "--pipeline", "/app/config/OCR.yaml"]
+CMD ["/app/paddle-proxy", "--pipeline", "/app/config/OCR.yaml"]
