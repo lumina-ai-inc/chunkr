@@ -72,6 +72,7 @@ pub enum SegmentType {
     PageHeader,
     #[serde(rename = "Page footer")]
     PageFooter,
+    Page,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
