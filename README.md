@@ -21,12 +21,7 @@
 </div>
 
 <div align="center">
-  <iframe width="1200" height="720" 
-    src="https://www.youtube.com/embed/PcVuzqi_hqo" 
-    frameborder="0" 
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-    allowfullscreen>
-  </iframe>
+  [![Demo video](https://img.youtube.com/vi/PcVuzqi_hqo/0.jpg)](https://www.youtube.com/embed/PcVuzqi_hqo)
   <p><i>Watch our 1-minute demo video</i></p>
 </div>
 
