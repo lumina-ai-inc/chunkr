@@ -152,7 +152,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/ocr:863b2245
+    image: luminainc/ocr:d4e311d7
     depends_on:
       - postgres
       - redis
@@ -163,7 +163,20 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
+    restart: always
+
+  structured-extraction:
+    image: luminainc/structured-extraction:863b2245
+    depends_on:
+      - postgres
+      - redis
+      - minio
+      - rrq
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
     restart: always
 
   web:
@@ -244,6 +257,22 @@ services:
             - driver: nvidia
               count: all
               capabilities: [ gpu ]
+    restart: always
+
+  vllm:
+    image: vllm/vllm-openai:latest
+    ports:
+      - "8008:8000"
+    command: [ "--model", "mistralai/Mistral-7B-v0.1" ]
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    ipc: host
     restart: always
 
   rrq:
