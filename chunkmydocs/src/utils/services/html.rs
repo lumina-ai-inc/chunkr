@@ -47,85 +47,94 @@ pub fn convert_table_to_markdown(html: String) -> String {
         for (row_count, row_match) in rows.iter().enumerate() {
             let mut col_count = 0;
             if let Some(row) = row_match.get(1) {
-                if row_count == 0 {
-                    for col_match in TD_REGEX.captures_iter(row.as_str()) {
-                        let mut row_index: usize = row_count;
-                        if let Some(col) = col_match.get(3) {
-                            let rowspan = col_match
-                                .get(2)
-                                .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
-                            let colspan = col_match
-                                .get(1)
-                                .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
-                            table[row_index][col_count] = Some(col.as_str().to_string());
-                            col_count += 1;
-                            for _ in 0..(colspan - 1) {
-                                table[row_index][col_count] = Some("".to_string());
-                                col_count += 1;
-                            }
-                            row_index += 2;
-                            for row_offset in 0..(rowspan - 1) {
-                                col_count = 0;
-                                row_index += row_offset as usize;
-                                while col_count < header_count
-                                    && table[row_index][col_count].is_some()
-                                {
-                                    col_count += 1;
-                                }
-                                table[row_index][col_count] = Some("".to_string());
-                                col_count += 1;
-                                for _ in 0..(colspan - 1) {
-                                    table[row_index][col_count] = Some("".to_string());
-                                    col_count += 1;
-                                }
+                // Process row cells
+                for col_match in TD_REGEX.captures_iter(row.as_str()) {
+                    let mut row_index = if row_count == 0 {
+                        row_count
+                    } else {
+                        row_count + 1
+                    };
+
+                    if let Some(col) = col_match.get(3) {
+                        let rowspan = col_match
+                            .get(2)
+                            .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
+                        let colspan = col_match
+                            .get(1)
+                            .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
+
+                        // Find next available column
+                        while col_count < header_count {
+                            let row = table.get_mut(row_index).ok_or("Row index out of bounds")?;
+                            let cell =
+                                row.get_mut(col_count).ok_or("Column index out of bounds")?;
+
+                            match cell {
+                                Some(_) => col_count += 1,
+                                None => break,
                             }
                         }
-                    }
-                    for i in 0..header_count {
-                        table[1][i] = Some("---".to_string());
-                    }
-                } else {
-                    for col_match in TD_REGEX.captures_iter(row.as_str()) {
-                        let mut row_index: usize = row_count + 1;
-                        if let Some(col) = col_match.get(3) {
-                            let rowspan = col_match
-                                .get(2)
-                                .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
-                            let colspan = col_match
-                                .get(1)
-                                .map_or(1, |m| m.as_str().parse::<i32>().unwrap_or(1));
-                            while col_count < header_count && table[row_index][col_count].is_some()
-                            {
-                                col_count += 1;
-                            }
-                            table[row_index][col_count] = Some(col.as_str().to_string());
+
+                        // Set main cell
+                        let row = table.get_mut(row_index).ok_or("Row index out of bounds")?;
+                        let cell = row.get_mut(col_count).ok_or("Column index out of bounds")?;
+                        *cell = Some(col.as_str().to_string());
+                        col_count += 1;
+
+                        // Handle colspan
+                        for _ in 0..(colspan - 1) {
+                            let row = table.get_mut(row_index).ok_or("Row index out of bounds")?;
+                            let cell =
+                                row.get_mut(col_count).ok_or("Column index out of bounds")?;
+                            *cell = Some("".to_string());
                             col_count += 1;
-                            for _ in 0..(colspan - 1) {
-                                table[row_index][col_count] = Some("".to_string());
-                                col_count += 1;
+                        }
+
+                        // Adjust row_index for rowspan processing
+                        row_index += if row_count == 0 { 2 } else { 1 };
+
+                        // Handle rowspan
+                        for row_offset in 0..(rowspan - 1) {
+                            col_count = 0;
+                            row_index += row_offset as usize;
+                            // Find next available column
+                            while col_count < header_count {
+                                let row =
+                                    table.get_mut(row_index).ok_or("Row index out of bounds")?;
+                                let cell =
+                                    row.get_mut(col_count).ok_or("Column index out of bounds")?;
+
+                                match cell {
+                                    Some(_) => col_count += 1,
+                                    None => break,
+                                }
                             }
-                            row_index += 1;
-                            for row_offset in 0..(rowspan - 1) {
-                                col_count = 0;
-                                row_index += row_offset as usize;
-                                while col_count < header_count
-                                    && table[row_index][col_count].is_some()
-                                {
-                                    col_count += 1;
-                                }
-                                table[row_index][col_count] = Some("".to_string());
+                            let row = table.get_mut(row_index).ok_or("Row index out of bounds")?;
+                            let cell =
+                                row.get_mut(col_count).ok_or("Column index out of bounds")?;
+                            *cell = Some("".to_string());
+                            col_count += 1;
+
+                            for _ in 0..(colspan - 1) {
+                                let row =
+                                    table.get_mut(row_index).ok_or("Row index out of bounds")?;
+                                let cell =
+                                    row.get_mut(col_count).ok_or("Column index out of bounds")?;
+                                *cell = Some("".to_string());
                                 col_count += 1;
-                                for _ in 0..(colspan - 1) {
-                                    table[row_index][col_count] = Some("".to_string());
-                                    col_count += 1;
-                                }
                             }
                         }
                     }
                 }
+
+                // Add separator row after header
+                if row_count == 0 {
+                    for i in 0..header_count {
+                        table[1][i] = Some("---".to_string());
+                    }
+                }
             }
         }
-
         table.iter().for_each(|row| {
             row.iter().enumerate().for_each(|(i, cell)| {
                 if let Some(cell) = cell {

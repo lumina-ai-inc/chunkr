@@ -7,7 +7,7 @@ import aiohttp
 import json
 
 API_URLS = {
-    "ocr": "http://localhost:8003/ocr",
+    "ocr": "http://localhost:8000/ocr",
     "table": "http://localhost:8000/table-recognition"
 }
 
