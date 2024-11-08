@@ -20,8 +20,8 @@
   </p>
 </div>
 
+[![Demo video](https://img.youtube.com/vi/PcVuzqi_hqo/0.jpg)](https://www.youtube.com/embed/PcVuzqi_hqo)
 <div align="center">
-  [![Demo video](https://img.youtube.com/vi/PcVuzqi_hqo/0.jpg)](https://www.youtube.com/embed/PcVuzqi_hqo)
   <p><i>Watch our 1-minute demo video</i></p>
 </div>
 
