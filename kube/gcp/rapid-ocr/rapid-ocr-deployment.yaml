@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: table-ocr
+  name: rapid-ocr
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: table-ocr
+    app.kubernetes.io/name: rapid-ocr
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: table-ocr
+      app.kubernetes.io/name: rapid-ocr
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: table-ocr
+        app.kubernetes.io/name: rapid-ocr
     spec:
       affinity:
         podAntiAffinity:
@@ -25,11 +25,18 @@ spec:
                 - key: app.kubernetes.io/name
                   operator: In
                   values:
-                  - table-ocr
+                  - rapid-ocr
               topologyKey: "kubernetes.io/hostname"
+      tolerations:
+      - key: "nvidia.com/gpu.b"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "PreferNoSchedule"
       containers:
-      - name: table-ocr
-        image: luminainc/table-ocr:95e07f51
+      - name: rapid-ocr
+        image: luminainc/rapid-ocr:616fdd68
         imagePullPolicy: Always
         envFrom:
         - secretRef:

@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: preprocess
+  name: structured-extraction
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: preprocess
+    app.kubernetes.io/name: structured-extraction
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: preprocess
+        app.kubernetes.io/name: structured-extraction
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: preprocess
+        app.kubernetes.io/name: structured-extraction
     spec:
       containers:
-      - name: preprocess
-        image: luminainc/preprocess:95e07f51
+      - name: structured-extraction
+        image: luminainc/structured-extraction:863b2245
         imagePullPolicy: Always
         envFrom:
         - secretRef:

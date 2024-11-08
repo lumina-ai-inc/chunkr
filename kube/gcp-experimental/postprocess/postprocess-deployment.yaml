@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: preprocess
+  name: postprocess
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: preprocess
+    app.kubernetes.io/name: postprocess
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: preprocess
+      app.kubernetes.io/name: postprocess
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: preprocess
+        app.kubernetes.io/name: postprocess
     spec:
       containers:
-      - name: preprocess
-        image: luminainc/preprocess:95e07f51
+      - name: postprocess
+        image: luminainc/postprocess:863b2245
         imagePullPolicy: Always
         envFrom:
         - secretRef:

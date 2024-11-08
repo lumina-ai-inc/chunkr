@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chunkmydocs-ingress
+  namespace: chunkmydocs
+  labels:
+    app: chunkmydocs
+  annotations:
+    kubernetes.io/ingress.class: gce
+spec:
+  ingressClassName: gce
+  tls:
+  - hosts:
+    - api.chunkr.ai
+    secretName: tls-secret
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: chunkmydocs-service
+            port:
+              number: 8000
+

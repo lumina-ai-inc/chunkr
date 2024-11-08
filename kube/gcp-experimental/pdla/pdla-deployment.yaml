@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: table-ocr
+  name: pdla
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: table-ocr
+    app.kubernetes.io/name: pdla
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: table-ocr
+      app.kubernetes.io/name: pdla
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: table-ocr
+        app.kubernetes.io/name: pdla
     spec:
       affinity:
         podAntiAffinity:
@@ -25,17 +25,19 @@ spec:
                 - key: app.kubernetes.io/name
                   operator: In
                   values:
-                  - table-ocr
+                  - pdla
               topologyKey: "kubernetes.io/hostname"
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
       containers:
-      - name: table-ocr
-        image: luminainc/table-ocr:95e07f51
+      - name: pdla
+        image: luminainc/pdla:8c4bfb6d
         imagePullPolicy: Always
-        envFrom:
-        - secretRef:
-            name: chunkmydocs-secrets
         ports:
         - containerPort: 8000
+        command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
         securityContext:
           privileged: true
           capabilities:
@@ -45,22 +47,6 @@ spec:
             nvidia.com/gpu: 1
           requests:
             nvidia.com/gpu: 1
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 120
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 120
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
         volumeMounts:
         - name: dshm
           mountPath: /dev/shm

@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: preprocess
+  name: ocr
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: preprocess
+    app.kubernetes.io/name: ocr
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: preprocess
+      app.kubernetes.io/name: ocr
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: preprocess
+        app.kubernetes.io/name: ocr
     spec:
       containers:
-      - name: preprocess
-        image: luminainc/preprocess:95e07f51
+      - name: ocr
+        image: luminainc/ocr:863b2245
         imagePullPolicy: Always
         envFrom:
         - secretRef:

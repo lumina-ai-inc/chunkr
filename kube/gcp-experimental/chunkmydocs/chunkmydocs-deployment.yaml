@@ -1,30 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: preprocess
+  name: chunkmydocs
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: preprocess
+    app.kubernetes.io/name: chunkmydocs
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: preprocess
+      app.kubernetes.io/name: chunkmydocs
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: preprocess
+        app.kubernetes.io/name: chunkmydocs
     spec:
       containers:
-      - name: preprocess
-        image: luminainc/preprocess:95e07f51
+      - name: chunkmydocs
+        image: luminainc/chunkmydocs:863b2245
         imagePullPolicy: Always
         envFrom:
         - secretRef:
             name: chunkmydocs-secrets
-        env:
-        - name: PG__POOL__MAX_SIZE
-          value: "3"
+        ports:
+        - containerPort: 8000
         securityContext:
           privileged: true
           capabilities:
