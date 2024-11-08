@@ -16,7 +16,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .logo:hover .logo-container {
@@ -24,8 +24,10 @@
 }
 
 .logo-title {
-  color: hsl(0, 0%, 100%) !important;
-  background-color: unset !important;
+  background: linear-gradient(180deg, #fff 26%, #dce4dd 70.5%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .logo-path {
