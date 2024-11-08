@@ -194,8 +194,6 @@ services:
     ports:
       - "8002:8000"
     command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000" ]
-    env_file:
-      - .env
     deploy:
       replicas: 1
       resources:
@@ -264,8 +262,8 @@ services:
     ports:
       - "8008:8000"
     command: [ "--model", "Qwen/Qwen2.5-7B-Instruct-GPTQ-Int4" ]
-    environment:
-      - CUDA_VISIBLE_DEVICES=1
+    env_file:
+      - .env
     deploy:
       replicas: 1
       resources:
