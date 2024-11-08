@@ -20,8 +20,11 @@
   </p>
 </div>
 
-[![Demo video](https://img.youtube.com/vi/PcVuzqi_hqo/0.jpg)](https://www.youtube.com/embed/PcVuzqi_hqo)
+
 <div align="center">
+  <a href="https://www.youtube.com/watch?v=PcVuzqi_hqo" width="1200" height="720">
+    <img src="https://img.youtube.com/vi/PcVuzqi_hqo/maxresdefault.jpg" alt="Demo video">
+  </a>
   <p><i>Watch our 1-minute demo video</i></p>
 </div>
 
