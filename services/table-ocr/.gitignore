@@ -1,9 +1,0 @@
-models
-sample
-__pycache__
-sample.html
-sample.json
-ocr.json
-.env
-/microsoft/table-transformer-structure-recognition-v1.1-all
-test_rapid.py

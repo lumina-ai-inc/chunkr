@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chunkmydocs
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: chunkmydocs
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chunkmydocs
+  template:
+    metadata:
+      namespace: chunkmydocs
+      labels:
+        app.kubernetes.io/name: chunkmydocs
+    spec:
+      containers:
+      - name: chunkmydocs
+        image: luminainc/chunkmydocs:863b2245
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: chunkmydocs-secrets
+        ports:
+        - containerPort: 8000
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["SYS_ADMIN"]

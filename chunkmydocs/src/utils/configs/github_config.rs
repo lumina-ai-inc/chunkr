@@ -1,6 +1,6 @@
-use config::{ Config as ConfigTrait, ConfigError };
-use serde::{ Deserialize, Serialize };
+use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -12,7 +12,11 @@ impl Config {
         dotenv_override().ok();
 
         ConfigTrait::builder()
-            .add_source(config::Environment::default().prefix("GITHUB").separator("__"))
+            .add_source(
+                config::Environment::default()
+                    .prefix("GITHUB")
+                    .separator("__"),
+            )
             .build()?
             .try_deserialize()
     }

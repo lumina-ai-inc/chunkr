@@ -1,5 +1,6 @@
-use crate::models::auth::auth::UserInfo;
+use crate::models::server::auth::UserInfo;
 use crate::models::server::extract::{Configuration, OcrStrategy, UploadForm};
+use crate::utils::configs::s3_config::ExternalS3Client;
 use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
@@ -30,6 +31,7 @@ use uuid::Uuid;
 pub async fn get_task_status(
     pool: web::Data<Pool>,
     s3_client: web::Data<S3Client>,
+    s3_external_client: web::Data<ExternalS3Client>,
     task_id: web::Path<String>,
     user_info: web::ReqData<UserInfo>,
     _req: HttpRequest,
@@ -43,7 +45,7 @@ pub async fn get_task_status(
 
     let user_id = user_info.user_id.clone();
 
-    match get_task(&pool, &s3_client, task_id, user_id).await {
+    match get_task(&pool, &s3_client, &s3_external_client.0, task_id, user_id).await {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
             eprintln!("Error getting task status: {:?}", e);

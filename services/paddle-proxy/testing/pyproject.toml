@@ -1,0 +1,13 @@
+[project]
+name = "table-ocr"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pillow>=11.0.0",
+    "aiohttp>=3.10.10",
+]
+
+[tool.uv.sources]
+paddlex = { url = "https://paddle-model-ecology.bj.bcebos.com/paddlex/whl/paddlex-3.0.0b1-py3-none-any.whl" }

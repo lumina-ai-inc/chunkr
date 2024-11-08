@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak-ingress
+  namespace: chunkmydocs
+  labels:
+    app: keycloak
+  annotations:
+    kubernetes.io/ingress.class: gce
+spec:
+  ingressClassName: gce
+  tls:
+  - hosts:
+    - auth.chunkr.ai
+    secretName: tls-secret
+  rules:
+  - host: auth.chunkr.ai 
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: keycloak-service
+            port:
+              number: 8080

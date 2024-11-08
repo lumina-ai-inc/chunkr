@@ -1,4 +1,4 @@
-use crate::models::auth::auth::UserInfo;
+use crate::models::server::auth::UserInfo;
 use crate::utils::configs::auth_config::Config;
 use crate::utils::db::deadpool_postgres::Pool;
 use actix_web::{

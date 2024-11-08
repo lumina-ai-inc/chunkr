@@ -1,42 +1,15 @@
-use config::{Config as ConfigTrait, ConfigError};
-use dotenvy::dotenv;
-use lazy_static::lazy_static;
-use reqwest::Client;
-use serde::Deserialize;
-use std::{
-    sync::Once,
-    time::{Duration, Instant},
-};
-
 use crate::models::rrq::{
     consume::{ConsumePayload, ConsumeResponse},
     produce::ProducePayload,
     status::{StatusPayload, StatusResult},
 };
+use crate::utils::configs::rrq_config::Config;
+use lazy_static::lazy_static;
+use reqwest::Client;
+use std::time::{Duration, Instant};
 
 lazy_static! {
     static ref CLIENT: Client = Client::new();
-}
-
-static INIT: Once = Once::new();
-
-#[derive(Debug, Deserialize)]
-struct Config {
-    url: String,
-    api_key: String,
-}
-
-impl Config {
-    pub fn from_env() -> Result<Self, ConfigError> {
-        INIT.call_once(|| {
-            dotenv().ok();
-        });
-
-        ConfigTrait::builder()
-            .add_source(config::Environment::default().prefix("RRQ").separator("__"))
-            .build()?
-            .try_deserialize()
-    }
 }
 
 pub async fn health() -> Result<String, Box<dyn std::error::Error>> {

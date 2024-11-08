@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: structured-extraction
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: structured-extraction
+spec:
+  selector:
+    matchLabels:
+        app.kubernetes.io/name: structured-extraction
+  template:
+    metadata:
+      namespace: chunkmydocs
+      labels:
+        app.kubernetes.io/name: structured-extraction
+    spec:
+      containers:
+      - name: structured-extraction
+        image: luminainc/structured-extraction:863b2245
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: chunkmydocs-secrets
+        env:
+        - name: PG__POOL__MAX_SIZE
+          value: "3"
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["SYS_ADMIN"]
