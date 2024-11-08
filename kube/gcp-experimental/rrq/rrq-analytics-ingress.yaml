@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rrq-analytics-ingress
+  namespace: chunkmydocs
+  labels:
+    app: rrq-analytics
+  annotations:
+    kubernetes.io/ingress.class: gce
+spec:
+  ingressClassName: gce
+  tls:
+  - hosts:
+    - rrq.chunkr.ai
+    secretName: tls-secret
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: rrq-analytics-service
+            port:
+              number: 8000
