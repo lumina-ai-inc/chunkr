@@ -263,7 +263,9 @@ services:
     image: vllm/vllm-openai:latest
     ports:
       - "8008:8000"
-    command: [ "--model", "mistralai/Mistral-7B-v0.1" ]
+    command: [ "--model", "Qwen/Qwen2.5-7B-Instruct-GPTQ-Int4" ]
+    environment:
+      - CUDA_VISIBLE_DEVICES=1
     deploy:
       replicas: 1
       resources:
