@@ -3,13 +3,13 @@ use crate::models::server::extract::{ExtractionPayload, OcrStrategy};
 use crate::models::server::segment::{OutputResponse, Segment, SegmentType};
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config;
+use crate::utils::configs::s3_config::create_client;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{
     log::log_task,
     ocr::{download_and_ocr, download_and_table_ocr},
     payload::produce_extraction_payloads,
 };
-use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
 use futures::future::try_join_all;
@@ -31,13 +31,7 @@ pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
         OcrStrategy::Auto => match segment.segment_type {
             SegmentType::Table => true,
             SegmentType::Picture => true,
-            _ => {
-                if segment.content.is_empty() {
-                    true
-                } else {
-                    false
-                }
-            }
+            _ => segment.content.is_empty(),
         },
     }
 }
@@ -90,14 +84,14 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                             download_and_table_ocr(
                                 &s3_client,
                                 &reqwest_client,
-                                &segment.image.as_ref().unwrap(),
+                                segment.image.as_ref().unwrap(),
                             )
                             .await
                         } else {
                             download_and_ocr(
                                 &s3_client,
                                 &reqwest_client,
-                                &segment.image.as_ref().unwrap(),
+                                segment.image.as_ref().unwrap(),
                             )
                             .await
                         };
@@ -133,7 +127,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         upload_to_s3(
             &s3_client,
             &extraction_payload.output_location,
-            &output_temp_file.path(),
+            output_temp_file.path(),
         )
         .await?;
 

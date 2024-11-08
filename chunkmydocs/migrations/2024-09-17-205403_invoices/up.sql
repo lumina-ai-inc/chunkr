@@ -86,7 +86,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER trg_handle_task_invoice
+CREATE TRIGGER trg_handle_task_invoice
 AFTER UPDATE OF status ON TASKS
 FOR EACH ROW
 WHEN (NEW.status = 'Succeeded')

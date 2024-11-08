@@ -27,12 +27,13 @@ diesel = { version = "2.2.3", features = [
 diesel_migrations = { version = "2.2.0", features = ["postgres"] }
 dotenvy = "=0.15.7"
 env_logger = "0.11.5"
+flate2 = "1.0.34"
 futures = "0.3.31"
 futures-util = "0.3.30"
 humantime = "2.1.0"
 humantime-serde = "1.1.1"
-
 image = { version = "0.25.4", features = ["png"] }
+image-base64 = "0.1.0"
 imageproc = "0.25.0"
 jsonwebtoken = "9.3.0"
 lazy_static = "1.5.0"
@@ -57,6 +58,7 @@ serde_json = "1.0.68"
 serde_yaml = "0.9.34"
 strum = "0.26.3"
 strum_macros = "0.26.4"
+tar = "0.4.42"
 tempdir = "0.3.7"
 tempfile = "3.10.1"
 thiserror = "1.0.64"

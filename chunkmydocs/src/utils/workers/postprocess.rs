@@ -3,12 +3,12 @@ use crate::models::server::extract::{ExtractionPayload, OcrStrategy};
 use crate::models::server::segment::{Chunk, OutputResponse, Segment};
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config as ExtractionConfig;
+use crate::utils::configs::s3_config::create_client;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{
     chunking::hierarchical_chunking, images::crop_image, log::log_task,
     payload::produce_extraction_payloads,
 };
-use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
 use futures::future::try_join_all;
@@ -79,7 +79,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 let crop_result = crop_image(
                     &image_path.path().to_path_buf(),
                     segment,
-                    &cropped_temp_dir.path().to_path_buf(),
+                    cropped_temp_dir.path(),
                 )
                 .map_err(|e| {
                     format!(
@@ -105,20 +105,17 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 file_name.to_string_lossy()
             );
             upload_to_s3(&s3_client, &s3_key, &entry.path()).await?;
-            segments
-                .iter_mut()
-                .find(|segment| {
-                    segment.segment_id
-                        == file_name
-                            .clone()
-                            .to_string_lossy()
-                            .split(".")
-                            .next()
-                            .unwrap()
-                })
-                .map(|segment| {
-                    segment.image = Some(s3_key.clone());
-                });
+            if let Some(segment) = segments.iter_mut().find(|segment| {
+                segment.segment_id
+                    == file_name
+                        .clone()
+                        .to_string_lossy()
+                        .split(".")
+                        .next()
+                        .unwrap()
+            }) {
+                segment.image = Some(s3_key.clone());
+            }
         }
 
         log_task(
@@ -144,7 +141,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         upload_to_s3(
             &s3_client,
             &extraction_payload.output_location,
-            &output_temp_file.path(),
+            output_temp_file.path(),
         )
         .await?;
 

@@ -1,4 +1,4 @@
-use crate::models::auth::auth::UserInfo;
+use crate::models::server::auth::UserInfo;
 use crate::models::{
     server::extract::{Configuration, ExtractionPayload},
     server::task::{Status, TaskResponse},
@@ -39,7 +39,7 @@ pub async fn create_task(
     let expiration_time: Option<DateTime<Utc>> = expiration.map(|exp| Utc::now() + exp);
     let bucket_name = config.s3_bucket;
     let ingest_batch_size = config.batch_size;
-    let base_url = config.base_url;
+    let base_url = config.server_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
     let final_output_path: PathBuf = PathBuf::from(file.file.path());
@@ -61,7 +61,6 @@ pub async fn create_task(
         "s3://{}/{}/{}/{}.pdf",
         bucket_name, user_id, task_id, file_stem
     );
-
     let output_extension = model_internal.get_extension();
     let output_location = format!(
         "s3://{}/{}/{}/{}.{}",

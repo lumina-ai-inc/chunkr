@@ -2,11 +2,10 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
 use crate::models::server::segment::OutputResponse;
 use crate::models::server::task::Status;
+use crate::utils::configs::s3_config::create_client;
 use crate::utils::configs::structured_extract::Config as StructuredExtractConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
-use crate::utils::services::structured_extract::perform_structured_extraction;
-use crate::utils::services::log::log_task;
-use crate::utils::storage::config_s3::create_client;
+use crate::utils::services::{log::log_task, structured_extract::perform_structured_extraction};
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
 use std::fs::File;
@@ -50,7 +49,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let structured_results = perform_structured_extraction(
             json_schema.ok_or("JSON schema is missing")?,
             output_response.chunks.clone(),
-            config.embedding_url.clone(),
+            format!("{}/embed", config.embedding_url),
             config.llm_url.clone(),
             config.llm_key.clone(),
             config.top_k as usize,

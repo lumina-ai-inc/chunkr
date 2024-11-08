@@ -284,9 +284,9 @@ pub async fn get_invoices(
             invoice.tasks.push(task_invoice);
         } else {
             invoices.push(InvoiceDetail {
-                invoice_id: invoice_id,
-                stripe_invoice_id, // Include Stripe invoice ID
-                invoice_status,    // Include invoice status
+                invoice_id,
+                stripe_invoice_id, 
+                invoice_status,   
                 tasks: vec![task_invoice],
             });
         }

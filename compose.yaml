@@ -1,0 +1,308 @@
+services:
+  postgres:
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin &&
+        /usr/bin/mc mb myminio/chunkr --ignore-existing &&
+        /usr/bin/mc anonymous set public myminio/chunkr
+      "
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_PROXY=edge
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
+    command: [ "start-dev", "--import-realm" ]
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/realms/master" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - postgres
+    restart: always
+
+  chunkmydocs:
+    image: luminainc/chunkmydocs:863b2245
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  preprocess:
+    image: luminainc/preprocess:863b2245
+    depends_on:
+      - postgres
+      - redis
+      - minio
+
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  fast:
+    image: luminainc/fast:863b2245
+    depends_on:
+      - postgres
+      - redis
+      - minio
+      - rrq
+      - pdla
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  high-quality:
+    image: luminainc/high-quality:863b2245
+    depends_on:
+      - postgres
+      - redis
+      - minio
+      - rrq
+      - pdla
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  postprocess:
+    image: luminainc/postprocess:863b2245
+    depends_on:
+      - postgres
+      - redis
+      - minio
+      - rrq
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  ocr:
+    image: luminainc/ocr:d4e311d7
+    depends_on:
+      - postgres
+      - redis
+      - minio
+      - rrq
+      - general-ocr
+      - table-ocr
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  structured-extraction:
+    image: luminainc/structured-extraction:863b2245
+    depends_on:
+      - postgres
+      - redis
+      - minio
+      - rrq
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  web:
+    image: luminainc/web:863b2245
+    ports:
+      - "5173:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  pdla:
+    image: luminainc/pdla:8c4bfb6d
+    ports:
+      - "8002:8000"
+    command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000" ]
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    volumes:
+      - /dev/shm:/dev/shm
+    restart: always
+
+  general-ocr:
+    image: luminainc/general-ocr:863b2245
+    ports:
+      - "8003:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    volumes:
+      - /dev/shm:/dev/shm
+    restart: always
+
+  table-ocr:
+    image: luminainc/table-ocr:863b2245
+    ports:
+      - "8004:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    volumes:
+      - /dev/shm:/dev/shm
+    restart: always
+
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.5
+    ports:
+      - "8007:80"
+    command: [ "--model-id", "BAAI/bge-m3" ]
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    restart: always
+
+  vllm:
+    image: vllm/vllm-openai:latest
+    ports:
+      - "8008:8000"
+    command: [ "--model", "Qwen/Qwen2.5-7B-Instruct-GPTQ-Int4" ]
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    ipc: host
+    restart: always
+
+  rrq:
+    image: luminainc/rrq:33cd165
+    depends_on:
+      - redis
+    ports:
+      - "8005:8000"
+    environment:
+      - REDIS__URL=redis://redis:6379
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 1
+    restart: always
+
+  rrq-analytics:
+    image: luminainc/rrq-analytics:459b00d
+    ports:
+      - "8006:8000"
+    environment:
+      - VITE_API_URL=http://rrq:8000
+    deploy:
+      replicas: 1
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

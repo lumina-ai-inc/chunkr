@@ -26,9 +26,9 @@ use routes::task::{create_extraction_task, get_task_status};
 use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
+use utils::configs::s3_config::{create_client, create_external_client, ExternalS3Client};
 use utils::db::deadpool_postgres;
 use utils::server::admin_user::get_or_create_admin_user;
-use utils::storage::config_s3::create_client;
 use utils::stripe::invoicer::invoice;
 use utoipa::{
     openapi::security::{ApiKey, ApiKeyValue, SecurityScheme},
@@ -36,6 +36,7 @@ use utoipa::{
 };
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
+
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 fn run_migrations(url: &str) {
@@ -114,6 +115,9 @@ pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
         let pg_pool = deadpool_postgres::create_pool();
         let s3_client = create_client().await.expect("Failed to create S3 client");
+        let s3_external_client = create_external_client()
+            .await
+            .expect("Failed to create external S3 client");
         run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
         get_or_create_admin_user(&pg_pool)
             .await
@@ -125,11 +129,11 @@ pub fn main() -> std::io::Result<()> {
         }
 
         let max_size: usize = std::env::var("MAX_TOTAL_LIMIT")
-            .unwrap_or_else(|_| "10485760".to_string())
+            .unwrap_or_else(|_| "1073741824".to_string())
             .parse()
             .expect("MAX_TOTAL_LIMIT must be a valid usize");
         let max_memory_size: usize = std::env::var("MAX_MEMORY_LIMIT")
-            .unwrap_or_else(|_| "10485760".to_string())
+            .unwrap_or_else(|_| "1073741824".to_string())
             .parse()
             .expect("MAX_MEMORY_LIMIT must be a valid usize");
         let timeout: usize = std::env::var("TIMEOUT")
@@ -164,6 +168,7 @@ pub fn main() -> std::io::Result<()> {
                 .wrap(Logger::new("%a %{User-Agent}i"))
                 .app_data(web::Data::new(pg_pool.clone()))
                 .app_data(web::Data::new(s3_client.clone()))
+                .app_data(web::Data::new(ExternalS3Client(s3_external_client.clone())))
                 .app_data(
                     MultipartFormConfig::default()
                         .total_limit(max_size)

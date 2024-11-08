@@ -1,10 +1,10 @@
-use crate::models::auth::auth::UserInfo;
+use crate::models::server::auth::UserInfo;
 use crate::models::server::user::{InvoiceStatus, Tier, UsageType};
 use crate::utils::configs::stripe_config::Config as StripeConfig;
 use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::get_user::get_monthly_usage_count;
 use crate::utils::server::get_user::{get_invoice_information, get_invoices};
-use crate::utils::stripe::stripe::{
+use crate::utils::stripe::stripe_utils::{
     create_customer_session, create_stripe_customer, create_stripe_setup_intent,
     set_default_payment_method, update_invoice_status,
 };

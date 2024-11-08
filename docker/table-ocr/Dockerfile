@@ -1,32 +1,40 @@
-FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+FROM registry.baidubce.com/paddlex/paddlex:paddlex3.0.0b1-paddlepaddle3.0.0b1-gpu-cuda12.3-cudnn9.0-trt8.6 AS chef
+# Install Rust build dependencies
+RUN apt-get update -y && \
+    apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    libpq-dev \
+    g++ \
+    curl \
+    libglib2.0-dev \
+    python3 \
+    python3-pip
 
-RUN apt-get update && apt-get install -y python3 python3-pip
-
-# Copy uv from the official image
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y poppler-utils ffmpeg libgomp1 libsm6 libxext6
-
-# Set up CUDA environment variables
-ENV PATH=/usr/local/cuda/bin:$PATH
-ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-
+# Install Rust and cargo-chef
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN cargo install cargo-chef
 WORKDIR /app
 
-COPY services/table-ocr/.python-version .
-COPY services/table-ocr/pyproject.toml .
-COPY services/table-ocr/uv.lock .
-COPY services/table-ocr/__init__.py .
-COPY services/table-ocr/config.py .
-COPY services/table-ocr/main.py .
-COPY services/table-ocr/model_config.py .
-COPY services/table-ocr/ocr_service.py .
-COPY services/table-ocr/table_structure.py .
-COPY services/table-ocr/utils.py .
-RUN uv run __init__.py || true
-RUN rm -rf /app/src/__pycache__
+FROM chef AS planner
+COPY services/paddle-proxy/ .
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN cargo chef cook --release --recipe-path recipe.json
+# Build application
+COPY services/paddle-proxy/ .
+RUN cargo build --release
+
+FROM chef AS runtime
+WORKDIR /app
+
+COPY --from=builder /app/target/release/paddle-proxy /app/paddle-proxy
+COPY services/paddle-proxy/config /app/config
 
 EXPOSE 8000
 
-CMD ["uv", "run", "main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/paddle-proxy", "--pipeline", "/app/config/table_recognition.yaml"]
