@@ -37,7 +37,6 @@ sudo docker run --gpus all -p 8000:8000 \
     cd /paddle
 
    # Start the PaddleX service proxy (choose ONE of the following):
-   
    # For General OCR processing
    cargo r -- --pipeline ./config/OCR.yaml
 
