@@ -84,7 +84,13 @@ export default function Header({
               </linearGradient>
             </defs>
           </svg>
-          <Text size="6" weight="bold" className="logo-title" trim="start">
+          <Text
+            size="6"
+            weight="bold"
+            className="logo-title"
+            trim="start"
+            mt="1px"
+          >
             chunkr
           </Text>
         </div>
