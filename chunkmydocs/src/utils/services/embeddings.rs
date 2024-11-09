@@ -31,13 +31,11 @@ impl EmbeddingCache {
         batch_size: usize,
     ) -> Result<Vec<Vec<f32>>, Box<dyn Error + Send + Sync>> {
         let mut all_embeddings = Vec::new();
-
         let mut futures = Vec::new();
         for chunk in texts.chunks(batch_size) {
             let request = EmbeddingRequest {
                 inputs: chunk.to_vec(),
             };
-
             let future = client.post(embedding_url).json(&request).send();
             futures.push(future);
         }
@@ -46,9 +44,25 @@ impl EmbeddingCache {
 
         for response in responses {
             let response = response?;
+            let status = response.status();
             let response_text = response.text().await?;
-            let embeddings: Vec<Vec<f32>> = serde_json::from_str(&response_text)?;
-            all_embeddings.extend(embeddings);
+            
+            if !status.is_success() {
+                return Err(format!("Server error: {}", status).into());
+            }
+            
+            if response_text.trim().is_empty() {
+                return Err("Empty response from server".into());
+            }
+    
+            match serde_json::from_str::<Vec<Vec<f32>>>(&response_text) {
+                Ok(embeddings) => {
+                    all_embeddings.extend(embeddings);
+                }
+                Err(e) => {
+                    return Err(Box::new(e));
+                }
+            }
         }
 
         Ok(all_embeddings)

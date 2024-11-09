@@ -142,30 +142,32 @@ pub async fn perform_structured_extraction(
     top_k: usize,
     model_name: String,
     batch_size: usize,
+    content_type: String,
 ) -> Result<ExtractedJson, Box<dyn Error + Send + Sync>> {
     let client = Client::new();
-
+    let content_type_clone = content_type.clone();
     let fields = json_schema.to_fields();
 
     let all_segments: Vec<Segment> = chunks.iter().flat_map(|c| c.segments.clone()).collect();
-    println!("All segments: {:?}", all_segments.clone());
     let chunk_markdowns: Vec<String> = all_segments
         .iter()
-        .filter_map(|s| s.markdown.clone())
+        .filter_map(|s| if content_type == "markdown" {
+            s.markdown.clone()
+        } else {
+            Some(s.content.clone())
+        })
         .collect();
-    println!("Generating segment embeddings");
     let mut embedding_cache = EmbeddingCache {
         embeddings: HashMap::new(),
     };
     let segment_embeddings: Vec<Vec<f32>> = embedding_cache
         .get_or_generate_embeddings(&client, &embedding_url, chunk_markdowns, batch_size)
         .await?;
-    println!("Segment embeddings generated: {}", segment_embeddings.len());
     let mut handles: Vec<
         JoinHandle<Result<(String, String, String), Box<dyn Error + Send + Sync>>>,
     > = Vec::new();
-    println!("Starting LLM calls");
     for field in fields {
+        let content_type_clone = content_type_clone.clone();
         let client = client.clone();
         let embedding_url = embedding_url.clone();
         let llm_url = llm_url.clone();
@@ -190,9 +192,14 @@ pub async fn perform_structured_extraction(
 
             let search_results =
                 search_embeddings(&query_embedding, &all_segments, &segment_embeddings, top_k);
+            println!("Search results: {:?}", search_results[0].segment.content.len());
             let context = search_results
                 .iter()
-                .map(|res| res.segment.markdown.clone().unwrap_or_default())
+                .map(|res| if content_type_clone == "markdown" {
+                    res.segment.markdown.clone().unwrap_or_default()
+                } else {
+                    res.segment.content.clone()
+                })
                 .join("\n");
 
             let tag_instruction = match field_type.as_str() {
@@ -443,6 +450,7 @@ mod tests {
             top_k as usize,
             model_name,
             batch_size as usize,
+            "markdown".to_string(),
         )
         .await?;
 

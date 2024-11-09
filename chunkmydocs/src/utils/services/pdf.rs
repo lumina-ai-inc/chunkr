@@ -79,3 +79,25 @@ pub async fn pdf_2_images(
 
     Ok(image_paths)
 }
+
+
+    pub async fn extract_text_pdf(
+        pdf_path: &Path,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let config = PdfiumConfig::from_env()?;
+        let dir_path = config.get_binary().await?;
+        
+        let pdfium = Pdfium::new(
+            Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&dir_path))?,
+        );
+
+        let document = pdfium.load_pdf_from_file(pdf_path, None)?;
+        let mut page_texts = Vec::new();
+        for page in document.pages().iter() {
+            let text = page.text().unwrap().all();
+            page_texts.push(text);
+        }
+
+        Ok(page_texts)
+    }
+
