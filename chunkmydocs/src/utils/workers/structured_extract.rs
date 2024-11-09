@@ -2,6 +2,7 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
 use crate::models::server::segment::OutputResponse;
 use crate::models::server::task::Status;
+use crate::models::server::extract::OcrStrategy;
 use crate::utils::configs::s3_config::create_client;
 use crate::utils::configs::structured_extract::Config as StructuredExtractConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
@@ -24,7 +25,11 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let config = StructuredExtractConfig::from_env()?;
     let configuration = extraction_payload.configuration.clone();
     let json_schema = configuration.json_schema.clone();
-
+    let content_type = if configuration.ocr_strategy == OcrStrategy::Off {
+        "content".to_string()
+    } else {
+        "markdown".to_string()
+    };
     let result: Result<(), Box<dyn std::error::Error>> = async {
         log_task(
             task_id.clone(),
@@ -55,6 +60,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             config.top_k as usize,
             config.model_name.clone(),
             config.batch_size as usize,
+            content_type,
         )
         .await
         .map_err(|e| e.to_string())?;
