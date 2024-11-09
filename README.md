@@ -25,7 +25,7 @@
 
 <div align="center">
   <a href="https://www.youtube.com/watch?v=PcVuzqi_hqo" width="1200" height="720">
-    <img src="https://img.youtube.com/vi/PcVuzqi_hqo/maxresdefault.jpg" alt="Demo video" style="border-radius: 10px;">
+    <img src="https://img.youtube.com/vi/PcVuzqi_hqo/maxresdefault.jpg" alt="Demo video" style="bor">
   </a>
   <p><i>Watch our 1-minute demo video</i></p>
 </div>
@@ -75,6 +75,7 @@ https://docs.chunkr.ai
    ```bash
    git clone https://github.com/luminainc/chunkr
    cd chunkr
+   cp .env.example .env
    docker compose up -d
    ```
 
