@@ -16,14 +16,14 @@
     ·
     <a href="https://github.com/lumina-ai-inc/chunkr/issues/new">Report Bug</a>
     ·
-    <a href="https://github.com/lumina-ai-inc/chunkr/issues/new">Request Feature</a>
+    <a href="https://cal.com/mehulc/30min">Contact Us</a>
   </p>
 </div>
 
 
 <div align="center">
   <a href="https://www.youtube.com/watch?v=PcVuzqi_hqo" width="1200" height="720">
-    <img src="https://img.youtube.com/vi/PcVuzqi_hqo/maxresdefault.jpg" alt="Demo video">
+    <img src="https://img.youtube.com/vi/PcVuzqi_hqo/maxresdefault.jpg" alt="Demo video" style="border-radius: 10px;">
   </a>
   <p><i>Watch our 1-minute demo video</i></p>
 </div>
