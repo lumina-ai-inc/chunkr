@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Flex, Text } from "@radix-ui/themes";
 import { useAuth } from "react-oidc-context";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +13,61 @@ const Home = () => {
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
   const navigate = useNavigate();
+
+  const hasAnimatedRef = useRef(false);
+  const terminalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          // Only start typing if it hasn't animated before
+          if (entry.isIntersecting && !hasAnimatedRef.current) {
+            hasAnimatedRef.current = true;
+            startTyping();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    if (terminalRef.current) {
+      observer.observe(terminalRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const curlCommand = `$ <span class="command">curl</span> <span class="flag">-X</span> <span class="flag">POST</span> ${import.meta.env.VITE_API_URL}/api/v1/task <span class="dim">\\</span>
+  <span class="flag">-H</span> <span class="string">"Content-Type: multipart/form-data"</span> <span class="dim">\\</span>
+  <span class="flag">-H</span> <span class="string">"Authorization: "</span> <span class="dim">\\</span>
+  <span class="flag">-F</span> <span class="string">"file=@/path/to/your/file.pdf"</span> <span class="dim">\\</span>
+  <span class="flag">-F</span> <span class="string">"model=HighQuality"</span> <span class="dim">\\</span>
+  <span class="flag">-F</span> <span class="string">"target_chunk_length=512"</span> <span class="dim">\\</span>
+  <span class="flag">-F</span> <span class="string">"ocr_strategy=Auto"</span>`;
+
+  const startTyping = () => {
+    const textElement = terminalRef.current?.querySelector(".typed-text");
+    if (!textElement) return;
+
+    textElement.innerHTML = "";
+    let displayText = "";
+    let i = 0;
+
+    const typeChar = () => {
+      if (i < curlCommand.length) {
+        displayText += curlCommand.charAt(i);
+        textElement.innerHTML = displayText + '<span class="cursor">▋</span>';
+        i++;
+        setTimeout(typeChar, 5);
+      } else {
+        textElement.innerHTML =
+          displayText + '<span class="cursor blink">▋</span>';
+      }
+    };
+
+    typeChar();
+  };
 
   const handleGetStarted = () => {
     if (auth.isAuthenticated) {
@@ -85,7 +140,7 @@ const Home = () => {
           <Header px="0px" home={true} />
         </div>
       </Flex>
-      <div style={{ height: "100%" }}>
+      <div>
         <div className="hero-main-container">
           <div className="hero-content-container">
             <Flex className="hero-container" align="center" justify="center">
@@ -113,7 +168,7 @@ const Home = () => {
                   Open Source Document Ingestion
                 </Text>
                 <Text
-                  weight="regular"
+                  weight="medium"
                   size="3"
                   className="hero-description"
                   align="center"
@@ -121,169 +176,6 @@ const Home = () => {
                   API service to turn complex documents into RAG/LLM-ready data
                 </Text>
 
-                {/* <Text
-                    weight="bold"
-                    size="4"
-                    mb="12px"
-                    className="white signup-byline"
-                  >
-                    We support PDF, DOC, PPT, and XLS files.
-                  </Text> */}
-
-                {/* <Flex direction="row" gap="24px" mb="40px" wrap="wrap">
-                    <Flex
-                      direction="row"
-                      gap="8px"
-                      align="center"
-                      style={{
-                        backgroundColor: "hsla(0, 0%, 100%, 0.1)",
-                        borderRadius: "8px",
-                        padding: "8px",
-                        boxShadow:
-                          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-                        backdropFilter: "blur(24px)",
-                        border: "1px solid hsla(0, 0%, 100%, 0.1)",
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <rect
-                          width="16"
-                          height="16"
-                          fill="white"
-                          fillOpacity="0.01"
-                        />
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M4.21317 3.14669V4.79998C4.21317 5.06508 3.99826 5.27998 3.73317 5.27998C3.46807 5.27998 3.25317 5.06508 3.25317 4.79998V2.66671C3.25317 2.61596 3.26105 2.56705 3.27564 2.52114C3.33728 2.3272 3.51882 2.18669 3.73317 2.18669H12.2665C12.4322 2.18669 12.5783 2.27063 12.6646 2.39831C12.7163 2.47492 12.7465 2.56727 12.7465 2.66669V4.79998C12.7465 5.06508 12.5316 5.27998 12.2665 5.27998C12.0014 5.27998 11.7865 5.06508 11.7865 4.79998V3.14669H8.58651V12.8533H9.87115C10.1362 12.8533 10.3511 13.0683 10.3511 13.3333C10.3511 13.5985 10.1362 13.8133 9.87115 13.8133H6.13781C5.87272 13.8133 5.65781 13.5985 5.65781 13.3333C5.65781 13.0683 5.87272 12.8533 6.13781 12.8533H7.41317V3.14669H4.21317Z"
-                          fill="white"
-                        />
-                      </svg>
-                      <Text size="2" weight="bold" style={{ color: "white" }}>
-                        Text
-                      </Text>
-                    </Flex>
-                    <Flex
-                      direction="row"
-                      gap="8px"
-                      align="center"
-                      style={{
-                        backgroundColor: "hsla(0, 0%, 100%, 0.1)",
-                        borderRadius: "8px",
-                        padding: "8px",
-                        boxShadow:
-                          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-                        backdropFilter: "blur(24px)",
-                        border: "1px solid hsla(0, 0%, 100%, 0.1)",
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <rect
-                          width="16"
-                          height="16"
-                          fill="white"
-                          fillOpacity="0.01"
-                        />
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M8.53332 2.13333H13.3333C13.6278 2.13333 13.8667 2.37212 13.8667 2.66667V5.33333H8.53332V2.13333ZM7.46665 5.33333V2.13333H2.66665C2.3721 2.13333 2.13332 2.37212 2.13332 2.66667V5.33333H7.46665ZM2.13332 6.4V9.6H7.46665V6.4H2.13332ZM8.53332 6.4H13.8667V9.6H8.53332V6.4ZM8.53332 10.6667H13.8667V13.3333C13.8667 13.6278 13.6278 13.8667 13.3333 13.8667H8.53332V10.6667ZM2.13332 13.3333V10.6667H7.46665V13.8667H2.66665C2.3721 13.8667 2.13332 13.6278 2.13332 13.3333ZM1.06665 2.66667C1.06665 1.78301 1.78299 1.06667 2.66665 1.06667H13.3333C14.2169 1.06667 14.9333 1.78301 14.9333 2.66667V13.3333C14.9333 14.217 14.2169 14.9333 13.3333 14.9333H2.66665C1.78299 14.9333 1.06665 14.217 1.06665 13.3333V2.66667Z"
-                          fill="white"
-                        />
-                      </svg>
-                      <Text size="2" weight="bold" style={{ color: "white" }}>
-                        Tables
-                      </Text>
-                    </Flex>
-                    <Flex
-                      direction="row"
-                      gap="8px"
-                      align="center"
-                      style={{
-                        backgroundColor: "hsla(0, 0%, 100%, 0.1)",
-                        borderRadius: "8px",
-                        padding: "8px",
-                        boxShadow:
-                          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-                        backdropFilter: "blur(24px)",
-                        border: "1px solid hsla(0, 0%, 100%, 0.1)",
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <rect
-                          width="16"
-                          height="16"
-                          fill="white"
-                          fillOpacity="0.01"
-                        />
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M2.66665 1.06667H13.3333C14.2169 1.06667 14.9333 1.78301 14.9333 2.66667V13.3333C14.9333 14.217 14.2169 14.9333 13.3333 14.9333H2.66665C1.78299 14.9333 1.06665 14.217 1.06665 13.3333V2.66667C1.06665 1.78301 1.78299 1.06667 2.66665 1.06667ZM2.66665 2.13333C2.3721 2.13333 2.13332 2.37212 2.13332 2.66667V8.92117L3.92724 7.12725C4.01928 7.03521 4.14475 6.9845 4.27491 6.98674C4.40505 6.98897 4.52871 7.04397 4.61753 7.13913L8.39844 11.1894L11.3939 8.19392C11.5813 8.00647 11.8853 8.00647 12.0727 8.19392L13.8667 9.98784V2.66667C13.8667 2.37212 13.6278 2.13333 13.3333 2.13333H2.66665ZM2.13332 13.3333V10.2788L4.25478 8.15737L8.03316 12.2049L9.53719 13.8667H2.66665C2.3721 13.8667 2.13332 13.6278 2.13332 13.3333ZM13.3333 13.8667H10.832L9.0489 11.8965L11.7333 9.21216L13.8667 11.3455V13.3333C13.8667 13.6278 13.6278 13.8667 13.3333 13.8667ZM7.09249 5.86667C7.09249 5.36547 7.49879 4.95917 7.99998 4.95917C8.50118 4.95917 8.90748 5.36547 8.90748 5.86667C8.90748 6.36786 8.50118 6.77417 7.99998 6.77417C7.49879 6.77417 7.09249 6.36786 7.09249 5.86667ZM7.99998 3.99917C6.96859 3.99917 6.13249 4.83527 6.13249 5.86667C6.13249 6.89806 6.96859 7.73417 7.99998 7.73417C9.03138 7.73417 9.86748 6.89806 9.86748 5.86667C9.86748 4.83527 9.03138 3.99917 7.99998 3.99917Z"
-                          fill="white"
-                        />
-                      </svg>
-                      <Text size="2" weight="bold" style={{ color: "white" }}>
-                        Images
-                      </Text>
-                    </Flex>
-                    <Flex
-                      direction="row"
-                      gap="8px"
-                      align="center"
-                      style={{
-                        backgroundColor: "hsla(0, 0%, 100%, 0.1)",
-                        borderRadius: "8px",
-                        padding: "8px",
-                        boxShadow:
-                          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-                        backdropFilter: "blur(24px)",
-                        border: "1px solid hsla(0, 0%, 100%, 0.1)",
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <rect
-                          width="16"
-                          height="16"
-                          fill="white"
-                          fillOpacity="0.01"
-                        />
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12.9561 1.22288C13.1644 1.01459 13.5022 1.01459 13.7104 1.22288L15.8437 3.35621C16.052 3.56449 16.052 3.90217 15.8437 4.11045L11.6383 8.31592C11.5572 8.39699 11.4635 8.46446 11.361 8.51573L7.1718 10.6104C6.96646 10.7131 6.71849 10.6727 6.55616 10.5105C6.39383 10.3481 6.35359 10.1001 6.45626 9.89481L8.55088 5.70557C8.60215 5.60302 8.66962 5.50941 8.75069 5.42834L12.9561 1.22288ZM13.3333 2.35425L9.50494 6.18259L8.39747 8.39751L8.6691 8.66914L10.884 7.56167L14.7124 3.73333L13.3333 2.35425ZM10.6666 2.13333L9.59995 3.2H5.22663C4.76979 3.2 4.45923 3.20041 4.21919 3.22002C3.98536 3.23912 3.86579 3.27376 3.78238 3.31625C3.58167 3.41853 3.4185 3.58171 3.31622 3.78241C3.27373 3.86582 3.2391 3.9854 3.22 4.21922C3.20038 4.45926 3.19997 4.76982 3.19997 5.22667V11.84C3.19997 12.2969 3.20038 12.6074 3.22 12.8475C3.2391 13.0813 3.27373 13.2009 3.31622 13.2843C3.4185 13.485 3.58167 13.6481 3.78238 13.7504C3.86579 13.793 3.98536 13.8275 4.21919 13.8466C4.45923 13.8662 4.76979 13.8667 5.22663 13.8667H11.84C12.2968 13.8667 12.6073 13.8662 12.8474 13.8466C13.0812 13.8275 13.2008 13.793 13.2842 13.7504C13.485 13.6481 13.6481 13.485 13.7504 13.2843C13.7929 13.2009 13.8275 13.0813 13.8466 12.8475C13.8662 12.6074 13.8666 12.2969 13.8666 11.84V7.46664L14.9333 6.39998V11.84V11.8621C14.9333 12.2913 14.9333 12.6457 14.9097 12.9343C14.8852 13.2341 14.8327 13.5097 14.7008 13.7685C14.4963 14.1699 14.1699 14.4963 13.7685 14.7008C13.5096 14.8327 13.2341 14.8852 12.9343 14.9098C12.6456 14.9333 12.2913 14.9333 11.862 14.9333H11.84H5.22663H5.2046C4.77529 14.9333 4.42096 14.9333 4.13233 14.9098C3.83254 14.8852 3.55697 14.8327 3.29812 14.7008C2.89671 14.4963 2.57035 14.1699 2.36582 13.7685C2.23393 13.5097 2.18137 13.2341 2.15687 12.9343C2.13329 12.6457 2.13329 12.2913 2.1333 11.8621V11.84V5.22667V5.20464C2.13329 4.77535 2.13329 4.42099 2.15687 4.13236C2.18137 3.83257 2.23393 3.557 2.36582 3.29815C2.57035 2.89673 2.89671 2.57038 3.29812 2.36585C3.55697 2.23396 3.83254 2.1814 4.13233 2.15691C4.42096 2.13332 4.77527 2.13332 5.20458 2.13333H5.22663H10.6666Z"
-                          fill="white"
-                        />
-                      </svg>
-                      <Text size="2" weight="bold" style={{ color: "white" }}>
-                        Handwriting
-                      </Text>
-                    </Flex>
-                  </Flex> */}
                 <Flex
                   className="signup-container"
                   direction="row"
@@ -303,11 +195,473 @@ const Home = () => {
                   </button>
                 </Flex>
               </Flex>
-              {/* <Flex className="module-container" direction="column" gap="4">
-                  <UploadMain isAuthenticated={isAuthenticated} />
-                </Flex> */}
             </Flex>
           </div>
+        </div>
+        <div className="features-container">
+          <Flex
+            direction="row"
+            gap="24px"
+            style={{
+              maxWidth: "1424px",
+              height: "100%",
+              margin: "0 auto",
+              padding: "24px",
+            }}
+          >
+            <Flex className="features-left-box">
+              <Text
+                size="9"
+                weight="medium"
+                className="features-left-box-title"
+              >
+                A scalable pipeline <br></br> for your AI infrastructure
+              </Text>
+              <Text
+                size="7"
+                weight="medium"
+                className="features-left-box-subtitle"
+              >
+                Ingestion use-cases can vary quite a bit. <br></br>
+                <br></br>
+                <span style={{ color: "#ffffff9b" }}>So we built an</span>{" "}
+                end-to-end system{" "}
+                <span style={{ color: "#ffffff9b" }}>that can cater to </span>{" "}
+                solo-devs, startups and enterprises.
+              </Text>
+
+              <div className="feature-left-box-image" ref={terminalRef}>
+                <div className="terminal-header">
+                  <div className="terminal-title">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                    >
+                      <rect
+                        width="16"
+                        height="16"
+                        fill="white"
+                        fill-opacity="0.01"
+                      />
+                      <g className="rotating-globe">
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M7.99898 1.92002C4.64109 1.92002 1.91898 4.64213 1.91898 8.00002C1.91898 11.3579 4.64109 14.08 7.99898 14.08C11.3569 14.08 14.079 11.3579 14.079 8.00002C14.079 4.64213 11.3569 1.92002 7.99898 1.92002ZM0.958984 8.00002C0.958984 4.11193 4.1109 0.960022 7.99898 0.960022C11.887 0.960022 15.039 4.11193 15.039 8.00002C15.039 11.8881 11.887 15.04 7.99898 15.04C4.1109 15.04 0.958984 11.8881 0.958984 8.00002Z"
+                          fill="white"
+                          fill-opacity="0.9"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M14.3996 8.42664H1.59961V7.5733H14.3996V8.42664Z"
+                          fill="white"
+                          fill-opacity="0.9"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M7.57253 14.4V1.59999H8.42586V14.4H7.57253ZM11.066 7.99997C11.066 5.68238 10.2325 3.38962 8.59857 1.87365L9.10641 1.32629C10.9215 3.01032 11.8126 5.51757 11.8126 7.99997C11.8126 10.4824 10.9215 12.9896 9.10641 14.6737L8.59857 14.1263C10.2325 12.6103 11.066 10.3176 11.066 7.99997ZM4.26562 7.99999C4.26562 5.52117 5.12767 3.01522 6.88748 1.33033L7.40384 1.86965C5.82137 3.38477 5.01229 5.67881 5.01229 7.99999C5.0123 10.3212 5.82139 12.6152 7.40387 14.1303L6.88749 14.6696C5.12769 12.9847 4.26564 10.4788 4.26562 7.99999Z"
+                          fill="white"
+                          fill-opacity="0.9"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M8.00028 4.22186C10.3142 4.22186 12.6673 4.64975 14.2623 5.54076C14.4424 5.64132 14.5068 5.86875 14.4062 6.04876C14.3057 6.22876 14.0782 6.29318 13.8982 6.19263C12.4584 5.38831 10.2488 4.96853 8.00028 4.96853C5.75171 4.96853 3.54221 5.38831 2.10234 6.19263C1.92233 6.29318 1.6949 6.22876 1.59434 6.04876C1.4938 5.86875 1.5582 5.64132 1.73821 5.54076C3.3333 4.64975 5.68633 4.22186 8.00028 4.22186ZM8.00028 11.5733C10.3142 11.5733 12.6673 11.1454 14.2623 10.2544C14.4424 10.1538 14.5068 9.9264 14.4062 9.7464C14.3057 9.56639 14.0782 9.50198 13.8982 9.60252C12.4584 10.4068 10.2488 10.8267 8.00028 10.8267C5.75171 10.8267 3.54221 10.4068 2.10234 9.60253C1.92233 9.50198 1.6949 9.56639 1.59434 9.7464C1.4938 9.9264 1.5582 10.1538 1.73821 10.2544C3.3333 11.1454 5.68633 11.5733 8.00028 11.5733Z"
+                          fill="white"
+                          fill-opacity="0.9"
+                        />
+                      </g>
+                    </svg>
+                    chunkr API
+                  </div>
+                  <div className="terminal-button-row">
+                    <div className="terminal-button close"></div>
+                    <div className="terminal-button minimize"></div>
+                    <div className="terminal-button maximize"></div>
+                  </div>
+                </div>
+                <div className="curl-command">
+                  <span className="typed-text"></span>
+                </div>
+              </div>
+            </Flex>
+
+            <Flex
+              direction="column"
+              gap="24px"
+              style={{ flex: 1, height: "100%" }}
+            >
+              <Flex
+                direction="column"
+                className="feature-right-box feature-right-box-segmentation-image "
+              >
+                <Flex className="tag-container">
+                  <Text size="1" weight="regular" style={{ color: "#ffffff" }}>
+                    Semantic Segmentation
+                  </Text>
+                </Flex>
+                <Text
+                  size="6"
+                  mt="16px"
+                  weight="medium"
+                  className="white"
+                  style={{ maxWidth: "280px" }}
+                >
+                  Bounding boxes + tagging{" "}
+                  <span style={{ color: "#ffffff9b" }}>for 11 categories</span>
+                </Text>
+                <Flex className="feature-right-box-image">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="128"
+                    height="128"
+                    viewBox="0 0 128 128"
+                    fill="none"
+                  >
+                    <rect
+                      width="128"
+                      height="128"
+                      fill="white"
+                      fill-opacity="0.01"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M2.13281 8.53333C2.13281 4.99871 4.99819 2.13333 8.53281 2.13333H119.466C123.001 2.13333 125.866 4.99871 125.866 8.53333V119.467C125.866 123.001 123.001 125.867 119.466 125.867H8.53281C4.99819 125.867 2.13281 123.001 2.13281 119.467V8.53333ZM14.9328 14.9333V113.067H113.066V14.9333H14.9328Z"
+                      fill="url(#paint0_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <path
+                      d="M68.2661 46.9333C68.2661 44.5769 66.3559 42.6667 63.9995 42.6667C61.6431 42.6667 59.7328 44.5769 59.7328 46.9333C59.7328 49.2897 61.6431 51.2 63.9995 51.2C66.3559 51.2 68.2661 49.2897 68.2661 46.9333Z"
+                      fill="url(#paint1_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <path
+                      d="M68.2661 29.8667C68.2661 27.5102 66.3559 25.6 63.9995 25.6C61.6431 25.6 59.7328 27.5102 59.7328 29.8667C59.7328 32.2231 61.6431 34.1333 63.9995 34.1333C66.3559 34.1333 68.2661 32.2231 68.2661 29.8667Z"
+                      fill="url(#paint2_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <path
+                      d="M68.2661 64C68.2661 61.6436 66.3559 59.7333 63.9995 59.7333C61.6431 59.7333 59.7328 61.6436 59.7328 64C59.7328 66.3564 61.6431 68.2667 63.9995 68.2667C66.3559 68.2667 68.2661 66.3564 68.2661 64Z"
+                      fill="url(#paint3_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <path
+                      d="M51.1995 64C51.1995 61.6436 49.2892 59.7333 46.9328 59.7333C44.5764 59.7333 42.6661 61.6436 42.6661 64C42.6661 66.3564 44.5764 68.2667 46.9328 68.2667C49.2892 68.2667 51.1995 66.3564 51.1995 64Z"
+                      fill="url(#paint4_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <path
+                      d="M34.1328 64C34.1328 61.6436 32.2226 59.7333 29.8661 59.7333C27.5097 59.7333 25.5995 61.6436 25.5995 64C25.5995 66.3564 27.5097 68.2667 29.8661 68.2667C32.2226 68.2667 34.1328 66.3564 34.1328 64Z"
+                      fill="url(#paint5_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <path
+                      d="M85.3328 64C85.3328 61.6436 83.4226 59.7333 81.0661 59.7333C78.7097 59.7333 76.7995 61.6436 76.7995 64C76.7995 66.3564 78.7097 68.2667 81.0661 68.2667C83.4226 68.2667 85.3328 66.3564 85.3328 64Z"
+                      fill="url(#paint6_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <path
+                      d="M102.399 64C102.399 61.6436 100.489 59.7333 98.1328 59.7333C95.7764 59.7333 93.8661 61.6436 93.8661 64C93.8661 66.3564 95.7764 68.2667 98.1328 68.2667C100.489 68.2667 102.399 66.3564 102.399 64Z"
+                      fill="url(#paint7_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <path
+                      d="M68.2661 81.0667C68.2661 78.7102 66.3559 76.8 63.9995 76.8C61.6431 76.8 59.7328 78.7102 59.7328 81.0667C59.7328 83.4231 61.6431 85.3333 63.9995 85.3333C66.3559 85.3333 68.2661 83.4231 68.2661 81.0667Z"
+                      fill="url(#paint8_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <path
+                      d="M68.2661 98.1333C68.2661 95.7769 66.3559 93.8667 63.9995 93.8667C61.6431 93.8667 59.7328 95.7769 59.7328 98.1333C59.7328 100.49 61.6431 102.4 63.9995 102.4C66.3559 102.4 68.2661 100.49 68.2661 98.1333Z"
+                      fill="url(#paint9_linear_218_66)"
+                      fill-opacity="0.85"
+                    />
+                    <defs>
+                      <linearGradient
+                        id="paint0_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="paint1_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="paint2_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="paint3_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="paint4_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="paint5_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="paint6_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="paint7_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="paint8_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="paint9_linear_218_66"
+                        x1="64"
+                        y1="2"
+                        x2="64"
+                        y2="120"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.77562"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </Flex>
+              </Flex>
+              <Flex
+                direction="column"
+                className="feature-right-box feature-right-box-ocr-image "
+              >
+                <Flex className="tag-container">
+                  <Text size="1" weight="regular" style={{ color: "#ffffff" }}>
+                    Intelligent Post-processing
+                  </Text>
+                </Flex>
+                <Text
+                  size="6"
+                  mt="16px"
+                  weight="medium"
+                  className="white"
+                  style={{ maxWidth: "250px" }}
+                >
+                  VLMs{" "}
+                  <span style={{ color: "#ffffff9b" }}>& specialized </span>
+                  OCR models
+                </Text>
+                <Flex className="feature-right-box-image">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="124"
+                    height="124"
+                    viewBox="0 0 124 124"
+                    fill="none"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M0 61.9998C0 27.7583 27.7583 0 61.9999 0C96.2409 0 124 27.7583 124 61.9998C124 96.2409 96.2409 124 61.9999 124C27.7583 124 0 96.2409 0 61.9998ZM9.09555 57.3015C11.338 31.7188 31.7188 11.338 57.3015 9.09555V33.9053C57.3015 36.4896 59.3964 38.5846 61.9807 38.5846C64.565 38.5846 66.66 36.4896 66.66 33.9053V9.09218C92.2607 11.3177 112.66 31.706 114.904 57.3015H90.0559C87.472 57.3015 85.3766 59.3964 85.3766 61.9807C85.3766 64.565 87.472 66.66 90.0559 66.66H114.907C112.681 92.2729 92.2729 112.681 66.66 114.907V90.0559C66.66 87.472 64.565 85.3766 61.9807 85.3766C59.3964 85.3766 57.3015 87.472 57.3015 90.0559V114.904C31.706 112.66 11.3177 92.2607 9.09218 66.66H33.9053C36.4896 66.66 38.5846 64.565 38.5846 61.9807C38.5846 59.3964 36.4896 57.3015 33.9053 57.3015H9.09555Z"
+                      fill="url(#paint0_linear_245_740)"
+                    />
+                    <defs>
+                      <linearGradient
+                        id="paint0_linear_245_740"
+                        x1="62"
+                        y1="0"
+                        x2="62"
+                        y2="124"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.78"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </Flex>
+              </Flex>
+              <Flex
+                direction="column"
+                className="feature-right-box feature-right-box-outputs-image "
+              >
+                <Flex className="tag-container">
+                  <Text size="1" weight="regular" style={{ color: "#ffffff" }}>
+                    Enriched JSON Output
+                  </Text>
+                </Flex>
+                <Text
+                  size="6"
+                  mt="16px"
+                  weight="medium"
+                  className="white"
+                  style={{ maxWidth: "250px" }}
+                >
+                  HTML <span style={{ color: "#ffffff9b" }}> | </span>
+                  Markdown <span style={{ color: "#ffffff9b" }}> | </span>
+                  OCR <span style={{ color: "#ffffff9b" }}> | </span>
+                  Segment Images
+                </Text>
+                <Flex className="feature-right-box-image">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="128"
+                    height="128"
+                    viewBox="0 0 128 128"
+                    fill="none"
+                  >
+                    <rect
+                      width="128"
+                      height="128"
+                      fill="white"
+                      fill-opacity="0.01"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M66.1701 6.99341C64.8312 6.20223 63.1679 6.20223 61.8289 6.99341L14.8956 34.7268C13.5966 35.4943 12.7996 36.8911 12.7996 38.4C12.7996 39.909 13.5966 41.3057 14.8956 42.0733L61.8289 69.8066C63.1679 70.5978 64.8312 70.5978 66.1701 69.8066L113.103 42.0733C114.403 41.3057 115.2 39.909 115.2 38.4C115.2 36.8911 114.403 35.4943 113.103 34.7268L66.1701 6.99341ZM63.9995 61.1775L25.4531 38.4L63.9995 15.6226L102.546 38.4L63.9995 61.1775ZM13.393 63.9628C14.5917 61.9341 17.2081 61.2613 19.2368 62.4601L63.9995 88.9105L108.762 62.4601C110.791 61.2613 113.407 61.9341 114.606 63.9628C115.805 65.9914 115.132 68.6078 113.103 69.8066L66.1701 97.5403C64.8312 98.3313 63.1679 98.3313 61.8289 97.5403L14.8956 69.8066C12.867 68.6078 12.1941 65.9914 13.393 63.9628ZM13.3929 89.5625C14.5917 87.5341 17.208 86.8617 19.2368 88.0598L63.9995 114.511L108.762 88.0598C110.791 86.8617 113.407 87.5341 114.606 89.5625C115.805 91.5917 115.132 94.208 113.103 95.407L66.1701 123.14C64.8312 123.931 63.1679 123.931 61.8289 123.14L14.8956 95.407C12.8669 94.208 12.1941 91.5917 13.3929 89.5625Z"
+                      fill="url(#paint0_linear_249_755)"
+                    />
+                    <defs>
+                      <linearGradient
+                        id="paint0_linear_249_755"
+                        x1="63.9995"
+                        y1="6.40002"
+                        x2="63.9995"
+                        y2="123.734"
+                        gradientUnits="userSpaceOnUse"
+                      >
+                        <stop stop-color="white" />
+                        <stop
+                          offset="0.78"
+                          stop-color="white"
+                          stop-opacity="0.5"
+                        />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </Flex>
+              </Flex>
+              <Flex
+                style={{
+                  backgroundColor: "hsla(0, 0%, 100%, 0.1)",
+                  borderRadius: "12px",
+                  height: "25%",
+                }}
+              >
+                {/* Box 4 content */}
+              </Flex>
+            </Flex>
+          </Flex>
         </div>
       </div>
 
