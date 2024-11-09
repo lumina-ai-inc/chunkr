@@ -148,6 +148,7 @@ pub async fn perform_structured_extraction(
     let fields = json_schema.to_fields();
 
     let all_segments: Vec<Segment> = chunks.iter().flat_map(|c| c.segments.clone()).collect();
+    println!("All segments: {:?}", all_segments.clone());
     let chunk_markdowns: Vec<String> = all_segments
         .iter()
         .filter_map(|s| s.markdown.clone())
@@ -159,6 +160,7 @@ pub async fn perform_structured_extraction(
     let segment_embeddings: Vec<Vec<f32>> = embedding_cache
         .get_or_generate_embeddings(&client, &embedding_url, chunk_markdowns, batch_size)
         .await?;
+    println!("Segment embeddings generated: {}", segment_embeddings.len());
     let mut handles: Vec<
         JoinHandle<Result<(String, String, String), Box<dyn Error + Send + Sync>>>,
     > = Vec::new();
