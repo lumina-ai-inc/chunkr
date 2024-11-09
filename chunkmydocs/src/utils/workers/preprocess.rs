@@ -1,5 +1,5 @@
 use crate::models::rrq::queue::QueuePayload;
-use crate::models::server::extract::{ ExtractionPayload, SegmentationStrategy, OcrStrategy };
+use crate::models::server::extract::{ ExtractionPayload, SegmentationStrategy };
 use crate::models::server::task::Status;
 use crate::utils::configs::extraction_config::Config;
 use crate::utils::db::deadpool_postgres::{ Client, create_pool };
