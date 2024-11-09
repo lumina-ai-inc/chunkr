@@ -9,14 +9,16 @@
   <p align="center">
     Chunkr is a self-hostable API for converting pdf, pptx, docx, and excel files into RAG/LLM ready data
     <br />
-    <b>11 semantic tags for layout analysis</b> | <b>OCR + Bounding Boxes</b> | <b>HTML and markdown</b>
+    <b>11 semantic tags for layout analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML and markdown</b>
     <br />
     <br />
-    <a href="https://www.chunkr.ai">Try Demo</a>
+    <a href="https://www.chunkr.ai">Try it out!</a>
     ·
     <a href="https://github.com/lumina-ai-inc/chunkr/issues/new">Report Bug</a>
     ·
-    <a href="https://cal.com/mehulc/30min">Contact Us</a>
+    <a href="https://cal.com/mehulc/30min">Talk to a founder</a>
+     ·
+    <a href="mailto:mehul@lumina.sh">Email</a>
   </p>
 </div>
 
