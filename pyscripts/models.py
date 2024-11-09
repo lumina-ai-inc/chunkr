@@ -12,7 +12,7 @@ class TableOcr(str, Enum):
     
 
 class Model(str, Enum):
-    Research = "Research"
+    NoModel = "NoModel"
     Fast = "Fast"
     HighQuality = "HighQuality"
 

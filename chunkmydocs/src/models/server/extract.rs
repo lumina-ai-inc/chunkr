@@ -62,7 +62,7 @@ pub enum SegmentationStrategy {
 pub enum Model {
     Fast,
     HighQuality,
-    None,
+    NoModel,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
@@ -78,7 +78,7 @@ impl Model {
         match self {
             Model::Fast => SegmentationStrategy::PdlaFast,
             Model::HighQuality => SegmentationStrategy::Pdla,
-            Model::None => SegmentationStrategy::Page,
+            Model::NoModel => SegmentationStrategy::Page,
         }
     }
 }
@@ -88,7 +88,7 @@ impl SegmentationStrategy {
         match self {
             SegmentationStrategy::PdlaFast => Model::Fast,
             SegmentationStrategy::Pdla => Model::HighQuality,
-            SegmentationStrategy::Page => Model::None,
+            SegmentationStrategy::Page => Model::NoModel,
         }
     }
 
