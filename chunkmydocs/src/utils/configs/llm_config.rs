@@ -96,4 +96,11 @@ mod tests {
         println!("{}", filled_prompt);
         Ok(())
     }
+
+    #[tokio::test]
+    async fn test_fill_prompt_with_values_table() -> Result<(), std::io::Error> {
+        let filled_prompt = get_prompt("table", &HashMap::new())?;
+        println!("{}", filled_prompt);
+        Ok(())
+    }
 }

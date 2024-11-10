@@ -2,12 +2,13 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 
 static TABLE_CONTENT_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?i)<table[^>]*>(.*?)<\/table>").unwrap());
-static TR_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)<tr[^>]*>(.*?)<\/tr>").unwrap());
+    Lazy::new(|| Regex::new(r"(?is)<table[^>]*>(.*?)</table>").unwrap());
+static TR_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?is)<tr[^>]*>(.*?)<\/tr>").unwrap());
 static TD_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?i)<(?:td|th)\s*(?:colspan\s*=\s*['"]?(\d+)['"]?)?(?:\s*+rowspan\s*=\s*['"]?(\d+)['"]?)?[^>]*>(.*?)</(?:td|th)>"#).unwrap()
+    Regex::new(r#"(?is)<(?:td|th)\s*(?:colspan\s*=\s*['"]?(\d+)['"]?)?(?:\s*+rowspan\s*=\s*['"]?(\d+)['"]?)?[^>]*>(.*?)</(?:td|th)>"#).unwrap()
 });
 
+// TODO: Deal with multiple tables
 pub fn extract_table_html(html: String) -> String {
     let mut contents = Vec::new();
     for caps in TABLE_CONTENT_REGEX.captures_iter(&html) {
@@ -15,7 +16,10 @@ pub fn extract_table_html(html: String) -> String {
             contents.push(format!("<table>{}</table>", content.as_str()));
         }
     }
-    contents.first().unwrap().to_string()
+    match contents.first() {
+        Some(content) => content.to_string(),
+        None => String::new(),
+    }
 }
 
 pub fn convert_table_to_markdown(html: String) -> String {
@@ -155,4 +159,85 @@ pub fn convert_table_to_markdown(html: String) -> String {
     }
 
     markdown
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn extract_table_html_test() {
+        let html = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Representation</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>Year</th>
+                <th>Susan</th>
+                <th>Gerald</th>
+                <th>Bobbie</th>
+                <th>Keisha</th>
+                <th>Art</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2017</td>
+                <td>570</td>
+                <td>635</td>
+                <td>684</td>
+                <td>397</td>
+                <td>678</td>
+            </tr>
+            <tr>
+                <td>2018</td>
+                <td>647</td>
+                <td>325</td>
+                <td>319</td>
+                <td>601</td>
+                <td>520</td>
+            </tr>
+            <tr>
+                <td>2019</td>
+                <td>343</td>
+                <td>680</td>
+                <td>687</td>
+                <td>447</td>
+                <td>674</td>
+            </tr>
+            <tr>
+                <td>2020</td>
+                <td>425</td>
+                <td>542</td>
+                <td>553</td>
+                <td>477</td>
+                <td>648</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>"#;
+        let table_html = extract_table_html(html.to_string());
+        println!("table_html: {}", table_html);
+    }
 }
