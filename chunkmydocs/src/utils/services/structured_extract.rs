@@ -301,18 +301,20 @@ pub async fn perform_structured_extraction(
 mod tests {
     use super::*;
     use crate::models::server::segment::{BoundingBox, Segment, SegmentType};
-    use crate::utils::configs::structured_extract::Config;
+    use crate::utils::configs::llm_config::Config as LlmConfig;
+    use crate::utils::configs::worker_config::Config as WorkerConfig;
     use tokio;
 
     #[tokio::test]
     async fn test_perform_structured_extraction() -> Result<(), Box<dyn Error + Send + Sync>> {
         let embedding_url = "http://127.0.0.1:8085/embed".to_string();
-        let config = Config::from_env().expect("Failed to load Config");
-        let llm_url = config.llm_url;
-        let llm_key = config.llm_key;
-        let model_name = config.model_name;
-        let top_k = config.top_k;
-        let batch_size = config.batch_size;
+        let worker_config = WorkerConfig::from_env().expect("Failed to load WorkerConfig");
+        let llm_config = LlmConfig::from_env().expect("Failed to load LlmConfig");
+        let llm_url = llm_config.url;
+        let llm_key = llm_config.api_key;
+        let model_name = llm_config.model;
+        let top_k = worker_config.structured_extraction_top_k;
+        let batch_size = worker_config.structured_extraction_batch_size;
         let segments = vec![
             Segment {
                 segment_id: "1".to_string(),
