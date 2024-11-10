@@ -2,6 +2,7 @@ use reqwest::Client;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::error::Error;
+
 #[derive(Clone, Serialize)]
 pub struct EmbeddingRequest {
     inputs: Vec<String>,
@@ -11,7 +12,6 @@ pub struct EmbeddingRequest {
 pub struct EmbeddingCache {
     pub embeddings: HashMap<String, Vec<f32>>,
 }
-
 
 impl EmbeddingCache {
     pub fn new() -> Self {
@@ -23,7 +23,8 @@ impl EmbeddingCache {
     pub fn get_embedding(&self, text: &str) -> Option<&Vec<f32>> {
         self.embeddings.get(text)
     }
-    pub async fn generate_embeddings(
+
+    async fn generate_embeddings(
         &self,
         client: &Client,
         embedding_url: &str,
@@ -53,6 +54,7 @@ impl EmbeddingCache {
 
         Ok(all_embeddings)
     }
+
     pub async fn get_or_generate_embeddings(
         &mut self,
         client: &Client,
@@ -82,16 +84,19 @@ impl EmbeddingCache {
         Ok(result)
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::models::server::segment::{BoundingBox, Segment, SegmentType};
+    use crate::utils::configs::search_config::Config as SearchConfig;
     use tokio;
     #[tokio::test]
     async fn embeddings() {
         // Mock client and response
         let client = reqwest::Client::new();
-        let embedding_url = "http://34.54.118.28/embed";
+        let search_config = SearchConfig::from_env().unwrap();
+        let embedding_url = format!("{}/embed", search_config.dense_vector_url);
         let segments = vec![
             Segment {
                 segment_id: "1".to_string(),
@@ -142,12 +147,12 @@ mod tests {
         };
 
         let result = cache
-            .generate_embeddings(&client, embedding_url, markdown_texts.clone(), batch_size)
+            .generate_embeddings(&client, &embedding_url, markdown_texts.clone(), batch_size)
             .await;
         assert!(result.is_ok());
 
         let get_or_generate_result = cache
-            .get_or_generate_embeddings(&client, embedding_url, markdown_texts, batch_size)
+            .get_or_generate_embeddings(&client, &embedding_url, markdown_texts, batch_size)
             .await;
         assert!(get_or_generate_result.is_ok());
         // println!("{:?}", result);

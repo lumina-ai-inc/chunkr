@@ -44,6 +44,7 @@ pub fn search_embeddings(
 mod tests {
     use super::*;
     use crate::models::server::segment::{BoundingBox, SegmentType};
+    use crate::utils::configs::search_config::Config as SearchConfig;
     use crate::utils::services::embeddings::EmbeddingCache;
     use std::error::Error;
     use tokio;
@@ -51,7 +52,8 @@ mod tests {
     #[tokio::test]
     async fn search() -> Result<(), Box<dyn Error + Send + Sync>> {
         let client = reqwest::Client::new();
-        let embedding_url = "http://127.0.0.1:8085/embed";
+        let search_config = SearchConfig::from_env()?;
+        let embedding_url = search_config.dense_vector_url;
         let segments = vec![
             Segment {
                 segment_id: "1".to_string(),
@@ -134,12 +136,12 @@ mod tests {
             .collect();
 
         let segment_embeddings = cache
-            .get_or_generate_embeddings(&client, embedding_url, markdown_texts.clone(), 2)
+            .get_or_generate_embeddings(&client, &embedding_url, markdown_texts.clone(), 2)
             .await?;
 
         let query = "citrus fruits".to_string();
         let query_embedding = cache
-            .get_or_generate_embeddings(&client, embedding_url, vec![query], 1)
+            .get_or_generate_embeddings(&client, &embedding_url, vec![query], 1)
             .await?;
 
         let results = search_embeddings(&query_embedding[0], &segments, &segment_embeddings, 4);

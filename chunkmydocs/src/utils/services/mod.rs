@@ -10,5 +10,5 @@ pub mod payload;
 pub mod pdf;
 pub mod pdla;
 pub mod search;
-pub mod structured_extract;
+pub mod structured_extraction;
 pub mod table_ocr;

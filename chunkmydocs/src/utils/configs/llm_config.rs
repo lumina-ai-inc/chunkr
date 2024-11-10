@@ -1,6 +1,8 @@
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::{fs, path::Path};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -33,37 +35,65 @@ fn default_api_key() -> String {
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
         dotenv_override().ok();
-        let config = ConfigTrait::builder()
+        ConfigTrait::builder()
             .add_source(config::Environment::default().prefix("LLM").separator("__"))
             .build()?
-            .try_deserialize::<Self>()?;
+            .try_deserialize::<Self>()
+    }
+}
 
-        Ok(Self {
-            ocr_model: config
-                .ocr_model
-                .filter(|s| !s.is_empty())
-                .or(Some(config.model.clone())),
-            ocr_url: config
-                .ocr_url
-                .filter(|s| !s.is_empty())
-                .or(Some(config.url.clone())),
-            ocr_api_key: config
-                .ocr_api_key
-                .filter(|s| !s.is_empty())
-                .or(Some(config.api_key.clone())),
-            structured_extraction_model: config
-                .structured_extraction_model
-                .filter(|s| !s.is_empty())
-                .or(Some(config.model.clone())),
-            structured_extraction_url: config
-                .structured_extraction_url
-                .filter(|s| !s.is_empty())
-                .or(Some(config.url.clone())),
-            structured_extraction_api_key: config
-                .structured_extraction_api_key
-                .filter(|s| !s.is_empty())
-                .or(Some(config.api_key.clone())),
-            ..config
-        })
+pub fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
+    let prompt_path = Path::new("src/prompts").join(format!("{}.txt", prompt_name));
+    fs::read_to_string(prompt_path)
+}
+
+pub fn fill_prompt(template: &str, values: &std::collections::HashMap<String, String>) -> String {
+    let mut result = template.to_string();
+
+    result = result.replace("\\{", r"\u005c\u007b");
+    result = result.replace("\\}", r"\u005c\u007d");
+
+    for (key, value) in values {
+        result = result.replace(&format!("{{{}}}", key), value);
+    }
+    result = result.replace(r"\u005c\u007b", "{");
+    result = result.replace(r"\u005c\u007d", "}");
+
+    result
+}
+
+pub fn get_prompt(
+    prompt_name: &str,
+    values: &HashMap<String, String>,
+) -> Result<String, std::io::Error> {
+    let template = get_template(prompt_name)?;
+    let filled_prompt = fill_prompt(&template, values);
+    Ok(filled_prompt)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+    #[tokio::test]
+    async fn test_get_template() -> Result<(), std::io::Error> {
+        let prompt = get_template("structured_extraction").unwrap();
+        println!("Prompt: {}", prompt);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_fill_prompt_with_values() -> Result<(), std::io::Error> {
+        let mut values = HashMap::new();
+        values.insert("name".to_string(), "Invoice Number".to_string());
+        values.insert(
+            "description".to_string(),
+            "The unique identifier for this invoice".to_string(),
+        );
+        values.insert("field_type".to_string(), "string".to_string());
+        values.insert("context".to_string(), "Invoice #12345...".to_string());
+        let filled_prompt = get_prompt("structured_extraction", &values)?;
+        println!("{}", filled_prompt);
+        Ok(())
     }
 }
