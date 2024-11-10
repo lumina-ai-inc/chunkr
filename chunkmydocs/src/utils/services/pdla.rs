@@ -1,5 +1,5 @@
 use crate::models::server::extract::SegmentationModel;
-use crate::utils::configs::worker_config::Config;
+use crate::utils::configs::worker_config::Config as WorkerConfig;
 use reqwest::{multipart, Client as ReqwestClient};
 use std::{fs, path::Path};
 use tokio::sync::OnceCell;
@@ -12,10 +12,7 @@ async fn get_reqwest_client() -> &'static ReqwestClient {
         .await
 }
 
-async fn call_pdla_api(
-    url: &str,
-    file_path: &Path
-) -> Result<String, Box<dyn std::error::Error>> {
+async fn call_pdla_api(url: &str, file_path: &Path) -> Result<String, Box<dyn std::error::Error>> {
     let client = get_reqwest_client().await;
 
     let file_name = file_path
@@ -28,13 +25,12 @@ async fn call_pdla_api(
     let file_fs = fs::read(file_path).expect("Failed to read file");
     let part = multipart::Part::bytes(file_fs).file_name(file_name);
 
-    let form = multipart::Form::new()
-        .part("file", part);
+    let form = multipart::Form::new().part("file", part);
 
     let response = client
         .post(url)
         .multipart(form)
-        .timeout(std::time::Duration::from_secs(10000)) 
+        .timeout(std::time::Duration::from_secs(10000))
         .send()
         .await?
         .error_for_status()?;
@@ -42,16 +38,16 @@ async fn call_pdla_api(
 }
 
 async fn handle_fast_requests(file_path: &Path) -> Result<String, Box<dyn std::error::Error>> {
-    let config = Config::from_env()?;
-    let url = format!("{}/analyze/fast", config.pdla_fast_url);
+    let worker_config = WorkerConfig::from_env()?;
+    let url = format!("{}/analyze/fast", worker_config.pdla_fast_url);
     call_pdla_api(&url, file_path).await
 }
 
 async fn handle_high_quality_requests(
     file_path: &Path,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let config = Config::from_env()?;
-    let url = format!("{}/analyze/high-quality", config.pdla_url);
+    let worker_config = WorkerConfig::from_env()?;
+    let url = format!("{}/analyze/high-quality", worker_config.pdla_url);
     call_pdla_api(&url, file_path).await
 }
 

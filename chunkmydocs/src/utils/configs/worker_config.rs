@@ -193,7 +193,7 @@ impl Config {
         ConfigTrait::builder()
             .add_source(
                 config::Environment::default()
-                    .prefix("EXTRACTION")
+                    .prefix("WORKER")
                     .separator("__"),
             )
             .build()?
