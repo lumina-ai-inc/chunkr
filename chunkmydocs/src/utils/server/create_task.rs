@@ -3,7 +3,7 @@ use crate::models::{
     server::extract::{Configuration, ExtractionPayload},
     server::task::{Status, TaskResponse},
 };
-use crate::utils::configs::extraction_config::Config;
+use crate::utils::configs::worker_config::Config;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::services::payload::produce_extraction_payloads;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};

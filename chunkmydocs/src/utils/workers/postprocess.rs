@@ -2,8 +2,8 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::{ExtractionPayload, OcrStrategy};
 use crate::models::server::segment::{Chunk, OutputResponse, Segment};
 use crate::models::server::task::Status;
-use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::configs::s3_config::create_client;
+use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{
     chunking::hierarchical_chunking, images::crop_image, log::log_task,
@@ -160,7 +160,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             println!("Task succeeded");
             if extraction_payload.configuration.ocr_strategy == OcrStrategy::Off {
                 if extraction_payload.configuration.json_schema.is_some() {
-                    let extraction_config = ExtractionConfig::from_env()?;
+                    let extraction_config = WorkerConfig::from_env()?;
                     produce_extraction_payloads(
                         extraction_config.queue_structured_extract,
                         extraction_payload.clone(),
@@ -185,7 +185,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     .await?;
                 }
             } else {
-                let extraction_config = ExtractionConfig::from_env()?;
+                let extraction_config = WorkerConfig::from_env()?;
                 produce_extraction_payloads(
                     extraction_config.queue_ocr,
                     extraction_payload.clone(),
