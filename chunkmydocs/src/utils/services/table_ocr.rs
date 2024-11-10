@@ -1,6 +1,6 @@
 use crate::{
     models::workers::table_ocr::{PaddleTableRecognitionResponse, PaddleTableRecognitionResult},
-    utils::configs::llm_config::{fill_prompt, Config as LlmConfig},
+    utils::configs::llm_config::{get_prompt, Config as LlmConfig},
     utils::configs::worker_config::Config,
     utils::services::llm::vision_llm_call,
 };
@@ -60,7 +60,7 @@ pub async fn paddle_table_ocr(
 
 pub async fn vllm_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
     let llm_config = LlmConfig::from_env().unwrap();
-    let prompt = fill_prompt("table", &HashMap::new());
+    let prompt = get_prompt("table", &HashMap::new())?;
     let response = vision_llm_call(
         file_path,
         llm_config.ocr_url.unwrap_or(llm_config.url),
@@ -72,6 +72,5 @@ pub async fn vllm_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + 
     )
     .await
     .map_err(|e| Box::new(TableOcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
-
     Ok(response)
 }

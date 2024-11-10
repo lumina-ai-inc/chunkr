@@ -98,7 +98,7 @@ pub async fn vision_llm_call(
     });
 
     let response = client
-        .post(format!("{}/v1/chat/completions", url))
+        .post(url)
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {}", key))
         .json(&payload)
@@ -106,7 +106,6 @@ pub async fn vision_llm_call(
         .await?;
 
     let response_body: Value = response.json().await?;
-    println!("Response body: {}", response_body);
     let completion = response_body["choices"][0]["message"]["content"]
         .as_str()
         .unwrap_or("No response")
