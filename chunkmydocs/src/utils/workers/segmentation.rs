@@ -2,8 +2,8 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
 use crate::models::server::segment::{PdlaSegment, Segment};
 use crate::models::server::task::Status;
-use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::configs::s3_config::create_client;
+use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{
     log::log_task, payload::produce_extraction_payloads, pdf::split_pdf, pdla::pdla_extraction,
@@ -22,7 +22,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
-    let extraction_config = ExtractionConfig::from_env().unwrap();
+    let extraction_config = WorkerConfig::from_env().unwrap();
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         log_task(
@@ -133,7 +133,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     match result {
         Ok(_) => {
             println!("Task succeeded");
-            let extraction_config = ExtractionConfig::from_env()?;
+            let extraction_config = WorkerConfig::from_env()?;
             produce_extraction_payloads(
                 extraction_config.queue_postprocess,
                 extraction_payload.clone(),

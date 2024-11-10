@@ -1,5 +1,5 @@
-use crate::utils::configs::extraction_config::Config as ExtractionConfig;
 use crate::utils::configs::pdfium_config::Config as PdfiumConfig;
+use crate::utils::configs::worker_config::Config as WorkerConfig;
 use image::ImageFormat;
 use lopdf::Document;
 use pdfium_render::prelude::*;
@@ -55,7 +55,7 @@ pub async fn pdf_2_images(
 ) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
     let config = PdfiumConfig::from_env()?;
     let dir_path = config.get_binary().await?;
-    let extraction_config = ExtractionConfig::from_env()?;
+    let extraction_config = WorkerConfig::from_env()?;
 
     let pdfium = Pdfium::new(
         Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&dir_path))?,

@@ -1,4 +1,4 @@
-use crate::utils::configs::extraction_config::Config;
+use crate::utils::configs::worker_config::Config;
 use actix_web::HttpResponse;
 
 /// Health Check

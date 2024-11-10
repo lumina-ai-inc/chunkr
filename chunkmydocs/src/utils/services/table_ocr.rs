@@ -1,6 +1,6 @@
 use crate::{
     models::workers::table_ocr::{PaddleTableRecognitionResponse, PaddleTableRecognitionResult},
-    utils::configs::extraction_config::Config,
+    utils::configs::worker_config::Config,
 };
 use image_base64;
 use std::error::Error;

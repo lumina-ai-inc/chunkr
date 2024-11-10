@@ -1,5 +1,5 @@
 use crate::models::server::extract::SegmentationModel;
-use crate::utils::configs::extraction_config::Config;
+use crate::utils::configs::worker_config::Config;
 use reqwest::{multipart, Client as ReqwestClient};
 use std::{fs, path::Path};
 use tokio::sync::OnceCell;

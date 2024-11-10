@@ -2,8 +2,8 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::{ExtractionPayload, OcrStrategy};
 use crate::models::server::segment::{OutputResponse, Segment, SegmentType};
 use crate::models::server::task::Status;
-use crate::utils::configs::extraction_config;
 use crate::utils::configs::s3_config::create_client;
+use crate::utils::configs::worker_config;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{
     log::log_task,
@@ -43,7 +43,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
-    let config = extraction_config::Config::from_env()?;
+    let config = worker_config::Config::from_env()?;
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         log_task(
