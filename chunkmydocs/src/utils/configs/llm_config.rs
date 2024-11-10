@@ -10,14 +10,14 @@ pub struct Config {
     pub model: String,
     #[serde(default = "default_url")]
     pub url: String,
-    #[serde(default = "default_api_key")]
-    pub api_key: String,
+    #[serde(default = "default_key")]
+    pub key: String,
     pub ocr_model: Option<String>,
     pub ocr_url: Option<String>,
-    pub ocr_api_key: Option<String>,
+    pub ocr_key: Option<String>,
     pub structured_extraction_model: Option<String>,
     pub structured_extraction_url: Option<String>,
-    pub structured_extraction_api_key: Option<String>,
+    pub structured_extraction_key: Option<String>,
 }
 
 fn default_model() -> String {
@@ -28,7 +28,7 @@ fn default_url() -> String {
     "https://api.openai.com/v1/chat/completions".to_string()
 }
 
-fn default_api_key() -> String {
+fn default_key() -> String {
     "".to_string()
 }
 

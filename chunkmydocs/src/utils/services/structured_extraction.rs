@@ -314,8 +314,8 @@ mod tests {
             .structured_extraction_url
             .unwrap_or(llm_config.url);
         let llm_key = llm_config
-            .structured_extraction_api_key
-            .unwrap_or(llm_config.api_key);
+            .structured_extraction_key
+            .unwrap_or(llm_config.key);
         let model_name = llm_config
             .structured_extraction_model
             .unwrap_or(llm_config.model);
