@@ -93,6 +93,7 @@ fn get_html_from_paddle_table_ocr(
 }
 
 // TODO: Add check for valid html
+// TODO: Deal with imge tags in the tables (prompts + heuristics)
 fn get_html_from_vllm_table_ocr(
     table_ocr_result: String,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
