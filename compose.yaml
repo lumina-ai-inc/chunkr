@@ -84,7 +84,7 @@ services:
     restart: always
 
   chunkmydocs:
-    image: luminainc/chunkmydocs:6062a725
+    image: luminainc/chunkmydocs:7fc6db13
     ports:
       - "8000:8000"
     depends_on:
@@ -98,7 +98,7 @@ services:
     restart: always
 
   preprocess:
-    image: luminainc/preprocess:6062a725
+    image: luminainc/preprocess:7fc6db13
     depends_on:
       - postgres
       - redis
@@ -111,7 +111,7 @@ services:
     restart: always
 
   fast:
-    image: luminainc/fast:6062a725
+    image: luminainc/fast:7fc6db13
     depends_on:
       - postgres
       - redis
@@ -125,7 +125,7 @@ services:
     restart: always
 
   high-quality:
-    image: luminainc/high-quality:6062a725
+    image: luminainc/high-quality:7fc6db13
     depends_on:
       - postgres
       - redis
@@ -139,7 +139,7 @@ services:
     restart: always
 
   postprocess:
-    image: luminainc/postprocess:6062a725
+    image: luminainc/postprocess:7fc6db13
     depends_on:
       - postgres
       - redis
@@ -152,7 +152,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/ocr:6062a725
+    image: luminainc/ocr:7fc6db13
     depends_on:
       - postgres
       - redis
@@ -167,7 +167,7 @@ services:
     restart: always
 
   structured-extraction:
-    image: luminainc/structured-extraction:6062a725
+    image: luminainc/structured-extraction:7fc6db13
     depends_on:
       - postgres
       - redis
@@ -181,7 +181,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:6062a725
+    image: luminainc/web:7fc6db13
     ports:
       - "5173:8000"
     env_file:
@@ -208,11 +208,9 @@ services:
     restart: always
 
   general-ocr:
-    image: luminainc/general-ocr:6062a725
+    image: luminainc/general-ocr:7fc6db13
     ports:
       - "8003:8000"
-    env_file:
-      - .env
     deploy:
       replicas: 1
       resources:
@@ -226,11 +224,9 @@ services:
     restart: always
 
   table-ocr:
-    image: luminainc/table-ocr:6062a725
+    image: luminainc/table-ocr:7fc6db13
     ports:
       - "8004:8000"
-    env_file:
-      - .env
     deploy:
       replicas: 1
       resources:
@@ -266,7 +262,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:
