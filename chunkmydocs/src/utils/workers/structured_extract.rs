@@ -2,8 +2,10 @@ use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::ExtractionPayload;
 use crate::models::server::segment::OutputResponse;
 use crate::models::server::task::Status;
+use crate::utils::configs::llm_config::Config as LlmConfig;
 use crate::utils::configs::s3_config::create_client;
-use crate::utils::configs::structured_extract::Config as StructuredExtractConfig;
+use crate::utils::configs::search_config::Config as SearchConfig;
+use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{log::log_task, structured_extract::perform_structured_extraction};
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
@@ -21,7 +23,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
-    let config = StructuredExtractConfig::from_env()?;
+    let worker_config = WorkerConfig::from_env().expect("Failed to load WorkerConfig");
+    let search_config = SearchConfig::from_env().expect("Failed to load SearchConfig");
+    let llm_config = LlmConfig::from_env().expect("Failed to load LlmConfig");
     let configuration = extraction_payload.configuration.clone();
     let json_schema = configuration.json_schema.clone();
 
@@ -49,12 +53,12 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let structured_results = perform_structured_extraction(
             json_schema.ok_or("JSON schema is missing")?,
             output_response.chunks.clone(),
-            format!("{}/embed", config.embedding_url),
-            config.llm_url.clone(),
-            config.llm_key.clone(),
-            config.top_k as usize,
-            config.model_name.clone(),
-            config.batch_size as usize,
+            format!("{}/embed", search_config.dense_vector_url),
+            llm_config.url.clone(),
+            llm_config.api_key.clone(),
+            worker_config.structured_extraction_top_k as usize,
+            llm_config.model.clone(),
+            worker_config.structured_extraction_batch_size as usize,
         )
         .await
         .map_err(|e| e.to_string())?;

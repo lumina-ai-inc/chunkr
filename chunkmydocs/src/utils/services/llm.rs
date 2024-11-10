@@ -119,7 +119,7 @@ pub async fn vision_llm_call(
 mod tests {
     use super::*;
 
-    use crate::utils::configs::structured_extract::Config;
+    use crate::utils::configs::llm_config::Config as LlmConfig;
     use std::fs;
     use std::path::Path;
     use std::time::Instant;
@@ -183,9 +183,9 @@ mod tests {
             .collect();
 
         let mut tasks = Vec::new();
-        let config = Config::from_env().unwrap();
-        let url = config.llm_url;
-        let key = config.llm_key;
+        let llm_config = LlmConfig::from_env().unwrap();
+        let url = llm_config.url;
+        let key = llm_config.api_key;
         for input_file in input_files {
             let table_name = input_file
                 .file_stem()
