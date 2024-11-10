@@ -6,7 +6,7 @@ use std::time::Duration;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum TableOcrModel {
     Paddle,
-    VLLM,
+    VLM,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

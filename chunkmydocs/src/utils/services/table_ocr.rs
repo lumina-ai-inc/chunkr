@@ -2,7 +2,7 @@ use crate::{
     models::workers::table_ocr::{PaddleTableRecognitionResponse, PaddleTableRecognitionResult},
     utils::configs::llm_config::{get_prompt, Config as LlmConfig},
     utils::configs::worker_config::Config,
-    utils::services::llm::vision_llm_call,
+    utils::services::llm::vlm_call,
 };
 use image_base64;
 use std::collections::HashMap;
@@ -58,10 +58,10 @@ pub async fn paddle_table_ocr(
     Ok(paddle_table_response.result)
 }
 
-pub async fn vllm_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
+pub async fn vlm_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
     let llm_config = LlmConfig::from_env().unwrap();
     let prompt = get_prompt("table", &HashMap::new())?;
-    let response = vision_llm_call(
+    let response = vlm_call(
         file_path,
         llm_config.ocr_url.unwrap_or(llm_config.url),
         llm_config.ocr_key.unwrap_or(llm_config.key),
