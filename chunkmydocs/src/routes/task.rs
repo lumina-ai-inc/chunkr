@@ -88,6 +88,7 @@ pub async fn create_extraction_task(
             .map(|t| t.into_inner())
             .unwrap_or(OcrStrategy::default()),
         json_schema: form.json_schema.map(|js| js.into_inner()),
+        segmentation_strategy: form.segmentation_strategy.map(|ss| ss.into_inner()),
     };
 
     let result = create_task(pool, s3_client, file_data, &user_info, &configuration).await;
