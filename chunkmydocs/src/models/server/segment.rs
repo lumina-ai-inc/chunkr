@@ -1,5 +1,5 @@
 use crate::utils::configs::worker_config;
-use crate::utils::services::structured_extract::ExtractedJson;
+use crate::utils::services::structured_extraction::ExtractedJson;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};

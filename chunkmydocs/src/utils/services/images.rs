@@ -63,20 +63,3 @@ pub fn crop_image(
         .unwrap();
     Ok(())
 }
-
-// pub async fn preprocess_image(
-//     input_path: &std::path::Path,
-// ) -> Result<NamedTempFile, Box<dyn std::error::Error>> {
-//     let img = ImageReader::open(input_path)?
-//         .with_guessed_format()?
-//         .decode()?;
-//     // let gray_img = img.to_luma8();
-//     let enhanced_img = imageops::contrast(&img, 1.05); // Reduced contrast enhancement
-//     let denoised_img = median_filter(&enhanced_img, 2, 2); // Reduced median filter size
-
-//     let temp_file = NamedTempFile::new()?;
-//     let file = File::create(temp_file.path())?;
-//     let mut w = BufWriter::new(file);
-//     denoised_img.write_to(&mut w, image::ImageFormat::Png)?;
-//     Ok(temp_file)
-// }

@@ -206,7 +206,7 @@ pub async fn perform_structured_extraction(
                     field_name, field_description, field_type, context, tag_instruction,
                 );
 
-            let extracted = llm_call(llm_url, llm_key, prompt, model_name, Some(8000), Some(0.0))
+            let extracted = llm_call(llm_url, llm_key, model_name, prompt, Some(8000), Some(0.0))
                 .await
                 .map_err(|e| {
                     Box::new(std::io::Error::new(
@@ -310,9 +310,15 @@ mod tests {
         let embedding_url = "http://127.0.0.1:8085/embed".to_string();
         let worker_config = WorkerConfig::from_env().expect("Failed to load WorkerConfig");
         let llm_config = LlmConfig::from_env().expect("Failed to load LlmConfig");
-        let llm_url = llm_config.url;
-        let llm_key = llm_config.api_key;
-        let model_name = llm_config.model;
+        let llm_url = llm_config
+            .structured_extraction_url
+            .unwrap_or(llm_config.url);
+        let llm_key = llm_config
+            .structured_extraction_api_key
+            .unwrap_or(llm_config.api_key);
+        let model_name = llm_config
+            .structured_extraction_model
+            .unwrap_or(llm_config.model);
         let top_k = worker_config.structured_extraction_top_k;
         let batch_size = worker_config.structured_extraction_batch_size;
         let segments = vec![

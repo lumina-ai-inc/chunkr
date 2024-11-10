@@ -7,7 +7,7 @@ use crate::utils::configs::s3_config::create_client;
 use crate::utils::configs::search_config::Config as SearchConfig;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
-use crate::utils::services::{log::log_task, structured_extract::perform_structured_extraction};
+use crate::utils::services::{log::log_task, structured_extraction::perform_structured_extraction};
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
 use std::fs::File;
@@ -16,7 +16,7 @@ use std::io::Write;
 use tempfile::NamedTempFile;
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
-    println!("Processing structured extraction task");
+    println!("Processing task");
 
     let s3_client = create_client().await?;
     let reqwest_client = reqwest::Client::new();
@@ -54,10 +54,19 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             json_schema.ok_or("JSON schema is missing")?,
             output_response.chunks.clone(),
             format!("{}/embed", search_config.dense_vector_url),
-            llm_config.url.clone(),
-            llm_config.api_key.clone(),
+            llm_config
+                .structured_extraction_url
+                .clone()
+                .unwrap_or(llm_config.url.clone()),
+            llm_config
+                .structured_extraction_api_key
+                .clone()
+                .unwrap_or(llm_config.api_key.clone()),
             worker_config.structured_extraction_top_k as usize,
-            llm_config.model.clone(),
+            llm_config
+                .structured_extraction_model
+                .clone()
+                .unwrap_or(llm_config.model.clone()),
             worker_config.structured_extraction_batch_size as usize,
         )
         .await
