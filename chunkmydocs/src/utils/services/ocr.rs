@@ -3,7 +3,7 @@ use crate::models::workers::table_ocr::PaddleTableRecognitionResult;
 use crate::utils::configs::worker_config::{Config as WorkerConfig, TableOcrModel};
 use crate::utils::services::general_ocr::paddle_ocr;
 use crate::utils::services::html::{convert_table_to_markdown, extract_table_html};
-use crate::utils::services::table_ocr::{paddle_table_ocr, vllm_table_ocr};
+use crate::utils::services::table_ocr::{paddle_table_ocr, vlm_table_ocr};
 use crate::utils::storage::services::download_to_tempfile;
 use aws_sdk_s3::Client as S3Client;
 
@@ -41,8 +41,8 @@ pub async fn download_and_table_ocr(
                 let result = paddle_table_ocr(&original_file_path).await?;
                 get_html_from_paddle_table_ocr(result)
             }
-            TableOcrModel::VLLM => {
-                let result = vllm_table_ocr(&original_file_path).await?;
+            TableOcrModel::VLM => {
+                let result = vlm_table_ocr(&original_file_path).await?;
                 get_html_from_vllm_table_ocr(result)
             }
         }

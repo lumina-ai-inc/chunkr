@@ -58,7 +58,7 @@ pub async fn llm_call(
     Ok(completion)
 }
 
-pub async fn vision_llm_call(
+pub async fn vlm_call(
     file_path: &Path,
     url: String,
     key: String,
@@ -215,7 +215,7 @@ mod tests {
                 let task = tokio::spawn(async move {
                     let start_time = Instant::now();
 
-                    match vision_llm_call(&input_file, url, key, prompt, model, None, None).await {
+                    match vlm_call(&input_file, url, key, prompt, model, None, None).await {
                         Ok(response) => {
                             let duration = start_time.elapsed();
                             println!(
