@@ -1,7 +1,7 @@
 use crate::models::rrq::queue::QueuePayload;
 use crate::models::server::extract::{ExtractionPayload, SegmentationModel};
 use crate::models::server::task::Status;
-use crate::utils::configs::extraction_config::Config;
+use crate::utils::configs::worker_config::Config;
 use crate::utils::configs::s3_config::create_client;
 use crate::utils::db::deadpool_postgres::{create_pool, Client};
 use crate::utils::services::{

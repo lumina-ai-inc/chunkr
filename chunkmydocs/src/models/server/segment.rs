@@ -1,4 +1,4 @@
-use crate::utils::configs::extraction_config;
+use crate::utils::configs::worker_config;
 use crate::utils::services::structured_extract::ExtractedJson;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
@@ -168,7 +168,7 @@ impl Segment {
 
     fn update_content(&mut self) {
         if let Some(ocr) = &self.ocr {
-            let config = match extraction_config::Config::from_env() {
+            let config = match worker_config::Config::from_env() {
                 Ok(config) => config,
                 Err(e) => {
                     eprintln!("Error getting extraction config: {}", e);
