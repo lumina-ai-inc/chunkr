@@ -64,7 +64,7 @@ pub async fn vllm_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + 
     let response = vision_llm_call(
         file_path,
         llm_config.ocr_url.unwrap_or(llm_config.url),
-        llm_config.ocr_api_key.unwrap_or(llm_config.api_key),
+        llm_config.ocr_key.unwrap_or(llm_config.key),
         llm_config.ocr_model.unwrap_or(llm_config.model),
         prompt,
         None,
