@@ -163,7 +163,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   structured-extraction:
@@ -173,6 +173,7 @@ services:
       - redis
       - minio
       - rrq
+      - dense-vector
     env_file:
       - .env
     deploy:
@@ -242,7 +243,7 @@ services:
       - /dev/shm:/dev/shm
     restart: always
 
-  embeddings:
+  dense-vector:
     image: ghcr.io/huggingface/text-embeddings-inference:1.5
     ports:
       - "8007:80"

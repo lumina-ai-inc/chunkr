@@ -59,9 +59,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 .clone()
                 .unwrap_or(llm_config.url.clone()),
             llm_config
-                .structured_extraction_api_key
+                .structured_extraction_key
                 .clone()
-                .unwrap_or(llm_config.api_key.clone()),
+                .unwrap_or(llm_config.key.clone()),
             worker_config.structured_extraction_top_k as usize,
             llm_config
                 .structured_extraction_model

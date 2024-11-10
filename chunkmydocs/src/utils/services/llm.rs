@@ -185,7 +185,7 @@ mod tests {
         let mut tasks = Vec::new();
         let llm_config = LlmConfig::from_env().unwrap();
         let url = llm_config.url;
-        let key = llm_config.api_key;
+        let key = llm_config.key;
         for input_file in input_files {
             let table_name = input_file
                 .file_stem()
