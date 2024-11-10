@@ -1,6 +1,6 @@
 use chunkmydocs::utils::configs::worker_config;
 use chunkmydocs::utils::rrq::consumer::consumer;
-use chunkmydocs::utils::workers::structured_extract::process;
+use chunkmydocs::utils::workers::structured_extraction::process;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

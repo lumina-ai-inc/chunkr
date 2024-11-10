@@ -1,4 +1,4 @@
-use crate::utils::services::structured_extract::JsonSchema;
+use crate::utils::services::structured_extraction::JsonSchema;
 use actix_multipart::form::json::Json as MPJson;
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use postgres_types::{FromSql, ToSql};
@@ -26,7 +26,6 @@ pub struct UploadForm {
     #[param(style = Form, value_type = Option<OcrStrategy>)]
     #[schema(value_type = Option<OcrStrategy>)]
     pub ocr_strategy: Option<Text<OcrStrategy>>,
-
 
     pub json_schema: Option<MPJson<JsonSchema>>,
 }

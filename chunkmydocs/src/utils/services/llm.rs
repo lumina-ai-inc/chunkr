@@ -24,8 +24,8 @@ pub struct Context {
 pub async fn llm_call(
     url: String,
     key: String,
-    prompt: String,
     model: String,
+    prompt: String,
     max_tokens: Option<u32>,
     temperature: Option<f32>,
 ) -> Result<String, Box<dyn Error>> {
@@ -62,8 +62,8 @@ pub async fn vision_llm_call(
     file_path: &Path,
     url: String,
     key: String,
-    prompt: String,
     model: String,
+    prompt: String,
     max_tokens: Option<u32>,
     temperature: Option<f32>,
 ) -> Result<String, Box<dyn Error>> {
