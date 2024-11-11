@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 5
     deploy:
-      replicas: 0
+      replicas: 1
 
   redis:
     image: redis:latest
@@ -32,7 +32,7 @@ services:
       timeout: 5s
       retries: 5
     deploy:
-      replicas: 0
+      replicas: 1
 
   minio:
     image: minio/minio:latest
@@ -49,7 +49,7 @@ services:
       test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 30s
       timeout: 20s
-      retries: 0
+      retries: 1
 
   minio-init:
     image: minio/mc
@@ -290,7 +290,7 @@ services:
       timeout: 10s
       retries: 3
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   rrq-analytics:
