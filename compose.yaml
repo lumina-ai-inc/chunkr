@@ -16,6 +16,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      replicas: 0
 
   redis:
     image: redis:latest
@@ -29,6 +31,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      replicas: 0
 
   minio:
     image: minio/minio:latest
@@ -45,7 +49,7 @@ services:
       test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 30s
       timeout: 20s
-      retries: 3
+      retries: 0
 
   minio-init:
     image: minio/mc
@@ -94,7 +98,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   preprocess:
@@ -107,7 +111,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   fast:
@@ -121,7 +125,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   high-quality:
@@ -135,7 +139,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   postprocess:
@@ -148,7 +152,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   ocr:
@@ -163,7 +167,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   structured-extraction:
@@ -177,7 +181,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   web:
@@ -187,7 +191,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   pdla:
@@ -196,7 +200,7 @@ services:
       - "8002:8000"
     command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000" ]
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:
@@ -212,7 +216,7 @@ services:
     ports:
       - "8003:8000"
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:
@@ -228,7 +232,7 @@ services:
     ports:
       - "8004:8000"
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:
@@ -286,7 +290,7 @@ services:
       timeout: 10s
       retries: 3
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   rrq-analytics:
@@ -296,7 +300,7 @@ services:
     environment:
       - VITE_API_URL=http://rrq:8000
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
 volumes:

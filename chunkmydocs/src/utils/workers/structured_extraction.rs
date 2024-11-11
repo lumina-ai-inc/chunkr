@@ -28,7 +28,11 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let llm_config = LlmConfig::from_env().expect("Failed to load LlmConfig");
     let configuration = extraction_payload.configuration.clone();
     let json_schema = configuration.json_schema.clone();
-
+    let content_type = if configuration.ocr_strategy == OcrStrategy::Off {
+        "content".to_string()
+    } else {
+        "markdown".to_string()
+    };
     let result: Result<(), Box<dyn std::error::Error>> = async {
         log_task(
             task_id.clone(),
@@ -53,6 +57,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let structured_results = perform_structured_extraction(
             json_schema.ok_or("JSON schema is missing")?,
             output_response.chunks.clone(),
+<<<<<<< HEAD:chunkmydocs/src/utils/workers/structured_extraction.rs
             format!("{}/embed", search_config.dense_vector_url),
             llm_config
                 .structured_extraction_url
@@ -68,6 +73,15 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 .clone()
                 .unwrap_or(llm_config.model.clone()),
             worker_config.structured_extraction_batch_size as usize,
+=======
+            format!("{}/embed", config.embedding_url),
+            config.llm_url.clone(),
+            config.llm_key.clone(),
+            config.top_k as usize,
+            config.model_name.clone(),
+            config.batch_size as usize,
+            content_type,
+>>>>>>> ik/seg-logic:chunkmydocs/src/utils/workers/structured_extract.rs
         )
         .await
         .map_err(|e| e.to_string())?;
