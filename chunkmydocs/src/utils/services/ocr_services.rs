@@ -20,8 +20,8 @@ static VLM_OCR_SEMAPHORE: OnceCell<Semaphore> = OnceCell::new();
 
 fn init_semaphores() {
     let concurrent_config = ConcurrentConfig::from_env().unwrap();
-    GENERAL_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(concurrent_config.general_ocr_concurrency));
-    VLM_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(concurrent_config.vlm_ocr_concurrency));
+    GENERAL_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(concurrent_config.general_ocr));
+    VLM_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(concurrent_config.vlm_ocr));
 }
 
 #[derive(Debug)]
