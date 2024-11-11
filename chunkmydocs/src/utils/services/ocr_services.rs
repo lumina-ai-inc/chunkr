@@ -1,11 +1,12 @@
 use crate::{
     models::server::segment::OCRResult,
     models::workers::general_ocr::PaddleOCRResponse,
+    models::workers::open_ai::MessageContent,
     models::workers::table_ocr::{PaddleTableRecognitionResponse, PaddleTableRecognitionResult},
     utils::configs::llm_config::{get_prompt, Config as LlmConfig},
     utils::configs::throttle_config::Config as ThrottleConfig,
     utils::configs::worker_config::Config as WorkerConfig,
-    utils::services::llm::vlm_call,
+    utils::services::llm::{get_basic_image_message, open_ai_call},
 };
 use image_base64;
 use once_cell::sync::OnceCell;
@@ -119,7 +120,7 @@ pub async fn paddle_table_ocr(
     Ok(paddle_table_response.result)
 }
 
-pub async fn vlm_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
+async fn vlm_ocr(file_path: &Path, prompt: String) -> Result<String, Box<dyn Error + Send + Sync>> {
     init_semaphores();
     let _permit = VLM_OCR_SEMAPHORE
         .get()
@@ -127,42 +128,32 @@ pub async fn vlm_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + S
         .acquire()
         .await?;
     let llm_config = LlmConfig::from_env().unwrap();
-    let prompt = get_prompt("table", &HashMap::new())?;
-    let response = vlm_call(
-        file_path,
+    let messages = get_basic_image_message(file_path, prompt)
+        .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
+    let response = open_ai_call(
         llm_config.ocr_url.unwrap_or(llm_config.url),
         llm_config.ocr_key.unwrap_or(llm_config.key),
         llm_config.ocr_model.unwrap_or(llm_config.model),
-        prompt,
+        messages,
         None,
         None,
     )
     .await
     .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
     drop(_permit);
-    Ok(response)
+    if let MessageContent::String { content } = response.choices[0].message.content.clone() {
+        Ok(content)
+    } else {
+        Err("Invalid content type".into())
+    }
+}
+
+pub async fn vlm_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
+    let prompt = get_prompt("table", &HashMap::new())?;
+    vlm_ocr(file_path, prompt).await
 }
 
 pub async fn vlm_formula_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
-    init_semaphores();
-    let _permit = VLM_OCR_SEMAPHORE
-        .get()
-        .expect("OCR semaphore not initialized")
-        .acquire()
-        .await?;
-    let llm_config = LlmConfig::from_env().unwrap();
     let prompt = get_prompt("formula", &HashMap::new())?;
-    let response = vlm_call(
-        file_path,
-        llm_config.ocr_url.unwrap_or(llm_config.url),
-        llm_config.ocr_key.unwrap_or(llm_config.key),
-        llm_config.ocr_model.unwrap_or(llm_config.model),
-        prompt,
-        None,
-        None,
-    )
-    .await
-    .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
-    drop(_permit);
-    Ok(response)
+    vlm_ocr(file_path, prompt).await
 }
