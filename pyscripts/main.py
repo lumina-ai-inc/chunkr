@@ -164,7 +164,7 @@ if __name__ == "__main__":
         )
         ]
     )
-    segmentation_strategy = SegmentationStrategy.LayoutAnalysis
+    segmentation_strategy = SegmentationStrategy.Page
     times = asyncio.run(main( model, target_chunk_length, ocr_strategy, "input", json_schema=json_schema, segmentation_strategy=segmentation_strategy))  
     
     if times:
