@@ -43,6 +43,7 @@ impl Config {
 
 fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
     let content = match prompt_name {
+        "formula" => include_str!("../prompts/formula.txt"),
         "structured_extraction" => include_str!("../prompts/structured_extraction.txt"),
         "table" => include_str!("../prompts/table.txt"),
         _ => {
