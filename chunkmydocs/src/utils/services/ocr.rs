@@ -1,9 +1,12 @@
 use crate::models::server::segment::OCRResult;
 use crate::models::workers::table_ocr::PaddleTableRecognitionResult;
 use crate::utils::configs::worker_config::{Config as WorkerConfig, TableOcrModel};
-use crate::utils::services::general_ocr::paddle_ocr;
-use crate::utils::services::html::{convert_table_to_markdown, extract_table_html};
-use crate::utils::services::table_ocr::{paddle_table_ocr, vlm_table_ocr};
+use crate::utils::services::html::{
+    clean_img_tags, convert_table_to_markdown, extract_table_html, validate_html,
+};
+use crate::utils::services::ocr_services::{
+    paddle_ocr, paddle_table_ocr, vlm_formula_ocr, vlm_table_ocr,
+};
 use crate::utils::storage::services::download_to_tempfile;
 use aws_sdk_s3::Client as S3Client;
 
@@ -23,6 +26,29 @@ pub async fn download_and_ocr(
         }
     };
     Ok((ocr_results, "".to_string(), "".to_string()))
+}
+
+pub async fn download_and_formula_ocr(
+    s3_client: &S3Client,
+    reqwest_client: &ReqwestClient,
+    image_location: &str,
+) -> Result<(Vec<OCRResult>, String, String), Box<dyn std::error::Error>> {
+    let original_file =
+        download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
+    let latex_formula = match vlm_formula_ocr(original_file.path()).await {
+        Ok(latex_formula) => {
+            get_latex_from_vllm_formula_ocr(latex_formula).unwrap_or("".to_string())
+        }
+        Err(e) => {
+            return Err(e.to_string().into());
+        }
+    };
+
+    Ok((
+        vec![],
+        format!("<span class=\"formula\">{}</span>", latex_formula.clone()),
+        format!("${}$", latex_formula),
+    ))
 }
 
 pub async fn download_and_table_ocr(
@@ -92,15 +118,152 @@ fn get_html_from_paddle_table_ocr(
     }
 }
 
-// TODO: Add check for valid html
-// TODO: Deal with imge tags in the tables (prompts + heuristics)
-fn get_html_from_vllm_table_ocr(
+pub fn get_html_from_vllm_table_ocr(
     table_ocr_result: String,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     if let Some(html_content) = table_ocr_result.split("```html").nth(1) {
         if let Some(html) = html_content.split("```").next() {
-            return Ok(html.trim().to_string());
+            let html = html.trim().to_string();
+            let cleaned_html = clean_img_tags(&html);
+            return match validate_html(&cleaned_html) {
+                Ok(_) => Ok(cleaned_html),
+                Err(e) => Err(e.to_string().into()),
+            };
         }
     }
     Err("No HTML content found in table OCR result".into())
+}
+
+pub fn get_latex_from_vllm_formula_ocr(
+    formula_ocr_result: String,
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    if let Some(latex_content) = formula_ocr_result.split("```latex").nth(1) {
+        if let Some(latex) = latex_content.split("```").next() {
+            return Ok(latex.trim().to_string());
+        }
+    }
+    Err("No LaTeX content found in formula OCR result".into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_html() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+            </tr>
+        </table>
+        ```
+        "#;
+        let html = get_html_from_vllm_table_ocr(input.to_string()).unwrap();
+        assert_eq!(
+            html,
+            r#"<table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+            </tr>
+        </table>"#
+        );
+    }
+
+    #[test]
+    fn test_invalid_html() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td>1
+                <td>2</td>
+            </tr>
+        </table>
+        ```
+        "#;
+        let result = get_html_from_vllm_table_ocr(input.to_string());
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Mismatched HTML tags: expected </td>, found </tr>"
+        );
+    }
+
+    #[test]
+    fn test_image_alt_text() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td><img src="pizza.png" alt="pizza"></td>
+            </tr>
+        </table>
+        "#;
+        let html = get_html_from_vllm_table_ocr(input.to_string()).unwrap();
+        assert_eq!(
+            html,
+            r#"<table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>pizza</td>
+            </tr>
+        </table>"#
+        );
+    }
+
+    #[test]
+    fn test_image_no_alt_text() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td><img src="pizza.png"></td>
+            </tr>
+        </table>
+        "#;
+        let html = get_html_from_vllm_table_ocr(input.to_string()).unwrap();
+        assert_eq!(
+            html,
+            r#"<table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td></td>
+            </tr>
+        </table>"#
+        );
+    }
+
+    #[test]
+    fn test_void_elements() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td><img src="pizza.png" /></td>
+                <td>2<br>3</td>
+            </tr>
+        </table>
+        ```
+        "#;
+        let html = get_html_from_vllm_table_ocr(input.to_string()).unwrap();
+        assert_eq!(
+            html,
+            r#"<table>
+            <tr>
+                <td></td>
+                <td>2<br>3</td>
+            </tr>
+        </table>"#
+        );
+    }
 }
