@@ -9,7 +9,6 @@ use crate::utils::services::{
     payload::produce_extraction_payloads,
     pdf::{ pdf_2_images, extract_text_pdf },
 };
-use crate::utils::configs::s3_config::create_client;
 use crate::utils::storage::services::{ download_to_given_tempfile, upload_to_s3 };
 use chrono::Utc;
 use std::{ error::Error, path::{ Path, PathBuf }, process::Command };

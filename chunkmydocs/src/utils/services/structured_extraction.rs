@@ -456,6 +456,7 @@ mod tests {
             top_k as usize,
             model_name,
             batch_size as usize,
+            "content".to_string(),
         )
         .await?;
 
