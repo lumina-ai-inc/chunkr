@@ -2,7 +2,6 @@ use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::{fs, path::Path};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -43,8 +42,17 @@ impl Config {
 }
 
 fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
-    let prompt_path = Path::new("src/utils/prompts").join(format!("{}.txt", prompt_name));
-    fs::read_to_string(prompt_path)
+    let content = match prompt_name {
+        "structured_extraction" => include_str!("../prompts/structured_extraction.txt"),
+        "table" => include_str!("../prompts/table.txt"),
+        _ => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("Prompt '{}' not found", prompt_name),
+            ))
+        }
+    };
+    Ok(content.to_string())
 }
 
 fn fill_prompt(template: &str, values: &std::collections::HashMap<String, String>) -> String {
