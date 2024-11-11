@@ -8,6 +8,7 @@ use crate::utils::configs::search_config::Config as SearchConfig;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{log::log_task, structured_extraction::perform_structured_extraction};
+use crate::models::server::extract::OcrStrategy;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
 use std::fs::File;
@@ -57,7 +58,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let structured_results = perform_structured_extraction(
             json_schema.ok_or("JSON schema is missing")?,
             output_response.chunks.clone(),
-<<<<<<< HEAD:chunkmydocs/src/utils/workers/structured_extraction.rs
             format!("{}/embed", search_config.dense_vector_url),
             llm_config
                 .structured_extraction_url
@@ -73,15 +73,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 .clone()
                 .unwrap_or(llm_config.model.clone()),
             worker_config.structured_extraction_batch_size as usize,
-=======
-            format!("{}/embed", config.embedding_url),
-            config.llm_url.clone(),
-            config.llm_key.clone(),
-            config.top_k as usize,
-            config.model_name.clone(),
-            config.batch_size as usize,
             content_type,
->>>>>>> ik/seg-logic:chunkmydocs/src/utils/workers/structured_extract.rs
         )
         .await
         .map_err(|e| e.to_string())?;
