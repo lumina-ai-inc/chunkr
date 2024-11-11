@@ -42,12 +42,12 @@ impl Config {
     }
 }
 
-pub fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
-    let prompt_path = Path::new("src/prompts").join(format!("{}.txt", prompt_name));
+fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
+    let prompt_path = Path::new("src/utils/prompts").join(format!("{}.txt", prompt_name));
     fs::read_to_string(prompt_path)
 }
 
-pub fn fill_prompt(template: &str, values: &std::collections::HashMap<String, String>) -> String {
+fn fill_prompt(template: &str, values: &std::collections::HashMap<String, String>) -> String {
     let mut result = template.to_string();
 
     result = result.replace("\\{", r"\u005c\u007b");

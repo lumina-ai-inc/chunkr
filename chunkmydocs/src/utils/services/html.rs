@@ -7,6 +7,9 @@ static TR_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?is)<tr[^>]*>(.*?)<\/t
 static TD_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r#"(?is)<(?:td|th)\s*(?:colspan\s*=\s*['"]?(\d+)['"]?)?(?:\s*+rowspan\s*=\s*['"]?(\d+)['"]?)?[^>]*>(.*?)</(?:td|th)>"#).unwrap()
 });
+static IMG_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"<img(?:[^>]*?alt=["']([^"']*?)["'])?[^>]*>"#).unwrap());
+static TAG_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"</?([a-zA-Z][a-zA-Z0-9]*).*?>").unwrap());
 
 // TODO: Deal with multiple tables
 pub fn extract_table_html(html: String) -> String {
@@ -20,6 +23,53 @@ pub fn extract_table_html(html: String) -> String {
         Some(content) => content.to_string(),
         None => String::new(),
     }
+}
+
+pub fn clean_img_tags(html: &str) -> String {
+    IMG_REGEX
+        .replace_all(html, |caps: &regex::Captures| {
+            caps.get(1)
+                .map_or("".to_string(), |m| m.as_str().to_string())
+        })
+        .to_string()
+}
+
+pub fn validate_html(html: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut tag_stack = Vec::new();
+
+    const VOID_ELEMENTS: [&str; 14] = [
+        "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param",
+        "source", "track", "wbr",
+    ];
+
+    for cap in TAG_REGEX.captures_iter(html) {
+        let tag = cap[1].to_string();
+        let full_match = cap[0].to_string();
+
+        if full_match.starts_with("</") {
+            if let Some(last_tag) = tag_stack.pop() {
+                if last_tag != tag {
+                    return Err(format!(
+                        "Mismatched HTML tags: expected </{}>, found </{}>",
+                        last_tag, tag
+                    )
+                    .into());
+                }
+            } else {
+                return Err(
+                    format!("Found closing tag </{}> without matching opening tag", tag).into(),
+                );
+            }
+        } else if !full_match.ends_with("/>") && !VOID_ELEMENTS.contains(&tag.as_str()) {
+            tag_stack.push(tag);
+        }
+    }
+
+    if !tag_stack.is_empty() {
+        return Err(format!("Unclosed HTML tags: {}", tag_stack.join(", ")).into());
+    }
+
+    Ok(())
 }
 
 pub fn convert_table_to_markdown(html: String) -> String {

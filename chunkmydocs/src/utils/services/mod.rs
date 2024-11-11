@@ -1,14 +1,13 @@
 pub mod chunking;
 pub mod embeddings;
-pub mod general_ocr;
 pub mod html;
 pub mod images;
 pub mod llm;
 pub mod log;
 pub mod ocr;
+pub mod ocr_services;
 pub mod payload;
 pub mod pdf;
 pub mod pdla;
 pub mod search;
 pub mod structured_extraction;
-pub mod table_ocr;

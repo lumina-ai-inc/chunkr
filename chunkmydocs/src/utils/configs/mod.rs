@@ -1,4 +1,5 @@
 pub mod auth_config;
+pub mod concurrent_config;
 pub mod github_config;
 pub mod llm_config;
 pub mod pdfium_config;
