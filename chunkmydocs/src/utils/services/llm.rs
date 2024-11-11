@@ -1,9 +1,21 @@
+use crate::models::workers::open_ai::OpenAiResponse;
 use base64::{engine::general_purpose, Engine as _};
 use serde_json::{json, Value};
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
+
+// TODO: combine functions, make open ai struct
+
+pub async fn open_ai_call(
+    url: String,
+    key: String,
+    model: String,
+    prompt: String,
+) -> Result<OpenAiResponse, Box<dyn Error>> {
+    todo!()
+}
 
 pub async fn llm_call(
     url: String,
