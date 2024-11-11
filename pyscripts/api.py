@@ -1,7 +1,7 @@
 import dotenv
 import os
 import requests
-from models import Model, TableOcr, TaskResponse, UploadForm, OcrStrategy
+from models import Model, TableOcr, TaskResponse, UploadForm, OcrStrategy, SegmentationStrategy
 import time
 import glob
 import json  # Added import for JSON serialization
@@ -24,7 +24,7 @@ def health_check():
     response = requests.get(url, headers=get_headers()).raise_for_status()
     return response
 
-def extract_file(file_to_send, model: Model, target_chunk_length: int = 512, ocr_strategy: OcrStrategy = OcrStrategy.Auto, json_schema = None) -> TaskResponse:
+def extract_file(file_to_send, model: Model, target_chunk_length: int = 512, ocr_strategy: OcrStrategy = OcrStrategy.Auto, json_schema = None, segmentation_strategy: SegmentationStrategy = SegmentationStrategy.LayoutAnalysis) -> TaskResponse:
     url = get_base_url() + "/api/v1/task"
     with open(file_to_send, "rb") as file:
         headers = get_headers()
@@ -41,6 +41,7 @@ def extract_file(file_to_send, model: Model, target_chunk_length: int = 512, ocr
             "model": str(model.value),
             "target_chunk_length": str(target_chunk_length),
             "ocr_strategy": str(ocr_strategy.value),
+            "segmentation_strategy": str(segmentation_strategy.value),
         }
         
         response = requests.post(url, files=files, data=data, headers=headers)
@@ -53,6 +54,7 @@ def extract_file(file_to_send, model: Model, target_chunk_length: int = 512, ocr
 
 def get_task(url: str) -> TaskResponse:
     headers = get_headers()
+    print(url)
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     task = TaskResponse(**response.json())
@@ -77,6 +79,7 @@ def process_file(upload_form: UploadForm) -> TaskResponse:
     target_chunk_length = upload_form.target_chunk_length
     ocr_strategy = upload_form.ocr_strategy
     json_schema = upload_form.json_schema
-    task = extract_file(file_path, model, target_chunk_length, ocr_strategy, json_schema)
+    segmentation_strategy = upload_form.segmentation_strategy
+    task = extract_file(file_path, model, target_chunk_length, ocr_strategy, json_schema, segmentation_strategy)
     task = check_task_status(task.task_url)
     return task

@@ -14,7 +14,7 @@ pub async fn llm_call(
     temperature: Option<f32>,
 ) -> Result<String, Box<dyn Error>> {
     let client = reqwest::Client::new();
-
+    println!("LLM call: {:?}", prompt);
     let payload = json!({
         "model": model,
         "messages": [
@@ -23,7 +23,7 @@ pub async fn llm_call(
                 "content": prompt
             }
         ],
-        "max_tokens": max_tokens.unwrap_or(8000),
+        "max_tokens": max_tokens.unwrap_or(16000),
         "temperature": temperature.unwrap_or(0.0)
     });
 

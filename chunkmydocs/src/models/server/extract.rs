@@ -28,12 +28,16 @@ pub struct UploadForm {
     pub ocr_strategy: Option<Text<OcrStrategy>>,
 
     pub json_schema: Option<MPJson<JsonSchema>>,
+
+    #[param(style = Form, value_type = Option<SegmentationStrategy>)]
+    #[schema(value_type = Option<SegmentationStrategy>)]
+    pub segmentation_strategy: Option<Text<SegmentationStrategy>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct ExtractionPayload {
     pub user_id: String,
-    pub model: SegmentationModel,
+    pub model: PdlaModel,
     pub input_location: String,
     pub pdf_location: String,
     pub output_location: String,
@@ -51,15 +55,25 @@ pub struct ExtractionPayload {
 #[derive(
     Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq, ToSql, FromSql,
 )]
-pub enum SegmentationModel {
+pub enum SegmentationStrategy {
+    LayoutAnalysis,
+    Page,
+}
+
+#[derive(
+    Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq, ToSql, FromSql,
+)]
+pub enum PdlaModel {
     PdlaFast,
     Pdla,
+    // Page,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema, ToSql, FromSql)]
 pub enum Model {
     Fast,
     HighQuality,
+    // NoModel,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
@@ -68,29 +82,33 @@ pub struct Configuration {
     pub ocr_strategy: OcrStrategy,
     pub target_chunk_length: Option<i32>,
     pub json_schema: Option<JsonSchema>,
+    pub segmentation_strategy: Option<SegmentationStrategy>,
 }
 
 impl Model {
-    pub fn to_internal(&self) -> SegmentationModel {
+    pub fn to_internal(&self) -> PdlaModel {
         match self {
-            Model::Fast => SegmentationModel::PdlaFast,
-            Model::HighQuality => SegmentationModel::Pdla,
+            Model::Fast => PdlaModel::PdlaFast,
+            Model::HighQuality => PdlaModel::Pdla,
+            // Model::NoModel => PdlaModel::Page,
         }
     }
 }
 
-impl SegmentationModel {
+impl PdlaModel {
     pub fn to_external(&self) -> Model {
         match self {
-            SegmentationModel::PdlaFast => Model::Fast,
-            SegmentationModel::Pdla => Model::HighQuality,
+            PdlaModel::PdlaFast => Model::Fast,
+            PdlaModel::Pdla => Model::HighQuality,
+            // PdlaModel::Page => Model::NoModel,
         }
     }
 
     pub fn get_extension(&self) -> &str {
         match self {
-            SegmentationModel::PdlaFast => "json",
-            SegmentationModel::Pdla => "json",
+            PdlaModel::PdlaFast => "json",
+            PdlaModel::Pdla => "json",
+            // PdlaModel::Page => "json",
         }
     }
 }
