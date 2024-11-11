@@ -192,7 +192,6 @@ pub async fn perform_structured_extraction(
 
             let search_results =
                 search_embeddings(&query_embedding, &all_segments, &segment_embeddings, top_k);
-            println!("Search results: {:?}", search_results[0].segment.content.len());
             let context = search_results
                 .iter()
                 .map(|res| if content_type_clone == "markdown" {
@@ -210,8 +209,8 @@ pub async fn perform_structured_extraction(
             };
 
             let prompt = format!(
-                    "Field Name: {}\nField Description: {}\nField Type: {}\n\nContext:\n{}\n\nExtract the information for the field. {} Ensure the output adheres to the schema without nesting. Supported types: int, float, text, list, obj.
-                    You must accurately find the information for the field based on the name and description.",
+                    "Field Name: {}\nField Description: {}\nField Type: {}\n\nContext:\n{}\n\nExtract the information for the field. {} Ensure the output adheres to the schema without nesting.
+                    You must accurately find the information for the field based on the name and description. Report the information in the type requested directly.",
                     field_name, field_description, field_type, context, tag_instruction,
                 );
 
@@ -223,7 +222,6 @@ pub async fn perform_structured_extraction(
                         e.to_string(),
                     )) as Box<dyn Error + Send + Sync>
                 })?;
-            println!("Extracted: {:?}", extracted);
             Ok((field_name, field_type, extracted))
         });
 
