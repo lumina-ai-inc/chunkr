@@ -7,7 +7,7 @@ use crate::utils::configs::worker_config;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{
     log::log_task,
-    ocr::{download_and_ocr, download_and_table_ocr},
+    ocr::{download_and_formula_ocr, download_and_ocr, download_and_table_ocr},
     payload::produce_extraction_payloads,
 };
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
@@ -16,10 +16,8 @@ use futures::future::try_join_all;
 use std::{
     fs::File,
     io::{BufReader, Write},
-    sync::Arc,
 };
 use tempfile::NamedTempFile;
-use tokio::sync::Semaphore;
 
 pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
     if segment.image.is_none() {
@@ -31,6 +29,7 @@ pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
         OcrStrategy::Auto => match segment.segment_type {
             SegmentType::Table => true,
             SegmentType::Picture => true,
+            SegmentType::Formula => true,
             _ => segment.content.is_empty(),
         },
     }
@@ -67,8 +66,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let reader = BufReader::new(file);
         let mut output_response: OutputResponse = serde_json::from_reader(reader)?;
 
-        let semaphore = Arc::new(Semaphore::new(config.ocr_concurrency));
-
         try_join_all(output_response.chunks.iter_mut().flat_map(|chunk| {
             chunk.segments.iter_mut().filter_map(|segment| {
                 if filter_segment(
@@ -76,12 +73,17 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     extraction_payload.configuration.ocr_strategy.clone(),
                 ) {
                     Some(async {
-                        let semaphore = semaphore.clone();
                         let s3_client = s3_client.clone();
                         let reqwest_client = reqwest_client.clone();
-                        let _permit = semaphore.acquire().await?;
                         let ocr_result = if segment.segment_type == SegmentType::Table {
                             download_and_table_ocr(
+                                &s3_client,
+                                &reqwest_client,
+                                segment.image.as_ref().unwrap(),
+                            )
+                            .await
+                        } else if segment.segment_type == SegmentType::Formula {
+                            download_and_formula_ocr(
                                 &s3_client,
                                 &reqwest_client,
                                 segment.image.as_ref().unwrap(),
@@ -95,7 +97,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                             )
                             .await
                         };
-                        drop(_permit);
                         match ocr_result {
                             Ok((ocr_result, html, markdown)) => {
                                 segment.ocr = Some(ocr_result);

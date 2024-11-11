@@ -15,8 +15,6 @@ pub struct Config {
     pub batch_size: i32,
     #[serde(default = "default_general_ocr_url")]
     pub general_ocr_url: Option<String>,
-    #[serde(default = "default_ocr_concurrency")]
-    pub ocr_concurrency: usize,
     #[serde(default = "default_ocr_confidence_threshold")]
     pub ocr_confidence_threshold: f32,
     #[serde(default = "default_page_image_density")]
@@ -67,10 +65,6 @@ fn default_batch_size() -> i32 {
 
 fn default_general_ocr_url() -> Option<String> {
     Some("http://localhost:8003".to_string())
-}
-
-fn default_ocr_concurrency() -> usize {
-    24
 }
 
 fn default_ocr_confidence_threshold() -> f32 {
