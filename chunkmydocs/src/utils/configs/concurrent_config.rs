@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default = "default_general_ocr_concurrency")]
-    pub general_ocr_concurrency: usize,
+    pub general_ocr: usize,
     #[serde(default = "default_vlm_ocr_concurrency")]
-    pub vlm_ocr_concurrency: usize,
+    pub vlm_ocr: usize,
 }
 
 fn default_general_ocr_concurrency() -> usize {
@@ -15,7 +15,7 @@ fn default_general_ocr_concurrency() -> usize {
 }
 
 fn default_vlm_ocr_concurrency() -> usize {
-    25
+    1000
 }
 
 impl Config {
