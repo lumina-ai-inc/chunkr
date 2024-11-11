@@ -1,4 +1,6 @@
-use crate::models::workers::open_ai::OpenAiResponse;
+use crate::models::workers::open_ai::{
+    ContentPart, ImageUrl, Message, MessageContent, OpenAiRequest, OpenAiResponse,
+};
 use base64::{engine::general_purpose, Engine as _};
 use serde_json::{json, Value};
 use std::error::Error;
@@ -6,15 +8,68 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-// TODO: combine functions, make open ai struct
-
 pub async fn open_ai_call(
     url: String,
     key: String,
     model: String,
-    prompt: String,
+    messages: Vec<Message>,
+    max_completion_tokens: Option<u32>,
+    temperature: Option<f32>,
 ) -> Result<OpenAiResponse, Box<dyn Error>> {
-    todo!()
+    let request = OpenAiRequest {
+        model,
+        messages,
+        max_completion_tokens,
+        temperature,
+    };
+
+    let client = reqwest::Client::new();
+    let response = client
+        .post(url)
+        .header("Content-Type", "application/json")
+        .header("Authorization", format!("Bearer {}", key))
+        .json(&request)
+        .send()
+        .await?;
+
+    let response: OpenAiResponse = response.json().await?;
+    Ok(response)
+}
+
+pub fn get_basic_message(prompt: String) -> Result<Vec<Message>, Box<dyn Error>> {
+    Ok(vec![Message {
+        role: "user".to_string(),
+        content: MessageContent::String { content: prompt },
+    }])
+}
+
+pub fn get_basic_image_message(
+    file_path: &Path,
+    prompt: String,
+) -> Result<Vec<Message>, Box<dyn Error>> {
+    let mut file = File::open(file_path)?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+    let base64_image = general_purpose::STANDARD.encode(&buffer);
+    Ok(vec![Message {
+        role: "user".to_string(),
+        content: MessageContent::Array {
+            content: vec![
+                ContentPart {
+                    content_type: "text".to_string(),
+                    text: Some(prompt),
+                    image_url: None,
+                },
+                ContentPart {
+                    content_type: "image_url".to_string(),
+                    text: None,
+                    image_url: Some(ImageUrl {
+                        url: format!("data:image/jpeg;base64,{}", base64_image),
+                    }),
+                },
+            ],
+        },
+    }])
 }
 
 pub async fn llm_call(
@@ -187,16 +242,27 @@ mod tests {
 
                 let task = tokio::spawn(async move {
                     let start_time = Instant::now();
+                    let messages = match get_basic_image_message(&input_file, prompt) {
+                        Ok(messages) => messages,
+                        Err(e) => {
+                            println!("Error getting basic image message: {:?}", e);
+                            return Err(e.to_string().into());
+                        }
+                    };
 
-                    match vlm_call(&input_file, url, key, model, prompt, None, None).await {
+                    match open_ai_call(url, key, model, messages, None, None).await {
                         Ok(response) => {
                             let duration = start_time.elapsed();
-                            let html_content = get_html_from_vllm_table_ocr(response)?;
-
-                            let html_file =
-                                table_dir.join(format!("{}.html", model_clone.replace("/", "_")));
-                            fs::write(&html_file, html_content)?;
-                            println!("HTML for {} saved to {:?}", model_clone, html_file);
+                            let content = response.choices[0].message.content.clone();
+                            if let MessageContent::String { content } = content {
+                                let html_content = get_html_from_vllm_table_ocr(content)?;
+                                let html_file = table_dir
+                                    .join(format!("{}.html", model_clone.replace("/", "_")));
+                                fs::write(&html_file, html_content)?;
+                                println!("HTML for {} saved to {:?}", model_clone, html_file);
+                            } else {
+                                return Err("Invalid content type".into());
+                            }
 
                             let csv_file =
                                 table_dir.join(format!("{}.csv", model_clone.replace("/", "_")));
