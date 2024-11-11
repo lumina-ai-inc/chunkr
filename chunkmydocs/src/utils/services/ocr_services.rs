@@ -2,8 +2,8 @@ use crate::{
     models::server::segment::OCRResult,
     models::workers::general_ocr::PaddleOCRResponse,
     models::workers::table_ocr::{PaddleTableRecognitionResponse, PaddleTableRecognitionResult},
-    utils::configs::concurrent_config::Config as ConcurrentConfig,
     utils::configs::llm_config::{get_prompt, Config as LlmConfig},
+    utils::configs::throttle_config::Config as ThrottleConfig,
     utils::configs::worker_config::Config as WorkerConfig,
     utils::services::llm::vlm_call,
 };
@@ -19,9 +19,9 @@ static GENERAL_OCR_SEMAPHORE: OnceCell<Semaphore> = OnceCell::new();
 static VLM_OCR_SEMAPHORE: OnceCell<Semaphore> = OnceCell::new();
 
 fn init_semaphores() {
-    let concurrent_config = ConcurrentConfig::from_env().unwrap();
-    GENERAL_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(concurrent_config.general_ocr));
-    VLM_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(concurrent_config.vlm_ocr));
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    GENERAL_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(throttle_config.general_ocr_concurrency));
+    VLM_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(throttle_config.vlm_ocr_concurrency));
 }
 
 #[derive(Debug)]
