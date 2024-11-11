@@ -10,9 +10,7 @@ metadata:
 spec:
   ingressClassName: gce
   tls:
-  - hosts:
-    - rrq.chunkr.ai
-    secretName: tls-secret
+  - secretName: tls-secret
   rules:
   - http:
       paths:
