@@ -88,7 +88,7 @@ services:
     restart: always
 
   chunkmydocs:
-    image: luminainc/chunkmydocs:51596838
+    image: luminainc/chunkmydocs:d8eba61e
     ports:
       - "8000:8000"
     depends_on:
@@ -98,11 +98,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   preprocess:
-    image: luminainc/preprocess:51596838
+    image: luminainc/preprocess:d8eba61e
     depends_on:
       - postgres
       - redis
@@ -111,11 +111,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   fast:
-    image: luminainc/fast:51596838
+    image: luminainc/fast:d8eba61e
     depends_on:
       - postgres
       - redis
@@ -125,11 +125,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   high-quality:
-    image: luminainc/high-quality:51596838
+    image: luminainc/high-quality:d8eba61e
     depends_on:
       - postgres
       - redis
@@ -139,11 +139,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   postprocess:
-    image: luminainc/postprocess:51596838
+    image: luminainc/postprocess:d8eba61e
     depends_on:
       - postgres
       - redis
@@ -152,11 +152,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   ocr:
-    image: luminainc/ocr:51596838
+    image: luminainc/ocr:d8eba61e
     depends_on:
       - postgres
       - redis
@@ -167,11 +167,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   structured-extraction:
-    image: luminainc/structured-extraction:51596838
+    image: luminainc/structured-extraction:d8eba61e
     depends_on:
       - postgres
       - redis
@@ -181,7 +181,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   web:
@@ -191,7 +191,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   pdla:
@@ -200,7 +200,7 @@ services:
       - "8002:8000"
     command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000" ]
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
@@ -212,11 +212,11 @@ services:
     restart: always
 
   general-ocr:
-    image: luminainc/general-ocr:51596838
+    image: luminainc/general-ocr:d8eba61e
     ports:
       - "8003:8000"
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
@@ -228,11 +228,11 @@ services:
     restart: always
 
   table-ocr:
-    image: luminainc/table-ocr:51596838
+    image: luminainc/table-ocr:d8eba61e
     ports:
       - "8004:8000"
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
@@ -300,7 +300,7 @@ services:
     environment:
       - VITE_API_URL=http://rrq:8000
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
 volumes:
