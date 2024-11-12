@@ -35,6 +35,7 @@
     "install": "^0.13.0",
     "katex": "^0.16.11",
     "keycloak-js": "^25.0.4",
+    "lottie-react": "^2.4.0",
     "npm": "^10.8.2",
     "oidc-client-ts": "^3.0.1",
     "pdfjs-dist": "^2.6.347",

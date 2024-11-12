@@ -8,6 +8,18 @@ import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 // import heroImageWebp from "../../assets/hero/hero-image.webp";
 // import heroImageJpg from "../../assets/hero/hero-image-85-p.jpg";
+import Lottie from "lottie-react";
+import { LottieRefCurrentProps } from "lottie-react";
+import timerAnimation from "../../assets/animations/timer.json";
+import fileuploadAnimation from "../../assets/animations/fileupload.json";
+import bargraphAnimation from "../../assets/animations/bargraph.json";
+import codeAnimation from "../../assets/animations/code.json";
+import secureAnimation from "../../assets/animations/secure.json";
+import rustAnimation from "../../assets/animations/rust.json";
+import segmentationAnimation from "../../assets/animations/segment.json";
+import ocrAnimation from "../../assets/animations/ocr.json";
+import stackingAnimation from "../../assets/animations/stacking.json";
+import extractAnimation from "../../assets/animations/extract.json";
 
 const Home = () => {
   const auth = useAuth();
@@ -16,6 +28,53 @@ const Home = () => {
 
   const hasAnimatedRef = useRef(false);
   const terminalRef = useRef<HTMLDivElement>(null);
+
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
+  const timerLottieRef = useRef<LottieRefCurrentProps>(null);
+  const fileuploadLottieRef = useRef<LottieRefCurrentProps>(null);
+  const bargraphLottieRef = useRef<LottieRefCurrentProps>(null);
+  const codeLottieRef = useRef<LottieRefCurrentProps>(null);
+  const secureLottieRef = useRef<LottieRefCurrentProps>(null);
+  const rustLottieRef = useRef<LottieRefCurrentProps>(null);
+  const segmentationLottieRef = useRef<LottieRefCurrentProps>(null);
+  const ocrLottieRef = useRef<LottieRefCurrentProps>(null);
+  const stackingLottieRef = useRef<LottieRefCurrentProps>(null);
+  const extractLottieRef = useRef<LottieRefCurrentProps>(null);
+  useEffect(() => {
+    if (lottieRef.current) {
+      lottieRef.current.pause();
+    }
+    if (timerLottieRef.current) {
+      timerLottieRef.current.pause();
+    }
+    if (fileuploadLottieRef.current) {
+      fileuploadLottieRef.current.pause();
+    }
+    if (bargraphLottieRef.current) {
+      bargraphLottieRef.current.pause();
+    }
+    if (codeLottieRef.current) {
+      codeLottieRef.current.pause();
+    }
+    if (secureLottieRef.current) {
+      secureLottieRef.current.pause();
+    }
+    if (rustLottieRef.current) {
+      rustLottieRef.current.pause();
+    }
+    if (segmentationLottieRef.current) {
+      segmentationLottieRef.current.pause();
+    }
+    if (ocrLottieRef.current) {
+      ocrLottieRef.current.pause();
+    }
+    if (stackingLottieRef.current) {
+      stackingLottieRef.current.pause();
+    }
+    if (extractLottieRef.current) {
+      extractLottieRef.current.pause();
+    }
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -106,6 +165,12 @@ const Home = () => {
       }
     };
   }, []);
+
+  const handleLottieHover = (ref: React.RefObject<LottieRefCurrentProps>) => {
+    if (ref.current) {
+      ref.current.goToAndPlay(0);
+    }
+  };
 
   return (
     <Flex
@@ -201,7 +266,7 @@ const Home = () => {
         <div className="features-container">
           <Flex
             direction="row"
-            gap="24px"
+            gap="32px"
             style={{
               maxWidth: "1424px",
               height: "100%",
@@ -215,7 +280,7 @@ const Home = () => {
                 weight="medium"
                 className="features-left-box-title"
               >
-                A scalable pipeline <br></br> for your AI infrastructure
+                A modular pipeline <br></br> for your AI infrastructure
               </Text>
               <Text
                 size="7"
@@ -293,12 +358,13 @@ const Home = () => {
 
             <Flex
               direction="column"
-              gap="24px"
+              gap="32px"
               style={{ flex: 1, height: "100%" }}
             >
               <Flex
                 direction="column"
                 className="feature-right-box feature-right-box-segmentation-image "
+                onMouseEnter={() => handleLottieHover(segmentationLottieRef)}
               >
                 <Flex className="tag-container">
                   <Text size="1" weight="regular" style={{ color: "#ffffff" }}>
@@ -316,229 +382,19 @@ const Home = () => {
                   <span style={{ color: "#ffffff9b" }}>for 11 categories</span>
                 </Text>
                 <Flex className="feature-right-box-image">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="128"
-                    height="128"
-                    viewBox="0 0 128 128"
-                    fill="none"
-                  >
-                    <rect
-                      width="128"
-                      height="128"
-                      fill="white"
-                      fill-opacity="0.01"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M2.13281 8.53333C2.13281 4.99871 4.99819 2.13333 8.53281 2.13333H119.466C123.001 2.13333 125.866 4.99871 125.866 8.53333V119.467C125.866 123.001 123.001 125.867 119.466 125.867H8.53281C4.99819 125.867 2.13281 123.001 2.13281 119.467V8.53333ZM14.9328 14.9333V113.067H113.066V14.9333H14.9328Z"
-                      fill="url(#paint0_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <path
-                      d="M68.2661 46.9333C68.2661 44.5769 66.3559 42.6667 63.9995 42.6667C61.6431 42.6667 59.7328 44.5769 59.7328 46.9333C59.7328 49.2897 61.6431 51.2 63.9995 51.2C66.3559 51.2 68.2661 49.2897 68.2661 46.9333Z"
-                      fill="url(#paint1_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <path
-                      d="M68.2661 29.8667C68.2661 27.5102 66.3559 25.6 63.9995 25.6C61.6431 25.6 59.7328 27.5102 59.7328 29.8667C59.7328 32.2231 61.6431 34.1333 63.9995 34.1333C66.3559 34.1333 68.2661 32.2231 68.2661 29.8667Z"
-                      fill="url(#paint2_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <path
-                      d="M68.2661 64C68.2661 61.6436 66.3559 59.7333 63.9995 59.7333C61.6431 59.7333 59.7328 61.6436 59.7328 64C59.7328 66.3564 61.6431 68.2667 63.9995 68.2667C66.3559 68.2667 68.2661 66.3564 68.2661 64Z"
-                      fill="url(#paint3_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <path
-                      d="M51.1995 64C51.1995 61.6436 49.2892 59.7333 46.9328 59.7333C44.5764 59.7333 42.6661 61.6436 42.6661 64C42.6661 66.3564 44.5764 68.2667 46.9328 68.2667C49.2892 68.2667 51.1995 66.3564 51.1995 64Z"
-                      fill="url(#paint4_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <path
-                      d="M34.1328 64C34.1328 61.6436 32.2226 59.7333 29.8661 59.7333C27.5097 59.7333 25.5995 61.6436 25.5995 64C25.5995 66.3564 27.5097 68.2667 29.8661 68.2667C32.2226 68.2667 34.1328 66.3564 34.1328 64Z"
-                      fill="url(#paint5_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <path
-                      d="M85.3328 64C85.3328 61.6436 83.4226 59.7333 81.0661 59.7333C78.7097 59.7333 76.7995 61.6436 76.7995 64C76.7995 66.3564 78.7097 68.2667 81.0661 68.2667C83.4226 68.2667 85.3328 66.3564 85.3328 64Z"
-                      fill="url(#paint6_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <path
-                      d="M102.399 64C102.399 61.6436 100.489 59.7333 98.1328 59.7333C95.7764 59.7333 93.8661 61.6436 93.8661 64C93.8661 66.3564 95.7764 68.2667 98.1328 68.2667C100.489 68.2667 102.399 66.3564 102.399 64Z"
-                      fill="url(#paint7_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <path
-                      d="M68.2661 81.0667C68.2661 78.7102 66.3559 76.8 63.9995 76.8C61.6431 76.8 59.7328 78.7102 59.7328 81.0667C59.7328 83.4231 61.6431 85.3333 63.9995 85.3333C66.3559 85.3333 68.2661 83.4231 68.2661 81.0667Z"
-                      fill="url(#paint8_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <path
-                      d="M68.2661 98.1333C68.2661 95.7769 66.3559 93.8667 63.9995 93.8667C61.6431 93.8667 59.7328 95.7769 59.7328 98.1333C59.7328 100.49 61.6431 102.4 63.9995 102.4C66.3559 102.4 68.2661 100.49 68.2661 98.1333Z"
-                      fill="url(#paint9_linear_218_66)"
-                      fill-opacity="0.85"
-                    />
-                    <defs>
-                      <linearGradient
-                        id="paint0_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="paint1_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="paint2_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="paint3_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="paint4_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="paint5_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="paint6_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="paint7_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="paint8_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="paint9_linear_218_66"
-                        x1="64"
-                        y1="2"
-                        x2="64"
-                        y2="120"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.77562"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                    </defs>
-                  </svg>
+                  <Lottie
+                    lottieRef={segmentationLottieRef}
+                    animationData={segmentationAnimation}
+                    style={{ width: "112px", height: "112px" }}
+                    loop={false}
+                    autoplay={false}
+                  />
                 </Flex>
               </Flex>
               <Flex
                 direction="column"
                 className="feature-right-box feature-right-box-ocr-image "
+                onMouseEnter={() => handleLottieHover(ocrLottieRef)}
               >
                 <Flex className="tag-container">
                   <Text size="1" weight="regular" style={{ color: "#ffffff" }}>
@@ -557,46 +413,23 @@ const Home = () => {
                   OCR models
                 </Text>
                 <Flex className="feature-right-box-image">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="124"
-                    height="124"
-                    viewBox="0 0 124 124"
-                    fill="none"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M0 61.9998C0 27.7583 27.7583 0 61.9999 0C96.2409 0 124 27.7583 124 61.9998C124 96.2409 96.2409 124 61.9999 124C27.7583 124 0 96.2409 0 61.9998ZM9.09555 57.3015C11.338 31.7188 31.7188 11.338 57.3015 9.09555V33.9053C57.3015 36.4896 59.3964 38.5846 61.9807 38.5846C64.565 38.5846 66.66 36.4896 66.66 33.9053V9.09218C92.2607 11.3177 112.66 31.706 114.904 57.3015H90.0559C87.472 57.3015 85.3766 59.3964 85.3766 61.9807C85.3766 64.565 87.472 66.66 90.0559 66.66H114.907C112.681 92.2729 92.2729 112.681 66.66 114.907V90.0559C66.66 87.472 64.565 85.3766 61.9807 85.3766C59.3964 85.3766 57.3015 87.472 57.3015 90.0559V114.904C31.706 112.66 11.3177 92.2607 9.09218 66.66H33.9053C36.4896 66.66 38.5846 64.565 38.5846 61.9807C38.5846 59.3964 36.4896 57.3015 33.9053 57.3015H9.09555Z"
-                      fill="url(#paint0_linear_245_740)"
-                    />
-                    <defs>
-                      <linearGradient
-                        id="paint0_linear_245_740"
-                        x1="62"
-                        y1="0"
-                        x2="62"
-                        y2="124"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.78"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                    </defs>
-                  </svg>
+                  <Lottie
+                    lottieRef={ocrLottieRef}
+                    animationData={ocrAnimation}
+                    style={{ width: "112px", height: "112px" }}
+                    loop={false}
+                    autoplay={false}
+                  />
                 </Flex>
               </Flex>
               <Flex
                 direction="column"
                 className="feature-right-box feature-right-box-outputs-image "
+                onMouseEnter={() => handleLottieHover(stackingLottieRef)}
               >
                 <Flex className="tag-container">
                   <Text size="1" weight="regular" style={{ color: "#ffffff" }}>
-                    Enriched JSON Output
+                    Ready-to-go chunks
                   </Text>
                 </Flex>
                 <Text
@@ -612,53 +445,319 @@ const Home = () => {
                   Segment Images
                 </Text>
                 <Flex className="feature-right-box-image">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="128"
-                    height="128"
-                    viewBox="0 0 128 128"
-                    fill="none"
-                  >
-                    <rect
-                      width="128"
-                      height="128"
-                      fill="white"
-                      fill-opacity="0.01"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M66.1701 6.99341C64.8312 6.20223 63.1679 6.20223 61.8289 6.99341L14.8956 34.7268C13.5966 35.4943 12.7996 36.8911 12.7996 38.4C12.7996 39.909 13.5966 41.3057 14.8956 42.0733L61.8289 69.8066C63.1679 70.5978 64.8312 70.5978 66.1701 69.8066L113.103 42.0733C114.403 41.3057 115.2 39.909 115.2 38.4C115.2 36.8911 114.403 35.4943 113.103 34.7268L66.1701 6.99341ZM63.9995 61.1775L25.4531 38.4L63.9995 15.6226L102.546 38.4L63.9995 61.1775ZM13.393 63.9628C14.5917 61.9341 17.2081 61.2613 19.2368 62.4601L63.9995 88.9105L108.762 62.4601C110.791 61.2613 113.407 61.9341 114.606 63.9628C115.805 65.9914 115.132 68.6078 113.103 69.8066L66.1701 97.5403C64.8312 98.3313 63.1679 98.3313 61.8289 97.5403L14.8956 69.8066C12.867 68.6078 12.1941 65.9914 13.393 63.9628ZM13.3929 89.5625C14.5917 87.5341 17.208 86.8617 19.2368 88.0598L63.9995 114.511L108.762 88.0598C110.791 86.8617 113.407 87.5341 114.606 89.5625C115.805 91.5917 115.132 94.208 113.103 95.407L66.1701 123.14C64.8312 123.931 63.1679 123.931 61.8289 123.14L14.8956 95.407C12.8669 94.208 12.1941 91.5917 13.3929 89.5625Z"
-                      fill="url(#paint0_linear_249_755)"
-                    />
-                    <defs>
-                      <linearGradient
-                        id="paint0_linear_249_755"
-                        x1="63.9995"
-                        y1="6.40002"
-                        x2="63.9995"
-                        y2="123.734"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="white" />
-                        <stop
-                          offset="0.78"
-                          stop-color="white"
-                          stop-opacity="0.5"
-                        />
-                      </linearGradient>
-                    </defs>
-                  </svg>
+                  <Lottie
+                    lottieRef={stackingLottieRef}
+                    animationData={stackingAnimation}
+                    style={{ width: "112px", height: "112px" }}
+                    loop={false}
+                    autoplay={false}
+                  />
                 </Flex>
               </Flex>
               <Flex
+                direction="column"
+                className="feature-right-box feature-right-box-structuredextraction-image "
+                onMouseEnter={() => handleLottieHover(extractLottieRef)}
+              >
+                <Flex direction="row" gap="8px">
+                  <Flex className="tag-container">
+                    <Text
+                      size="1"
+                      weight="regular"
+                      style={{ color: "#ffffff" }}
+                    >
+                      Structured Extraction
+                    </Text>
+                  </Flex>
+                  <Flex className="tag-container">
+                    <Text
+                      size="1"
+                      weight="regular"
+                      style={{ color: "#ffffff" }}
+                    >
+                      New!
+                    </Text>
+                  </Flex>
+                </Flex>
+
+                <Text
+                  size="6"
+                  mt="16px"
+                  weight="medium"
+                  className="white"
+                  style={{ maxWidth: "250px" }}
+                >
+                  Custom schemas
+                  <span style={{ color: "#ffffff9b" }}> to extract </span>
+                  specific values
+                </Text>
+                <Flex className="feature-right-box-image">
+                  <Lottie
+                    lottieRef={extractLottieRef}
+                    animationData={extractAnimation}
+                    style={{ width: "112px", height: "112px" }}
+                    loop={false}
+                    autoplay={false}
+                  />
+                </Flex>
+              </Flex>
+            </Flex>
+          </Flex>
+        </div>
+        <div className="features-container">
+          <Flex
+            direction="column"
+            align="center"
+            style={{
+              maxWidth: "1424px",
+              height: "100%",
+              margin: "0 auto",
+              padding: "24px",
+            }}
+          >
+            <Flex className="yc-tag">
+              <Text
+                size="2"
+                weight="medium"
                 style={{
-                  backgroundColor: "hsla(0, 0%, 100%, 0.1)",
-                  borderRadius: "12px",
-                  height: "25%",
+                  color: "#ffffff",
+                  textShadow: "0 0 10px rgba(255, 255, 255, 0.55)",
+                  letterSpacing: "0.02em",
                 }}
               >
-                {/* Box 4 content */}
+                Built for scale
+              </Text>
+            </Flex>
+            <Text
+              size="9"
+              weight="medium"
+              align="center"
+              className="features-bottom-box-title"
+            >
+              Fast by default<br></br>and powerful by design
+            </Text>
+            <Flex className="feature-bottom-box-wrapper" direction="column">
+              <Flex
+                direction="row"
+                gap="32px"
+                className="features-bottom-box-container"
+                style={{
+                  width: "100%",
+                  marginTop: "56px",
+                }}
+              >
+                <Flex
+                  direction="column"
+                  className="feature-bottom-box"
+                  onMouseEnter={() => handleLottieHover(rustLottieRef)}
+                >
+                  <Lottie
+                    lottieRef={rustLottieRef}
+                    animationData={rustAnimation}
+                    loop={false}
+                    autoplay={false}
+                    style={{
+                      width: 32,
+                      height: 32,
+                    }}
+                  />
+                  <Text
+                    size="6"
+                    weight="medium"
+                    style={{ color: "white", marginTop: "24px" }}
+                  >
+                    Connected via Rust
+                  </Text>
+                  <Text
+                    size="3"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.6)",
+                      marginTop: "8px",
+                    }}
+                  >
+                    Process multiple documents simultaneously with efficient
+                    resource utilization
+                  </Text>
+                </Flex>
+
+                <Flex
+                  direction="column"
+                  className="feature-bottom-box"
+                  onMouseEnter={() => handleLottieHover(fileuploadLottieRef)}
+                >
+                  <Lottie
+                    lottieRef={fileuploadLottieRef}
+                    animationData={fileuploadAnimation}
+                    loop={false}
+                    autoplay={false}
+                    style={{
+                      width: 32,
+                      height: 32,
+                    }}
+                  />
+                  <Text
+                    size="6"
+                    weight="medium"
+                    style={{ color: "white", marginTop: "24px" }}
+                  >
+                    Support for multiple file types
+                  </Text>
+                  <Text
+                    size="3"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.6)",
+                      marginTop: "8px",
+                    }}
+                  >
+                    Minimize memory overhead with efficient data handling and
+                    processing
+                  </Text>
+                </Flex>
+
+                <Flex
+                  direction="column"
+                  className="feature-bottom-box"
+                  onMouseEnter={() => handleLottieHover(timerLottieRef)}
+                >
+                  <Lottie
+                    lottieRef={timerLottieRef}
+                    animationData={timerAnimation}
+                    loop={false}
+                    autoplay={false}
+                    style={{
+                      width: 32,
+                      height: 32,
+                    }}
+                  />
+                  <Text
+                    size="6"
+                    weight="medium"
+                    style={{ color: "white", marginTop: "24px" }}
+                  >
+                    Optimized last-mile
+                  </Text>
+                  <Text
+                    size="3"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.6)",
+                      marginTop: "8px",
+                    }}
+                  >
+                    Leverage Rust's native performance for lightning-fast
+                    document processing
+                  </Text>
+                </Flex>
+              </Flex>
+              <Flex
+                direction="row"
+                gap="32px"
+                className="features-bottom-box-container"
+                style={{
+                  width: "100%",
+                  marginTop: "48px",
+                }}
+              >
+                <Flex
+                  direction="column"
+                  className="feature-bottom-box"
+                  onMouseEnter={() => handleLottieHover(bargraphLottieRef)}
+                >
+                  <Lottie
+                    lottieRef={bargraphLottieRef}
+                    animationData={bargraphAnimation}
+                    loop={false}
+                    autoplay={false}
+                    style={{
+                      width: 32,
+                      height: 32,
+                    }}
+                  />
+                  <Text
+                    size="6"
+                    weight="medium"
+                    style={{ color: "white", marginTop: "24px" }}
+                  >
+                    Built-in visibility
+                  </Text>
+                  <Text
+                    size="3"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.6)",
+                      marginTop: "8px",
+                    }}
+                  >
+                    Process multiple documents simultaneously with efficient
+                    resource utilization
+                  </Text>
+                </Flex>
+
+                <Flex
+                  direction="column"
+                  className="feature-bottom-box"
+                  onMouseEnter={() => handleLottieHover(codeLottieRef)}
+                >
+                  <Lottie
+                    lottieRef={codeLottieRef}
+                    animationData={codeAnimation}
+                    loop={false}
+                    autoplay={false}
+                    style={{
+                      width: 32,
+                      height: 32,
+                    }}
+                  />
+                  <Text
+                    size="6"
+                    weight="medium"
+                    style={{ color: "white", marginTop: "24px" }}
+                  >
+                    Simple API / Cloud-Ready
+                  </Text>
+                  <Text
+                    size="3"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.6)",
+                      marginTop: "8px",
+                    }}
+                  >
+                    Start in seconds with our API, or deploy on your
+                    infrastructure for complete control
+                  </Text>
+                </Flex>
+
+                <Flex
+                  direction="column"
+                  className="feature-bottom-box"
+                  onMouseEnter={() => handleLottieHover(secureLottieRef)}
+                >
+                  <Lottie
+                    lottieRef={secureLottieRef}
+                    animationData={secureAnimation}
+                    loop={false}
+                    autoplay={false}
+                    style={{
+                      width: 32,
+                      height: 32,
+                    }}
+                  />
+                  <Text
+                    size="6"
+                    weight="medium"
+                    style={{ color: "white", marginTop: "24px" }}
+                  >
+                    Secure in every way
+                  </Text>
+                  <Text
+                    size="3"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.6)",
+                      marginTop: "8px",
+                    }}
+                  >
+                    Leverage Rust's native performance for lightning-fast
+                    document processing
+                  </Text>
+                </Flex>
               </Flex>
             </Flex>
           </Flex>
