@@ -132,7 +132,7 @@ fn default_structured_extraction_batch_size() -> i32 {
 }
 
 fn default_structured_extraction_top_k() -> i32 {
-    10
+    45
 }
 
 fn default_table_ocr_model() -> TableOcrModel {
