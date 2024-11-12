@@ -152,9 +152,9 @@ pub async fn perform_structured_extraction(
     let chunk_markdowns: Vec<String> = all_segments
         .iter()
         .filter_map(|s| if content_type == "markdown" {
-            s.markdown.clone()
+            s.markdown.clone().filter(|m| !m.is_empty())
         } else {
-            Some(s.content.clone())
+            Some(s.content.clone()).filter(|c| !c.is_empty())
         })
         .collect();
     let mut embedding_cache = EmbeddingCache {
@@ -189,7 +189,6 @@ pub async fn perform_structured_extraction(
                     std::io::Error::new(std::io::ErrorKind::Other, "Failed to get query embedding")
                 })?
                 .clone();
-
             let search_results =
                 search_embeddings(&query_embedding, &all_segments, &segment_embeddings, top_k);
             let context = search_results

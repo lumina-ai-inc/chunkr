@@ -55,6 +55,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let file = File::open(output_file.path())?;
         let reader = BufReader::new(file);
         let mut output_response: OutputResponse = serde_json::from_reader(reader)?;
+        println!("starting structured extraction");
         let structured_results = perform_structured_extraction(
             json_schema.ok_or("JSON schema is missing")?,
             output_response.chunks.clone(),

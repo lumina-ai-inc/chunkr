@@ -134,7 +134,8 @@ async def main(model: Model = Model.HighQuality, target_chunk_length: int = None
 
 
 if __name__ == "__main__":
-    model = Model.Fast
+    model = Model.HighQuality
+    
     target_chunk_length = 1000
     ocr_strategy = OcrStrategy.Off
     json_schema = JsonSchema(
