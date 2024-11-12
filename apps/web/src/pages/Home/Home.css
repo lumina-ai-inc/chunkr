@@ -91,6 +91,8 @@
   padding: 12px 16px;
   justify-content: center;
   align-items: center;
+  height: fit-content;
+  width: fit-content;
   gap: 2px;
   margin-bottom: 32px;
   border-radius: 100px;
@@ -326,7 +328,7 @@
 
 .features-container {
   max-width: 1424px;
-  height: 720px;
+  height: 736px;
   margin: 0 auto;
   margin-top: 124px;
 }
@@ -338,15 +340,15 @@
   height: 100%;
   position: relative;
   padding-top: 48px;
-  padding-left: 0px;
-  padding-right: 60px;
+  padding-left: 24px;
+  padding-right: 80px;
   max-width: 824px;
 }
 
 .features-left-box-title {
   line-height: 1.2;
-  max-width: 620px;
-  background: linear-gradient(90deg, #fff 0%, #dce4dd 50%);
+  max-width: 600px;
+  background: linear-gradient(90deg, #fff 0%, #dce4dd 80%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -355,7 +357,7 @@
 .features-left-box-subtitle {
   letter-spacing: -0.6px;
   color: #fff;
-  max-width: 720px;
+  max-width: 660px;
 }
 
 .feature-left-box-image {
@@ -531,6 +533,13 @@
   background-repeat: no-repeat;
 }
 
+.feature-right-box-structuredextraction-image {
+  background-image: url("../../assets/cards/structuredextraction.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .feature-right-box::before {
   content: "";
   position: absolute;
@@ -541,7 +550,7 @@
   background: linear-gradient(
     to right,
     hsla(225, 29%, 3%, 1),
-    hsla(0, 0%, 0%, 0.8)
+    hsla(0, 0%, 0%, 0.86)
   );
   z-index: 1;
   transition: opacity 0.3s ease;
@@ -560,7 +569,6 @@
 }
 
 .feature-right-box:hover {
-  outline: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow:
     0 0 40px rgba(0, 0, 0, 0.95),
     /* Deep base shadow */ 0 0 80px rgba(0, 0, 0, 0.8),
@@ -588,6 +596,24 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(6px);
+}
+
+.features-bottom-box-title {
+  line-height: 1.2;
+  max-width: 620px;
+  background: linear-gradient(180deg, #fff 0%, #dce4dd 50%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.feature-bottom-box {
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.008);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  flex: 1;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Adjust Footer positioning */
@@ -697,4 +723,121 @@
     font-size: 16px;
     line-height: 24px;
   }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* First Row Colors */
+/* First card - Sky Blue */
+.feature-bottom-box:nth-child(1):hover {
+  transform: translateY(-8px);
+  background: rgba(168, 116, 73, 0.05);
+  border-color: rgba(168, 116, 73, 0.2);
+  box-shadow:
+    0 4px 24px -4px rgba(168, 116, 73, 0.1),
+    0 0 0 1px rgba(168, 116, 73, 0.1);
+}
+
+.feature-bottom-box:nth-child(1):hover Text[size="6"] {
+  color: rgb(168, 116, 73) !important;
+}
+
+/* Second card - Deep Blue */
+.feature-bottom-box:nth-child(2):hover {
+  transform: translateY(-8px);
+  background: rgba(28, 54, 105, 0.05);
+  border-color: rgba(28, 54, 105, 0.2);
+  box-shadow:
+    0 4px 24px -4px rgba(28, 54, 105, 0.1),
+    0 0 0 1px rgba(28, 54, 105, 0.1);
+}
+
+.feature-bottom-box:nth-child(2):hover Text[size="6"] {
+  color: rgb(28, 54, 105) !important;
+}
+
+/* Third card - Mountain Blue */
+.feature-bottom-box:nth-child(3):hover {
+  transform: translateY(-8px);
+  background: rgba(71, 85, 105, 0.05);
+  border-color: rgba(71, 85, 105, 0.2);
+  box-shadow:
+    0 4px 24px -4px rgba(71, 85, 105, 0.1),
+    0 0 0 1px rgba(71, 85, 105, 0.1);
+}
+
+.feature-bottom-box:nth-child(3):hover Text[size="6"] {
+  color: rgb(71, 85, 105) !important;
+}
+
+/* Second Row Colors */
+/* First card - Grass Green */
+.features-bottom-box-container:nth-child(2)
+  .feature-bottom-box:nth-child(1):hover {
+  transform: translateY(-8px);
+  background: rgba(121, 147, 88, 0.05);
+  border-color: rgba(121, 147, 88, 0.2);
+  box-shadow:
+    0 4px 24px -4px rgba(121, 147, 88, 0.1),
+    0 0 0 1px rgba(121, 147, 88, 0.1);
+}
+
+.features-bottom-box-container:nth-child(2)
+  .feature-bottom-box:nth-child(1):hover
+  Text[size="6"] {
+  color: rgb(121, 147, 88) !important;
+}
+
+/* Second card - Earth Brown */
+.features-bottom-box-container:nth-child(2)
+  .feature-bottom-box:nth-child(2):hover {
+  transform: translateY(-8px);
+  background: rgba(138, 180, 219, 0.05);
+  border-color: rgba(138, 180, 219, 0.2);
+  box-shadow:
+    0 4px 24px -4px rgba(138, 180, 219, 0.1),
+    0 0 0 1px rgba(138, 180, 219, 0.1);
+}
+
+.features-bottom-box-container:nth-child(2)
+  .feature-bottom-box:nth-child(2):hover
+  Text[size="6"] {
+  color: rgb(138, 180, 219) !important;
+}
+
+/* Third card - Yellow Accent */
+.features-bottom-box-container:nth-child(2)
+  .feature-bottom-box:nth-child(3):hover {
+  transform: translateY(-8px);
+  background: rgba(234, 179, 8, 0.05);
+  border-color: rgba(234, 179, 8, 0.2);
+  box-shadow:
+    0 4px 24px -4px rgba(234, 179, 8, 0.1),
+    0 0 0 1px rgba(234, 179, 8, 0.1);
+}
+
+.features-bottom-box-container:nth-child(2)
+  .feature-bottom-box:nth-child(3):hover
+  Text[size="6"] {
+  color: rgb(234, 179, 8) !important;
 }
