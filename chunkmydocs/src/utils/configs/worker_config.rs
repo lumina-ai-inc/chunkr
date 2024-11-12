@@ -37,8 +37,8 @@ pub struct Config {
     pub queue_postprocess: String,
     #[serde(default = "default_queue_preprocess")]
     pub queue_preprocess: String,
-    #[serde(default = "default_queue_structured_extract")]
-    pub queue_structured_extract: String,
+    #[serde(default = "default_queue_structured_extraction")]
+    pub queue_structured_extraction: String,
     #[serde(default = "default_s3_bucket")]
     pub s3_bucket: String,
     #[serde(default = "default_segment_bbox_offset")]
@@ -111,8 +111,8 @@ fn default_queue_preprocess() -> String {
     "preprocess".to_string()
 }
 
-fn default_queue_structured_extract() -> String {
-    "structured-extract".to_string()
+fn default_queue_structured_extraction() -> String {
+    "structured-extraction".to_string()
 }
 
 fn default_s3_bucket() -> String {

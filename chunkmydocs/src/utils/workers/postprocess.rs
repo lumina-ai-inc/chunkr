@@ -168,7 +168,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 if extraction_payload.configuration.json_schema.is_some() {
                     let extraction_config = WorkerConfig::from_env()?;
                     produce_extraction_payloads(
-                        extraction_config.queue_structured_extract,
+                        extraction_config.queue_structured_extraction,
                         extraction_payload.clone(),
                     )
                     .await?;
