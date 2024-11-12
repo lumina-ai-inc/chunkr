@@ -152,9 +152,9 @@ pub async fn perform_structured_extraction(
     let chunk_markdowns: Vec<String> = all_segments
         .iter()
         .filter_map(|s| if content_type == "markdown" {
-            s.markdown.clone().filter(|m| !m.is_empty())
+            s.markdown.clone().filter(|m| !m.is_empty()).map(|m| format!("{} [{}]", m, s.segment_type))
         } else {
-            Some(s.content.clone()).filter(|c| !c.is_empty())
+            Some(s.content.clone()).filter(|c| !c.is_empty()).map(|c| format!("{} [{}]", c, s.segment_type))
         })
         .collect();
     let mut embedding_cache = EmbeddingCache {
@@ -193,10 +193,10 @@ pub async fn perform_structured_extraction(
                 search_embeddings(&query_embedding, &all_segments, &segment_embeddings, top_k);
             let context = search_results
                 .iter()
-                .map(|res| if content_type_clone == "markdown" {
-                    res.segment.markdown.clone().unwrap_or_default()
+                .filter_map(|s| if content_type_clone == "markdown" {
+                    s.segment.markdown.clone().filter(|m| !m.is_empty()).map(|m| format!("{} [{}]", m, s.segment.segment_type))
                 } else {
-                    res.segment.content.clone()
+                    Some(s.segment.content.clone()).filter(|c| !c.is_empty()).map(|c| format!("{} [{}]", c, s.segment.segment_type))
                 })
                 .join("\n");
 
@@ -209,7 +209,7 @@ pub async fn perform_structured_extraction(
 
             let prompt = format!(
                     "Field Name: {}\nField Description: {}\nField Type: {}\n\nContext:\n{}\n\nExtract the information for the field. {} Ensure the output adheres to the schema without nesting.
-                    You must accurately find the information for the field based on the name and description. Report the information in the type requested directly.",
+                    You must accurately find the information for the field based on the name and description. Report the information in the type requested directly. Be intelligent.",
                     field_name, field_description, field_type, context, tag_instruction,
                 );
 

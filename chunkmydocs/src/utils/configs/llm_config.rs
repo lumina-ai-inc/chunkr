@@ -17,6 +17,8 @@ pub struct Config {
     pub structured_extraction_model: Option<String>,
     pub structured_extraction_url: Option<String>,
     pub structured_extraction_key: Option<String>,
+    #[serde(default = "default_structured_extraction_batch_size")]
+    pub structured_extraction_batch_size: i32,
 }
 
 fn default_model() -> String {
@@ -29,6 +31,10 @@ fn default_url() -> String {
 
 fn default_key() -> String {
     "".to_string()
+}
+
+fn default_structured_extraction_batch_size() -> i32 {
+    32
 }
 
 impl Config {
