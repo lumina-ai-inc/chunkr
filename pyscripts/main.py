@@ -140,28 +140,28 @@ if __name__ == "__main__":
     target_chunk_length = 1000
     ocr_strategy = OcrStrategy.Off
     json_schema = JsonSchema(
-        title="Clinical Trial Results",
+        title="Summary of the Document",
         type="object", 
         properties=[
         Property(
-            name="the_company",
-            title="Company", 
-            type="string",
-            description="The legal name of the company or corporation that is recieving the funds from the investor",
-            default=None
-        ),
-        Property(
-            name="the_investor",
-            title="Investor",
+            name="title",
+            title="Document Title",
             type="string", 
-            description="The legal name of the entity that is investing in the company. The investor could be an individual, a corporation, or a government agency.",
+            description="The main title or heading of the document",
             default=None
         ),
         Property(
-            name="purchase_amount",
-            title="Purchase Amount",
-            type="int",
-            description="The purchase amount of the investment in USD",
+            name="author",
+            title="Author",
+            type="string",
+            description="The name of the person or organization that authored the document, or the main party involved.",
+            default=None
+        ),
+        Property(
+            name="summary", 
+            title="Document Summary",
+            type="string",
+            description="A brief overview or abstract describing what the document is about",
             default=None
         )
         ]
