@@ -28,6 +28,22 @@ pub async fn download_and_ocr(
     Ok((ocr_results, "".to_string(), "".to_string()))
 }
 
+pub async fn download_and_page_ocr(
+    s3_client: &S3Client,
+    reqwest_client: &ReqwestClient,
+    image_location: &str,
+) -> Result<(Vec<OCRResult>, String, String), Box<dyn std::error::Error>> {
+    let original_file =
+        download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
+    let ocr_results = match paddle_ocr(original_file.path()).await {
+        Ok(ocr_results) => ocr_results,
+        Err(e) => {
+            return Err(e.to_string().into());
+        }
+    };
+    Ok((ocr_results, "".to_string(), "".to_string()))
+}
+
 pub async fn download_and_formula_ocr(
     s3_client: &S3Client,
     reqwest_client: &ReqwestClient,

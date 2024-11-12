@@ -49,11 +49,13 @@ impl EmbeddingCache {
             let response_text = response.text().await?;
             
             if !status.is_success() {
-                return Err(format!("Server error: {}", status).into());
+                println!("Error: Embedding server returned status {}", status);
+                return Err(format!("Embedding server error: {}", status).into());
             }
             
             if response_text.trim().is_empty() {
-                return Err("Empty response from server".into());
+                println!("Error: Empty response from embedding server");
+                return Err("Empty response from embedding server".into());
             }
     
             match serde_json::from_str::<Vec<Vec<f32>>>(&response_text) {
@@ -61,6 +63,7 @@ impl EmbeddingCache {
                     all_embeddings.extend(embeddings);
                 }
                 Err(e) => {
+                    println!("Error parsing embeddings: {}", e);
                     return Err(Box::new(e));
                 }
             }
@@ -88,6 +91,7 @@ impl EmbeddingCache {
         }
 
         if !texts_to_generate.is_empty() {
+            println!("Generating embeddings for {} texts", texts_to_generate.len());
             let new_embeddings = self
                 .generate_embeddings(client, embedding_url, texts_to_generate, batch_size)
                 .await?;

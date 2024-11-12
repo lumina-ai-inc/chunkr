@@ -139,7 +139,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   postprocess:
@@ -181,7 +181,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   web:
@@ -247,7 +247,7 @@ services:
     image: ghcr.io/huggingface/text-embeddings-inference:1.5
     ports:
       - "8007:80"
-    command: [ "--model-id", "BAAI/bge-m3" ]
+    command: [ "--model-id", "BAAI/bge-m3" , "--auto-truncate", "--payload-limit", "100000000"]
     deploy:
       replicas: 1
       resources:
