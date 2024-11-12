@@ -109,63 +109,6 @@ pub async fn llm_call(
     Ok(completion)
 }
 
-pub async fn vlm_call(
-    file_path: &Path,
-    url: String,
-    key: String,
-    model: String,
-    prompt: String,
-    max_tokens: Option<u32>,
-    temperature: Option<f32>,
-) -> Result<String, Box<dyn Error>> {
-    let client = reqwest::Client::new();
-    let mut file = File::open(file_path)?;
-    let mut buffer = Vec::new();
-    file.read_to_end(&mut buffer)?;
-    let base64_image = general_purpose::STANDARD.encode(&buffer);
-
-    let payload = json!({
-        "model": model,
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": prompt
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": format!("data:image/jpeg;base64,{}", base64_image)
-                        }
-                    }
-                ]
-            }
-        ],
-        "max_tokens": max_tokens.unwrap_or(8000),
-        "temperature": temperature.unwrap_or(0.0)
-    });
-
-    let response = client
-        .post(url)
-        .header("Content-Type", "application/json")
-        .header("Authorization", format!("Bearer {}", key))
-        .json(&payload)
-        .send()
-        .await?
-        .error_for_status()?;
-
-    let response_body: Value = response.json().await?;
-
-    let completion = response_body["choices"][0]["message"]["content"]
-        .as_str()
-        .unwrap_or("No response")
-        .to_string();
-
-    Ok(completion)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
