@@ -7,7 +7,7 @@ export default function Footer() {
       <Flex direction="column" className="footer-container">
         <Flex direction="row" justify="between" className="footer-content">
           <Flex direction="column" gap="3">
-            <Flex direction="row" gap="3" align="center" ml="-10px">
+            <Flex direction="row" gap="3" align="center">
               <div
                 style={{
                   display: "flex",

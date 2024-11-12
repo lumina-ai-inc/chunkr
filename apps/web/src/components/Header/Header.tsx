@@ -217,11 +217,15 @@ export default function Header({
               px="16px"
               align="center"
               onClick={() => auth.signinRedirect()}
+              style={{ paddingRight: "0px" }}
             >
               <Text
                 size="2"
                 weight="medium"
-                style={{ cursor: "pointer", color: "white" }}
+                style={{
+                  cursor: "pointer",
+                  color: "white",
+                }}
               >
                 Login
               </Text>
