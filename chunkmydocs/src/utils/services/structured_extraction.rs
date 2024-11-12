@@ -1,6 +1,7 @@
 use crate::models::server::segment::{Chunk, Segment};
+use crate::models::workers::open_ai::MessageContent;
 use crate::utils::services::embeddings::EmbeddingCache;
-use crate::utils::services::llm::llm_call;
+use crate::utils::services::llm::{get_basic_message, open_ai_call};
 use crate::utils::services::search::search_embeddings;
 use bytes::BytesMut;
 use itertools::Itertools;
@@ -206,16 +207,40 @@ pub async fn perform_structured_extraction(
                     field_name, field_description, field_type, context, tag_instruction,
                 );
 
-            let extracted = llm_call(llm_url, llm_key, model_name, prompt, Some(8000), Some(0.0))
-                .await
-                .map_err(|e| {
-                    Box::new(std::io::Error::new(
+            let messages = get_basic_message(prompt).map_err(|e| {
+                Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    e.to_string(),
+                )) as Box<dyn Error + Send + Sync>
+            })?;
+
+            let extracted = open_ai_call(
+                llm_url,
+                llm_key,
+                model_name,
+                messages,
+                Some(8000),
+                Some(0.0),
+            )
+            .await
+            .map_err(|e| {
+                Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    e.to_string(),
+                )) as Box<dyn Error + Send + Sync>
+            })?;
+
+            let content: String = match &extracted.choices.first().unwrap().message.content {
+                MessageContent::String { content } => content.clone(),
+                _ => {
+                    return Err(std::io::Error::new(
                         std::io::ErrorKind::Other,
-                        e.to_string(),
-                    )) as Box<dyn Error + Send + Sync>
-                })?;
-            println!("Extracted: {:?}", extracted);
-            Ok((field_name, field_type, extracted))
+                        "Invalid content type",
+                    )
+                    .into())
+                }
+            };
+            Ok((field_name, field_type, content))
         });
 
         handles.push(handle);
