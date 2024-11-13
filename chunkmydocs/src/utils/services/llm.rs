@@ -14,7 +14,6 @@ pub async fn llm_call(
     temperature: Option<f32>,
 ) -> Result<String, Box<dyn Error>> {
     let client = reqwest::Client::new();
-    println!("LLM call: {:?}", prompt);
     let payload = json!({
         "model": model,
         "messages": [
@@ -35,9 +34,14 @@ pub async fn llm_call(
         .send()
         .await?;
     let response_body: Value = response.json().await?;
+    
+    if !response_body.is_object() || !response_body.get("choices").is_some() {
+        return Err("Invalid response format from LLM".into());
+    }
+
     let completion = response_body["choices"][0]["message"]["content"]
         .as_str()
-        .unwrap_or("No response")
+        .ok_or("Missing completion in response")?
         .to_string();
     Ok(completion)
 }
