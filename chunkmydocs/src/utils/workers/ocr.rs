@@ -5,10 +5,11 @@ use crate::models::server::task::Status;
 use crate::utils::configs::s3_config::create_client;
 use crate::utils::configs::worker_config;
 use crate::utils::db::deadpool_postgres::create_pool;
+
 use crate::utils::services::{
     log::log_task,
-    ocr::{download_and_formula_ocr, download_and_ocr, download_and_table_ocr},
     payload::produce_extraction_payloads,
+    segment_ocr::{download_and_formula_ocr, download_and_ocr, download_and_table_ocr},
 };
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;

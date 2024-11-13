@@ -4,12 +4,12 @@ use std::time::Duration;
 
 pub struct RateLimiter {
     pool: Pool,
-    tokens_per_second: u32,
+    tokens_per_second: f32,
     bucket_name: String,
 }
 
 impl RateLimiter {
-    pub fn new(pool: Pool, tokens_per_second: u32, bucket_name: &str) -> Self {
+    pub fn new(pool: Pool, tokens_per_second: f32, bucket_name: &str) -> Self {
         RateLimiter {
             pool,
             tokens_per_second,
@@ -86,9 +86,18 @@ impl RateLimiter {
     }
 }
 
-pub fn create_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
+pub fn create_llm_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
-    RateLimiter::new(pool, throttle_config.vlm_ocr_rate_limit, bucket_name)
+    RateLimiter::new(pool, throttle_config.llm_ocr_rate_limit, bucket_name)
+}
+
+pub fn create_general_ocr_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    println!(
+        "Throttle config: {:?}",
+        throttle_config.general_ocr_rate_limit
+    );
+    RateLimiter::new(pool, throttle_config.general_ocr_rate_limit, bucket_name)
 }
 
 #[cfg(test)]
@@ -106,7 +115,7 @@ mod tests {
     #[tokio::test]
     async fn test_acquire_token() {
         let pool = create_pool();
-        let rate_limiter = create_rate_limiter(pool, "test_bucket");
+        let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
         let result = rate_limiter.acquire_token().await;
         println!("result: {:?}", result);
     }
@@ -114,7 +123,7 @@ mod tests {
     #[tokio::test]
     async fn test_acquire_token_with_timeout() {
         let pool = create_pool();
-        let rate_limiter = create_rate_limiter(pool, "test_bucket");
+        let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
         let result = rate_limiter
             .acquire_token_with_timeout(Duration::from_secs(1))
             .await;
@@ -124,9 +133,9 @@ mod tests {
     #[tokio::test]
     async fn test_hit_rate_limit() {
         let pool = create_pool();
-        let rate_limiter = create_rate_limiter(pool, "test_bucket");
+        let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
 
-        for _ in 0..(rate_limiter.tokens_per_second) {
+        for _ in 0..(2000) {
             let _ = rate_limiter.acquire_token().await;
         }
 
@@ -138,11 +147,9 @@ mod tests {
     #[tokio::test]
     async fn test_hit_rate_limit_with_timeout() {
         let pool = create_pool();
-        let rate_limiter = create_rate_limiter(pool, "test_bucket");
+        let rate_limiter = create_llm_rate_limiter(pool, "test_bucket");
 
-        let futures: Vec<_> = (0..(rate_limiter.tokens_per_second))
-            .map(|_| rate_limiter.acquire_token())
-            .collect();
+        let futures: Vec<_> = (0..(2000)).map(|_| rate_limiter.acquire_token()).collect();
         let _ = futures::future::join_all(futures).await;
 
         let result = rate_limiter
@@ -266,7 +273,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_open_ai_rate_limit_with_retry() -> Result<(), Box<dyn Error>> {
-        println!("starting test");
         let start_time = std::time::Instant::now();
         let futures: Vec<_> = (0..(10000))
             .map(|_| async { send_request_with_retry().await })
@@ -301,8 +307,7 @@ mod tests {
     async fn test_open_ai_rate_limit_rate_limiter() -> Result<(), Box<dyn Error>> {
         let start_time = std::time::Instant::now();
         let pool = create_pool();
-        let rate_limiter = RateLimiter::new(pool, 200, "rate_limiter");
-        println!("starting test");
+        let rate_limiter = RateLimiter::new(pool, 200.0, "rate_limiter");
         let futures: Vec<_> = (0..(10000))
             .map(|_| async {
                 if let Ok(true) = rate_limiter
