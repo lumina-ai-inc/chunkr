@@ -294,7 +294,7 @@ services:
     ports:
       - "8006:8000"
     environment:
-      - VITE_API_URL=http://rrq:8000
+      - VITE_API_URL=http://localhost:8005
     deploy:
       replicas: 1
     restart: always

@@ -50,17 +50,17 @@ pub struct ImageUrl {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Usage {
-    pub prompt_tokens: i32,
-    pub completion_tokens: i32,
-    pub total_tokens: i32,
+    pub prompt_tokens: Option<i32>,
+    pub completion_tokens: Option<i32>,
+    pub total_tokens: Option<i32>,
     pub completion_tokens_details: Option<CompletionTokensDetails>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CompletionTokensDetails {
-    pub reasoning_tokens: i32,
-    pub accepted_prediction_tokens: i32,
-    pub rejected_prediction_tokens: i32,
+    pub reasoning_tokens: Option<i32>,
+    pub accepted_prediction_tokens: Option<i32>,
+    pub rejected_prediction_tokens: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

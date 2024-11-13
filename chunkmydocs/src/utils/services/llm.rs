@@ -2,7 +2,6 @@ use crate::models::workers::open_ai::{
     ContentPart, ImageUrl, Message, MessageContent, OpenAiRequest, OpenAiResponse,
 };
 use base64::{engine::general_purpose, Engine as _};
-use serde_json::{json, Value};
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
@@ -30,7 +29,8 @@ pub async fn open_ai_call(
         .header("Authorization", format!("Bearer {}", key))
         .json(&request)
         .send()
-        .await?;
+        .await?
+        .error_for_status()?;
 
     let response: OpenAiResponse = response.json().await?;
     Ok(response)
@@ -72,43 +72,6 @@ pub fn get_basic_image_message(
     }])
 }
 
-pub async fn llm_call(
-    url: String,
-    key: String,
-    model: String,
-    prompt: String,
-    max_tokens: Option<u32>,
-    temperature: Option<f32>,
-) -> Result<String, Box<dyn Error>> {
-    let client = reqwest::Client::new();
-
-    let payload = json!({
-        "model": model,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        "max_tokens": max_tokens.unwrap_or(8000),
-        "temperature": temperature.unwrap_or(0.0)
-    });
-
-    let response = client
-        .post(url)
-        .header("Content-Type", "application/json")
-        .header("Authorization", format!("Bearer {}", key))
-        .json(&payload)
-        .send()
-        .await?;
-    let response_body: Value = response.json().await?;
-    let completion = response_body["choices"][0]["message"]["content"]
-        .as_str()
-        .unwrap_or("No response")
-        .to_string();
-    Ok(completion)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -130,15 +93,19 @@ mod tests {
         fs::create_dir_all(output_dir)?;
 
         let prompt = get_prompt("table", &HashMap::new())?;
+        let llm_config = LlmConfig::from_env().unwrap();
+        let url = llm_config.url;
+        let key = llm_config.key;
 
         let models = vec![
             // "qwen/qwen-2-vl-7b-instruct",
             // "google/gemini-flash-1.5-8b",
-            "google/gemini-pro-1.5",
+            // "google/gemini-pro-1.5",
             // "meta-llama/llama-3.2-11b-vision-instruct",
             // "anthropic/claude-3-haiku",
             // "openai/chatgpt-4o-latest",
             // "gpt-4o",
+            llm_config.model,
         ];
 
         let input_files: Vec<_> = fs::read_dir(input_dir)?
@@ -155,9 +122,7 @@ mod tests {
             .collect();
 
         let mut tasks = Vec::new();
-        let llm_config = LlmConfig::from_env().unwrap();
-        let url = llm_config.url;
-        let key = llm_config.key;
+
         for input_file in input_files {
             let table_name = input_file
                 .file_stem()
