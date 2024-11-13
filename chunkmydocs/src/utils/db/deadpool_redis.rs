@@ -1,6 +1,6 @@
 use config::{Config as ConfigTrait, ConfigError};
 pub use deadpool_redis::{
-    redis::{cmd, Pipeline, RedisError, RedisResult},
+    redis::{Pipeline, RedisError, RedisResult},
     Connection, Pool,
 };
 use deadpool_redis::{Config as RedisConfig, Runtime};
@@ -10,18 +10,6 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct Config {
     pub redis: RedisConfig,
-    #[serde(default = "default_api_key")]
-    pub api_key: String,
-    #[serde(default = "default_version")]
-    pub version: String,
-}
-
-fn default_api_key() -> String {
-    "1234567890".to_string()
-}
-
-fn default_version() -> String {
-    "1.0.0".to_string()
 }
 
 impl Config {
