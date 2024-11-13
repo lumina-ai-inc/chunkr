@@ -8,7 +8,6 @@ use crate::utils::configs::search_config::Config as SearchConfig;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{log::log_task, structured_extraction::perform_structured_extraction};
-use crate::models::server::extract::OcrStrategy;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
 use std::fs::File;
@@ -29,11 +28,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let llm_config = LlmConfig::from_env().expect("Failed to load LlmConfig");
     let configuration = extraction_payload.configuration.clone();
     let json_schema = configuration.json_schema.clone();
-    let content_type = if configuration.ocr_strategy == OcrStrategy::Off {
-        "content".to_string()
-    } else {
-        "markdown".to_string()
-    };
+    let content_type = "markdown";
+
     let result: Result<(), Box<dyn std::error::Error>> = async {
         log_task(
             task_id.clone(),
@@ -74,7 +70,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 .clone()
                 .unwrap_or(llm_config.model.clone()),
             worker_config.structured_extraction_batch_size as usize,
-            content_type,
+            content_type.to_string(),
         )
         .await
         .map_err(|e| e.to_string())?;

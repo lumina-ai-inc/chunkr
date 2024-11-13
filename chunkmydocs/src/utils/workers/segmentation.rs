@@ -1,12 +1,12 @@
 use crate::models::rrq::queue::QueuePayload;
-use crate::models::server::extract::ExtractionPayload;
+use crate::models::server::extract::{ ExtractionPayload,  SegmentationStrategy };
 use crate::models::server::segment::{PdlaSegment, Segment};
 use crate::models::server::task::Status;
 use crate::utils::configs::s3_config::create_client;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::create_pool;
 use crate::utils::services::{
-    log::log_task, payload::produce_extraction_payloads, pdf::split_pdf, pdla::pdla_extraction,
+    log::log_task, payload::produce_extraction_payloads, pdf::{split_pdf, extract_text_pdf}, pdla::pdla_extraction,
 };
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
@@ -14,6 +14,9 @@ use std::io::Write;
 use std::path::PathBuf;
 use tempdir::TempDir;
 use tempfile::NamedTempFile;
+use lopdf::Object;
+use uuid::Uuid;
+use crate::models::server::segment::{ SegmentType, BoundingBox };
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
     println!("Processing task");
@@ -79,35 +82,87 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
             let temp_file_path = temp_file.to_path_buf();
 
-            let pdla_response =
-                pdla_extraction(&temp_file_path, extraction_payload.model.clone()).await?;
-            let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
-            let mut segments: Vec<Segment> = pdla_segments
-                .iter()
-                .map(|pdla_segment| pdla_segment.to_segment())
-                .map(|mut segment| {
-                    let multipler =
-                        extraction_config.page_image_density / extraction_config.pdf_density;
-                    segment.bbox.top *= multipler;
-                    segment.bbox.left *= multipler;
-                    segment.bbox.width *= multipler;
-                    segment.bbox.height *= multipler;
-                    segment.page_height = (segment.page_height * multipler).round();
-                    segment.page_width = (segment.page_width * multipler).round();
-                    segment.bbox.width += extraction_config.segment_bbox_offset * 2.0;
-                    segment.bbox.height += extraction_config.segment_bbox_offset * 2.0;
-                    segment.bbox.left -= extraction_config.segment_bbox_offset;
-                    segment.bbox.top -= extraction_config.segment_bbox_offset;
-                    segment.finalize();
-                    segment
-                })
-                .collect();
+            match extraction_payload.configuration.segmentation_strategy {
+                Some(SegmentationStrategy::Page) => {
+                    let mut segments = Vec::new();
+                    let page_texts = extract_text_pdf(&temp_file_path).await?;
+                    let doc = lopdf::Document::load(&temp_file_path)?;
 
-            for item in &mut segments {
-                item.page_number += page_offset;
+                    for (page_num, obj_id) in doc.get_pages() {
+                        if let Ok(page_dict) = doc.get_dictionary(obj_id) {
+                            if let Ok(mediabox) = page_dict.get(b"MediaBox").and_then(Object::as_array) {
+                                if mediabox.len() >= 4 {
+                                    let x1 = mediabox[0].as_float().unwrap_or(0.0);
+                                    let y1 = mediabox[1].as_float().unwrap_or(0.0);
+                                    let x2 = mediabox[2].as_float().unwrap_or(0.0);
+                                    let y2 = mediabox[3].as_float().unwrap_or(0.0);
+                                    
+                                    let width = (x2 - x1).abs();
+                                    let height = (y2 - y1).abs();
+                                    let content = page_texts[(page_num - 1) as usize].clone();
+                                    let mut segment = Segment {
+                                        segment_id: Uuid::new_v4().to_string(),
+                                        content: content,
+                                        bbox: BoundingBox {
+                                            top: 0.0,
+                                            left: 0.0,
+                                            width,
+                                            height,
+                                        },
+                                        page_number: (page_num) as u32,
+                                        page_width: width,
+                                        page_height: height,
+                                        segment_type: SegmentType::Page,
+                                        image: None,
+                                        html: None,
+                                        markdown: None,
+                                        ocr: None,
+                                    };
+                                    segment.finalize();
+                                    segments.push(segment);
+                                }
+                            }
+                        }
+                    }
+
+                    for item in &mut segments {
+                        item.page_number += page_offset;
+                    }
+                    combined_segments.extend(segments);
+                    page_offset += extraction_payload.batch_size.unwrap_or(1) as u32;
+                }
+                _ => {
+                    let pdla_response =
+                        pdla_extraction(&temp_file_path, extraction_payload.model.clone()).await?;
+                    let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
+                    let mut segments: Vec<Segment> = pdla_segments
+                        .iter()
+                        .map(|pdla_segment| pdla_segment.to_segment())
+                        .map(|mut segment| {
+                            let multipler =
+                                extraction_config.page_image_density / extraction_config.pdf_density;
+                            segment.bbox.top *= multipler;
+                            segment.bbox.left *= multipler;
+                            segment.bbox.width *= multipler;
+                            segment.bbox.height *= multipler;
+                            segment.page_height = (segment.page_height * multipler).round();
+                            segment.page_width = (segment.page_width * multipler).round();
+                            segment.bbox.width += extraction_config.segment_bbox_offset * 2.0;
+                            segment.bbox.height += extraction_config.segment_bbox_offset * 2.0;
+                            segment.bbox.left -= extraction_config.segment_bbox_offset;
+                            segment.bbox.top -= extraction_config.segment_bbox_offset;
+                            segment.finalize();
+                            segment
+                        })
+                        .collect();
+
+                    for item in &mut segments {
+                        item.page_number += page_offset;
+                    }
+                    combined_segments.extend(segments);
+                    page_offset += extraction_payload.batch_size.unwrap_or(1) as u32;
+                }
             }
-            combined_segments.extend(segments);
-            page_offset += extraction_payload.batch_size.unwrap_or(1) as u32;
         }
 
         let mut output_temp_file = NamedTempFile::new()?;
@@ -127,8 +182,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
 
         Ok(())
-    })
+        })
     .await;
+
 
     match result {
         Ok(_) => {
@@ -146,8 +202,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 None,
                 &pg_pool,
             )
-            .await?;
-            Ok(())
+            .await
         }
         Err(e) => {
             eprintln!("Error processing task: {:?}", e);
