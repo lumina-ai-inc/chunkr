@@ -1,5 +1,5 @@
 use crate::models::rrq::queue::QueuePayload;
-use crate::models::server::extract::{ ExtractionPayload, PdlaModel, SegmentationStrategy };
+use crate::models::server::extract::{ ExtractionPayload, PdlaModel };
 use crate::models::server::task::Status;
 use crate::utils::configs::worker_config::Config;
 use crate::utils::configs::s3_config::create_client;
@@ -7,18 +7,13 @@ use crate::utils::db::deadpool_postgres::{create_pool, Client};
 use crate::utils::services::{
     log::log_task,
     payload::produce_extraction_payloads,
-    pdf::{ pdf_2_images, extract_text_pdf },
+    pdf::pdf_2_images,
 };
 use crate::utils::storage::services::{ download_to_given_tempfile, upload_to_s3 };
 use chrono::Utc;
 use std::{ error::Error, path::{ Path, PathBuf }, process::Command };
 use tempfile::{ NamedTempFile, TempDir };
 
-use crate::models::server::segment::{ Segment, SegmentType, BoundingBox };
-use crate::utils::storage::services::download_to_tempfile;
-use std::io::Write;
-use uuid::Uuid;
-use lopdf::Object;
 
 fn is_valid_file_type(file_path: &Path) -> Result<(bool, String), Box<dyn Error>> {
     let output = Command::new("file")
