@@ -77,7 +77,7 @@ mod tests {
     use super::*;
 
     use crate::utils::configs::llm_config::{get_prompt, Config as LlmConfig};
-    use crate::utils::services::ocr::get_html_from_vllm_table_ocr;
+    use crate::utils::services::segment_ocr::get_html_from_llm_table_ocr;
     use std::collections::HashMap;
     use std::fs;
     use std::path::Path;
@@ -141,7 +141,7 @@ mod tests {
                 let input_file = input_file.clone();
                 let prompt = prompt.to_string();
                 let model = model.to_string();
-                let model_clone = model.clone(); // Clone the model string
+                let model_clone = model.clone();
 
                 let table_dir = table_dir.clone();
                 let table_name = table_name.clone();
@@ -163,7 +163,7 @@ mod tests {
                             let duration = start_time.elapsed();
                             let content = response.choices[0].message.content.clone();
                             if let MessageContent::String { content } = content {
-                                let html_content = get_html_from_vllm_table_ocr(content)?;
+                                let html_content = get_html_from_llm_table_ocr(content)?;
                                 let html_file = table_dir
                                     .join(format!("{}.html", model_clone.replace("/", "_")));
                                 fs::write(&html_file, html_content)?;

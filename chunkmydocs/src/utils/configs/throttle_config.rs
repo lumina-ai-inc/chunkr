@@ -6,22 +6,28 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     #[serde(default = "default_general_ocr_concurrency")]
     pub general_ocr_concurrency: usize,
-    #[serde(default = "default_vlm_ocr_concurrency")]
-    pub vlm_ocr_concurrency: usize,
-    #[serde(default = "default_vlm_ocr_rate_limit")]
-    pub vlm_ocr_rate_limit: u32,
+    #[serde(default = "default_general_ocr_rate_limit")]
+    pub general_ocr_rate_limit: f32,
+    #[serde(default = "default_llm_ocr_concurrency")]
+    pub llm_ocr_concurrency: usize,
+    #[serde(default = "default_llm_ocr_rate_limit")]
+    pub llm_ocr_rate_limit: f32,
 }
 
 fn default_general_ocr_concurrency() -> usize {
-    25
+    50000
 }
 
-fn default_vlm_ocr_concurrency() -> usize {
-    10000
+fn default_general_ocr_rate_limit() -> f32 {
+    10.0
 }
 
-fn default_vlm_ocr_rate_limit() -> u32 {
-    200
+fn default_llm_ocr_concurrency() -> usize {
+    50000
+}
+
+fn default_llm_ocr_rate_limit() -> f32 {
+    200.0
 }
 
 impl Config {
@@ -31,7 +37,7 @@ impl Config {
         ConfigTrait::builder()
             .add_source(
                 config::Environment::default()
-                    .prefix("RATE_LIMIT")
+                    .prefix("THROTTLE")
                     .separator("__"),
             )
             .build()?
