@@ -134,7 +134,7 @@ async def main(model: Model = Model.HighQuality, target_chunk_length: int = None
 
 
 if __name__ == "__main__":
-    model = Model.Fast
+    model = Model.HighQuality
     
     
     target_chunk_length = 1000
@@ -159,7 +159,7 @@ if __name__ == "__main__":
         ),
         Property(
             name="summary", 
-            title="Document Summary",
+            title="Location",
             type="string",
             description="A brief overview or abstract describing what the document is about",
             default=None
