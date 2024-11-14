@@ -1,0 +1,11 @@
+[project]
+name = "doctr"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.5",
+    "pydantic>=2.9.2",
+    "python-doctr[contrib,html,torch,viz]>=0.10.0",
+]
