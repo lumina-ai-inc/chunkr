@@ -84,7 +84,7 @@ services:
     restart: always
 
   chunkmydocs:
-    image: luminainc/chunkmydocs:51596838
+    image: luminainc/chunkmydocs:e41a77cf
     ports:
       - "8000:8000"
     depends_on:
@@ -98,7 +98,7 @@ services:
     restart: always
 
   preprocess:
-    image: luminainc/preprocess:51596838
+    image: luminainc/preprocess:e41a77cf
     depends_on:
       - postgres
       - redis
@@ -111,7 +111,7 @@ services:
     restart: always
 
   fast:
-    image: luminainc/fast:51596838
+    image: luminainc/fast:e41a77cf
     depends_on:
       - postgres
       - redis
@@ -125,7 +125,7 @@ services:
     restart: always
 
   high-quality:
-    image: luminainc/high-quality:51596838
+    image: luminainc/high-quality:e41a77cf
     depends_on:
       - postgres
       - redis
@@ -139,7 +139,7 @@ services:
     restart: always
 
   postprocess:
-    image: luminainc/postprocess:51596838
+    image: luminainc/postprocess:e41a77cf
     depends_on:
       - postgres
       - redis
@@ -152,7 +152,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/ocr:51596838
+    image: luminainc/ocr:e41a77cf
     depends_on:
       - postgres
       - redis
@@ -167,7 +167,7 @@ services:
     restart: always
 
   structured-extraction:
-    image: luminainc/structured-extraction:51596838
+    image: luminainc/structured-extraction:e41a77cf
     depends_on:
       - postgres
       - redis
@@ -181,7 +181,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:51596838
+    image: luminainc/web:e41a77cf
     ports:
       - "5173:8000"
     env_file:
@@ -208,7 +208,7 @@ services:
     restart: always
 
   general-ocr:
-    image: luminainc/general-ocr:863b2245
+    image: luminainc/general-ocr:e41a77cf
     ports:
       - "8003:8000"
     deploy:
@@ -224,7 +224,7 @@ services:
     restart: always
 
   table-ocr:
-    image: luminainc/table-ocr:863b2245
+    image: luminainc/table-ocr:e41a77cf
     ports:
       - "8004:8000"
     deploy:
