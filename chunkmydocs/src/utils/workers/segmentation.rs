@@ -19,24 +19,15 @@ use uuid::Uuid;
 use crate::models::server::segment::{ SegmentType, BoundingBox };
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
-    println!("1");
     println!("Processing task");
-    println!("2");
     let s3_client = create_client().await?;
-    println!("3");
     let reqwest_client = reqwest::Client::new();
-    println!("4");
     let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
-    println!("5");
     let task_id = extraction_payload.task_id.clone();
-    println!("6");
     let pg_pool = create_pool();
-    println!("7");
     let extraction_config = WorkerConfig::from_env().unwrap();
-    println!("8");
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
-        println!("9");
         log_task(
             task_id.clone(),
             Status::Processing,
@@ -45,7 +36,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &pg_pool,
         )
         .await?;
-        println!("10");
 
         let pdf_file = download_to_tempfile(
             &s3_client,
@@ -54,12 +44,13 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             None,
         )
         .await?;
-        println!("11");
+
+
+        let pdf_file_path = pdf_file.path().to_path_buf();
+
 
         let mut split_temp_files: Vec<PathBuf> = Vec::new();
-        println!("12");
         let split_temp_dir = TempDir::new("split_pdf")?;
-        println!("13");
 
         if let Some(batch_size) = extraction_payload.batch_size {
             split_temp_files =
@@ -67,93 +58,81 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         } else {
             split_temp_files.push(pdf_file.path().to_path_buf());
         }
-        println!("14");
 
         let mut combined_segments: Vec<Segment> = Vec::new();
         let mut page_offset: u32 = 0;
         let mut batch_number: i32 = 0;
-        println!("15");
-
-        for temp_file in &split_temp_files {
-            println!("16");
-            batch_number += 1;
-            let segmentation_message = if split_temp_files.len() > 1 {
-                format!(
-                    "Segmenting | Batch {} of {}",
-                    batch_number,
-                    split_temp_files.len()
-                )
-            } else {
-                "Segmenting".to_string()
-            };
-            println!("17");
-
-            log_task(
-                task_id.clone(),
-                Status::Processing,
-                Some(segmentation_message),
-                None,
-                &pg_pool,
-            )
-            .await?;
-            println!("18");
-
-            let temp_file_path = temp_file.to_path_buf();
-            println!("19");
-
-            match extraction_payload.configuration.segmentation_strategy {
-                Some(SegmentationStrategy::Page) => {
-                    println!("20");
-                    let mut segments = Vec::new();
-                    let page_texts = extract_text_pdf(&temp_file_path).await?;
-                    let doc = lopdf::Document::load(&temp_file_path)?;
-
-                    for (page_num, obj_id) in doc.get_pages() {
-                        if let Ok(page_dict) = doc.get_dictionary(obj_id) {
-                            if let Ok(mediabox) = page_dict.get(b"MediaBox").and_then(Object::as_array) {
-                                if mediabox.len() >= 4 {
-                                    let x1 = mediabox[0].as_float().unwrap_or(0.0);
-                                    let y1 = mediabox[1].as_float().unwrap_or(0.0);
-                                    let x2 = mediabox[2].as_float().unwrap_or(0.0);
-                                    let y2 = mediabox[3].as_float().unwrap_or(0.0);
-                                    
-                                    let width = (x2 - x1).abs();
-                                    let height = (y2 - y1).abs();
-                                    let content = page_texts[(page_num - 1) as usize].clone();
-                                    let mut segment = Segment {
-                                        segment_id: Uuid::new_v4().to_string(),
-                                        content: content,
-                                        bbox: BoundingBox {
-                                            top: 0.0,
-                                            left: 0.0,
-                                            width,
-                                            height,
-                                        },
-                                        page_number: (page_num) as u32,
-                                        page_width: width,
-                                        page_height: height,
-                                        segment_type: SegmentType::Page,
-                                        image: None,
-                                        html: None,
-                                        markdown: None,
-                                        ocr: None,
-                                    };
-                                    segment.finalize();
-                                    segments.push(segment);
-                                }
+        match extraction_payload.configuration.segmentation_strategy {
+            Some(SegmentationStrategy::Page) => {
+                let mut segments = Vec::new();
+                let page_texts = extract_text_pdf(&pdf_file_path).await?;
+                let doc = lopdf::Document::load(&pdf_file_path)?;
+                for (page_num, obj_id) in doc.get_pages() {
+                    if let Ok(page_dict) = doc.get_dictionary(obj_id) {
+                        if let Ok(mediabox) = page_dict.get(b"MediaBox").and_then(Object::as_array) {
+                            if mediabox.len() >= 4 {
+                                let x1 = mediabox[0].as_float().unwrap_or(0.0);
+                                let y1 = mediabox[1].as_float().unwrap_or(0.0);
+                                let x2 = mediabox[2].as_float().unwrap_or(0.0);
+                                let y2 = mediabox[3].as_float().unwrap_or(0.0);
+                                
+                                let width = (x2 - x1).abs();
+                                let height = (y2 - y1).abs();
+                                let content = page_texts[(page_num - 1) as usize].clone();
+                                let mut segment = Segment {
+                                    segment_id: Uuid::new_v4().to_string(),
+                                    content: content,
+                                    bbox: BoundingBox {
+                                        top: 0.0,
+                                        left: 0.0,
+                                        width,
+                                        height,
+                                    },
+                                    page_number: (page_num) as u32,
+                                    page_width: width,
+                                    page_height: height,
+                                    segment_type: SegmentType::Page,
+                                    image: None,
+                                    html: None,
+                                    markdown: None,
+                                    ocr: None,
+                                };
+                                segment.finalize();
+                                segments.push(segment);
                             }
                         }
                     }
-                    println!("21");
-
-                    for item in &mut segments {
-                        item.page_number += page_offset;
-                    }
-                    combined_segments.extend(segments);
-                    page_offset += extraction_payload.batch_size.unwrap_or(1) as u32;
                 }
-                _ => {
-                    println!("22");
+
+
+                combined_segments.extend(segments);
+            }
+            _ => {
+                for temp_file in &split_temp_files {
+                    println!("16");
+                    batch_number += 1;
+                    let segmentation_message = if split_temp_files.len() > 1 {
+                        format!(
+                            "Segmenting | Batch {} of {}",
+                            batch_number,
+                            split_temp_files.len()
+                        )
+                    } else {
+                        "Segmenting".to_string()
+                    };
+                    println!("17");
+        
+                    log_task(
+                        task_id.clone(),
+                        Status::Processing,
+                        Some(segmentation_message),
+                        None,
+                        &pg_pool,
+                    )
+                    .await?;
+        
+                    let temp_file_path = temp_file.to_path_buf();
+
                     let pdla_response =
                         pdla_extraction(&temp_file_path, extraction_payload.model.clone()).await?;
                     let pdla_segments: Vec<PdlaSegment> = serde_json::from_str(&pdla_response)?;
@@ -182,11 +161,12 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                         item.page_number += page_offset;
                     }
                     combined_segments.extend(segments);
-                    page_offset += extraction_payload.batch_size.unwrap_or(1) as u32;
+                    page_offset += extraction_payload.batch_size.unwrap_or(1) as u32;        
+                    
                 }
             }
+
         }
-        println!("23");
 
         let mut output_temp_file = NamedTempFile::new()?;
         output_temp_file.write_all(serde_json::to_string(&combined_segments)?.as_bytes())?;
@@ -197,7 +177,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             output_temp_file.path(),
         )
         .await?;
-        println!("24");
 
         if output_temp_file.path().exists() {
             if let Err(e) = std::fs::remove_file(output_temp_file.path()) {
