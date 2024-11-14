@@ -1,5 +1,5 @@
 use crate::models::rrq::queue::QueuePayload;
-use crate::models::server::extract::{ ExtractionPayload, PdlaModel, SegmentationStrategy };
+use crate::models::server::extract::{ ExtractionPayload, PdlaModel };
 use crate::models::server::task::Status;
 use crate::utils::configs::worker_config::Config;
 use crate::utils::configs::s3_config::create_client;
@@ -7,18 +7,13 @@ use crate::utils::db::deadpool_postgres::{create_pool, Client};
 use crate::utils::services::{
     log::log_task,
     payload::produce_extraction_payloads,
-    pdf::{ pdf_2_images, extract_text_pdf },
+    pdf::pdf_2_images,
 };
 use crate::utils::storage::services::{ download_to_given_tempfile, upload_to_s3 };
 use chrono::Utc;
 use std::{ error::Error, path::{ Path, PathBuf }, process::Command };
 use tempfile::{ NamedTempFile, TempDir };
 
-use crate::models::server::segment::{ Segment, SegmentType, BoundingBox };
-use crate::utils::storage::services::download_to_tempfile;
-use std::io::Write;
-use uuid::Uuid;
-use lopdf::Object;
 
 fn is_valid_file_type(file_path: &Path) -> Result<(bool, String), Box<dyn Error>> {
     let output = Command::new("file")
@@ -215,94 +210,35 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     }).await;
     match result {
         Ok(value) => {
-            println!("Task succeeded");
             if value {
-                if let Some(SegmentationStrategy::Page) = extraction_payload.configuration.segmentation_strategy {
-                    let mut segments = Vec::new();
-                    let pdf_file = download_to_tempfile(&s3_client, &reqwest_client, &extraction_payload.pdf_location, None).await?;
-                    let page_texts = extract_text_pdf(&pdf_file.path()).await?;
-                    let doc = lopdf::Document::load(pdf_file.path())?;
-
-                    for (page_num, obj_id) in doc.get_pages() {
-                        if let Ok(page_dict) = doc.get_dictionary(obj_id) {
-                            if let Ok(mediabox) = page_dict.get(b"MediaBox").and_then(Object::as_array) {
-                                if mediabox.len() >= 4 {
-                                    let x1 = mediabox[0].as_float().unwrap_or(0.0);
-                                    let y1 = mediabox[1].as_float().unwrap_or(0.0);
-                                    let x2 = mediabox[2].as_float().unwrap_or(0.0);
-                                    let y2 = mediabox[3].as_float().unwrap_or(0.0);
-                                    
-                                    let width = (x2 - x1).abs();
-                                    let height = (y2 - y1).abs();
-                                    let content = page_texts[(page_num - 1) as usize].clone();
-                                    let segment = Segment {
-                                        segment_id: Uuid::new_v4().to_string(),
-                                        content: content,
-                                        bbox: BoundingBox {
-                                            top: 0.0,
-                                            left: 0.0,
-                                            width,
-                                            height,
-                                        },
-                                        page_number: (page_num) as u32,
-                                        page_width: width,
-                                        page_height: height,
-                                        segment_type: SegmentType::Page,
-                                        image: None,
-                                        html: None,
-                                        markdown: None,
-                                        ocr: None,
-                                    };
-                                    segments.push(segment);
-                                }
-                            }
-                        }
-                    }
-                    
-                    let mut output_temp_file = NamedTempFile::new()?;
-                    output_temp_file.write_all(serde_json::to_string(&segments)?.as_bytes())?;
-                    
-                    upload_to_s3(&s3_client, &extraction_payload.output_location, &output_temp_file.path()).await?;
-                    
-                    produce_extraction_payloads(config.queue_postprocess, extraction_payload).await?;
-                    log_task(
-                        task_id.clone(),
-                        Status::Processing,
-                        Some("Chunking queued".to_string()),
-                        None,
-                        &pg_pool
-                    ).await?;
-                } else {
-                    match extraction_payload.model {
-                        PdlaModel::PdlaFast => {
-                            produce_extraction_payloads(config.queue_fast, extraction_payload).await?;
-                            log_task(
-                                task_id.clone(),
-                                Status::Processing,
-                                Some("Segmentation queued".to_string()),
-                                None,
-                                &pg_pool
-                            ).await?;
-                        },
-                        PdlaModel::Pdla => {
-                            produce_extraction_payloads(config.queue_high_quality, extraction_payload).await?;
-                            log_task(
-                                task_id.clone(),
-                                Status::Processing,
-                                Some("Segmentation queued".to_string()),
-                                None,
-                                &pg_pool
-                            ).await?;
-                        }
+                match extraction_payload.model {
+                    PdlaModel::PdlaFast => {
+                        produce_extraction_payloads(config.queue_fast, extraction_payload).await?;
+                        log_task(
+                            task_id.clone(),
+                            Status::Processing,
+                            Some("Segmentation queued".to_string()),
+                            None,
+                            &pg_pool
+                        ).await?;
+                    },
+                    PdlaModel::Pdla => {
+                        produce_extraction_payloads(config.queue_high_quality, extraction_payload).await?;
+                        log_task(
+                            task_id.clone(),
+                            Status::Processing,
+                            Some("Segmentation queued".to_string()),
+                            None,
+                            &pg_pool
+                        ).await?;
                     }
                 }
             }
             Ok(())
-        }
+        },
         Err(e) => {
             eprintln!("Error processing task: {:?}", e);
-            let error_message = 
-            if e.to_string().to_lowercase().contains("usage limit exceeded") {
+            let error_message = if e.to_string().to_lowercase().contains("usage limit exceeded") {
                 "Usage limit exceeded".to_string()
             } else {
                 "Preprocessing failed".to_string()
@@ -322,4 +258,3 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
     }
 }
-
