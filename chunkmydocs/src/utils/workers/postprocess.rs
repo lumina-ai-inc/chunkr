@@ -20,12 +20,18 @@ use std::{
 use tempdir::TempDir;
 use tempfile::NamedTempFile;
 
+
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
     println!("Processing task");
+    println!("Creating S3 client");
     let s3_client = create_client().await?;
+    println!("Creating reqwest client");
     let reqwest_client = reqwest::Client::new();
+    println!("Parsing extraction payload");
     let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
+    println!("Getting task ID");
     let task_id = extraction_payload.task_id.clone();
+    println!("Creating Postgres pool");
     let pg_pool = create_pool();
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
@@ -162,7 +168,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 if extraction_payload.configuration.json_schema.is_some() {
                     let extraction_config = WorkerConfig::from_env()?;
                     produce_extraction_payloads(
-                        extraction_config.queue_structured_extract,
+                        extraction_config.queue_structured_extraction,
                         extraction_payload.clone(),
                     )
                     .await?;

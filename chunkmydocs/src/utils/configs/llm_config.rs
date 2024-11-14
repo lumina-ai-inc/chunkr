@@ -31,6 +31,8 @@ fn default_key() -> String {
     "".to_string()
 }
 
+
+
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
         dotenv_override().ok();
