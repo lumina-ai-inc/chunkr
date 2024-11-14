@@ -4,7 +4,6 @@ use crate::{
     models::workers::open_ai::MessageContent,
     models::workers::table_ocr::{PaddleTableRecognitionResponse, PaddleTableRecognitionResult},
     utils::configs::llm_config::{get_prompt, Config as LlmConfig},
-    utils::configs::throttle_config::Config as ThrottleConfig,
     utils::configs::worker_config::Config as WorkerConfig,
     utils::db::deadpool_redis::{create_pool as create_redis_pool, Pool},
     utils::rate_limit::{create_general_ocr_rate_limiter, create_llm_rate_limiter, RateLimiter},
@@ -16,16 +15,12 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
 use std::path::Path;
-use tokio::sync::Semaphore;
 
-static GENERAL_OCR_SEMAPHORE: OnceCell<Semaphore> = OnceCell::new();
-static LLM_OCR_SEMAPHORE: OnceCell<Semaphore> = OnceCell::new();
 static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 static LLM_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 static POOL: OnceCell<Pool> = OnceCell::new();
 
 fn init_throttle() {
-    let throttle_config = ThrottleConfig::from_env().unwrap();
     let llm_config = LlmConfig::from_env().unwrap();
     let llm_ocr_url = llm_config.ocr_url.unwrap_or(llm_config.url);
     let domain_name = llm_ocr_url
@@ -36,8 +31,6 @@ fn init_throttle() {
         .next()
         .unwrap_or("llm-ocr");
     POOL.get_or_init(|| create_redis_pool());
-    GENERAL_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(throttle_config.general_ocr_concurrency));
-    LLM_OCR_SEMAPHORE.get_or_init(|| Semaphore::new(throttle_config.llm_ocr_concurrency));
     GENERAL_OCR_RATE_LIMITER.get_or_init(|| {
         create_general_ocr_rate_limiter(POOL.get().unwrap().clone(), "general_ocr")
     });
@@ -58,11 +51,6 @@ impl Error for OcrError {}
 
 pub async fn paddle_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     init_throttle();
-    let _permit = GENERAL_OCR_SEMAPHORE
-        .get()
-        .expect("OCR semaphore not initialized")
-        .acquire()
-        .await?;
     let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
     rate_limiter
         .acquire_token_with_timeout(std::time::Duration::from_secs(30))
@@ -86,7 +74,7 @@ pub async fn paddle_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Erro
     let response = client
         .post(&url)
         .json(&payload)
-        .timeout(std::time::Duration::from_secs(30))
+        .timeout(std::time::Duration::from_secs(300))
         .send()
         .await?
         .error_for_status()?;
@@ -98,18 +86,13 @@ pub async fn paddle_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Erro
         .into_iter()
         .map(|text| OCRResult::from(text))
         .collect();
-    drop(_permit);
     Ok(ocr_results)
 }
 
 pub async fn paddle_table_ocr(
     file_path: &Path,
 ) -> Result<PaddleTableRecognitionResult, Box<dyn Error + Send + Sync>> {
-    let _permit = GENERAL_OCR_SEMAPHORE
-        .get()
-        .expect("OCR semaphore not initialized")
-        .acquire()
-        .await?;
+    init_throttle();
     let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
     rate_limiter
         .acquire_token_with_timeout(std::time::Duration::from_secs(30))
@@ -144,17 +127,11 @@ pub async fn paddle_table_ocr(
             return Err(format!("Error parsing table OCR response: {}", e).into());
         }
     };
-    drop(_permit);
     Ok(paddle_table_response.result)
 }
 
 async fn llm_ocr(file_path: &Path, prompt: String) -> Result<String, Box<dyn Error + Send + Sync>> {
     init_throttle();
-    let _permit = LLM_OCR_SEMAPHORE
-        .get()
-        .expect("OCR semaphore not initialized")
-        .acquire()
-        .await?;
     let rate_limiter = LLM_OCR_RATE_LIMITER.get().unwrap();
     rate_limiter
         .acquire_token_with_timeout(std::time::Duration::from_secs(30))
@@ -172,7 +149,6 @@ async fn llm_ocr(file_path: &Path, prompt: String) -> Result<String, Box<dyn Err
     )
     .await
     .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
-    drop(_permit);
     if let MessageContent::String { content } = response.choices[0].message.content.clone() {
         Ok(content)
     } else {
@@ -193,11 +169,11 @@ pub async fn llm_formula_ocr(file_path: &Path) -> Result<String, Box<dyn Error +
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::utils::configs::throttle_config::Config as ThrottleConfig;
 
     #[tokio::test]
     async fn test_general_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
         let input_dir = Path::new("input");
-
         let first_image = std::fs::read_dir(input_dir)?
             .filter_map(|entry| {
                 entry.ok().and_then(|e| {
@@ -217,7 +193,7 @@ mod tests {
             .ok_or("No image files found in input directory")?;
 
         let mut tasks = Vec::new();
-        let count = 50;
+        let count = 100;
         for _ in 0..count {
             let input_file = first_image.clone();
             let task = tokio::spawn(async move {
@@ -242,10 +218,19 @@ mod tests {
         }
         let duration = start.elapsed();
         let images_per_second = count as f64 / duration.as_secs_f64();
+        let throttle_config = ThrottleConfig::from_env().unwrap();
+        println!(
+            "General OCR rate limit: {:?}",
+            throttle_config.general_ocr_rate_limit
+        );
         println!("Time taken: {:?}", duration);
         println!("Images per second: {:?}", images_per_second);
         println!("Error count: {:?}", error_count);
 
-        Ok(())
+        if error_count > 0 {
+            Err(format!("Error count {} > 0", error_count).into())
+        } else {
+            Ok(())
+        }
     }
 }
