@@ -208,7 +208,7 @@ services:
     restart: always
 
   general-ocr:
-    image: luminainc/general-ocr:51596838
+    image: luminainc/general-ocr:863b2245
     ports:
       - "8003:8000"
     deploy:
@@ -224,7 +224,7 @@ services:
     restart: always
 
   table-ocr:
-    image: luminainc/table-ocr:51596838
+    image: luminainc/table-ocr:863b2245
     ports:
       - "8004:8000"
     deploy:

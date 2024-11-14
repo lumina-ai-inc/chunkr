@@ -86,18 +86,14 @@ impl RateLimiter {
     }
 }
 
+pub fn create_general_ocr_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    RateLimiter::new(pool, throttle_config.general_ocr_rate_limit, bucket_name)
+}
+
 pub fn create_llm_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
     RateLimiter::new(pool, throttle_config.llm_ocr_rate_limit, bucket_name)
-}
-
-pub fn create_general_ocr_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
-    let throttle_config = ThrottleConfig::from_env().unwrap();
-    println!(
-        "Throttle config: {:?}",
-        throttle_config.general_ocr_rate_limit
-    );
-    RateLimiter::new(pool, throttle_config.general_ocr_rate_limit, bucket_name)
 }
 
 #[cfg(test)]
