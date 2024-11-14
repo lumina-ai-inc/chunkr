@@ -12,7 +12,7 @@ touch ~/.bash_history_paddlex
 2. Create and run the PaddleX container:
 ```bash
 sudo docker run --gpus all -p 8000:8000 \
-    --name idk \
+    --name paddle-proxy \
     -v $PWD:/paddle \
     -v ~/.bash_history_paddlex:/root/.bash_history \
     --shm-size=8g \
@@ -76,7 +76,7 @@ python3 example.py
 
 ### Starting the Container
 ```bash
-sudo docker start -i paddlex
+sudo docker start -i paddle-proxy
 ```
 
 ### Stopping and Cleaning Up
@@ -85,8 +85,8 @@ sudo docker start -i paddlex
 exit
 
 # Stop container (run this after exiting)
-sudo docker stop paddlex
+sudo docker stop paddle-proxy
 
 # Optional: Remove the container and volume (run this after exiting)
-sudo docker rm -v paddlex
+sudo docker rm -v paddle-proxy
 ```
