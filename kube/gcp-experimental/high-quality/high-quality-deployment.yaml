@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: high-quality
-        image: luminainc/high-quality:863b2245
+        image: luminainc/high-quality:e41a77cf
         imagePullPolicy: Always
         envFrom:
         - secretRef:
