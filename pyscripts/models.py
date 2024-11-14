@@ -9,10 +9,12 @@ class TableOcr(str, Enum):
     HTML = "HTML"
     JSON = "JSON"
     
-    
+class SegmentationStrategy(str, Enum):
+    LayoutAnalysis = "LayoutAnalysis"
+    Page = "Page"
+
 
 class Model(str, Enum):
-    Research = "Research"
     Fast = "Fast"
     HighQuality = "HighQuality"
 
@@ -67,3 +69,4 @@ class UploadForm(BaseModel):
     target_chunk_length: Optional[int] = None
     ocr_strategy: Optional[OcrStrategy] = OcrStrategy.Auto
     json_schema: Optional[dict] = None
+    segmentation_strategy: Optional[SegmentationStrategy] = None

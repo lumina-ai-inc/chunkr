@@ -6,7 +6,7 @@ import time
 from enum import Enum
 import urllib.request
 from api import process_file
-from models import Model, OcrStrategy, UploadForm, TaskResponse
+from models import Model, OcrStrategy, UploadForm, TaskResponse, SegmentationStrategy
 from annotate import draw_bounding_boxes
 import json
 from pydantic import BaseModel, Field
@@ -56,7 +56,7 @@ async def save_to_json(file_path: str, output: json, file_name: str ):
         json.dump(output, f, indent=4)  # Added indent for readability
     return output_json_path
 
-async def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, json_schema_serialized = None):
+async def extract_and_annotate_file(file_path: str, model: Model, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, json_schema_serialized = None, segmentation_strategy: SegmentationStrategy = SegmentationStrategy.LayoutAnalysis):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_name = os.path.basename(file_path).split(".")[0]
     output_dir = os.path.join(current_dir, "output")
@@ -73,7 +73,8 @@ async def extract_and_annotate_file(file_path: str, model: Model, target_chunk_l
         model=model,
         target_chunk_length=target_chunk_length,
         ocr_strategy=ocr_strategy,
-        json_schema=json_schema_serialized  # Pass the JSON dict
+        json_schema=json_schema_serialized,
+        segmentation_strategy=segmentation_strategy
     )
     
     task: TaskResponse = process_file(upload_form)
@@ -97,7 +98,7 @@ async def extract_and_annotate_file(file_path: str, model: Model, target_chunk_l
         draw_bounding_boxes(file_path, output, output_annotated_path)
     print(f"File annotated: {file_path}")
 
-async def main(model: Model = Model.HighQuality, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, dir="input", json_schema: JsonSchema = None):
+async def main(model: Model = Model.HighQuality, target_chunk_length: int = None, ocr_strategy: OcrStrategy = OcrStrategy.Auto, dir="input", json_schema: JsonSchema = None, segmentation_strategy: SegmentationStrategy = SegmentationStrategy.LayoutAnalysis):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     json_schema_serialized = json_schema.model_dump() if json_schema else None
     input_dir = os.path.join(current_dir, dir)
@@ -114,7 +115,7 @@ async def main(model: Model = Model.HighQuality, target_chunk_length: int = None
 
     async def timed_extract(file_path):
         start_time = time.time()
-        await extract_and_annotate_file(file_path, model, target_chunk_length, ocr_strategy, json_schema_serialized)
+        await extract_and_annotate_file(file_path, model, target_chunk_length, ocr_strategy, json_schema_serialized, segmentation_strategy)
         end_time = time.time()
         return {'file_path': file_path, 'elapsed_time': end_time - start_time}
         
@@ -133,37 +134,40 @@ async def main(model: Model = Model.HighQuality, target_chunk_length: int = None
 
 
 if __name__ == "__main__":
-    model = Model.Fast
+    model = Model.HighQuality
+    
+    
     target_chunk_length = 1000
-    ocr_strategy = OcrStrategy.Auto
+    ocr_strategy = OcrStrategy.Off
     json_schema = JsonSchema(
-        title="Clinical Trial Results",
+        title="Summary of the Document",
         type="object", 
         properties=[
         Property(
-            name="the_company",
-            title="Company", 
-            type="string",
-            description="The legal name of the company or corporation that is recieving the funds from the investor",
-            default=None
-        ),
-        Property(
-            name="the_investor",
-            title="Investor",
+            name="title",
+            title="Document Title",
             type="string", 
-            description="The legal name of the entity that is investing in the company. The investor could be an individual, a corporation, or a government agency.",
+            description="The main title or heading of the document",
             default=None
         ),
         Property(
-            name="purchase_amount",
-            title="Purchase Amount",
-            type="int",
-            description="The purchase amount of the investment in USD",
+            name="author",
+            title="Author",
+            type="string",
+            description="The name of the person or organization that authored the document, or the main party involved.",
+            default=None
+        ),
+        Property(
+            name="summary", 
+            title="Location",
+            type="string",
+            description="A brief overview or abstract describing what the document is about",
             default=None
         )
         ]
     )
-    times = asyncio.run(main( model, target_chunk_length, ocr_strategy, "input", json_schema=json_schema))  
+    segmentation_strategy = SegmentationStrategy.Page
+    times = asyncio.run(main( model, target_chunk_length, ocr_strategy, "input", json_schema=json_schema, segmentation_strategy=segmentation_strategy))  
     
     if times:
         total_time = sum(result['elapsed_time'] for result in times)

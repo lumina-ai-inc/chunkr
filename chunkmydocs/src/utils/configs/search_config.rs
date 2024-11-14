@@ -25,7 +25,7 @@ impl Config {
         ConfigTrait::builder()
             .add_source(
                 config::Environment::default()
-                    .prefix("EMBEDDINGS")
+                    .prefix("SEARCH")
                     .separator("__"),
             )
             .build()?

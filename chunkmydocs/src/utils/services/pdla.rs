@@ -1,4 +1,4 @@
-use crate::models::server::extract::SegmentationModel;
+use crate::models::server::extract::PdlaModel;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
 use reqwest::{multipart, Client as ReqwestClient};
 use std::{fs, path::Path};
@@ -53,11 +53,11 @@ async fn handle_high_quality_requests(
 
 async fn process_file(
     file_path: &Path,
-    model: SegmentationModel,
+    model: PdlaModel,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let json_output = if model == SegmentationModel::PdlaFast {
+    let json_output = if model == PdlaModel::PdlaFast {
         handle_fast_requests(file_path).await?
-    } else if model == SegmentationModel::Pdla {
+    } else if model == PdlaModel::Pdla {
         handle_high_quality_requests(file_path).await?
     } else {
         return Err(format!("Invalid model: {}", model).into());
@@ -68,7 +68,7 @@ async fn process_file(
 
 pub async fn pdla_extraction(
     file_path: &Path,
-    model: SegmentationModel,
+    model: PdlaModel,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let json_output = process_file(file_path, model).await?;
     Ok(json_output)
