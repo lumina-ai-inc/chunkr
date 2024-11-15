@@ -1,5 +1,5 @@
 use crate::utils::configs::throttle_config::Config as ThrottleConfig;
-use crate::utils::db::deadpool_redis::{Pool, RedisResult};
+use crate::utils::db::deadpool_redis::{Pool, RedisError, RedisResult};
 use std::time::Duration;
 
 pub struct RateLimiter {
@@ -82,7 +82,10 @@ impl RateLimiter {
             }
             tokio::time::sleep(Duration::from_millis(50)).await;
         }
-        Ok(false)
+        Err(RedisError::from((
+            redis::ErrorKind::BusyLoadingError,
+            "Rate limit timeout exceeded",
+        )))
     }
 }
 
