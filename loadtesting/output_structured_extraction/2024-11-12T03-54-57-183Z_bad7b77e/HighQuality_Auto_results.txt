@@ -1,5 +1,0 @@
-Total pages processed: 497
-Failed to start task: 0
-Failed to poll task: 0
-Tasks completed with failure status: 0
-Total failed files: 0
