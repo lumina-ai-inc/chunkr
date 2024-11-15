@@ -20,6 +20,8 @@ use std::path::Path;
 static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 static LLM_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 static POOL: OnceCell<Pool> = OnceCell::new();
+static GENERAL_OCR_TIMEOUT: OnceCell<u64> = OnceCell::new();
+static TOKEN_TIMEOUT: OnceCell<u64> = OnceCell::new();
 
 fn init_throttle() {
     let llm_config = LlmConfig::from_env().unwrap();
@@ -27,16 +29,21 @@ fn init_throttle() {
     let domain_name = llm_ocr_url
         .split("://")
         .nth(1)
-        .unwrap_or("llm-ocr")
-        .split('/')
-        .next()
-        .unwrap_or("llm-ocr");
+        .ok_or("Invalid URL format: missing protocol separator")
+        .and_then(|s| {
+            s.split('/')
+                .next()
+                .ok_or("Invalid URL format: missing domain")
+        })
+        .unwrap_or_else(|_| "localhost");
     POOL.get_or_init(|| create_redis_pool());
     GENERAL_OCR_RATE_LIMITER.get_or_init(|| {
         create_general_ocr_rate_limiter(POOL.get().unwrap().clone(), "general_ocr")
     });
     LLM_RATE_LIMITER
         .get_or_init(|| create_llm_rate_limiter(POOL.get().unwrap().clone(), domain_name));
+    GENERAL_OCR_TIMEOUT.get_or_init(|| 45);
+    TOKEN_TIMEOUT.get_or_init(|| 120);
 }
 
 #[derive(Debug)]
@@ -79,7 +86,9 @@ pub async fn doctr_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Error
     let response = client
         .post(&url)
         .multipart(form)
-        .timeout(std::time::Duration::from_secs(300))
+        .timeout(std::time::Duration::from_secs(
+            *GENERAL_OCR_TIMEOUT.get().unwrap(),
+        ))
         .send()
         .await?
         .error_for_status()?;
@@ -108,7 +117,9 @@ pub async fn paddle_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Erro
     let response = client
         .post(&url)
         .json(&payload)
-        .timeout(std::time::Duration::from_secs(300))
+        .timeout(std::time::Duration::from_secs(
+            *GENERAL_OCR_TIMEOUT.get().unwrap(),
+        ))
         .send()
         .await?
         .error_for_status()?;
@@ -126,11 +137,6 @@ pub async fn paddle_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Erro
 pub async fn paddle_table_ocr(
     file_path: &Path,
 ) -> Result<PaddleTableRecognitionResult, Box<dyn Error + Send + Sync>> {
-    init_throttle();
-    let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
-    rate_limiter
-        .acquire_token_with_timeout(std::time::Duration::from_secs(30))
-        .await?;
     let client = reqwest::Client::new();
     let worker_config = WorkerConfig::from_env()
         .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
@@ -150,7 +156,9 @@ pub async fn paddle_table_ocr(
     let response = client
         .post(&url)
         .json(&payload)
-        .timeout(std::time::Duration::from_secs(30))
+        .timeout(std::time::Duration::from_secs(
+            *GENERAL_OCR_TIMEOUT.get().unwrap(),
+        ))
         .send()
         .await?
         .error_for_status()?;
@@ -226,9 +234,11 @@ pub async fn perform_general_ocr(
     file_path: &Path,
 ) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     init_throttle();
-    let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
+    let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
     rate_limiter
-        .acquire_token_with_timeout(std::time::Duration::from_secs(30))
+        .acquire_token_with_timeout(std::time::Duration::from_secs(
+            *TOKEN_TIMEOUT.get().unwrap(),
+        ))
         .await?;
     let worker_config = WorkerConfig::from_env().unwrap();
     match worker_config.general_ocr_model {
@@ -244,7 +254,9 @@ pub async fn perform_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error
         TableOcrModel::Paddle => {
             let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
             rate_limiter
-                .acquire_token_with_timeout(std::time::Duration::from_secs(30))
+                .acquire_token_with_timeout(std::time::Duration::from_secs(
+                    *TOKEN_TIMEOUT.get().unwrap(),
+                ))
                 .await?;
             let result = paddle_table_ocr(file_path).await?;
             get_html_from_paddle_table_ocr(result)
@@ -252,7 +264,9 @@ pub async fn perform_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error
         TableOcrModel::LLM => {
             let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
             rate_limiter
-                .acquire_token_with_timeout(std::time::Duration::from_secs(30))
+                .acquire_token_with_timeout(std::time::Duration::from_secs(
+                    *TOKEN_TIMEOUT.get().unwrap(),
+                ))
                 .await?;
             let prompt = get_prompt("table", &HashMap::new())?;
             let result = llm_ocr(file_path, prompt).await?;
@@ -265,7 +279,9 @@ pub async fn perform_formula_ocr(file_path: &Path) -> Result<String, Box<dyn Err
     init_throttle();
     let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
     rate_limiter
-        .acquire_token_with_timeout(std::time::Duration::from_secs(30))
+        .acquire_token_with_timeout(std::time::Duration::from_secs(
+            *TOKEN_TIMEOUT.get().unwrap(),
+        ))
         .await?;
     let prompt = get_prompt("formula", &HashMap::new())?;
     let latex_formula = llm_ocr(file_path, prompt).await?;
@@ -276,6 +292,75 @@ pub async fn perform_formula_ocr(file_path: &Path) -> Result<String, Box<dyn Err
 mod tests {
     use super::*;
     use crate::utils::configs::throttle_config::Config as ThrottleConfig;
+
+    #[tokio::test]
+    async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
+        doctr_ocr(Path::new("input/test.jpg")).await?;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_general_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
+        let input_dir = Path::new("input");
+        let first_image = std::fs::read_dir(input_dir)?
+            .filter_map(|entry| {
+                entry.ok().and_then(|e| {
+                    let path = e.path();
+                    if let Some(ext) = path.extension() {
+                        if ext == "jpg" || ext == "jpeg" || ext == "png" {
+                            Some(path)
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                })
+            })
+            .next()
+            .ok_or("No image files found in input directory")?;
+
+        let mut tasks = Vec::new();
+        let count = 1000;
+        for _ in 0..count {
+            let input_file = first_image.clone();
+            let task = tokio::spawn(async move {
+                match perform_general_ocr(&input_file).await {
+                    Ok(_) => Ok(()),
+                    Err(e) => {
+                        println!("Error processing {:?}: {:?}", input_file, e);
+                        Err(e)
+                    }
+                }
+            });
+            tasks.push(task);
+        }
+
+        let start = std::time::Instant::now();
+        let mut error_count = 0;
+        for task in tasks {
+            if let Err(e) = task.await? {
+                println!("Error processing: {:?}", e);
+                error_count += 1;
+            }
+        }
+        let duration = start.elapsed();
+        let images_per_second = count as f64 / duration.as_secs_f64();
+        let throttle_config = ThrottleConfig::from_env().unwrap();
+        println!(
+            "General OCR rate limit: {:?}",
+            throttle_config.general_ocr_rate_limit
+        );
+        println!("Time taken: {:?}", duration);
+        println!("Images per second: {:?}", images_per_second);
+        println!("Error count: {:?}", error_count);
+
+        if error_count > 0 {
+            Err(format!("Error count {} > 0", error_count).into())
+        } else {
+            Ok(())
+        }
+    }
 
     #[test]
     fn test_valid_html() {
@@ -393,68 +478,5 @@ mod tests {
             </tr>
         </table>"#
         );
-    }
-
-    #[tokio::test]
-    async fn test_general_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
-        let input_dir = Path::new("input");
-        let first_image = std::fs::read_dir(input_dir)?
-            .filter_map(|entry| {
-                entry.ok().and_then(|e| {
-                    let path = e.path();
-                    if let Some(ext) = path.extension() {
-                        if ext == "jpg" || ext == "jpeg" || ext == "png" {
-                            Some(path)
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
-                    }
-                })
-            })
-            .next()
-            .ok_or("No image files found in input directory")?;
-
-        let mut tasks = Vec::new();
-        let count = 100;
-        for _ in 0..count {
-            let input_file = first_image.clone();
-            let task = tokio::spawn(async move {
-                match paddle_ocr(&input_file).await {
-                    Ok(_) => Ok(()),
-                    Err(e) => {
-                        println!("Error processing {:?}: {:?}", input_file, e);
-                        Err(e)
-                    }
-                }
-            });
-            tasks.push(task);
-        }
-
-        let start = std::time::Instant::now();
-        let mut error_count = 0;
-        for task in tasks {
-            if let Err(e) = task.await? {
-                println!("Error processing: {:?}", e);
-                error_count += 1;
-            }
-        }
-        let duration = start.elapsed();
-        let images_per_second = count as f64 / duration.as_secs_f64();
-        let throttle_config = ThrottleConfig::from_env().unwrap();
-        println!(
-            "General OCR rate limit: {:?}",
-            throttle_config.general_ocr_rate_limit
-        );
-        println!("Time taken: {:?}", duration);
-        println!("Images per second: {:?}", images_per_second);
-        println!("Error count: {:?}", error_count);
-
-        if error_count > 0 {
-            Err(format!("Error count {} > 0", error_count).into())
-        } else {
-            Ok(())
-        }
     }
 }
