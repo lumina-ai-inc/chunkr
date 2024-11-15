@@ -77,7 +77,7 @@ mod tests {
     use super::*;
 
     use crate::utils::configs::llm_config::{get_prompt, Config as LlmConfig};
-    use crate::utils::services::segment_ocr::get_html_from_llm_table_ocr;
+    use crate::utils::services::ocr::get_html_from_llm_table_ocr;
     use std::collections::HashMap;
     use std::fs;
     use std::path::Path;

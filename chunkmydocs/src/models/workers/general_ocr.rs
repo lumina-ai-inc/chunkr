@@ -45,3 +45,79 @@ pub struct PaddleOCRResponse {
     pub error_msg: String,
     pub result: GeneralOcrResult,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DoctrResponse {
+    pub page_content: PageContent,
+    pub processing_time: f64,
+}
+
+impl From<DoctrResponse> for Vec<OCRResult> {
+    fn from(payload: DoctrResponse) -> Self {
+        let mut results = Vec::new();
+
+        for block in payload.page_content.blocks {
+            for line in block.lines {
+                for word in line.words {
+                    let geometry = &word.geometry;
+                    let left = geometry[0][0] as f32;
+                    let top = geometry[0][1] as f32;
+                    let right = geometry[2][0] as f32;
+                    let bottom = geometry[2][1] as f32;
+
+                    results.push(OCRResult {
+                        bbox: BoundingBox {
+                            left,
+                            top,
+                            width: right - left,
+                            height: bottom - top,
+                        },
+                        text: word.value,
+                        confidence: Some(word.confidence as f32),
+                    });
+                }
+            }
+        }
+
+        results
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PageContent {
+    pub page_idx: i32,
+    pub dimensions: Vec<i32>,
+    pub orientation: Detection<Option<f64>>,
+    pub language: Detection<Option<String>>,
+    pub blocks: Vec<Block>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Detection<T> {
+    pub value: T,
+    pub confidence: Option<f64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Block {
+    pub geometry: Vec<Vec<f64>>,
+    pub objectness_score: f64,
+    pub lines: Vec<Line>,
+    pub artefacts: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Line {
+    pub geometry: Vec<Vec<f64>>,
+    pub objectness_score: f64,
+    pub words: Vec<Word>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Word {
+    pub value: String,
+    pub confidence: f64,
+    pub geometry: Vec<Vec<f64>>,
+    pub objectness_score: f64,
+    pub crop_orientation: Detection<i32>,
+}
