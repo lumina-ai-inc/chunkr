@@ -1,7 +1,7 @@
-aiohttp>=3.11.2
+aiohttp
 fastapi>=0.115.5
 pydantic>=2.9.2
-python-doctr[contrib,html,torch,viz]>=0.10.0
+python-doctr[contrib,html,torch,viz]
 python-dotenv>=1.0.1
 python-multipart>=0.0.17
 uvicorn>=0.32.0
