@@ -1,12 +1,13 @@
 use crate::{
     models::server::segment::OCRResult,
-    models::workers::general_ocr::PaddleOCRResponse,
+    models::workers::general_ocr::{DoctrResponse, PaddleOCRResponse},
     models::workers::open_ai::MessageContent,
     models::workers::table_ocr::{PaddleTableRecognitionResponse, PaddleTableRecognitionResult},
     utils::configs::llm_config::{get_prompt, Config as LlmConfig},
-    utils::configs::worker_config::Config as WorkerConfig,
+    utils::configs::worker_config::{Config as WorkerConfig, GeneralOcrModel, TableOcrModel},
     utils::db::deadpool_redis::{create_pool as create_redis_pool, Pool},
     utils::rate_limit::{create_general_ocr_rate_limiter, create_llm_rate_limiter, RateLimiter},
+    utils::services::html::{clean_img_tags, validate_html},
     utils::services::llm::{get_basic_image_message, open_ai_call},
 };
 use image_base64;
@@ -17,7 +18,7 @@ use std::fmt;
 use std::path::Path;
 
 static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
-static LLM_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
+static LLM_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 static POOL: OnceCell<Pool> = OnceCell::new();
 
 fn init_throttle() {
@@ -34,7 +35,7 @@ fn init_throttle() {
     GENERAL_OCR_RATE_LIMITER.get_or_init(|| {
         create_general_ocr_rate_limiter(POOL.get().unwrap().clone(), "general_ocr")
     });
-    LLM_OCR_RATE_LIMITER
+    LLM_RATE_LIMITER
         .get_or_init(|| create_llm_rate_limiter(POOL.get().unwrap().clone(), domain_name));
 }
 
@@ -49,21 +50,54 @@ impl fmt::Display for OcrError {
 
 impl Error for OcrError {}
 
-pub async fn paddle_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
-    init_throttle();
-    let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
-    rate_limiter
-        .acquire_token_with_timeout(std::time::Duration::from_secs(30))
-        .await?;
+pub async fn doctr_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
     let worker_config = WorkerConfig::from_env()
         .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
 
-    let paddle_ocr_url = worker_config
+    let general_ocr_url = worker_config
         .general_ocr_url
         .ok_or_else(|| "General OCR URL is not set in config".to_string())?;
 
-    let url = format!("{}/ocr", &paddle_ocr_url);
+    let url = format!("{}/ocr", &general_ocr_url);
+
+    let file_content = tokio::fs::read(file_path).await?;
+
+    let form = reqwest::multipart::Form::new().part(
+        "file",
+        reqwest::multipart::Part::bytes(file_content)
+            .file_name(
+                file_path
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .into_owned(),
+            )
+            .mime_str("image/jpeg")?,
+    );
+
+    let response = client
+        .post(&url)
+        .multipart(form)
+        .timeout(std::time::Duration::from_secs(300))
+        .send()
+        .await?
+        .error_for_status()?;
+
+    let doctr_response: DoctrResponse = response.json().await?;
+    Ok(Vec::from(doctr_response))
+}
+
+pub async fn paddle_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
+    let client = reqwest::Client::new();
+    let worker_config = WorkerConfig::from_env()
+        .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
+
+    let general_ocr_url = worker_config
+        .general_ocr_url
+        .ok_or_else(|| "General OCR URL is not set in config".to_string())?;
+
+    let url = format!("{}/ocr", &general_ocr_url);
 
     let mut b64 = image_base64::to_base64(file_path.to_str().unwrap());
     if let Some(index) = b64.find(";base64,") {
@@ -131,11 +165,6 @@ pub async fn paddle_table_ocr(
 }
 
 async fn llm_ocr(file_path: &Path, prompt: String) -> Result<String, Box<dyn Error + Send + Sync>> {
-    init_throttle();
-    let rate_limiter = LLM_OCR_RATE_LIMITER.get().unwrap();
-    rate_limiter
-        .acquire_token_with_timeout(std::time::Duration::from_secs(30))
-        .await?;
     let llm_config = LlmConfig::from_env().unwrap();
     let messages = get_basic_image_message(file_path, prompt)
         .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
@@ -156,20 +185,215 @@ async fn llm_ocr(file_path: &Path, prompt: String) -> Result<String, Box<dyn Err
     }
 }
 
-pub async fn llm_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let prompt = get_prompt("table", &HashMap::new())?;
-    llm_ocr(file_path, prompt).await
+fn get_html_from_paddle_table_ocr(
+    table_ocr_result: PaddleTableRecognitionResult,
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    let first_table = table_ocr_result.tables.first().cloned();
+    match first_table {
+        Some(table) => Ok(table.html),
+        None => Err("No table structure found".to_string().into()),
+    }
 }
 
-pub async fn llm_formula_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
+pub fn get_html_from_llm_table_ocr(
+    table_ocr_result: String,
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    if let Some(html_content) = table_ocr_result.split("```html").nth(1) {
+        if let Some(html) = html_content.split("```").next() {
+            let html = html.trim().to_string();
+            let cleaned_html = clean_img_tags(&html);
+            return match validate_html(&cleaned_html) {
+                Ok(_) => Ok(cleaned_html),
+                Err(e) => Err(e.to_string().into()),
+            };
+        }
+    }
+    Err("No HTML content found in table OCR result".into())
+}
+
+pub fn get_latex_from_vllm_formula_ocr(
+    formula_ocr_result: String,
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    if let Some(latex_content) = formula_ocr_result.split("```latex").nth(1) {
+        if let Some(latex) = latex_content.split("```").next() {
+            return Ok(latex.trim().to_string());
+        }
+    }
+    Err("No LaTeX content found in formula OCR result".into())
+}
+
+pub async fn perform_general_ocr(
+    file_path: &Path,
+) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
+    init_throttle();
+    let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
+    rate_limiter
+        .acquire_token_with_timeout(std::time::Duration::from_secs(30))
+        .await?;
+    let worker_config = WorkerConfig::from_env().unwrap();
+    match worker_config.general_ocr_model {
+        GeneralOcrModel::Doctr => doctr_ocr(file_path).await,
+        GeneralOcrModel::Paddle => paddle_ocr(file_path).await,
+    }
+}
+
+pub async fn perform_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
+    init_throttle();
+    let worker_config = WorkerConfig::from_env().unwrap();
+    match worker_config.table_ocr_model {
+        TableOcrModel::Paddle => {
+            let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
+            rate_limiter
+                .acquire_token_with_timeout(std::time::Duration::from_secs(30))
+                .await?;
+            let result = paddle_table_ocr(file_path).await?;
+            get_html_from_paddle_table_ocr(result)
+        }
+        TableOcrModel::LLM => {
+            let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
+            rate_limiter
+                .acquire_token_with_timeout(std::time::Duration::from_secs(30))
+                .await?;
+            let prompt = get_prompt("table", &HashMap::new())?;
+            let result = llm_ocr(file_path, prompt).await?;
+            get_html_from_llm_table_ocr(result)
+        }
+    }
+}
+
+pub async fn perform_formula_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
+    init_throttle();
+    let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
+    rate_limiter
+        .acquire_token_with_timeout(std::time::Duration::from_secs(30))
+        .await?;
     let prompt = get_prompt("formula", &HashMap::new())?;
-    llm_ocr(file_path, prompt).await
+    let latex_formula = llm_ocr(file_path, prompt).await?;
+    get_latex_from_vllm_formula_ocr(latex_formula)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::utils::configs::throttle_config::Config as ThrottleConfig;
+
+    #[test]
+    fn test_valid_html() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+            </tr>
+        </table>
+        ```
+        "#;
+        let html = get_html_from_llm_table_ocr(input.to_string()).unwrap();
+        assert_eq!(
+            html,
+            r#"<table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+            </tr>
+        </table>"#
+        );
+    }
+
+    #[test]
+    fn test_invalid_html() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td>1
+                <td>2</td>
+            </tr>
+        </table>
+        ```
+        "#;
+        let result = get_html_from_llm_table_ocr(input.to_string());
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Mismatched HTML tags: expected </td>, found </tr>"
+        );
+    }
+
+    #[test]
+    fn test_image_alt_text() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td><img src="pizza.png" alt="pizza"></td>
+            </tr>
+        </table>
+        "#;
+        let html = get_html_from_llm_table_ocr(input.to_string()).unwrap();
+        assert_eq!(
+            html,
+            r#"<table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>pizza</td>
+            </tr>
+        </table>"#
+        );
+    }
+
+    #[test]
+    fn test_image_no_alt_text() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td><img src="pizza.png"></td>
+            </tr>
+        </table>
+        "#;
+        let html = get_html_from_llm_table_ocr(input.to_string()).unwrap();
+        assert_eq!(
+            html,
+            r#"<table>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td></td>
+            </tr>
+        </table>"#
+        );
+    }
+
+    #[test]
+    fn test_void_elements() {
+        let input = r#"
+        ```html
+        <table>
+            <tr>
+                <td><img src="pizza.png" /></td>
+                <td>2<br>3</td>
+            </tr>
+        </table>
+        ```
+        "#;
+        let html = get_html_from_llm_table_ocr(input.to_string()).unwrap();
+        assert_eq!(
+            html,
+            r#"<table>
+            <tr>
+                <td></td>
+                <td>2<br>3</td>
+            </tr>
+        </table>"#
+        );
+    }
 
     #[tokio::test]
     async fn test_general_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {

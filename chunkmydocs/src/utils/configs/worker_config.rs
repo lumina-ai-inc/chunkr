@@ -4,15 +4,23 @@ use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum TableOcrModel {
+pub enum GeneralOcrModel {
+    Doctr,
     Paddle,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum TableOcrModel {
     LLM,
+    Paddle,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(default = "default_batch_size")]
     pub batch_size: i32,
+    #[serde(default = "default_general_ocr_model")]
+    pub general_ocr_model: GeneralOcrModel,
     #[serde(default = "default_general_ocr_url")]
     pub general_ocr_url: Option<String>,
     #[serde(default = "default_ocr_confidence_threshold")]
@@ -61,6 +69,10 @@ pub struct Config {
 
 fn default_batch_size() -> i32 {
     300
+}
+
+fn default_general_ocr_model() -> GeneralOcrModel {
+    GeneralOcrModel::Doctr
 }
 
 fn default_general_ocr_url() -> Option<String> {
