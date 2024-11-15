@@ -1,0 +1,488 @@
+{
+  "file_name": "Inside the Python GIL - Dave Beazley (2009).pdf",
+  "task_id": "1c888704-6b18-4028-8526-32668308b4d7",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "acee9c15-2927-4e36-9d2d-182ec2071de6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nInside the Python GIL\r\n1\r\nDavid Beazley\r\nhttp://www.dabeaz.com\r\nOriginally presented at my \"Python Concurrency \r\nWorkshop\", May 14-15, 2009 (Chicago)\r\nJune 11, 2009 @ chipy\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nVideo Presentation\r\n2\r\nYou can watch the video of this presentation here:\r\nhttp://blip.tv/file/2232410\r\nIt expands upon the slides and is recommended.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/acee9c15-2927-4e36-9d2d-182ec2071de6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=391bdabc87dee01a0e7e0c30b1b24d89f12cb79f9a6117dba49c435d1d9257d5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "382341fb-99d1-428e-97ca-e6fdb6c5a293",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nIntroduction\r\n• As most programmers know, Python has a \r\nGlobal Interpreter Lock (GIL)\r\n• It imposes various restrictions on threads\r\n• Namely, you can't utilize multiple CPUs\r\n• Thus, it's a (frankly) tired subject for flamewars \r\nabout how Python \"sucks\" (along with tail-call \r\noptimization, lambda, whitespace, etc.)\r\n3\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nDisclaimers\r\n• Python's use of a GIL doesn't bother me\r\n• I don't have strong feelings about it either way\r\n• Bias : For parallel computing involving heavy CPU \r\nprocessing, I much prefer message passing and \r\ncooperating processes to thread programming \r\n(of course, it depends on the problem)\r\n• However, the GIL has some pretty surprising \r\nbehavior on multicore that interests me\r\n4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/382341fb-99d1-428e-97ca-e6fdb6c5a293.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a32f44e8ed69366777672451bc8c1e10fcc2cc3bdcf48e52661497cb436d4808",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ebd5eb98-fc33-4061-bbe7-d698b09bd2ba",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nA Performance Experiment\r\n• Consider this trivial CPU-bound function\r\ndef count(n):\r\n while n > 0:\r\n n -= 1\r\n5\r\n• Run it twice in series\r\ncount(100000000)\r\ncount(100000000)\r\n• Now, run it in parallel in two threads\r\nt1 = Thread(target=count,args=(100000000,))\r\nt1.start()\r\nt2 = Thread(target=count,args=(100000000,))\r\nt2.start()\r\nt1.join(); t2.join()\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nA Mystery\r\n• Why do I get these performance results on \r\nmy Dual-Core MacBook?\r\n6\r\nSequential : 24.6s\r\nThreaded : 45.5s (1.8X slower!)\r\n• And if I disable one of the CPU cores, why \r\ndoes the threaded performance get better?\r\nThreaded : 38.0s\r\n• Think about that for a minute... Bloody hell! ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/ebd5eb98-fc33-4061-bbe7-d698b09bd2ba.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a90f5c4b1942db9c3504e6916b530e06f685c15768abb1b7a331889be991fe8f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cb25f9ed-3d9e-4949-9068-cee67a5d0a34",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nOverview\r\n• I don't like unexplained mysteries or magic\r\n• As part of a workshop I ran in May, I went \r\ndigging into the GIL implementation to see if I \r\ncould figure out exactly why I was getting those \r\nperformance results\r\n• An exploration that went all the way from \r\nPython scripts to the C source code of the \r\npthreads library (yes, I probably need to go \r\noutside more often)\r\n• So, let's just jump into it...\r\n7\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nWhat is a Thread?\r\n• Python threads are real system threads\r\n• POSIX threads (pthreads)\r\n• Windows threads\r\n• Fully managed by the host operating system\r\n• All scheduling/thread switching\r\n• Represent threaded execution of the Python \r\ninterpreter process (written in C)\r\n8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/cb25f9ed-3d9e-4949-9068-cee67a5d0a34.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dca1a38c7e2e3c07953d70cdde7192967be66fbb9349bf411f8f55fa4655b5d9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 423
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a48078d9-d015-415f-9682-b5e1b1d1526d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThread Creation\r\n• Python threads simply execute a \"callable\"\r\n• The run() method of Thread (or a function)\r\n9\r\nimport time\r\nimport threading\r\nclass CountdownThread(threading.Thread):\r\n def __init__(self,count):\r\n threading.Thread.__init__(self)\r\n self.count = count\r\n def run(self):\r\n while self.count > 0:\r\n print \"Counting down\", self.count\r\n self.count -= 1\r\n time.sleep(5)\r\n return\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nBehind the Scenes\r\n• There's not a whole lot going on...\r\n• Here's what happens on thread creation\r\n• Python creates a small data structure \r\ncontaining some interpreter state\r\n• A new thread (pthread) is launched\r\n• The thread calls PyEval_CallObject\r\n• Last step is just a C function call that runs \r\nwhatever Python callable was specified\r\n10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/a48078d9-d015-415f-9682-b5e1b1d1526d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9e202db24afca8f76771328cb406a8f45212262619c2eebc8f882bb2b5cdae62",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "36e53f58-ca59-4af5-a699-866d79482d5b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThread-Specific State\r\n• Each thread has its own interpreter specific \r\ndata structure (PyThreadState)\r\n• Current stack frame (for Python code)\r\n• Current recursion depth\r\n• Thread ID\r\n• Some per-thread exception information\r\n• Optional tracing/profiling/debugging hooks\r\n• It's a small C structure (<100 bytes)\r\n11\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nPyThreadState Structure\r\n12\r\ntypedef struct _ts {\r\n struct _ts *next;\r\n PyInterpreterState *interp;\r\n struct _frame *frame;\r\n int recursion_depth;\r\n int tracing;\r\n int use_tracing;\r\n Py_tracefunc c_profilefunc;\r\n Py_tracefunc c_tracefunc;\r\n PyObject *c_profileobj;\r\n PyObject *c_traceobj;\r\n PyObject *curexc_type;\r\n PyObject *curexc_value;\r\n PyObject *curexc_traceback;\r\n PyObject *exc_type;\r\n PyObject *exc_value;\r\n PyObject *exc_traceback;\r\n PyObject *dict; \r\n int tick_counter;\r\n int gilstate_counter;\r\n PyObject *async_exc;\r\n long thread_id; \r\n} PyThreadState;",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/36e53f58-ca59-4af5-a699-866d79482d5b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bd0689af856706f4221826bd4e5fc3b792e83127227a345a8434de282f965f64",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dc5e8baa-5648-490b-919d-04d79d0f8d8a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThread Execution\r\n• The interpreter has a global variable that \r\nsimply points to the ThreadState structure of \r\nthe currently running thread\r\n13\r\n/* Python/pystate.c */\r\n...\r\nPyThreadState *_PyThreadState_Current = NULL;\r\n• Operations in the interpreter implicitly \r\ndepend this variable to know what thread \r\nthey're currently working with\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThe Infamous GIL\r\n• Here's the rub...\r\n• Only one Python thread can execute in the \r\ninterpreter at once\r\n• There is a \"global interpreter lock\" that \r\ncarefully controls thread execution\r\n• The GIL ensures that sure each thread gets \r\nexclusive access to the interpreter internals \r\nwhen it's running (and that call-outs to C \r\nextensions play nice)\r\n14",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/dc5e8baa-5648-490b-919d-04d79d0f8d8a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7268af2c8c7987959740fae9c6cbf444306d4fb5628365c8c151fa1e2add5d04",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cfd6f1eb-540d-4719-9202-bb89c216f7e3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nGIL Behavior\r\n• It's simple : threads hold the GIL when running\r\n• However, they release it when blocking for I/O\r\n15\r\nI/O I/O I/O\r\nrelease\r\nacquire\r\nrelease\r\nacquire\r\nrelease\r\nacquire\r\n• So, any time a thread is forced to wait, other \r\n\"ready\" threads get their chance to run \r\n• Basically a kind of \"cooperative\" multitasking\r\nrun run run run\r\nacquire\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nCPU Bound Processing\r\n• To deal with CPU-bound threads that never \r\nperform any I/O, the interpreter periodically \r\nperforms a \"check\"\r\n• By default, every 100 interpreter \"ticks\"\r\n16\r\nCPU Bound\r\nThread Run 100\r\nticks\r\nRun 100\r\nticks\r\nRun 100\r\nticks\r\ncheckcheckcheck\r\n• sys.setcheckinterval() changes the setting",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/cfd6f1eb-540d-4719-9202-bb89c216f7e3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6e4c99bc3498fb7e6d3a9bccfbcc287008f9b11b0e850a715b090c7f2e45155b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 462
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2b81d37b-21b1-45b5-9375-39deae145eff",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThe Check Interval\r\n• The check interval is a global counter that is \r\ncompletely independent of thread scheduling\r\n17\r\nMain Thread\r\n100 ticks check100 ticks check100 ticks check\r\nThread 2\r\nThread 3\r\nThread 4\r\n100 ticks\r\n• A \"check\" is simply made every 100 \"ticks\"\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThe Periodic Check\r\n• What happens during the periodic check?\r\n• In the main thread only, signal handlers \r\nwill execute if there are any pending \r\nsignals (more shortly)\r\n• Release and reacquire the GIL\r\n• That last bullet describes how multiple CPU\u0002bound threads get to run (by briefly releasing \r\nthe GIL, other threads get a chance to run).\r\n18",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/2b81d37b-21b1-45b5-9375-39deae145eff.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=970ca148b7c1e162264fec35d9cc0e307910ed4730f9e11ab90410548b397982",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dd4f0b03-c462-47eb-9195-e26c2ac2b711",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nceval.c execution\r\n19\r\n/* Python/ceval.c */\r\n...\r\nif (--_Py_Ticker < 0) {\r\n ...\r\n _Py_Ticker = _Py_CheckInterval;\r\n ...\r\n if (things_to_do) {\r\n if (Py_MakePendingCalls() < 0) {\r\n ...\r\n }\r\n }\r\n if (interpreter_lock) {\r\n /* Give another thread a chance */\r\n ...\r\n PyThread_release_lock(interpreter_lock);\r\n /* Other threads may run now */\r\n PyThread_acquire_lock(interpreter_lock, 1);\r\n ...\r\n}\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nWhat is a \"Tick?\"\r\n• Ticks loosely map to interpreter instructions\r\n20\r\ndef countdown(n):\r\n while n > 0:\r\n print n\r\n n -= 1\r\n>>> import dis\r\n>>> dis.dis(countdown)\r\n0 SETUP_LOOP 33 (to 36)\r\n3 LOAD_FAST 0 (n)\r\n6 LOAD_CONST 1 (0)\r\n9 COMPARE_OP 4 (>)\r\n12 JUMP_IF_FALSE 19 (to 34)\r\n15 POP_TOP \r\n16 LOAD_FAST 0 (n)\r\n19 PRINT_ITEM \r\n20 PRINT_NEWLINE \r\n21 LOAD_FAST 0 (n)\r\n24 LOAD_CONST 2 (1)\r\n27 INPLACE_SUBTRACT \r\n28 STORE_FAST 0 (n)\r\n31 JUMP_ABSOLUTE 3\r\n...\r\nTick 1\r\nTick 2\r\nTick 3\r\nTick 4\r\n• Instructions in \r\nthe Python VM",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/dd4f0b03-c462-47eb-9195-e26c2ac2b711.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=02e2c7cc0b02ae3f37b4302bc5e4181caef32be0f5c664d32f16c5dfd4cb3778",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4e9af98a-59f7-483a-833a-e761c2e55d14",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nTick Execution\r\n• Interpreter ticks are not time-based\r\n21\r\n• In fact, long operations can block everything\r\n>>> nums = xrange(100000000)\r\n>>> -1 in nums\r\nFalse\r\n>>>\r\n1 tick (~ 6.6 seconds)\r\n• Try hitting Ctrl-C (ticks are uninterruptible)\r\n>>> nums = xrange(100000000)\r\n>>> -1 in nums\r\n^C^C^C (nothing happens, long pause)\r\n...\r\nKeyboardInterrupt\r\n>>>\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nInterlude : Signals\r\n• Let's briefly talk about Ctrl-C\r\n• A very common problem encountered with \r\nPython thread programming is that threaded \r\nprograms can no longer be killed with the \r\nkeyboard interrupt\r\n• It is EXTREMELY ANNOYING (you have to use \r\nkill -9 in a separate window)\r\n• Ever wonder why it doesn't work?\r\n22",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/4e9af98a-59f7-483a-833a-e761c2e55d14.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7db5f378162f5ce0a1d34f8da420098523a24af7af42e200d489cc977a78a2fe",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 393
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3e8d56c2-cb97-48e0-9061-e30fa047cf85",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nSignal Handling\r\n• If a signal arrives, the interpreter runs the \"check\" \r\nafter every tick until the main thread runs\r\n23\r\nMain Thread\r\n100 ticks check\r\nThread 2\r\nThread 3\r\n• Since signal handlers can only run in the main \r\nthread, the interpreter quickly acquires/releases \r\nthe GIL after every tick until it gets scheduled\r\ncheck\r\nSIGNAL\r\ncheck check\r\n1 tick\r\ncheck check check\r\n100 ticks\r\nsignal \r\nhandler\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThread Scheduling\r\n• Python does not have a thread scheduler\r\n• There is no notion of thread priorities, \r\npreemption, round-robin scheduling, etc.\r\n• All thread scheduling is left to the host \r\noperating system (e.g., Linux, Windows, etc.)\r\n• This is partly why signals get so weird (the \r\ninterpreter has no control over scheduling so \r\nit just attempts to thread switch as fast as \r\npossible with the hope that main will run)\r\n24",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/3e8d56c2-cb97-48e0-9061-e30fa047cf85.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d4120af3e138729acd220338a01a3242d59734b2a1517316690bebc9e44f0daa",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "16fc7c38-e718-4f8c-9c56-5270c24ad2d5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nFrozen Signals\r\n• The reason Ctrl-C doesn't work with threaded \r\nprograms is that the main thread is often blocked \r\non an uninterruptible thread-join or lock\r\n• Since it's blocked, it never gets scheduled to run \r\nany kind of signal handler for it\r\n• And as an extra little bonus, the interpreter is left \r\nin a state where it tries to thread-switch after \r\nevery tick (so not only can you not interrupt \r\nyour program, it runs slow as hell!)\r\n25\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nGIL Implementation\r\n• The GIL is not a simple mutex lock\r\n• The implementation (Unix) is either...\r\n• A POSIX unnamed semaphore\r\n• Or a pthreads condition variable\r\n• All interpreter locking is based on signaling\r\n• To acquire the GIL, check if it's free. If \r\nnot, go to sleep and wait for a signal\r\n• To release the GIL, free it and signal\r\n26",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/16fc7c38-e718-4f8c-9c56-5270c24ad2d5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f34364f020850da0cc5a128d2770149338fb65b47852c2b281e4510679c0953f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "32604c52-79b8-40e8-a6fe-76053d81c401",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThread Scheduling\r\n• Thread switching is far more subtle than most \r\nprogrammers realize\r\n27\r\nThread 1\r\n100 ticks check\r\ncheckcheck\r\n100 ticks\r\nThread 2\r\n...\r\nOperating \r\nSystem\r\nsignal\r\nsignal\r\nSUSPENDED\r\nThread \r\nContext\r\nSwitch\r\ncheck\r\n• The lag between signaling and execution may be \r\nsignificant (depends on the OS)\r\nSUSPENDED\r\nsignal\r\nsignal\r\ncheck\r\nsignal\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThread Scheduling\r\n• The OS is just going to schedule whichever \r\nthread has the highest execution \"priority\"\r\n• CPU-bound : low priority\r\n• I/O bound : high priority\r\n• If a signal is sent to a thread with low priority \r\nand the CPUs are busy with higher priority \r\ntasks, it won't run until some later point\r\n• Read an OS textbook for details\r\n28",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/32604c52-79b8-40e8-a6fe-76053d81c401.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=24cbd7cab6e063193a82582c42175be97f42dc26bc33edb0cbcedc7ffdd5fc0e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 436
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "9425fae6-f5a2-4af5-b097-e41ed1ce8be8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nCPU-Bound Threads\r\n• As we saw earlier, CPU-bound threads have \r\nhorrible performance properties\r\n• Far worse than simple sequential execution\r\n• 24.6 seconds (sequential)\r\n• 45.5 seconds (2 threads)\r\n• A big question : Why?\r\n• What is the source of that overhead?\r\n29\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nSignaling Overhead\r\n• GIL thread signaling is the source of that\r\n• After every 100 ticks, the interpreter\r\n• Locks a mutex\r\n• Signals on a condition variable/semaphore \r\nwhere another thread is always waiting\r\n• Because another thread is waiting, extra \r\npthreads processing and system calls get \r\ntriggered to deliver the signal\r\n30",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/9425fae6-f5a2-4af5-b097-e41ed1ce8be8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a265e16dddbc80f4c841075a60af0e31a166000a5f8d76163078e07b11f1364c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "509baef7-318c-45d0-bc5b-4213fee08e50",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 16,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nA Rough Measurement\r\n• Sequential Execution (OS-X, 1 CPU) \r\n• 736 Unix system calls\r\n• 117 Mach System Calls\r\n• Two CPU-bound threads (OS-X, 1 CPU) \r\n• 1149 Unix system calls\r\n• ~ 3.3 Million Mach System Calls\r\n• Yow! Look at that last figure.\r\n31\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nMultiple CPU Cores\r\n• The penalty gets far worse on multiple cores\r\n• Two CPU-bound threads (OS-X, 1 CPU) \r\n• 1149 Unix system calls\r\n• ~3.3 Million Mach System Calls\r\n• Two CPU-bound threads (OS-X, 2 CPUs)\r\n• 1149 Unix system calls\r\n• ~9.5 Million Mach System calls\r\n32",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/509baef7-318c-45d0-bc5b-4213fee08e50.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=91b82db173de4df46c487b2f88fbb5ae930c8e06e4a7dc4fc36f224275d0a2f1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "07345c39-aa1a-4b28-94a7-0e8585a2f0d4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 17,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nAn Experiment\r\n• I did some instrumentation of the Python \r\ninterpreter to look into this a little deeper\r\n• Recorded a real-time trace of all GIL \r\nacquisitions, releases, conflicts, retries, etc.\r\n• Trying to get an idea of what the interpreter is \r\ndoing, what different threads are doing, \r\ninteractions between threads and the GIL, and \r\nthe overall sequencing of events\r\n33\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nA Sample Trace\r\n34\r\nt2 100 5351 ENTRY\r\nt2 100 5351 ACQUIRE\r\nt2 100 5352 RELEASE\r\nt2 100 5352 ENTRY\r\nt2 100 5352 ACQUIRE\r\nt2 100 5353 RELEASE\r\nt1 100 5353 ACQUIRE\r\nt2 100 5353 ENTRY\r\nt2 38 5353 BUSY\r\nt1 100 5354 RELEASE\r\nt1 100 5354 ENTRY\r\nt1 100 5354 ACQUIRE\r\nt2 79 5354 RETRY\r\nt1 100 5355 RELEASE\r\nt1 100 5355 ENTRY\r\nt1 100 5355 ACQUIRE\r\nt2 73 5355 RETRY\r\nt1 100 5356 RELEASE\r\nt2 100 5356 ACQUIRE\r\nt1 100 5356 ENTRY\r\nt1 24 5356 BUSY\r\nt2 100 5357 RELEASE\r\nthread id ENTRY : Entering GIL critical section\r\nACQUIRE : GIL acquired\r\nRELEASE : GIL released\r\nBUSY : Attempted to acquire \r\nGIL, but it was already in use\r\nRETRY : Repeated attempt to \r\nacquire the GIL, but it was \r\nstill in use\r\ntick \r\ncountdown\r\ntotal \r\nnumber of \r\n\"checks\" \r\nexecuted",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/07345c39-aa1a-4b28-94a7-0e8585a2f0d4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=95b1118cf9347472f062163cf48ab444a96e7d54ae781519b8dc94c3f3663362",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 430
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "77a9faf1-31c5-4bce-b4f2-ec519783f8af",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 18,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nMulticore GIL Contention\r\n• With multiple cores, CPU-bound threads get \r\nscheduled simultaneously (on different cores) \r\nand then have a GIL battle\r\n35\r\nThread 1 (CPU 1) Thread 2 (CPU 2)\r\nRelease GIL signal Acquire GIL Wake\r\nAcquire GIL (fails)\r\nRelease GIL\r\nAcquire GIL signal\r\nWake\r\nAcquire GIL (fails)\r\nrun\r\nrun\r\nrun\r\n• The waiting thread (T2) may make 100s of \r\nfailed GIL acquisitions before any success\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThe GIL Battle (Traced)\r\n36\r\nt2 100 5392 ENTRY \r\nt2 100 5392 ACQUIRE\r\nt2 100 5393 RELEASE\r\nt1 100 5393 ACQUIRE\r\nt2 100 5393 ENTRY\r\nt2 27 5393 BUSY\r\nt1 100 5394 RELEASE\r\nt1 100 5394 ENTRY\r\nt1 100 5394 ACQUIRE\r\nt2 74 5394 RETRY\r\nt1 100 5395 RELEASE\r\nt1 100 5395 ENTRY\r\nt1 100 5395 ACQUIRE\r\nt2 83 5395 RETRY\r\nt1 100 5396 RELEASE\r\nt1 100 5396 ENTRY\r\nt1 100 5396 ACQUIRE\r\nt2 80 5396 RETRY\r\nt1 100 5397 RELEASE\r\nt1 100 5397 ENTRY\r\nt1 100 5397 ACQUIRE\r\nt2 79 5397 RETRY\r\n...\r\nA thread switch\r\nt2 tries to keep running, but \r\nimmediately has to block because \r\nt1 acquired the GIL signal\r\nsignal\r\nsignal\r\nsignal\r\nHere, the GIL battle begins. Every \r\nRELEASE of the GIL signals t2. Since \r\nthere are two cores, the OS schedules \r\nt2, but leaves t1 running on the other \r\ncore. Since t1 is left running, it \r\nimmediately reacquires the GIL before \r\nt2 can get to it (so, t2 wakes up, finds \r\nthe GIL is in use, and blocks again)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/77a9faf1-31c5-4bce-b4f2-ec519783f8af.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8a1f589da987ff7381b072dd2afcc73f2064e66cda6195c2f42886a61b8f5b3a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ba1f5c7b-7098-4d87-810d-284dc0115704",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 19,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nA Scheduler Conflict\r\n• What's happening here is that you're seeing \r\na battle between two competing (and \r\nultimately incompatible) goals\r\n• Python - only wants to run single\u0002threaded, but doesn't want anything to \r\ndo with thread scheduling (up to OS)\r\n• OS - \"Oooh. Multiple cores.\" Freely \r\nschedules processes/threads to take \r\nadvantage of as many cores as possible\r\n37\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nMulticore GIL Contention\r\n• Even 1 CPU-bound thread causes problems \r\n• It degrades response time of I/O-bound threads\r\n38\r\nThread 1 (CPU 1) Thread 2 (CPU 2)\r\nNetwork Packet\r\nrun Acquire GIL (fails)\r\nAcquire GIL (fails)\r\nAcquire GIL (fails)\r\nAcquire GIL (success)\r\nsignal\r\nsignal\r\nsignal\r\nsignal\r\nrun\r\nsleep",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/ba1f5c7b-7098-4d87-810d-284dc0115704.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bf596fcc0b23a14ca82f52ab421a24ac14ed8becb4bbce89d904f856bf4153c6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 371
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ee9447c9-b3cd-4530-838d-4cea46cf4316",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 20,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nAn I/O Bound Trace\r\n39\r\n...\r\nt2 100 161241 ACQUIRE\r\nt2 100 161242 RELEASE\r\nt2 100 161242 ENTRY\r\nt2 100 161242 ACQUIRE\r\nt2 100 161243 RELEASE\r\nt2 100 161243 ENTRY\r\nt2 100 161243 ACQUIRE\r\nt1 45 161243 ENTRY\r\nt1 38 161243 BUSY\r\nt2 100 161244 RELEASE\r\nt2 100 161244 ENTRY\r\nt2 100 161244 ACQUIRE\r\nt1 68 161244 RETRY\r\nt2 100 161245 RELEASE\r\nt2 100 161245 ENTRY\r\nt2 100 161245 ACQUIRE\r\nt1 77 161245 RETRY\r\n...\r\nt1 100 161404 ACQUIRE\r\nt1 97 161404 RELEASE\r\nCPU bound thread running\r\nIncoming I/O\r\nI/O bound thread \r\nattempting to acquire the \r\nGIL (in response to I/O)\r\n~16000 ticks!\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nAn I/O Bound Trace\r\n40\r\n...\r\nt2 100 161241 ACQUIRE\r\nt2 100 161242 RELEASE\r\nt2 100 161242 ENTRY\r\nt2 100 161242 ACQUIRE\r\nt2 100 161243 RELEASE\r\nt2 100 161243 ENTRY\r\nt2 100 161243 ACQUIRE\r\nt1 45 161243 ENTRY\r\nt1 38 161243 BUSY\r\nt2 100 161244 RELEASE\r\nt2 100 161244 ENTRY\r\nt2 100 161244 ACQUIRE\r\nt1 68 161244 RETRY\r\nt2 100 161245 RELEASE\r\nt2 100 161245 ENTRY\r\nt2 100 161245 ACQUIRE\r\nt1 77 161245 RETRY\r\n...\r\nt1 100 161404 ACQUIRE\r\nt1 97 161404 RELEASE\r\nCPU bound thread running\r\nIncoming I/O\r\nI/O bound thread \r\nattempting to acquire the \r\nGIL (in response to I/O)\r\nAnd all this ~16000 ticks!\r\nwork just to \r\nexecute 3 ticks",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/ee9447c9-b3cd-4530-838d-4cea46cf4316.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5cdb485e054ddf0f4a06540958feba081d027d0344bb7ad0fa820a92de2a67c0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "58fc9323-c512-487d-a7f9-07cb721bfeac",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 21,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nPriority Inversion\r\n• This last scenario is a bizarre sort of \r\n\"priority inversion\" problem\r\n• A CPU-bound thread (low priority) is \r\nblocking the execution of an I/O-bound \r\nthread (high priority)\r\n• It occurs because the I/O thread can't \r\nwake up fast enough to acquire the GIL \r\nbefore the CPU-bound thread reacquires it\r\n• And it only happens on multicore...\r\n41\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nComments\r\n• As far as I can tell, the Python GIL \r\nimplementation has not changed much (if at \r\nall) in the last 10 years\r\n• The GIL code in Python 1.5.2 looks almost \r\nidentical to the code in Python 3.0\r\n• I don't know whether it's even been studied \r\nall that much (especially on multicore)\r\n• There is more interest in removing the GIL \r\nthan simply changing the GIL\r\n42",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/58fc9323-c512-487d-a7f9-07cb721bfeac.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4f5a2cb10161717e221fb284af68f169244231353ab4df79ce61cacc2203ef9c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "54d73680-ed51-41b8-a36e-e7c9c9f96642",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 22,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nComments\r\n• I think this deserves further study\r\n• There is a pretty severe performance \r\npenalty for using threads on multicore\r\n• The priority inversion for I/O-bound \r\nprocessing is somewhat disturbing\r\n• Probably worth fixing--especially if the GIL \r\nis going to stick around\r\n43\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nOpen Questions\r\n• How in the hell would you fix this?\r\n• I have some vague ideas, but they're all \"hard\"\r\n• Require Python to do its own form of thread \r\nscheduling (or at least cooperate with the OS)\r\n• Would involve a non-trivial interaction \r\nbetween the interpreter implementation, the \r\noperating system scheduler, the thread library, \r\nand C extension modules (egad!)\r\n44",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/54d73680-ed51-41b8-a36e-e7c9c9f96642.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f54bd42d5bc6a9e46f80a138fb5ef51889ff7043ec1ac2c17f3524b0fc908b6c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 487
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6c682d76-3b31-4c01-bd2a-a07cff8c0696",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 23,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nIs it Worth It?\r\n• If you could fix it, it would make thread \r\nexecution (even with the GIL) more \r\npredictable and less resource intensive\r\n• Might improve performance/responsiveness of \r\napplications that have a mix of CPU and I/O\u0002bound processing \r\n• Probably good for libraries that use threads in \r\nthe background (e.g., multiprocessing)\r\n• Might be able to do it without rewriting the \r\nwhole interpreter.\r\n45\r\nCopyright (C) 2009, David Beazley, http://www.dabeaz.com\r\nThat's All Folks\r\n• I'm not actively working on any patches or \r\ncode related to this presentation\r\n• However, the problem interests me\r\n• If it interests you and you want to hack on \r\nany of my code or examples, send me an \r\nemail (dave@dabeaz.com)\r\n46",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1c888704-6b18-4028-8526-32668308b4d7/images/6c682d76-3b31-4c01-bd2a-a07cff8c0696.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035510Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ac83897a6f0508061ad676141bab444563b1ad0271cb079ef111efc4439b1156",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 124
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\n  \"title\": \"\"\n}\n```\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "I cannot find any information about the author of a document in the provided context.\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I cannot provide a value for `date_published` as there is no date or date-related information in the provided context.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Unfortunately, there is no context provided to extract a location from.  Therefore, I cannot provide a value for the \"location\" field.\n"
+        }
+      ]
+    }
+  }
+}

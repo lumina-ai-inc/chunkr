@@ -1,0 +1,697 @@
+{
+  "file_name": "Introduction to GPUs - CS378 - Spring 2015 - Slides.pdf",
+  "task_id": "616060b7-0b2f-4090-8899-a197b317384c",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "a3c3545e-ac56-431a-8915-cf42ceda5126",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 1,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Introduction to GPUs\r\nCS378 – Spring 2015\r\nSreepathi Pai",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/a3c3545e-ac56-431a-8915-cf42ceda5126.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=66cba64e9772c74fc317b68b572627364908d3409b9111a637b5a8ef4f2f9780",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "62248a5a-08e0-4df7-b13f-7e8fa9d50456",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 2,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Outline\r\n● Introduction to Accelerators\r\n– Specifically, GPUs\r\n– What can you use them for?\r\n– When should you consider using them?\r\n● GPU Programming Models\r\n– How to write programs that use GPUs",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/62248a5a-08e0-4df7-b13f-7e8fa9d50456.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dbe4dff6c22a8e1995ec9a6238b497ad2f5911a423511c8aa0d86dcc50d28837",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "35b33612-2c83-4367-a6c7-dd4131dbf953",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 3,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Beyond the CPU\r\n● Single-core CPU performance has essentially \r\nstagnated\r\n● 10 years ago, the solution was multicore and \r\nincreased parallelism\r\n– x86: 16 cores on chip, AMD Interlagos, 2011\r\n● Applications need increased performance\r\n– Big data, brain simulation, scientific simulation, ...\r\n● So if you're going to write parallel code, are there \r\nfaster, viable alternatives to the CPU?",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/35b33612-2c83-4367-a6c7-dd4131dbf953.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b5dcfc503fc0f340e40fe38c37bc789bb3710fd34eb24197af903b0eeda179df",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e981aa96-c60e-48dd-b84e-916fb6f39521",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 4,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "GPU Floating Point Performance\r\nOwens et al., A Survey of General-Purpose Computation on Graphics Hardware",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/e981aa96-c60e-48dd-b84e-916fb6f39521.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=352c59e5db396dadd5dc2497af85b982fba0b64fec458b0f22ff0406a3427554",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "64a0a5af-91f3-4f06-8bcc-fbbcbef7ff03",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 5,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "The rise of the GPU - 1990s\r\n● The CPU has always been slow \r\nfor Graphics Processing\r\n– Visualization\r\n– Games\r\n● Graphics processing is \r\ninherently parallel and there is a \r\nlot of parallelism – O(pixels)\r\n● GPUs were built to do graphics \r\nprocessing only\r\n● Initially, hardwired logic \r\nreplicated to provide parallelism\r\n– Little to no programmability\r\nWikipedia; Kaufman et al. (2009)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/64a0a5af-91f3-4f06-8bcc-fbbcbef7ff03.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cd81f97cda4deca4d1b75f9c2d2b621c323092f9697d446c8e5273eb8d923444",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1f1cc0be-755f-46cb-a4ab-88ca3eeed7e5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 6,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "GPUs – a decade ago\r\n● Like CPUs, GPUs benefited from Moore's Law\r\n● Evolved from fixed-function hardwired logic to flexible, \r\nprogrammable ALUs\r\n● Around 2004, GPUs were programmable “enough” to do \r\nsome non-graphics computations\r\n– Severely limited by graphics programming model (shader \r\nprogramming)\r\n● In 2006, GPUs became “fully” programmable\r\n– NVIDIA releases “CUDA” language to write non-graphics \r\nprograms that will run on GPUs",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/1f1cc0be-755f-46cb-a4ab-88ca3eeed7e5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2cc414bb3c0502f197eb776068fe49d06ce30573a6e4bb23d47d74c764e48c29",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f74777df-96ec-4c8e-96c8-80632257e27f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 7,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "GPU Performance Today\r\nNVIDIA, CUDA C Programming Guide",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/f74777df-96ec-4c8e-96c8-80632257e27f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7a6989de40cf2fa5af1318399bdb421966f5ad636d623ca8230b1d265b3000e3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6544ef2d-e897-4136-9132-83fd8a91aff9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 8,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Memory Bandwidth\r\nNVIDIA, CUDA C Programming Guide",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/6544ef2d-e897-4136-9132-83fd8a91aff9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=84ff35cb177bba87109285238f6920853c9c120ef9b95d627c0dbebb4dacb19f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "69e14635-27c3-456d-ae8e-d3c24807be16",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 9,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "GPUs today\r\n● GPUs are widely deployed as accelerators\r\n● Intel Paper\r\n– 10x vs 100x Myth\r\n● GPUs so successful that other CPU alternatives \r\nare dead\r\n– Sony/IBM Cell BE\r\n– Clearspeed RSX\r\n● Kepler K40 GPUs from NVIDIA have performance \r\nof 4TFlops (peak)\r\n– CM-5, #1 system in 1993 was ~60 Gflops (Linpack)\r\n– ASCI White (#1 2001) was 4.9 Tflops (Linpack)\r\nTop 500 Supercomputers\r\nTitan (#1 2012)\r\nTop 500 Supercomputers\r\nTianhe 1A (#1 2010)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/69e14635-27c3-456d-ae8e-d3c24807be16.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=39dd87ec56011f460f4d491ea5c003668d0c03cfcbe6f805bd17d035a8b98f3a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "11bf0ed5-2a8d-476e-a749-cd838b2b1efc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 10,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Accelerator-based Systems\r\n● CPUs have always depended on co-processors\r\n– I/O co-processors to handle slow I/O\r\n– Math co-processors to speed up computation\r\n● These have mostly been transparent\r\n– Drop in the co-processor and everything sped up\r\n● The GPU is not a transparent accelerator for \r\ngeneral purpose computations\r\n– Only graphics code is sped up transparently\r\n● Code must be rewritten to target GPUs",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/11bf0ed5-2a8d-476e-a749-cd838b2b1efc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2d34a20c83994429257da0da9b7805bc53c0e7f2522266e2f99e4ae7a387fbb7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "36e092bc-27ca-466f-bdfa-a28041b74a27",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 11,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Using a GPU\r\n1.You must retarget code for the GPU\r\n– rewrite, recompile, translate, etc.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/36e092bc-27ca-466f-bdfa-a28041b74a27.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=da194dbe0df1b417ca8871444956d5346ec9b26ebba867fecfcb21229c031f9b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "88dd7ed7-fc67-4c75-a677-7a8ca4d56d61",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 12,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "The Two (Three?) Kinds of GPUs\r\nType 1: Discrete GPUs\r\nPrimary benefits: More computational power, \r\nmore memory B/W\r\nCPU\r\nGPU",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/88dd7ed7-fc67-4c75-a677-7a8ca4d56d61.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aa3769a11bcdbbb345a977d6913ad577a12b10c9c84d0c4639efbd224adf01f1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "99addc28-901b-4837-88dd-2833e95e7069",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 13,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "The Two (Three?) Kinds of GPUs\r\nType 2 and 3: Integrated GPUs\r\nPrimary distinction: Share system memory\r\nPrimary benefits: Less power (energy)\r\nCPU\r\nGPU\r\nIntel",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/99addc28-901b-4837-88dd-2833e95e7069.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0e7a3ad2ae2784f630954c1132cc3a8d7b2c7af71fc8be40804042192795ea63",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b63a2b12-039b-43ab-a594-ddb8edd653e0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 14,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "The NVIDIA Kepler\r\nGPU\r\nRAM\r\nGPU\r\nRAM\r\nNVIDIA Kepler GK110 Whitepaper",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/b63a2b12-039b-43ab-a594-ddb8edd653e0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f98a6c0a644226a74c8b78bff1bfb1bf396788c429a46ddb0cf6c26527f906ad",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4e7dbb6f-32e6-470d-87aa-1414edbd6065",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 15,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Using a GPU\r\n1.You must retarget code for the GPU\r\n2.The working set must fit in GPU RAM\r\n3.You must copy data to/from GPU RAM",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/4e7dbb6f-32e6-470d-87aa-1414edbd6065.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8fbf9ae493265499e17f7a4871eb431819f86109bb9baee4782f79f2aac36a19",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 500
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e2cf74ea-0fdf-4fde-b3ad-9a7ce7095326",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 16,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "NVIDIA Kepler SMX\r\n256KB!\r\nPartitioned\r\n(user-defined)\r\n192 FP/Int\r\n64 DP\r\n32 LD/ST\r\n2-way \r\nIn-order\r\nNVIDIA Kepler GK110 Whitepaper",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/e2cf74ea-0fdf-4fde-b3ad-9a7ce7095326.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=77b3ded4a16e835cc05ca6356b29fab5a2925bc21ed14fa7a383e91502f73d23",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6e1d02f0-7283-4061-b17d-cbf3df7aaaf2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 17,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "How Threads Are Scheduled\r\nNVIDIA Kepler GK110 Whitepaper",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/6e1d02f0-7283-4061-b17d-cbf3df7aaaf2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ff6d578c9621f1a1d72f8b557895a9a4f22e4e5494cc5ef8905532740429eb69",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1a7989d6-658f-4ec0-ada6-2b18de7b1da0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 18,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "What happens \r\nwhen threads in a warp diverge?\r\n● Consider:\r\n– if(tid % 2) dothis(); else dothat();\r\n● Transparently, GPU splits warp (branch divergence)\r\n– Record meeting point\r\n– Execute one side of branch, wait\r\n– Execute other side\r\n– Recombine at meeting point\r\n● SIMT Execution\r\n● May happen on cache misses too! (memory divergence)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/1a7989d6-658f-4ec0-ada6-2b18de7b1da0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d612ab267892c82f4cd7d6ea9e1bf7e57b3171e67a3f2a72b2c5f613b47a03d7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "531d1d55-9102-4e29-9376-c24fb1ba8a62",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 19,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "CPU vs the GPU\r\nParameter CPU GPU\r\nClockspeed > 1 GHz 700 MHz\r\nRAM GB to TB 12 GB (max)\r\nMemory B/W ~ 60 GB/s > 300 GB/s\r\nPeak FP < 1 TFlop > 1 TFlop\r\nConcurrent Threads O(10) O(1000) [O(10000)]\r\nLLC cache size > 100MB (L3) [eDRAM]\r\nO(10) [traditional]\r\n< 2MB (L2)\r\nCache size per thread O(1 MB) O(10 bytes)\r\nSoftware-managed cache None 48KB/SMX\r\nType OOO superscalar 2-way Inorder superscalar",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/531d1d55-9102-4e29-9376-c24fb1ba8a62.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0d267cc0b00946005cc68a0be537db76675a3e97a0bf67049b4bf41e2a838b0d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "87890ede-ba0b-449a-9177-1e058843b93b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 20,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Using a GPU\r\n1.You must retarget code for the GPU\r\n2.The working set must fit in GPU RAM\r\n3.You must copy data to/from GPU RAM\r\n4.Data accesses should be streaming\r\n5.Or use scratchpad as user-managed cache\r\n6.Lots of parallelism preferred (throughput, not latency)\r\n7.SIMD-style parallelism best suited\r\n8.High arithmetic intensity (FLOPs/byte) preferred",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/87890ede-ba0b-449a-9177-1e058843b93b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=37c7d81a74a25a1d08d19652fa3868e1b9f1c6f813fb833ad741c1be716f3edb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b14cb33d-ad25-459c-bbaf-ef701f4f2f85",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 21,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "GPU Showcase Applications\r\n● Graphics rendering\r\n● Matrix Multiply\r\n● FFT\r\nSee “Debunking the 100X GPU vs. CPU Myth: An Evaluation of \r\nThroughput Computing on CPU and GPU” by V.W.Lee et al. for more \r\nexamples and a comparison of CPU and GPU",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/b14cb33d-ad25-459c-bbaf-ef701f4f2f85.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e0448b3602090655e1b14b7eff38617979e111ee17053c2848d11cd983d1a348",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d6346714-7e65-47ef-848a-e546e4914eaa",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 22,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "GPU Programming Models",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/d6346714-7e65-47ef-848a-e546e4914eaa.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=096162b99077bc7df46a1fb0b55bb68744f88cc2d076f5dd0ca49c35d704f2d5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "07d87e71-707f-4482-a101-5fe525e9e506",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 23,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Hierarchy of GPU \r\nProgramming Models\r\nModel GPU CPU Equivalent\r\nVectorizing Compiler PGI CUDA Fortran gcc, icc, etc.\r\n“Drop-in” Libraries cuBLAS ATLAS\r\nDirective-driven OpenACC, \r\nOpenMP-to-CUDA OpenMP\r\nHigh-level languages\r\npyCUDA, OpenCL, CUDA\r\npython\r\nMid-level languages pthreads + C/C++\r\nLow-level languages - PTX, Shader\r\nBare-metal Assembly/Machine code SASS\r\n● Ordered by increasing order of difficulty\r\n● Ordered by increasing order of flexibility",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/07d87e71-707f-4482-a101-5fe525e9e506.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cd60176ff63ce0efff80363bceeed20a5d6d7163b8a3e29fca5200d3d3911b59",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "864e2f24-2773-4585-83d7-61ded876e8bd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 24,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "“Drop-in” Libraries\r\n● “Drop-in” replacements for popular CPU \r\nlibraries, examples from NVIDIA:\r\n– CUBLAS/NVBLAS for BLAS (e.g. ATLAS)\r\n– CUFFT for FFTW\r\n– MAGMA for LAPACK and BLAS\r\n● These libraries may still expect you to \r\nmanage data transfers manually\r\n● Libraries may support multiple \r\naccelerators (GPU + CPU + Xeon Phi)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/864e2f24-2773-4585-83d7-61ded876e8bd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e3b3d23f3aa64e1f182e16d553b768383fb31ba6e924845ac71e46d8174cf5ab",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "50b6e9cd-e49b-4f63-8f79-f43eba0b88f8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 25,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "GPU Libraries\r\n● NVIDIA Thrust\r\n– Like C++ STL\r\n● Modern GPU\r\n– At first glance: high-performance \r\nlibrary routines for sorting, \r\nsearching, reductions, etc.\r\n– A deeper look: Specific “hard” \r\nproblems tackled in a different style\r\n● NVIDIA CUB\r\n– Low-level primitives for use in \r\nCUDA kernels\r\n–",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/50b6e9cd-e49b-4f63-8f79-f43eba0b88f8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=38cf5f717a9aa2dc2150b1e8472162eb4e19623a78027312e8904f49d7aa1626",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "239a9b72-eeed-4ded-b8ff-9f742a359d7f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 26,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Directive-driven Programming\r\n● OpenACC, new standard for \r\n“offloading” parallel work to an \r\naccelerator\r\n● Currently supported only by PGI \r\nAccelerator compiler\r\n● gcc 5.0 support is ongoing\r\n● OpenMPC, a research compiler, \r\ncan compile OpenMP code + \r\nextra directives to CUDA\r\n#include <stdio.h>\r\n#define N 1000000\r\nint main(void) {\r\n double pi = 0.0f; long i;\r\n #pragma acc parallel loop reduction(+:pi)\r\n for (i=0; i<N; i++) {\r\n double t= (double)((i+0.5)/N);\r\n pi +=4.0/(1.0+t*t);\r\n }\r\n printf(\"pi=%16.15f\\n\",pi/N);\r\n return 0;\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/239a9b72-eeed-4ded-b8ff-9f742a359d7f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7de7f58fd29d570ea8db2f572ee7b2f5117c0286bf9953f9ab84cdfb7f27be8f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 484
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8cb0d741-df73-4a64-b0cf-3a57b85c8463",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 27,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Python-based Tools (pyCUDA)\r\nimport pycuda.autoinit\r\nimport pycuda.driver as drv\r\nimport numpy\r\nfrom pycuda.compiler import SourceModule\r\nmod = SourceModule(\"\"\"\r\n__global__ void multiply_them(float *dest, float *a, float *b)\r\n{\r\n const int i = threadIdx.x;\r\n dest[i] = a[i] * b[i];\r\n}\r\n\"\"\")\r\nmultiply_them = mod.get_function(\"multiply_them\")\r\na = numpy.random.randn(400).astype(numpy.float32)\r\nb = numpy.random.randn(400).astype(numpy.float32)\r\ndest = numpy.zeros_like(a)\r\nmultiply_them(\r\n drv.Out(dest), drv.In(a), drv.In(b),\r\n block=(400,1,1), grid=(1,1))\r\nprint dest-a*b\r\nCUDA Source Code\r\nAutomatic Data Transfers\r\nThreads",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/8cb0d741-df73-4a64-b0cf-3a57b85c8463.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=74923004809a9823a38f51699abe6a252d03020e7d7c264a0ea9c35b3167cef8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "87f0dc5a-8bc9-4315-ab66-0bf9508f203a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 28,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "OpenCL\r\n● C99-based dialect for programming heterogenous \r\nsystems\r\n● Originally based on CUDA\r\n– nomenclature is different\r\n● Supported by more than GPUs\r\n– Xeon Phi, FPGAs, CPUs, etc.\r\n● Source code is portable (somewhat)\r\n– Performance may not be!\r\n● Poorly supported by NVIDIA",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/87f0dc5a-8bc9-4315-ab66-0bf9508f203a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1270bcbcad093b5d33990a03635490961dcd2f1a58e6c12d2349a6926bdc4f47",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "692e59da-6879-4343-b169-039b0749b41c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 29,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "CUDA\r\n● “Compute Unified Device Architecture”\r\n● First language to allow general-purpose \r\nprogramming for GPUs\r\n– preceded by shader languages\r\n● Promoted by NVIDIA for their GPUs\r\n● Not supported by any other accelerator\r\n– though commercial CUDA-to-x86/64 compilers exist\r\n● We will focus on CUDA programs",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/692e59da-6879-4343-b169-039b0749b41c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f7bffc08e07222f1ef462630287f4a1465117cbc4c88c467c105ae10144948d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "68a7b78f-c454-43ec-8cb3-8c186a73bf22",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 30,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "CUDA Architecture\r\n● From 10000 feet – CUDA is like pthreads\r\n● CUDA language – C++ dialect\r\n– Host code (CPU) and GPU code in same file\r\n– Special language extensions for GPU code\r\n● CUDA Runtime API\r\n– Manages runtime GPU environment\r\n– Allocation of memory, data transfers, synchronization with GPU, etc.\r\n– Usually invoked by host code\r\n● CUDA Device API\r\n– Lower-level API that CUDA Runtime API is built upon\r\n–",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/68a7b78f-c454-43ec-8cb3-8c186a73bf22.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=74694ee36ce6c4cfcb5b95c1989ec7cad98beced51de016ba2e8da9c1fe958b3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3896ca1b-ceec-4150-a7cd-75c053da8dcd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 31,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/3896ca1b-ceec-4150-a7cd-75c053da8dcd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f8ae9abb8cffa88e9108ee7fcf960483e93671d4f2e0c5d6fa162ab4b5a0870f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9744d98e-13a8-4a60-8f4f-21fc26c8854a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 32,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/9744d98e-13a8-4a60-8f4f-21fc26c8854a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=37da23a105ec44b02b97017b3b090cab6b1854d2b7e434e23733610b8163ed4e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "30f3d362-cf37-4c3d-9bc0-600942ac79b6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 33,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "CUDA Threading Model Details\r\n● Hierarchical Threading\r\n– Grid -> Thread Blocks -> Warps -> Threads\r\n– pthreads has flat threading\r\n● Only threads within same thread block can communicate and \r\nsynchronize with each other\r\n● Maximum 1024 threads per thread block\r\n– Differs by GPU generation\r\n● Thread block is divided into mutually exclusive, equally-sized group \r\nof threads called warps\r\n– Warp size is hardware-dependent\r\n– Usually 32 threads",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/30f3d362-cf37-4c3d-9bc0-600942ac79b6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cc73406891e547871c16e1bd6ab388a874bd99835017a3002c40d0ea8d32b78e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "18c9a5ca-9492-484e-ba20-02e9e9dfa096",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 34,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Mapping Threads to \r\nHardware in CUDA",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/18c9a5ca-9492-484e-ba20-02e9e9dfa096.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a4a5d4230a4aa131596a1b836bf4a4ca52bc746a7ea572e492eb65513c79b4b4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c0742052-5e88-41fc-8f6b-e1599336db7d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 35,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "CUDA Limitations\r\n● No standard library\r\n● No parallel data structures\r\n● No synchronization primitives (mutex, semaphores, \r\nqueues, etc.)\r\n– you can roll your own\r\n– only atomic*() functions provided\r\n● Toolchain not as mature as CPU toolchain\r\n– Felt intensely in performance debugging\r\n● It's only been a decade :)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/c0742052-5e88-41fc-8f6b-e1599336db7d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a26ea95ec2ffa8c2dc37bac9beca848b33b0cc9a8cf0b480eae0b247c950e139",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "358dcd5a-a5d4-4668-a479-5f7f6b6e864d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 36,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Summary\r\n● GPUs are very interesting parallel machines\r\n● They're not going away\r\n– Xeon Phi might be pose huge challenge \r\n● They're here and now\r\n– You can buy one of them!",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/616060b7-0b2f-4090-8899-a197b317384c/images/358dcd5a-a5d4-4668-a479-5f7f6b6e864d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041838Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8ecf4a80c955a359f60f760e25565e2283f0bbf544ac2d3d011e1175af753750",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 392
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Introduction to GPUs\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Sreepathi Pai; NVIDIA; Owens et al.; Kaufman et al.; V.W.Lee et al.\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I am unable to extract the publication date for this document. While the document mentions dates and years related to the history and development of GPUs, it does not provide a specific publication date for the document itself.  Therefore, I cannot provide a string representing the date_published.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "CS378 – Spring 2015\nNVIDIA, CUDA C Programming Guide\nOwens et al., A Survey of General-Purpose Computation on Graphics Hardware\nNVIDIA Kepler GK110 Whitepaper\nV.W.Lee et al., Debunking the 100X GPU vs. CPU Myth: An Evaluation of Throughput Computing on CPU and GPU\nKaufman et al. (2009)\nWikipedia\nIntel Paper - 10x vs 100x Myth\nTop 500 Supercomputers"
+        }
+      ]
+    }
+  }
+}

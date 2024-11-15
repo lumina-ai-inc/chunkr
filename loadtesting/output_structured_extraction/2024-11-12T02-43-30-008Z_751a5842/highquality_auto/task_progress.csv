@@ -1,0 +1,40 @@
+a080fa21-5d8f-4fa0-a587-20489e856e69,Inside the Python GIL - Dave Beazley (2009).pdf,0,Task queued,2024-11-12T02:43:30.329Z,2024-11-12T02:43:31.390Z,1061
+fbff705a-2342-407e-83cc-637b6e892f02,Inside IOCP.pdf,4,Task queued,2024-11-12T02:43:30.344Z,2024-11-12T02:43:31.401Z,1057
+e08baae4-376a-4daf-8925-a9ba4258b097,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",0,Task queued,2024-11-12T02:43:30.396Z,2024-11-12T02:43:31.453Z,1057
+fbff705a-2342-407e-83cc-637b6e892f02,Inside IOCP.pdf,4,Segmentation queued,2024-11-12T02:43:31.401Z,2024-11-12T02:43:32.460Z,1059
+e08baae4-376a-4daf-8925-a9ba4258b097,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Converting file to images,2024-11-12T02:43:31.453Z,2024-11-12T02:43:33.567Z,2114
+a080fa21-5d8f-4fa0-a587-20489e856e69,Inside the Python GIL - Dave Beazley (2009).pdf,23,Converting file to images,2024-11-12T02:43:31.390Z,2024-11-12T02:43:34.570Z,3180
+fbff705a-2342-407e-83cc-637b6e892f02,Inside IOCP.pdf,4,Segmenting,2024-11-12T02:43:32.460Z,2024-11-12T02:43:34.575Z,2115
+fbff705a-2342-407e-83cc-637b6e892f02,Inside IOCP.pdf,4,Cropping segments,2024-11-12T02:43:34.575Z,2024-11-12T02:43:37.751Z,3176
+fbff705a-2342-407e-83cc-637b6e892f02,Inside IOCP.pdf,4,Structured extraction queued,2024-11-12T02:43:37.751Z,2024-11-12T02:43:38.812Z,1061
+fbff705a-2342-407e-83cc-637b6e892f02,Inside IOCP.pdf,4,Structured extraction started,2024-11-12T02:43:38.812Z,2024-11-12T02:43:39.973Z,1161
+fbff705a-2342-407e-83cc-637b6e892f02,Inside IOCP.pdf,4,Structured extraction succeeded,2024-11-12T02:43:39.973Z,2024-11-12T02:43:39.973Z,9686
+e08baae4-376a-4daf-8925-a9ba4258b097,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Segmenting,2024-11-12T02:43:33.567Z,2024-11-12T02:43:41.076Z,7509
+baaec513-23dc-4a73-9d96-3a35feebc91b,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Task queued,2024-11-12T02:43:40.168Z,2024-11-12T02:43:41.230Z,1062
+a080fa21-5d8f-4fa0-a587-20489e856e69,Inside the Python GIL - Dave Beazley (2009).pdf,23,Segmenting,2024-11-12T02:43:34.570Z,2024-11-12T02:43:41.985Z,7415
+e08baae4-376a-4daf-8925-a9ba4258b097,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Chunking queued,2024-11-12T02:43:41.076Z,2024-11-12T02:43:42.137Z,1061
+baaec513-23dc-4a73-9d96-3a35feebc91b,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Converting file to images,2024-11-12T02:43:41.230Z,2024-11-12T02:43:42.289Z,1059
+a080fa21-5d8f-4fa0-a587-20489e856e69,Inside the Python GIL - Dave Beazley (2009).pdf,23,Chunking started,2024-11-12T02:43:41.985Z,2024-11-12T02:43:43.052Z,1067
+baaec513-23dc-4a73-9d96-3a35feebc91b,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Segmenting,2024-11-12T02:43:42.289Z,2024-11-12T02:43:46.522Z,4233
+a080fa21-5d8f-4fa0-a587-20489e856e69,Inside the Python GIL - Dave Beazley (2009).pdf,23,Cropping segments,2024-11-12T02:43:43.052Z,2024-11-12T02:43:50.468Z,7416
+baaec513-23dc-4a73-9d96-3a35feebc91b,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Cropping segments,2024-11-12T02:43:46.522Z,2024-11-12T02:43:52.890Z,6368
+baaec513-23dc-4a73-9d96-3a35feebc91b,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,OCR queued,2024-11-12T02:43:52.890Z,2024-11-12T02:43:53.947Z,1057
+e08baae4-376a-4daf-8925-a9ba4258b097,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Cropping segments,2024-11-12T02:43:42.137Z,2024-11-12T02:43:54.837Z,12700
+baaec513-23dc-4a73-9d96-3a35feebc91b,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Structured extraction started,2024-11-12T02:43:53.947Z,2024-11-12T02:43:55.092Z,1145
+baaec513-23dc-4a73-9d96-3a35feebc91b,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Structured extraction succeeded,2024-11-12T02:43:55.092Z,2024-11-12T02:43:55.092Z,14979
+e08baae4-376a-4daf-8925-a9ba4258b097,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,OCR started,2024-11-12T02:43:54.837Z,2024-11-12T02:44:06.486Z,11649
+e08baae4-376a-4daf-8925-a9ba4258b097,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Structured extraction started,2024-11-12T02:44:06.486Z,2024-11-12T02:44:07.691Z,1205
+e08baae4-376a-4daf-8925-a9ba4258b097,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Structured extraction succeeded,2024-11-12T02:44:07.691Z,2024-11-12T02:44:07.691Z,37351
+a080fa21-5d8f-4fa0-a587-20489e856e69,Inside the Python GIL - Dave Beazley (2009).pdf,23,OCR started,2024-11-12T02:43:50.468Z,2024-11-12T02:46:34.094Z,163626
+a080fa21-5d8f-4fa0-a587-20489e856e69,Inside the Python GIL - Dave Beazley (2009).pdf,23,Structured extraction queued,2024-11-12T02:46:34.094Z,2024-11-12T02:46:35.161Z,1067
+a080fa21-5d8f-4fa0-a587-20489e856e69,Inside the Python GIL - Dave Beazley (2009).pdf,23,Structured extraction started,2024-11-12T02:46:35.161Z,2024-11-12T02:46:36.349Z,1188
+a080fa21-5d8f-4fa0-a587-20489e856e69,Inside the Python GIL - Dave Beazley (2009).pdf,23,Structured extraction succeeded,2024-11-12T02:46:36.349Z,2024-11-12T02:46:36.349Z,186078
+bc1af32b-7755-4a27-a4e4-60f433aa1acf,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,0,Task queued,2024-11-12T02:46:36.984Z,2024-11-12T02:46:38.044Z,1060
+bc1af32b-7755-4a27-a4e4-60f433aa1acf,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Converting file to images,2024-11-12T02:46:38.044Z,2024-11-12T02:46:39.103Z,1059
+bc1af32b-7755-4a27-a4e4-60f433aa1acf,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Segmentation queued,2024-11-12T02:46:39.103Z,2024-11-12T02:46:40.163Z,1060
+bc1af32b-7755-4a27-a4e4-60f433aa1acf,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Segmenting,2024-11-12T02:46:40.163Z,2024-11-12T02:46:47.598Z,7435
+bc1af32b-7755-4a27-a4e4-60f433aa1acf,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Cropping segments,2024-11-12T02:46:47.598Z,2024-11-12T02:47:01.404Z,13806
+bc1af32b-7755-4a27-a4e4-60f433aa1acf,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,OCR queued,2024-11-12T02:47:01.404Z,2024-11-12T02:47:02.465Z,1061
+bc1af32b-7755-4a27-a4e4-60f433aa1acf,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,OCR started,2024-11-12T02:47:02.465Z,2024-11-12T02:47:13.062Z,10597
+bc1af32b-7755-4a27-a4e4-60f433aa1acf,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Structured extraction started,2024-11-12T02:47:13.062Z,2024-11-12T02:47:16.369Z,3307
+bc1af32b-7755-4a27-a4e4-60f433aa1acf,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Structured extraction succeeded,2024-11-12T02:47:16.369Z,2024-11-12T02:47:16.369Z,39439

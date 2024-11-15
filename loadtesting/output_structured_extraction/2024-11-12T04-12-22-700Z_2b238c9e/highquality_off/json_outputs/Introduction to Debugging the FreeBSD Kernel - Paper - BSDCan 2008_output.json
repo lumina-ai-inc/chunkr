@@ -1,0 +1,461 @@
+{
+  "file_name": "Introduction to Debugging the FreeBSD Kernel - Paper - BSDCan 2008.pdf",
+  "task_id": "fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "f45f4868-187e-47e9-9166-9791fed12db8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Introduction to Debugging the FreeBSD Kernel\r\nJohn H. Baldwin\r\nYahoo!, Inc.\r\nAtlanta, GA 30327\r\njhb@FreeBSD.org, http://people.FreeBSD.org/˜jhb\r\nAbstract\r\nJust like every other piece of software, the\r\nFreeBSD kernel has bugs. Debugging a ker\u0002nel is a bit different from debugging a user\u0002land program as there is nothing underneath\r\nthe kernel to provide debugging facilities such\r\nas ptrace() or procfs. This paper will give a\r\nbrief overview of some of the tools available\r\nfor investigating bugs in the FreeBSD kernel.\r\nIt will cover the in-kernel debugger DDB and\r\nthe external debugger kgdb which is used to\r\nperform post-mortem analysis on kernel crash\r\ndumps.\r\n1 Introduction\r\nWhen a userland application encounters a\r\nbug the operating system provides services for\r\ninvestigating the bug. For example, a kernel\r\nmay save a copy of the a process’ memory\r\nimage on disk as a core dump. An operating\r\nsystem may also provide APIs for one process\r\nto analyze the state of another process. Using\r\nthese services, debugging tools such as gdb [1]\r\ncan be written.\r\nOperating system kernels have bugs just\r\nlike userland applications. A key difference,\r\nhowever, is that operating system kernels are\r\nnot always able to rely on a separate piece of\r\nsoftware to provide debugging services. As a\r\nresult, kernels generally must provide their\r\nown specialized support for debugging ser\u0002vices. The FreeBSD kernel provides several\r\nservices such as crash messages, crash dumps,\r\nthe /dev/kmem device, a remote GDB inter\u0002face, and a self-contained in-kernel debugger\r\ncalled DDB [2]. These services can then be\r\nused either directly by the user or indirectly\r\nvia other tools such as kgdb [3].\r\nThe Kernel Debugging chapter of the\r\nFreeBSD Developer’s Handbook [4] covers\r\nseveral details already such as entering DDB,\r\nconfiguring a system to save kernel crash\r\ndumps, and invoking kgdb on a crash dump.\r\nThis paper will not cover these topics. In\u0002stead, it will demonstrate some ways to use\r\nFreeBSD’s kernel debugging tools to investi\u0002gate bugs.\r\n2 Kernel Crash Messages\r\nThe first debugging service the FreeBSD\r\nkernel provides is the messages the kernel\r\nprints on the console when the kernel crashes.\r\nWhen the kernel encounters an invalid condi\u0002tion (such as an assertion failure or a memory\r\nprotection violation) it halts execution of the\r\ncurrent thread and enters a “panic” state also\r\nknown as a “crash”. The kernel will always\r\nprint a message on the console summarizing\r\nthe reason for the crash. For many crashes\r\nthis summary message is all the kernel out\u0002puts. Figure 1 contains the crash message for\r\na simple assertion violation. In this case the\r\nmessage indicates that a thread attempted to\r\nsleep while sleeping is prohibited.\r\nSome crashes output more detailed mes\u0002sages to the console. Crashes caused by a\r\nCPU exception generally output several de\u0002tails. For example, if a thread in the ker\u0002nel dereferences a pointer into unmapped\r\nmemory (such as a NULL pointer) then the\r\ncrash messages will include the invalid ad\u0002dress. Figure 2 contains the crash messages\r\nfor an amd64 page fault. This particular page",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/f45f4868-187e-47e9-9166-9791fed12db8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9dcface7c9e9896782e80bd6c5c227c8c9c1d95e1000c752e1925b1a39dff9ab",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 491
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d3946a34-1680-4035-95df-2d975c709f34",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "panic: Trying sleep, but thread marked as sleeping prohibited\r\nFigure 1: Example Assertion Failure Crash\r\nfault was the result of a NULL pointer deref\u0002erence in the net.inet.tcp.pcblist sysctl\r\nhandler. It was caused by a race condi\u0002tion where a struct tcpcb was freed in one\r\nthread while another thread was in the sysctl\r\nhandler.\r\nThe first key piece of data is the fault vir\u0002tual address. It is the invalid memory ad\u0002dress that caused the fault. In this case\r\nthe fault address is indicative of a NULL\r\npointer derefence since its value is very small.\r\nThe instruction pointer indicates the pro\u0002gram counter value where the fault occurred.\r\nThis can be used either with gdb(1) or\r\naddr2line(1) to determine the corresponding\r\nsource line. The current process lists the com\u0002mand name and PID of the process that was\r\nexecuting when the fault occurred.\r\n3 Live Debugging with DDB\r\nAnother debugging tool provided by the\r\nFreeBSD kernel is the in-kernel debugger\r\nDDB. DDB is an interactive debugger that\r\nallows the user to execute specific commands\r\nto inspect various details of the running ker\u0002nel. It is able to resolve global symbols to ad\u0002dresses and control execution via breakpoints\r\nand single stepping. It is also extensible since\r\nnew commands may be added at compile\r\ntime. Details about several of the commonly\r\nused DDB commands may be found in the\r\nddb(4) manpage [2].\r\n3.1 Inspecting Processes and\r\nThreads\r\nOne of the best ways to get an overview\r\nof a system’s state from DDB is to examine\r\nthe current state of individual processes and\r\nthreads. DDB provides several commands to\r\ndo this. First, the ps command will display\r\na list of all the processes and threads in the\r\nsystem. The listing includes a summary of\r\nthe state of each thread including any lock\r\nthe thread is blocked on or a wait channel on\r\nwhich the thread is sleeping. More specific\r\ndetails about individual processes may be ob\u0002tained via the show proc command. This\r\ncommand accepts a single argument that is\r\neither a direct pointer to a struct proc or a\r\nprocess ID (PID). Similarly, the show thread\r\ncommand provides details about an individ\u0002ual thread and accepts either a direct pointer\r\nto a struct thread or a thread ID (TID).\r\nFigure 3 shows a truncated list of processes\r\nand threads in various states. Figure 4 shows\r\nmore detailed information about the first pro\u0002cess in the list and one of its threads.\r\nA very important part of a thread’s state is\r\nthe stack trace. A stack trace provides a bit\r\nof history of where the thread has been in the\r\npast. It can also help explain how a thread\r\narrived at its current state. DDB provides a\r\ntrace command to obtain the stack trace of\r\nsingle thread. With no aguments it will pro\u0002vide a trace of the current thread. If an argu\u0002ment is specified then it may be either a TID\r\nor a PID. If the argument is a PID, then the\r\nfirst thread from the indicated process will be\r\nused. Figure 5 shows the stack trace for the\r\nthread blocked on the def lock. The trace in\u0002dicates that the thread attempted to acquire\r\nthe lock in the aptly named mtx deadlock\r\nfunction.\r\n3.2 Investigating Deadlocks\r\nDebugging deadlocks requires determining\r\nwhich resources threads are waiting on and\r\nthen analyzing those dependencies to find\r\na cycle. One source of deadlocks is mis\u0002use of locking primitives such as mutexes.\r\nDDB provides several commands for analyz\u0002ing locking primitives and the dependency re\u0002lationships between threads and locks.\r\nFirst, DDB provides commands to directly\r\ninspect the state of locks and the queues of",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/d3946a34-1680-4035-95df-2d975c709f34.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0799fa401586c09ed45639b1244f6155bacedc6a387fcda0e2f1f7d733b4c3e6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 597
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d3946a34-1680-4035-95df-2d975c709f34",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "panic: Trying sleep, but thread marked as sleeping prohibited\r\nFigure 1: Example Assertion Failure Crash\r\nfault was the result of a NULL pointer deref\u0002erence in the net.inet.tcp.pcblist sysctl\r\nhandler. It was caused by a race condi\u0002tion where a struct tcpcb was freed in one\r\nthread while another thread was in the sysctl\r\nhandler.\r\nThe first key piece of data is the fault vir\u0002tual address. It is the invalid memory ad\u0002dress that caused the fault. In this case\r\nthe fault address is indicative of a NULL\r\npointer derefence since its value is very small.\r\nThe instruction pointer indicates the pro\u0002gram counter value where the fault occurred.\r\nThis can be used either with gdb(1) or\r\naddr2line(1) to determine the corresponding\r\nsource line. The current process lists the com\u0002mand name and PID of the process that was\r\nexecuting when the fault occurred.\r\n3 Live Debugging with DDB\r\nAnother debugging tool provided by the\r\nFreeBSD kernel is the in-kernel debugger\r\nDDB. DDB is an interactive debugger that\r\nallows the user to execute specific commands\r\nto inspect various details of the running ker\u0002nel. It is able to resolve global symbols to ad\u0002dresses and control execution via breakpoints\r\nand single stepping. It is also extensible since\r\nnew commands may be added at compile\r\ntime. Details about several of the commonly\r\nused DDB commands may be found in the\r\nddb(4) manpage [2].\r\n3.1 Inspecting Processes and\r\nThreads\r\nOne of the best ways to get an overview\r\nof a system’s state from DDB is to examine\r\nthe current state of individual processes and\r\nthreads. DDB provides several commands to\r\ndo this. First, the ps command will display\r\na list of all the processes and threads in the\r\nsystem. The listing includes a summary of\r\nthe state of each thread including any lock\r\nthe thread is blocked on or a wait channel on\r\nwhich the thread is sleeping. More specific\r\ndetails about individual processes may be ob\u0002tained via the show proc command. This\r\ncommand accepts a single argument that is\r\neither a direct pointer to a struct proc or a\r\nprocess ID (PID). Similarly, the show thread\r\ncommand provides details about an individ\u0002ual thread and accepts either a direct pointer\r\nto a struct thread or a thread ID (TID).\r\nFigure 3 shows a truncated list of processes\r\nand threads in various states. Figure 4 shows\r\nmore detailed information about the first pro\u0002cess in the list and one of its threads.\r\nA very important part of a thread’s state is\r\nthe stack trace. A stack trace provides a bit\r\nof history of where the thread has been in the\r\npast. It can also help explain how a thread\r\narrived at its current state. DDB provides a\r\ntrace command to obtain the stack trace of\r\nsingle thread. With no aguments it will pro\u0002vide a trace of the current thread. If an argu\u0002ment is specified then it may be either a TID\r\nor a PID. If the argument is a PID, then the\r\nfirst thread from the indicated process will be\r\nused. Figure 5 shows the stack trace for the\r\nthread blocked on the def lock. The trace in\u0002dicates that the thread attempted to acquire\r\nthe lock in the aptly named mtx deadlock\r\nfunction.\r\n3.2 Investigating Deadlocks\r\nDebugging deadlocks requires determining\r\nwhich resources threads are waiting on and\r\nthen analyzing those dependencies to find\r\na cycle. One source of deadlocks is mis\u0002use of locking primitives such as mutexes.\r\nDDB provides several commands for analyz\u0002ing locking primitives and the dependency re\u0002lationships between threads and locks.\r\nFirst, DDB provides commands to directly\r\ninspect the state of locks and the queues of",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/d3946a34-1680-4035-95df-2d975c709f34.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0799fa401586c09ed45639b1244f6155bacedc6a387fcda0e2f1f7d733b4c3e6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 597
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "da7a58be-a87c-460a-8a13-549becb0c2f9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Fatal trap 12: page fault while in kernel mode\r\ncpuid = 0; apic id = 00\r\nfault virtual address = 0x4\r\nfault code = supervisor read, page not present\r\ninstruction pointer = 0x8:0xffffffff80359af8\r\nstack pointer = 0x10:0xffffffffa3cbb550\r\nframe pointer = 0x10:0xffffffffa3cbb570\r\ncode segment = base 0x0, limit 0xfffff, type 0x1b\r\n= DPL 0, pres 1, long 1, def32 0, gran 1\r\nprocessor eflags = interrupt enabled, resume, IOPL = 0\r\ncurrent process = 31466 (netstat)\r\ntrap number = 12\r\npanic: page fault\r\nFigure 2: Example amd64 Page Fault\r\ndb> ps\r\npid ppid pgrp uid state wmesg wchan cmd\r\n954 0 0 0 LL (threaded) crash2\r\n100144 L *abc 0xffffff0001288dc0 [crash2: 3]\r\n100143 L *jkl 0xffffff0001288c80 [crash2: 2]\r\n100142 L *ghi 0xffffff0001288be0 [crash2: 1]\r\n100055 L *def 0xffffff0001288d20 [crash2: 0]\r\n812 0 0 0 SL - 0xffffffff80673a20 [nfsiod 0]\r\n771 769 771 26840 Ss+ ttyin 0xffffff00011b9810 tcsh\r\n769 767 767 26840 S select 0xffffff00018ca0d0 sshd\r\n767 705 767 0 Ss sbwait 0xffffff00016ed94c sshd\r\n...\r\n10 0 0 0 RL (threaded) idle\r\n100005 Run CPU 0 [idle: cpu0]\r\n100004 Run CPU 1 [idle: cpu1]\r\n100003 Run CPU 2 [idle: cpu2]\r\n100002 Run CPU 3 [idle: cpu3]\r\nFigure 3: Example DDB ps Output",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/da7a58be-a87c-460a-8a13-549becb0c2f9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=829595aeb5a7a3b475a6b0d63d08a1651bbb9ee37589f29187edcfde72a9e231",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a89bf807-8070-4462-b349-e74a77b7a55e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "db> show proc 954\r\nProcess 954 (crash2) at 0xffffff0001354000:\r\nstate: NORMAL\r\nuid: 0 gids: 0\r\nparent: pid 0 at 0xffffffff806538e0\r\nABI: null\r\nthreads: 4\r\n100144 L *abc 0xffffff0001288dc0 [crash2: 3]\r\n100143 L *jkl 0xffffff0001288c80 [crash2: 2]\r\n100142 L *ghi 0xffffff0001288be0 [crash2: 1]\r\n100055 L *def 0xffffff0001288d20 [crash2: 0]\r\ndb> show thread 100055\r\nThread 100055 at 0xffffff00013869c0:\r\nproc (pid 954): 0xffffff0001354000\r\nname: crash2: 0\r\nstack: 0xffffffffae213000-0xffffffffae216fff\r\nflags: 0x4 pflags: 0x200000\r\nstate: INHIBITED: {LOCK}\r\nlock: def turnstile: 0xffffff0001288d20\r\npriority: 224\r\nFigure 4: Inspecting a Process and Thread in DDB\r\ndb> tr 100055\r\nTracing pid 954 tid 100055 td 0xffffff00013869c0\r\nsched_switch() at sched_switch+0x15d\r\nmi_switch() at mi_switch+0x215\r\nturnstile_wait() at turnstile_wait+0x24c\r\n_mtx_lock_sleep() at _mtx_lock_sleep+0xe0\r\n_mtx_lock_flags() at _mtx_lock_flags+0x7a\r\nmtx_deadlock() at mtx_deadlock+0xb4\r\ncrash_thread() at crash_thread+0x138\r\nfork_exit() at fork_exit+0x12a\r\nfork_trampoline() at fork_trampoline+0xe\r\n--- trap 0, rip = 0, rsp = 0xffffffffae23ed30, rbp = 0 ---\r\nFigure 5: Example DDB Stack Trace",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/a89bf807-8070-4462-b349-e74a77b7a55e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ca5aada47f40a8c9a9d247e4fee168b83a5249a275d886a9422ed570f682d09d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 343
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4868389c-afd9-427d-8018-b3fa7b3888f1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "threads waiting for locks. The show lock\r\ncommand takes the address of a lock (either a\r\nmutex [5], read-mostly lock [6], reader/writer\r\nlock [7], shared/exclusive (sx) lock [8], or\r\nlockmgr lock [9]) as its argument and displays\r\ndetails about the lock including the current\r\nowner, if any. The show turnstile com\u0002mand takes the address of a mutex, read\u0002mostly lock or reader/writer wlock as its ar\u0002gument. If there is a turnstile associated\r\nwith the lock, then it will display the lists\r\nof threads waiting on the specified lock. In\r\nFigure 3, four threads from process 954 are\r\nstuck in a deadlock cycle. In Figure 6 the\r\nrelationships between the threads from that\r\nprocess and the def lock are inspected.\r\nIn this case, thread 100142 owns the def\r\nlock and thread 100055 is waiting for it. Note\r\nthat the turnstile information actually in\u0002cludes the lock owners as well as the waiters\r\nfor a given lock. Also, from Figure 3 one can\r\nsee that the thread information includes the\r\nturnstile that a thread is currently blocked\r\non. From this, it is apparent that one can\r\nbuild a dependency graph among a group of\r\nthreads. For a given thread that is blocked\r\non a turnstile, it is waiting for the owner of\r\nthe lock associated with the turnstile.\r\nDDB provides another command, show\r\nlockchain that displays this dependency\r\nchain. It walks the thread dependencies\r\nvia turnstiles until it finds a thread that is\r\nnot blocked on a turnstile. If it encounters\r\na deadlock it will stay stuck in the cycle\r\nuntil the user uses ’q’ at DDB’s --More--\r\nprompt. The show lockchain argument\r\ntakes an optional argument specifying the\r\nstarting thread as either a pointer to a struct\r\nthread or a TID. Figure 7 shows the de\u0002pendency graph for thread 100055 which is\r\nclearly stuck in a deadlock with the other\r\nthreads from the same process.\r\nA limitation of show lockchain is that it\r\nonly handles dependencies for locking prim\u0002itives that use turnstiles such as mutexes.\r\nOther locking primitives such as sx locks\r\nuse sleepqueues to hold threads waiting for\r\nlocks. DDB includes a show sleepchain\r\ncommand which displays a dependency graph\r\nfor threads blocked on sx locks and lockmgr\r\nlocks. Figure 8 shows the dependency graph\r\nfor four threads locked in a cycle of lockmgr\r\nand sx locks.\r\n3.3 Adding New DDB Commands\r\nDDB commands are implemented by func\u0002tions in the kernel. Thus, new commands can\r\nbe added simply by writing new functions.\r\nCurrently new commands cannot be added\r\nat runtime via kernel modules.\r\n3.3.1 Declaring a Command\r\nEach DDB command is bound to a func\u0002tion. The <ddb/ddb.h> header provides\r\nhelper macros to declare a command func\u0002tion and add it to a command table. The\r\nDB COMMAND macro creates a top-level com\u0002mand including the function prototype. See\r\nFigure 9 for an example of a simple “foo”\r\ncommand. Note that there is no explicit func\u0002tion prototype and that the function body\r\nimmediately follows the macro. To add a\r\n“show” command, use DB SHOW COMMAND in\u0002stead of DB COMMAND.\r\nThe command function takes four argu\u0002ments which provide the command’s param\u0002eters. The addr argument specifies the ad\u0002dress for the command to operate on. It\r\nmay either be the user-supplied address or the\r\ndot address as described in ddb(4) [2]. The\r\nhave addr argument is a boolean that is true\r\nif the user supplied an explicit address. The\r\ncount argument indicates the count of oper\u0002ations to be performed. If the user did not\r\nspecify one, then count is set to -1. Finally,\r\nthe modif argument is a string that contains\r\nthe command modifiers without the leading\r\nslash. If no modifiers were specified, then\r\nmodif will be an empty string.\r\n3.3.2 I/O for DDB Commands\r\nDDB command functions are executed in an\r\nalternative environment from the rest of the\r\nkernel. One of the primary differences is\r\nthat DDB uses its own I/O subsystem. DDB\r\ncommands do not accept direct input from",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/4868389c-afd9-427d-8018-b3fa7b3888f1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9cc6ae45d48289e67f1a1384c7817c0274e13a47a82c73458648be86e2a8991d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 653
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4868389c-afd9-427d-8018-b3fa7b3888f1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "threads waiting for locks. The show lock\r\ncommand takes the address of a lock (either a\r\nmutex [5], read-mostly lock [6], reader/writer\r\nlock [7], shared/exclusive (sx) lock [8], or\r\nlockmgr lock [9]) as its argument and displays\r\ndetails about the lock including the current\r\nowner, if any. The show turnstile com\u0002mand takes the address of a mutex, read\u0002mostly lock or reader/writer wlock as its ar\u0002gument. If there is a turnstile associated\r\nwith the lock, then it will display the lists\r\nof threads waiting on the specified lock. In\r\nFigure 3, four threads from process 954 are\r\nstuck in a deadlock cycle. In Figure 6 the\r\nrelationships between the threads from that\r\nprocess and the def lock are inspected.\r\nIn this case, thread 100142 owns the def\r\nlock and thread 100055 is waiting for it. Note\r\nthat the turnstile information actually in\u0002cludes the lock owners as well as the waiters\r\nfor a given lock. Also, from Figure 3 one can\r\nsee that the thread information includes the\r\nturnstile that a thread is currently blocked\r\non. From this, it is apparent that one can\r\nbuild a dependency graph among a group of\r\nthreads. For a given thread that is blocked\r\non a turnstile, it is waiting for the owner of\r\nthe lock associated with the turnstile.\r\nDDB provides another command, show\r\nlockchain that displays this dependency\r\nchain. It walks the thread dependencies\r\nvia turnstiles until it finds a thread that is\r\nnot blocked on a turnstile. If it encounters\r\na deadlock it will stay stuck in the cycle\r\nuntil the user uses ’q’ at DDB’s --More--\r\nprompt. The show lockchain argument\r\ntakes an optional argument specifying the\r\nstarting thread as either a pointer to a struct\r\nthread or a TID. Figure 7 shows the de\u0002pendency graph for thread 100055 which is\r\nclearly stuck in a deadlock with the other\r\nthreads from the same process.\r\nA limitation of show lockchain is that it\r\nonly handles dependencies for locking prim\u0002itives that use turnstiles such as mutexes.\r\nOther locking primitives such as sx locks\r\nuse sleepqueues to hold threads waiting for\r\nlocks. DDB includes a show sleepchain\r\ncommand which displays a dependency graph\r\nfor threads blocked on sx locks and lockmgr\r\nlocks. Figure 8 shows the dependency graph\r\nfor four threads locked in a cycle of lockmgr\r\nand sx locks.\r\n3.3 Adding New DDB Commands\r\nDDB commands are implemented by func\u0002tions in the kernel. Thus, new commands can\r\nbe added simply by writing new functions.\r\nCurrently new commands cannot be added\r\nat runtime via kernel modules.\r\n3.3.1 Declaring a Command\r\nEach DDB command is bound to a func\u0002tion. The <ddb/ddb.h> header provides\r\nhelper macros to declare a command func\u0002tion and add it to a command table. The\r\nDB COMMAND macro creates a top-level com\u0002mand including the function prototype. See\r\nFigure 9 for an example of a simple “foo”\r\ncommand. Note that there is no explicit func\u0002tion prototype and that the function body\r\nimmediately follows the macro. To add a\r\n“show” command, use DB SHOW COMMAND in\u0002stead of DB COMMAND.\r\nThe command function takes four argu\u0002ments which provide the command’s param\u0002eters. The addr argument specifies the ad\u0002dress for the command to operate on. It\r\nmay either be the user-supplied address or the\r\ndot address as described in ddb(4) [2]. The\r\nhave addr argument is a boolean that is true\r\nif the user supplied an explicit address. The\r\ncount argument indicates the count of oper\u0002ations to be performed. If the user did not\r\nspecify one, then count is set to -1. Finally,\r\nthe modif argument is a string that contains\r\nthe command modifiers without the leading\r\nslash. If no modifiers were specified, then\r\nmodif will be an empty string.\r\n3.3.2 I/O for DDB Commands\r\nDDB command functions are executed in an\r\nalternative environment from the rest of the\r\nkernel. One of the primary differences is\r\nthat DDB uses its own I/O subsystem. DDB\r\ncommands do not accept direct input from",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/4868389c-afd9-427d-8018-b3fa7b3888f1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9cc6ae45d48289e67f1a1384c7817c0274e13a47a82c73458648be86e2a8991d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 653
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fdda22d1-7be5-449a-a6c0-b71652cb047c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "db> show lock def\r\nclass: sleep mutex\r\nname: def\r\nflags: {DEF}\r\nstate: {OWNED, CONTESTED}\r\nowner: 0xffffff000155c680 (tid 100142, pid 954, \"crash2: 1\")\r\ndb> show turnstile def\r\nLock: 0xffffffffae3c6fc0 - (sleep mutex) def\r\nLock Owner: 0xffffff000155c680 (tid 100142, pid 954, \"crash2: 1\")\r\nShared Waiters:\r\nempty\r\nExclusive Waiters:\r\n0xffffff00013869c0 (tid 100055, pid 954, \"crash2: 0\")\r\nPending Threads:\r\nempty\r\nFigure 6: Examining Relationships Between Threads and the def Lock\r\ndb> show lockchain 100055\r\nthread 100055 (pid 954, crash2: 0) blocked on lock 0xffffffffae3c6fc0 (sleep mutex) \"def\"\r\nthread 100142 (pid 954, crash2: 1) blocked on lock 0xffffffffae3c7000 (sleep mutex) \"ghi\"\r\nthread 100143 (pid 954, crash2: 2) blocked on lock 0xffffffffae3c7040 (sleep mutex) \"jkl\"\r\nthread 100144 (pid 954, crash2: 3) blocked on lock 0xffffffffae3c6f80 (sleep mutex) \"abc\"\r\nthread 100055 (pid 954, crash2: 0) blocked on lock 0xffffffffae3c6fc0 (sleep mutex) \"def\"\r\nthread 100142 (pid 954, crash2: 1) blocked on lock 0xffffffffae3c7000 (sleep mutex) \"ghi\"\r\n...\r\nFigure 7: Example show lockchain Output\r\ndb> ps\r\npid ppid pgrp uid state wmesg wchan cmd\r\n811 0 0 0 SL (threaded) crash2\r\n100139 D fee 0xffffffffae3a9180 [crash2: 3]\r\n100138 D four 0xffffffffae3a9140 [crash2: 2]\r\n100137 D fo 0xffffffffae3a9240 [crash2: 1]\r\n100136 D two 0xffffffffae3a90c0 [crash2: 0]\r\n...\r\ndb> show lock fee\r\nclass: lockmgr\r\nname: fee\r\nlock type: fee\r\nstate: EXCL (count 1) 0xffffff00013079c0 (tid 100136, pid 811, \"crash2: 0\")\r\nwaiters: 1\r\ndb> show sleepchain 100139\r\nthread 100139 (pid 811, crash2: 3) blocked on lk \"fee\" EXCL (count 1)\r\nthread 100136 (pid 811, crash2: 0) blocked on sx \"two\" XLOCK\r\nthread 100137 (pid 811, crash2: 1) blocked on lk \"fo\" EXCL (count 1)\r\nthread 100138 (pid 811, crash2: 2) blocked on sx \"four\" XLOCK\r\nthread 100139 (pid 811, crash2: 3) blocked on lk \"fee\" EXCL (count 1)\r\n...\r\nFigure 8: Example show sleepchain Output",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/fdda22d1-7be5-449a-a6c0-b71652cb047c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eff04e6332b1e0529b96ae6edf2a2ae9d759e6ce94e5d9536d239486c4e7f6d7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 293
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "9603ffbd-d2ed-47b2-adc6-c69cb132ae4f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "DB_COMMAND(foo, db_foo_cmd)\r\n{\r\nstruct foo *foop;\r\nint i;\r\nif (have_addr)\r\nfoop = (struct foo *)addr;\r\nelse\r\nfoop = &default_foo;\r\nif (count == -1)\r\ncount = 1; /* Default count. */\r\nfor (i = 0; i < count; i++)\r\ndo_something(foop);\r\n}\r\nFigure 9: Sample DDB Command\r\nthe user. Instead, the input comes from the\r\ncommand line when the command is invoked.\r\nCommands do output various messages to the\r\nconsole, and DDB provides its own API for\r\nconsole output.\r\nThe primary routine in DDB’s I/O API is\r\ndb printf. This function takes the same ar\u0002guments as printf(9) and supports all of the\r\nsame output formats. This includes the ex\u0002tended formats %b and %D. DDB command\r\nfunctions should use db printf for all con\u0002sole output.\r\nAn additional detail of DDB’s I/O subsys\u0002tem that DDB commands may need to han\u0002dle is the pager. DDB’s output includes a\r\nbuiltin pager which will interrupt the output\r\nwith a --More-- prompt periodically. If a\r\ncommand does not wish to have any of its\r\noutput interrupted it may disable the pager\r\nentirely by calling db disable pager. The\r\npanic command does this for example. A\r\nDDB command that produces a lot of out\u0002put (for example, one that iterates over a list)\r\nshould honor a request by the user to abort\r\nthe current command at the pager prompt. If\r\nthe user aborts a command, then the global\r\nvariable db pager quit will be set to true.\r\nThus, DDB command functions simply need\r\nto check the state of db pager quit periodi\u0002cally and gracefully exit when it is non-zero.\r\nFigure 10 contains a sample “show foos” com\u0002mand which walks a list of struct foo ob\u0002jects displaying information about each ob\u0002ject. It supports a “v” flag to enable more\r\nverbose output.\r\n3.3.3 Using DDB to Map Addresses\r\nto Symbols\r\nAnother useful debugging tool DDB provides\r\nis the ability to use its symbol tables to map\r\naddresses to symbolic names. This can be\r\nvery useful for looking up the name of a func\u0002tion for a function pointer. This is especially\r\ntrue when working with facilities that work\r\non lists of function pointers such as taskqueue\r\ntasks, callouts, or SYSINITs. Note that these\r\nroutines can be used outside of DDB. How\u0002ever, doing so may result in races with loading\r\nkernel modules, so care should be taken.\r\nThe db search symbol function is used\r\nto map a specific address to a symbol. It\r\naccepts an address as its first argument,\r\na strategy as its second argument, and a\r\npointer to a db expr t variable as its third\r\nargument. The strategy argument can ei\u0002ther by DB STGY PROC to only match func\u0002tions or DB STGY ANY to match any sym\u0002bol. The third argument cannot be NULL as\r\ndb search symbol assumes it always points\r\nto valid storage. Upon successful completion,\r\nthe function returns a pointer to a symbol. It\r\nalso stores the offset of the address relative\r\nto the symbol in the variable pointed to by\r\nthe third argument. If no appropriate symbol\r\nwas found, then db search symbol returns\r\nC DB SYM NULL.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/9603ffbd-d2ed-47b2-adc6-c69cb132ae4f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f0b311a073e5ee67157b35970f49a9c109d95318a2c74e6771dcdd54bba452ee",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 510
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "7c1bf195-6e4f-40f2-b19b-9f61c2329c01",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "DB_SHOW_COMMAND(foos, db_show_foos_cmd)\r\n{\r\nstruct foo *foop;\r\nint verbose;\r\nverbose = index(modif, ’v’) != NULL;\r\nTAILQ_FOREACH(foop, &allfoos, f_list) {\r\nif (verbose)\r\ndb_printf(\"%p: \", foop);\r\ndb_printf(\"%s (%d)\\n\" foop->f_name, foop->f_count);\r\nif (db_pager_quit)\r\nbreak;\r\n}\r\n}\r\nFigure 10: Sample DDB “show” Command\r\nThe db symbol values function is used\r\nto obtain the name and value of a symbol.\r\nThe first argument is a pointer to a symbol\r\n(such as returned from db search symbol).\r\nThe second argument is a pointer to a\r\nconst char * and the third argument is a\r\npointer to a db expr t. The second argument\r\nmust point to valid storage, but the third\r\nargument can be NULL. On return from the\r\nfunction, the second argument will point to\r\nthe name of the symbol or will have the value\r\nNULL if the first argument was an invalid sym\u0002bol. The third argument will hold the value\r\nof the symbol (i.e., its address). Figure 11\r\nshows the code from the VERBOSE SYSINIT\r\nkernel option which outputs the name of each\r\nSYSINIT routine executed during boot.\r\nThe db printsym routine is a wrapper\r\naround the previous two routines. It accepts\r\nan address as its first argument and a strat\u0002egy as its second argument. It looks up the\r\nsymbol for the address and prints the name\r\nusing db printf. If the offset of the address\r\nis non-zero, then it appends a “+” character\r\nfollowed by the offset to the output. This is\r\nthe routine used by DDB’s stack trace com\u0002mand the print the return address for each\r\nstack frame.\r\n4 Debugging with kgdb\r\nThe kgdb program is a wrapper around\r\ngdb that is used for analyzing a kernel. Un\u0002like DDB which is integrated into the kernel\r\nand self-contained, kgdb is an external pro\u0002gram. As a result, it requires more setup\r\nwork. However, it also can target several dif\u0002ferent environments. DDB can only be used\r\nto debug the currently running kernel on the\r\nsame machine and only by halting the kernel.\r\nThe kgdb debugger can be used to analyze\r\na kernel crash, inspect the currently running\r\nkernel, or debug a halted kernel on another\r\nmachine. In addition, it provides a much\r\nricher debugging environment than DDB in\u0002cluding source-level debugging, access to local\r\nsymbols, and scripting that supports control\r\nflow.\r\n4.1 Inspecting Processes and\r\nThreads\r\nIn general, kgdb treats the kernel as if one\r\nwere using gdb to analyze a single multi\u0002threaded process. Each kernel thread is\r\nmapped to a single gdb thread. Thus, the\r\nusual gdb commands for managing threads\r\n(e.g. info threads and thread) can be used\r\nwith kernel threads as well. One slight annoy\u0002ance, however, is that the thread IDs kgdb\r\nuses have no relation to the PIDs and TIDs\r\nthe FreeBSD kernel uses to identify processes",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/7c1bf195-6e4f-40f2-b19b-9f61c2329c01.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=062bffe82e9012aa32e9bf346d0954a9303014dd936cb3e7bcd42f6d096727d2",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 454
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "82537626-60c9-4e49-881a-25dacdf7310d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "#if defined(DDB)\r\nconst char *name;\r\nc_db_sym_t sym;\r\ndb_expr_t offset;\r\nsym = db_search_symbol((vm_offset_t)(*sipp)->func,\r\nDB_STGY_PROC, &offset);\r\ndb_symbol_values(sym, &name, NULL);\r\nif (name != NULL)\r\nprintf(\" %s(%p)... \", name, (*sipp)->udata);\r\nelse\r\n#endif\r\nprintf(\" %p(%p)... \", (*sipp)->func,\r\n(*sipp)->udata);\r\nFigure 11: Mapping Function Pointers to Names for VERBOSE SYSINIT\r\nand threads. Thus, to switch to a thread with\r\na specific TID or PID one has to examine the\r\nthread list from info threads to map a TID\r\nor PID to a gdb thread ID.\r\nTo alleviate this inconvenience, kgdb pro\u0002vides proc and tid commands. The proc\r\ncommand accepts a PID and switches to the\r\nthread context of the first thread for the spec\u0002ified process. The tid command accepts\r\na TID and switches to the corresponding\r\nthread. Note that the proc command does\r\nnot work with remote debugging.\r\n4.2 Debugging Kernel Modules\r\nKernel modules (also called “klds”) are sep\u0002arate object files that can be loaded into the\r\nkernel’s address space at runtime. Each ker\u0002nel module contains its own symbols that are\r\nseparate from the kernel’s symbols. DDB\r\nuses a merged symbol table that is updated\r\nby the kernel linker when modules are loaded\r\nand unloaded. The kgdb debugger, on the\r\nother hand, has to explicitly load symbols for\r\neach kernel module from an appropriate sym\u0002bol file.\r\nAn arbitrary symbol file can be loaded\r\nin kgdb using the add-symbol-file com\u0002mand. This command requires the relocated\r\naddresses of each section as command argu\u0002ments. Doing this by hand is a bit tedious.\r\nIt involves extracting the base address of the\r\nkernel module from the kernel (e.g. using kld\u0002stat(8)), and the relative addresses of each\r\nsection from the kernel module (e.g. using\r\nobjdump(8)). The relocated address of each\r\nsection is then computed by adding its rela\u0002tive address to the base address of the mod\u0002ule. Thankfully, there are ways to automate\r\nthis process.\r\n4.2.1 kgdb KLD Support\r\nRecent versions of kgdb provide integrated\r\nsupport for managing kernel modules. First,\r\nthe add-kld command can be used to man\u0002ually load the symbols for a single module.\r\nSecond, kgdb uses gdb’s support for shared\r\nlibraries to automatically load symbols for\r\nmodules. Note that both of these features\r\nonly work for a kernel with debug symbols.\r\nThe add-kld command accepts as its sole\r\nargument a pathname of a kernel module and\r\nloads the symbols for that module. The path\r\ncan either be an absolute path or a relative\r\npath. If it is a relative path, then kgdb\r\nwill look for the module in several directo\u0002ries: the current working directory, the di\u0002rectory of the current kernel executable, and\r\neach directory in the target kernel’s module\r\npath. If a kernel module is found, then its\r\nfilename is matched to one of the target ker\u0002nel’s loaded modules. The base address for\r\nthe loaded module is read from the target\r\nkernel and used to relocate the section ad-",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/82537626-60c9-4e49-881a-25dacdf7310d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e2ddc447077a083e7c46f1410634d669da408410444290d34012b8f8c68e968a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 468
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b1ca6de0-2755-4c21-9ab4-0b3f6e96dac9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "dresses in the kernel module symbol file. Ba\u0002sically, add-kld is a wrapper around the gdb\r\ncommand add-symbol-file that does all the\r\nmath internally. As with add-symbol-file,\r\nthe only way to unload symbols added via\r\nadd-kld is to clear all symbols via the file\r\nor symbol-file commands.\r\nFor more automated handling of kernel\r\nmodules, kgdb hooks into gdb’s shared li\u0002brary support and treats kernel modules as\r\nshared libraries. As a result, the stan\u0002dard commands for manipulating shared li\u0002braries in gdb such as info sharedlibrary,\r\nsharedlibrary, and nosharedlibrary can\r\nbe used to manage kernel module symbols. In\r\naddition, sections from kernel modules loaded\r\nvia the shared library mechanism are listed in\r\nthe info files output. Figure 12 shows the\r\nkernel modules loaded on my laptop.\r\nTo locate the corresponding file for a ker\u0002nel module, kgdb will first use the abso\u0002lute path stored in the kernel image for\r\n8.0 and later. Note that you can use set\r\nsolib-absolute-prefix to force a prefix for\r\nthe absolute paths. If the absolute path is\r\nnot present (or the corresponding file is not\r\npresent), then kgdb will first search for the file\r\nin paths set via set solib-search-path. If\r\nthat fails, then kgdb will search the same set\r\nof paths as the add-kld command.\r\nUsing this facility, symbols for kernel mod\u0002ules are automatically loaded when a vmcore\r\nfile is used as the target. When debugging a\r\nremote target, on the other hand, symbols for\r\nkernel modules are not automatically loaded\r\nwhen attaching to the target. However, in\u0002voking the info sharedlibrary command\r\nwill cause kgdb to query the list of kernel\r\nmodules from the remote kernel. Afterward\r\nthe sharedlibrary command can be used to\r\nload symbols for the modules.\r\n4.2.2 Using asf(8)\r\nFor older versions of kgdb, the asf(8) [10] tool\r\ncan be used to automate the loading of kld\r\nsymbols. Specifically, asf(8) searches for ker\u0002nel modules corresponding to a set of loaded\r\nmodules and then generates a text file con\u0002taining add-symbol-file commands to load\r\nthe symbols for each module. Note that by\r\ndefault, asf(8) expects to parse output from\r\nkldstat(8) on its standard input to obtain the\r\nlist of kernel modules. However, the -M and\r\n-N options can be used to make asf(8) read\r\nthe list of kernel modules directly from a vm\u0002core similar to kgdb. Also, asf(8) assumes\r\nthat it is invoked from a kernel build direc\u0002tory. If you wish it to load symbols from\r\nthe modules in the installed location you will\r\nneed to use the -s flag and specify an explicit\r\nkernel module path. Once asf(8) has gener\u0002ated a gdb command file, the symbols can be\r\nloaded by using the source command from\r\nkgdb to execute the commands in the gener\u0002ated file. Figure 13 shows the command file\r\ngenerated by asf(8) for the modules loaded\r\non my laptop. Note that the addresses of the\r\nvarious named sections in the command for\r\niwi bss.ko match the addresses in the info\r\nfiles output from Figure 12.\r\n4.3 Extending kgdb via Scripts\r\nSimilar to DDB, kgdb can be extended by\r\nadding new commands. Rather than requir\u0002ing a recompile of the kernel, new commands\r\ncan be added on the fly using gdb’s scripting\r\nlanguage. GDB scripts are evaluated at run\u0002time and are not pre-compiled. On the one\r\nhand this provides several benefits. For ex\u0002ample, the physical layout of structures are\r\nnot hardcoded into the scripts when writing\r\nthem. Instead, gdb uses symbols from the\r\nkernel and modules to compute the offsets\r\nof member names as well as the addresses of\r\nglobal symbols. Also, gdb does not evaluate\r\nstatements that are not executed. Thus, one\r\ncan use members of structures that are not\r\nalways present (e.g. when a new member is\r\nadded) by using conditional execution. The\r\ndownside is that gdb scripts require a ker\u0002nel built with debug symbols for all but the\r\nsimplest tasks. The gdb info documentation\r\ncovers the basics of scripts, or user defined\r\ncommands, but there are several quirks that\r\nare worth mentioning.\r\nFirst, while gdb scripts do support control\r\nflow via while loops and if-then-else state\u0002ments, there are a few limitations. For",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/b1ca6de0-2755-4c21-9ab4-0b3f6e96dac9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5504fee51dd8829ffd93aa00f29507aeb5b96d6d7ca6ae06da9d0aa5240aae8d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 678
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b1ca6de0-2755-4c21-9ab4-0b3f6e96dac9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "dresses in the kernel module symbol file. Ba\u0002sically, add-kld is a wrapper around the gdb\r\ncommand add-symbol-file that does all the\r\nmath internally. As with add-symbol-file,\r\nthe only way to unload symbols added via\r\nadd-kld is to clear all symbols via the file\r\nor symbol-file commands.\r\nFor more automated handling of kernel\r\nmodules, kgdb hooks into gdb’s shared li\u0002brary support and treats kernel modules as\r\nshared libraries. As a result, the stan\u0002dard commands for manipulating shared li\u0002braries in gdb such as info sharedlibrary,\r\nsharedlibrary, and nosharedlibrary can\r\nbe used to manage kernel module symbols. In\r\naddition, sections from kernel modules loaded\r\nvia the shared library mechanism are listed in\r\nthe info files output. Figure 12 shows the\r\nkernel modules loaded on my laptop.\r\nTo locate the corresponding file for a ker\u0002nel module, kgdb will first use the abso\u0002lute path stored in the kernel image for\r\n8.0 and later. Note that you can use set\r\nsolib-absolute-prefix to force a prefix for\r\nthe absolute paths. If the absolute path is\r\nnot present (or the corresponding file is not\r\npresent), then kgdb will first search for the file\r\nin paths set via set solib-search-path. If\r\nthat fails, then kgdb will search the same set\r\nof paths as the add-kld command.\r\nUsing this facility, symbols for kernel mod\u0002ules are automatically loaded when a vmcore\r\nfile is used as the target. When debugging a\r\nremote target, on the other hand, symbols for\r\nkernel modules are not automatically loaded\r\nwhen attaching to the target. However, in\u0002voking the info sharedlibrary command\r\nwill cause kgdb to query the list of kernel\r\nmodules from the remote kernel. Afterward\r\nthe sharedlibrary command can be used to\r\nload symbols for the modules.\r\n4.2.2 Using asf(8)\r\nFor older versions of kgdb, the asf(8) [10] tool\r\ncan be used to automate the loading of kld\r\nsymbols. Specifically, asf(8) searches for ker\u0002nel modules corresponding to a set of loaded\r\nmodules and then generates a text file con\u0002taining add-symbol-file commands to load\r\nthe symbols for each module. Note that by\r\ndefault, asf(8) expects to parse output from\r\nkldstat(8) on its standard input to obtain the\r\nlist of kernel modules. However, the -M and\r\n-N options can be used to make asf(8) read\r\nthe list of kernel modules directly from a vm\u0002core similar to kgdb. Also, asf(8) assumes\r\nthat it is invoked from a kernel build direc\u0002tory. If you wish it to load symbols from\r\nthe modules in the installed location you will\r\nneed to use the -s flag and specify an explicit\r\nkernel module path. Once asf(8) has gener\u0002ated a gdb command file, the symbols can be\r\nloaded by using the source command from\r\nkgdb to execute the commands in the gener\u0002ated file. Figure 13 shows the command file\r\ngenerated by asf(8) for the modules loaded\r\non my laptop. Note that the addresses of the\r\nvarious named sections in the command for\r\niwi bss.ko match the addresses in the info\r\nfiles output from Figure 12.\r\n4.3 Extending kgdb via Scripts\r\nSimilar to DDB, kgdb can be extended by\r\nadding new commands. Rather than requir\u0002ing a recompile of the kernel, new commands\r\ncan be added on the fly using gdb’s scripting\r\nlanguage. GDB scripts are evaluated at run\u0002time and are not pre-compiled. On the one\r\nhand this provides several benefits. For ex\u0002ample, the physical layout of structures are\r\nnot hardcoded into the scripts when writing\r\nthem. Instead, gdb uses symbols from the\r\nkernel and modules to compute the offsets\r\nof member names as well as the addresses of\r\nglobal symbols. Also, gdb does not evaluate\r\nstatements that are not executed. Thus, one\r\ncan use members of structures that are not\r\nalways present (e.g. when a new member is\r\nadded) by using conditional execution. The\r\ndownside is that gdb scripts require a ker\u0002nel built with debug symbols for all but the\r\nsimplest tasks. The gdb info documentation\r\ncovers the basics of scripts, or user defined\r\ncommands, but there are several quirks that\r\nare worth mentioning.\r\nFirst, while gdb scripts do support control\r\nflow via while loops and if-then-else state\u0002ments, there are a few limitations. For",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/b1ca6de0-2755-4c21-9ab4-0b3f6e96dac9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5504fee51dd8829ffd93aa00f29507aeb5b96d6d7ca6ae06da9d0aa5240aae8d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 678
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "0f431c9c-aab3-468b-82ed-0e61e7bc1878",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "> sudo kgdb -q\r\nReading symbols from /boot/kernel/iwi_bss.ko...\r\nReading symbols from /boot/kernel/iwi_bss.ko.symbols...done.\r\ndone.\r\nLoaded symbols for /boot/kernel/iwi_bss.ko\r\nReading symbols from /boot/kernel/logo_saver.ko...\r\nReading symbols from /boot/kernel/logo_saver.ko.symbols...done.\r\ndone.\r\nLoaded symbols for /boot/kernel/logo_saver.ko\r\n...\r\n(kgdb) info sharedlibrary\r\nFrom To Syms Read Shared Object Library\r\n0xc3e8e5a0 0xc3e8e63b Yes /boot/kernel/iwi_bss.ko\r\n0xc41037a0 0xc4103c28 Yes /boot/kernel/logo_saver.ko\r\n(kgdb) info files\r\nSymbols from \"/boot/kernel/kernel\".\r\nkernel core dump file:\r\n‘/dev/mem’, file type FreeBSD kernel vmcore.\r\nLocal exec file:\r\n‘/boot/kernel/kernel’, file type elf32-i386-freebsd.\r\nEntry point: 0xc04513c0\r\n...\r\n0xc3e8e5a0 - 0xc3e8e63b is .text in /boot/kernel/iwi_bss.ko\r\n0xc3e8e63b - 0xc3e8e724 is .rodata in /boot/kernel/iwi_bss.ko\r\n0xc3e8f000 - 0xc3ebdb04 is .data in /boot/kernel/iwi_bss.ko\r\n0xc3ebdb04 - 0xc3ebdb7c is .dynamic in /boot/kernel/iwi_bss.ko\r\n0xc3ebdb7c - 0xc3ebdb88 is .got in /boot/kernel/iwi_bss.ko\r\n0xc3ebdb88 - 0xc3ebdb8c is .bss in /boot/kernel/iwi_bss.ko\r\n...\r\nFigure 12: Examining Kernel Modules from kgdb\r\n> sudo asf -o - -N /boot/kernel/kernel -M /dev/mem -s /boot/kernel\r\nadd-symbol-file /boot/kernel/iwi_bss.ko.symbols 0xc3e8e5a0\r\n-s .data 0xc3e8f000 -s .bss 0xc3ebdb88\r\nadd-symbol-file /boot/kernel/logo_saver.ko.symbols 0xc41037a0\r\n-s .data 0xc4104c80 -s .bss 0xc4106ee8\r\nFigure 13: Sample kgdb Command File Generated by asf(8)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/0f431c9c-aab3-468b-82ed-0e61e7bc1878.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6b1bee1cb14f833a228cdac8441876fd5cbddce7fc6cf542ef097b093be1761d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 164
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "548f3f65-5d95-47b8-b30c-d6222de6112a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "example, there is no direct “else-if” con\u0002struct. Instead, one must include a nested\r\nif statement inside an else block. Figure 14\r\nshows a simple example of this. In addi\u0002tion, there are no equivalents to the C state\u0002ments break, continue, or return. There\r\nare gdb commands which have those names,\r\nbut they affect the execution of the program\r\nbeing debugged (e.g. setting a breakpoint).\r\nNewer versions of gdb do add loop break and\r\nloop continue but FreeBSD’s gdb does not\r\nhave those commands.\r\nSecond, the implementation of arguments\r\nto user-defined commands has several sub\u0002tle implications. First, there is no easy way\r\nfor a command to figure out how many ar\u0002guments the user passed to it. However,\r\nif the command references an argument the\r\nuser did not define, then gdb will halt execu\u0002tion of the command with an error. Second,\r\nas described in the documentation, gdb re\u0002places the argument variables with the text\r\nof the user-supplied argument before evalu\u0002ating expressions rather than evaluating the\r\nuser-supplied expression and creating a new\r\nvariable with that value. This means that you\r\ncannot treat the arguments as local variables\r\nwith local scope. However, it does mean that\r\nany variables passed as arguments to user\u0002defined commands are effectively passed by\r\nreference. This provides a way to return val\u0002ues from user-defined commands by assigning\r\nvalues to argument variables.\r\nThird, working with string literals can be\r\nawkward. Specifically, one cannot assign a\r\nstring literal to a convenience variable or in\u0002dex a string literal unless gdb is attached to\r\na live process, and core dumps do not count\r\nas live processes. As a result, to compare a\r\nvariable in a core to a known string one has to\r\nexplicitly compare invidual characters. While\r\nthis is tedious, this can be useful. In Figure 15\r\nthe contents of the machine arch global vari\u0002able are used to determine the current ar\u0002chitecture and include another command file\r\nwith architecture-specific commands.\r\nFinally, there is no way to abort execution\r\nof a user-defined command. If a user-defined\r\ncommand gets stuck in an infinite loop, for\r\nexample, the sole recourse is to kill the kgdb\r\nprocess. A command can be aborted at the\r\npager prompt if it emits a full page of output.\r\nHowever, one cannot use Ctrl-C or some\u0002thing similar to abort execution of a com\u0002mand.\r\n5 Examining Crashdumps with\r\nSystem Utilities\r\nSeveral system utilities can examine crash\r\ndumps instead of the running kernel. In gen\u0002eral, these utilities accept two optional argu\u0002ments: -M and -N. These arguments specify\r\nan alternate core file and kernel image, re\u0002spectively. Some of the utilities which sup\u0002port this feature include ddb(8), dmesg(8),\r\nfstat(1), iostat(8), ipcs(1), netstat(1), nfs\u0002stat(1), ps(1), pstat(8), and vmstat(8).\r\n6 Debugging Strategies\r\nKernel bugs manifest in several different\r\nways. Some bugs trigger a panic, but other\r\nbugs may result in a hang or a partial loss of\r\nfunction. For example, if several threads are\r\nlocked in a deadlock, they may not hang the\r\nentire machine but only impair certain oper\u0002ations. These differing consequences require\r\ndifferent strategies for finding the bug.\r\n6.1 Kernel Crashes\r\nKernel crashes can often be investigated\r\nwith a very straightforward approach. Often,\r\nthe panic message itself points to the prob\u0002lem. For those crashes, the context of the\r\npanic in the source is sufficient to determine\r\nthe cause of the crash.\r\nSome crashes are an indirect result of a\r\nbug, however. For example, a corrupted data\r\nstructure will usually result in a memory pro\u0002tection exception such as a page fault. For\r\nthese crashes, simply examining the source\r\nline where the crash occurred will usually lead\r\nto the data structure that is in an invalid\r\nstate. Inspecting the data structure more",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/548f3f65-5d95-47b8-b30c-d6222de6112a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=78dd464f67b35452a461d3c976565898ac883481155dfaebdd7c37dfbcd31c76",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 603
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "548f3f65-5d95-47b8-b30c-d6222de6112a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "example, there is no direct “else-if” con\u0002struct. Instead, one must include a nested\r\nif statement inside an else block. Figure 14\r\nshows a simple example of this. In addi\u0002tion, there are no equivalents to the C state\u0002ments break, continue, or return. There\r\nare gdb commands which have those names,\r\nbut they affect the execution of the program\r\nbeing debugged (e.g. setting a breakpoint).\r\nNewer versions of gdb do add loop break and\r\nloop continue but FreeBSD’s gdb does not\r\nhave those commands.\r\nSecond, the implementation of arguments\r\nto user-defined commands has several sub\u0002tle implications. First, there is no easy way\r\nfor a command to figure out how many ar\u0002guments the user passed to it. However,\r\nif the command references an argument the\r\nuser did not define, then gdb will halt execu\u0002tion of the command with an error. Second,\r\nas described in the documentation, gdb re\u0002places the argument variables with the text\r\nof the user-supplied argument before evalu\u0002ating expressions rather than evaluating the\r\nuser-supplied expression and creating a new\r\nvariable with that value. This means that you\r\ncannot treat the arguments as local variables\r\nwith local scope. However, it does mean that\r\nany variables passed as arguments to user\u0002defined commands are effectively passed by\r\nreference. This provides a way to return val\u0002ues from user-defined commands by assigning\r\nvalues to argument variables.\r\nThird, working with string literals can be\r\nawkward. Specifically, one cannot assign a\r\nstring literal to a convenience variable or in\u0002dex a string literal unless gdb is attached to\r\na live process, and core dumps do not count\r\nas live processes. As a result, to compare a\r\nvariable in a core to a known string one has to\r\nexplicitly compare invidual characters. While\r\nthis is tedious, this can be useful. In Figure 15\r\nthe contents of the machine arch global vari\u0002able are used to determine the current ar\u0002chitecture and include another command file\r\nwith architecture-specific commands.\r\nFinally, there is no way to abort execution\r\nof a user-defined command. If a user-defined\r\ncommand gets stuck in an infinite loop, for\r\nexample, the sole recourse is to kill the kgdb\r\nprocess. A command can be aborted at the\r\npager prompt if it emits a full page of output.\r\nHowever, one cannot use Ctrl-C or some\u0002thing similar to abort execution of a com\u0002mand.\r\n5 Examining Crashdumps with\r\nSystem Utilities\r\nSeveral system utilities can examine crash\r\ndumps instead of the running kernel. In gen\u0002eral, these utilities accept two optional argu\u0002ments: -M and -N. These arguments specify\r\nan alternate core file and kernel image, re\u0002spectively. Some of the utilities which sup\u0002port this feature include ddb(8), dmesg(8),\r\nfstat(1), iostat(8), ipcs(1), netstat(1), nfs\u0002stat(1), ps(1), pstat(8), and vmstat(8).\r\n6 Debugging Strategies\r\nKernel bugs manifest in several different\r\nways. Some bugs trigger a panic, but other\r\nbugs may result in a hang or a partial loss of\r\nfunction. For example, if several threads are\r\nlocked in a deadlock, they may not hang the\r\nentire machine but only impair certain oper\u0002ations. These differing consequences require\r\ndifferent strategies for finding the bug.\r\n6.1 Kernel Crashes\r\nKernel crashes can often be investigated\r\nwith a very straightforward approach. Often,\r\nthe panic message itself points to the prob\u0002lem. For those crashes, the context of the\r\npanic in the source is sufficient to determine\r\nthe cause of the crash.\r\nSome crashes are an indirect result of a\r\nbug, however. For example, a corrupted data\r\nstructure will usually result in a memory pro\u0002tection exception such as a page fault. For\r\nthese crashes, simply examining the source\r\nline where the crash occurred will usually lead\r\nto the data structure that is in an invalid\r\nstate. Inspecting the data structure more",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/548f3f65-5d95-47b8-b30c-d6222de6112a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=78dd464f67b35452a461d3c976565898ac883481155dfaebdd7c37dfbcd31c76",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 603
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b6264f42-b9b2-41ed-9059-84ed619366d2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "def foo\r\nif ($arg0 > 10)\r\nprint \"big number\"\r\nelse\r\nif ($arg0 > 5)\r\nprint \"medium number\"\r\nelse\r\nprint \"small number\"\r\nend\r\nend\r\nend\r\nFigure 14: Sample GDB Script Else-If Construct\r\nif (machine_arch[0] == ’a’ && machine_arch[1] == ’m’ && machine_arch[2] == ’d’)\r\nsource gdb6.amd64\r\nset $__amd64__ = 1\r\nend\r\nif (machine_arch[0] == ’i’ && machine_arch[1] == ’3’ && machine_arch[2] == ’8’)\r\nsource gdb6.i386\r\nset $__i386__ = 1\r\nend\r\nFigure 15: Including a Machine Dependent kgdb Command File\r\nclosely as well as the code around the crash\r\npoint is often sufficient to determine the cause\r\nof the bug.\r\nAnother crash that can be a secondary ef\u0002fect is a crash due to exhausting the space\r\nin the “kmem” virtual memory map. The\r\n“kmem” virtual memory map is used to pro\u0002vide virtual address space for memory allo\u0002cated via malloc(9) or uma(9) in the ker\u0002nel. On architectures with a direct map such\r\nas amd64, “kmem” is only used for alloca\u0002tions larger than a page. On other architec\u0002tures “kmem” is used for all allocations. If\r\nthe amount of virtual address space in the\r\n“kmem” map is exhausted, then the kernel\r\nwill crash. This can sometimes be the re\u0002sult of resource exhaustion. For example, if\r\nkern.ipc.nmbclusters is set to a high value\r\nand a m getcl(M WAIT) invocation causes the\r\n“kmem” map to be exhausted before the\r\nnmbclusters limit is reached, then the kernel\r\nwill panic.\r\nSometimes the “bug” can actually be faulty\r\nhardware. For example, a pointer might have\r\na bit error. This can result in a page fault\r\nfor a NULL pointer. One way to verify if a\r\ncrash on an x86 machine was the result of a\r\nhardware error is to check the system event\r\nlog. This can usually be examined from the\r\nBIOS setup. For systems with a BMC, the\r\nipmitool [11] utility can be used to examine\r\nthe system event log at runtime. Lack of a\r\ncorresponding entry in the system event log\r\ndoesn’t necessarily disprove a hardware fail\u0002ure, but if an entry is present it can confirm\r\nfailing hardware as the panic’s cause.\r\n6.2 Kernel Hangs\r\nKernel hangs tend to require a bit more\r\nsleuthing. One reason for this is that it can\r\nsometimes take a bit of investigating to figure\r\nout the true extent of the hang. Here are a\r\nfew things to try to start the investigation of\r\na hang.\r\nFirst, check for resource starvation. For\r\nexample, check for messages on the console\r\nabout the kern.maxfiles or maxproc limits\r\nbeing exceeded. Sometimes a machine that\r\nis overloaded will appear to be hung because",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/b6264f42-b9b2-41ed-9059-84ed619366d2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6f4dff7d198c83d50427cef9ab58ab002f8d927deafc39a52a5ee30a79eee9d1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 426
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "59d869d3-83a0-499b-9769-9e0b3f427786",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "it is unable to fork a new process for a re\u0002mote login, for example. Login to the box on\r\nthe console if possible and check for other re\u0002source exhaustion issues using commands like\r\nnetstat(1) and vmstat(1).\r\nThe next step is generally to break into\r\nDDB. The ps command in DDB can give a\r\nvery useful overview of the system. For exam\u0002ple, if all of the CPUs are idle, then there may\r\nbe a deadlock. The ps command can be used\r\nto look for suspect threads which can then be\r\ninvestigated further. On the other hand, if all\r\nof the CPUs are busy, then that may indicate\r\na livelock condition (or an overloaded box).\r\nIf the hang’s cause is still unknown, then\r\nthe panic command can be used from DDB\r\nto explicitly panic the machine. If the ma\u0002chine is configured for crashdumps, then it\r\nwill write out a crash. After the machine has\r\nrebooted the crashdump can be used to exam\u0002ine the hang further. For example, if logging\r\ninto the box to run netstat was not possible,\r\nthen netstat can be run against the crash\u0002dump.\r\n7 Conclusion\r\nThe FreeBSD kernel has bugs just like any\r\nother piece of software. To aid in the investi\u0002gation and fixing of bugs, FreeBSD provides\r\nseveral kernel debugging tools. Some of the\r\ntools are services within the kernel itself such\r\nas DDB. Other tools are outside of the kernel\r\nsuch as kgdb. As with other tools, skilled use\r\nis obtained from practice and a bit of trial\r\nand error.\r\n8 Availability\r\nThe sources of both DDB and kgdb\r\nare present in the FreeBSD source tree.\r\nWhile the core DDB sources are present in\r\nsrc/sys/ddb, the source to several DDB\r\ncommands are present in different parts of\r\nthe kernel sources. The kgdb sources are all\r\nfound in src/gnu/usr.bin/gdb/kgdb.\r\nThe show lock DDB command was added\r\nin FreeBSD 6.1. The show proc, show\r\nthread, show turnstile, show lockchain,\r\nand show sleepchain commands were added\r\nin FreeBSD 6.2.\r\nSeveral recent changes to kgdb will first ap\u0002pear in FreeBSD 6.4 and 7.1. These include\r\nthe integrated kernel module support as well\r\nas the ’tid’ command supporting remote tar\u0002gets. Also, while the ’proc’ command has\r\nbeen present since 6.0, the ’tid’ command first\r\nappeared in 7.0.\r\nThere are several existing sets of kgdb com\u0002mand files containing various user-defined\r\ncommands. Some scripts are present\r\nin the FreeBSD source tree under the\r\nsrc/tools/debugscripts directory. The\r\nscripts at http://www.FreeBSD.org/~jhb/\r\ngdb include user-defined commands that pro\u0002vide similar functionality to many DDB\r\ncommands such as ps, lockchain, and\r\nsleepchain.\r\nReferences\r\n[1] The GNU Project Debugger, http://\r\nwww.gnu.org/software/gdb\r\n[2] DDB, FreeBSD Kernel Interfaces Man\u0002ual, http://www.FreeBSD.org/cgi/\r\nman.cgi\r\n[3] kgdb, FreeBSD General Commands\r\nManual, http://www.FreeBSD.org/\r\ncgi/man.cgi\r\n[4] Kernel Debugging, FreeBSD Developers’\r\nHandbook, http://www.FreeBSD.org/\r\ndoc/en/books/developers-handbook\r\n[5] Mutex, FreeBSD Kernel Developer’s\r\nManual, http://www.FreeBSD.org/\r\ncgi/man.cgi\r\n[6] RMLock, FreeBSD Kernel Developer’s\r\nManual, http://www.FreeBSD.org/\r\ncgi/man.cgi\r\n[7] RWLock, FreeBSD Kernel Developer’s\r\nManual, http://www.FreeBSD.org/\r\ncgi/man.cgi",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/59d869d3-83a0-499b-9769-9e0b3f427786.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f70f8f632eb972754ef4814973129bdd53aa5e093580b983c0d8da82e9f173ae",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "75606f43-c897-4e36-9859-47d68382e2b1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[8] SX, FreeBSD Kernel Developer’s Man\u0002ual, http://www.FreeBSD.org/cgi/\r\nman.cgi\r\n[9] Lock, FreeBSD Kernel Developer’s\r\nManual, http://www.FreeBSD.org/\r\ncgi/man.cgi\r\n[10] ASF, FreeBSD System Manager’s Man\u0002ual, http://www.FreeBSD.org/cgi/\r\nman.cgi\r\n[11] IPMItool, http://ipmitool.\r\nsourceforge.net",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/fcbfefba-b9ab-49be-a6c5-6f9b4b7e186c/images/75606f43-c897-4e36-9859-47d68382e2b1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041756Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b8f7e88aeaad0b98aaec82c56e7dd47642eaa0a0aed8a10534226a8aa5b5e43a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 507
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\n  \"title\": \"Introduction to Debugging the FreeBSD Kernel\"\n}\n```"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Author: John H. Baldwin\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "Field: date_published\nValue: Not mentioned in the document."
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```json\n{\"location\": \"FreeBSD Kernel\"}\n```"
+        }
+      ]
+    }
+  }
+}

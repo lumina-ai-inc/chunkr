@@ -1,0 +1,144 @@
+{
+  "file_name": "Intel Pro-1000 PT Quad Port LP Server Adapter - Product Brief.pdf",
+  "task_id": "1d75c688-33a7-4e9a-ac2c-f54baa68b6a2",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "52bce1a4-7813-4b67-8454-676ddfc12e02",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "• Four high-performance PCI Express* 10/100/1000 Mbps \r\n connections for slot-constrained servers requiring high bandwidth\r\n• Multi-Gigabit Ethernet Scalability enhances and increases uptime\r\n through advanced server features\r\n• Built on Intel® lead-free1\r\n technology\r\nConnectivity You Can Count On\r\nConserve valuable PCI Express (PCIe*) server slots while adding \r\nmulti-port Gigabit Ethernet capability with the Intel® PRO/1000 \r\nPT Quad Port LP Server Adapter. The dedicated input/output (I/O) \r\nbandwidth of PCIe ensures priority performance on each port – \r\nwithout bus sharing – for Gigabit Ethernet connectivity in \r\nCategory-5 networks. The Intel PRO/1000 PT Quad Port LP \r\nServer Adapter improves performance in multi-processor systems \r\nby balancing network loads across multiple central processing units \r\n(CPUs). Additionally, the Intel PRO/1000 PT Quad Port LP Server \r\nAdapter supports Intel® I/O Acceleration Technology (Intel® I/OAT)2\r\nfor faster I/O processing on the new Quad-Core and Dual-Core Intel® \r\nXeon® processor-based servers.\r\nProduct Brief\r\nIntel® PRO/1000 PT Quad Port LP Server Adapter\r\nNetwork Connectivity\r\nIntel® PRO/1000 PT Quad Port LP Server Adapter\r\nLow-Profile Quad Port Copper Gigabit Ethernet Server Adapter for PCI* Express Slots\r\nFeatures Benefits\r\nTwo Intel® 82571GB Gigabit Controllers Enables four Gigabit Ethernet connections on a single adapter, delivering increased bandwidth for slot-constrained servers \r\nand providing high performance, reliability, and low-power use in two single, integrated, dual port PCI Express Gigabit \r\nEthernet controller chips\r\nLow-profile Enables higher bandwidth and throughput from standard and low-profile PCIe slots and servers \r\nLoad balancing on multiple CPUs Increases performance on multi-processor systems by efficiently balancing network loads across CPU cores when used \r\nwith Receive-Side Scaling from Microsoft or Scalable I/O on Linux*\r\nIntel® I/OAT2 Accelerates I/O with higher throughput and lower CPU utilization by offloading processing overhead \r\nVirtualization Multi-port cards provide the platform with the port density required for virtualized environments \r\nInterrupt moderation Delivers increased performance while significantly reducing CPU utilization\r\nCompatible with x4, x8, and x16 standard\r\nand low-profile PCI Express* slots\r\nAllows quad-port operation in almost any PCI Express server slot, except x1 slots, and allows each port to operate without \r\ninterfering with the other\r\nSupport for most network operating\r\nsystems (NOS)\r\nEnables widespread deployment\r\nRemote management support Reduces support costs with remote management based on industry-wide standards\r\nCategory-5 unshielded twisted pair (UTP),\r\n4-pair cabling\r\nUses existing 4-pair cabling and saves re-wiring costs\r\nRoHS compliant3, lead-free1 technology Compliant with the European Union directive (effective as of July 2006) to reduce the use of hazardous materials\r\nIntel® PROSet Utility for Windows* Provides point-and-click power over individual adapters, advanced adapter features, connection teaming, and Device Manager \r\nvirtual local area network (VLAN) configuration\r\nAdvanced cable diagnostics Dynamically tests and reports network problems (error rate, cable length) and automatically compensates for cable issues \r\n(cross-over cable, wrong pin-out/polarity) \r\nIntel backing Backed by an Intel® limited lifetime warranty, 90-day money-back guarantee (U.S. and Canada), and worldwide support",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1d75c688-33a7-4e9a-ac2c-f54baa68b6a2/images/52bce1a4-7813-4b67-8454-676ddfc12e02.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041539Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4ea83edb51df0d0458d208c7f62f488c626e82f1561840f69a810fdbcce7b9a7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 459
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a2618df3-85c8-4123-8cc9-d3fa3df75b27",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "General \r\nProduct code EXPI9404PTL4\r\nConnectors Four RJ-45\r\nEEE standards/network topology 10BASE-T, 100BASE-TX, \r\n1000BASE-T\r\nWiring Category-5, unshielded twisted\r\npair (UTP), 4-pair\r\nAdapter Product Features\r\nIntel® PROSet Utility and Intel® PRO\r\n Intelligent Install for easy installation \r\n•\r\nIntel® lead-free1\r\n technology •\r\nPlug and play specification support Standard\r\nAuto-negotiation, full-duplex capable •\r\nIntel® I/OAT2 •\r\nIntegrated media access control (MAC)\r\n and physical layer (PHY)\r\n•\r\nIncludes a full-height bracket •\r\nRoHs3 •\r\nCable distance 100 m in Category-5 for 100/1000 \r\nMbps; and Category-3 for 10 Mbps\r\nNetwork Management\r\nWired for Management (WfM) baseline \r\n v2.0 enabled for servers\r\n•\r\nDMI 2.0 support, Windows Management \r\n Instrumentation (WMI) and\r\n SNMP-manageable SMBus support\r\n•\r\nRemote Installation Services (RIS) •\r\nDiagnostics (loopback, testability, \r\n PHY register access)\r\n•\r\nAdvanced configuration and power \r\n interface (ACPI) 1.0 power management\r\n•\r\nWake on LAN* support over PCI Express* \r\n PXE 2.0 enabled through boot read-only \r\n memory (ROM)\r\n•\r\nNetwork Operating Systems (NOS) Software Support\r\nMicrosoft Windows* Server 2003,\r\n Enterprise, Datacenter (32- and 64-bit)\r\n•\r\nMicrosoft Windows 2000 •\r\nRed Hat Linux* 2.4x or later (32- and 64-bit) •\r\nFreeBSD 4.x or later •\r\nNovell Netware* •\r\nSun Solaris* x86, OS 8 and later •\r\nSCO Open Server 5, OpenUNIX 8* •\r\nIntel Backing\r\nLimited lifetime warranty •\r\n90-day, money-back guarantee \r\n (U.S. and Canada)\r\n•\r\nAdvanced Software Features \r\nAdapter fault tolerance (AFT) •\r\nSwitch fault tolerance (SFT) •\r\nAdaptive load balancing (ALB) •\r\nFast EtherChannel*5\r\n (FEC) •\r\nGigabit EtherChannel*5\r\n (GEC) •\r\nTeaming support Scales up to 8 connections\r\nMultiple teams Supports 4 separate teams, \r\nmaximum\r\nIEEE 802.3ad* (link aggregation\r\n control protocol)5\r\n• \r\nTest switch configuration Tested with major switch original \r\nequipment manufacturers (OEMs)\r\nPCIe Hot Plug*/Active peripheral \r\n component interconnect (PCI)\r\n•\r\nEEE 802.1Q* VLANs •\r\nEEE 802.3* (z, ab, u, x) flow control \r\nsupport\r\n•\r\nTCP checksum offload — transmission \r\n control protocol (TCP), user datagram \r\n protocol (UDP), Internet protocol (IP)\r\n•\r\nIEEE 802.1p* • \r\nTCP segmentation/large send offload •\r\nInterrupt moderation •\r\nTechnical Features\r\nData rate(s) supported per port 10, 100, and 1000 Mbps\r\nBus type PCI Express 1.0a\r\nBus width x4 lane PCI Express, operable \r\nin x4, x8, x16 slots\r\nBus speed (x4, encoded rate) 10 Gbps uni-directional; \r\n20 Gbps bi-directional\r\nEEPROM-SPI and single EEPROM support • \r\nInterrupt levels INTA, INTB, INTC, INTD \r\nIEEE support 802.3ab* \r\nHardware certifications FCC B, UL, CE, VCCI, BSMI, CTICK, MIC\r\nController-processor Intel® 82571GB\r\nTypical power consumption 12.096 W (12 V @ 1.008 A) \r\nOperating temperature 0–55° C \r\nLEDs 4 (1/port, link and speed) solid \r\nand blinking \r\nPhysical Dimensions\r\nLength 16.77 cm (6.601 in)\r\nWidth 6.89 cm (2.713 in)\r\nHeight of end bracket 8.00 cm (3.153 in)\r\nSpecifications\r\nThe Intel PRO/1000 PT Quad Port LP Server Adapter’s low-profile \r\ndesign, the industry’s first server adapter to incorporate four \r\nGigabit Ethernet connections in a low-profile PCI Express slot, \r\nimproves server throughput and rack density at the same time. \r\nThe Intel PRO/1000 PT Quad Port LP Server Adapter represents \r\nthe sixth generation of Intel® network adapters for Gigabit \r\nEthernet, and features 10/100/1000 Mbps self-configuration \r\nfor compatibility with mixed-speed network infrastructure. \r\nFor easy installation and management, all Intel® PRO Network \r\nConnections are supported by Intel® PRO Intelligent Install and \r\nthe new Intel® PROSet Utility for Windows* Device Manager. Intel \r\nPROSet simplifies adapter installation and gives you point-and-click \r\npower to configure and manage all your Intel PRO Network \r\nConnections for connectivity you can count on.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1d75c688-33a7-4e9a-ac2c-f54baa68b6a2/images/a2618df3-85c8-4123-8cc9-d3fa3df75b27.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041539Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=910f3d29d666a265483cc9ec3f88e2084483844df594f13cf7823f7a88e4a98c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 552
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a2618df3-85c8-4123-8cc9-d3fa3df75b27",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "General \r\nProduct code EXPI9404PTL4\r\nConnectors Four RJ-45\r\nEEE standards/network topology 10BASE-T, 100BASE-TX, \r\n1000BASE-T\r\nWiring Category-5, unshielded twisted\r\npair (UTP), 4-pair\r\nAdapter Product Features\r\nIntel® PROSet Utility and Intel® PRO\r\n Intelligent Install for easy installation \r\n•\r\nIntel® lead-free1\r\n technology •\r\nPlug and play specification support Standard\r\nAuto-negotiation, full-duplex capable •\r\nIntel® I/OAT2 •\r\nIntegrated media access control (MAC)\r\n and physical layer (PHY)\r\n•\r\nIncludes a full-height bracket •\r\nRoHs3 •\r\nCable distance 100 m in Category-5 for 100/1000 \r\nMbps; and Category-3 for 10 Mbps\r\nNetwork Management\r\nWired for Management (WfM) baseline \r\n v2.0 enabled for servers\r\n•\r\nDMI 2.0 support, Windows Management \r\n Instrumentation (WMI) and\r\n SNMP-manageable SMBus support\r\n•\r\nRemote Installation Services (RIS) •\r\nDiagnostics (loopback, testability, \r\n PHY register access)\r\n•\r\nAdvanced configuration and power \r\n interface (ACPI) 1.0 power management\r\n•\r\nWake on LAN* support over PCI Express* \r\n PXE 2.0 enabled through boot read-only \r\n memory (ROM)\r\n•\r\nNetwork Operating Systems (NOS) Software Support\r\nMicrosoft Windows* Server 2003,\r\n Enterprise, Datacenter (32- and 64-bit)\r\n•\r\nMicrosoft Windows 2000 •\r\nRed Hat Linux* 2.4x or later (32- and 64-bit) •\r\nFreeBSD 4.x or later •\r\nNovell Netware* •\r\nSun Solaris* x86, OS 8 and later •\r\nSCO Open Server 5, OpenUNIX 8* •\r\nIntel Backing\r\nLimited lifetime warranty •\r\n90-day, money-back guarantee \r\n (U.S. and Canada)\r\n•\r\nAdvanced Software Features \r\nAdapter fault tolerance (AFT) •\r\nSwitch fault tolerance (SFT) •\r\nAdaptive load balancing (ALB) •\r\nFast EtherChannel*5\r\n (FEC) •\r\nGigabit EtherChannel*5\r\n (GEC) •\r\nTeaming support Scales up to 8 connections\r\nMultiple teams Supports 4 separate teams, \r\nmaximum\r\nIEEE 802.3ad* (link aggregation\r\n control protocol)5\r\n• \r\nTest switch configuration Tested with major switch original \r\nequipment manufacturers (OEMs)\r\nPCIe Hot Plug*/Active peripheral \r\n component interconnect (PCI)\r\n•\r\nEEE 802.1Q* VLANs •\r\nEEE 802.3* (z, ab, u, x) flow control \r\nsupport\r\n•\r\nTCP checksum offload — transmission \r\n control protocol (TCP), user datagram \r\n protocol (UDP), Internet protocol (IP)\r\n•\r\nIEEE 802.1p* • \r\nTCP segmentation/large send offload •\r\nInterrupt moderation •\r\nTechnical Features\r\nData rate(s) supported per port 10, 100, and 1000 Mbps\r\nBus type PCI Express 1.0a\r\nBus width x4 lane PCI Express, operable \r\nin x4, x8, x16 slots\r\nBus speed (x4, encoded rate) 10 Gbps uni-directional; \r\n20 Gbps bi-directional\r\nEEPROM-SPI and single EEPROM support • \r\nInterrupt levels INTA, INTB, INTC, INTD \r\nIEEE support 802.3ab* \r\nHardware certifications FCC B, UL, CE, VCCI, BSMI, CTICK, MIC\r\nController-processor Intel® 82571GB\r\nTypical power consumption 12.096 W (12 V @ 1.008 A) \r\nOperating temperature 0–55° C \r\nLEDs 4 (1/port, link and speed) solid \r\nand blinking \r\nPhysical Dimensions\r\nLength 16.77 cm (6.601 in)\r\nWidth 6.89 cm (2.713 in)\r\nHeight of end bracket 8.00 cm (3.153 in)\r\nSpecifications\r\nThe Intel PRO/1000 PT Quad Port LP Server Adapter’s low-profile \r\ndesign, the industry’s first server adapter to incorporate four \r\nGigabit Ethernet connections in a low-profile PCI Express slot, \r\nimproves server throughput and rack density at the same time. \r\nThe Intel PRO/1000 PT Quad Port LP Server Adapter represents \r\nthe sixth generation of Intel® network adapters for Gigabit \r\nEthernet, and features 10/100/1000 Mbps self-configuration \r\nfor compatibility with mixed-speed network infrastructure. \r\nFor easy installation and management, all Intel® PRO Network \r\nConnections are supported by Intel® PRO Intelligent Install and \r\nthe new Intel® PROSet Utility for Windows* Device Manager. Intel \r\nPROSet simplifies adapter installation and gives you point-and-click \r\npower to configure and manage all your Intel PRO Network \r\nConnections for connectivity you can count on.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1d75c688-33a7-4e9a-ac2c-f54baa68b6a2/images/a2618df3-85c8-4123-8cc9-d3fa3df75b27.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041539Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=910f3d29d666a265483cc9ec3f88e2084483844df594f13cf7823f7a88e4a98c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 552
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "dc7f1a71-38a4-446f-8b08-dbaa0a304acb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "Order Code\r\nSingle Unit: EXPI9404PTL4\r\nBulk Pack: EXPI9404PTLBLK (order 5, get 5)\r\nCompanion Products \r\nConsider these Intel® products in your server and network planning:\r\n• Intel® PRO/1000 Server Adapters\r\n– Copper or fiber-optic network connectivity, up to four ports \r\nper card\r\n– Solutions for PCI Express, PCI-X*, and PCI interfaces\r\n• Intel® PRO/10GbE Server Adapters\r\n– CX4 offering for cost-effective 10 Gigabit-over-copper \r\nconnections\r\n– Short-range and long-range connectivity solutions for \r\nfiber-optic cabling\r\n• Intel® PRO/1000 Desktop Adapters for PCI Express \r\nand PCI interfaces\r\n• Other Intel® PRO Desktop and Server Adapters\r\n• Intel® Xeon® processors\r\n• Intel® Server Boards\r\nNetwork-Ready PCs \r\nTop PC and server manufacturers offer Intel® adapters in their \r\nnew products. Specify or ask for Intel PRO Network Connections \r\nwith your next PC, server, or mobile PC purchase. For a list of \r\npreferred suppliers, visit us at: www.intel.com/network/\r\nconnectivity/how_to_buy/index.htm.\r\nCustomer Support\r\nIntel® Customer Support Services offers a broad selection \r\nof programs including phone support and warranty service. \r\nFor more information, contact us at http://support.intel.com/\r\nsupport/network. Service and availability may vary by country.\r\nFor Product Information\r\nTo speak to a customer service representative regarding \r\nIntel products, please call 1-800-538-3373 (U.S. and Canada) \r\nor visit http://www.intel.com/support/9089.htm for the \r\ntelephone number in your area. For additional product \r\ninformation on Intel® Networking Connectivity products, \r\nvisit http://www.intel.com/network/connectivity.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1d75c688-33a7-4e9a-ac2c-f54baa68b6a2/images/dc7f1a71-38a4-446f-8b08-dbaa0a304acb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041539Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=66c5e0e734aff2eaa9300d1c28cc709c68fea9cbf884073d4d1c5d671a866487",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8cc4429e-eca7-49a4-971f-6642bdabe738",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "1 Lead has not been intentionally added, but lead may still exist as an impurity below 1000 ppm, or an approved RoHS exemption applies.\r\n2 Intel® I/O Acceleration Technology (Intel® I/OAT) requires an operating system that supports Intel I/OAT.\r\n3 Lead and other materials banned in RoHS Directive are either (1) below all applicable substance thresholds as proposed by the EU or (2) an approved/pending exemption applies.\r\n4 Bulk packs also available for minimum order quantities of five adapters. One driver CD per order of five units.\r\n5Available only when used with a capable switch.\r\nINFORMATION IN THIS DOCUMENT IS PROVIDED IN CONNECTION WITH INTEL® PRODUCTS. EXCEPT AS PROVIDED IN INTEL’S TERMS AND CONDITIONS OF SALE FOR SUCH \r\nPRODUCTS, INTEL ASSUMES NO LIABILITY WHATSOEVER, AND INTEL DISCLAIMS ANY EXPRESS OR IMPLIED WARRANTY RELATING TO SALE AND/OR USE OF INTEL PRODUCTS,\r\nINCLUDING LIABILITY OR WARRANTIES RELATING TO FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABILITY, OR INFRINGEMENT OF ANY PATENT, COPYRIGHT, OR OTHER\r\nINTELLECTUAL PROPERTY RIGHT. INTEL MAY MAKE CHANGES TO SPECIFICATIONS, PRODUCT DESCRIPTIONS, AND PLANS AT ANY TIME, WITHOUT NOTICE.\r\nCopyright © 2008 Intel Corporation. All rights reserved.\r\nIntel, the Intel logo, Intel. Leap ahead., Intel. Leap ahead. logo, and Xeon are trademarks of Intel Corporation in the U.S. and other countries.\r\n*Other names and brands may be claimed as the property of others.\r\nPrinted in USA 0608/TAR/OCG/XX/PDF Please Recycle 315880-004US\r\nTo see the full line of Intel Network Adapters for PCI Express, \r\nvisit www.intel.com/network/connectivity",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/1d75c688-33a7-4e9a-ac2c-f54baa68b6a2/images/8cc4429e-eca7-49a4-971f-6642bdabe738.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041539Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f6393f5af0ba6a30dbedf6dab3c77e396f7d7a5311b834149f0ed35b72c4a612",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 457
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Intel® PRO/1000 PT Quad Port LP Server Adapter\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Intel Corporation\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2008\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "USA"
+        }
+      ]
+    }
+  }
+}

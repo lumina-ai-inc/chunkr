@@ -5,17 +5,15 @@
   left: 0;
   width: 100%;
   z-index: 10;
-  background: linear-gradient(
-    to bottom,
-    hsl(0, 0%, 0%, 0.5) 0%,
-    hsl(0, 0%, 0%, 0.2) 50%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.header-container.scrolled {
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(8px);
 }
 
-.temp-banner {
+/* .temp-banner {
   background-color: #ffffff6f;
   padding: 8px 16px;
   border-radius: 4px;
@@ -23,11 +21,11 @@
   margin-top: 12px;
   transition: background-color 0.2s ease;
   cursor: pointer;
-}
+} */
 
-.temp-banner:hover {
+/* .temp-banner:hover {
   background-color: #ffffff8b;
-}
+} */
 
 .background {
   background: #050609;
@@ -37,22 +35,13 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: calc(100vh - 138px);
-  margin-top: 104px;
   padding-left: 24px;
   padding-right: 24px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
-}
 
-.hero-image-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  z-index: 0;
+  padding-top: 48px;
 }
 
 .hero-container {
@@ -61,30 +50,138 @@
   width: 100%;
   gap: 124px;
   flex-direction: column;
-
+  margin-top: 88px;
   z-index: 2;
 }
 
-.hero-content-container {
-  display: flex;
-  height: 100%;
+.hero-image {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 1376px;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 32px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: url("../../assets/hero/hero.webp");
+  height: 100vh;
+  background-image: url("../../assets/hero/hero.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  box-shadow:
-    0 0 40px rgba(0, 0, 0, 0.95),
-    /* Deep base shadow */ 0 0 80px rgba(0, 0, 0, 0.8),
-    /* Wider spread shadow */ 0 0 2px rgba(255, 255, 255, 0.1),
-    /* Crisp edge definition */ 0 0 30px rgba(103, 232, 249, 0.08),
-    /* Subtle cyan glow */ inset 0 0 2px rgba(255, 255, 255, 0.05); /* Inner edge highlight */
+}
+
+.hero-content-container {
+  position: relative;
+  width: 100%;
+  max-width: 1388px;
+  margin-top: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.hero-content-container::before {
+  content: "";
+  display: block;
+  padding-top: 56.25%;
+}
+
+.hero-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.placeholder-window {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.window-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(5, 6, 9, 0.2);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.window-controls {
+  display: flex;
+  gap: 8px;
+  margin-right: 16px;
+}
+
+.window-controls span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.window-controls span:nth-child(1) {
+  background: #ff5f57;
+}
+.window-controls span:nth-child(2) {
+  background: #febc2e;
+}
+.window-controls span:nth-child(3) {
+  background: #28c840;
+}
+
+.window-title {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.window-content {
+  height: calc(100% - 44px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050609;
+}
+
+.loading-animation {
+  width: 80%;
+  max-width: 400px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress {
+  width: 30%;
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 2px;
+  animation: progress 2s ease-in-out infinite;
+}
+
+.status-text {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin-top: 16px;
+}
+
+@keyframes progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
 }
 
 .yc-tag {
@@ -292,7 +389,7 @@
   border-radius: 8px;
   border: 1px solid #fff;
   background: rgba(0, 0, 0, 0.3);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(6px);
   position: relative;
   overflow: hidden;
@@ -327,10 +424,10 @@
 }
 
 .features-container {
-  max-width: 1424px;
-  height: 736px;
-  margin: 0 auto;
-  margin-top: 124px;
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  margin-top: 102px;
 }
 
 .features-left-box {
@@ -340,8 +437,7 @@
   height: 100%;
   position: relative;
   padding-top: 48px;
-  padding-left: 24px;
-  padding-right: 80px;
+  padding-right: 96px;
   max-width: 824px;
 }
 
@@ -363,22 +459,47 @@
 .feature-left-box-image {
   font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 16px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
   line-height: 1.6;
   height: 100%;
   padding: 1.5rem;
   padding-top: 0px;
   position: relative;
-  border-radius: 8px 8px 0 0;
-  border: 2px solid transparent;
-  border-image: linear-gradient(
-      to bottom,
-      hsla(0, 0%, 100%, 1),
-      hsla(128, 13%, 88%, 0)
-    )
-    1;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, #050609 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.01),
+    #050609 100%
+  );
   border-bottom: 0px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(16px);
+  border: none;
+  position: relative;
+}
+
+.feature-left-box-image::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 8px;
+  padding: 2px;
+  background: linear-gradient(
+    to bottom,
+    hsla(0, 0%, 100%, 1),
+    hsla(128, 13%, 88%, 0)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .curl-command {
@@ -498,6 +619,10 @@
 
 .feature-right-box {
   background-color: #050609;
+  border-radius: 8px;
+  overflow: hidden;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  backface-visibility: hidden;
   height: 25%;
   position: relative;
   overflow: hidden;
@@ -614,6 +739,10 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   flex: 1;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pricing-section {
+  margin-top: 128px;
 }
 
 /* Adjust Footer positioning */

@@ -1,0 +1,941 @@
+{
+  "file_name": "Lockless Programming - GDC 2009 - Slides (Bruce Dawson).ppt",
+  "task_id": "c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "aef753c2-4b91-43be-b73b-d941f684f3d7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/aef753c2-4b91-43be-b73b-d941f684f3d7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=98d6a44ae1764ed3c34545460000efbdde46cb17e06cb7e0c3b209e5fa7fd363",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8ac9b6c9-1f98-41f3-ad08-9233a34452f8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 2,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Lockless Programming in \r\nGames\r\nBruce Dawson\r\nPrincipal Software Design Engineer\r\nMicrosoft\r\nWindows Client Performance",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/8ac9b6c9-1f98-41f3-ad08-9233a34452f8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=529f588dfdc4646a9329000cfbb49da857d281f653493a3d1663c323714e9a5c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "46e73fd6-faa1-426b-9bac-bd9e46c07de7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 3,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Agenda\r\n» Locks and their problems\r\n» Lockless programming – a different \r\nset of problems!\r\n» Portable lockless programming\r\n» Lockless algorithms that work\r\n» Conclusions\r\n» Focus is on improving intuition on the \r\nreordering aspects of lockless \r\nprogramming",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/46e73fd6-faa1-426b-9bac-bd9e46c07de7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=819a32edc100f6c3d01729073d8f3feedefc49f5689440d8bc7d2798ccf73547",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f39e4c0d-aefc-4ba9-8a4c-57694075e4d6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 4,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Cell phones\r\n» Please turn off all cell phones, pagers, \r\nalarm clocks, crying babies, internal \r\ncombustion engines, leaf blowers, \r\netc.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/f39e4c0d-aefc-4ba9-8a4c-57694075e4d6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c7eae49610eb710951771225211f3b2840d2eefdc54685582cfb8d6848d3ca6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5e5e83f1-9945-4c0e-8780-ddd0899eab7e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 5,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Mandatory Multi-core Mention\r\n» Xbox 360: six hardware threads\r\n» PS3: nine hardware threads\r\n» Windows: quad-core PCs for $500\r\n» Multi-threading is mandatory if you want to \r\nharness the available power\r\n» Luckily it's easy\r\n As long as there is no sharing of non-constant \r\ndata\r\n» Sharing data is tricky\r\n Easiest and safest way is to use OS features such \r\nas locks and semaphores",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/5e5e83f1-9945-4c0e-8780-ddd0899eab7e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d2b670b5749373d4c0378862747fc614546d499656c9e8207271109bb36aff74",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2a5a39ff-690e-481a-b373-59e1960da2c4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 6,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Simple Job Queue\r\n» Assigning work:\r\nEnterCriticalSection( &workItemsLock );\r\nworkItems.push( workItem );\r\nLeaveCriticalSection( &workItemsLock );\r\n» Worker threads:\r\nEnterCriticalSection( &workItemsLock );\r\nWorkItem workItem = workItems.front();\r\nworkItems.pop();\r\nLeaveCriticalSection( &workItemsLock );\r\nDoWork( workItem );",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/2a5a39ff-690e-481a-b373-59e1960da2c4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=942030e230e6f2c1e3652a5e494955de8b416c762f5dfe69bb92e7cb144b9468",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5bbecbeb-1251-43be-8f32-ee5299d3f901",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 7,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "The Problem With Locks…\r\n» Overhead – acquiring and releasing locks takes time\r\n So don’t acquire locks too often\r\n» Deadlocks – lock acquisition order must be consistent \r\nto avoid these\r\n So don’t have very many locks, or only acquire one at a \r\ntime\r\n» Contention – sometimes somebody else has the lock\r\n So never hold locks for too long – contradicts point 1\r\n So have lots of little locks – contradicts point 2\r\n» Priority inversions – if a thread is swapped out while \r\nholding a lock, progress may stall\r\n Changing thread priorities can lead to this\r\n Xbox 360 system threads can briefly cause this",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/5bbecbeb-1251-43be-8f32-ee5299d3f901.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c19cf23bb90f56fa66824848eafb0f3f7f5b3a8624956b032a4f70db4280e742",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "aefa74d8-d297-4808-b7bc-3d6e514d4214",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 8,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Sensible Reaction\r\n» Use locks carefully\r\n Don't lock too frequently\r\n Don't lock for too long\r\n Don't use too many locks\r\n Don't have one central lock\r\n» Or, try lockless",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/aefa74d8-d297-4808-b7bc-3d6e514d4214.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3434347f889c04dd41166697416bcdf7be60918a6ad666e4d981b101bd3d78ce",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "eae3d346-c272-4d58-b2c4-4f151760e7cf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 9,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Lockless Programming\r\n» Techniques for safe multi-threaded \r\ndata sharing without locks\r\n» Pros:\r\n May have lower overhead\r\n Avoids deadlocks\r\n May reduce contention\r\n Avoids priority inversions\r\n» Cons\r\n Very limited abilities\r\n Extremely tricky to get right\r\n Generally non-portable",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/eae3d346-c272-4d58-b2c4-4f151760e7cf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7707da41bc7ea9c03efc40dfcfc9d1b87effb52ac1727d13b94f1b59797322ec",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8bfa34f0-a85d-400f-b677-0430743e0a8a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 10,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Job Queue Again\r\n» Assigning work:\r\nEnterCriticalSection( &workItemsLock );\r\nworkItems.push( workItem );\r\nLeaveCriticalSection( &workItemsLock );\r\n» Worker threads:\r\nEnterCriticalSection( &workItemsLock );\r\nWorkItem workItem = workItems.front();\r\nworkItems.pop();\r\nLeaveCriticalSection( &workItemsLock );\r\nDoWork( workItem );",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/8bfa34f0-a85d-400f-b677-0430743e0a8a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c0e8612908b1749a8da651d61285bca2ff5d3b52da60822cb78f39d6f91d3bac",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0fae8840-f823-42c7-b8f0-21796b19e2f7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 11,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Lockless Job Queue #1\r\n» Assigning work:\r\nEnterCriticalSection( &workItemsLock );\r\nInterlockedPushEntrySList( workItem );\r\nLeaveCriticalSection( &workItemsLock );\r\n» Worker threads:\r\nEnterCriticalSection( &workItemsLock );\r\nWorkItem workItem =\r\n InterlockedPopEntrySList();\r\nLeaveCriticalSection( &workItemsLock );\r\nDoWork( workItem );",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/0fae8840-f823-42c7-b8f0-21796b19e2f7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=17a38efd3249e8a3dadb8c6b9c9bc892d9b6dec14ba4ff1b1cb221a7386a9735",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9e20cd6d-157a-494b-b656-983593bcf983",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 12,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Lockless Job Stack #1\r\n» Assigning work:\r\nInterlockedPushEntrySList( workItem );\r\n» Worker threads:\r\nWorkItem workItem =\r\n InterlockedPopEntrySList();\r\nDoWork( workItem );\r\nBROKEN on \r\nXbox 360!!!",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/9e20cd6d-157a-494b-b656-983593bcf983.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=750fa2b09a78f270d3f74c933a70577d8020eb829d83177158d96756e62ebd00",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 449
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "54eff732-6850-4e0b-9e94-b4d7dc4c0515",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 13,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Lockless Job Queue #2\r\n» Assigning work – one writer only:\r\nif( RoomAvail( readPt, writePt ) ) {\r\n CircWorkList[ writePt ] = workItem;\r\n writePt = WRAP( writePt + 1 );\r\n» Worker thread – one reader only:\r\nif( DataAvail( writePt, readPt ) ) {\r\n WorkItem workItem =\r\n CircWorkList[ readPt ];\r\n readPt = WRAP( readPt + 1 );\r\nDoWork( workItem );\r\nCorrect On \r\nPaper\r\nBroken As \r\nExecuted",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/54eff732-6850-4e0b-9e94-b4d7dc4c0515.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bc359d8f68dcffb3a9d037f9d1927816ddd870b9cc624ed585c44e602ec3de85",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2d0dbd25-a701-4a02-b410-618fe8e41928",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 14,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Simple CPU/Compiler Model\r\nRead pC\r\nWrite pA\r\nWrite pB\r\nRead pD\r\nWrite pC\r\nRead pC \r\n \r\n \r\nRead pD \r\n \r\nWrite pA Write pB Write pC ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/2d0dbd25-a701-4a02-b410-618fe8e41928.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c4585ddedb2611ecaf02a7e9a22b000104d4e4dc8d3916635e6432441e9e35a5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4949cf67-7a83-488c-ace7-c96849f7d1b8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 15,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Write pA \r\n \r\n \r\nWrite pB Write pC \r\nAlternate CPU Model\r\nWrite pA\r\nWrite pB\r\nWrite pC\r\nVisible order:\r\nWrite pA\r\nWrite pC\r\nWrite pB",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/4949cf67-7a83-488c-ace7-c96849f7d1b8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ed59faf04e713e24d6f5524276beb96f9874571d20af8c33d304c264c04e3e83",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "db69e5cf-90cf-4711-b445-91943c4b7fd5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 16,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Alternate CPU – Reads Pass Reads\r\nRead A1\r\nRead A2\r\nRead A1\r\nVisible order:\r\nRead A1\r\nRead A1\r\nRead A2\r\nRead A1 Read A2 Read A1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/db69e5cf-90cf-4711-b445-91943c4b7fd5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bd96d99b85f42be7ae70e6b38fa70226f42c8eac1001e4a8a89e9b51a69891c1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c6834215-c516-472f-ad90-96eb1780c779",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 17,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Alternate CPU – Writes Pass Reads\r\nRead A1\r\nWrite A2\r\nVisible order:\r\nWrite A2\r\nRead A1\r\nRead A1 Write A2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/c6834215-c516-472f-ad90-96eb1780c779.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5a8d339e2eedf6e1566b8ef7eedda1c38e3b80c3ede8623662a8c248722a21e9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "aa146c89-50ef-4ff6-9737-e912a1947fca",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 18,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Alternate CPU – Reads Pass Writes\r\nRead A1\r\nWrite A2\r\nRead A2\r\nRead A1\r\nVisible order:\r\nRead A1\r\nRead A1\r\nWrite A2\r\nRead A2\r\nRead A1 Write A2 Read A2 Read A1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/aa146c89-50ef-4ff6-9737-e912a1947fca.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4edadbb683badd74b7505b7660835ae0be8fd35fb57c7f2c5f7d43d29dd4e094",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2e857f0c-12b8-4ac4-b691-401fb1dddcbc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 19,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Memory Models\r\n» \"Pass\" means \"visible before\"\r\n» Memory models are actually more complex \r\nthan this\r\n May vary for cacheable/non-cacheable, etc.\r\n» This only affects multi-threaded lock-free \r\ncode!!!\r\n* Only stores to different addresses can pass each other\r\n** Loads to a previously stored address will load that value\r\nx86/x64 PowerPC ARM IA64\r\nstore can pass store? No Yes* Yes* Yes*\r\nload can pass load? No Yes Yes Yes\r\nstore can pass load? No Yes Yes Yes\r\nload can pass store?** Yes Yes Yes Yes",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/2e857f0c-12b8-4ac4-b691-401fb1dddcbc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4580f0be0a525b2fbb99ff7aee1d2fc1d6756eebbe075d59fb0e615fc834415f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7fa27fd5-c4a4-4acf-b526-acec8bad7966",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 20,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Improbable CPU – Reads Don’t Pass Writes\r\nRead A1\r\nWrite A2\r\nRead A1\r\nRead A1 Write A2 Read A1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/7fa27fd5-c4a4-4acf-b526-acec8bad7966.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f17b381663a65364c8801a7c609d60b1ae5f25a8a77dff5731660d3869d012fc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ea00345b-79a2-4999-9cee-c229e56635a2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 21,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Reads Must Pass Writes!\r\n» Reads not passing writes would mean \r\nL1 cache is frequently disabled\r\n Every read that follows a write would \r\nstall for shared storage latency\r\n» Huge performance impact\r\n» Therefore, on x86 and x64 (on all \r\nmodern CPUs) reads can pass writes",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/ea00345b-79a2-4999-9cee-c229e56635a2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=77474fde931b754818d53c9f8eb18147c7bd6897ff44012fbe2b5b2f758971bc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f826a59e-4888-45c8-8d4e-d44ad726f16e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 22,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Reordering Implications\r\n» Publisher/Subscriber model\r\n» Thread A:\r\ng_data = data;\r\ng_dataReady = true;\r\n» Thread B:\r\nif( g_dataReady )\r\n process( g_data );\r\n» Is it safe?",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/f826a59e-4888-45c8-8d4e-d44ad726f16e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=00ebd6c20c58205a9bdf3dfe224bf46ea126206e83ddcd3ea92a64290ff3839f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c4b178f2-39e9-4e6f-bca6-381226a0b653",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 23,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Publisher/Subscriber on PowerPC\r\nProc 1:\r\nWrite g_data\r\nWrite g_dataReady\r\nProc 2:\r\nRead g_dataReady\r\nRead g_data\r\n» Writes may reach L2 \r\nout of order\r\nWrite \r\ng_data\r\nWrite \r\ng_dataReady",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/c4b178f2-39e9-4e6f-bca6-381226a0b653.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=821255e593f29076a30b8e3151eb32f3669832cdf9addc47e08c12d8acdc0bbb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fa60daa3-6a69-4503-acfd-38c1fcf9fcd1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 24,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Publisher/Subscriber on PowerPC\r\nProc 1:\r\nWrite g_data\r\nMyExportBarrier();\r\nWrite g_dataReady\r\nProc 2:\r\nRead g_dataReady\r\nRead g_data\r\n» Writes now reach L2 \r\nin order\r\nWrite \r\ng_data\r\nExport Barrier Write \r\ng_dataReady",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/fa60daa3-6a69-4503-acfd-38c1fcf9fcd1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6216030f30cc1ac9c0b29e36fc3ba0301ad9dafa1b1fad88b1f83a5bac0c65b4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e96e0909-43db-4579-a3a2-ccbafc8142bc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 25,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Publisher/Subscriber on PowerPC\r\nProc 1:\r\nWrite g_data\r\nMyExportBarrier();\r\nWrite g_dataReady\r\nProc 2:\r\nRead g_dataReady\r\nRead g_data\r\n» Reads may leave L2 \r\nout of order – \r\ng_data may be stale\r\nWrite \r\ng_data\r\nExport Barrier Write \r\ng_dataReady\r\nRead \r\ng_data\r\nRead \r\ng_dataReady\r\nInvalidate \r\ng_data",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/e96e0909-43db-4579-a3a2-ccbafc8142bc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2bcd9604c93dbcca5c72b6a74b0761fd8b188478f02cdd5ba54b0bfce753086d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "658dbf08-655a-4d60-8d77-9767d3d22d5d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 26,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Publisher/Subscriber on PowerPC\r\nProc 1:\r\nWrite g_data\r\nMyExportBarrier();\r\nWrite g_dataReady\r\nProc 2:\r\nRead g_dataReady\r\nMyImportBarrier();\r\nRead g_data\r\n» It's all good!\r\nWrite \r\ng_data\r\nExport Barrier Write \r\ng_dataReady\r\nRead \r\ng_dataReady\r\nInvalidate \r\ng_data\r\nRead \r\ng_data Import Barrier",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/658dbf08-655a-4d60-8d77-9767d3d22d5d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c47353703410809a6c2963b63ddccd0b00cc039aeaa3cf82ede0bd70f2472288",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 501
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b7d2d1c3-d40f-457d-a074-4a135cddb21d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 27,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "x86/x64 FTW!!!\r\n» Not so fast…\r\n» Compilers are just as evil as \r\nprocessors\r\n» Compilers will rearrange your code as \r\nmuch as legally possible\r\n And compilers assume your code is \r\nsingle threaded\r\n» Compiler and CPU reordering \r\nbarriers needed",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/b7d2d1c3-d40f-457d-a074-4a135cddb21d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7729f82190231430d8e3914264de40daba5a3152c11cbef2ab613dcaf98f05b2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "623cb633-eced-4fae-a468-8fb3d2849f64",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 28,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MyExportBarrier\r\n» Prevents reordering of writes by compiler or CPU\r\n Used when handing out access to data\r\n» x86/x64: _ReadWriteBarrier();\r\n Compiler intrinsic, prevents compiler reordering\r\n» PowerPC: __lwsync();\r\n Hardware barrier, prevents CPU write reordering\r\n» ARM: __dmb(); // Full hardware barrier\r\n» IA64: __mf(); // Full hardware barrier\r\n» Positioning is crucial!\r\n Write the data, MyExportBarrier, write the control value\r\n» Export-barrier followed by write is known as write\u0002release semantics",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/623cb633-eced-4fae-a468-8fb3d2849f64.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0a43a55e757432f7ae44b05dc1159456847a84775e90d6ad39c254626386f70d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9c720d6b-b9f1-47b7-aad9-6c86de39772a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 29,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MyImportBarrier();\r\n» Prevents reordering of reads by compiler or CPU\r\n Used when gaining access to data\r\n» x86/x64: _ReadWriteBarrier();\r\n Compiler intrinsic, prevents compiler reordering\r\n» PowerPC: __lwsync(); or isync();\r\n Hardware barrier, prevents CPU read reordering\r\n» ARM: __dmb(); // Full hardware barrier\r\n» IA64: __mf(); // Full hardware barrier\r\n» Positioning is crucial!\r\n Read the control value, MyImportBarrier, read the data\r\n» Read followed by import-barrier is known as read\u0002acquire semantics",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/9c720d6b-b9f1-47b7-aad9-6c86de39772a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7f2e9f694c845c7e6ba638fbdb2d5075eb71b2040b058dbbaa2a2deb7d65e04d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0c743a8f-fab4-414e-ba99-6f56c66e1f78",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 30,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Fixed Job Queue #2\r\n» Assigning work – one writer only:\r\nif( RoomAvail( readPt, writePt ) ) {\r\n MyImportBarrier();\r\n CircWorkList[ writePt ] = workItem;\r\n MyExportBarrier();\r\n writePt = WRAP( writePtr + 1 );\r\n» Worker thread – one reader only:\r\nif( DataAvail( writePt, readPt ) ) {\r\n MyImportBarrier();\r\n WorkItem workItem =\r\n CircWorkList[ readPt ];\r\n MyExportBarrier();\r\n readPt = WRAP( readPt + 1 );\r\nDoWork( workItem );\r\nCorrect!!!",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/0c743a8f-fab4-414e-ba99-6f56c66e1f78.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e801b255881149fdd4394007f63e73f1697581e2be0ef47fec794906b08c48bb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "81a1d24f-47f3-492a-8d6e-ddab974feb09",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 31,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Dekker’s/Peterson’s Algorithm\r\nint T1 = 0, T2 = 0;\r\nProc 1:\r\nvoid LockForT1() {\r\n T1 = 1;\r\n if( T2 != 0 ) {\r\n …\r\nProc 2:\r\nvoid LockForT2() {\r\n T2 = 1;\r\n if( T1 != 0 ) {\r\n …\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/81a1d24f-47f3-492a-8d6e-ddab974feb09.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c204b2d4ce4d544954cc8638c5805a054d9f0d99f6699d22e3a958ae24f9389c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "96e67a92-2bbb-40ee-aba9-1929a0031e29",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 32,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Dekker’s/Peterson’s Animation\r\nProc 1:\r\nWrite T1\r\nRead T2\r\nProc 2:\r\nWrite T2\r\nRead T1\r\n» Epic fail! (on x86/x64 \r\nalso)\r\nWrite \r\nT1 Read T1\r\nInvalidate \r\nT1\r\nWrite \r\nT2 Read T2\r\nInvalidate \r\nT2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/96e67a92-2bbb-40ee-aba9-1929a0031e29.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c0a5413c7cee808ba1ddd6ab5cb48e2727200b4ee460a399a5971182ee7676c2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a9f6db70-5465-499e-bae0-b9c6657674c3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 33,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Dekker’s/Peterson’s Animation\r\nProc 1:\r\nWrite T1\r\nMemoryBarrier();\r\nRead T2\r\nProc 2:\r\nWrite T2\r\nMemoryBarrier();\r\nRead T1\r\n» It's all good!\r\nWrite \r\nT1 Read T1\r\nInvalidate \r\nT1\r\nWrite \r\nT2 Read T2\r\nInvalidate \r\nT2\r\nMemory \r\nBarrier\r\nMemory \r\nBarrier",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/a9f6db70-5465-499e-bae0-b9c6657674c3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4bfee10cb8e5b70f2bdaa3bfd9dd4b1bc178e7700fcb46f25d4e72e21ccaad5e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b518ecf9-c087-4217-8e77-0e9a8d7c4442",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 34,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Full Memory Barrier\r\n» MemoryBarrier(); \r\n x86: __asm xchg Barrier, eax\r\n x64: __faststorefence();\r\n Xbox 360: __sync();\r\n ARM: __dmb();\r\n IA64: __mf();\r\n» Needed for Dekker's algorithm, \r\nimplementing locks, etc.\r\n» Prevents all reordering – including \r\npreventing reads passing writes\r\n» Most expensive barrier type",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/b518ecf9-c087-4217-8e77-0e9a8d7c4442.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a966770f6ac089506a4cee6eae53adbf865d645eb6891833bec257ba06f1d9b2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e8b9b971-49a3-4efe-94b4-760666fe95f0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 35,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Dekker’s/Peterson’s Fixed\r\nint T1 = 0, T2 = 0;\r\nProc 1:\r\nvoid LockForT1() {\r\n T1 = 1;\r\n MemoryBarrier();\r\n if( T2 != 0 ) {\r\n …\r\nProc 2:\r\nvoid LockForT2() {\r\n T2 = 1;\r\n MemoryBarrier();\r\n if( T1 != 0 ) {\r\n …\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/e8b9b971-49a3-4efe-94b4-760666fe95f0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cbc39a8ef15dd842d745487947722a32285522853b36844d7b6033877d9b4841",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "322290cf-a8ce-494f-bba8-9bff997eb77f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 36,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Dekker’s/Peterson’s Still Broken\r\nint T1 = 0, T2 = 0;\r\nProc 1:\r\nvoid LockForT1() {\r\n T1 = 1;\r\n MyExportBarrier();\r\n if( T2 != 0 ) {\r\n …\r\nProc 2:\r\nvoid LockForT2() {\r\n T2 = 1;\r\n MyExportBarrier();\r\n if( T1 != 0 ) {\r\n …\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/322290cf-a8ce-494f-bba8-9bff997eb77f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=48835930fb9fbd9cae16dfd19f3ae6654f76136f129e40b96d358ebaf00e5751",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 495
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3f49e392-6c58-4881-a583-1dfa33817613",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 37,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Dekker’s/Peterson’s Still Broken\r\nint T1 = 0, T2 = 0;\r\nProc 1:\r\nvoid LockForT1() {\r\n T1 = 1;\r\n MyImportBarrier();\r\n if( T2 != 0 ) {\r\n …\r\nProc 2:\r\nvoid LockForT2() {\r\n T2 = 1;\r\n MyImportBarrier();\r\n if( T1 != 0 ) {\r\n …\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/3f49e392-6c58-4881-a583-1dfa33817613.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7e5bf40ff44ab8d8117fc1a5a86dab50aa3e8419f2f36044523ba4c119df9bf9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "112df80d-8edc-4cf2-ba20-293e011c57b8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 38,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Dekker’s/Peterson’s Still Broken\r\nint T1 = 0, T2 = 0;\r\nProc 1:\r\nvoid LockForT1() {\r\n T1 = 1;\r\n MyExportBarrier(); MyImportBarrier();\r\n if( T2 != 0 ) {\r\n …\r\nProc 2:\r\nvoid LockForT2() {\r\n T2 = 1;\r\n MyExportBarrier(); MyImportBarrier();\r\n if( T1 != 0 ) {\r\n …\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/112df80d-8edc-4cf2-ba20-293e011c57b8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d14437888d8a4ef4702007f54338bac8629b9cb406ae86228fcbf527defe9e56",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f9f88e0f-9f17-4b9d-8372-e3d3a3935627",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 39,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "What About Volatile?\r\n» Standard volatile semantics not designed \r\nfor multi-threading\r\n Compiler can move normal reads/writes past \r\nvolatile reads/writes\r\n Also, doesn’t prevent CPU reordering\r\n» VC++ 2005+ volatile is better…\r\n Acts as read-acquire/write-release on x86/x64 \r\nand Itanium\r\n Doesn’t prevent hardware reordering on Xbox \r\n360\r\n» Watch for atomic<T> in C++0x\r\n Sequentially consistent by default but can choose \r\nfrom four memory models",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/f9f88e0f-9f17-4b9d-8372-e3d3a3935627.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=40590b5b580bebf44d6034fbc3d0a83ff7cce2a39f0a54dfbe5f7f219551e5f4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3aeb53f7-f118-4cd8-9c18-cd54be8a89c2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 40,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Double Checked Locking\r\nFoo* GetFoo() {\r\n static Foo* volatile s_pFoo;\r\n Foo* tmp = s_pFoo;\r\n if( !tmp ) {\r\n EnterCriticalSection( &initLock );\r\n tmp = s_pFoo; // Reload inside lock\r\n if( !tmp ) {\r\n tmp = new Foo();\r\n s_pFoo = tmp;\r\n }\r\n LeaveCriticalSection( &initLock );\r\n }\r\n return tmp; }\r\n» This is broken on many systems",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/3aeb53f7-f118-4cd8-9c18-cd54be8a89c2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cf50d0c20d3e872020b80619ad158709b1dc575f62815f19c7666c01a40df22c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1a9ef799-7ceb-47b9-98b7-f352fdcf7ee0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 41,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Possible Compiler Rewrite\r\nFoo* GetFoo() {\r\n static Foo* volatile s_pFoo;\r\n Foo* tmp = s_pFoo;\r\n if( !tmp ) {\r\n EnterCriticalSection( &initLock );\r\n tmp = s_pFoo; // Reload inside lock\r\n if( !tmp ) {\r\n s_pFoo = (Foo*)new char[sizeof(Foo)];\r\n new(s_pFoo) Foo; tmp = s_pFoo;\r\n }\r\n LeaveCriticalSection( &initLock );\r\n }\r\n return tmp; }",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/1a9ef799-7ceb-47b9-98b7-f352fdcf7ee0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=99732d0f31cba8e1c287a02bfb97841b296f848766da22a02fc2f1f4279e6419",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c725fe75-20d1-41d7-a1d9-4300077245f7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 42,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Double Checked Locking\r\nFoo* GetFoo() {\r\n static Foo* volatile s_pFoo;\r\n Foo* tmp = s_pFoo; MyImportBarrier();\r\n if( !tmp ) {\r\n EnterCriticalSection( &initLock );\r\n tmp = s_pFoo; // Reload inside lock\r\n if( !tmp ) {\r\n tmp = new Foo();\r\n MyExportBarrier(); s_pFoo = tmp;\r\n }\r\n LeaveCriticalSection( &initLock );\r\n }\r\n return tmp; }\r\n» Fixed",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/c725fe75-20d1-41d7-a1d9-4300077245f7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9de56b38c27540ae2b95d2fc1e69319ea46f9708aa498d7eabb686ad15de6b06",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6aee2f8d-102c-4910-abac-5b09c780e93d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 43,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "InterlockedXxx\r\n» Necessary to extend lockless algorithms to \r\ngreater than two threads\r\n A whole separate talk…\r\n» InterlockedXxx is a full barrier on Windows for \r\nx86, x64, and Itanium\r\n» Not a barrier at all on Xbox 360\r\n Oops. Still atomic, just not a barrier\r\n» InterlockedXxx Acquire and Release are \r\nportable across all platforms\r\n Same guarantees everywhere\r\n Safer than regular InterlockedXxx on Xbox 360\r\n No difference on x86/x64\r\n Recommended",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/6aee2f8d-102c-4910-abac-5b09c780e93d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5fe84a2ba4e9a4fc2110208e895741bddf3e304b73286ee70475ae4d178b2c64",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6f36d355-b812-4490-a420-c8ef85359250",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 44,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Practical Lockless Uses\r\n» Reference counts\r\n» Setting a flag to tell a thread to exit\r\n» Publisher/Subscriber with one reader \r\nand one writer – lockless pipe\r\n» SLists\r\n» XMCore on Xbox 360\r\n» Double checked locking",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/6f36d355-b812-4490-a420-c8ef85359250.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8dec0cab989016a67ba1831ea279fe15613e7c79342cca94d3fb53b3a279a54f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "db67a316-df64-4c5b-b70c-35f5ee3767a1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 45,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Barrier Summary\r\n» MyExportBarrier when publishing \r\ndata, to prevent write reordering\r\n» MyImportBarrier when acquiring \r\ndata, to prevent read reordering\r\n» MemoryBarrier to stop all reordering, \r\nincluding reads passing writes\r\n» Identify where you are \r\npublishing/releasing and where you \r\nare subscribing/acquiring",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/db67a316-df64-4c5b-b70c-35f5ee3767a1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aac940220fb56c4ccf2f8fe770696d8f87d1ce16cdb0ccd0b24300e4cf3fda72",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 463
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "21ac3a7b-a94d-40a8-9e6c-f813b1f4ed96",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 46,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Summary\r\n» Prefer using locks – they are full barriers\r\n» Acquiring and releasing a lock is a memory \r\nbarrier\r\n» Use lockless only when costs of locks are \r\nshown to be too high\r\n» Use pre-built lockless algorithms if possible\r\n» Encapsulate lockless algorithms to make \r\nthem safe to use\r\n» Volatile is not a portable solution\r\n» Remember that InterlockedXxx is a full \r\nbarrier on Windows, but not on Xbox 360",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/21ac3a7b-a94d-40a8-9e6c-f813b1f4ed96.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=759530d70515d617cfadddcba16b5adcf5adead80cf73a1cc3664b0560a7d667",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "885a6741-b4bd-4f7d-b54e-8f596a4a0dcc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 47,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "References\r\n» Intel memory model documentation in Intel® 64 and IA-32 \r\nArchitectures Software Developer's Manual Volume 3A: System \r\nProgramming Guide\r\n http://download.intel.com/design/processor/manuals/253668.pdf\r\n» AMD \"Multiprocessor Memory Access Ordering\"\r\n http://www.amd.com/us-en/assets/content_type/\r\nwhite_papers_and_tech_docs/24593.pdf\r\n» PPC memory model explanation\r\n http://www.ibm.com/developerworks/eserver/articles/powerpc.html\r\n» Lockless Programming Considerations for Xbox 360 and Microsoft \r\nWindows\r\n http://msdn.microsoft.com/en-us/library/bb310595.aspx\r\n» Perils of Double Checked Locking\r\n http://www.aristeia.com/Papers/DDJ_Jul_Aug_2004_revised.pdf\r\n» Java Memory Model Cookbook\r\n http://g.oswego.edu/dl/jmm/cookbook.html",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/885a6741-b4bd-4f7d-b54e-8f596a4a0dcc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ab9b38b0452c3e8d0436b20410c5d8ed5c7729ee06571b499c9da3a97d9ba1f1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b7f0f23f-c560-4f64-b3db-c8c836594b64",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 48,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Questions?\r\n» bdawson@microsoft.com",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/b7f0f23f-c560-4f64-b3db-c8c836594b64.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=19add4053cb307159730cdcfaac78d2f5f07cbc69d6379dc499811ff195317b5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8e76be25-c3ef-4282-a113-b013aeb15eb4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 49,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Feedback forms\r\n» Please fill out feedback forms",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c54dc77f-2fb4-40fd-ad5f-28db2d3cb3ff/images/8e76be25-c3ef-4282-a113-b013aeb15eb4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ab04e3019261a0222ada04fb37cf88b789f5713309c8c736966a8e19d2ef28d6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 149
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Lockless Programming in Games\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Bruce Dawson\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "```json\n{\n  \"date_published\": null\n}\n```"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "\"Microsoft\""
+        }
+      ]
+    }
+  }
+}

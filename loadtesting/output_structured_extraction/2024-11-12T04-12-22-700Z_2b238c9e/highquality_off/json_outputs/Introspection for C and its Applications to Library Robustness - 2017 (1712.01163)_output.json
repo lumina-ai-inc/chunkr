@@ -1,0 +1,1087 @@
+{
+  "file_name": "Introspection for C and its Applications to Library Robustness - 2017 (1712.01163).pdf",
+  "task_id": "d6879c18-bda7-483f-9fd5-099d6d45918d",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "b3842d7b-5c62-4dc0-9b68-c8e8d9a6696b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 1,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nManuel Riggera, René Mayrhofera, Roland Schatzb, Matthias Grimmerb, and\r\nHanspeter Mössenböcka\r\na Johannes Kepler University Linz, Austria\r\nb Oracle Labs, Austria\r\nAbstract Context: In C, low-level errors, such as buffer overflow and use-after-free, are a major problem, as\r\nthey cause security vulnerabilities and hard-to-find bugs. C lacks automatic checks, and programmers cannot\r\napply defensive programming techniques because objects (e.g., arrays or structs) lack run-time information\r\nabout bounds, lifetime, and types.\r\nInquiry: Current approaches to tackling low-level errors include dynamic tools, such as bounds or type\r\ncheckers, that check for certain actions during program execution. If they detect an error, they typically\r\nabort execution. Although they track run-time information as part of their runtimes, they do not expose this\r\ninformation to programmers.\r\nApproach: We devised an introspection interface that allows C programmers to access run-time informa\u0002tion and to query object bounds, object lifetimes, object types, and information about variadic arguments.\r\nThis enables library writers to check for invalid input or program states and thus, for example, to implement\r\ncustom error handling that maintains system availability and does not terminate on benign errors. As we\r\nassume that introspection is used together with a dynamic tool that implements automatic checks, errors that\r\nare not handled in the application logic continue to cause the dynamic tool to abort execution.\r\nKnowledge: Using the introspection interface, we implemented a more robust, source-compatible version\r\nof the C standard library that validates parameters to its functions. The library functions react to otherwise\r\nundefined behavior; for example, they can detect lurking flaws, handle unterminated strings, check format\r\nstring arguments, and set errno when they detect benign usage errors.\r\nGrounding: Existing dynamic tools maintain run-time information that can be used to implement the\r\nintrospection interface, and we demonstrate its implementation in Safe Sulong, an interpreter and dynamic\r\nbug-finding tool for C that runs on a Java Virtual Machine and can thus easily expose relevant run-time\r\ninformation.\r\nImportance: Using introspection in user code is a novel approach to tackling the long-standing problem\r\nof low-level errors in C. As new approaches are lowering the performance overhead of run-time information\r\nmaintenance, the usage of dynamic runtimes for C could become more common, which could ultimately\r\nfacilitate a more widespread implementation of such an introspection interface.\r\nACM CCS 2012\r\nComputer systems organization → Dependable and fault-tolerant systems and networks;\r\nSoftware and its engineering → Language features; Error handling and recovery; Software reliability;\r\nKeywords re\u001dection for C, library robustness, fault tolerance\r\nThe Art, Science, and Engineering of Programming\r\nSubmitted July 31, 2017\r\nPublished December 6, 2017\r\ndoi 10.22152/programming-journal.org/2018/2/4\r\n© M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nThis work is licensed under a “CC BY 4.0” license.\r\nIn The Art, Science, and Engineering of Programming, vol. 2, no. 2, 2018, article 4; 31 pages.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/b3842d7b-5c62-4dc0-9b68-c8e8d9a6696b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f8c9ed3317155675370ba6aa47b0b7b069bcdecb2ca27f4cc86e97212e6a045c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 471
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e34f0288-b87c-4c21-a7cb-3a3c73433d55",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 2,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\n1 Introduction\r\nSince the birth of C almost 50 years ago, programmers have written many applications\r\nin it. Even the advent of higher-level programming languages has not stopped C’s\r\npopularity, and it remains widely used as the second-most popular programming\r\nlanguage [47]. However, C provides few safety guarantees and suffers from unique\r\nsecurity issues that have disappeared in modern programming languages. Buffer\r\noverflow errors, where a pointer that exceeds the bounds of an object is dereferenced,\r\nare the most serious issue in C [9]. Other security issues include use-after-free errors,\r\ninvalid free errors, reading of uninitialized memory, and memory leaks. Numerous\r\napproaches exist that prevent such errors in C programs by detecting these illegal\r\npatterns statically or during run time, or by making it more difficult to exploit them [46,\r\n48, 55]. When an error happens, run-time approaches abort the program, which is more\r\ndesirable than risking incorrect execution, potentially leaking user data, executing\r\ninjected code, or corrupting program state.\r\nHowever, we believe that in many cases programmers could better respond to illegal\r\nactions in the application logic if they could use the metadata of run-time approaches\r\n(e.g., bounds information) to check invalid actions at run time and prevent them from\r\nhappening. Library implementers in particular could use it to protect themselves from\r\nuser input and to compensate for the lack of exception handling in C. For example, if\r\nthey could check that an access would go out-of-bounds in a server library, they could\r\nlog the error and ignore the invalid access to maintain availability of the system (as\r\nin failure-oblivious computing [35]). If the error happened in the C standard library\r\ninstead, they could set the global integer variable errno to an error code, for example,\r\nto EINVAL for invalid arguments. Furthermore, a special value (such as -1 or NULL)\r\ncould be returned to indicate that something went wrong. Finally, explicit checks\r\ncould prevent lurking flaws that would otherwise stay undetected. For example, in the\r\ncase that a function does not actually access an invalid position in the buffer, bounds\r\ncheckers cannot detect when an incorrect array size is passed to the function. Using\r\nbounds metadata, programmers could validate the passed against the actual array\r\nsize.\r\nIn this paper, we present a novel approach that allows C programmers to query\r\nproperties of an object (primitive value, struct, array, union, or pointer) so that they\r\ncan perform explicit sanity checks and react accordingly to invalid arguments or states.\r\nThese properties comprise the bounds of an object, the memory location, the number\r\nof arguments of a function with varargs, and whether an object can be used in a certain\r\nway (e.g., called as a function that expects and returns an int). The presented approach\r\nis complementary to dynamic tools, and does not aim to replace them. Programmers\r\ncan insert custom input validations and error-handling logic where needed, but the\r\ndynamic tool that tracks the exposed metadata still aborts execution for errors that\r\nare not handled at the application level. Ultimately, this provides programmers with\r\ngreater flexibility and increases the robustness of libraries and applications, defined as\r\n“[t]he degree to which a system or component can function correctly in the presence\r\nof invalid inputs or stressful environmental conditions” [21].\r\n4:2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/e34f0288-b87c-4c21-a7cb-3a3c73433d55.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cc9804e8aa7051d745753eab03083454906b75ef6ce985b64ee5199673e7dbe6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 547
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e34f0288-b87c-4c21-a7cb-3a3c73433d55",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 2,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\n1 Introduction\r\nSince the birth of C almost 50 years ago, programmers have written many applications\r\nin it. Even the advent of higher-level programming languages has not stopped C’s\r\npopularity, and it remains widely used as the second-most popular programming\r\nlanguage [47]. However, C provides few safety guarantees and suffers from unique\r\nsecurity issues that have disappeared in modern programming languages. Buffer\r\noverflow errors, where a pointer that exceeds the bounds of an object is dereferenced,\r\nare the most serious issue in C [9]. Other security issues include use-after-free errors,\r\ninvalid free errors, reading of uninitialized memory, and memory leaks. Numerous\r\napproaches exist that prevent such errors in C programs by detecting these illegal\r\npatterns statically or during run time, or by making it more difficult to exploit them [46,\r\n48, 55]. When an error happens, run-time approaches abort the program, which is more\r\ndesirable than risking incorrect execution, potentially leaking user data, executing\r\ninjected code, or corrupting program state.\r\nHowever, we believe that in many cases programmers could better respond to illegal\r\nactions in the application logic if they could use the metadata of run-time approaches\r\n(e.g., bounds information) to check invalid actions at run time and prevent them from\r\nhappening. Library implementers in particular could use it to protect themselves from\r\nuser input and to compensate for the lack of exception handling in C. For example, if\r\nthey could check that an access would go out-of-bounds in a server library, they could\r\nlog the error and ignore the invalid access to maintain availability of the system (as\r\nin failure-oblivious computing [35]). If the error happened in the C standard library\r\ninstead, they could set the global integer variable errno to an error code, for example,\r\nto EINVAL for invalid arguments. Furthermore, a special value (such as -1 or NULL)\r\ncould be returned to indicate that something went wrong. Finally, explicit checks\r\ncould prevent lurking flaws that would otherwise stay undetected. For example, in the\r\ncase that a function does not actually access an invalid position in the buffer, bounds\r\ncheckers cannot detect when an incorrect array size is passed to the function. Using\r\nbounds metadata, programmers could validate the passed against the actual array\r\nsize.\r\nIn this paper, we present a novel approach that allows C programmers to query\r\nproperties of an object (primitive value, struct, array, union, or pointer) so that they\r\ncan perform explicit sanity checks and react accordingly to invalid arguments or states.\r\nThese properties comprise the bounds of an object, the memory location, the number\r\nof arguments of a function with varargs, and whether an object can be used in a certain\r\nway (e.g., called as a function that expects and returns an int). The presented approach\r\nis complementary to dynamic tools, and does not aim to replace them. Programmers\r\ncan insert custom input validations and error-handling logic where needed, but the\r\ndynamic tool that tracks the exposed metadata still aborts execution for errors that\r\nare not handled at the application level. Ultimately, this provides programmers with\r\ngreater flexibility and increases the robustness of libraries and applications, defined as\r\n“[t]he degree to which a system or component can function correctly in the presence\r\nof invalid inputs or stressful environmental conditions” [21].\r\n4:2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/e34f0288-b87c-4c21-a7cb-3a3c73433d55.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cc9804e8aa7051d745753eab03083454906b75ef6ce985b64ee5199673e7dbe6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 547
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a750abcb-f681-46ed-8843-139f813416a9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 3,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nAs a proof of concept, we implemented the introspection interface for Safe Su\u0002long [32], a bug-finding tool and interpreter with a dynamic compiler for C. Safe\r\nSulong prevents buffer overflows, use-after-free, variadic argument errors, and type\r\nerrors by checking accesses and aborting execution upon an invalid action. It already\r\nmaintains relevant run-time information that it can expose to the programmer.\r\nIn a case study, we demonstrate how the introspection functions facilitate re\u0002implementing the C standard library (libc) to validate input arguments. We use this\r\nlibc in Safe Sulong as a source-compatible, more robust drop-in replacement for the\r\nGNU C Library. In contrast to the GNU C Library and other implementations, it can\r\ndetect lurking flaws, handle unterminated strings, check format string arguments,\r\nand – instead of terminating execution – set errno when errors occur.\r\nA plethora of other dynamic-bug finding tools and runtimes for C exist, and they\r\ncould expose their run-time data via the introspection functions introduced in this\r\npaper. For example, bounds checkers [2, 11, 30, 38] could expose bounds information.\r\nTemporal memory safety tools [4, 19, 29, 31, 39, 44] could expose information about\r\nmemory locations. Variadic argument checkers [3] and type checkers [18, 22] could\r\nexpose information about variadic arguments and types. There are also combined\r\ntools that, for example, provide protection against both out-of-bounds accesses and\r\nuse-after-free errors [17, 29, 30].\r\nAs the overhead of dynamic tools is decreasing [22, 29, 30, 38, 44], they could\r\nbecome standard in production, similar to stack canaries and address space layout\r\nrandomization [46]. At this point in time, a wider adoption of the introspection\r\nfunctions (or a subset thereof) seems feasible. Additionally, we envisage that dynamic\r\ntools available now could distribute specialized libraries that benefit from introspection,\r\nas we will demonstrate using Safe Sulong’s libc as an example.\r\nIn summary, this paper contributes in the following ways:\r\nWe present introspection functions designed to allow programmers to prevent illegal\r\nactions that are specific to C (Section 3).\r\nWe demonstrate how we implemented the introspection functions in Safe Sulong, a\r\nbug-finding tool and interpreter with a dynamic compiler for C (Section 4).\r\nIn a case study, we show how using introspection increases the robustness of the C\r\nstandard library (Section 5).\r\n2 Background\r\nIn C, the lack of type and memory safety causes many problems, such as hard-to\u0002find bugs and security issues. Moreover, manual memory management puts the\r\nburden of deallocating objects on the programmer. Consequently, C programs are\r\nplagued by vulnerabilities that are unique to the language. Faults can invoke undefined\r\nbehavior, so compiled code can crash, compute unexpected results, and corrupt or\r\nread neighboring objects [50, 51]. It is often impossible to design C functions such\r\nthat they are secure against usage errors, since they cannot validate passed arguments\r\n4:3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/a750abcb-f681-46ed-8843-139f813416a9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ee70acb38bdaf2be3f82961991f940777a821271cb3159abad4e2958b8349561",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 473
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "15b5c866-f5c4-4ccd-9a4a-1ed37878cf5d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 4,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nor global data. Below we provide a list of errors and vulnerabilities in C programs\r\nthat we target in this work.\r\nOut-of-bounds errors. Out-of-bounds accesses in C are among the most dangerous\r\nsoftware errors [9, 37], since – unlike higher-level languages – C does not specify\r\nautomatic bounds checks. Further, objects have no run-time information attached to\r\nthem, so functions that operate on arrays require array-size arguments. Alternatively,\r\nthey need conventions such as terminating an array by a special value.\r\nListing 1 shows a typical buffer overflow. The read_number() function reads digits\r\nentered by the user into the passed buffer arr and validates that it does not write beyond\r\nits bounds. However, its callee passes -1 as the length parameter, which is (through\r\nthe size_t type) treated as the unsigned number SIZE_MAX. Thus, the bounds check\r\nis rendered useless, and if the user enters more than nine digits, the read_number()\r\nfunction overflows the passed buffer.\r\nA recent similar real-world vulnerability is CVE-2016-3186, where a function in libtiff\r\ncast a negative value to size_t. As another example, in CVE-2016-6823 a function in\r\nImageMagick caused an arithmetic overflow that resulted in an incorrect image size.\r\nBoth faults resulted in buffer overflows.\r\nMemory management errors. Objects that are allocated in different ways (e.g., on the\r\nstack or by malloc()) have different lifetimes, which influences how they can be used.\r\nFor example, it is forbidden to access memory after it has been freed (otherwise known\r\nas an access to a dangling pointer). Other such errors include freeing memory twice,\r\nfreeing stack memory or static memory, and calling free() on a pointer that points\r\nsomewhere into the middle of an object [29]. Listing 2 shows examples of a use-after\u0002free and a double-free error. Firstly, when err is non-zero, the allocated pointer ptr is\r\nfreed and later accessed again as a dangling pointer in logError(). Secondly, the code\r\nfragment attempts to free the pointer again after logging the error, which results in a\r\ndouble-free vulnerability. C does not provide mechanisms to retrieve the lifetime of\r\nan object, which would allow checking and preventing such conditions. Consequently,\r\nuse-after-free errors frequently occur in real-world code. For example, in CVE-2016-\r\n4473 the PHP Zend Engine attempted to free an object that was not allocated by one\r\nListing 1 Passing -1 to the size_t parameter renders the range check useless and could\r\ncause an out-of-bounds error while writing read characters to arr\r\n1 void read_number ( char * a r r , s i z e _ t leng th ) {\r\n2 i n t i = 0 ;\r\n3 i f ( leng th == 0 ) r e tu rn ;\r\n4 i n t c = ge tcha r ( ) ;\r\n5 while ( i s d i g i t ( c ) && ( i + 1 ) < len g th ) {\r\n6 a r r [ i ++ ] = c ; c = ge tcha r ( ) ;\r\n7 }\r\n8 a r r [ i ] = ' \\0 ' ;\r\n9 }\r\n10 // . . .\r\n11 char buf [ 1 0 ] ;\r\n12 read_number ( buf , - 1 ) ;\r\n13 p r i n t f ( \"%s\\n\" , buf ) ;\r\n4:4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/15b5c866-f5c4-4ccd-9a4a-1ed37878cf5d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c0797ba11839906f88599c17ca2887ae5f8b71db1da87ad334ac3dc5b843096f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 561
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "15b5c866-f5c4-4ccd-9a4a-1ed37878cf5d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 4,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nor global data. Below we provide a list of errors and vulnerabilities in C programs\r\nthat we target in this work.\r\nOut-of-bounds errors. Out-of-bounds accesses in C are among the most dangerous\r\nsoftware errors [9, 37], since – unlike higher-level languages – C does not specify\r\nautomatic bounds checks. Further, objects have no run-time information attached to\r\nthem, so functions that operate on arrays require array-size arguments. Alternatively,\r\nthey need conventions such as terminating an array by a special value.\r\nListing 1 shows a typical buffer overflow. The read_number() function reads digits\r\nentered by the user into the passed buffer arr and validates that it does not write beyond\r\nits bounds. However, its callee passes -1 as the length parameter, which is (through\r\nthe size_t type) treated as the unsigned number SIZE_MAX. Thus, the bounds check\r\nis rendered useless, and if the user enters more than nine digits, the read_number()\r\nfunction overflows the passed buffer.\r\nA recent similar real-world vulnerability is CVE-2016-3186, where a function in libtiff\r\ncast a negative value to size_t. As another example, in CVE-2016-6823 a function in\r\nImageMagick caused an arithmetic overflow that resulted in an incorrect image size.\r\nBoth faults resulted in buffer overflows.\r\nMemory management errors. Objects that are allocated in different ways (e.g., on the\r\nstack or by malloc()) have different lifetimes, which influences how they can be used.\r\nFor example, it is forbidden to access memory after it has been freed (otherwise known\r\nas an access to a dangling pointer). Other such errors include freeing memory twice,\r\nfreeing stack memory or static memory, and calling free() on a pointer that points\r\nsomewhere into the middle of an object [29]. Listing 2 shows examples of a use-after\u0002free and a double-free error. Firstly, when err is non-zero, the allocated pointer ptr is\r\nfreed and later accessed again as a dangling pointer in logError(). Secondly, the code\r\nfragment attempts to free the pointer again after logging the error, which results in a\r\ndouble-free vulnerability. C does not provide mechanisms to retrieve the lifetime of\r\nan object, which would allow checking and preventing such conditions. Consequently,\r\nuse-after-free errors frequently occur in real-world code. For example, in CVE-2016-\r\n4473 the PHP Zend Engine attempted to free an object that was not allocated by one\r\nListing 1 Passing -1 to the size_t parameter renders the range check useless and could\r\ncause an out-of-bounds error while writing read characters to arr\r\n1 void read_number ( char * a r r , s i z e _ t leng th ) {\r\n2 i n t i = 0 ;\r\n3 i f ( leng th == 0 ) r e tu rn ;\r\n4 i n t c = ge tcha r ( ) ;\r\n5 while ( i s d i g i t ( c ) && ( i + 1 ) < len g th ) {\r\n6 a r r [ i ++ ] = c ; c = ge tcha r ( ) ;\r\n7 }\r\n8 a r r [ i ] = ' \\0 ' ;\r\n9 }\r\n10 // . . .\r\n11 char buf [ 1 0 ] ;\r\n12 read_number ( buf , - 1 ) ;\r\n13 p r i n t f ( \"%s\\n\" , buf ) ;\r\n4:4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/15b5c866-f5c4-4ccd-9a4a-1ed37878cf5d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c0797ba11839906f88599c17ca2887ae5f8b71db1da87ad334ac3dc5b843096f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 561
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8f70aef8-e259-4b03-9ee4-8aa582797419",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 5,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nListing 2 Use-after-free error which is based on an example from the CWE wiki\r\n1 char * p t r = ( char * ) malloc ( SIZE * si z e o f ( char ) ) ;\r\n2 i f ( e r r ) {\r\n3 ab r t = 1 ; f r e e ( p t r ) ;\r\n4 }\r\n5 // . . .\r\n6 i f ( ab r t ) {\r\n7 l o g E r r o r ( \" ope ra tion aborted \" , p t r ) ; f r e e ( p t r ) ;\r\n8 }\r\n9 // . . .\r\n10 void l o g E r r o r ( cons t char * message , void * p t r ) {\r\n11 l o g f ( \" e r r o r while p rocessing %p\" , p t r ) ;\r\n12 }\r\nof libc’s allocation functions. Other recent examples include a dangling pointer access\r\nand a double free error in OpenSSL (CVE-2016-6309 and CVE-2016-0705).\r\nVariadic function errors. Variadic functions in C rely on the programmer to pass a\r\ncount of variadic arguments or a format string. Furthermore, a programmer must pass\r\nthe matching number of objects of the expected type. Listing 3 shows an example that\r\nuses variadic arguments to print formatted output, similar to C’s sprintf() function. It\r\nis based on a function taken from the PHP Zend Engine. As arguments, the function\r\nexpects a format string fmt, the variadic arguments ap, and a buffer xbuf to which\r\nthe formatted output should be written. To use the function, a C programmer has to\r\ninvoke a macro to set up and tear down the variadic arguments (respectively va_start()\r\nand va_end()). Using the va_arg() macro, xbuf_format_converter() can then directly\r\naccess the variadic arguments. The example shows how a string can be accessed\r\n(format specifier \"%s\") that is then inserted into the buffer xbuf.\r\nThe function uses the format string to determine how many variadic arguments should\r\nbe accessed. For example, for a format string \"%s %s\" the function attempts to access\r\ntwo variadic arguments that are assumed to have a string type. Accessing a variadic\r\nargument via va_arg() usually manipulates a pointer to the stack and pops the number\r\nof bytes that correspond to the specified data type (char * in our example). In a\r\nso-called format string attack, in which the function reads or writes beyond the stack\r\ndue to nonexistent arguments, an attacker can exploit the inability of the function to\r\nverify the number and the types of the variadic arguments passed [8, 40].\r\nIn CVE-2015-8617, this function was the sink of a vulnerability that existed in PHP-7.0.0.\r\nThe zend_throw_error() function called xbuf_format_converter() with a message string\r\nthat was under user control. Consequently, an attacker could use format specifiers\r\nwithout matching arguments to read from and write to memory, and thus execute\r\narbitrary code. As another example, in CVE-2016-4448 a vulnerability in libxml2\r\nexisted because format specifiers from untrusted input were not escaped.\r\nLack of type safety. Due to the lack of type safety, a programmer cannot verify whether\r\nan object referenced by a pointer corresponds to its expected type [22]. Listing 4\r\ndemonstrates this for function pointers. The apply() function expects a function pointer\r\nthat accepts and returns an int. It uses the function to transform all elements of an\r\narray. However, its callee might pass a function that returns a double; a call on it\r\nwould result in undefined behavior. Such “type confusion” cannot be avoided when\r\n4:5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/8f70aef8-e259-4b03-9ee4-8aa582797419.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2195dbf3853b850433e8f712f32223fe3033d522330ee1554892bdaf989ce7ea",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 618
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8f70aef8-e259-4b03-9ee4-8aa582797419",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 5,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nListing 2 Use-after-free error which is based on an example from the CWE wiki\r\n1 char * p t r = ( char * ) malloc ( SIZE * si z e o f ( char ) ) ;\r\n2 i f ( e r r ) {\r\n3 ab r t = 1 ; f r e e ( p t r ) ;\r\n4 }\r\n5 // . . .\r\n6 i f ( ab r t ) {\r\n7 l o g E r r o r ( \" ope ra tion aborted \" , p t r ) ; f r e e ( p t r ) ;\r\n8 }\r\n9 // . . .\r\n10 void l o g E r r o r ( cons t char * message , void * p t r ) {\r\n11 l o g f ( \" e r r o r while p rocessing %p\" , p t r ) ;\r\n12 }\r\nof libc’s allocation functions. Other recent examples include a dangling pointer access\r\nand a double free error in OpenSSL (CVE-2016-6309 and CVE-2016-0705).\r\nVariadic function errors. Variadic functions in C rely on the programmer to pass a\r\ncount of variadic arguments or a format string. Furthermore, a programmer must pass\r\nthe matching number of objects of the expected type. Listing 3 shows an example that\r\nuses variadic arguments to print formatted output, similar to C’s sprintf() function. It\r\nis based on a function taken from the PHP Zend Engine. As arguments, the function\r\nexpects a format string fmt, the variadic arguments ap, and a buffer xbuf to which\r\nthe formatted output should be written. To use the function, a C programmer has to\r\ninvoke a macro to set up and tear down the variadic arguments (respectively va_start()\r\nand va_end()). Using the va_arg() macro, xbuf_format_converter() can then directly\r\naccess the variadic arguments. The example shows how a string can be accessed\r\n(format specifier \"%s\") that is then inserted into the buffer xbuf.\r\nThe function uses the format string to determine how many variadic arguments should\r\nbe accessed. For example, for a format string \"%s %s\" the function attempts to access\r\ntwo variadic arguments that are assumed to have a string type. Accessing a variadic\r\nargument via va_arg() usually manipulates a pointer to the stack and pops the number\r\nof bytes that correspond to the specified data type (char * in our example). In a\r\nso-called format string attack, in which the function reads or writes beyond the stack\r\ndue to nonexistent arguments, an attacker can exploit the inability of the function to\r\nverify the number and the types of the variadic arguments passed [8, 40].\r\nIn CVE-2015-8617, this function was the sink of a vulnerability that existed in PHP-7.0.0.\r\nThe zend_throw_error() function called xbuf_format_converter() with a message string\r\nthat was under user control. Consequently, an attacker could use format specifiers\r\nwithout matching arguments to read from and write to memory, and thus execute\r\narbitrary code. As another example, in CVE-2016-4448 a vulnerability in libxml2\r\nexisted because format specifiers from untrusted input were not escaped.\r\nLack of type safety. Due to the lack of type safety, a programmer cannot verify whether\r\nan object referenced by a pointer corresponds to its expected type [22]. Listing 4\r\ndemonstrates this for function pointers. The apply() function expects a function pointer\r\nthat accepts and returns an int. It uses the function to transform all elements of an\r\narray. However, its callee might pass a function that returns a double; a call on it\r\nwould result in undefined behavior. Such “type confusion” cannot be avoided when\r\n4:5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/8f70aef8-e259-4b03-9ee4-8aa582797419.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2195dbf3853b850433e8f712f32223fe3033d522330ee1554892bdaf989ce7ea",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 618
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4cb35937-a37b-4ad6-88a0-5c09b39af387",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 6,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 3 Example usage of variadic functions, taken from the PHP Zend Engine\r\n1 s t a t i c void xbu f_ fo rma t_conve r te r ( void * xbuf , cons t char * fmt , v a _ l i s t ap ) {\r\n2 char * s = NULL ;\r\n3 s i z e _ t s_len ;\r\n4 while ( * fmt ) {\r\n5 i f ( * fmt ! = '% ' ) {\r\n6 INS_CHAR ( xbuf , * fmt ) ;\r\n7 } els e {\r\n8 fmt + + ;\r\n9 swi tch ( * fmt ) {\r\n10 // . . .\r\n11 case ' s ' :\r\n12 s = va_arg ( ap , char * ) ;\r\n13 s_len = s t rl e n ( s ) ;\r\n14 break ;\r\n15 // . . .\r\n16 }\r\n17 INS_STRING ( xbuf , s , s_len ) ;\r\n18 }\r\n19 }\r\n20 }\r\nListing 4 Example of type confusion\r\n1 i n t apply ( i n t * a r r , s i z e _ t n , i n t f ( i n t a r g 1 ) ) {\r\n2 i f ( f == NULL ) r e tu rn - 1 ;\r\n3 f o r ( s i z e _ t i = 0 ; i < n ; i ++ )\r\n4 a r r [ i ] = f ( a r r [ i ] ) ;\r\n5 r e tu rn 0 ;\r\n6 }\r\n7\r\n8 double square ( i n t a ) { r e tu rn a * a ; }\r\n9\r\n10 apply ( a r r , 5 , square ) ;\r\ncalling a function pointer, since objects have no types attached that could be used for\r\nvalidation.\r\nUnterminated strings. Unterminated strings are a problem, since the string functions\r\nof libc (and sometimes also application code) rely on strings ending with a ‘\\0’ (null\r\nterminator) character. However, C standard library functions that operate on strings\r\nlack a common convention on whether to add a null terminator [28]. Additionally, it\r\nis not possible to verify whether a string is properly terminated without potentially\r\ncausing buffer overreads. Listing 5 shows an example of an unterminated string\r\nvulnerability. The read function reads a file’s contents into a string inputbuf. After the\r\ncall, inputbuf is unterminated if the file was unterminated or if MAXLEN was exceeded.\r\nThis is likely to cause an out-of-bounds write in strcpy(), since it copies characters to\r\nbuf until a null terminator occurs. Recent similar real-world vulnerabilities include\r\nCVE-2016-7449, where strlcpy() was used to copy untrusted (potentially unterminated)\r\ninput in GraphicsMagick. Further examples are CVE-2016-5093 and CVE-2016-0055,\r\nwhere strings were not properly terminated in the PHP Zend Engine as well as in\r\nInternet Explorer and Microsoft Office Excel [27].\r\nUnsafe functions. Some functions in common libraries such as libc have been designed\r\nsuch that they “can never be guaranteed to work safely” [2, 12]. The most prominent\r\n4:6",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/4cb35937-a37b-4ad6-88a0-5c09b39af387.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ff8eea40034e28e89c40ad0a1aca02706ab5149b4e1bcb8a722cddc221aacdbd",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 537
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4cb35937-a37b-4ad6-88a0-5c09b39af387",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 6,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 3 Example usage of variadic functions, taken from the PHP Zend Engine\r\n1 s t a t i c void xbu f_ fo rma t_conve r te r ( void * xbuf , cons t char * fmt , v a _ l i s t ap ) {\r\n2 char * s = NULL ;\r\n3 s i z e _ t s_len ;\r\n4 while ( * fmt ) {\r\n5 i f ( * fmt ! = '% ' ) {\r\n6 INS_CHAR ( xbuf , * fmt ) ;\r\n7 } els e {\r\n8 fmt + + ;\r\n9 swi tch ( * fmt ) {\r\n10 // . . .\r\n11 case ' s ' :\r\n12 s = va_arg ( ap , char * ) ;\r\n13 s_len = s t rl e n ( s ) ;\r\n14 break ;\r\n15 // . . .\r\n16 }\r\n17 INS_STRING ( xbuf , s , s_len ) ;\r\n18 }\r\n19 }\r\n20 }\r\nListing 4 Example of type confusion\r\n1 i n t apply ( i n t * a r r , s i z e _ t n , i n t f ( i n t a r g 1 ) ) {\r\n2 i f ( f == NULL ) r e tu rn - 1 ;\r\n3 f o r ( s i z e _ t i = 0 ; i < n ; i ++ )\r\n4 a r r [ i ] = f ( a r r [ i ] ) ;\r\n5 r e tu rn 0 ;\r\n6 }\r\n7\r\n8 double square ( i n t a ) { r e tu rn a * a ; }\r\n9\r\n10 apply ( a r r , 5 , square ) ;\r\ncalling a function pointer, since objects have no types attached that could be used for\r\nvalidation.\r\nUnterminated strings. Unterminated strings are a problem, since the string functions\r\nof libc (and sometimes also application code) rely on strings ending with a ‘\\0’ (null\r\nterminator) character. However, C standard library functions that operate on strings\r\nlack a common convention on whether to add a null terminator [28]. Additionally, it\r\nis not possible to verify whether a string is properly terminated without potentially\r\ncausing buffer overreads. Listing 5 shows an example of an unterminated string\r\nvulnerability. The read function reads a file’s contents into a string inputbuf. After the\r\ncall, inputbuf is unterminated if the file was unterminated or if MAXLEN was exceeded.\r\nThis is likely to cause an out-of-bounds write in strcpy(), since it copies characters to\r\nbuf until a null terminator occurs. Recent similar real-world vulnerabilities include\r\nCVE-2016-7449, where strlcpy() was used to copy untrusted (potentially unterminated)\r\ninput in GraphicsMagick. Further examples are CVE-2016-5093 and CVE-2016-0055,\r\nwhere strings were not properly terminated in the PHP Zend Engine as well as in\r\nInternet Explorer and Microsoft Office Excel [27].\r\nUnsafe functions. Some functions in common libraries such as libc have been designed\r\nsuch that they “can never be guaranteed to work safely” [2, 12]. The most prominent\r\n4:6",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/4cb35937-a37b-4ad6-88a0-5c09b39af387.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ff8eea40034e28e89c40ad0a1aca02706ab5149b4e1bcb8a722cddc221aacdbd",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 537
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "edd3fb2a-8151-4b07-ad20-c9dcddc4c6ff",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 7,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nListing 5 Example fragment that may produce and copy an unterminated string\r\n1 read ( c f g f i l e , inpu tbu f , MAXLEN ) ;\r\n2 char buf [ MAXLEN ] ;\r\n3 s t r c py ( buf , inpu tbu f ) ;\r\n4 puts ( buf ) ;\r\nexample is the gets() function, which reads user input from stdin into a buffer passed\r\nas an argument. Since gets() lacks a parameter for the size of the supplied buffer, it\r\ncannot perform any bounds checking and overflows the buffer if the user input is\r\ntoo large. Although C11 replaced gets() with the more robust gets_s() function, legacy\r\ncode might still require the unsafe gets() function. In general, functions that lack size\r\narguments – which prevents safe access to arrays – cannot be made safe without\r\nbreaking source and binary compatibility.\r\n3 Introspection Functions\r\nTo enable C programmers to validate arguments and global data, we devised intro\u0002spection functions to query properties of C objects and the current function (see\r\nAppendix B). These functions allow programmers only to inspect objects and not to\r\nmanipulate them; therefore, the presented functions are not a full reflection interface.\r\nWe designed these functions specifically to provide users with the ability to prevent\r\nbuffer overflow, use-after-free, and other common errors specific to C. Through in\u0002trospection, programmers can validate certain properties (memory location, bounds,\r\nand types) before performing an operation on an object. Additionally, introspection\r\nallows the number of variadic arguments passed to be queried and their types to be\r\nvalidated.\r\nWe built introspection based on several introspection primitives. These primitives\r\nare a minimal set of C functions that require run-time support. We also designed\r\nintrospection composites, which are implemented as normal C functions and are based\r\non the introspection primitives or on other composites. The introspection functions\r\nthat we expose to the programmer contain both selected primitives and composites.\r\nWe hereafter denote internal functions that are private to an implementation with an\r\nunderscore prefix.\r\n3.1 Object Bounds\r\nMost importantly, we provide functions that enable the programmer to perform bounds\r\nchecks before accessing an object. Simply providing a function that returns the size of\r\nan object is insufficient, since a pointer can point to the middle of an object. Instead,\r\nwe require the runtime to provide two functions to return the space (in bytes) to the\r\nleft and to the right of a pointer target: _size_left() and _size_right(). Their result is\r\nonly defined for legal pointers, which we define as pointers that point to valid objects\r\n(not INVALID, see Section 3.2).\r\n4:7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/edd3fb2a-8151-4b07-ad20-c9dcddc4c6ff.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ff6c9be1c8fa236e1c1dfd744be74bc384137e425aae0415de6b905d8ca54e96",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 443
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fef4fc1c-d3e2-49ac-86c5-6c29179091e9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 8,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 6 Example of how to query the space to the left and to the right of a pointee\r\n1 i n t * a r r = malloc ( si z e o f ( i n t ) * 10 ) ;\r\n2 i n t * p t r = &( a r r [ 4 ] ) ;\r\n3 p r i n t f ( \"%ld\\n\" , s i z e _ l e f t ( p t r ) ) ; // p ri n t s 16\r\n4 p r i n t f ( \"%ld\\n\" , s i z e _ r i g h t ( p t r ) ) ; // p ri n t s 24\r\n_size_left _size_right\r\nsizeof(int) * 10\r\nFigure 1 Memory Layout of the Example in Listing 6\r\nListing 7 Implementation of size_left() using the functions location(), _size_left(), and\r\n_size_right()\r\n1 long s i z e _ l e f t ( cons t void * p t r ) {\r\n2 i f ( l o c a ti o n ( p t r ) == INVALID ) r e tu rn - 1 ;\r\n3 bool inBounds = _ s i z e _ r i g h t ( p t r ) >= 0 && _ s i z e _ l e f t ( p t r ) >= 0 ;\r\n4 i f ( ! inBounds ) r e tu rn - 1 ;\r\n5 r e tu rn _ s i z e _ l e f t ( p t r ) ;\r\n6 }\r\nListing 6 illustrates the function return values when passing a pointer to the middle\r\nof an integer array to these functions. For the pointer to the fourth element of the\r\nten-element integer array, _size_left() returns sizeof(int) * 4, and _size_right() returns\r\nsizeof(int) * 6. Figure 1 shows the corresponding memory layout. On an architecture\r\nwhere an int is four bytes in size the functions return 16 and 24, respectively.\r\nWe do not expose these two functions to the programmer, but base the composite\r\nfunctions size_left() and size_right() on them, which return -1 if the passed argument is\r\nnot a legal pointer or out of bounds. Listing 7 shows the implementation of size_left().\r\nUsing location(), the function first checks that the pointer is legal (see Section 3.2). It\r\nthen checks that the spaces to the left and to the right of the pointer are not negative,\r\nthat is, the pointer is in bounds. If both checks are passed, the function returns the\r\nspace to the left of the pointer using _size_left(); otherwise, it returns -1.\r\nListing 8 shows how using size_right() improves read_number()’s robustness (see\r\nListing 1): If arr is a valid pointer but points to memory that cannot hold length chars,\r\nwe can prevent the out-of-bounds access by aborting the program. Note that the check\r\nalso detects lurking bugs, since it aborts even if fewer than length characters are read.\r\nIf arr is not a valid pointer, the return value of size_right() is -1.\r\n3.2 Memory Location\r\nQuerying the memory location of an object (e.g., stack, heap, global data) allows\r\na programmer to obtain information about the lifetime of an object. For example,\r\nit enables programmers to prevent use-after-free errors by detecting whether an\r\nobject has already been freed. Another use case is validating that no stack memory is\r\n4:8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/fef4fc1c-d3e2-49ac-86c5-6c29179091e9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=22be5f08c3f1c1ed426b1a0e6944c742e6cbaf9d64833b7aecd2e664cae13cb6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 590
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fef4fc1c-d3e2-49ac-86c5-6c29179091e9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 8,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 6 Example of how to query the space to the left and to the right of a pointee\r\n1 i n t * a r r = malloc ( si z e o f ( i n t ) * 10 ) ;\r\n2 i n t * p t r = &( a r r [ 4 ] ) ;\r\n3 p r i n t f ( \"%ld\\n\" , s i z e _ l e f t ( p t r ) ) ; // p ri n t s 16\r\n4 p r i n t f ( \"%ld\\n\" , s i z e _ r i g h t ( p t r ) ) ; // p ri n t s 24\r\n_size_left _size_right\r\nsizeof(int) * 10\r\nFigure 1 Memory Layout of the Example in Listing 6\r\nListing 7 Implementation of size_left() using the functions location(), _size_left(), and\r\n_size_right()\r\n1 long s i z e _ l e f t ( cons t void * p t r ) {\r\n2 i f ( l o c a ti o n ( p t r ) == INVALID ) r e tu rn - 1 ;\r\n3 bool inBounds = _ s i z e _ r i g h t ( p t r ) >= 0 && _ s i z e _ l e f t ( p t r ) >= 0 ;\r\n4 i f ( ! inBounds ) r e tu rn - 1 ;\r\n5 r e tu rn _ s i z e _ l e f t ( p t r ) ;\r\n6 }\r\nListing 6 illustrates the function return values when passing a pointer to the middle\r\nof an integer array to these functions. For the pointer to the fourth element of the\r\nten-element integer array, _size_left() returns sizeof(int) * 4, and _size_right() returns\r\nsizeof(int) * 6. Figure 1 shows the corresponding memory layout. On an architecture\r\nwhere an int is four bytes in size the functions return 16 and 24, respectively.\r\nWe do not expose these two functions to the programmer, but base the composite\r\nfunctions size_left() and size_right() on them, which return -1 if the passed argument is\r\nnot a legal pointer or out of bounds. Listing 7 shows the implementation of size_left().\r\nUsing location(), the function first checks that the pointer is legal (see Section 3.2). It\r\nthen checks that the spaces to the left and to the right of the pointer are not negative,\r\nthat is, the pointer is in bounds. If both checks are passed, the function returns the\r\nspace to the left of the pointer using _size_left(); otherwise, it returns -1.\r\nListing 8 shows how using size_right() improves read_number()’s robustness (see\r\nListing 1): If arr is a valid pointer but points to memory that cannot hold length chars,\r\nwe can prevent the out-of-bounds access by aborting the program. Note that the check\r\nalso detects lurking bugs, since it aborts even if fewer than length characters are read.\r\nIf arr is not a valid pointer, the return value of size_right() is -1.\r\n3.2 Memory Location\r\nQuerying the memory location of an object (e.g., stack, heap, global data) allows\r\na programmer to obtain information about the lifetime of an object. For example,\r\nit enables programmers to prevent use-after-free errors by detecting whether an\r\nobject has already been freed. Another use case is validating that no stack memory is\r\n4:8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/fef4fc1c-d3e2-49ac-86c5-6c29179091e9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=22be5f08c3f1c1ed426b1a0e6944c742e6cbaf9d64833b7aecd2e664cae13cb6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 590
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "bb4f3191-81f9-4b06-bf76-f7141e009a31",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 9,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nListing 8 By using the size_right() function we can avoid out-of-bounds accesses in\r\nread_number()\r\n1 void read_number ( char * a r r , s i z e _ t leng th ) {\r\n2 i n t i = 0 ;\r\n3 i f ( leng th == 0 ) r e tu rn ;\r\n4 i f ( s i z e _ r i g h t ( a r r ) < len g th ) abor t ( ) ;\r\n5 // . . .\r\n6 }\r\nListing 9 Example of how the location() enum constants relate to objects in a program\r\n1 i n t a ; // l o c a ti o n (&a ) r e tu rns STATIC f o r glob al obj ec ts\r\n2 void func ( ) {\r\n3 s t a t i c i n t b ; // l o c a ti o n (&b) r e tu rns STATIC f o r s t a t i c l o c al obj ec ts\r\n4 i n t c ; // l o c a ti o n (&c ) r e tu rns AUTOMATIC f o r s t ac k obj ec ts\r\n5 i n t * d = malloc ( si z e o f ( i n t ) * 10 ) ;\r\n6 // l o c a ti o n (&d) r e tu rns DYNAMIC f o r heap obj ec ts\r\n7 f r e e ( d ) ; // l o c a ti o n (&d) r e tu rns INVALID f o r f reed obj ec ts\r\n8 }\r\nListing 10 By using location() and _size_left() we can check whether an object can be freed\r\n1 bool f r e e abl e ( cons t void * p t r ) {\r\n2 r e tu rn l o c a ti o n ( p t r ) == DYNAMIC && _ s i z e _ l e f t ( p t r ) == 0 ;\r\n3 }\r\nreturned by a function. A programmer can also check whether a location refers to\r\ndynamically allocated memory to ensure that free() can be safely called on it. For this\r\npurpose, we provide the function location(), which determines where an object lies in\r\nmemory.\r\nThe function returns one of the following enum constants:\r\nINVALID locations denote NULL pointers or deallocated memory (freed heap memory\r\nor dead stack variables). Programs must not access such objects.\r\nAUTOMATIC locations denote non-static stack allocations. Functions must not return\r\nallocated stack variables that were declared in their scope, since they become\r\nINVALID when the function returns. Further, stack variables must not be freed.\r\nDYNAMIC locations denote dynamically allocated heap memory created by malloc(),\r\nrealloc(), or calloc(). Only memory allocated by these functions can be freed.\r\nSTATIC locations denote statically allocated memory such as global variables, string\r\nconstants, and static local variables. Static compilers usually place such memory in\r\nthe text or data section of an executable. Programs must not free statically allocated\r\nmemory.\r\nListing 9 shows how differently allocated memory relates to the enum constants used\r\nby location().\r\nWe provide the function freeable(), which is based on location(), to conveniently\r\ncheck whether an allocation can be freed. As Listing 10 demonstrates, a freeable\r\nobject’s location must be DYNAMIC, and its pointer must point to the beginning of\r\nan object. Listing 11 shows how we can use the freeable() function to improve the\r\n4:9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/bb4f3191-81f9-4b06-bf76-f7141e009a31.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b4c4f412f085ae8f64ceb5ec9145c71b96517ddba2ec3d9c9cb1c7f54e256ec1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 615
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "bb4f3191-81f9-4b06-bf76-f7141e009a31",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 9,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nListing 8 By using the size_right() function we can avoid out-of-bounds accesses in\r\nread_number()\r\n1 void read_number ( char * a r r , s i z e _ t leng th ) {\r\n2 i n t i = 0 ;\r\n3 i f ( leng th == 0 ) r e tu rn ;\r\n4 i f ( s i z e _ r i g h t ( a r r ) < len g th ) abor t ( ) ;\r\n5 // . . .\r\n6 }\r\nListing 9 Example of how the location() enum constants relate to objects in a program\r\n1 i n t a ; // l o c a ti o n (&a ) r e tu rns STATIC f o r glob al obj ec ts\r\n2 void func ( ) {\r\n3 s t a t i c i n t b ; // l o c a ti o n (&b) r e tu rns STATIC f o r s t a t i c l o c al obj ec ts\r\n4 i n t c ; // l o c a ti o n (&c ) r e tu rns AUTOMATIC f o r s t ac k obj ec ts\r\n5 i n t * d = malloc ( si z e o f ( i n t ) * 10 ) ;\r\n6 // l o c a ti o n (&d) r e tu rns DYNAMIC f o r heap obj ec ts\r\n7 f r e e ( d ) ; // l o c a ti o n (&d) r e tu rns INVALID f o r f reed obj ec ts\r\n8 }\r\nListing 10 By using location() and _size_left() we can check whether an object can be freed\r\n1 bool f r e e abl e ( cons t void * p t r ) {\r\n2 r e tu rn l o c a ti o n ( p t r ) == DYNAMIC && _ s i z e _ l e f t ( p t r ) == 0 ;\r\n3 }\r\nreturned by a function. A programmer can also check whether a location refers to\r\ndynamically allocated memory to ensure that free() can be safely called on it. For this\r\npurpose, we provide the function location(), which determines where an object lies in\r\nmemory.\r\nThe function returns one of the following enum constants:\r\nINVALID locations denote NULL pointers or deallocated memory (freed heap memory\r\nor dead stack variables). Programs must not access such objects.\r\nAUTOMATIC locations denote non-static stack allocations. Functions must not return\r\nallocated stack variables that were declared in their scope, since they become\r\nINVALID when the function returns. Further, stack variables must not be freed.\r\nDYNAMIC locations denote dynamically allocated heap memory created by malloc(),\r\nrealloc(), or calloc(). Only memory allocated by these functions can be freed.\r\nSTATIC locations denote statically allocated memory such as global variables, string\r\nconstants, and static local variables. Static compilers usually place such memory in\r\nthe text or data section of an executable. Programs must not free statically allocated\r\nmemory.\r\nListing 9 shows how differently allocated memory relates to the enum constants used\r\nby location().\r\nWe provide the function freeable(), which is based on location(), to conveniently\r\ncheck whether an allocation can be freed. As Listing 10 demonstrates, a freeable\r\nobject’s location must be DYNAMIC, and its pointer must point to the beginning of\r\nan object. Listing 11 shows how we can use the freeable() function to improve the\r\n4:9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/bb4f3191-81f9-4b06-bf76-f7141e009a31.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b4c4f412f085ae8f64ceb5ec9145c71b96517ddba2ec3d9c9cb1c7f54e256ec1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 615
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "41045877-9b13-46c3-85f7-2796e2884ae8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 10,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 11 By using the freeable() function we can avoid double-free errors\r\n1 char * p t r = ( char * ) malloc ( SIZE * si z e o f ( char ) ) ;\r\n2 i f ( e r r ) {\r\n3 ab r t = 1 ;\r\n4 i f ( f r e e abl e ( p t r ) ) f r e e ( p t r ) ;\r\n5 }\r\n6 // . . .\r\n7 i f ( ab r t ) {\r\n8 l o g E r r o r ( \" ope ra tion aborted \" , p t r ) ;\r\n9 i f ( f r e e abl e ( p t r ) ) f r e e ( p t r ) ;\r\n10 }\r\nListing 12 By using the location() function we can avoid use-after-free errors\r\n1 void l o g E r r o r ( cons t char * message , void * p t r ) {\r\n2 i f ( l o c a ti o n ( p t r ) == INVALID )\r\n3 log ( \" dangling poin t e r passed to l o g E r r o r ! \" ) ;\r\n4 els e\r\n5 l o g f ( \" e r r o r while p rocessing %p\" , p t r ) ;\r\n6 }\r\nrobustness of the code fragment shown in Listing 2. It ensures that freeing the pointee\r\nis valid, and thus prevents invalid free errors, such as double freeing of memory.\r\nNonetheless, the logError() function may receive a dangling pointer as an argument.\r\nTo resolve this, we can check in logError() whether the pointer is valid (see Listing 12).\r\nNote that some libraries, such as OpenSSL, use custom allocators to manage their\r\nmemory. Custom allocators are outside the scope of this paper, but could be supported\r\nby providing source-code annotations for allocation and free functions; this informa\u0002tion could then be used by the runtime to track the memory. The annotations for the\r\nallocation functions would need to specify how to compute the size of the allocated\r\nobject, and the location of the allocated memory. Additionally, it might be desirable\r\nto add further enum constants, for example, for shared, file-backed, or protected\r\nmemory. We omitted additional constants for simplicity.\r\n3.3 Type\r\nWe provide a function that allows the programmer to validate whether an object is\r\ncompatible with (can be treated as being of) a certain type. Such a function enables\r\nprogrammers to check whether a function pointer actually points to a function object\r\n(and not to a long, for example) and whether it has the expected function signature.\r\nAs another example, programmers can use the function as an alternative to size_right()\r\nand size_left() to verify that a pointer of a certain type can be dereferenced.\r\nC has only a weak notion of types, which makes it difficult to design expressive type\r\nintrospection functions. For example, it is ambiguous whether a pointer of type int*\r\nthat points to the middle of an integer array should be considered as a pointer to an\r\ninteger or as a pointer to an integer array. Another example is heap memory, which\r\nlacks a dynamic type; although programmers usually coerce them to the desired type,\r\nobjects of different types can be stored. Even worse, when writing to memory, objects\r\n4:10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/41045877-9b13-46c3-85f7-2796e2884ae8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9e1c387817251ab1c6071a632f04947a4a6edc7e24b3a79f8e7ede7177018419",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 590
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "41045877-9b13-46c3-85f7-2796e2884ae8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 10,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 11 By using the freeable() function we can avoid double-free errors\r\n1 char * p t r = ( char * ) malloc ( SIZE * si z e o f ( char ) ) ;\r\n2 i f ( e r r ) {\r\n3 ab r t = 1 ;\r\n4 i f ( f r e e abl e ( p t r ) ) f r e e ( p t r ) ;\r\n5 }\r\n6 // . . .\r\n7 i f ( ab r t ) {\r\n8 l o g E r r o r ( \" ope ra tion aborted \" , p t r ) ;\r\n9 i f ( f r e e abl e ( p t r ) ) f r e e ( p t r ) ;\r\n10 }\r\nListing 12 By using the location() function we can avoid use-after-free errors\r\n1 void l o g E r r o r ( cons t char * message , void * p t r ) {\r\n2 i f ( l o c a ti o n ( p t r ) == INVALID )\r\n3 log ( \" dangling poin t e r passed to l o g E r r o r ! \" ) ;\r\n4 els e\r\n5 l o g f ( \" e r r o r while p rocessing %p\" , p t r ) ;\r\n6 }\r\nrobustness of the code fragment shown in Listing 2. It ensures that freeing the pointee\r\nis valid, and thus prevents invalid free errors, such as double freeing of memory.\r\nNonetheless, the logError() function may receive a dangling pointer as an argument.\r\nTo resolve this, we can check in logError() whether the pointer is valid (see Listing 12).\r\nNote that some libraries, such as OpenSSL, use custom allocators to manage their\r\nmemory. Custom allocators are outside the scope of this paper, but could be supported\r\nby providing source-code annotations for allocation and free functions; this informa\u0002tion could then be used by the runtime to track the memory. The annotations for the\r\nallocation functions would need to specify how to compute the size of the allocated\r\nobject, and the location of the allocated memory. Additionally, it might be desirable\r\nto add further enum constants, for example, for shared, file-backed, or protected\r\nmemory. We omitted additional constants for simplicity.\r\n3.3 Type\r\nWe provide a function that allows the programmer to validate whether an object is\r\ncompatible with (can be treated as being of) a certain type. Such a function enables\r\nprogrammers to check whether a function pointer actually points to a function object\r\n(and not to a long, for example) and whether it has the expected function signature.\r\nAs another example, programmers can use the function as an alternative to size_right()\r\nand size_left() to verify that a pointer of a certain type can be dereferenced.\r\nC has only a weak notion of types, which makes it difficult to design expressive type\r\nintrospection functions. For example, it is ambiguous whether a pointer of type int*\r\nthat points to the middle of an integer array should be considered as a pointer to an\r\ninteger or as a pointer to an integer array. Another example is heap memory, which\r\nlacks a dynamic type; although programmers usually coerce them to the desired type,\r\nobjects of different types can be stored. Even worse, when writing to memory, objects\r\n4:10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/41045877-9b13-46c3-85f7-2796e2884ae8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9e1c387817251ab1c6071a632f04947a4a6edc7e24b3a79f8e7ede7177018419",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 590
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c7f55a73-a2e6-4301-91ee-785710f791e8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 11,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nListing 13 By using try_cast() we can ensure that we can perform an indirect call on the\r\nfunction pointer in apply()\r\n1 i n t apply ( i n t * a r r , s i z e _ t n , i n t f ( i n t a r g 1 ) ) {\r\n2 i f ( s i z e _ r i g h t ( a r r ) < si z e o f ( i n t ) * n | | t r y _ c a s t (& f , type ( f ) ) == NULL )\r\n3 r e tu rn - 1 ;\r\n4 f o r ( s i z e _ t i = 0 ; i < n ; i ++ )\r\n5 a r r [ i ] = f ( a r r [ i ] ) ;\r\n6 r e tu rn 0 ;\r\n7 }\r\ncan be partially overwritten; for instance, half of a function pointer can be overwritten\r\nwith an integer value, which makes it difficult to decide whether the pointer is still a\r\nvalid function pointer.\r\nInstead of assuming that a memory region has a specific type, we designed a function\r\nthat allows the programmer to check whether the memory region is compatible with\r\na certain type (similar to [22]). The try_cast() function expects a pointer to an object\r\nas the first argument and tries to cast it to the Type specified by the second argument.\r\nIf the runtime determines that the cast is possible, it returns the passed pointer, and\r\nNULL otherwise. The cast is only possible if the object can be read, written to, or called\r\nas the specified type.\r\nThe Type object is a recursive struct which makes it possible to describe nested\r\ntypes (known as type expressions [1]). For example, a function pointer with an int\r\nparameter and double as the return type can be represented by a tree of three Type\r\nstructs. The root struct specifies a function type and references a struct with an int\r\ntype as the argument type as well as a struct with a double type as the return type.\r\nSince manually constructing Type structs is tedious, we specified the optional operator\r\ntype(). As an argument, it requires the expression example value, whose declared type\r\nis returned as a Type run-time data structure. Since the declared type is a compile-time\r\nproperty, we want to resolve the type() operator during compile time; consequently,\r\nthe programmer cannot take type()’s address and call it indirectly. The operator is\r\nsimilar to the GNU C extension typeof, which yields a type that can be used directly\r\nin variable declarations or casts.\r\nListing 13 shows how the type introspection functions make the function apply()\r\n(see Listing 4) more robust: apply() uses try_cast() to check whether the runtime can\r\ntreat its first argument as the specified function pointer. Its second argument is the\r\nType object that the type operator constructs from the declared function pointer type.\r\nThe try_cast() function returns the first argument if it is compatible with the specified\r\nfunction pointer type; otherwise, it returns NULL. In addition to preventing the calling\r\nof invalid function pointers, apply() prevents out-of-bounds accesses by validating the\r\narray size.\r\nThe try_cast() function is similar to C++’s dynamic_cast(). However, we want to point\r\nout that C++’s dynamic_cast() works only for class checks (which are well-defined),\r\nwhile our approach works for all C objects. We believe that the exact semantics of\r\ntry_cast() should be implementation-defined, since run-time information could differ\r\nbetween implementations. For example, depending on the runtime’s knowledge of\r\ndata execution prevention, it might either allow or reject the cast of a non-executable\r\n4:11",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/c7f55a73-a2e6-4301-91ee-785710f791e8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8e0ce18766f7c4a276ceea244dfe2da71258aa1defc9cbdf6f10fc34edae9c99",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 638
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c7f55a73-a2e6-4301-91ee-785710f791e8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 11,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nListing 13 By using try_cast() we can ensure that we can perform an indirect call on the\r\nfunction pointer in apply()\r\n1 i n t apply ( i n t * a r r , s i z e _ t n , i n t f ( i n t a r g 1 ) ) {\r\n2 i f ( s i z e _ r i g h t ( a r r ) < si z e o f ( i n t ) * n | | t r y _ c a s t (& f , type ( f ) ) == NULL )\r\n3 r e tu rn - 1 ;\r\n4 f o r ( s i z e _ t i = 0 ; i < n ; i ++ )\r\n5 a r r [ i ] = f ( a r r [ i ] ) ;\r\n6 r e tu rn 0 ;\r\n7 }\r\ncan be partially overwritten; for instance, half of a function pointer can be overwritten\r\nwith an integer value, which makes it difficult to decide whether the pointer is still a\r\nvalid function pointer.\r\nInstead of assuming that a memory region has a specific type, we designed a function\r\nthat allows the programmer to check whether the memory region is compatible with\r\na certain type (similar to [22]). The try_cast() function expects a pointer to an object\r\nas the first argument and tries to cast it to the Type specified by the second argument.\r\nIf the runtime determines that the cast is possible, it returns the passed pointer, and\r\nNULL otherwise. The cast is only possible if the object can be read, written to, or called\r\nas the specified type.\r\nThe Type object is a recursive struct which makes it possible to describe nested\r\ntypes (known as type expressions [1]). For example, a function pointer with an int\r\nparameter and double as the return type can be represented by a tree of three Type\r\nstructs. The root struct specifies a function type and references a struct with an int\r\ntype as the argument type as well as a struct with a double type as the return type.\r\nSince manually constructing Type structs is tedious, we specified the optional operator\r\ntype(). As an argument, it requires the expression example value, whose declared type\r\nis returned as a Type run-time data structure. Since the declared type is a compile-time\r\nproperty, we want to resolve the type() operator during compile time; consequently,\r\nthe programmer cannot take type()’s address and call it indirectly. The operator is\r\nsimilar to the GNU C extension typeof, which yields a type that can be used directly\r\nin variable declarations or casts.\r\nListing 13 shows how the type introspection functions make the function apply()\r\n(see Listing 4) more robust: apply() uses try_cast() to check whether the runtime can\r\ntreat its first argument as the specified function pointer. Its second argument is the\r\nType object that the type operator constructs from the declared function pointer type.\r\nThe try_cast() function returns the first argument if it is compatible with the specified\r\nfunction pointer type; otherwise, it returns NULL. In addition to preventing the calling\r\nof invalid function pointers, apply() prevents out-of-bounds accesses by validating the\r\narray size.\r\nThe try_cast() function is similar to C++’s dynamic_cast(). However, we want to point\r\nout that C++’s dynamic_cast() works only for class checks (which are well-defined),\r\nwhile our approach works for all C objects. We believe that the exact semantics of\r\ntry_cast() should be implementation-defined, since run-time information could differ\r\nbetween implementations. For example, depending on the runtime’s knowledge of\r\ndata execution prevention, it might either allow or reject the cast of a non-executable\r\n4:11",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/c7f55a73-a2e6-4301-91ee-785710f791e8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8e0ce18766f7c4a276ceea244dfe2da71258aa1defc9cbdf6f10fc34edae9c99",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 638
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "907b0cad-9a10-439b-8342-d3c12be27923",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 12,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 14 By using count_varargs() and get_varargs() we can use variadics in a robust way\r\n1 double avg ( i n t count , . . . ) {\r\n2 i f ( count == 0 | | count ! = coun t_va ra rgs ( ) )\r\n3 r e tu rn 0 ;\r\n4 i n t sum = 0 ;\r\n5 f o r ( i n t i = 0 ; i < count ; i ++ ) {\r\n6 i n t * arg = g e t _v a r a r g ( i , type (&sum ) ) ;\r\n7 i f ( arg == NULL ) r e tu rn 0 ;\r\n8 els e sum += * arg ;\r\n9 }\r\n10 r e tu rn ( double ) sum / count ;\r\n11 }\r\nchar array filled with machine instructions to a function pointer. Further, different\r\nuse cases exist, and a security-focused runtime might have more sources of run-time\r\ninformation and be more restrictive than a performance-focused runtime. For example,\r\na traditional runtime would (for compatibility) allow dereferencing a hand-crafted\r\npointer as long as it corresponds to the address of an object, while a security-focused\r\nruntime could disallow it. Thus, depending on the underlying runtime, compiler, and\r\nABI, try_cast() can return different results.\r\n3.4 Variadic Arguments\r\nOur introspection interface provides macros to query the number of variadic arguments\r\nand enables programmers to access them in a type-safe way. They are implemented as\r\nmacros and not as functions, since they need to access the current function’s variadic\r\narguments. The introspection macros make using variadic functions more robust and\r\nare, for example, effective in preventing format string attacks [8].\r\nQuerying the number of variadic arguments can be achieved by calling count_varargs().\r\nThe standard va_arg() macro reads values from the stack while assuming that they\r\ncorrespond to the user-specified type. As a robust alternative, introspection com\u0002posites can use _get_vararg() to access the passed variadic arguments directly by an\r\nargument index. To access the variadic arguments in a type-safe way, we introduced\r\nthe get_vararg() macro, which is exposed to the programmer and expects a type that\r\nit uses to call try_cast(). Listing 14 shows an example of a function that computes the\r\naverage of int arguments. It uses count_varargs() to verify the number of variadic ar\u0002guments and ensures that the i\r\nth argument is in fact an int by calling get_vararg() with\r\ntype(&sum). If an unexpected number of parameters or an object with an unexpected\r\ntype is passed, the function returns 0.\r\nFor backwards compatibility, we used the introspection intrinsics to make the stan\u0002dard vararg macros (va_start(), va_arg(), and va_end()) more robust. Firstly, va_start()\r\ninitializes the retrieval of variadic arguments. We modified it such that it allocates a\r\nstruct (using the alloca() stack allocation function) and populates it using _get_vararg()\r\nand count_varargs(). The struct comprises the number of variadic arguments, an ar\u0002ray of addresses to the variadic arguments, and a counter to index them. Secondly,\r\nva_arg() retrieves the next variadic argument. We modified it such that it checks that\r\nthe counter does not exceed the number of arguments, increments the counter, in\u00024:12",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/907b0cad-9a10-439b-8342-d3c12be27923.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c0b01606b6b8725f4e7fcec3d795cac9c6e2f9b915d1e40dda464e16f2864893",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 538
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "907b0cad-9a10-439b-8342-d3c12be27923",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 12,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 14 By using count_varargs() and get_varargs() we can use variadics in a robust way\r\n1 double avg ( i n t count , . . . ) {\r\n2 i f ( count == 0 | | count ! = coun t_va ra rgs ( ) )\r\n3 r e tu rn 0 ;\r\n4 i n t sum = 0 ;\r\n5 f o r ( i n t i = 0 ; i < count ; i ++ ) {\r\n6 i n t * arg = g e t _v a r a r g ( i , type (&sum ) ) ;\r\n7 i f ( arg == NULL ) r e tu rn 0 ;\r\n8 els e sum += * arg ;\r\n9 }\r\n10 r e tu rn ( double ) sum / count ;\r\n11 }\r\nchar array filled with machine instructions to a function pointer. Further, different\r\nuse cases exist, and a security-focused runtime might have more sources of run-time\r\ninformation and be more restrictive than a performance-focused runtime. For example,\r\na traditional runtime would (for compatibility) allow dereferencing a hand-crafted\r\npointer as long as it corresponds to the address of an object, while a security-focused\r\nruntime could disallow it. Thus, depending on the underlying runtime, compiler, and\r\nABI, try_cast() can return different results.\r\n3.4 Variadic Arguments\r\nOur introspection interface provides macros to query the number of variadic arguments\r\nand enables programmers to access them in a type-safe way. They are implemented as\r\nmacros and not as functions, since they need to access the current function’s variadic\r\narguments. The introspection macros make using variadic functions more robust and\r\nare, for example, effective in preventing format string attacks [8].\r\nQuerying the number of variadic arguments can be achieved by calling count_varargs().\r\nThe standard va_arg() macro reads values from the stack while assuming that they\r\ncorrespond to the user-specified type. As a robust alternative, introspection com\u0002posites can use _get_vararg() to access the passed variadic arguments directly by an\r\nargument index. To access the variadic arguments in a type-safe way, we introduced\r\nthe get_vararg() macro, which is exposed to the programmer and expects a type that\r\nit uses to call try_cast(). Listing 14 shows an example of a function that computes the\r\naverage of int arguments. It uses count_varargs() to verify the number of variadic ar\u0002guments and ensures that the i\r\nth argument is in fact an int by calling get_vararg() with\r\ntype(&sum). If an unexpected number of parameters or an object with an unexpected\r\ntype is passed, the function returns 0.\r\nFor backwards compatibility, we used the introspection intrinsics to make the stan\u0002dard vararg macros (va_start(), va_arg(), and va_end()) more robust. Firstly, va_start()\r\ninitializes the retrieval of variadic arguments. We modified it such that it allocates a\r\nstruct (using the alloca() stack allocation function) and populates it using _get_vararg()\r\nand count_varargs(). The struct comprises the number of variadic arguments, an ar\u0002ray of addresses to the variadic arguments, and a counter to index them. Secondly,\r\nva_arg() retrieves the next variadic argument. We modified it such that it checks that\r\nthe counter does not exceed the number of arguments, increments the counter, in\u00024:12",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/907b0cad-9a10-439b-8342-d3c12be27923.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c0b01606b6b8725f4e7fcec3d795cac9c6e2f9b915d1e40dda464e16f2864893",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 538
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2a54f222-d27f-4965-a1b1-81baaf7e4f21",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 13,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nClang\r\nprogram.c\r\nLLVM IR\r\nTruffle\r\nJava Virtual Machine\r\nLLVM IR Interpreter\r\ncompiles to\r\nruns on\r\nGraal compiler\r\nlibc.c\r\nFigure 2 Overview of Safe Sulong\r\ndexes the array, and casts the variadic argument to the specified type using try_cast().\r\nIf the cast succeeds, the argument is returned; otherwise a call to abort() exits the\r\nprogram. Finally, va_end() performs a cleanup of the data initialized by va_start(). We\r\nmodified it such that it resets the variadic arguments counter.\r\nUsing the enhanced vararg macros improves the robustness of the\r\nxbuf_format_converter() function (see Listing 3), since the number of format\r\nspecifiers must match the number of arguments, thus making it impossible to exploit\r\nthe function through format string attacks. Note that the modified standard macros\r\nabort when they process invalid types or an invalid number of arguments, whereas\r\nthe intrinsic functions allow programmers to react to invalid arguments in other ways.\r\n4 Implementation\r\nWe implemented the introspection primitives in Safe Sulong [32], which is an execution\r\nsystem and bug-finding tool for low-level languages such as C. At its core is an\r\ninterpreter written in Java that runs on top of the JVM. Although this setup is not\r\ntypical for running C, it is a good experimentation platform because the JVM (and\r\nthus also Safe Sulong) already maintains all the run-time metadata that we want to\r\nexpose. If exposing introspection primitives turns out to be useful for Safe Sulong,\r\nsimilar mechanisms could also be implemented for other runtimes (e.g., those of\r\nstatic compilation approaches). Unlike its counterpart Native Sulong [33], Safe Sulong\r\nuses Java objects to represent C objects. By relying on Java’s bounds and type checks,\r\nSafe Sulong efficiently and reliably detects out-of-bounds accesses, use-after-free,\r\nand invalid free. When detecting such an invalid action, it aborts execution of the\r\nprogram. Section 4.1 gives an overview of the system, and Section 4.3 describes how\r\nwe implemented the introspection primitives.\r\n4.1 System Overview\r\nFigure 2 shows the architecture of Safe Sulong, which comprises the following compo\u0002nents:\r\n4:13",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/2a54f222-d27f-4965-a1b1-81baaf7e4f21.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d5f4ab120d3d4b969b04d06fbb14726d38de48004c299f7befd12a7412629866",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 342
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2cb5e263-3ccd-4d3a-8965-0cbb4dddc0a2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 14,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nManagedObject\r\ngetByteSize(): int\r\nlocation: byte\r\nManagedAddress\r\npointee: ManagedObject\r\npointerOffset: int\r\nI32Array\r\nvalues: int[]\r\nFunction\r\nsignature: LLVMType[]\r\nI32\r\nvalue: int\r\nDoubleArray\r\nvalues: double[]\r\nFigure 3 Diagram of the ManagedObject Hierarchy\r\nClang. Safe Sulong executes LLVM Intermediate Representation (IR), which repre\u0002sents C functions in a simpler, but lower-level format. LLVM is a flexible compilation\r\ninfrastructure [25], and we use LLVM’s front end Clang to compile the source code\r\n(libraries and the user application) to the IR.\r\nLLVM IR. LLVM IR retains all C characteristics that are important for the content of\r\nthis paper. It can, for instance, contain external function definitions and function calls.\r\nBy executing LLVM IR, Safe Sulong can execute all languages that can be compiled\r\nto this IR, including C++ and Fortran. Using binary translators that convert binary\r\ncode to LLVM IR even allows programs to be executed without access to their source\r\ncode. For example, MC-Semantics [10] and QEMU [6] support x86, and LLBT [41]\r\nsupports the translation of ARM code. Binary libraries that are converted to LLVM IR\r\ncan then profit from the enhanced libraries that Safe Sulong can execute, such as our\r\nenhanced libc.\r\nTru\u001fe. The LLVM IR interpreter is based on Truffle [53]. Truffle is a language imple\u0002mentation framework written in Java. To implement a language, a programmer writes\r\nan Abstract Syntax Tree (AST) interpreter in which each operation is implemented\r\nas an executable node. Nodes can have children that parent nodes can execute to\r\ncompute their results.\r\nGraal. Truffle uses Graal [54], a dynamic compiler, to compile frequently executed\r\nTruffle ASTs to machine code. Graal applies aggressive optimistic optimizations based\r\non assumptions that are later checked in the machine code. If an assumption no longer\r\nholds, the compiled code deoptimizes [20], that is, control is transferred back to the\r\ninterpreter and the machine code of the AST is discarded.\r\nLLVM IR Interpreter. The LLVM IR interpreter forms the core of Safe Sulong; it executes\r\nboth the user application and the enhanced libc. First, a front end parses the LLVM IR\r\nand constructs a Truffle AST for each LLVM IR function. Then, the interpreter starts\r\nexecuting the main function AST, which can invoke other ASTs. During execution,\r\nGraal compiles frequently executed functions to machine code.\r\nJVM. The system can run efficiently on any JVM that implements the Java-based JVM\r\ncompiler interface (JVMCI [36]). JVMCI supports Graal and other compilers written\r\nin Java.\r\n4:14",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/2cb5e263-3ccd-4d3a-8965-0cbb4dddc0a2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f8f7d5f880eb830ac4c3d0e06388766075fd8c714fb9d55ca034fcfe81cf82d7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 407
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d799cb67-e0c4-4f2c-ba56-4827df44c818",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 15,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\n4.2 Introspection Primitives and Other Functions\r\nWhile the majority of Safe Sulong’s libc is implemented in C, the introspection primi\u0002tives (and a core API, similar to system calls) are implemented directly in Java. Both\r\nare ultimately represented using executable ASTs, which are stored in a symbol table\r\ncreated prior to program execution. For functions contained in the LLVM IR file, the\r\nparser constructs the AST nodes from the instructions denoted in the LLVM IR function.\r\nFor introspection primitives, we implemented special nodes that have no equivalent\r\nbitcode instruction (see Section 4.3). During execution, Safe Sulong looks up the AST\r\nin the symbol table using the function name. From the runtime’s perspective, the\r\nimplementation of that function is transparent.\r\n4.3 Objects and Introspection\r\nThe LLVM IR interpreter uses Java objects instead of native memory to represent\r\nLLVM IR objects (and thus C objects). Figure 3 illustrates its type hierarchy. Every\r\nLLVM IR object is a ManagedObject which has subclasses for the different types. For\r\nexample, an int is represented by an I32 object, which stores the int’s value in the\r\nvalue field. Similarly, there are subclasses for arrays, functions, pointers, structs, and\r\nother types. Note that we have previously described a similar object hierarchy for the\r\nimplementation of a Lenient C dialect and how certain corner cases are supported\r\n(e.g., deriving pointers from integers) [34]. In the introspection implementation, we\r\nneeded to expose properties of these Java objects to the programmer:\r\nBounds. The ManagedObject class provides the method getByteSize(), which returns\r\nthe size of an object. Safe Sulong represents pointers as objects of a ManagedAddress\r\nclass that holds a reference to the pointee and a pointer offset that is updated through\r\npointer arithmetics (pointee and pointerO\u001bset). For example, for the pointer to the 4\r\nth\r\nelement of an integer array in Listing 6, the pointerO\u001bset is 16, and pointee references\r\nan I32Array that holds a Java int array (see Figure 4). If a program were to dereference\r\nthe pointer, the interpreter would compute pointerO\u001bset / sizeof(int) to index the array.\r\nWe implemented the size_right() function by ptr.pointee.getByteSize() - ptr.pointerO\u001bset.\r\nMemory location. Although ManagedObjects live on the Java heap, the location() func\u0002tion needs to return their logical memory location. This location is stored in a field\r\nof the ManagedObject class. Depending on whether an object is allocated through\r\nmalloc(), as a global variable, as a static local variable, or as a constant, we assign a\r\ndifferent flag to its location field; calls to free() and deallocation of automatic variables\r\nassign INVALID. For instance, for an integer array that lives on the stack, the interpreter\r\nallocates an I32Array and assigns AUTOMATIC to its location. After leaving the function\r\nscope, its location is updated to INVALID. When the location() function is called with a\r\npointer to the integer array, it returns the location field’s value.\r\nType. For implementing the try_cast() function, we check if the type of the passed\r\nobject (given by its Java class) is compatible with the type specified by the Type struct.\r\nFor example, to check whether we can call a pointer as a function with a certain\r\nsignature, we first compare the passed pointer with a Type that describes this signature.\r\n4:15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/d799cb67-e0c4-4f2c-ba56-4827df44c818.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f831d0fb609648082c8c2187082128ceea7b2d32b83972799fc3492899ab71ba",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 543
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d799cb67-e0c4-4f2c-ba56-4827df44c818",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 15,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\n4.2 Introspection Primitives and Other Functions\r\nWhile the majority of Safe Sulong’s libc is implemented in C, the introspection primi\u0002tives (and a core API, similar to system calls) are implemented directly in Java. Both\r\nare ultimately represented using executable ASTs, which are stored in a symbol table\r\ncreated prior to program execution. For functions contained in the LLVM IR file, the\r\nparser constructs the AST nodes from the instructions denoted in the LLVM IR function.\r\nFor introspection primitives, we implemented special nodes that have no equivalent\r\nbitcode instruction (see Section 4.3). During execution, Safe Sulong looks up the AST\r\nin the symbol table using the function name. From the runtime’s perspective, the\r\nimplementation of that function is transparent.\r\n4.3 Objects and Introspection\r\nThe LLVM IR interpreter uses Java objects instead of native memory to represent\r\nLLVM IR objects (and thus C objects). Figure 3 illustrates its type hierarchy. Every\r\nLLVM IR object is a ManagedObject which has subclasses for the different types. For\r\nexample, an int is represented by an I32 object, which stores the int’s value in the\r\nvalue field. Similarly, there are subclasses for arrays, functions, pointers, structs, and\r\nother types. Note that we have previously described a similar object hierarchy for the\r\nimplementation of a Lenient C dialect and how certain corner cases are supported\r\n(e.g., deriving pointers from integers) [34]. In the introspection implementation, we\r\nneeded to expose properties of these Java objects to the programmer:\r\nBounds. The ManagedObject class provides the method getByteSize(), which returns\r\nthe size of an object. Safe Sulong represents pointers as objects of a ManagedAddress\r\nclass that holds a reference to the pointee and a pointer offset that is updated through\r\npointer arithmetics (pointee and pointerO\u001bset). For example, for the pointer to the 4\r\nth\r\nelement of an integer array in Listing 6, the pointerO\u001bset is 16, and pointee references\r\nan I32Array that holds a Java int array (see Figure 4). If a program were to dereference\r\nthe pointer, the interpreter would compute pointerO\u001bset / sizeof(int) to index the array.\r\nWe implemented the size_right() function by ptr.pointee.getByteSize() - ptr.pointerO\u001bset.\r\nMemory location. Although ManagedObjects live on the Java heap, the location() func\u0002tion needs to return their logical memory location. This location is stored in a field\r\nof the ManagedObject class. Depending on whether an object is allocated through\r\nmalloc(), as a global variable, as a static local variable, or as a constant, we assign a\r\ndifferent flag to its location field; calls to free() and deallocation of automatic variables\r\nassign INVALID. For instance, for an integer array that lives on the stack, the interpreter\r\nallocates an I32Array and assigns AUTOMATIC to its location. After leaving the function\r\nscope, its location is updated to INVALID. When the location() function is called with a\r\npointer to the integer array, it returns the location field’s value.\r\nType. For implementing the try_cast() function, we check if the type of the passed\r\nobject (given by its Java class) is compatible with the type specified by the Type struct.\r\nFor example, to check whether we can call a pointer as a function with a certain\r\nsignature, we first compare the passed pointer with a Type that describes this signature.\r\n4:15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/d799cb67-e0c4-4f2c-ba56-4827df44c818.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f831d0fb609648082c8c2187082128ceea7b2d32b83972799fc3492899ab71ba",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 543
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "722c5d3c-cd42-423d-ae5d-c75e3f5b6daf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 16,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nptr: ManagedAddress\r\npointerOffset = 16\r\npointee\r\narr: I32Array\r\nvalues = \r\nFigure 4 Representation of a pointer to the 4\r\nth element of an int array\r\nIf the pointer references a Safe Sulong object of type Function, the argument and\r\nreturn types are compared. This is possible because Function objects retain run-time\r\ninformation about their arguments and return types, which can be retrieved via the\r\nmethod getSignature().\r\nVariadic arguments. In Safe Sulong, a caller explicitly passes its arguments as an object\r\narray (i.e., a Java array of known length) to its callee. Based on the function signature\r\nand the object array, the callee can count the variadic arguments to implement\r\ncount_varargs() and extract them to implement _get_vararg().\r\n5 Case Study: Safe Sulong’s Standard Library\r\nWe implemented an enhanced libc for Safe Sulong. This libc uses introspection for\r\nchecks that make it more robust against usage errors and attacks. For instance,\r\nits functions identify invalid parameters that would otherwise cause out-of-bounds\r\naccesses or use-after-frees. In such a case, the functions return special values to\r\nindicate that something went wrong, and then set errno to an error code. However,\r\nfor functions for which no special value can be returned (e.g., because the return type\r\nis void), setting errno would be meaningless, since functions are allowed to change\r\nerrno arbitrarily even if no error occurred. In these cases, the functions still attempt\r\nto compute a meaningful result. Such behavior is compliant with the C standards,\r\nsince we prevent illegal actions with undefined behavior that could crash the program\r\nor corrupt memory.\r\nFor applications and libraries that run on Safe Sulong, the distribution format is\r\nLLVM IR and not executable code. Our standard library improvements are binary\u0002compatible at the IR level, which means that users do not have to recompile their\r\napplications when using our enhanced libc. In addition, this standard library is source\u0002compatible, so a user is not required to change the program when using it. Below, we\r\ngive an overview of our enhanced library functions:\r\nString functions. We made all functions that operate on strings (strlen(), atoi(), strcmp(),\r\nprintf(), etc.) more robust by computing meaningful results even when a string lacks\r\na null terminator. They do not read or write outside the boundaries of unterminated\r\nstrings, which makes them robust against common string vulnerabilities. The functions\r\nincrease availability of the system, since unterminated strings passed to libc do not\r\ncause crashes. Note that when a function outside libc relies on a terminated string, it\r\nwill still trigger an out-of-bounds access and cause Safe Sulong to abort execution.\r\n4:16",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/722c5d3c-cd42-423d-ae5d-c75e3f5b6daf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=925a74bdcb847009c9ac96b931dd8a673ecf176e66d410ebf5e66de610552c22",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 434
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6fd4aa3a-1957-4b23-806a-cb2e7a1250e8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 17,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nListing 15 Robust implementation of strlen() that also works for unterminated strings\r\n1 s i z e _ t s t rl e n ( cons t char * s t r ) {\r\n2 s i z e _ t len = 0 ;\r\n3 while ( s i z e _ r i g h t ( s t r ) > 0 && * s t r ! = ' \\0 ' ) {\r\n4 len + + ; s t r + + ;\r\n5 }\r\n6 r e tu rn len ;\r\n7 }\r\nThus, increased availability does not harm confidentiality (e.g., by leaking data of\r\nother objects) and integrity (e.g., by overwriting other objects).\r\nFor instance, Listing 15 shows how we improved strlen() by preventing buffer overflows\r\nwhen iterating over a string, and by improving the handling of non-legal pointers\r\n(where size_right() returns -1). For terminated strings, strlen() iterates until the first\r\n‘\\0’ character to return the length of the string. For unterminated strings, the function\r\ncannot return -1 to indicate an error, since size_t is unsigned, so we also do not set\r\nerrno. Instead, it iterates until the end of the buffer and returns the size of the string\r\nuntil the end of the buffer.\r\nThe enhanced string functions also allow execution of the code fragment in Listing 5.\r\nEven though the source string may be unterminated, strcpy() will not produce an out-of\u0002bounds read, since it stops copying when reaching the end of the source or destination\r\nbuffer. The call to puts() also works as expected, and prints the unterminated string.\r\nFunctions that free memory. We made functions that free memory (realloc() and free())\r\nmore robust by checking whether their argument can safely be freed using freeable().\r\nIn Safe Sulong, malloc() is written in Java and allocates a Java object. By using the\r\nintrospection functions we were able to conveniently and robustly implement realloc()\r\nin C without having to maintain a list of allocated and freed objects.\r\nFormat string functions. We made input and output functions that expect format\r\nstrings more robust. Examples are the printf() functions (printf(), fprintf(), sprintf(),\r\nvfprintf(), vprintf(), vsnprintf(), vsprintf()) and the scanf() functions (scanf(), fscanf(),\r\netc.). These functions expect format strings that contain format specifiers, and match\u0002ing arguments that are used to produce the formatted output. Since the functions\r\nare variadic, we used count_varargs() to add checks that verify that the number of\r\nformat specifiers is equal to the actual number of arguments. Further, the functions use\r\nget_vararg() to verify the argument types. This prevents format-string vulnerabilities\r\nand out-of-bounds reads in the format string, as demonstrated in the implementation\r\nof strlen().\r\nHigher-order functions. We enhanced functions that receive function pointers such as\r\nqsort() and bsearch(). Listing 16 shows how qsort() can use try_cast() to verify that f is\r\na function pointer that is compatible with the specified signature. Furthermore, the\r\nfunctions verify that no memory errors, such as buffer overflows, can occur.\r\ngets() and gets_s(). While C11 replaced the gets() function with gets_s(), Safe Sulong\r\ncan still provide a robust implementation for gets() (see Listing 17). Since size_right()\r\ncan determine the size of the buffer to the right of the pointer, we can call it and use\r\nthe returned size as an argument to the more robust gets_s() function. If the pointer\r\n4:17",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/6fd4aa3a-1957-4b23-806a-cb2e7a1250e8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1de09361d69d49b7ad718e2f2d0d5392246948e7c022f856e4b2db981bc7a2f4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 566
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6fd4aa3a-1957-4b23-806a-cb2e7a1250e8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 17,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nListing 15 Robust implementation of strlen() that also works for unterminated strings\r\n1 s i z e _ t s t rl e n ( cons t char * s t r ) {\r\n2 s i z e _ t len = 0 ;\r\n3 while ( s i z e _ r i g h t ( s t r ) > 0 && * s t r ! = ' \\0 ' ) {\r\n4 len + + ; s t r + + ;\r\n5 }\r\n6 r e tu rn len ;\r\n7 }\r\nThus, increased availability does not harm confidentiality (e.g., by leaking data of\r\nother objects) and integrity (e.g., by overwriting other objects).\r\nFor instance, Listing 15 shows how we improved strlen() by preventing buffer overflows\r\nwhen iterating over a string, and by improving the handling of non-legal pointers\r\n(where size_right() returns -1). For terminated strings, strlen() iterates until the first\r\n‘\\0’ character to return the length of the string. For unterminated strings, the function\r\ncannot return -1 to indicate an error, since size_t is unsigned, so we also do not set\r\nerrno. Instead, it iterates until the end of the buffer and returns the size of the string\r\nuntil the end of the buffer.\r\nThe enhanced string functions also allow execution of the code fragment in Listing 5.\r\nEven though the source string may be unterminated, strcpy() will not produce an out-of\u0002bounds read, since it stops copying when reaching the end of the source or destination\r\nbuffer. The call to puts() also works as expected, and prints the unterminated string.\r\nFunctions that free memory. We made functions that free memory (realloc() and free())\r\nmore robust by checking whether their argument can safely be freed using freeable().\r\nIn Safe Sulong, malloc() is written in Java and allocates a Java object. By using the\r\nintrospection functions we were able to conveniently and robustly implement realloc()\r\nin C without having to maintain a list of allocated and freed objects.\r\nFormat string functions. We made input and output functions that expect format\r\nstrings more robust. Examples are the printf() functions (printf(), fprintf(), sprintf(),\r\nvfprintf(), vprintf(), vsnprintf(), vsprintf()) and the scanf() functions (scanf(), fscanf(),\r\netc.). These functions expect format strings that contain format specifiers, and match\u0002ing arguments that are used to produce the formatted output. Since the functions\r\nare variadic, we used count_varargs() to add checks that verify that the number of\r\nformat specifiers is equal to the actual number of arguments. Further, the functions use\r\nget_vararg() to verify the argument types. This prevents format-string vulnerabilities\r\nand out-of-bounds reads in the format string, as demonstrated in the implementation\r\nof strlen().\r\nHigher-order functions. We enhanced functions that receive function pointers such as\r\nqsort() and bsearch(). Listing 16 shows how qsort() can use try_cast() to verify that f is\r\na function pointer that is compatible with the specified signature. Furthermore, the\r\nfunctions verify that no memory errors, such as buffer overflows, can occur.\r\ngets() and gets_s(). While C11 replaced the gets() function with gets_s(), Safe Sulong\r\ncan still provide a robust implementation for gets() (see Listing 17). Since size_right()\r\ncan determine the size of the buffer to the right of the pointer, we can call it and use\r\nthe returned size as an argument to the more robust gets_s() function. If the pointer\r\n4:17",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/6fd4aa3a-1957-4b23-806a-cb2e7a1250e8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1de09361d69d49b7ad718e2f2d0d5392246948e7c022f856e4b2db981bc7a2f4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 566
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8ae13f14-574e-484f-a0d8-f8e668566e7f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 18,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 16 Robust qsort() implementation that checks whether it can call the supplied\r\nfunction pointer\r\n1 void qso r t ( void * base , s i z e _ t nitems , s i z e _ t si z e , i n t ( * f ) ( cons t void * , cons t void * ) ) ←-\r\n,→ {\r\n2 i n t ( * v e r i f i e d P o i n t e r ) ( cons t void * , cons t void * ) = t r y _ c a s t (& f , type ( f ) ) ;\r\n3 i f ( s i z e _ r i g h t ( base ) < nitems * si z e | | v e r i f i e d P o i n t e r == NULL ) errno = EINVAL ;\r\n4 els e {\r\n5 // qso r t implementation\r\n6 }\r\n7 }\r\nListing 17 Robust implementation of gets() that uses the more robust gets_s() in its imple\u0002mentation\r\n1 char * ge ts ( char * s t r ) {\r\n2 i n t si z e = s i z e _ r i g h t ( s t r ) ;\r\n3 r e tu rn ge ts _s ( s t r , si z e == -1 ? 0 : si z e ) ;\r\n4 }\r\nListing 18 Robust implementation of gets_s() that verifies the passed size argument\r\n1 char * ge ts _s ( char * s t r , r s i z e _ t n ) {\r\n2 i f ( s i z e _ r i g h t ( s t r ) < ( long ) n ) {\r\n3 errno = EINVAL ; r e tu rn NULL ;\r\n4 } els e {\r\n5 // o r i g i n a l code\r\n6 }\r\n7 }\r\nis not legal, we pass 0, which gets_s() handles as an error. We also made gets_s() more\r\nrobust against erroneous parameters (see Listing 18). By using size_right() we can\r\nvalidate that the size parameter n is at least as large as the remaining space right\r\nof the pointer. The check prevents buffer overflows for gets() and gets_s(), and also\r\npassing of dead stack memory or freed heap memory.\r\n6 Related Work\r\nC Memory safety approaches. For decades, academia and industry have been coming\r\nup with approaches to tackling memory errors in C. Thus, there is a vast number of\r\napproaches that deal with these issues, both static and run-time approaches, both\r\nhardware- and software-based. We consider our approach as a run-time approach,\r\nsince the checks (specified by programmers in their programs) are executed during\r\nrun time. The literature provides a historical overview of memory errors and defense\r\nmechanisms [48], an investigation of the weaknesses of current memory defense\r\nmechanisms including a general model for memory attacks [46], and a survey of\r\nvulnerabilities and run-time countermeasures [55]. Using introspection to prevent\r\nmemory errors is a novel approach that is complementary to existing approaches\r\nbecause the programmer can check for and prevent an invalid action; if the check is\r\n4:18",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/8ae13f14-574e-484f-a0d8-f8e668566e7f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0f6a314ea608d183b390fcf74252092a3e83cf428c981f1454287f6f5a8df42f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 566
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8ae13f14-574e-484f-a0d8-f8e668566e7f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 18,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nListing 16 Robust qsort() implementation that checks whether it can call the supplied\r\nfunction pointer\r\n1 void qso r t ( void * base , s i z e _ t nitems , s i z e _ t si z e , i n t ( * f ) ( cons t void * , cons t void * ) ) ←-\r\n,→ {\r\n2 i n t ( * v e r i f i e d P o i n t e r ) ( cons t void * , cons t void * ) = t r y _ c a s t (& f , type ( f ) ) ;\r\n3 i f ( s i z e _ r i g h t ( base ) < nitems * si z e | | v e r i f i e d P o i n t e r == NULL ) errno = EINVAL ;\r\n4 els e {\r\n5 // qso r t implementation\r\n6 }\r\n7 }\r\nListing 17 Robust implementation of gets() that uses the more robust gets_s() in its imple\u0002mentation\r\n1 char * ge ts ( char * s t r ) {\r\n2 i n t si z e = s i z e _ r i g h t ( s t r ) ;\r\n3 r e tu rn ge ts _s ( s t r , si z e == -1 ? 0 : si z e ) ;\r\n4 }\r\nListing 18 Robust implementation of gets_s() that verifies the passed size argument\r\n1 char * ge ts _s ( char * s t r , r s i z e _ t n ) {\r\n2 i f ( s i z e _ r i g h t ( s t r ) < ( long ) n ) {\r\n3 errno = EINVAL ; r e tu rn NULL ;\r\n4 } els e {\r\n5 // o r i g i n a l code\r\n6 }\r\n7 }\r\nis not legal, we pass 0, which gets_s() handles as an error. We also made gets_s() more\r\nrobust against erroneous parameters (see Listing 18). By using size_right() we can\r\nvalidate that the size parameter n is at least as large as the remaining space right\r\nof the pointer. The check prevents buffer overflows for gets() and gets_s(), and also\r\npassing of dead stack memory or freed heap memory.\r\n6 Related Work\r\nC Memory safety approaches. For decades, academia and industry have been coming\r\nup with approaches to tackling memory errors in C. Thus, there is a vast number of\r\napproaches that deal with these issues, both static and run-time approaches, both\r\nhardware- and software-based. We consider our approach as a run-time approach,\r\nsince the checks (specified by programmers in their programs) are executed during\r\nrun time. The literature provides a historical overview of memory errors and defense\r\nmechanisms [48], an investigation of the weaknesses of current memory defense\r\nmechanisms including a general model for memory attacks [46], and a survey of\r\nvulnerabilities and run-time countermeasures [55]. Using introspection to prevent\r\nmemory errors is a novel approach that is complementary to existing approaches\r\nbecause the programmer can check for and prevent an invalid action; if the check is\r\n4:18",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/8ae13f14-574e-484f-a0d8-f8e668566e7f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0f6a314ea608d183b390fcf74252092a3e83cf428c981f1454287f6f5a8df42f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 566
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8b15f199-b381-40c4-bf37-9bcf34801d5c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 19,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nomitted and an invalid access occurs, an existing memory safety solution could still\r\nprevent the access.\r\nRun-time types for C. libcrunch [22] is a system that detects type-cast errors at run\r\ntime. It is based on liballocs [23], a run-time system that augments Unix processes\r\nwith allocation-based types. libcrunch provides an __is_a() introspection function\r\nthat exposes the type of an object. It uses this function to validate type casts and\r\nissues a warning on unsound casts. In contrast to our approach, libcrunch checks for\r\ninvalid casts automatically, so the __is_a() function is not exposed to the programmer,\r\nnor are there other introspection functions. However, we believe that the system\r\ncould be extended to provide additional run-time information that could be used to\r\nimplement the introspection primitives. Typical overheads of collecting and using the\r\ntype information are between 5-35%, which demonstrates that introspection functions\r\nare feasible in static compilation approaches.\r\nFailure-oblivious computing. Failure-oblivious computing [35] is a technique that en\u0002ables servers to continue their normal execution path in the presence of memory errors.\r\nInstead of aborting the program, invalid writes are discarded, and for invalid reads\r\nvalues are manufactured. Note that this approach is automatic, since the compiler\r\ninserts checks and continuation code where memory errors can occur. Failure-oblivious\r\ncomputing would, for example, work well for strlen by manufacturing the value zero\r\nwhen the NULL terminator is missing and the read runs over the buffer end. However,\r\nreturning zero for out-of-bounds accesses does not work in general; for example, when\r\nthe loop’s exit condition checks if the array element is -1, failure-oblivious computing\r\napproaches could run into an endless loop. In contrast, using our introspection tech\u0002nique, programmers can take into account the semantics of a function to prevent such\r\nsituations. Additionally, introspection can also be used for bug-finding (not only to\r\nincrease availability), for example, by checking if the actual buffer length corresponds\r\nto the expected buffer length in functions like gets_s.\r\nStatic vulnerability scanners. Static vulnerability scanners identify calls to unsafe func\u0002tions such as gets() depending on a policy specified in a vulnerability database [49].\r\nSuch approaches must decide conservatively whether a call is allowed, unlike our\r\napproach, which validates parameters at run-time through introspection. Nowadays,\r\nmost compilers issue a warning when they identify a call to an unsafe function such\r\nas gets(), but not necessarily for other, slightly safer functions, such as strcpy().\r\nFault injection to increase library robustness. Fault injection approaches generate a se\u0002ries of test cases that exercise library functions in an attempt to trigger a crash in\r\nthem. HEALERS [13, 14] is an approach that, after identifying a non-robust function,\r\nautomatically generates a wrapper that sits between the application and its shared\r\nlibraries to handle or prevent illegal parameters. To check the bounds of heap ob\u0002jects passed to the functions, the approach instruments malloc() and stores bounds\r\ninformation. In contrast to our solution, the approaches above support pre-compiled\r\nlibraries. However, they can generate wrapper checks only where run-time information\r\nis explicitly available in the program. Additionally, they prevent the programmer from\r\nspecifying the action in case of an error, and always set errno and return an error\r\ncode.\r\n4:19",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/8b15f199-b381-40c4-bf37-9bcf34801d5c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9d73339056f16e31b0f630018919fd99c539783780ba90ffad804e4fddd4db75",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 534
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8b15f199-b381-40c4-bf37-9bcf34801d5c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 19,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nomitted and an invalid access occurs, an existing memory safety solution could still\r\nprevent the access.\r\nRun-time types for C. libcrunch [22] is a system that detects type-cast errors at run\r\ntime. It is based on liballocs [23], a run-time system that augments Unix processes\r\nwith allocation-based types. libcrunch provides an __is_a() introspection function\r\nthat exposes the type of an object. It uses this function to validate type casts and\r\nissues a warning on unsound casts. In contrast to our approach, libcrunch checks for\r\ninvalid casts automatically, so the __is_a() function is not exposed to the programmer,\r\nnor are there other introspection functions. However, we believe that the system\r\ncould be extended to provide additional run-time information that could be used to\r\nimplement the introspection primitives. Typical overheads of collecting and using the\r\ntype information are between 5-35%, which demonstrates that introspection functions\r\nare feasible in static compilation approaches.\r\nFailure-oblivious computing. Failure-oblivious computing [35] is a technique that en\u0002ables servers to continue their normal execution path in the presence of memory errors.\r\nInstead of aborting the program, invalid writes are discarded, and for invalid reads\r\nvalues are manufactured. Note that this approach is automatic, since the compiler\r\ninserts checks and continuation code where memory errors can occur. Failure-oblivious\r\ncomputing would, for example, work well for strlen by manufacturing the value zero\r\nwhen the NULL terminator is missing and the read runs over the buffer end. However,\r\nreturning zero for out-of-bounds accesses does not work in general; for example, when\r\nthe loop’s exit condition checks if the array element is -1, failure-oblivious computing\r\napproaches could run into an endless loop. In contrast, using our introspection tech\u0002nique, programmers can take into account the semantics of a function to prevent such\r\nsituations. Additionally, introspection can also be used for bug-finding (not only to\r\nincrease availability), for example, by checking if the actual buffer length corresponds\r\nto the expected buffer length in functions like gets_s.\r\nStatic vulnerability scanners. Static vulnerability scanners identify calls to unsafe func\u0002tions such as gets() depending on a policy specified in a vulnerability database [49].\r\nSuch approaches must decide conservatively whether a call is allowed, unlike our\r\napproach, which validates parameters at run-time through introspection. Nowadays,\r\nmost compilers issue a warning when they identify a call to an unsafe function such\r\nas gets(), but not necessarily for other, slightly safer functions, such as strcpy().\r\nFault injection to increase library robustness. Fault injection approaches generate a se\u0002ries of test cases that exercise library functions in an attempt to trigger a crash in\r\nthem. HEALERS [13, 14] is an approach that, after identifying a non-robust function,\r\nautomatically generates a wrapper that sits between the application and its shared\r\nlibraries to handle or prevent illegal parameters. To check the bounds of heap ob\u0002jects passed to the functions, the approach instruments malloc() and stores bounds\r\ninformation. In contrast to our solution, the approaches above support pre-compiled\r\nlibraries. However, they can generate wrapper checks only where run-time information\r\nis explicitly available in the program. Additionally, they prevent the programmer from\r\nspecifying the action in case of an error, and always set errno and return an error\r\ncode.\r\n4:19",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/8b15f199-b381-40c4-bf37-9bcf34801d5c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9d73339056f16e31b0f630018919fd99c539783780ba90ffad804e4fddd4db75",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 534
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5ced119f-65d4-4a15-84da-ad8f0ac88f40",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 20,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nDetecting API misusages. APISan [56] is a tool for finding API usage errors, such as\r\ncryptographic protocol API misues, but also integer overflows, NULL dereferences,\r\nmemory leaks, incorrect return values, format string vulnerabilities, and wrong argu\u0002ments. It is based on the idea that the dominant usage pattern of an API across several\r\nprojects indicates its correct use. APISan is implemented by gathering execution\r\ntraces using symbolic execution, from which it infers correct API usages; deviating\r\npatterns are potential API misuses. While this approach aims to identify incorrect use\r\nof libraries, our approach aims to make library functions more robust.\r\nReplacing (parts of) libc. SFIO [24] is a libc replacement and addresses several of its\r\nproblems. It mainly improved completeness and efficiency, but it also introduced safer\r\nroutines for functions that operate on format strings. Additionally, the SFIO standard\r\nlibrary functions are more consistent in their arguments and argument order, and\r\nthus less error-prone than some of the libc functions. In [28], the less error-prone\r\nstrlcpy() and strlcat() functions were presented as replacements for the strcpy() and\r\nstrncat() functions. Unlike our improved C standard library, these approaches lack\r\nsource compatibility.\r\nSafer implementation of library functions. To prevent format string vulnerabilities in\r\nthe printf family of functions, FormatGuard [8] uses the preprocessor to count the\r\narguments to variadic functions during compile time and checks that the number com\u0002plies with the actual number at run time. FormatGuard replaces the printf functions\r\nin the C standard library with more secure versions while retaining compatibility\r\nwith most programs. From a user perspective, FormatGuard is similar to Safe Sulong’s\r\nstandard library, in that both provide more robust C standard library functions. While\r\nour approach works only for runtimes that implement the introspection primitives,\r\nStackGuard works for arbitrary compilers and runtimes. However, our approach can\r\nalso verify bounds, memory location, and types of objects.\r\nRestricting bu\u001ber over\u001dows in library functions. Libsafe [2] replaces calls to unsafe li\u0002brary functions (such as strcpy() and gets()) with wrappers that ensure that potential\r\nbuffer overflows are contained within the current stack frame. It can prevent only\r\nstack buffer overflows, since it checks that write accesses do not extend beyond the\r\nend of the buffer’s stack frame. In contrast, approaches exist that protect only against\r\nheap buffer overflows caused by C standard library functions [15]. By intercepting\r\nC standard library calls, the approach keeps track of heap memory allocations and\r\nperforms bounds checking before calling the C standard library functions that operate\r\non buffers. Both approaches work with any existing pre-compiled library, but do not\r\nprotect against all kinds of buffer overflows. With our approach, a programmer can im\u0002plement checks that prevent both heap and stack overflows, and use the introspection\r\ninterface to also prevent use-after-free and other errors.\r\nRe\u001dection for C. Higher-level languages such as Java or C# throw exceptions when\r\nencountering out-of-bounds accesses and other errors. Exception handling is a more\r\nexpressive approach than explicitly checking for invalid accesses in advance, since it\r\nseparates the two concerns in the program. Some approaches introduced mechanisms\r\nto raise and catch exceptions in C [16, 26]. However, these approaches do not describe\r\n4:20",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/5ced119f-65d4-4a15-84da-ad8f0ac88f40.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=931aefb2d4d75544d4914899e6acfc7bf107b3325cd503bbd0758e8b1fe856f8",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 529
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5ced119f-65d4-4a15-84da-ad8f0ac88f40",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 20,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nDetecting API misusages. APISan [56] is a tool for finding API usage errors, such as\r\ncryptographic protocol API misues, but also integer overflows, NULL dereferences,\r\nmemory leaks, incorrect return values, format string vulnerabilities, and wrong argu\u0002ments. It is based on the idea that the dominant usage pattern of an API across several\r\nprojects indicates its correct use. APISan is implemented by gathering execution\r\ntraces using symbolic execution, from which it infers correct API usages; deviating\r\npatterns are potential API misuses. While this approach aims to identify incorrect use\r\nof libraries, our approach aims to make library functions more robust.\r\nReplacing (parts of) libc. SFIO [24] is a libc replacement and addresses several of its\r\nproblems. It mainly improved completeness and efficiency, but it also introduced safer\r\nroutines for functions that operate on format strings. Additionally, the SFIO standard\r\nlibrary functions are more consistent in their arguments and argument order, and\r\nthus less error-prone than some of the libc functions. In [28], the less error-prone\r\nstrlcpy() and strlcat() functions were presented as replacements for the strcpy() and\r\nstrncat() functions. Unlike our improved C standard library, these approaches lack\r\nsource compatibility.\r\nSafer implementation of library functions. To prevent format string vulnerabilities in\r\nthe printf family of functions, FormatGuard [8] uses the preprocessor to count the\r\narguments to variadic functions during compile time and checks that the number com\u0002plies with the actual number at run time. FormatGuard replaces the printf functions\r\nin the C standard library with more secure versions while retaining compatibility\r\nwith most programs. From a user perspective, FormatGuard is similar to Safe Sulong’s\r\nstandard library, in that both provide more robust C standard library functions. While\r\nour approach works only for runtimes that implement the introspection primitives,\r\nStackGuard works for arbitrary compilers and runtimes. However, our approach can\r\nalso verify bounds, memory location, and types of objects.\r\nRestricting bu\u001ber over\u001dows in library functions. Libsafe [2] replaces calls to unsafe li\u0002brary functions (such as strcpy() and gets()) with wrappers that ensure that potential\r\nbuffer overflows are contained within the current stack frame. It can prevent only\r\nstack buffer overflows, since it checks that write accesses do not extend beyond the\r\nend of the buffer’s stack frame. In contrast, approaches exist that protect only against\r\nheap buffer overflows caused by C standard library functions [15]. By intercepting\r\nC standard library calls, the approach keeps track of heap memory allocations and\r\nperforms bounds checking before calling the C standard library functions that operate\r\non buffers. Both approaches work with any existing pre-compiled library, but do not\r\nprotect against all kinds of buffer overflows. With our approach, a programmer can im\u0002plement checks that prevent both heap and stack overflows, and use the introspection\r\ninterface to also prevent use-after-free and other errors.\r\nRe\u001dection for C. Higher-level languages such as Java or C# throw exceptions when\r\nencountering out-of-bounds accesses and other errors. Exception handling is a more\r\nexpressive approach than explicitly checking for invalid accesses in advance, since it\r\nseparates the two concerns in the program. Some approaches introduced mechanisms\r\nto raise and catch exceptions in C [16, 26]. However, these approaches do not describe\r\n4:20",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/5ced119f-65d4-4a15-84da-ad8f0ac88f40.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=931aefb2d4d75544d4914899e6acfc7bf107b3325cd503bbd0758e8b1fe856f8",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 529
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4bcd66ed-f3cb-470a-93e5-718fde50afc3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 21,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nhow invalid memory errors could be caught and exposed to the programmer as an\r\nexception.\r\n7 Discussion\r\nAdvantages over existing tools. We assume that introspection is exposed by a runtime\r\nthat automatically aborts when detecting an error (e.g., an out-of-bounds access). In\r\nthis scenario, using introspection allows programmers to override the default behavior\r\nof aborting the program by checking for invalid states and by reacting to them before\r\nthe failure occurs. Even if checks are omitted, the runtime aborts execution in case\r\nof an error. Additionally, introspection can be used to check for faults that might not\r\nresult in errors during run time. While adding these checks does not come for free (i.e.,\r\nthey require programming effort), we believe that they can be useful at boundaries of\r\nshared libraries, and at the boundaries of subcomponents within a project.\r\nAdoption of introspection. Two of the C/C++ tenets are that “you don’t pay for what\r\nyou don’t use” [45] and to “trust the programmer” [5]. Hence, programmers often\r\neschew checks even if they are possible without introspection functions [14]. An open\r\nquestion is thus whether C programmers would use introspection if they had access\r\nto it. We believe that there is a need for the safe execution of legacy C code (at the\r\nexpense of performance) as an alternative to porting programs to safer languages.\r\nIt has yet to be determined which of the introspection functions are useful in practice\r\n(e.g., by conducting a case study on real-world programs). We believe that functions\r\nsuch as size_right() are easy to understand and use, and could prevent common errors\r\nin practice. In contrast, grasping the semantics of try_cast() is more difficult because C\r\ndoes not have a strong notion of typing, and use cases for it are also rare; consequently,\r\nit would probably be used less often.\r\nSafer languages. Since using introspection requires changes to the source code, a\r\nquestion is whether a library should not simply be rewritten in some other systems\r\nprogramming language, such as Rust or Go, that approach the performance of C\r\nwhile being safe. First, preventing out-of-bounds accesses or use-after-free errors can\r\nalready be prevented by using special runtimes without rewriting the project in a safer\r\nlanguage (e.g., using AddressSanitizer [38] or SoftBound+CETS [29, 30]). However,\r\nour approach goes beyond these guarantees by allowing the programmer to handle\r\nerrors in customized ways. Second, the effort required to rewrite an application would\r\nsimply be too high for many real-world applications. In contrast, incrementally adding\r\nchecks to an existing code base is less work.\r\nLegacy code. Our approach also brings benefits for legacy applications, namely when\r\na commonly used shared library is modified to employ introspection for additional\r\nchecks: For example, there are legacy applications that use the insecure gets() libc\r\nfunction. Using our approach, a safe implementation of gets() can be provided if the\r\nruntime implements the introspection interface and libc uses it to query the length\r\nof the buffer. Thus, availability or security of legacy code can be improved simply by\r\nemploying a libc that inserts additional checks enabled by introspection. In contrast,\r\n4:21",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/4bcd66ed-f3cb-470a-93e5-718fde50afc3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2015dc97f72d510a3e31aa3ff3db2dc5ba5ea78f667334cae9b1322a442a87b4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 526
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4bcd66ed-f3cb-470a-93e5-718fde50afc3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 21,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nhow invalid memory errors could be caught and exposed to the programmer as an\r\nexception.\r\n7 Discussion\r\nAdvantages over existing tools. We assume that introspection is exposed by a runtime\r\nthat automatically aborts when detecting an error (e.g., an out-of-bounds access). In\r\nthis scenario, using introspection allows programmers to override the default behavior\r\nof aborting the program by checking for invalid states and by reacting to them before\r\nthe failure occurs. Even if checks are omitted, the runtime aborts execution in case\r\nof an error. Additionally, introspection can be used to check for faults that might not\r\nresult in errors during run time. While adding these checks does not come for free (i.e.,\r\nthey require programming effort), we believe that they can be useful at boundaries of\r\nshared libraries, and at the boundaries of subcomponents within a project.\r\nAdoption of introspection. Two of the C/C++ tenets are that “you don’t pay for what\r\nyou don’t use” [45] and to “trust the programmer” [5]. Hence, programmers often\r\neschew checks even if they are possible without introspection functions [14]. An open\r\nquestion is thus whether C programmers would use introspection if they had access\r\nto it. We believe that there is a need for the safe execution of legacy C code (at the\r\nexpense of performance) as an alternative to porting programs to safer languages.\r\nIt has yet to be determined which of the introspection functions are useful in practice\r\n(e.g., by conducting a case study on real-world programs). We believe that functions\r\nsuch as size_right() are easy to understand and use, and could prevent common errors\r\nin practice. In contrast, grasping the semantics of try_cast() is more difficult because C\r\ndoes not have a strong notion of typing, and use cases for it are also rare; consequently,\r\nit would probably be used less often.\r\nSafer languages. Since using introspection requires changes to the source code, a\r\nquestion is whether a library should not simply be rewritten in some other systems\r\nprogramming language, such as Rust or Go, that approach the performance of C\r\nwhile being safe. First, preventing out-of-bounds accesses or use-after-free errors can\r\nalready be prevented by using special runtimes without rewriting the project in a safer\r\nlanguage (e.g., using AddressSanitizer [38] or SoftBound+CETS [29, 30]). However,\r\nour approach goes beyond these guarantees by allowing the programmer to handle\r\nerrors in customized ways. Second, the effort required to rewrite an application would\r\nsimply be too high for many real-world applications. In contrast, incrementally adding\r\nchecks to an existing code base is less work.\r\nLegacy code. Our approach also brings benefits for legacy applications, namely when\r\na commonly used shared library is modified to employ introspection for additional\r\nchecks: For example, there are legacy applications that use the insecure gets() libc\r\nfunction. Using our approach, a safe implementation of gets() can be provided if the\r\nruntime implements the introspection interface and libc uses it to query the length\r\nof the buffer. Thus, availability or security of legacy code can be improved simply by\r\nemploying a libc that inserts additional checks enabled by introspection. In contrast,\r\n4:21",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/4bcd66ed-f3cb-470a-93e5-718fde50afc3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2015dc97f72d510a3e31aa3ff3db2dc5ba5ea78f667334cae9b1322a442a87b4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 526
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f8bb0a72-8d63-4c62-8a2c-10b61bc4b578",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 22,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nwhen reimplementing libc in a safer language, the function gets() cannot be made\r\nsafe, as a buffer allocated by C code has no bounds information attached to it.\r\nStatic compilation. Introspection requires information about run-time properties of\r\nobjects in the program. While interpreters and virtual machines often maintain this\r\ninformation, runtimes that execute native programs compiled by static compilers such\r\nas Clang or GCC do not. We want to point out that debug metadata (obtained by\r\ncompiling with the -g flag) cannot provide per-object type information needed for\r\nintrospection. However, it has been shown that per-object information (such as types)\r\ncan be added add low cost to static compilation approaches [22] and hence make\r\nimplementing the introspection functions in their runtimes feasible. As part of future\r\nwork, we intend to implement introspection primitives using tools based on a static\r\ncompilation model.\r\nPartial metadata availability. While designing the interface, we assumed that a tool\r\nthat implements introspection maintains all relevant metadata. However, some run\u0002times maintain only a subset of it; for example, bounds checkers track bounds informa\u0002tion and can implement only _size_left() and _size_right(). Custom memory allocators\r\nthat track heap allocations can implement only a subset of the function location(). It\r\nhas yet to be investigated how code can benefit from runtimes that implement only\r\nparts of the interface. A compile-time approach would involve checking introspection\r\nfeatures using preprocessor directives. Another approach would involve structuring\r\nthe checks such that they do not fail when an introspection function returns a default\r\nvalue that indicates that the corresponding feature is unsupported.\r\nPerformance measurement. The focus of this work was on evaluating the usefulness\r\nof exposing introspection functions to library writers. We did not invest much time in\r\noptimizing the peak performance of our approach in Safe Sulong. Thus, we show its\r\nperformance only on a small set of microbenchmarks for which we used our enhanced\r\nlibc (see Appendix A). As part of future work, we want to extend Safe Sulong’s\r\ncompleteness to execute larger benchmarks, such as SPEC INT [7].\r\n8 Conclusion\r\nWe have presented an introspection interface for C that programmers can use to make\r\nlibraries more robust. The introspection functions expose properties of objects (bounds,\r\nmemory location, and type) as well as properties of variadic functions (number of\r\nvariadic arguments and their types). We have described an implementation of the\r\nintrospection primitives in Safe Sulong, a system that provides memory-safe execution\r\nof C code. However, our approach is not restricted to Safe Sulong; many dynamic bug\u0002finding tools and runtimes exist that could implement (a subset of) the introspection\r\ninterface. The approach is complementary to existing memory safety approaches, as\r\nprogrammers can use it to react to and prevent errors in the application logic. Finally,\r\nwe have shown how we used the introspection interface to implement an enhanced,\r\nsource-compatible C standard library.\r\n4:22",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/f8bb0a72-8d63-4c62-8a2c-10b61bc4b578.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=85ee8cd1d0d58ff47734119be9d8f235b15be607133bce4908bf17194dc37e5c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 480
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "db1d7f97-00de-4d0f-8627-9a99058e24c0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 23,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nAcknowledgements We thank the anonymous reviewers for their valuable comments\r\nand suggestions to improve the quality of the paper. We also thank Ingrid Abfalter,\r\nwhose proofreading and editorial assistance greatly improved the manuscript. We\r\nthank all members of the Virtual Machine Research Group at Oracle Labs and the\r\nInstitute of System Software at Johannes Kepler University Linz for their support and\r\ncontributions.\r\nReferences\r\n[1] Alfred V Aho, Ravi Sethi, and Jeffrey D Ullman. Compilers, Principles, Techniques.\r\nBoston, MA, USA: Addison-Wesley Longman Publishing Co., Inc., 2006. isbn:\r\n0321486811.\r\n[2] Arash Baratloo, Navjot Singh, and Timothy Tsai. “Libsafe: Protecting critical\r\nelements of stacks”. In: White Paper (1999). http://www.research.avayalabs.\r\ncom/project/libsafe.\r\n[3] Priyam Biswas, Alessandro Di Federico, Scott A. Carr, Prabhu Rajasekaran, Stijn\r\nVolckaert, Yeoul Na, Michael Franz, and Mathias Payer. “Venerable Variadic\r\nVulnerabilities Vanquished”. In: 26th USENIX Security Symposium (USENIX\r\nSecurity 17). Vancouver, BC: USENIX Association, 2017. url: https://www.usenix.\r\norg/conference/usenixsecurity17/technical-sessions/presentation/biswas.\r\n[4] Derek Bruening and Qin Zhao. “Practical Memory Checking with Dr. Memory”.\r\nIn: Proceedings of the 9th Annual IEEE/ACM International Symposium on Code\r\nGeneration and Optimization. CGO ’11. Washington, DC, USA: IEEE Computer\r\nSociety, 2011, pages 213–223. isbn: 978-1-61284-356-8.\r\n[5] C99 Committee. Rationale for International Standard–Programming Languages–\r\nC. Revision 5.10. 2003.\r\n[6] Vitaly Chipounov and George Candea. Dynamically Translating x86 to LLVM\r\nusing QEMU. Technical report. École polytechnique fédérale de Lausanne, 2010.\r\n[7] Standard Performance Evaluation Corporation. CINT2006 (Integer Component\r\nof SPEC CPU2006). Accessed October 2017. url: https://www.spec.org/cpu2006/\r\nCINT2006/.\r\n[8] Crispin Cowan, Matt Barringer, Steve Beattie, Greg Kroah-Hartman, Michael\r\nFrantzen, and Jamie Lokier. “FormatGuard: Automatic Protection From printf\r\nFormat String Vulnerabilities.” In: USENIX Security Symposium. Volume 91.\r\nWashington, DC. 2001. url: https://www.usenix.org/legacy/events/sec01/\r\ncowanbarringer.html.\r\n[9] Crispin Cowan, Perry Wagle, Calton Pu, Steve Beattie, and Jonathan Walpole.\r\n“Buffer overflows: attacks and defenses for the vulnerability of the decade”. In:\r\nDARPA Information Survivability Conference and Exposition, 2000. DISCEX ’00.\r\nProceedings. Volume 2. 2000, 119–129 vol.2. doi: 10.1109/DISCEX.2000.821514.\r\n[10] Artem Dinaburg and Andrew Ruef. “Mcsema: Static translation of x86 instruc\u0002tions to llvm”. In: ReCon 2014 Conference, Montreal, Canada. 2014.\r\n4:23",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/db1d7f97-00de-4d0f-8627-9a99058e24c0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=76a3ba2011c54ed8509435bcf8e3e73cff03c1589b230b4e4e29e3651c37ae28",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 344
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e482c774-5af0-40f6-91bf-61242090eb25",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 24,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\n[11] Frank Ch Eigler. “Mudflap: Pointer Use Checking for C/C+”. In: Proceedings of\r\nthe First Annual GCC Developers’ Summit (2003), pages 57–70.\r\n[12] Common Weakness Enumeration. CWE-242: Use of Inherently Dangerous Func\u0002tion. Accessed July 2017. 2017. url: https://cwe.mitre.org/data/definitions/242.\r\nhtml.\r\n[13] Christof Fetzer and Zhen Xiao. “A flexible generator architecture for improving\r\nsoftware dependability”. In: 13th International Symposium on Software Relia\u0002bility Engineering, 2002. Proceedings. 2002, pages 102–113. doi: 10.1109/ISSRE.\r\n2002.1173221.\r\n[14] Christof Fetzer and Zhen Xiao. “An Automated Approach to Increasing the\r\nRobustness of C Libraries”. In: Proceedings of the 2002 International Conference\r\non Dependable Systems and Networks. DSN ’02. Washington, DC, USA: IEEE\r\nComputer Society, 2002, pages 155–166. isbn: 0-7695-1597-5.\r\n[15] Cristof Fetzer and Zhen Xiao. “Detecting heap smashing attacks through fault\r\ncontainment wrappers”. In: Proceedings 20th IEEE Symposium on Reliable Dis\u0002tributed Systems. 2001, pages 80–89. doi: 10.1109/RELDIS.2001.969756.\r\n[16] Narain Gehani. “Exceptional C or C with exceptions”. In: Software: Practice\r\nand Experience 22.10 (1992), pages 827–848. issn: 1097-024X. doi: 10.1002/\r\nspe.4380221003.\r\n[17] Matthias Grimmer, Roland Schatz, Chris Seaton, Thomas Würthinger, and\r\nHanspeter Mössenböck. “Memory-safe Execution of C on a Java VM”. In: Pro\u0002ceedings of the 10th ACM Workshop on Programming Languages and Analysis\r\nfor Security. PLAS’15. Prague, Czech Republic: ACM, 2015, pages 16–27. isbn:\r\n978-1-4503-3661-1. doi: 10.1145/2786558.2786565.\r\n[18] Istvan Haller, Yuseok Jeon, Hui Peng, Mathias Payer, Cristiano Giuffrida, Her\u0002bert Bos, and Erik van der Kouwe. “TypeSan: Practical Type Confusion De\u0002tection”. In: Proceedings of the 2016 ACM SIGSAC Conference on Computer and\r\nCommunications Security. CCS ’16. Vienna, Austria: ACM, 2016, pages 517–528.\r\nisbn: 978-1-4503-4139-4. doi: 10.1145/2976749.2978405.\r\n[19] Reed Hastings and Bob Joyce. “Purify: Fast detection of memory leaks and\r\naccess errors”. In: In proc. of the winter 1992 usenix conference. Citeseer. 1991.\r\n[20] Urs Hölzle, Craig Chambers, and David Ungar. “Debugging Optimized Code\r\nwith Dynamic Deoptimization”. In: volume 27. 7. New York, NY, USA: ACM,\r\nJuly 1992, pages 32–43. doi: 10.1145/143103.143114.\r\n[21] IEEE. “Systems and software engineering – Vocabulary”. In: ISO/IEC/IEEE\r\n24765:2010(E) (Dec. 2010), pages 1–418. doi: 10.1109/IEEESTD.2010.5733835.\r\n[22] Stephen Kell. “Dynamically Diagnosing Type Errors in Unsafe Code”. In: Pro\u0002ceedings of the 2016 ACM SIGPLAN International Conference on Object-Oriented\r\nProgramming, Systems, Languages, and Applications. OOPSLA 2016. Amster\u0002dam, Netherlands: ACM, 2016, pages 800–819. isbn: 978-1-4503-4444-9. doi:\r\n10.1145/2983990.2983998.\r\n4:24",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/e482c774-5af0-40f6-91bf-61242090eb25.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d44bc37295e7ead974d4f7b6935666ccd22761aba4a4a59fffbc1e0005d3363c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 375
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "95f09ba8-456a-44cc-be0b-c18109d85d2d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 25,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\n[23] Stephen Kell. “Towards a Dynamic Object Model Within Unix Processes”. In:\r\n2015 ACM International Symposium on New Ideas, New Paradigms, and Reflections\r\non Programming and Software (Onward!) Onward! 2015. Pittsburgh, PA, USA:\r\nACM, 2015, pages 224–239. isbn: 978-1-4503-3688-8. doi: 10.1145/2814228.\r\n2814238.\r\n[24] David G. Korn and Kiem-Phong Vo. “SFIO: Safe/Fast String/File IO”. In: Pro\u0002ceedings of the Summer 1991 USENIX Conference, Nashville, TE, USA, June 1991.\r\n1991, pages 235–256.\r\n[25] Chris Lattner and Vikram Adve. “LLVM: A Compilation Framework for Lifelong\r\nProgram Analysis & Transformation”. In: Proceedings of the International Sym\u0002posium on Code Generation and Optimization: Feedback-directed and Runtime\r\nOptimization. CGO ’04. Palo Alto, California: IEEE Computer Society, 2004,\r\npages 75–. isbn: 0-7695-2102-9.\r\n[26] Peter A. Lee. “Exception handling in C programs”. In: Software: Practice and\r\nExperience 13.5 (1983), pages 389–405. issn: 1097-024X. doi: 10.1002/spe.\r\n4380130502.\r\n[27] Kai Lu. Analysis of CVE-2016-0059 - Microsoft IE Information Disclosure Vul\u0002nerability Discovered by Fortinet. Accessed July 2017. 2016. url: https://blog.\r\nfortinet.com/2016/02/19/analysis-of-cve-2016-0059-microsoft-ie-information\u0002disclosure-vulnerability-discovered-by-fortinet.\r\n[28] Todd C. Miller and Theo de Raadt. “Strlcpy and Strlcat: Consistent, Safe,\r\nString Copy and Concatenation”. In: Proceedings of the Annual Conference on\r\nUSENIX Annual Technical Conference. ATEC ’99. Monterey, California: USENIX\r\nAssociation, 1999, pages 41–41. url: https://www.usenix.org/legacy/event/\r\nusenix99/millert.html.\r\n[29] Santosh Nagarakatte, Jianzhou Zhao, Milo M.K. Martin, and Steve Zdancewic.\r\n“CETS: Compiler Enforced Temporal Safety for C”. In: SIGPLAN Not. 45.8 (June\r\n2010), pages 31–40. issn: 0362-1340. doi: 10.1145/1837855.1806657.\r\n[30] Santosh Nagarakatte, Jianzhou Zhao, Milo M.K. Martin, and Steve Zdancewic.\r\n“SoftBound: Highly Compatible and Complete Spatial Memory Safety for C”.\r\nIn: SIGPLAN Not. 44.6 (June 2009), pages 245–258. issn: 0362-1340. doi:\r\n10.1145/1543135.1542504.\r\n[31] Nicholas Nethercote and Julian Seward. “Valgrind: A Framework for Heavy\u0002weight Dynamic Binary Instrumentation”. In: Proceedings of the 28th ACM\r\nSIGPLAN Conference on Programming Language Design and Implementation.\r\nPLDI ’07. San Diego, California, USA: ACM, 2007, pages 89–100. isbn: 978-1-\r\n59593-633-2. doi: 10.1145/1250734.1250746.\r\n[32] Manuel Rigger. “Sulong: Memory Safe and Efficient Execution of LLVM-Based\r\nLanguages”. In: ECOOP 2016 Doctoral Symposium. Rome, Italy, 2016.\r\n4:25",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/95f09ba8-456a-44cc-be0b-c18109d85d2d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d1127f687706ddabbe20d22588fe4b69afe0557806143ce64d1b28a2ee1b2c76",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 336
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "dae317df-ee10-4f76-bc38-7c0714f50e83",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 26,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\n[33] Manuel Rigger, Matthias Grimmer, Christian Wimmer, Thomas Würthinger,\r\nand Hanspeter Mössenböck. “Bringing Low-level Languages to the JVM: Effi\u0002cient Execution of LLVM IR on Truffle”. In: Proceedings of the 8th International\r\nWorkshop on Virtual Machines and Intermediate Languages. VMIL 2016. Ams\u0002terdam, Netherlands: ACM, 2016, pages 6–15. isbn: 978-1-4503-4645-0. doi:\r\n10.1145/2998415.2998416.\r\n[34] Manuel Rigger, Roland Schatz, Matthias Grimmer, and Hanspeter Mössenböck.\r\n“Lenient Execution of C on a Java Virtual Machine or: How I Learned to Stop\r\nWorrying and Run the Code”. In: Proceedings of the 14th International Conference\r\non Managed Languages and Runtimes. ManLang 2017. Prague, Czech Republic:\r\nACM, 2017, pages 35–47. isbn: 978-1-4503-5340-3. doi: 10.1145/3132190.3132204.\r\n[35] Martin Rinard, Cristian Cadar, Daniel Dumitran, Daniel M. Roy, Tudor Leu,\r\nand William S. Beebee Jr. “Enhancing Server Availability and Security Through\r\nFailure-oblivious Computing”. In: Proceedings of the 6th Conference on Sym\u0002posium on Opearting Systems Design & Implementation - Volume 6. OSDI’04.\r\nSan Francisco, CA: USENIX Association, 2004, pages 21–21. url: https://www.\r\nusenix.org/legacy/events/osdi04/tech/rinard.html.\r\n[36] John Rose. JEP 243: Java-Level JVM Compiler Interface. Accessed July 2017. 2014.\r\nurl: http://openjdk.java.net/jeps/243.\r\n[37] SANS. CWE/SANS TOP 25 Most Dangerous Software Errors. Accessed July 2017.\r\n2011. url: https://www.sans.org/top25-software-errors/.\r\n[38] Konstantin Serebryany, Derek Bruening, Alexander Potapenko, and Dmitry\r\nVyukov. “AddressSanitizer: A Fast Address Sanity Checker”. In: Proceedings of\r\nthe 2012 USENIX Conference on Annual Technical Conference. USENIX ATC’12.\r\nBoston, MA: USENIX Association, 2012, pages 28–28. url: https://www.usenix.\r\norg/conference/atc12/technical-sessions/presentation/serebryany.\r\n[39] Julian Seward and Nicholas Nethercote. “Using Valgrind to Detect Undefined\r\nValue Errors with Bit-precision”. In: Proceedings of the Annual Conference on\r\nUSENIX Annual Technical Conference. ATEC ’05. Anaheim, CA: USENIX Associa\u0002tion, 2005, pages 2–2. url: https://www.usenix.org/legacy/events/usenix05/\r\ntech/general/seward.html.\r\n[40] Umesh Shankar, Kunal Talwar, Jeffrey S. Foster, and David Wagner. “Detecting\r\nFormat String Vulnerabilities with Type Qualifiers”. In: Proceedings of the 10th\r\nConference on USENIX Security Symposium - Volume 10. SSYM’01. Washington,\r\nD.C.: USENIX Association, 2001. url: https://www.usenix.org/legacy/events/\r\nsec01/shankar.html.\r\n[41] Bor-Yeh Shen, Jiunn-Yeu Chen, Wei-Chung Hsu, and Wuu Yang. “LLBT: An\r\nLLVM-based Static Binary Translator”. In: Proceedings of the 2012 International\r\nConference on Compilers, Architectures and Synthesis for Embedded Systems.\r\nCASES ’12. Tampere, Finland: ACM, 2012, pages 51–60. isbn: 978-1-4503-1424-4.\r\ndoi: 10.1145/2380403.2380419.\r\n[42] shootouts. The Computer Language Benchmarks Game. Accessed July 2017. url:\r\nhttp://benchmarksgame.alioth.debian.org/.\r\n4:26",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/dae317df-ee10-4f76-bc38-7c0714f50e83.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=af4e87f98514b0fcff8104066f592664906bfd5e77e7454e9a686a336ae28dd0",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 371
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "0d1d7647-53be-46bb-a36b-8d4597b9efd9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 27,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\n[43] Lukas Stadler, Gilles Duboscq, Hanspeter Mössenböck, Thomas Würthinger,\r\nand Doug Simon. “An Experimental Study of the Influence of Dynamic Compiler\r\nOptimizations on Scala Performance”. In: Proceedings of the 4th Workshop on\r\nScala. SCALA ’13. Montpellier, France: ACM, 2013, 9:1–9:8. isbn: 978-1-4503-\r\n2064-1. doi: 10.1145/2489837.2489846.\r\n[44] Evgeniy Stepanov and Konstantin Serebryany. “MemorySanitizer: fast detector\r\nof uninitialized memory use in C++”. In: Proceedings of the 2015 IEEE/ACM\r\nInternational Symposium on Code Generation and Optimization (CGO). San\r\nFrancisco, CA, USA, 2015, pages 46–55. doi: 10.1109/CGO.2015.7054186.\r\n[45] Bjarne Stroustrup. The Design and Evolution of C++. New York, NY, USA: ACM\r\nPress/Addison-Wesley Publishing Co., 1994. isbn: 0-201-54330-3.\r\n[46] Laszlo Szekeres, Mathias Payer, Tao Wei, and Dawn Song. “SoK: Eternal War in\r\nMemory”. In: Proceedings of the 2013 IEEE Symposium on Security and Privacy.\r\nSP ’13. Washington, DC, USA: IEEE Computer Society, 2013, pages 48–62. isbn:\r\n978-0-7695-4977-4. doi: 10.1109/SP.2013.13.\r\n[47] TIOBE. TIOBE Index for July 2017. Accessed July 2017. 2017. url: http://www.\r\ntiobe.com/tiobe-index/.\r\n[48] Victor van der Veen, Nitish dutt-Sharma, Lorenzo Cavallaro, and Herbert Bos.\r\n“Memory Errors: The Past, the Present, and the Future”. In: Proceedings of the\r\n15th International Conference on Research in Attacks, Intrusions, and Defenses.\r\nRAID’12. Amsterdam, The Netherlands, 2012, pages 86–106. isbn: 978-3-642-\r\n33337-8. doi: 10.1007/978-3-642-33338-5_5.\r\n[49] John Viega, J. T. Bloch, Yoshi Kohno, and Gary McGraw. “ITS4: a static vul\u0002nerability scanner for C and C++ code”. In: Computer Security Applications,\r\n2000. ACSAC ’00. 16th Annual Conference. Dec. 2000, pages 257–267. doi:\r\n10.1109/ACSAC.2000.898880.\r\n[50] Xi Wang, Haogang Chen, Alvin Cheung, Zhihao Jia, Nickolai Zeldovich, and\r\nM. Frans Kaashoek. “Undefined Behavior: What Happened to My Code?” In:\r\nProceedings of the Asia-Pacific Workshop on Systems. APSYS ’12. Seoul, Republic\r\nof Korea: ACM, 2012, 9:1–9:7. isbn: 978-1-4503-1669-9. doi: 10.1145/2349896.\r\n2349905.\r\n[51] Xi Wang, Nickolai Zeldovich, M. Frans Kaashoek, and Armando Solar-Lezama.\r\n“Towards Optimization-safe Systems: Analyzing the Impact of Undefined Behav\u0002ior”. In: Proceedings of the Twenty-Fourth ACM Symposium on Operating Systems\r\nPrinciples. SOSP ’13. Farminton, Pennsylvania: ACM, 2013, pages 260–275. isbn:\r\n978-1-4503-2388-8. doi: 10.1145/2517349.2522728.\r\n[52] Whetstone benchmark. Accessed July 2017. url: http://www.netlib.org/benchm\r\nark/whetstone.c.\r\n[53] Christian Wimmer and Thomas Würthinger. “Truffle: A Self-optimizing Run\u0002time System”. In: Proceedings of the 3rd Annual Conference on Systems, Program\u0002ming, and Applications: Software for Humanity. SPLASH ’12. Tucson, Arizona,\r\nUSA, 2012, pages 13–14. isbn: 978-1-4503-1563-0. doi: 10.1145/2384716.2384723.\r\n4:27",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/0d1d7647-53be-46bb-a36b-8d4597b9efd9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7dee4f3032c7d8a5d78447c960639d0f717472b04cf8c5acbbb8ee2a8d7c0e83",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 388
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "044a2e18-35ac-4a10-8586-243da42137b8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 28,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\n[54] Thomas Würthinger, Christian Wimmer, Andreas Wöß, Lukas Stadler, Gilles\r\nDuboscq, Christian Humer, Gregor Richards, Doug Simon, and Mario Wolczko.\r\n“One VM to Rule Them All”. In: Proceedings of the 2013 ACM International\r\nSymposium on New Ideas, New Paradigms, and Reflections on Programming &\r\nSoftware. Onward! 2013. Indianapolis, Indiana, USA: ACM, 2013, pages 187–204.\r\nisbn: 978-1-4503-2472-4. doi: 10.1145/2509578.2509581.\r\n[55] Yves Younan, Wouter Joosen, and Frank Piessens. “Runtime Countermeasures\r\nfor Code Injection Attacks Against C and C++ Programs”. In: ACM Comput.\r\nSurv. 44.3 (June 2012), 17:1–17:28. issn: 0360-0300. doi: 10.1145/2187671.\r\n2187679.\r\n[56] Insu Yun, Changwoo Min, Xujie Si, Yeongjin Jang, Taesoo Kim, and Mayur\r\nNaik. “APISan: Sanitizing API Usages through Semantic Cross-Checking”. In:\r\n25th USENIX Security Symposium (USENIX Security 16). Austin, TX: USENIX\r\nAssociation, 2016, pages 363–378. isbn: 978-1-931971-32-4. url: https://www.\r\nusenix.org/conference/usenixsecurity16/technical-sessions/presentation/yun.\r\n4:28",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/044a2e18-35ac-4a10-8586-243da42137b8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2a6480e8aa9c56d22c21b09c119b1fa52d353cc1ff89c2e03fe936639fdb689a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e7f8535f-23ad-472e-9468-6b1cc2192049",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 29,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nA Preliminary Performance Evaluation\r\nThe focus of this work was on evaluating the usefulness of exposing introspection\r\nfunctions to library writers. We have not yet invested much time in optimizing the peak\r\nperformance of our approach in Safe Sulong. To demonstrate that Safe Sulong can run\r\nprograms in a testing environment, we ran six benchmarks of the Computer Language\r\nBenchmark Game [42] (binarytrees, fannkuchredux, fasta, mandelbrot, nbody, and\r\nspectralnorm) and the whetstone benchmark [52], once with the enhanced libc and\r\nonce without introspection checks. We determined the average peak performance of\r\n10 runs by measuring the execution time after 50 in-process warm-up iterations. On\r\nthese benchmarks, Safe Sulong’s peak performance was 2.3× slower than executables\r\ncompiled by Clang with all optimizations turned on (-O3 flag). We were unable to\r\nfind any observable performance differences between the two libc versions, which is\r\nin part due to some of the introspection checks redundantly duplicating automatic\r\nchecks performed by the JVM (e.g., bounds checks); such redundant checks can be\r\neliminated by using the Graal compiler (e.g., through conditional elimination [43]). As\r\npart of future work, we will evaluate Safe Sulong’s performance in combination with\r\nthe enhanced libc on larger benchmarks that stress the introspection functionality.\r\nB Introspection Functions\r\nTable 1 shows the functions and macros of the introspection interface. Internal func\u0002tions that are private to the implementation are denoted with an underscore prefix.\r\n4:29",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/e7f8535f-23ad-472e-9468-6b1cc2192049.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6a829f175f4ae41c11e07ec8331141caaefbcac40db05b10a943463173864dfb",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 383
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2b02f0bd-94c9-45bb-a250-a65ec2f630dc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 30,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Introspection for C and its Applications to Library Robustness\r\nTable 1 Functions and macros of the introspection interface\r\nObject bounds functions\r\nlong _size_right(void *) Primitive\r\ninternal\r\nReturns the space in bytes from the pointer\r\ntarget to the end of the pointed object. This\r\nfunction is undefined for illegal pointers.\r\nlong _size_left(void *) Primitive\r\ninternal\r\nReturns the space in bytes from the pointer\r\ntarget to the beginning of the pointed ob\u0002ject. This function is undefined for illegal\r\npointers.\r\nlong size_right(void *) Composite Returns the remaining space in bytes to the\r\nright of the pointer. Returns -1 if the pointer\r\nis not legal or out of bounds.\r\nlong size_left(void *) Composite Returns the remaining space in bytes to the\r\nleft of the pointer. Returns -1 if the pointer\r\nis not legal or out of bounds.\r\nMemory location functions\r\nLocation location(void *) Primitive Returns the kind of the memory location\r\nof the referenced object. Returns -1 if the\r\npointer is NULL.\r\nbool freeable(void *) Composite Returns whether the pointer is freeable\r\n(i.e., DYNAMIC non-null memory; pointer\r\nreferencing the beginning of an object).\r\nType functions\r\nvoid* try_cast(void *, struct Type\r\n*)\r\nPrimitive Returns the first argument if the pointer is\r\nlegal, within bounds, and the referenced\r\nobject can be treated as of being of the\r\nspecified type and NULL otherwise.\r\nVariadic function macros\r\nint count_varargs() Primitive Returns the number of variadic arguments\r\nthat are passed to the currently executing\r\nfunction.\r\nvoid* _get_vararg(int i) Primitive\r\ninternal\r\nReturns the i\r\nth variadic argument (starting\r\nfrom 0) and returns NULL if i is greater or\r\nequal to count_varargs().\r\nvoid* get_vararg(int i, Type*\r\ntype)\r\nComposite Returns the i\r\nth variadic argument (starting\r\nfrom 0) as the specified type. Returns NULL\r\nif the object cannot be treated as being of\r\nthe specified type or if i is greater or equal\r\nto count_varargs().\r\n4:30",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/2b02f0bd-94c9-45bb-a250-a65ec2f630dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8385f3402a648b704d80bc0144f4deb2b217212fdcafc849e7a2b2a3123bdc70",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 304
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b998c943-f469-422c-b291-d67f9e566693",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 31,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "M. Rigger, R. Mayrhofer, R. Schatz, M. Grimmer, and H. Mössenböck\r\nAbout the authors\r\nManuel Rigger is a PhD student at Johannes Kepler University\r\nLinz, Austria. His main research interests are low-level software\r\nsecurity, run-time detection of bugs in C, and language imple\u0002mentation. Currently, he works on the safe execution of low\u0002level languages on the Java Virtual Machine. Contact him at\r\nmanuel.rigger@jku.at.\r\nRené Mayrhofer heads the Institute of Networks and Security\r\nat Johannes Kepler University Linz, Austria, and the Josef Ressel\r\nCenter on User-friendly Secure Mobile Environments (u’smile).\r\nHis research interests include computer security, mobile devices,\r\nnetwork communication, and machine learning, which he brings\r\ntogether in his research on securing spontaneous, mobile interac\u0002tion. Contact him at rene.mayrhofer@jku.at\r\nRoland Schatz is a senior researcher at Oracle Labs. His research\r\ninterests are programming languages, virtual machines and dy\u0002namic compilation. His current research focus is cross-language in\u0002teroperability between dynamic and static languages. He received\r\nhis PhD in Computer Science from Johannes Kepler University in\r\n2013. Contact him at roland.schatz@oracle.com.\r\nMatthias Grimmer is a senior researcher at Oracle Labs. His\r\nresearch focuses on compilers and virtual machines. Grimmer\r\nreceived his PhD in Computer Science from Johannes Kepler\r\nUniversity in 2015. His PhD thesis is titled “Cross-language in\u0002teroperability in a multi-language runtime”. Contact him at\r\ncontact@matthiasgrimmer.com.\r\nHanspeter Mössenböck is a professor of Computer Science at the\r\nJohannes Kepler University in Linz, Austria, and the head of the\r\nInstitute for System Software. He mainly works on programming\r\nlanguages, compilers, and virtual machines with a special focus\r\non dynamic compiler optimizations. Other areas of interest in\u0002clude application performance monitoring, software visualization,\r\nas well as static and dynamic program analysis. Contact him at\r\nhanspeter.moessenboeck@jku.at.\r\n4:31",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d6879c18-bda7-483f-9fd5-099d6d45918d/images/b998c943-f469-422c-b291-d67f9e566693.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042126Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6cd04d09f8bce8a0d312ea1a074ad7979b6010c29f17751d3751f36ccae717e5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 277
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "No response"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "No response"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "No response"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "No response"
+        }
+      ]
+    }
+  }
+}

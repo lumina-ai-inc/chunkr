@@ -1,0 +1,681 @@
+{
+  "file_name": "Let your GPU do the Heavy Lifting in your Data Warehouse - Slides - 2013 (S3190-GPU-Heavy-Lifting-Data-Warehouse).pdf",
+  "task_id": "c9e53497-b88d-4d00-a665-6f55533f0628",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "ded38094-e03a-4038-984e-a7fb34ac6e66",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nLet your GPU do the heavy lifting in your \r\ndata Warehouse \r\nTim Kaldewey, Rene Mueller \r\nMar 19 2013 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/ded38094-e03a-4038-984e-a7fb34ac6e66.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=877968c94fc37f9d5e44c340d3563092c78106b9fb3ba60aaee63c67fd5032b0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "11bd2902-ac8a-4a89-b928-1459b1d77034",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 2,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "2 © 2012 IBM Corporation\r\nAgenda \r\n■ A closer look at data warehousing queries \r\n– From queries down to operators \r\n– Where does time go? \r\n– Hash Join operators \r\n– Data Access Patterns \r\n§ Drill-down: Hash Tables on GPUs \r\n– Hash computation \r\n– Hash Tables = Hash computation + Memory access \r\n– Optimizations \r\n■ From Hash Tables to Relational Joins \r\n– Hash Join Implementation \r\n– Query Performance \r\n– Processing 100s of GBs in seconds ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/11bd2902-ac8a-4a89-b928-1459b1d77034.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=29db4a53a44cb504e1fea243330b10340ae9c302acd3b051626c65899d5694aa",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "87acc526-7944-4909-83e1-a97982c05dc1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 3,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nA data warehousing query in multiple languages \r\nA closer look at DWH queries \r\n■ English: Show me the annual development of revenue from US sales of \r\nUS products for the last 5 years by city \r\n3 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/87acc526-7944-4909-83e1-a97982c05dc1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3886624dccc13427645bfe46bc6600d5269305c0860a98c0e4c9776bb5e1139b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "887dbec3-c416-4504-a3fc-88e3a19355bb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 4,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nA data warehousing query in multiple languages \r\nA closer look at DWH queries \r\n■ English: Show me the annual development of revenue from US sales\r\nof US products for the last 5 years by city \r\n■ SQL: SELECT c.city, s.city, d.year, SUM(lo.revenue)\r\nFROM lineorder lo, customer c, supplier s, date d \r\nWHERE lo.custkey = c.custkey\r\n AND lo.suppkey = s.suppkey\r\n AND lo.orderdate = d.datekey\r\n AND c.nation = ’UNITED STATES’ \r\n AND s.nation = ’UNITED STATES' \r\n AND d.year >= 1998 AND d.year <= 2012 \r\n GROUP BY c.city, s.city, d.year\r\n ORDER BY d.year asc, revenue desc; \r\n4 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/887dbec3-c416-4504-a3fc-88e3a19355bb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4b7cc604dd64cc4f00a49f6d8437cfac19a75a0f353aff16e2c01f0cb3912f71",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8817a847-642a-4ad8-b40e-7816a895dcb2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 5,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nA data warehousing query in multiple languages \r\nA closer look at DWH queries \r\n■ English: Show me the annual development of revenue from US sales of \r\nUS products for the last 5 years by city \r\n■ SQL: SELECT c.city, s.city, d.year, SUM(lo.revenue) \r\nFROM lineorder lo, customer c, supplier s, date d \r\nWHERE lo.custkey = c.custkey\r\n AND lo.suppkey = s.suppkey\r\n AND lo.orderdate = d.datekey\r\n AND c.nation = ’UNITED STATES’ \r\n AND s.nation = ’UNITED STATES' \r\n AND d.year >= 1998 AND d.year <= 2012 \r\n GROUP BY c.city, s.city, d.year\r\n ORDER BY d.year asc, revenue desc; \r\n5 \r\n? ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/8817a847-642a-4ad8-b40e-7816a895dcb2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e9335a03be6549424cfadea6a4abb5d122b5f1574a55d1b4395697ee67e94695",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3e7e4859-998a-4f95-88c7-3f7c3099da81",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 6,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nStar Schema – typical for DWH \r\nQuery: \r\nSELECT c.city, s.city, d.year, SUM(lo.revenue) FROM lineorder lo, customer c, supplier s, date d \r\nWHERE lo.custkey = c.custkey AND lo.suppkey = s.suppkey AND lo.orderdate = d.datekey AND \r\nc.nation = ’UNITED STATES’ AND s.nation = ’UNITED STATES’ AND d.year >= 1998 AND d.year <= 2012 \r\nGROUP BY c.city, s.city, d.year ORDER BY d.year asc, revenue desc; \r\nA closer look at DWH queries \r\nORDERKEY\r\nLINENUMBER\r\nCUSTKEY\r\nPARTKEY\r\nSUPPKEY\r\nORDERDATE\r\nORDPRIORITY\r\n…\r\n…\r\nCOMMITDATE\r\nSHIPMODE\r\nCUSTKEY\r\nNAME\r\nADDRESS\r\nCITY\r\n…\r\nSUPPKEY\r\nNAME\r\nADDRESS\r\nCITY\r\n…\r\nPARTKEY\r\nNAME\r\nMFGR\r\nCATEGORY\r\nBRAND\r\n…\r\nDATEKEY\r\nDATE\r\nDAYOFWEEK\r\nMONTH\r\nYEAR\r\n…\r\nCustomer \r\nDate \r\nLineorder\r\nSupplier \r\nPart \r\n6 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/3e7e4859-998a-4f95-88c7-3f7c3099da81.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fb8998a2058719cd73d9caf43b68a31e9c9b8d58cc82cae587490e6d84247b78",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 442
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ae35dd82-b512-45a9-978a-f1b11152b375",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 7,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nA data warehousing query in multiple languages \r\nA closer look at DWH queries \r\n■ English: Show me the annual development of revenue from US sales of \r\nUS products for the last 5 years by city \r\n■ SQL: SELECT c.city, s.city, d.year, SUM(lo.revenue) \r\nFROM lineorder lo, customer c, supplier s, date d \r\nWHERE lo.custkey = c.custkey\r\n AND lo.suppkey = s.suppkey\r\n AND lo.orderdate = d.datekey\r\n AND c.nation = ’UNITED STATES’ \r\n AND s.nation = ’UNITED STATES' \r\n AND d.year >= 1998 AND d.year <= 2012 \r\n GROUP BY c.city, s.city, d.year\r\n ORDER BY d.year asc, revenue desc; \r\n7 \r\nDatabase primitives (operators): \r\n–Predicate(s): customer, supplier, and date direct filter (yes/no)\r\n– Join(s): lineorder with part, supplier, and date correlate tables & filter\r\n–Group By (aggregate): city and date correlate tables & sum\r\n–Order By: year and revenue sort\r\n What are the most time-consuming operations?",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/ae35dd82-b512-45a9-978a-f1b11152b375.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=717cf70e33f62b2bc81425ea83ed8c4e2d9deb1dea3b5c04abd9ab2e03fe4ecb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "33443a42-7b92-43d2-897b-71549c026ddd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 8,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nWhere does time go? \r\nA closer look at DWH queries \r\nSELECT c.city, s.city, d.year, SUM(lo.revenue) \r\nFROM lineorder lo, customer c, supplier s, date d \r\nWHERE c.nation = ’UNITED STATES’ AND lo.custkey = c.custkey \r\n AND s.nation = ’UNITED STATES’ AND lo.suppkey = s.suppkey\r\n AND d.year >= 1998 AND d.year <= 2012 AND lo.orderdate = d.datekey \r\nGROUP BY c.city, s.city, d.year\r\n ORDER BY d.year asc, revenue desc; \r\n8 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/33443a42-7b92-43d2-897b-71549c026ddd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=72ea881d09274433f2f76d207b434ae685130d207e4ee51f2eadef1a2740c60e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5857b49e-cd9d-4ea2-9473-6c9ecf13fa15",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 9,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nRelational Joins \r\n9 \r\nKey Zip \r\n11 95014 \r\n23 94303 \r\n27 95040 \r\n39 95134 \r\nRevenue Customer \r\n$10.99 23 \r\n$49.00 14 \r\n$11.00 56 \r\n$103.00 11 \r\n$84.50 39 \r\n$60.10 27 \r\n$7.60 23 \r\nSales (Fact Table) \r\nCustomers (living in US) Revenue Zip \r\n$10.99 94303 \r\n$103.00 95014 \r\n$84.50 95134 \r\n$60.10 95040 \r\n$7.60 94303 \r\n=\r\nJoin \r\nResults Payload \r\nForeign Key \r\nPrimary Key \r\nMeasure \r\nA closer look at DWH queries ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/5857b49e-cd9d-4ea2-9473-6c9ecf13fa15.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c3287d4940fc5c0dffc18a747b1b0cd8a0dc1e0ef3a072c8e8c6bcaaf0f04762",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d9fbc4c1-4b49-42b2-8267-2a6dcc9c90f8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 10,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nHash Join \r\n10 \r\nKey Zip \r\n11 95014 \r\n23 94303 \r\n27 95040 \r\n39 95134 \r\nRevenue Customer \r\n$10.99 23 \r\n$49.00 14 \r\n$11.00 56 \r\n$103.00 11 \r\n$84.50 39 \r\n$60.10 27 \r\n$7.60 23 \r\nSales (Fact Table) \r\nCustomers (living in US) \r\nHash Table (HT) \r\nProbe Inputs \r\nRevenue Zip \r\n$10.99 94303 \r\n$103.00 95014 \r\n$84.50 95134 \r\n$60.10 95040 \r\n$7.60 94303 \r\n=\r\nJoin \r\nResults Primary Key Payload \r\nForeign Key \r\nA closer look at DWH queries ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/d9fbc4c1-4b49-42b2-8267-2a6dcc9c90f8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f798d5faf3ad93231df06b4eb554c92c121319d6b1fa0ca11954071046340af7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7f7562e0-617b-48d1-ae9e-033ec9653a94",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 11,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nJoin two tables (|S| < |R|) in 2 steps \r\n1. Build a hash table \r\n– Scan S and compute a location (hash) \r\nbased on a unique (primary) key \r\n– Insert primary key k with payload p into \r\nthe hash table \r\n– If the location is occupied pick the next \r\nfree one (open addressing) \r\nA closer look at DWH queries \r\n k2,p2 \r\nHash table S\r\nScan\r\n k1,p1 k1,p1 \r\n k2,p2 \r\nHash Join \r\n11 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/7f7562e0-617b-48d1-ae9e-033ec9653a94.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b96f5d649dd274c5de179c2340b30234e16e90db8ebeac7f62e9166adb33c861",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 424
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e9052637-901b-4e8f-9bd0-ea23cdc50b98",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 12,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nJoin two tables (|S| < |R|) in 2 steps \r\n1. Build a hash table \r\n– Scan S and compute a location (hash) \r\nbased on a unique (primary) key \r\n– Insert primary key k with payload p into \r\nthe hash table \r\n– If the location is occupied pick the next \r\nfree one (open addressing) \r\n2. Probe the hash table \r\n– Scan R and compute a location (hash) \r\nbased on the reference to S (foreign \r\nkey) \r\n– Compare foreign key fk and key k in \r\nhash table \r\n– If there is a match store the result (m,p) \r\nfk2,m2 \r\n k6,p6 \r\nR Hash table\r\n \r\nScan\r\nA closer look at DWH queries \r\n...\r\nfk1,m1 \r\n k2,p2 \r\n k5,p5 \r\n k1,p1 \r\n k3,p3 \r\n k4,p4 \r\n k7,p7 \r\nHash Join \r\n12 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/e9052637-901b-4e8f-9bd0-ea23cdc50b98.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a59190fb66e5fed8d79c89383b2a530c41e2f3bc51ecc2a62e76b53db32c016",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d0ffa107-63f7-4b7c-9574-a857b33d9387",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 13,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nJoin two tables (|S| < |R|) in 2 steps \r\n1. Build a hash table – Scan S and compute a location (hash) \r\nbased on a unique (primary) key \r\n– Insert primary key k with payload p into \r\nthe hash table \r\n– If the location is occupied pick the next \r\nfree one (open addressing) \r\n2. Probe the hash table – Scan R and compute a location (hash) \r\nbased on the reference to S (foreign \r\nkey) \r\n– Compare foreign key fk and key k in \r\nhash table \r\n– If there is a match store the result (m,p) \r\nBuild and Probe produce a random data \r\naccess pattern! \r\nfk\r\n2,m2 \r\n k\r\n6,p6 \r\nR Hash table\r\n \r\nScan\r\nA closer look at DWH queries \r\n...\r\nfk\r\n1,m1 \r\n k\r\n2,p2 \r\n k\r\n5,p5 \r\n k\r\n1,p1 \r\n k\r\n3,p3 \r\n k\r\n4,p4 \r\n k\r\n7,p7 \r\nHash Join \r\n13 \r\n k2,p2 \r\nHash table\r\nS\r\nScan\r\n k\r\n1,p1 k\r\n1,p1 \r\n k\r\n2,p2 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/d0ffa107-63f7-4b7c-9574-a857b33d9387.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e254bdd5622cc78e0015b5db72178c3024fbf306e905f9b0d91fd500693074a9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a62795fa-70f6-4e33-8ee8-940323a1c4d7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 14,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nHash Join – Data Access Patterns \r\nA closer look at DWH queries \r\n■ Primary data access patterns: \r\n–Scan the input table(s) for HT creation and probe \r\n– Compare and swap when inserting data into HT\r\n– Random read when probing the HT \r\n14 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/a62795fa-70f6-4e33-8ee8-940323a1c4d7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3a1d5d2e9b944d4e28a84f839ac8894585fcffd0563283d402a98d59dd127579",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "117c21b6-8aa6-4289-ab38-610e3a601db9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 15,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nHash Join - Summary \r\nA closer look at DWH queries \r\n■ Primary data access patterns: \r\n–Scan the input table(s) for HT creation and probe \r\n– Compare and swap when inserting data into HT\r\n– Random read when probing the HT\r\n■ Data (memory) access on \r\nGPU \r\n(GTX580) \r\nCPU \r\n(i7-2600) \r\nPeak memory bandwidth [spec] 1) 179 GB/s 21 GB/s \r\nPeak memory bandwidth [measured] 2) 153 GB/s 18 GB/s Scan R, S \r\nvs. \r\nUpper bound for: \r\n15 \r\n(1) Nvidia: 192.4 × 106 B/s ≈ 179.2 GB/s\r\n(2) 64-bit accesses over 1 GB of device memory ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/117c21b6-8aa6-4289-ab38-610e3a601db9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ef5e7379361836fd1422369ffe23b6e536f2e85ab0e667a09499035123222c75",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 417
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "393cddfb-8743-4678-b748-22aae97d1dca",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 16,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nHash Join - Summary \r\nA closer look at DWH queries \r\n■ Primary data access patterns: \r\n–Scan the input table(s) for HT creation and probe \r\n– Compare and swap when inserting data into HT\r\n– Random read when probing the HT\r\n■ Data (memory) access on \r\nGPU \r\n(GTX580) \r\nCPU \r\n(i7-2600) \r\nPeak memory bandwidth [spec] 1) 179 GB/s 21 GB/s \r\nPeak memory bandwidth [measured] 2) 153 GB/s 18 GB/s \r\nRandom access [measured] 2) 6.6 GB/s 0.8 GB/s \r\nCompare and swap [measured] 3) 4.6 GB/s 0.4 GB/s \r\nvs. \r\nBuild HT \r\nProbe \r\nUpper bound for: \r\n16 \r\n(1) Nvidia: 192.4 × 106 B/s ≈ 179.2 GB/s\r\n(2) 64-bit accesses over 1 GB of device memory \r\n(3) 64-bit compare-and-swap to random locations over 1 GB device memory ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/393cddfb-8743-4678-b748-22aae97d1dca.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aa5d0ba4d418b781efa7c7272130c8ab8071066bd0c1492b091bc7a3e6abbd00",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "675d69fb-29f9-4640-a35c-f42c4550d852",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 17,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "17 © 2012 IBM Corporation\r\nAgenda \r\n■ A closer look at data warehousing queries \r\n– From queries down to operators \r\n– Where does time go? \r\n– Hash Join operators \r\n– Data Access Patterns \r\n§ Drill-down: Hash Tables on GPUs \r\n– Hash computation \r\n– Hash Tables = Hash computation + Memory access \r\n– Optimizations \r\n■ From Hash Tables to Relational Joins \r\n– Hash Join Implementation \r\n– Query Performance \r\n– Processing 100s of GBs in seconds ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/675d69fb-29f9-4640-a35c-f42c4550d852.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0875178f00d93e9ac40cacb2b072b40328fca9a5988ec722519f62befaa97957",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dac3be07-25e2-4bd8-8947-0045a4c8690d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 18,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nComputing Hash Functions on GTX580 – No Reads \r\n18 \r\nHash Function/ \r\nKey Ingest GB/s \r\nSeq keys+ \r\nHash \r\nLSB 338 \r\nFowler-Noll-Vo 1a 129 \r\nJenkins Lookup3 79 \r\nMurmur3 111 \r\nOne-at-a-time 85 \r\nCRC32 78 \r\nMD5 4.5 \r\nSHA1 0.81 \r\n^\r\nseq. \r\nkeys \r\nh(x) \r\nsum \r\n^\r\nseq. \r\nkeys \r\nh(x) \r\nsum \r\n^\r\nseq. \r\nkeys \r\nh(x) \r\nsum \r\n^\r\nseq. \r\nkeys \r\nh(x) \r\nsum \r\n32 \r\nsum \r\nthreads \r\n§ Threads generate sequential keys \r\n§ Hashes are XOR-summed locally \r\nCryptographic message \r\ndigests \r\n32-bit keys, 32-bit hashes \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/dac3be07-25e2-4bd8-8947-0045a4c8690d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=000073293b95e9663609ddac19328e03349197005b8cf7b331ef51a5840cdd92",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2cfa815d-f575-4c0b-a0cd-857c8584b42c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 19,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nHash Table Probe: Keys from Device Memory – No results \r\n19 \r\nHash Function/ \r\nKey Ingest GB/s \r\nSeq keys+ \r\nHash \r\nHT Probe \r\nkeys: dev\r\nvalues: sum \r\nLSB 338 2.7 \r\nFowler-Noll-Vo 1a 129 2.8 \r\nJenkins Lookup3 79 2.7 \r\nMurmur3 111 2.7 \r\nOne-at-a-time 85 2.7 \r\nCRC32 78 2.7 \r\nMD5 4.5 2.4 \r\nSHA1 0.81 0.7 \r\n§ 1 GB hash table on device memory (load factor = 0.33) \r\n§ Keys are read from device memory \r\n§ 20% of the probed keys find match in hash table \r\n§ Values are XOR-summed locally \r\n32-bit hashes, 32-bit values \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/2cfa815d-f575-4c0b-a0cd-857c8584b42c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=edb0c3abda649788e329ab152cf763b9faebed1d7831a09d3eb6c90368abb42e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1f40a03d-47c2-4c5e-af59-a4d1b7c6b487",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 20,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nHash Table Probe: Keys and Values from/to Device Memory \r\n20 \r\nHash Function/ \r\nKey Ingest GB/s \r\nSeq keys+ \r\nHash \r\nHT Probe \r\nkeys: dev\r\nvalues: sum \r\nHT Probe \r\nkeys: dev\r\nvalues: dev\r\nLSB 338 2.7 1.7 \r\nFowler-Noll-Vo 1a 129 2.8 1.7 \r\nJenkins Lookup3 79 2.7 1.7 \r\nMurmur3 111 2.7 1.7 \r\nOne-at-a-time 85 2.7 1.7 \r\nCRC32 78 2.7 1.7 \r\nMD5 4.5 2.4 1.7 \r\nSHA1 0.81 0.7 0.7 \r\n§ 1 GB hash table on device memory (load factor = 0.33) \r\n§ Keys are read from device memory \r\n§ 20% of the probed keys find match in hash table \r\n§ Values are written back to device memory \r\n32-bit hashes, 32-bit values \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/1f40a03d-47c2-4c5e-af59-a4d1b7c6b487.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7acd0b1d3b6225ed905023f1446bebe16fcdf556be75878196456acbbefa1804",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 500
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3f3220fa-4619-4749-874e-c46200a9fa45",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 21,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nResult Cache \r\n21 \r\nk1 k2 k3 k4 … k32 \r\nT1 T2 T3 T4 … T32 \r\nHost/Device \r\nMemory Load probe keys Coalesced \r\nload \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/3f3220fa-4619-4749-874e-c46200a9fa45.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b707652ae92afee9137a7b4cac99bf4be1f70262f7bc54301f640916c5de7979",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5210e7a8-2e66-4d31-81f7-21da24117b7a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 22,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nResult Cache \r\n22 \r\nk1 k2 k3 k4 … k32 \r\nT1 T2 T3 T4 … T32 \r\nHost/Device \r\nMemory Load probe keys Coalesced \r\nload \r\nh(k1) h(k2) h(k3) h(k4) … h(k32) Compute hashes \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/5210e7a8-2e66-4d31-81f7-21da24117b7a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3e492d1e05fa0f6028ade481424c090b0ce2ba8c23f289e91bbe82ac8feed8f5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7b2983e6-801b-4e62-ad15-be251ca277f7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 23,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nResult Cache \r\n23 \r\nk1 k2 k3 k4 … k32 \r\nT1 T2 T3 T4 … T32 \r\nHost/Device \r\nMemory Load probe keys \r\np2 p3 … p32 \r\nHash Table Probe hash table \r\nValues of matching entries \r\nCoalesced \r\nload \r\nh(k1) h(k2) h(k3) h(k4) … h(k32) Compute hashes \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/7b2983e6-801b-4e62-ad15-be251ca277f7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b6188c9cd0519c9e1439eee852212a29388e1c6ec2c6b4775171aaee4e7efd53",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7f11fe83-8d22-4a6a-8f31-6b8828890316",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 24,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nResult Cache \r\n24 \r\nk1 k2 k3 k4 … k32 \r\nT1 T2 T3 T4 … T32 \r\nHost/Device \r\nMemory Load probe keys \r\np2 p3 … p32 \r\nHash Table Probe hash table \r\nValues of matching entries \r\np2 p3 p32 Insert into Result Cache \r\nCoalesced \r\nload \r\natomicAdd() & regular store \r\n(both to shared memory) \r\nh(k1) h(k2) h(k3) h(k4) … h(k32) Compute hashes \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/7f11fe83-8d22-4a6a-8f31-6b8828890316.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=84e0abc802632fe7f06e715425144d33a59c2910b0ef41d504d5ed2aa6fbeb3a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5805c54f-6f0b-4ae5-bdab-b21bd5f7b5c3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 25,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nResult Cache \r\n25 \r\nk1 k2 k3 k4 … k32 \r\nT1 T2 T3 T4 … T32 \r\nHost/Device \r\nMemory Load probe keys \r\np2 p3 … p32 \r\nHash Table Probe hash table \r\nValues of matching entries \r\np2 p3 p32 Insert into Result Cache \r\nCoalesced \r\nload \r\natomicAdd() & regular store \r\n(both to shared memory) \r\np2 p3 p32 p4 p7 p13 \r\nHost/Device \r\nMemory \r\n…\r\nCoalesced \r\nstore \r\nWrite back Result Cache \r\nh(k1) h(k2) h(k3) h(k4) … h(k32) Compute hashes \r\nT1 T2 T3 T4 … T32 \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/5805c54f-6f0b-4ae5-bdab-b21bd5f7b5c3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c5148e5371904c92d5490b4e5b020395e7d468b39779777fd9395cf304e7abb5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a627556a-3b4b-4c21-9dcb-98827e5d5e06",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 26,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nProbe with Result Cache: Keys and Values from/to Device Memory \r\n26 \r\nHash Function/ \r\nKey Ingest GB/s \r\nSeq keys+ \r\nHash \r\nHT Probe \r\nkeys: dev\r\nvalues: sum \r\nHT Probe \r\nkeys: dev \r\nvalues: dev \r\nRes. Cache \r\nkeys: dev \r\nvalues: dev \r\nLSB 338 2.7 1.7 2.4 \r\nFowler-Noll-Vo 1a 129 2.8 1.7 2.5 \r\nJenkins Lookup3 79 2.7 1.7 2.4 \r\nMurmur3 111 2.7 1.7 2.4 \r\nOne-at-a-time 85 2.7 1.7 2.4 \r\nCRC32 78 2.7 1.7 2.4 \r\nMD5 4.5 2.4 1.7 1.8 \r\nSHA1 0.81 0.7 0.7 0.6 \r\n§ 1 GB hash table on device memory (load factor = 0.33) \r\n§ Keys are read from device memory \r\n§ 20% of the probed keys find match in hash table \r\n§ Individual values are written back to buffer in shared memory \r\nand then coalesced to device memory \r\n32-bit hashes, 32-bit values \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/a627556a-3b4b-4c21-9dcb-98827e5d5e06.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ca3efc20bba195c5c94282f5cff75625e8d89b52a69f8678a7e51d34bdefa7eb",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 422
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "283f36f5-356f-47b0-bd64-2420f85f6eb6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 27,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nProbe with Result Cache: Keys and Values from/to Host Memory \r\n27 \r\nHash Function/ \r\nKey Ingest GB/s \r\nHT Probe \r\nkeys: dev\r\nvalues: sum \r\nHT Probe \r\nkeys: dev \r\nvalues: dev \r\nRes. Cache \r\nkeys: dev \r\nValues: dev \r\nRes. Cache \r\nkeys: host \r\nValues: host \r\nLSB 2.7 1.7 2.4 2.3 \r\nFowler-Noll-Vo 1a 2.8 1.7 2.5 2.4 \r\nJenkins Lookup3 2.7 1.7 2.4 2.3 \r\nMurmur3 2.7 1.7 2.4 2.3 \r\nOne-at-a-time 2.7 1.7 2.4 2.3 \r\nCRC32 2.7 1.7 2.4 2.3 \r\nMD5 2.4 1.7 1.8 1.8 \r\nSHA1 0.7 0.7 0.6 0.6 \r\n§ Keys are read from host memory (zero-copy access) \r\n§ 20% of the probed keys find match in hash table \r\n§ Individual values are written back to buffer in shared memory \r\nand then coalesced to host memory (zero-copy access) \r\n32-bit hashes, 32-bit values, 1 GB hash table on device memory (load factor = 0.33) \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/283f36f5-356f-47b0-bd64-2420f85f6eb6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d45703e36b565befcd88c2eab2367597dcfc9b55e2ef382850e9d4a0ea4a6c61",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "98b40220-6852-4ea5-9f5e-47697ae5f686",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 28,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nEnd-to-end comparison of Hash Table Probe: GPU vs. CPU \r\n28 \r\nHash Function/ \r\nKey Ingest GB/s \r\nGTX580 \r\nkeys: host \r\nvalues: host \r\ni7-2600 \r\n4 cores \r\n8 threads \r\nSpeedup\r\nLSB 2.3 0.48 4.8×\r\nFowler-Noll-Vo 1a 2.4 0.47 5.1×\r\nJenkins Lookup3 2.3 0.46 5.0×\r\nMurmur3 2.3 0.46 5.0×\r\nOne-at-a-time 2.3 0.43 5.3×\r\nCRC32 2.3 0.481) 4.8×\r\nMD5 1.8 0.11 16×\r\nSHA1 0.6 0.06 10×\r\n§ Result cache used in both implementations \r\n§ GPU: keys from host memory, values back to host memory \r\n§ CPU: software prefetching instructions for hash table loads \r\n1) Use of CRC32 instruction in SSE 4.2 \r\n32-bit hashes, 32-bit values, 1 GB hash table (load factor = 0.33) \r\nDrill Down: Hash Tables on GPUs ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/98b40220-6852-4ea5-9f5e-47697ae5f686.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0657519c1f3bea68c948c0ae065a2f5bce4153cf629fb78b5c029093df0a91e3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cd1b3cc1-6804-4813-afc6-f13e208ac594",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 29,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "29 © 2012 IBM Corporation\r\nAgenda \r\n■ A closer look at data warehousing queries \r\n– From queries down to operators \r\n– Where does time go? \r\n– Hash Join operators \r\n– Data Access Patterns \r\n§ Drill-down: Hash Tables on GPUs \r\n– Hash computation \r\n– Hash Tables = Hash computation + Memory access \r\n– Optimizations \r\n■ From Hash Tables to Relational Joins \r\n– Hash Join Implementation \r\n– Query Performance \r\n– Processing 100s of GBs in seconds ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/cd1b3cc1-6804-4813-afc6-f13e208ac594.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cc20b9bdfd569662fb0e920b7e7eace07f5efb21ddef9c6825df9e8b20cb12ad",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b01ad0ca-13b6-41c9-a3f3-48c4343d0f18",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 30,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nFrom Hash Tables back to Relational Joins \r\n§ Equijoin return all pairs (mi,pj) \r\nwhere fki=kj \r\n§ During probing (fk,m) pairs need \r\nto be transferred to the GPU not \r\njust fk. \r\nExample: fk, m are 32 bit \r\n§ HT lookup 2.3 GB/s for 32 bit keys \r\n§ Ingest Bandwidth to GPU needed: \r\n2×2.3 GB/s = 4.6 GB/s \r\n30 \r\nfk2,m2 \r\n k6,p6 \r\nR Hash table\r\n \r\nScan\r\n...\r\nfk1,m1 \r\n k2,p2 \r\n k5,p5 \r\n k1,p1 \r\n k3,p3 \r\n k4,p4 \r\n k7,p7 \r\nProbe: \r\nJoin Results: \r\n(m1,p1), (m2,p6), …\r\nFrom Hash Tables to Relational Joins ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/b01ad0ca-13b6-41c9-a3f3-48c4343d0f18.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2f6f8253fc3bae2b2766d6052250bab706da760f7a81ff891c86bd5ae6b29d15",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b43edf79-c0e4-4832-b624-c8007b84e914",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 31,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nHash Join Implementation \r\n1. Pin table S for Build in host memory \r\n2. Simultaneously read table S from host memory \r\n & create hash table on device \r\nHash Table Build Table (S)\r\nk1\r\nk2\r\nk3\r\nk4\r\nk5\r\nk6\r\np1\r\np2\r\np3\r\np4\r\np5\r\np6\r\nCreate HT\r\n31 \r\nk1\r\nk2\r\nk3\r\nk4\r\nk5\r\nk6\r\np1\r\np2\r\np3\r\np4\r\np5\r\np6\r\nFrom Hash Tables to Relational Joins ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/b43edf79-c0e4-4832-b624-c8007b84e914.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6758d7eb439e9fff94edc4fbeb29e3f230f2c2d3fef977c6d31c8bc8084b2d12",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 492
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "142c2da3-5d98-42e4-a453-16674dcf036d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 32,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nHash Join Implementation \r\n1. Pin table S for Build in host memory \r\n2. Simultaneously read table S from host memory \r\n & create hash table on device \r\n3. Simultaneously read table R for Probe from host memory \r\n & probe hash table on device \r\n & store results in host memory \r\nHash table\r\nfk1\r\nfk2\r\nfk3\r\nfk4\r\nfk5\r\nfk6\r\nm1\r\nProbe Table (R)\r\nm2\r\nm3\r\nm4\r\nm5\r\nm6\r\nProbe HT\r\nStore results\r\nm2\r\nm5\r\np3\r\nJoin result\r\np4\r\n32 \r\nk1\r\nk2\r\nk3\r\nk4\r\nk5\r\nk6\r\np1\r\np2\r\np3\r\np4\r\np5\r\np6\r\nFrom Hash Tables to Relational Joins ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/142c2da3-5d98-42e4-a453-16674dcf036d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=152f18159962e3399395f09f73a1f655c6638ddddf8622bfc116fb6dcdc4d383",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f1922ae8-db61-4933-9711-549b241733f9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 33,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nResults: Complete Join from Star Schema Benchmark \r\nConservative Assumptions for \r\nprevious micro-benchmarks: \r\n§ large hash table (1 GB) \r\n§ large match rate (20%) \r\nNow: Query from a Benchmark \r\nStar Schema Benchmark: \r\n§ First join in Query Q3.2: \r\nlineorder customer \r\n§ DB Size: 714 GB \r\nScale Factor 1,000 (6 billion rows) \r\n§ Match rate 4% \r\n§ Measured ingest rate on GTX580: \r\n 5.77 GiB/s\r\n§ This corresponds to 92% of the \r\ntheoretical PCI-E 2.0 x16 \r\nbandwidth. \r\n \r\n33 \r\nPCI-E 2.0 x16: 8 GB/s with 128 B TLP payload/152 B TLP total = 6.274 GiB/s \r\nFrom Hash Tables to Relational Joins ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/f1922ae8-db61-4933-9711-549b241733f9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=97cd27c191e2d6b2e7fb3b3af556f8e29eab7a1ffb114c00ba3004663a086cb3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f80701b0-dede-4478-aec0-a1682ea865c9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 34,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© 2012 IBM Corporation\r\nProcessing hundreds of Gigabytes in seconds \r\n34 \r\n…\r\n…\r\n… Create hash table \r\nProbe hash table \r\nFrom Hash Tables to Relational Joins \r\n§ Machines with ½ TB of memory are not commodity yet (even at IBM ;-) \r\n§ How about reading the input tables on the fly from flash? \r\n§ Storage solution delivering data at GPU join speed (>5.7 GB/s): \r\n–3x 900 GB IBM Texas Memory Systems RamSan-70 SSDs \r\n–IBM Global Parallel File System (GPFS) \r\nà Visit us at the IBM booth #607 in the exhibition hall for a live demo !",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c9e53497-b88d-4d00-a665-6f55533f0628/images/f80701b0-dede-4478-aec0-a1682ea865c9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041930Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2b76123de23dccc26334da6df11bff21a78cb19df61ede1b516d9f7526ac824a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 295
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "\"A closer look at DWH queries\"\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Tim Kaldewey, Rene Mueller\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2012\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "UNITED STATES\n"
+        }
+      ]
+    }
+  }
+}

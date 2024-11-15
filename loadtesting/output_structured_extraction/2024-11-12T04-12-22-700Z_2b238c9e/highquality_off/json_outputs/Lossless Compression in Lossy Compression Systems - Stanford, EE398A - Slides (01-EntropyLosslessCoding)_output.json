@@ -1,0 +1,586 @@
+{
+  "file_name": "Lossless Compression in Lossy Compression Systems - Stanford, EE398A - Slides (01-EntropyLosslessCoding).pdf",
+  "task_id": "b7ee7847-0bcf-41b7-a712-c5d77beb310a",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "8a4bff39-4918-4913-9dab-f9529dc3ccc4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 1\r\n Almost every lossy compression system contains a lossless\r\ncompression system\r\n We discuss the basics of lossless compression first,\r\nthen move on to lossy compression\r\nLossless compression in \r\nlossy compression systems\r\nTransform\r\nQuantizer\r\nLossless\r\nEncoder\r\nLossless\r\nDecoder\r\nDequantizer\r\nInverse\r\nTransform\r\nLossy compression system\r\nLossless compression system",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/8a4bff39-4918-4913-9dab-f9529dc3ccc4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6ec4b03855fa0c4de24b3fea49dc43cbf8834902da18f8ca6a758178ac030fc2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a47a89f2-666e-48fd-8edf-33a0605031c3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 2,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 2\r\nTopics in lossless compression\r\n Binary decision trees and variable length coding\r\n Entropy and bit-rate\r\n Prefix codes, Huffman codes, Golomb codes\r\n Joint entropy, conditional entropy, sources with memory\r\n Fax compression standards\r\n Arithmetic coding",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/a47a89f2-666e-48fd-8edf-33a0605031c3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8ec275e43ff0c755ee203927179bdbe412e8df12f0597f757c4b985b25f5a371",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cc705f57-b195-4dbc-87bf-ec89a25bd360",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 3,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 3\r\nExample: 20 Questions\r\n Alice thinks of an outcome (from a finite set), but does not\r\ndisclose her selection.\r\n Bob asks a series of yes/no questions to uniquely\r\ndetermine the outcome chosen. The goal of the game is to\r\nask as few questions as possible on average.\r\n Our goal: Design the best strategy for Bob.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/cc705f57-b195-4dbc-87bf-ec89a25bd360.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ec7ecd7d0d6ca3105bb198e67187df0d0ae17778ff3bbc13aa7222c06176e0b4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "39452d40-a66b-4486-b974-8700b74a142d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 4,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 4\r\n Which strategy is better?\r\n Observation: The collection of questions and answers yield\r\na binary code for each outcome.\r\nExample: 20 Questions (cont.)\r\nA B C\r\nD E\r\nF A B\r\nC D\r\nE F\r\n0 (=no)\r\n0 0\r\n0\r\n0\r\n0\r\n0\r\n0\r\n0\r\n0\r\n1 (=yes)\r\n1\r\n1\r\n1\r\n1\r\n1\r\n1\r\n1\r\n1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/39452d40-a66b-4486-b974-8700b74a142d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=967de57a4205e8c7fec2f382b11ebe47f43ef9b7bd3acb6b430cda0ea23e5d13",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0d88d87f-34ef-4e64-bbf8-079a70bc60ae",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 5,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 5\r\nFixed length codes\r\nA B C\r\n0\r\n0 0\r\n1\r\n1\r\nD E F G\r\n0\r\n0 0\r\n1\r\n1\r\nH\r\n Average description length for K outcomes\r\n Optimum for equally likely outcomes\r\n Verify by modifying tree \r\n0 1\r\nl\r\nav\r\n log2K",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/0d88d87f-34ef-4e64-bbf8-079a70bc60ae.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=24640842fe059487c1273c6a4e422c15073c84430fa52aeb0a5da9344823380b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "064eeafd-d288-4a17-a6cd-720cee0e4d77",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 6,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 6\r\nVariable length codes\r\n If outcomes are NOT equally probable:\r\n Use shorter descriptions for likely outcomes\r\n Use longer descriptions for less likely outcomes\r\n Intuition:\r\n Optimum balanced code trees, i.e., with equally likely outcomes, can \r\nbe pruned to yield unbalanced trees with unequal probabilities.\r\n The unbalanced code trees such obtained are also optimum.\r\n Hence, an outcome of probability p should require about \r\nlog2\r\n1\r\np\r\n\r\n\r\n\r\n\r\n\r\n\r\nbits",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/064eeafd-d288-4a17-a6cd-720cee0e4d77.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b18d03f79f275cd08aa73de6174a9278e6ea49af62227e02158037f4cbcc7a4f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1ce40a22-464b-477b-849b-d666d0cff40e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 7,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 7\r\n Consider a discrete, finite-alphabet random variable X\r\n Information associated with the event X=x\r\n Entropy of X is the expected value of that information\r\n Unit: bits\r\nEntropy of a random variable\r\nAlphabet X{ 0,1, 2,..., K1}\r\nPMF f\r\nX\r\nx PX  x for each x X\r\n     log2  \r\nX\r\nX X X\r\nx\r\nH X E h X f x f x\r\n\r\n       \r\nh x f x X X    log2  ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/1ce40a22-464b-477b-849b-d666d0cff40e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=55a022129db1c648a0a16aef937e515849841c4c17a3492412a29dfb0713c52a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 505
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b4b64e10-c3dd-498b-be78-b455aac6e17f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 8,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 8\r\n Information \r\n Information hX(x) strictly increases with decreasing \r\nprobability fX(x)\r\n Boundedness of entropy\r\n Very likely and very unlikely events do not substantially \r\nchange entropy\r\nInformation and entropy: properties\r\n0 ( ) log   H X 2\r\n X\r\nEquality if only one \r\noutcome can occur\r\nEquality if all outcomes \r\nare equally likely\r\nhX\r\nx 0\r\n2\r\n    p p p p log 0 for 0 or 1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/b4b64e10-c3dd-498b-be78-b455aac6e17f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f46d24ffa530dd987103ad82e7b04f648e14da679a5c219cea0a589a92bb7f08",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5bee6777-4735-4f1b-8b95-86b7dae6dd44",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 9,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 9\r\nExample: Binary random variable\r\n  2 2 H X p p p p      log (1 )log (1 )\r\n0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1\r\n0\r\n0.1\r\n0.2\r\n0.3\r\n0.4\r\n0.5\r\n0.6\r\n0.7\r\n0.8\r\n0.9\r\n1\r\nH X \r\np\r\nEqually \r\nlikely\r\ndeterministic",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/5bee6777-4735-4f1b-8b95-86b7dae6dd44.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b3cc4fe4179c53f0e4bb7cac138ebc356f7cac4bd8732ef7a84c4cc6f7e55f35",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "61575741-0fa3-4fa6-9456-afcf4d6dca27",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 10,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 10\r\n Consider IID random process (or “source”) where each \r\nsample (or “symbol”) possesses identical entropy H(X)\r\n H(X) is called “entropy rate” of the random process.\r\n Noiseless Source Coding Theorem [Shannon, 1948]\r\n The entropy H(X) is a lower bound for the average word length R of \r\na decodable variable-length code for the symbols. \r\n Conversely, the average word length R can approach H(X), if\r\nsufficiently large blocks of symbols are encoded jointly.\r\n Redundancy of a code:\r\nEntropy and bit-rate\r\n    R H X  0\r\nX n\r\n\r\nXn",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/61575741-0fa3-4fa6-9456-afcf4d6dca27.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=22994997b798d21583c4ac42f89ecd9bb17b9c447ec6c26b06190ef0fe71f324",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c19c25fc-1027-4b59-bef2-5a2437082a21",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 11,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 11\r\n Given IID random process with alphabet and\r\nPMF\r\n Task: assign a distinct code word, cx, to each element,\r\n , where is a string of bits, such that each\r\nsymbol can be determined, even if the codewords\r\nare directly concatenated in a bitstream\r\n Codes with the above property are said to be \r\n“uniquely decodable.”\r\n Prefix codes\r\n No code word is a prefix of any other codeword\r\n Uniquely decodable, symbol by symbol,\r\nin natural order 0, 1, 2, . . . , n, . . . \r\nVariable length codes\r\nX n\r\n\r\nf x X\r\n \r\nX\r\nX\r\nx x\r\nc\r\nx\r\nc\r\nn\r\nx\r\nn\r\nx\r\nc",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/c19c25fc-1027-4b59-bef2-5a2437082a21.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a6883f2c329b431eb090f98f749d65e556a2f3967af84fbee2d3e9a2611c5eb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3aa1bc90-19fe-4d53-a69f-26099b696e5f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 12,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 12\r\nExample of non-decodable code\r\n Same bit-stream for different sequences of source symbols: \r\nambiguous, not uniquely decodable\r\n BTW: Not a prefix code.\r\nEncode sequence of source symbols , , , 0 2 3 0 1 , \r\nResulting bit-stream 0 10 11 0 01 \r\n     Encode sequence of source symbols 1\r\n,  0,  3,  0, 1\r\nResulting bit-stream 01 0 11 0 01",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/3aa1bc90-19fe-4d53-a69f-26099b696e5f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=edea5776ae50a235547c23022502f61e5fccbfdd7c65d846bf4808724720d136",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 470
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "86fda669-7565-4685-89a9-5aff5202c416",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 13,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 13\r\nUnique decodability: McMillan and Kraft conditions\r\n Necessary condition for unique decodability [McMillan]\r\n Given a set of code word lengths ||cx|| satisfying McMillan\r\ncondition, a corresponding prefix code always exists [Kraft]\r\n Hence, McMillan inequality is both necessary and sufficient.\r\n Also known as Kraft inequality or Kraft-McMillan inequality.\r\n No loss by only considering prefix codes.\r\n Prefix code is not unique.\r\n2 1 x\r\nX\r\nc\r\nx\r\n\r\n\r\n ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/86fda669-7565-4685-89a9-5aff5202c416.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1945377bcaf7b2c7c17285dd80f26bcbc6dab6eeb50eba0bd79e87c94b5a5a6c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7354f336-64a2-4a3b-a616-e354ea398e50",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 14,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 14\r\nPrefix Decoder\r\n. . . . . . \r\nCode\r\nword LUT\r\nCode\r\nword length\r\nLUT\r\nAdvance\r\n||cx|| bits\r\nShift register \r\nto hold longest \r\ncode word\r\nInput buffer",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/7354f336-64a2-4a3b-a616-e354ea398e50.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1ed913567c5f2c86b3365954b0d59a5b27942304bfca9499251b5cb2450745dd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5e0ca804-8004-4a10-b60b-b8d5c224c98c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 15,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 15\r\nBinary trees and prefix codes\r\n Any binary tree can be \r\nconverted into a prefix code \r\nby traversing the tree from \r\nroot to leaves.\r\n Any prefix code corresponding\r\nto a binary tree meets McMillan \r\ncondition with equality\r\n0\r\n0 0\r\n0\r\n0\r\n1\r\n1\r\n1\r\n1\r\n00 01\r\n1\r\n10\r\n1100 1101\r\n111\r\n2 1 x\r\nX\r\nc\r\nx\r\n\r\n\r\n \r\n2 4 3 3 2 2 2 2 1        ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/5e0ca804-8004-4a10-b60b-b8d5c224c98c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=71d390d11b4532d3ce4ca66bc2ad9bf801d8709d91049fcfc6c1c2ba06679cf8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a118fd8c-c537-466a-b253-218634b7313b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 16,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 16\r\nBinary trees and prefix codes (cont.)\r\n Augmenting binary tree by two\r\nnew nodes does not change\r\nMcMillan sum.\r\n Pruning binary tree does not\r\nchange McMillan sum.\r\n McMillan sum for simplest\r\nbinary tree\r\n0\r\n0 0\r\n0\r\n1\r\n1\r\n1\r\n1\r\n1\r\n2\r\nl\r\n 1 1   \r\n2 2 2     l l l  1 1 221    ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/a118fd8c-c537-466a-b253-218634b7313b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c2d50e9c0506c945968cfc86060e7b25e92645960fe07adb4f398dff14248891",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d8ddade1-3e31-4c88-bba7-bc06ada7f75b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 17,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 17\r\nInstantaneous variable length encoding\r\nwithout redundancy\r\n A code without redundancy, i.e.\r\n All probabilities would have to\r\nbe binary fractions:\r\nR H X  ( )\r\nrequires all individual code\r\nword lengths\r\nlog2\r\n  k\r\nX k l f \r\n  \r\n( ) 2 k\r\nl\r\nX k f\r\n\r\n\r\n\r\n\r\nExample\r\n  1.75 bits\r\n1.75 bits\r\n0\r\nH X\r\nR\r\n\r\n\r\n\r\n",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/d8ddade1-3e31-4c88-bba7-bc06ada7f75b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ef743cf1f5ac17f0287038c6aa218288a895cd86ca8e8bfd3673967787cdff31",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d4337651-ab85-49a7-bb7f-8089e296c654",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 18,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 18\r\nHuffman Code\r\n Design algorithm for variable length codes proposed by\r\nHuffman (1952) always finds a code with minimum\r\nredundancy.\r\n Obtain code tree as follows:\r\n1 Pick the two symbols with lowest probabilities and \r\n merge them into a new auxiliary symbol.\r\n2 Calculate the probability of the auxiliary symbol. \r\n3 If more than one symbol remains, repeat steps \r\n 1 and 2 for the new auxiliary alphabet.\r\n4 Convert the code tree into a prefix code.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/d4337651-ab85-49a7-bb7f-8089e296c654.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cf14802ad50f86783fbcf5eaac4a57921d5f077a12b74c536e112baa02cd4157",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 478
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6feed551-a4ad-45be-93af-724057ee635b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 19,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 19\r\nHuffman Code - Example\r\nFixed length coding:\r\nHuffman code:\r\nEntropy\r\nRedundancy of the Huffman code:\r\nRfixed 4 bits/symbol\r\nRHuf man 2.77 bits/symbol\r\nH(X)  2.69 bits/symbol\r\n  0.08 bits/symbol",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/6feed551-a4ad-45be-93af-724057ee635b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=08e5d2a108dfa2fc50775fa04a4588aed3c8ab214ea920f1422c8326686e64dc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "652afd71-d295-4175-a5be-ef385556e6ff",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 20,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 20\r\nRedundancy of prefix code for general distribution\r\n Huffman code redundancy \r\n Theorem: For any distribution fX, a prefix code can be found, whose \r\nrate R satisfies\r\n Proof\r\n Left hand inequality: Shannon’s noiseless coding theorem\r\n Right hand inequality: \r\nH X R H X        1\r\n \r\n   \r\n   \r\n \r\n2\r\n2\r\n2\r\nChoose code word lengths log\r\nResulting rate log\r\n1 log\r\n1\r\nX\r\nX\r\nx X\r\nX X\r\nx\r\nX X\r\nx\r\nc f x\r\nR f x f x\r\nf x f x\r\nH X\r\n\r\n\r\n    \r\n    \r\n \r\n \r\n\r\n\r\n0 1 bit/symbol   ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/652afd71-d295-4175-a5be-ef385556e6ff.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2ae40721f5ecf740f011ab69fa31fc1e37b9d1a197e1dfd9f305abc2e7a9b4c3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7d45e181-ef79-4fca-948b-807f8ab4430b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 21,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 21\r\nVector Huffman coding\r\n Huffman coding very inefficient for H(X) << 1 bit/symbol\r\n Remedy: \r\n Combine m successive symbols to a new “block-symbol”\r\n Huffman code for block-symbols\r\n Redundancy\r\n Can also be used to exploit statistical dependencies between\r\nsuccessive symbols\r\n Disadvantage: exponentially growing alphabet size \r\n   \r\n1\r\nH X R H X\r\nm\r\n  \r\nm\r\nX",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/7d45e181-ef79-4fca-948b-807f8ab4430b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e0c2680e2acdd342fdf434c0cf7f106e1b154c8210b06be4f47cbca9478d7a42",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d32d6ec4-e412-42fa-bcf6-34c5494dbcb1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 22,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 22\r\nTruncated Huffman Coding\r\n Idea: reduce size of Huffman code table and maximum\r\nHuffman code word length by Huffman-coding only the most\r\nprobable symbols.\r\n Combine J least probable symbols of an alphabet of size K into an \r\nauxillary symbol ESC\r\n Use Huffman code for alphabet consisting of remaining K-J most \r\nprobable symbols and the symbol ESC\r\n If ESC symbol is encoded, append bits to specify exact \r\nsymbol from the full alphabet \r\n Results in increased average code word length – trade off\r\ncomplexity and efficiency by choosing J\r\n  log2\r\n J   ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/d32d6ec4-e412-42fa-bcf6-34c5494dbcb1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2ed5aa8c237b30c2d0d92b415b93e80eca0a33be7899779798855c7dd4f19cf6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cc115643-57d2-4544-88fe-307c56b9f8b2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 23,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 23\r\nAdaptive Huffman Coding\r\n Use, if source statistics are not known ahead of time\r\n Forward adaptation\r\n Measure source statistics at encoder by analyzing entire data\r\n Transmit Huffman code table ahead of compressed bit-stream\r\n JPEG uses this concept (even though often default tables are \r\ntransmitted)\r\n Backward adaptation\r\n Measure source statistics both at encoder and decoder, using the\r\nsame previously decoded data\r\n Regularly generate identical Huffman code tables at transmitter and\r\nreceiver\r\n Saves overhead of forward adaptation, but usually poorer code\r\ntables, since based on past observations\r\n Generally avoided due to computational burden at decoder",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/cc115643-57d2-4544-88fe-307c56b9f8b2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b7bff68d124bf6353d61f197d86c806e107bf0fac30fa5aadf6a741c7720cec7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 489
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2c02bf83-30fb-47b4-a0a2-f91dc01b9acb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 24,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 24\r\nUnary coding\r\n “Geometric” source\r\n Optimal prefix code with redundancy 0 is “unary” code\r\n(“comma code”)\r\n Consider geometric source with faster decay\r\n Unary code is still optimum prefix code (i.e., Huffman code), but\r\nnot redundancy-free\r\n   \r\n 1 Alphabet 0,1,... PMF 2 , 0 x\r\nX Xf x x       \r\n0 1 2 3 c c c c     \"1\" \"01\" \"001\" \"0001\"    \r\nx\r\n1\r\nPMF 1 , with 0 ; 0\r\n2\r\nX\r\nf x x        ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/2c02bf83-30fb-47b4-a0a2-f91dc01b9acb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4c06e09c3ac669033bd5f867cfe59a543f972e405a95389ac634642f1108208c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c1bb4d6b-f6c3-4c09-9d4c-46e0fdc04152",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 25,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 25\r\nGolomb coding\r\n For geometric source with slower decay\r\n Idea: Express each x as\r\n Distribution of new random variables\r\n   \r\nx\r\n1\r\nPMF 1 , with 1; 0\r\n2\r\nX\r\nf x x        \r\nx  mx\r\nq\r\n x\r\nr\r\nwith x\r\nq\r\n\r\nx\r\nm\r\n\r\n\r\n\r\n\r\n\r\n\r\nand x\r\nr\r\n xmod m\r\n     \r\n \r\n1 1\r\n0 0\r\n1\r\n for 0\r\n1\r\n and statistically independent.\r\nq\r\nq\r\nr\r\nr\r\nm m\r\nmx\r\nX q X q X\r\ni i\r\nx\r\nX r r m\r\nq r\r\nf x f mx i f i\r\nf x x m\r\nX X\r\n\r\n\r\n\r\n\r\n \r\n \r\n  \r\n\r\n  \r\n\r\n ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/c1bb4d6b-f6c3-4c09-9d4c-46e0fdc04152.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=da42b935e8777907c933151f5df808cf6643c75adc71004f9f033ca598c00543",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8c6a7b2b-f0fd-4995-a975-2a1413cf3ff9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 26,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 26\r\nGolomb coding (cont.)\r\n Golomb coding\r\n Choose integer divisor \r\n Encode xqoptimally by unary code\r\n Encode xrby a modified binary code, using code word lengths\r\n Concatenate bits for xqand xr\r\n In practice, m=2kis often used, so xrcan be encoded by constant \r\ncode word length \r\n1\r\n2\r\nm\r\n \r\nk\r\na\r\n log \r\n 2\r\nm\r\n\r\nkb log \r\n 2\r\nm\r\n\r\n2\r\nlog m",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/8c6a7b2b-f0fd-4995-a975-2a1413cf3ff9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c4395a981834265599d91e17339bac793a73a99ef26333c684c09f05cb52b0c8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "68b5846e-f43c-49e6-95f9-a35c0a619dfb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 27,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 27\r\nGolomb code examples\r\n100\r\n101\r\n110\r\n111\r\n0100\r\n0101\r\n0110\r\n0111\r\n00100\r\n00101\r\n00110\r\n00111\r\n000100\r\n000101\r\n000110\r\n000111\r\n .\r\n .\r\n .\r\nUnary\r\nCode\r\nConstant\r\nlength code\r\nm=4\r\n10\r\n11\r\n010\r\n011\r\n0010\r\n0011\r\n00010\r\n00011\r\n000010\r\n000011\r\n0000010\r\n0000011\r\n00000010\r\n00000011\r\n .\r\n .\r\n .\r\nUnary\r\nCode\r\nConstant\r\nlength code\r\nm=2\r\n1\r\n01\r\n001\r\n0001\r\n00001\r\n000001\r\n0000001\r\n00000001\r\n000000001\r\n .\r\n .\r\n .\r\nUnary\r\nCode",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/68b5846e-f43c-49e6-95f9-a35c0a619dfb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=28e53519382615c4111f32d2f8034d2e4b6d54c39d9c2e7eeff1d32da5540825",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 435
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "514c884b-c682-4504-8cdc-7d2ad837575e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 28,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 28\r\nGolomb parameter estimation\r\n Expected value for geometric distribution\r\n Approximation for \r\n     \r\n0   1 \r\n1 1\r\nx\r\nx\r\nE X\r\nE X x\r\nE X\r\n\r\n  \r\n\r\n\r\n     \r\n  \r\nE X  1\r\n  \r\n    \r\n \r\n2\r\n \r\n1\r\n1\r\n1 2\r\n1\r\n2\r\n2\r\n1\r\nmax 0, log\r\n2\r\nm\r\nm\r\nm\r\nk\r\nE X m\r\nE X E X\r\nm E X\r\nk E X\r\n    \r\n\r\n \r\n     \r\n            \r\nRule for optimum \r\nperformance of \r\nGolomb code\r\nReasonable setting, \r\neven if\r\ndoes not hold \r\nE X  1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/514c884b-c682-4504-8cdc-7d2ad837575e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bb1d6e291edb96c85f679ed71b7136511b40f75c7079ab2bad783439326b187a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "892f431e-50a5-4786-aa43-d8c552c3b01b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 29,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Bernd Girod: EE398A Image and Video Compression Entropy and Lossless Coding no. 29\r\nAdaptive Golomb coder (JPEG-LS)\r\n2\r\nInitialize and 1 ˆ For each 0,1,2,\r\n Set max 0, log\r\n2\r\n Code symbol using Golomb code with parameter \r\n If \r\n Set /\r\nx\r\nn max\r\nA N\r\nn A\r\nk N\r\nx k N N\r\nA A\r\n  \r\n\r\n                   2 and N / 2\r\n Update and N 1 n NA A x N\r\n        \r\n   \r\nInitial estimate \r\nof mean\r\nAvoid overflow \r\nand slowly \r\nforget the past\r\nPick the \r\nbest \r\nGolomb \r\ncode",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ee7847-0bcf-41b7-a712-c5d77beb310a/images/892f431e-50a5-4786-aa43-d8c552c3b01b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041522Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8847188694b14bdda19dea75a30c18373775ffca13f288147589106e1694b6be",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 273
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "EE398A Image and Video Compression Entropy and Lossless Coding"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "\"Bernd Girod\"\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "```json\n{\"date_published\": null}\n```"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Stanford University"
+        }
+      ]
+    }
+  }
+}
