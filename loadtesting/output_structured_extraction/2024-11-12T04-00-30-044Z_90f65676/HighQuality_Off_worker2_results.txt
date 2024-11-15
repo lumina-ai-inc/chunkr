@@ -1,8 +1,0 @@
-Worker 2 Results:
-Total pages processed: 25
-Failed to start task: 0
-Failed to poll task: 0
-Tasks completed with failure status: 0
-Total failed files: 0
-Duration: 126.66 seconds
-Pages per second: 0.20

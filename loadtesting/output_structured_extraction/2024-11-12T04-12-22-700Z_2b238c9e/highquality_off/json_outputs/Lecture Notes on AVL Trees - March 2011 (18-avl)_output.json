@@ -1,308 +1,0 @@
-{
-  "file_name": "Lecture Notes on AVL Trees - March 2011 (18-avl).pdf",
-  "task_id": "c83c1a1b-49ea-47ab-88c6-737d604ae847",
-  "output": {
-    "chunks": [
-      {
-        "segments": [
-          {
-            "segment_id": "b1f9699c-ff4d-4aed-9139-d06d2adcb074",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 1,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "Lecture Notes on\r\nAVL Trees\r\n15-122: Principles of Imperative Computation\r\nFrank Pfenning\r\nLecture 18\r\nMarch 22, 2011\r\n1 Introduction\r\nBinary search trees are an excellent data structure to implement associa\u0002tive arrays, maps, sets, and similar interfaces. The main difficulty, as dis\u0002cussed in last lecture, is that they are efficient only when they are balanced.\r\nStraightforward sequences of insertions can lead to highly unbalanced trees\r\nwith poor asymptotic complexity and unacceptable practical efficiency. For\r\nexample, if we insert n elements with keys that are in strictly increasing or\r\ndecreasing order, the complexity will be O(n\r\n2\r\n). On the other hand, if we\r\ncan keep the height to O(log(n)), as it is for a perfectly balanced tree, then\r\nthe commplexity is bounded by O(n ∗ log(n)).\r\nThe solution is to dynamically rebalance the search tree during insert\r\nor search operations. We have to be careful not to destroy the ordering\r\ninvariant of the tree while we rebalance. Because of the importance of bi\u0002nary search trees, researchers have developed many different algorithms\r\nfor keeping trees in balance, such as AVL trees, red/black trees, splay trees,\r\nor randomized binary search trees. They differ in the invariants they main\u0002tain (in addition to the ordering invariant), and when and how the rebal\u0002ancing is done.\r\nIn this lecture we use AVL trees, which is a simple and efficient data\r\nstructure to maintain balance, and is also the first that has been proposed.\r\nIt is named after its inventors, G.M. Adelson-Velskii and E.M. Landis, who\r\ndescribed it in 1962.\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/b1f9699c-ff4d-4aed-9139-d06d2adcb074.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a36016d45b7c29c758e51970c65255deecadad65cd950d235ee5ee345529f033",
-            "html": null,
-            "markdown": null
-          },
-          {
-            "segment_id": "15e2bc2e-22f2-481f-9148-d37b445b756f",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 2,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.2\r\n2 The Height Invariant\r\nRecall the ordering invariant for binary search trees.\r\nOrdering Invariant. At any node with key k in a binary search\r\ntree, all keys of the elements in the left subtree are strictly less\r\nthan k, while all keys of the elements in the right subtree are\r\nstrictly greater than k.\r\nTo describe AVL trees we need the concept of tree height, which we de\u0002fine as the maximal length of a path from the root to a leaf. So the empty\r\ntree has height 0, the tree with one node has height 1, a balanced tree with\r\nthree nodes has height 2. If we add one more node to this last tree is will\r\nhave height 3. Alternatively, we can define it recursively by saying that the\r\nempty tree has height 0, and the height of any node is one greater than the\r\nmaximal height of its two children. AVL trees maintain a height invariant\r\n(also sometimes called a balance invariant).\r\nHeight Invariant. At any node in the tree, the heights of the left\r\nand right subtrees differs by at most 1.\r\nAs an example, consider the following binary search tree of height 3.\r\n16 \r\n10 \r\n1  7  13  19 \r\n4 height = 3 \r\nheight inv. sa4sfied \r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/15e2bc2e-22f2-481f-9148-d37b445b756f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=11f9a40f80fa5b2d858a85667b6224dfb1e069e6adffd65ac1f0d3c593609457",
-            "html": null,
-            "markdown": null
-          }
-        ],
-        "chunk_length": 475
-      },
-      {
-        "segments": [
-          {
-            "segment_id": "a266b145-fea6-460b-91e3-e1756522065f",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 3,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.3\r\nIf we insert a new element with a key of 14, the insertion algorithm for\r\nbinary search trees without rebalancing will put it to the right of 13.\r\nheight = 4 \r\nheight inv. sa.sfied  16 \r\n10 \r\n1  7  13  19 \r\n4\r\n14 \r\nNow the tree has height 4, and one path is longer than the others. However,\r\nit is easy to check that at each node, the height of the left and right subtrees\r\nstill differ only by one. For example, at the node with key 16, the left subtree\r\nhas height 2 and the right subtree has height 1, which still obeys our height\r\ninvariant.\r\nNow consider another insertion, this time of an element with key 15.\r\nThis is inserted to the right of the node with key 14.\r\nheight = 5 \r\nheight inv. violated at 13, 16, 10  16 \r\n10 \r\n1  7  13  19 \r\n4\r\n14 \r\n15 \r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/a266b145-fea6-460b-91e3-e1756522065f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=db783eb1a142a4695888f0d61389bc88e75ddba6302ae22d5a6f22d8cadec425",
-            "html": null,
-            "markdown": null
-          },
-          {
-            "segment_id": "518eefb9-02d6-4bf9-9959-af1df7f8f094",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 4,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.4\r\nAll is well at the node labeled 14: the left subtree has height 0 while the\r\nright subtree has height 1. However, at the node labeled 13, the left subtree\r\nhas height 0, while the right subtree has height 2, violating our invariant.\r\nMoreover, at the node with key 16, the left subtree has height 3 while the\r\nright subtree has height 1, also a difference of 2 and therefore an invariant\r\nviolation.\r\nWe therefore have to take steps to rebalance tree. We can see without\r\ntoo much trouble, that we can restore the height invariant if we move the\r\nnode labeled 14 up and push node 13 down and to the right, resulting in\r\nthe following tree.\r\nheight = 4 \r\nheight inv. restored at 14, 16, 10  16 \r\n10 \r\n1  7  14  19 \r\n4\r\n13  15  The question is how to do this in general. In order to understand this we\r\nneed a fundamental operation called a rotation, which comes in two forms,\r\nleft rotation and right rotation.\r\n3 Left and Right Rotations\r\nBelow, we show the situation before a left rotation. We have generically\r\ndenoted the crucial key values in question with x and y. Also, we have\r\nsummarized whole subtrees with the intervals bounding their key values.\r\nEven though we wrote −∞ and +∞, when the whole tree is a subtree of a\r\nlarger tree these bounds will be generic bounds α which is smaller than x\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/518eefb9-02d6-4bf9-9959-af1df7f8f094.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ea940f501ee759c567aa26c4d6a05f3215fd4e4602267087f27c5d80e19ca63f",
-            "html": null,
-            "markdown": null
-          }
-        ],
-        "chunk_length": 405
-      },
-      {
-        "segments": [
-          {
-            "segment_id": "32bfca81-5a43-45aa-9609-0d130b4b24bf",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 5,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.5\r\nand ω which is greater than y. The tree on the right is after the left rotation.\r\nx\r\ny\r\n(‐∞, +∞) \r\n(y, +∞) \r\n(‐∞, x) \r\n(x, y) \r\ny\r\n(‐∞, +∞) \r\n(y, +∞) \r\n(‐∞, x)  (x, y) \r\nx\r\nle, rota1on at x\r\nFrom the intervals we can see that the ordering invariants are preserved, as\r\nare the contents of the tree. We can also see that it shifts some nodes from\r\nthe right subtree to the left subtree. We would invoke this operation if the\r\ninvariants told us that we have to rebalance from right to left.\r\nWe implement this with some straightforward code. First, recall the\r\ntype of trees from last lecture. We do not repeat the function is_ordtree\r\nthat checks if a tree is ordered.\r\nstruct tree {\r\nelem data;\r\nstruct tree* left;\r\nstruct tree* right;\r\n};\r\ntypedef struct tree* tree;\r\nbool is_ordtree(tree T);\r\nThe main point to keep in mind is to use (or save) a component of the\r\ninput before writing to it. We apply this idea systematically, writing to a\r\nlocation immediately after using it on the previous line. We repeat the type\r\nspecification of tree from last lecture.\r\ntree rotate_left(tree T)\r\n//@requires is_ordtree(T);\r\n//@requires T != NULL && T->right != NULL;\r\n//@ensures is_ordtree(\\result);\r\n//@ensures \\result != NULL && \\result->left != NULL;\r\n{\r\ntree root = T->right;\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/32bfca81-5a43-45aa-9609-0d130b4b24bf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f0a3a5d98fcf8d31736eb0d5f3d527b6fe46988ba0422cd297764826c5b5f5d5",
-            "html": null,
-            "markdown": null
-          },
-          {
-            "segment_id": "d8d6ae62-a7bd-4b68-8722-7b0835d8c38d",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 6,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.6\r\nT->right = root->left;\r\nroot->left = T;\r\nreturn root;\r\n}\r\nThe right rotation is entirely symmetric. First in pictures:\r\nz\r\ny\r\n(‐∞, +∞) \r\n(z, +∞) \r\n(‐∞, y)  (y, z) \r\nz\r\ny\r\n(‐∞, +∞) \r\n(z, +∞) \r\n(‐∞, y) \r\n(y, z) \r\nright rota1on at z\r\nThen in code:\r\ntree rotate_right(tree T)\r\n//@requires is_ordtree(T);\r\n//@requires T != NULL && T->left != NULL;\r\n//@ensures is_ordtree(\\result);\r\n//@ensures \\result != NULL && \\result->right != NULL;\r\n{\r\ntree root = T->left;\r\nT->left = root->right;\r\nroot->right = T;\r\nreturn root;\r\n}\r\n4 Searching for a Key\r\nSearching for a key in an AVL tree is identical to searching for it in a plain\r\nbinary search tree as described in Lecture 17. The reason is that we only\r\nneed the ordering invariant to find the element; the height invariant is only\r\nrelevant for inserting an element.\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/d8d6ae62-a7bd-4b68-8722-7b0835d8c38d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d1c2209f19d126e32eda5c410244f3c997f878cbca8c8502ba361186dfac449e",
-            "html": null,
-            "markdown": null
-          }
-        ],
-        "chunk_length": 373
-      },
-      {
-        "segments": [
-          {
-            "segment_id": "b5ab7141-abf2-40ab-81ed-ecab43bf0eac",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 7,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.7\r\n5 Inserting an Element\r\nThe basic recursive structure of inserting an element is the same as for\r\nsearching for an element. We compare the element’s key with the keys\r\nassociated with the nodes of the trees, inserting recursively into the left or\r\nright subtree. When we find an element with the exact key we overwrite\r\nthe element in that node. If we encounter a null tree, we construct a new\r\ntree with the element to be inserted and no children and then return it. As\r\nwe return the new subtrees (with the inserted element) towards the root,\r\nwe check if we violate the height invariant. If so, we rebalance to restore\r\nthe invariant and then continue up the tree to the root.\r\nThe main cleverness of the algorithm lies in analyzing the situations\r\nwhen we have to rebalance and applying the appropriate rotations to re\u0002store the height invariant. It turns out that one or two rotations on the\r\nwhole tree always suffice for each insert operation, which is a very elegant\r\nresult.\r\nFirst, we keep in mind that the left and right subtrees’ heights before\r\nthe insertion can differ by at most one. Once we insert an element into one\r\nof the subtrees, they can differ by at most two. We now draw the trees in\r\nsuch a way that the height of a node is indicated by the height that we are\r\ndrawing it at.\r\nThe first situation we describe is where we insert into the right subtree,\r\nwhich is already of height h + 1 where the left subtree has height h. If\r\nwe are unlucky, the result of inserting into the right subtree will give us a\r\nnew right subtree of height h + 2 which raises the height of the overall tree\r\nto h + 3, violating the height invariant. In the new right subtree has height\r\nh+2, either its right or the left subtree must be of height h+1 (and only one\r\nof them; think about why). If it is the right subtree we are in the situation\r\ndepicted below on the left.\r\nz\r\ny\r\n(‐∞, +∞) \r\n(‐∞, x)  (x, y)  (y, z)  (z, +∞) \r\nx\r\nx\r\ny\r\n(‐∞, +∞) \r\n(‐∞, x)  (x, y)  (y, z)  (z, +∞) \r\nz\r\nh\r\nh+1 \r\nh+2 \r\nh+3 \r\nle1 rota6on at x\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/b5ab7141-abf2-40ab-81ed-ecab43bf0eac.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=378228fa6b5b3e34271cfd0d3846dda16f8e72568c93dac732ed1fe264d7c793",
-            "html": null,
-            "markdown": null
-          }
-        ],
-        "chunk_length": 390
-      },
-      {
-        "segments": [
-          {
-            "segment_id": "a83135f6-e67b-4b08-bcbc-85f812a421a6",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 8,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.8\r\nWe fix this with a left rotation, the result of which is displayed to the right.\r\nIn the second case we consider we once again insert into the right sub\u0002tree, but now the left subtree of the right subtree has height h + 1.\r\nz\r\ny\r\n(‐∞, +∞) \r\n(‐∞, x)  (x, y)  (y, z)  (z, +∞) \r\nx\r\nx\r\ny\r\n(‐∞, +∞) \r\n(‐∞, x)  (x, y)  (y, z)  (z, +∞) \r\nz\r\nh\r\nh+1 \r\nh+2 \r\nh+3 \r\ndouble rota8on at z and x\r\nIn that case, a left rotation alone will not restore the invariant (see Exer\u0002cise 1). Instead, we apply a so-called double rotation: first a right rotation at\r\nz, then a left rotation at the root. When we do this we obtain the picture on\r\nthe right, restoring the height invariant.\r\nThere are two additional symmetric cases to consider, if we insert the\r\nnew element on the left (see Exercise 4).\r\nWe can see that in each of the possible cases where we have to restore\r\nthe invariant, the resulting tree has the same height h + 2 as before the\r\ninsertion. Therefore, the height invariant above the place where we just\r\nrestored it will be automatically satisfied.\r\n6 Checking Invariants\r\nThe interface for the implementation is exactly the same as for binary search\r\ntrees, as is the code for searching for a key. In various places in the algo\u0002rithm we have to compute the height of the tree. This could be an operation\r\nof asymptotic complexity O(n), unless we store it in each node and just look\r\nit up. So we have:\r\nstruct tree {\r\nelem data;\r\nint height;\r\nstruct tree* left;\r\nstruct tree* right;\r\n};\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/a83135f6-e67b-4b08-bcbc-85f812a421a6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=939c938827f6a29dbbd3abb5c75bf291a420dad71f7a74381244af85e689de0c",
-            "html": null,
-            "markdown": null
-          },
-          {
-            "segment_id": "11717ac3-35d4-4ba9-b267-866f40e9fd3a",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 9,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.9\r\ntypedef struct tree* tree;\r\n/* height(T) returns the precomputed height of T in O(1) */\r\nint height(tree T) {\r\nreturn T == NULL ? 0 : T->height;\r\n}\r\nWhen checking if a tree is balanced, we also check that all the heights\r\nthat have been computed are correct.\r\nbool is_balanced(tree T) {\r\nif (T == NULL) return true;\r\nint h = T->height;\r\nint hl = height(T->left);\r\nint hr = height(T->right);\r\nif (!(h == (hl > hr ? hl+1 : hr+1))) return false;\r\nif (hl > hr+1 || hr > hl+1) return false;\r\nreturn is_balanced(T->left) && is_balanced(T->right);\r\n}\r\nA tree is an AVL tree if it is both ordered (as defined and implementa\u0002tion in the last lecture) and balanced.\r\nbool is_avl(tree T) {\r\nreturn is_ordtree(T) && is_balanced(T);\r\n}\r\nWe use this, for example, in a utility function that creates a new leaf\r\nfrom an element (which may not be null).\r\ntree leaf(elem e)\r\n//@requires e != NULL;\r\n//@ensures is_avl(\\result);\r\n{\r\ntree T = alloc(struct tree);\r\nT->data = e;\r\nT->height = 1;\r\nT->left = NULL;\r\nT->right = NULL;\r\nreturn T;\r\n}\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/11717ac3-35d4-4ba9-b267-866f40e9fd3a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=51adaf0f4283f39e5aef408dbfc9ac462a61b8864b0f23b990d97f9589dcf27a",
-            "html": null,
-            "markdown": null
-          }
-        ],
-        "chunk_length": 471
-      },
-      {
-        "segments": [
-          {
-            "segment_id": "79e78424-ab4b-4dc7-8957-7eef202278c2",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 10,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.10\r\n7 Implementing Insertion\r\nThe code for inserting an element into the tree is mostly identical with\r\nthe code for plain binary search trees. The difference is that after we in\u0002sert into the left or right subtree, we call a function rebalance_left or\r\nrebalance_right, respectively, to restore the invariant if necessary and cal\u0002culate the new height.\r\ntree tree_insert(tree T, elem e)\r\n//@requires is_avl(T);\r\n//@ensures is_avl(\\result);\r\n{\r\nassert(e != NULL); /* cannot insert NULL element */\r\nif (T == NULL) {\r\nT = leaf(e); /* create new leaf with data e */\r\n} else {\r\nint r = compare(elem_key(e), elem_key(T->data));\r\nif (r < 0) {\r\nT->left = tree_insert(T->left, e);\r\nT = rebalance_left(T); /* also fixes height */\r\n} else if (r == 0) {\r\nT->data = e;\r\n} else { //@assert r > 0;\r\nT->right = tree_insert(T->right, e);\r\nT = rebalance_right(T); /* also fixes height */\r\n}\r\n}\r\nreturn T;\r\n}\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/79e78424-ab4b-4dc7-8957-7eef202278c2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=079118bd142101b9d501d7526027c6440c21f1087e1607b86d53990fe51a5d03",
-            "html": null,
-            "markdown": null
-          },
-          {
-            "segment_id": "398d035d-a1cf-488d-8879-3a76f47c03f5",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 11,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.11\r\nWe show only the function rebalance_right; rebalance_left is sym\u0002metric.\r\ntree rebalance_right(tree T)\r\n//@requires T != NULL;\r\n//@requires is_avl(T->left) && is_avl(T->right);\r\n/* also requires that T->right is result of insert into T */\r\n//@ensures is_avl(\\result);\r\n{\r\ntree l = T->left;\r\ntree r = T->right;\r\nint hl = height(l);\r\nint hr = height(r);\r\nif (hr > hl+1) {\r\n//@assert hr == hl+2;\r\nif (height(r->right) > height(r->left)) {\r\n//@assert height(r->right) == hl+1;\r\nT = rotate_left(T);\r\n//@assert height(T) == hl+2;\r\nreturn T;\r\n} else {\r\n//@assert height(r->left) == hl+1;\r\n/* double rotate left */\r\nT->right = rotate_right(T->right);\r\nT = rotate_left(T);\r\n//@assert height(T) == hl+2;\r\nreturn T;\r\n}\r\n} else { //@assert !(hr > hl+1);\r\nfix_height(T);\r\nreturn T;\r\n}\r\n}\r\nNote that the preconditions are weaker than we would like. In partic\u0002ular, they do not imply some of the assertions we have added in order to\r\nshow the correspondence to the pictures. This is left as the (difficult) Ex\u0002ercise 5. Such assertions are nevertheless useful because they document\r\nexpectations based on informal reasoning we do behind the scenes. Then,\r\nif they fail, they may be evidence for some error in our understanding, or\r\nin the code itself, which might otherwise go undetected.\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/398d035d-a1cf-488d-8879-3a76f47c03f5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7e780d7f61ed8edb3793a4ad5d0a5782787ea2f6fa898e10e720a1f960f2d66a",
-            "html": null,
-            "markdown": null
-          }
-        ],
-        "chunk_length": 362
-      },
-      {
-        "segments": [
-          {
-            "segment_id": "2b77a27e-d4fe-4399-b6fb-a05c66f4c551",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 12,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.12\r\n8 Experimental Evaluation\r\nWe would like to assess the asymptotic complexity and then experimen\u0002tally validate it. It is easy to see that both insert and search operations take\r\ntype O(h), where h is the height of the tree. But how is the height of the tree\r\nrelated to the number of elements stored, if we use the balance invariant of\r\nAVL trees? It turns out that h is O(log(n)). It is not difficult to prove this,\r\nbut it is beyond the scope of this course.\r\nTo experimentally validate this prediction, we have to run the code with\r\ninputs of increasing size. A convenient way of doing this is to double the\r\nsize of the input and compare running times. If we insert n elements into\r\nthe tree and look them up, the running time should be bounded by c ∗ n ∗\r\nlog(n) for some constant c. Assume we run it at some size n and observe\r\nr = c ∗n∗log(n). If we double the input size we have c ∗(2 ∗n) ∗log(2 ∗n) =\r\n2 ∗ c ∗ n ∗ (1 + log(n)) = 2 ∗ r + 2 ∗ c ∗ n, we mainly expect the running\r\ntime to double with an additional summand that roughly doubles with as n\r\ndoubles. In order to smooth out minor variations and get bigger numbers,\r\nwe run each experiment 100 times. Here is the table with the results:\r\nn AVL trees increase BSTs\r\n2\r\n9 0.129 − 1.018\r\n2\r\n10 0.281 2r + 0.023 2.258\r\n2\r\n11 0.620 2r + 0.058 3.094\r\n2\r\n12 1.373 2r + 0.133 7.745\r\n2\r\n13 2.980 2r + 0.234 20.443\r\n2\r\n14 6.445 2r + 0.485 27.689\r\n2\r\n15 13.785 2r + 0.895 48.242\r\nWe see in the third column, where 2r stands for the doubling of the previ\u0002ous value, we are quite close to the predicted running time, with a approx\u0002imately linearly increasing additional summand.\r\nIn the fourth column we have run the experiment with plain binary\r\nsearch trees which do not rebalance automatically. First of all, we see that\r\nthey are much less efficient, and second we see that their behavior with\r\nincreasing size is difficult to predict, sometimes jumping considerably and\r\nsometimes not much at all. In order to understand this behavior, we need\r\nto know more about the order and distribution of keys that were used in\r\nthis experiment. They were strings, compared lexicographically. The keys\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/2b77a27e-d4fe-4399-b6fb-a05c66f4c551.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=24f887a3323e31cec92bc465bec64c027f7f763d44cb956279b1c52fdad2f1ba",
-            "html": null,
-            "markdown": null
-          }
-        ],
-        "chunk_length": 413
-      },
-      {
-        "segments": [
-          {
-            "segment_id": "f2ef6842-1d96-445b-a541-4ce9cc9d841c",
-            "bbox": {
-              "left": 0,
-              "top": 0,
-              "width": 612,
-              "height": 792
-            },
-            "page_number": 13,
-            "page_width": 612,
-            "page_height": 792,
-            "content": "AVL Trees L18.13\r\nwere generated by counting integers upward and then converting them to\r\nstrings. The distribution of these keys is haphazard, but not random. For\r\nexample, if we start counting at 0\r\n\"0\" < \"1\" < \"2\" < \"3\" < \"4\" < \"5\" < \"6\" < \"7\" < \"8\" < \"9\"\r\n< \"10\" < \"12\" < ...\r\nthe first ten strings are in ascending order but then numbers are inserted\r\nbetween \"1\" and \"2\". This kind of haphazard distribution is typical of\r\nmany realistic applications, and we see that binary search trees without\r\nrebalancing perform quite poorly and unpredictably compared with AVL\r\ntrees.\r\nThe complete code for this lecture can be found in directory 18-avl/ on the\r\ncourse website.\r\nExercises\r\nExercise 1 Show that in the situation on page 8 a single left rotation at the root\r\nwill not necessarily restore the height invariant.\r\nExercise 2 Show, in pictures, that a double rotation is a composition of two ro\u0002tations. Discuss the situation with respect to the height invariants after the first\r\nrotation.\r\nExercise 3 Show that left and right rotations are inverses of each other. What can\r\nyou say about double rotations?\r\nExercise 4 Show the two cases that arise when inserting into the left subtree\r\nmight violate the height invariant, and show how they are repaired by a right ro\u0002tation, or a double rotation. Which two single rotations does the double rotation\r\nconsist of in this case?\r\nExercise 5 Strengthen the invariants in the AVL tree implementation so that the\r\nassertions and postconditions which guarantee that rebalancing restores the height\r\ninvariant and reduces the height of the tree follow from the preconditions.\r\nLECTURE NOTES MARCH 22, 2011",
-            "segment_type": "Page",
-            "ocr": null,
-            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/c83c1a1b-49ea-47ab-88c6-737d604ae847/images/f2ef6842-1d96-445b-a541-4ce9cc9d841c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041907Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fb17ae16a51ca7a5c1c53b411b0135799d682056b690bbcfc6218fccf39fd8e1",
-            "html": null,
-            "markdown": null
-          }
-        ],
-        "chunk_length": 279
-      }
-    ],
-    "extracted_json": {
-      "title": "Document Metadata",
-      "schema_type": "object",
-      "extracted_fields": [
-        {
-          "name": "title",
-          "field_type": "string",
-          "value": "```json\n{\n  \"title\": \"AVL Trees\"\n}\n```"
-        },
-        {
-          "name": "author",
-          "field_type": "string",
-          "value": "Frank Pfenning\n"
-        },
-        {
-          "name": "date_published",
-          "field_type": "string",
-          "value": "Field Name: date_published\nField Type: string\nField Description: MARCH 22, 2011"
-        },
-        {
-          "name": "location",
-          "field_type": "string",
-          "value": "Several locations are mentioned in this document:\n\n* Directory `18-avl/` on the course website.\n* The node labeled 14.\n* The node labeled 13.\n* The node with key 16.\n* Page 8."
-        }
-      ]
-    }
-  }
-}
