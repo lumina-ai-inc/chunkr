@@ -1,0 +1,2137 @@
+{
+  "file_name": "Introduction to AMD GPU Programming with HIP - 2019 (AMD_GPU_HIP_training_20190906).pdf",
+  "task_id": "49e9a7f8-dc40-40bf-8741-d74d8a7870f2",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "d0262808-a662-432b-94ed-be2f1e1e8cd8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "INTRODUCTION TO AMD GPU \r\nPROGRAMMING WITH HIP\r\nPaul Bauman, Noel Chalmers, Nick Curtis, Chip Freitag, Joe \r\nGreathouse, Nicholas Malaya, Damon McDougall, Scott Moe, René van \r\nOostrum, Noah Wolfe\r\n9/6/2019\r\n1 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/d0262808-a662-432b-94ed-be2f1e1e8cd8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f506a0b19d7ac2aa19a3908ded322b056e83525a2b9b1b39b06d9de2186091ea",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "335f9233-b37e-4d1b-982f-5278d5aabfbe",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 2,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Agenda\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n▪ Introduction (5 minutes)\r\n▪ AMD GPU Hardware (10 minutes)\r\n▪ GPU Programming Concepts (45 minutes)\r\n▪ GPU Programming Software (15 minutes)\r\n▪ Porting existing CUDA codes to HIP (15 mins)\r\n2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/335f9233-b37e-4d1b-982f-5278d5aabfbe.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3cc1d1c4c0805193cfe18134ccadd457d8620beda542c04f03b83838c8cbe854",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8b9dabf1-a89c-4978-b667-685150c1fccf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 3,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "What we won’t cover today (but is still important)\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n▪ Profiling:\r\n⁃ rocprofiler / roctracer: libraries for collecting GPU hardware counters and application traces\r\n⁃ Install: sudo apt install rocprofiler-dev roctracer-dev\r\n▪ Debugging:\r\n⁃ rocr_debug_agent: print state of wavefronts on memory violation / signals\r\n⁃ HIP debugging tips\r\n⁃ In kernel printf\r\n3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/8b9dabf1-a89c-4978-b667-685150c1fccf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6c995665f3acd7930d60e258cc8c4a138025f3ed8e38eedcac53382a0b017bec",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d3e8f167-9b23-4daf-894a-eb90ffd84ec3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 4,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "What we won’t cover today (but is still important)\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n▪ AOMP (AMD OpenMP Compiler):\r\n⁃ OpenMP 4.5+ support, “target” pragmas, device offloading\r\n▪ GPU Libraries:\r\n⁃ hipBLAS: BLAS functionality on GPUs\r\n⁃ rocFFT: FFTs on GPUs\r\n⁃ rocRAND: random number generation\r\n⁃ rocPRIM / hipCUB: high performance GPU primitives\r\n⁃ Tensile: GEMMs, tensor contractions\r\n⁃ hipSPARSE: BLAS for sparse matrices / vectors\r\n⁃ rocALUTION: iterative sparse solvers\r\n⁃ MIOpen, TensorFlow, PyTorch: machine learning\r\n4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/d3e8f167-9b23-4daf-894a-eb90ffd84ec3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dba47093ec87cdf25b0e4f721c32438941004ed48cb12754a4d595b29a4a9929",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "face7ef5-718c-4b7c-9b8b-a37ae8826e0a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 5,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Comments\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n▪ Slides will be provided\r\n▪ Ask questions in the google doc; we will be monitoring it\r\n▪ Focus is on single node / device: \r\n⁃ Little discussion of MPI, or multi-node\r\nPlease share any feedback or ask questions in the Google Doc\r\n5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/face7ef5-718c-4b7c-9b8b-a37ae8826e0a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c408e16a6288f5a55e3b755ebd05ccbd5d83e6504e80b42051254dd4e1cd3f9c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a9ae4fbc-73d3-438c-aabb-c5ee1e3bf077",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 6,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GCN GPU Hardware\r\nNick Curtis <nicholas.curtis@amd.com>\r\n6 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/a9ae4fbc-73d3-438c-aabb-c5ee1e3bf077.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ffd7cc2850970ea84c4dc02af126d285fbba0d708b2e5254d4a34713fbea8fc3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "37dd7e68-d86d-441a-9680-4e7066347d53",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 7,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GCN GPU HARDWARE\r\nAGENDA\r\nIntroduction GCN Hardware Overview\r\nAMD GPU Compute Terminology\r\nAMD GPU Architecture GPU Memory and I/O System\r\nGCN Compute Unit Internals\r\n7 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/37dd7e68-d86d-441a-9680-4e7066347d53.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5111f79c59241cec7dce7150b0f21d0095a1c8c7b21f2c7559565208d86a0c63",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "afab417d-d7da-44b1-aec2-a071f20e5bb0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 8,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GCN GPU Hardware Layout\r\n8 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nCommand Processor\r\nShader Engine\r\n(SE0)\r\nShader Engine\r\n(SE3)\r\nShader Engine\r\n(SE1)\r\nShader Engine\r\n(SE2)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/afab417d-d7da-44b1-aec2-a071f20e5bb0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=30fd75c08ae8f92c0d4a121d427635b7dcfe79310b5a3d136fd216e14b1e6ad1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 425
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4b12de65-f248-4201-95ee-84aa87452336",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 9,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GCN GPU Hardware Layout\r\n9 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nCommand Processor\r\nWorkload \r\nManager\r\nWorkload \r\nManager\r\nWorkload \r\nManager\r\nWorkload \r\nManager\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCommand Queue Command Queue\r\nQueues reside in \r\nuser-visible DRAM",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/4b12de65-f248-4201-95ee-84aa87452336.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6afcc72fd1dc6eb5c9866fdab61cb70b4523e943e2191269a148eb392a1f0041",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4be01a59-0c50-4da8-89df-558080e29721",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 10,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Hardware Configuration Parameters on Modern AMD GPUs\r\n10 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU SKU Shader Engines CUs / SE\r\nAMD Radeon Instinct™ MI60 4 16\r\nAMD Radeon Instinct™ MI50 4 15\r\nAMD Radeon™ VII 4 15\r\nAMD Radeon Instinct™ MI25\r\nAMD Radeon™ Vega 64\r\n4 16\r\nAMD Radeon™ Vega 56 4 14\r\nAMD Radeon Instinct™ MI6 4 9\r\nAMD Ryzen™ 5 2400G 1 11",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/4be01a59-0c50-4da8-89df-558080e29721.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=69cba0ad7c54e65318ccf7918604af7c3bc56e7628640646f43884aee6a4e820",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "64c32de0-63bc-4801-a76d-4225ff152775",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 11,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GPU Compute Terminology\r\n11 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/64c32de0-63bc-4801-a76d-4225ff152775.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=136833b4d608649386f95bcc5480e83fb69c31f35220e163d9b47c26b7bfc659",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0aaddd0d-a9bb-4a67-b5e4-cefa42f0cfd5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 12,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Overview of GPU Kernels\r\n12 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU Kernel\r\nFunctions launched to the GPU that are executed by multiple parallel workers\r\nExamples: GEMM, triangular solve, vector copy, scan, convolution",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/0aaddd0d-a9bb-4a67-b5e4-cefa42f0cfd5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b572fa4bad3ff9741f0de5af5409be2dd9dc698456c7b8e6a68e33696ab28c13",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "21e3d5ae-8477-41bd-a8fa-749c3e90dd17",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 13,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Overview of GPU Kernels\r\n13 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU Kernel\r\nWorkgroup 0\r\nWorkgroup 1\r\nWorkgroup 2\r\nWorkgroup 3\r\nWorkgroup 4\r\n…\r\nWorkgroup n\r\nGroup of threads that are on the GPU at the same time.\r\nAlso on the same compute unit.\r\nCan synchronize together and communicate through memory in the CU.\r\nProgrammer controls the number of workgroups – it’s usually a function of problem size.\r\nCUDA Terminology\r\nThread Block",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/21e3d5ae-8477-41bd-a8fa-749c3e90dd17.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fd97315f9e70f72b1bc641cfd4e9c59da089d3159205d1fa20a4a270015df98c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4ba04344-32e4-4023-96a3-cac9461f6b35",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 14,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Overview of GPU Kernels\r\n14 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU Kernel\r\nWorkgroup 0\r\nWavefront\r\nWorkgroup 1\r\nWorkgroup 2\r\nWorkgroup 3\r\nWorkgroup 4\r\n…\r\nWorkgroup n\r\nCollection of resources that execute in lockstep, run the same instructions, \r\nand follow the same control-flow path. Individual lanes can be masked off.\r\nCan think of this as a vectorized thread.\r\nCUDA Terminology\r\nWarp",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/4ba04344-32e4-4023-96a3-cac9461f6b35.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3aa8dcf32362604528f62cc402473f5014c148c4c088a73624efbc2d614b3353",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4f8c0ccd-7151-4e90-9c27-c978a181357e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 15,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Overview of GPU Kernels\r\n15 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU Kernel\r\nWorkgroup 0\r\nWavefront 0 Wavefront 1 … Wavefront 15\r\n64 work items (threads)\r\nWorkgroup 1\r\nWorkgroup 2\r\nWorkgroup 3\r\nWorkgroup 4\r\n…\r\nWorkgroup n\r\nNumber of wavefronts / workgroup is chosen by developer.\r\nGCN hardware allows up to 16 wavefronts in a workgroup.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/4f8c0ccd-7151-4e90-9c27-c978a181357e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2b6424dc13b387be9e43b475d3bed3b46ac06d5853ad26f640aed74169952bf8",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 471
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e786789a-b9cc-4040-8bc2-4ad20ad562c3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 16,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Scheduling work to a GPU\r\n16 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nCommand Processor\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCU\r\nCommand Queue\r\nWorkload \r\nManager\r\nWorkload \r\nManager\r\nWorkload \r\nManager\r\nWorkload \r\nManager",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/e786789a-b9cc-4040-8bc2-4ad20ad562c3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=449ad555e12b5e02901e9271891604c815409ac9b258b52c9887003db71a8170",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "544ccc31-0230-42e1-99d5-7e2e0226fdc8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 17,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "GPU Memory, I/O, and Connectivity\r\n17 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU\r\nCommand Processor\r\nMemory Controllers\r\nHBM/GDDR Memory\r\nCommand Queue Command Queue\r\nPCIe® \r\nControllers\r\nInfinity Fabric \r\nControllers\r\nDMA \r\nEngines\r\nDMA \r\nSystem Engines\r\nMemory\r\nOther \r\nGPUs\r\nL2 Cache",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/544ccc31-0230-42e1-99d5-7e2e0226fdc8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=15854fc3abee71d8f72d0993c049a5e097780d5fb84e568bc7c9219f3dafa4d1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dd340409-8259-4c5e-b6bc-14e6ce81de7a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 18,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "DMA Engines Accept Work from the Same Queues\r\n18 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU\r\nCommand Processor\r\nMemory Controllers\r\nHBM/GDDR Memory\r\nCommand Queue Command Queue\r\nPCIe® \r\nControllers\r\nInfinity Fabric \r\nControllers\r\nDMA \r\nEngines\r\nDMA \r\nSystem Engines\r\nMemory\r\nOther \r\nGPUs\r\nStep 1\r\nCPU submits a DMA Transfer \r\npacket to the command queue This is done with user-level \r\nmemory writes in Radeon \r\nOpen Compute (ROCm).\r\nNo kernel drivers involved.\r\nL2 Cache",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/dd340409-8259-4c5e-b6bc-14e6ce81de7a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7ffd63f1987de4693eece8ffec121733d822a19a7e1a4fa12510f9cbea423f61",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "15d58465-91b4-44a2-9884-a835c9c8079c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 19,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "DMA Engines Accept Work from the Same Queues\r\n19 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU\r\nCommand Processor\r\nMemory Controllers\r\nHBM/GDDR Memory\r\nCommand Queue Command Queue\r\nPCIe® \r\nControllers\r\nInfinity Fabric \r\nControllers\r\nDMA \r\nEngines\r\nDMA \r\nSystem Engines\r\nMemory\r\nOther \r\nGPUs\r\nStep 2\r\nCP Reads the packet and \r\nunderstands the transfer request\r\nL2 Cache",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/15d58465-91b4-44a2-9884-a835c9c8079c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3ea29c97d3a1015dc7a34ed6b0e9f0a1b75a5d70d410afb92f984bdf88b82b1e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5b85bd66-4e55-424b-a075-8070b020e632",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 20,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "DMA Engines Accept Work from the Same Queues\r\n20 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU\r\nCommand Processor\r\nMemory Controllers\r\nHBM/GDDR Memory\r\nCommand Queue Command Queue\r\nPCIe® \r\nControllers\r\nInfinity Fabric \r\nControllers\r\nDMA \r\nEngines\r\nDMA \r\nSystem Engines\r\nMemory\r\nOther \r\nGPUs\r\nStep 3\r\nCP sends transfer command to \r\nthe target DMA Engine\r\nThis can take place in parallel with \r\nother compute work & transfers\r\nL2 Cache",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/5b85bd66-4e55-424b-a075-8070b020e632.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=450b2c4439a71ab670a4f64ecbe189aa9cf063db05a3e1311f0b96a26dd6029f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6f36c6b9-62c0-4b55-8473-aa4afbcce509",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 21,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "DMA Engines Accept Work from the Same Queues\r\n21 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nGPU\r\nCommand Processor\r\nMemory Controllers\r\nHBM/GDDR Memory\r\nCommand Queue Command Queue\r\nPCIe® \r\nControllers\r\nInfinity Fabric \r\nControllers\r\nDMA \r\nEngines\r\nDMA \r\nSystem Engines\r\nMemory\r\nOther \r\nGPUs\r\nStep 4\r\nDMA Engines Transfer Data \r\nto/from GPU Memory\r\nTransfer takes place within \r\nprocess’s virtual memory space\r\nL2 Cache",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/6f36c6b9-62c0-4b55-8473-aa4afbcce509.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d936b0ae227cd570c71e551979759c00b7f5612c97c815affb4e12c6be7b0b2b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 435
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a23acfa5-aea6-4b82-8b7a-e51ffe45b78e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 22,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "The GCN Compute Unit (CU)\r\n22\r\n▪ The workload manager sends work packages (i.e. blocks of threads) to the Compute Units (CUs)\r\n⁃ Blocks are executed in wavefronts (groups of 64 threads in SIMD)\r\n⁃ All wavefronts in a block are guaranteed to reside in the same CU\r\n⁃ The CU’s scheduler can hold wavefronts from many blocks\r\n⁃ At most 40 wavefronts total per CU\r\nCompute Unit (CU)\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/a23acfa5-aea6-4b82-8b7a-e51ffe45b78e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7550ee4ff32ca1954c1c689070a643ca09039311f01519d6ff8234ac1b9c2b4d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "13600da5-fed6-4e81-8f89-ca98038b4f99",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 23,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "The GCN Compute Unit (CU)\r\n23\r\n▪ The Scalar Unit (SU)\r\n⁃ Shared by all threads in each wavefront, accessed on a per-wavefront level\r\n⁃ Threads in a wavefront performing the exact same operation can offload this instruction to the SU\r\n⁃ Used for control flow, pointer arithmetic, loading a common value, etc.\r\n⁃ Has its own pool of Scalar General-Purpose Register (SGPR) file, 12.5KiB per CU\r\nScalar Unit\r\nSGPR\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/13600da5-fed6-4e81-8f89-ca98038b4f99.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9936e04ecc734aebf4a389a73d2390aa04c2a64489501a3ce780df3a094e29ab",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d8d3106a-ec4e-4642-9b77-ed1375f5c07f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 24,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "The GCN Compute Unit (CU)\r\n24\r\n▪ SIMD Units\r\n⁃ 4x SIMD vector units (each 16 lanes wide)\r\n⁃ 4x 64KiB (256KiB total) Vector General-Purpose Register (VGPR) file \r\n⁃ A maximum of 256 total registers per SIMD lane – each register is 64x 4-byte entries \r\n⁃ Instruction buffer for 10 wavefronts on each SIMD unit\r\n⁃ Each wavefront is local to a single SIMD unit, not spread among the 4 (more on this in a moment)\r\nScalar Unit SIMD0\r\nSGPR VGPR\r\nSIMD1\r\nVGPR\r\nSIMD2 SIMD3\r\nVGPR VGPR\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/d8d3106a-ec4e-4642-9b77-ed1375f5c07f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=86245d0159778d573ef9bb21b706097c4c24840a9c260c689c481fcf793f1b08",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c3fa6278-bec6-4bfa-80b6-915efa17b5be",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 25,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "The GCN Compute Unit (CU)\r\n25\r\n▪ 64KiB Local Data Share (LDS, or shared memory)\r\n⁃ 32 banks with conflict resolution\r\n⁃ Can share data between all threads in a block\r\n▪ 16 KiB Read/Write L1 vector data cache\r\n⁃ Write-through; L2 cache is the coherence point – shared by all CUs\r\nScalar Unit SIMD0\r\nSGPR\r\nLDS\r\nVGPR\r\nL1 Cache\r\nSIMD1\r\nVGPR\r\nSIMD2 SIMD3\r\nVGPR VGPR\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/c3fa6278-bec6-4bfa-80b6-915efa17b5be.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a54e774987a66cad79d89115ebd8bb736b65d62fd6aa14fdc14adf3b7f097f6a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d1811731-6684-4e20-a041-0e42c6721c5a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 26,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "The GCN Compute Unit (CU)\r\n26\r\n▪ Scheduler\r\n⁃ Buffer for 40 wavefronts – 2560 threads\r\n⁃ Separate decode/issue for \r\n⁃ VALU, VGPR load/store\r\n⁃ SALU, SGPR load/store\r\n⁃ LDS load/store\r\n⁃ Global mem load/store\r\n⁃ Special instructions (NoOps, barriers, branch instructions)\r\nScalar Unit SIMD0\r\nSGPR\r\nLDS\r\nVGPR\r\nL1 Cache\r\nScheduler\r\nSIMD1\r\nVGPR\r\nSIMD2 SIMD3\r\nVGPR VGPR\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/d1811731-6684-4e20-a041-0e42c6721c5a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9ccefb97cd6481fde3906666c8beae43b28f2759a708f5c47a4a856c62a3b03c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 434
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "48813157-48f5-4794-a2fb-9d6b71bba44c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 27,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "The GCN Compute Unit (CU)\r\n27\r\n▪ Scheduler\r\n⁃ At each clock, waves on 1 SIMD unit are considered for execution (Round Robin scheduling among SIMDs)\r\n⁃ At most 1 instruction per wavefront may be issued\r\n⁃ At most 1 instruction from each category may be issued (S/V ALU, S/V GPR, LDS, global, branch, etc)\r\n⁃ Maximum of 5 instructions issued to wavefronts on a single SIMD, per cycle per CU\r\n⁃ Some instructions take 4 or more cycles to retire (e.g. FP32VALU instruction on 1 wavefront using 16-wide SIMD)\r\n⁃ Round robin scheduling of SIMDs hides execution latency\r\n⁃ Programmer can still ‘pretend’ CU operates in 64-wide SIMD \r\nScalar Unit SIMD0\r\nSGPR\r\nLDS\r\nVGPR\r\nL1 Cache\r\nScheduler\r\nSIMD1\r\nVGPR\r\nSIMD2 SIMD3\r\nVGPR VGPR\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/48813157-48f5-4794-a2fb-9d6b71bba44c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e753f517235ceaadcbf8cf3a6c5ccedacec869ae793f58afb1939b7cc3664bf5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3d1bf223-1250-45ce-8c4b-676f357279e5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 28,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Software Terminology\r\n28 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nNvidia/CUDA \r\nTerminology AMD Terminology Description\r\nStreaming \r\nMultiprocessor\r\nCompute Unit (CU) One of many parallel vector processors in a GPU that contain parallel ALUs.\r\nAll waves in a workgroups are assigned to the same CU.\r\nKernel Kernel Functions launched to the GPU that are executed by multiple parallel workers \r\non the GPU. Kernels can work in parallel with CPU.\r\nWarp Wavefront Collection of operations that execute in lockstep, run the same instructions, \r\nand follow the same control-flow path. Individual lanes can be masked off.\r\nThink of this as a vector thread. A 64-wide wavefront is a 64-wide vector op.\r\nThread Block Workgroup Group of wavefronts that are on the GPU at the same time. Can synchronize \r\ntogether and communicate through local memory.\r\nThread Work Item / Thread Individual lane in a wavefront. On AMD GPUs, must run in lockstep with other \r\nwork items in the wavefront. Lanes can be individually masked off.\r\nGPU programming models can treat this as a separate thread of execution, \r\nthough you do not necessarily get forward sub-wavefront progress.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/3d1bf223-1250-45ce-8c4b-676f357279e5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=41959c61fa82afeadcd4b6b8d1a025549a51a6f93665f9d358555fff388fa809",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "17a3a303-9f07-4227-a71c-38ab904d8a56",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 29,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Software Terminology\r\n29 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nNvidia/CUDA \r\nTerminology AMD Terminology Description\r\nGlobal Memory Global Memory DRAM memory accessible by the GPU that goes through some layers cache\r\nShared Memory Local Memory Scratchpad that allows communication between wavefronts in a workgroup.\r\nLocal Memory Private Memory Per-thread private memory, often mapped to registers.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/17a3a303-9f07-4227-a71c-38ab904d8a56.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9ffc7d34f2c2d4c1babb883f0e3e312eeb7c14fa13fe0bb6cd400e55e44ee7dd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a9aec8e7-58d4-4ac2-bb72-46a70d19db40",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 30,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GPU Programming \r\nConcepts\r\nProgramming with HIP: Kernels, blocks, threads, and more\r\nDamon McDougall <damon.mcdougall@amd.com>\r\n30 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/a9aec8e7-58d4-4ac2-bb72-46a70d19db40.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c01b848f579c0d471b5d56bdab5567db8cd9880ed57cf3bc239a24db7a72649",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 431
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1bec2b22-3600-406b-824e-545f10978c77",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 31,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "What is HIP?\r\nAMD’s Heterogeneous-compute Interface for Portability, or \r\nHIP, is a C++ runtime API and kernel language that allows \r\ndevelopers to create portable applications that can run on \r\nAMD’s accelerators as well as CUDA devices.\r\nHIP:\r\n▪ Is open-source.\r\n▪ Provides an API for an application to leverage GPU \r\nacceleration for both AMD and CUDA devices.\r\n▪ Syntactically similar to CUDA. Most CUDA API calls can be \r\nconverted in place: cuda -> hip\r\n▪ Supports a strong subset of CUDA runtime functionality.\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nPortable HIP C++ (Host & Device Code)\r\n#include “cuda.h” #include “hcc.h”\r\nnvcc hipcc\r\nNvidia GPU AMD GPU\r\n31",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/1bec2b22-3600-406b-824e-545f10978c77.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cceee9688d67fae96ff55f4ba571df3fbb0c2605f873b815b0685598f4cc1b22",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "539ee20a-960c-401f-b2dc-27679f2befa9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 32,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "A Tale of Host and Device\r\n▪ The Host is the CPU\r\n▪ Host code runs here\r\n▪ Usual C++ syntax and features\r\n▪ Entry point is the ‘main’ function\r\n▪ HIP API can be used to create device buffers, move \r\nbetween host and device, and launch device code.\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n▪ The Device is the GPU\r\n▪ Device code runs here\r\n▪ C-like syntax\r\n▪ Device codes are launched via “kernels”\r\n▪ Instructions from the Host are enqueued into “streams”\r\nSource code in HIP has two flavors: Host code and Device code\r\n32",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/539ee20a-960c-401f-b2dc-27679f2befa9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=656476c531f62c77ed028c553f4aab6da89c889fb5de886b15645bf792cb26b3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f6fcb661-5d25-4b4f-8b9d-698e4428fdb0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 33,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "HIP API\r\n▪ Device Management: \r\n⁃ hipSetDevice(), hipGetDevice(), hipGetDeviceProperties()\r\n▪ Memory Management\r\n⁃ hipMalloc(), hipMemcpy(), hipMemcpyAsync(), hipFree()\r\n▪ Streams\r\n⁃ hipStreamCreate(), hipSynchronize(), hipStreamSynchronize(), hipStreamFree()\r\n▪ Events\r\n⁃ hipEventCreate(), hipEventRecord(), hipStreamWaitEvent(), hipEventElapsedTime()\r\n▪ Device Kernels\r\n⁃ __global__, __device__, hipLaunchKernelGGL()\r\n▪ Device code\r\n⁃ threadIdx, blockIdx, blockDim, __shared__\r\n⁃ 200+ math functions covering entire CUDA math library.\r\n▪ Error handling\r\n⁃ hipGetLastError(), hipGetErrorString()\r\n33 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/f6fcb661-5d25-4b4f-8b9d-698e4428fdb0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=598335a00842ad96b836d21d78d4b2e572ad1783ad26604d704d201a39c1f5f6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9091289b-281f-497b-bfa1-a945924b970f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 34,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Kernels, memory, and structure of host code\r\n34 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/9091289b-281f-497b-bfa1-a945924b970f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eaad0b3802ddbf08f3c4a4f3b6bd90dbfc44280da9be79000b7fb39d05a01c8c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "272eef25-ba1a-4fcd-b044-3c1492f1795a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 35,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Device Kernels: The Grid\r\n▪ In HIP, kernels are executed on a 3D ”grid”\r\n⁃ You might feel comfortable thinking in terms of a mesh of points, but it’s not required\r\n▪ The “grid” is what you can map your problem to\r\n⁃ It’s not a physical thing, but it can be useful to think that way\r\n▪ AMD devices (GPUs) support 1D, 2D, and 3D grids, but most work maps well to 1D\r\n▪ Each dimension of the grid partitioned into equal sized “blocks”\r\n▪ Each block is made up of multiple “threads”\r\n▪ The grid and its associated blocks are just organizational constructs\r\n⁃ The threads are the things that do the work\r\n▪ If you’re familiar with CUDA already, the grid+block structure is very similar in HIP\r\n35 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/272eef25-ba1a-4fcd-b044-3c1492f1795a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=309380af6d19aa80c1f85923278b388eaff248af08bf2dadc66db68044313bb1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 479
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "36b46045-7b4d-4bf9-939f-74c6e526c239",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 36,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Device Kernels: The Grid\r\nCUDA HIP OpenCL™\r\ngrid grid NDRange\r\nblock block work group\r\nthread work item / thread work item\r\nwarp wavefront sub-group\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nSome Terminology:\r\n36",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/36b46045-7b4d-4bf9-939f-74c6e526c239.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=833cce4bac237731daeb4ab0bfe500634d9943e28d29f3bb0705756c729f49a9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4f561fc5-fe14-46bb-ae20-384a84358e66",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 37,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "The Grid: blocks of threads in 1D\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n \r\n \r\nThreads in grid have access to:\r\n▪ Their respective block: blockIdx.x\r\n▪ Their respective thread ID in a block: threadIdx.x\r\n▪ Their block’s dimension: blockDim.x\r\n▪ The number of blocks in the grid: gridDim.x\r\n37",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/4f561fc5-fe14-46bb-ae20-384a84358e66.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b628240376da61a87ac908012bd2d4ce5de834e5f27da2a21fc0ff820e573d15",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bb299eed-09cf-4a5a-a18b-bb843c302f6a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 38,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "The Grid: blocks of threads in 2D\r\n▪ Each color is a block of threads\r\n▪ Each small square is a thread\r\n▪ The concept is the same in 1D and 2D\r\n▪ In 2D each block and thread now has a two-dimensional \r\nindex\r\nThreads in grid have access to:\r\n▪ Their respective block IDs: blockIdx.x, blockIdx.y\r\n▪ Their respective thread IDs in a block: threadIdx.x, \r\nthreadIdx.y\r\n▪ Etc.\r\n38 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/bb299eed-09cf-4a5a-a18b-bb843c302f6a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=78cbaab38216a3701a8132b2179484526c96b0f7709bffdd8b32f8db8e3aa4a2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9a2fa2dc-004b-4f60-872e-9342ab7d435a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 39,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Kernels\r\nA simple embarrassingly parallel loop\r\nfor (int i=0;i<N;i++) {\r\nh_a[i] *= 2.0;\r\n}\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nCan be translated into a GPU kernel:\r\n__global__ void myKernel(int N, double *d_a) {\r\nint i = threadIdx.x + blockIdx.x*blockDim.x; \r\nif (i<N) {\r\nd_a[i] *= 2.0;\r\n}\r\n}\r\n▪ A device function that will be launched from the host \r\nprogram is called a kernel and is declared with the \r\n__global__ attribute\r\n▪ Kernels should be declared void\r\n▪ All pointers passed to kernels must point to memory \r\non the device (more later)\r\n▪ All threads execute the kernel’s body “simultaneously”\r\n▪ Each thread uses its unique thread and block IDs to \r\ncompute a global ID\r\n▪ There could be more than N threads in the grid (we’ll \r\nsee why in a minute)\r\n39",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/9a2fa2dc-004b-4f60-872e-9342ab7d435a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d6c07b53480d3b898c08e1aebfc88432649316bdd84b71b1f9470a06a9ce8cfc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "650934b4-c5ac-4c9b-9c3e-61f5b2ba006a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 40,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Kernels\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nKernels are launched from the host:\r\ndim3 threads(256,1,1); //3D dimensions of a block of threads \r\ndim3 blocks((N+256-1)/256,1,1); //3D dimensions the grid of blocks\r\nhipLaunchKernelGGL(myKernel, //Kernel name (__global__ void function)\r\nblocks, //Grid dimensions\r\nthreads, //Block dimensions\r\n0, //Bytes of dynamic LDS space (see extra slides)\r\n0, //Stream (0=NULL stream)\r\nN, a); //Kernel arguments\r\nAnalogous to CUDA kernel launch syntax:\r\nmyKernel<<<blocks, threads, 0, 0>>>(N,a);\r\n40",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/650934b4-c5ac-4c9b-9c3e-61f5b2ba006a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0e2dc60e0548e23a4be9d4e424591abbf5c8897f237cd46323048c334b5ddd60",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 415
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b8566d80-1ae3-454f-bb93-1436e4e917b9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 41,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "SIMD operations\r\nWhy blocks and threads?\r\nNatural mapping of kernels to hardware:\r\n▪ Blocks are dynamically scheduled onto CUs\r\n▪ All threads in a block execute on the same CU\r\n▪ Threads in a block share LDS memory and L1 cache\r\n▪ Threads in a block are executed in 64-wide chunks called “wavefronts”\r\n▪ Wavefronts execute on SIMD units (Single Instruction Multiple Data) \r\n▪ If a wavefront stalls (e.g. data dependency) CUs can quickly context switch to another wavefront\r\nA good practice is to make the block size a multiple of 64 and have several wavefronts (e.g. 256 threads)\r\n41 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/b8566d80-1ae3-454f-bb93-1436e4e917b9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=de7c16b7d25e81f89d6a50b6ea434e22897bacd8f8529bbd34d80028fe951f32",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cbc12dd4-72d2-4ab9-82b2-db0434918c80",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 42,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Device Memory\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nThe host instructs the device to allocate memory in VRAM and records a pointer to device memory:\r\nint main() {\r\n…\r\nint N = 1000;\r\nsize_t Nbytes = N*sizeof(double);\r\ndouble *h_a = (double*) malloc(Nbytes); //Host memory\r\ndouble *d_a = NULL; \r\nhipMalloc(&d_a, Nbytes); //Allocate Nbytes on device\r\n…\r\nfree(h_a); //free host memory\r\nhipFree(d_a); //free device memory\r\n}\r\n42",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/cbc12dd4-72d2-4ab9-82b2-db0434918c80.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba7aaa1ef7fd4a3ced98d9501417910d9897470811e7d4cb6137004948e35373",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "600288c2-42ec-40f2-9648-76e408e361f5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 43,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Device Memory\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nThe host queues memory transfers:\r\n//copy data from host to device\r\nhipMemcpy(d_a, h_a, Nbytes, hipMemcpyHostToDevice); \r\n//copy data from device to host\r\nhipMemcpy(h_a, d_a, Nbytes, hipMemcpyDeviceToHost); \r\n//copy data from one device buffer to another\r\nhipMemcpy(d_b, d_a, Nbytes, hipMemcpyDeviceToDevice); \r\n43",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/600288c2-42ec-40f2-9648-76e408e361f5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c91db3c41b87b2b3c7ee2ccb1c3b0f0da749cd5f352c3e75e7789bc85022a87c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7bb2211a-dfe2-4cdc-9173-b76c465fb403",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 44,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Device Memory\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nCan copy strided sections of arrays:\r\nhipMemcpy2D(d_a, //pointer to destination\r\nDLDAbytes, //pitch of destination array\r\nh_a, //pointer to source\r\nLDAbytes, //pitch of source array\r\nNbytes, //number of bytes in each row\r\nNrows, //number of rows to copy\r\nhipMemcpyHostToDevice); \r\n44",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/7bb2211a-dfe2-4cdc-9173-b76c465fb403.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5749b67be07ef590a2271694f477cb05fee7165e36d65809367fc81355c6ef75",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "75760083-0cc7-4d9c-8e7b-53f8e326452b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 45,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Error Checking\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n▪ Most HIP API functions return error codes of type hipError_t\r\nhipError_t status1 = hipMalloc(…);\r\nhipError_t status2 = hipMemcpy(…);\r\n▪ If API function was error-free, returns hipSuccess, otherwise returns an error code. \r\n▪ Can also peek/get at last error returned with \r\nhipError_t status3 = hipGetLastError();\r\nhipError_t status4 = hipPeekLastError();\r\n▪ Can get a corresponding error string using hipGetErrorString(status). Helpful for debugging, e.g.\r\n#define HIP_CHECK(command) { \\\r\nhipError_t status = command; \\\r\nif (status!=hipSuccess) { \\\r\nstd::cerr << “Error: HIP reports ” << hipGetErrorString(status) << std::endl; \\\r\nstd::abort(); } }\r\n45",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/75760083-0cc7-4d9c-8e7b-53f8e326452b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bc9efd41ce31af56731c2e633768990daa425cae2270a454e81e546b9b498fda",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 417
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8c815ae3-41c3-4d55-b600-e2084a331541",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 46,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Putting it all together\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n#include “hip/hip_runtime.h”\r\nint main() {\r\nint N = 1000;\r\nsize_t Nbytes = N*sizeof(double);\r\ndouble *h_a = (double*) malloc(Nbytes); //host memory\r\ndouble *d_a = NULL; \r\nHIP_CHECK(hipMalloc(&d_a, Nbytes));\r\n…\r\nHIP_CHECK(hipMemcpy(d_a, h_a, Nbytes, hipMemcpyHostToDevice)); //copy data to device\r\nhipLaunchKernelGGL(myKernel, dim3((N+256-1)/256,1,1), dim3(256,1,1), 0, 0, N, d_a); //Launch kernel\r\nHIP_CHECK(hipGetLastError());\r\nHIP_CHECK(hipMemcpy(h_a, d_a, Nbytes, hipMemcpyDeviceToHost)); //copy results back to host\r\n…\r\nfree(h_a); //free host memory\r\nHIP_CHECK(hipFree(d_a)); //free device memory\r\n}\r\n__global__ void myKernel(int N, double *d_a) {\r\nint i = threadIdx.x + blockIdx.x*blockDim.x; \r\nif (i<N) {\r\nd_a[i] *= 2.0;\r\n}\r\n}\r\n46\r\n#define HIP_CHECK(command) { \\\r\nhipError_t status = command; \\\r\nif (status!=hipSuccess) { \\\r\nstd::cerr << “Error: HIP reports ” \\\r\n<< hipGetErrorString(status) \\\r\n<< std::endl; \\\r\nstd::abort(); } }",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/8c815ae3-41c3-4d55-b600-e2084a331541.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=30146196f3e43a005e724de2d3742713fe5d48528e833956890d2918b837829d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "883d707f-389c-4f9c-9f89-bed0a2abebae",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 47,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Device management and asynchronous computing\r\n47 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/883d707f-389c-4f9c-9f89-bed0a2abebae.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d3425a1bd3aa8b7ed1d686d0b2610c9b28785db67a36df6ef7994c5852ecec64",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1bba9ef4-87e4-475e-8d24-baf07360b980",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 48,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Device Management\r\nMultiple GPUs in system? Multiple host threads/MPI ranks? What device are we running on?\r\n▪ Host can query number of devices visible to system:\r\nint numDevices = 0; \r\nhipGetDeviceCount(&numDevices);\r\n▪ Host tells the runtime to issue instructions to a particular device:\r\nint deviceID = 0; \r\nhipSetDevice(deviceID);\r\n▪ Host can query what device is currently selected:\r\nhipGetDevice(&deviceID);\r\n▪ The host can manage several devices by swapping the currently selected device during runtime. \r\n▪ MPI ranks can set different devices or over-subscribe (share) devices. \r\n48 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/1bba9ef4-87e4-475e-8d24-baf07360b980.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4e2b9c877ddd71846edba7898c0036c212e4dc361aff98410b0259f1c2a508d0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "370208ac-3bac-46ba-a1e3-a58cf7d83d7d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 49,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Device Properties\r\nThe host can also query a device’s properties:\r\nhipDeviceProp_t props; \r\nhipGetDeviceProperties(&props, deviceID);\r\n▪ hipDeviceProp_t is a struct that contains useful fields like the device’s name, total VRAM, clock speed, and GCN \r\narchitecture. \r\n⁃ See “hip/hip_runtime_api.h” for full list of fields.\r\n49 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/370208ac-3bac-46ba-a1e3-a58cf7d83d7d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=87e8e766298eb9a0af0e55feb7c5459a272978b1ceaa2048ba67ce0651f8af28",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7ee06047-bac4-429a-98fe-15333b95e654",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 50,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Blocking vs Nonblocking API functions\r\n▪ The kernel launch function, hipLaunchKernelGGL, is non-blocking for the host. \r\n⁃ After sending instructions/data, the host continues immediately while the device executes the kernel\r\n⁃ If you know the kernel will take some time, this is a good area to do some work (i.e. MPI comms) on the host\r\n▪ However, hipMemcpy is blocking. \r\n⁃ The data pointed to in the arguments can be accessed/modified after the function returns.\r\n▪ The non-blocking version is hipMemcpyAsync\r\nhipMemcpyAsync(d_a, h_a, Nbytes, hipMemcpyHostToDevice, stream); \r\n▪ Like hipLaunchKernelGGL, this function takes an argument of type hipStream_t\r\n▪ It is not safe to access/modify the arguments of hipMemcpyAsync without some sort of synchronization.\r\n50 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/7ee06047-bac4-429a-98fe-15333b95e654.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=828f0f0e0f97c28bf1ee02c34aed8abffb64b94ebc3e44e7b079663cc25285a9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 452
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c2fef2e5-77b9-4352-87e2-6ff75dbeabf4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 51,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Putting it all together\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n#include “hip/hip_runtime.h”\r\nint main() {\r\nint N = 1000;\r\nsize_t Nbytes = N*sizeof(double);\r\ndouble *h_a = (double*) malloc(Nbytes); //host memory\r\ndouble *d_a = NULL; \r\nHIP_CHECK(hipMalloc(&d_a, Nbytes));\r\n…\r\nHIP_CHECK(hipMemcpy(d_a, h_a, Nbytes, hipMemcpyHostToDevice)); //copy data to device\r\nhipLaunchKernelGGL(myKernel, dim3((N+256-1)/256,1,1), dim3(256,1,1), 0, 0, N, d_a); //Launch kernel\r\nHIP_CHECK(hipGetLastError());\r\nHIP_CHECK(hipMemcpy(h_a, d_a, Nbytes, hipMemcpyDeviceToHost)); //copy results back to host\r\n…\r\nfree(h_a); //free host memory\r\nHIP_CHECK(hipFree(d_a)); //free device memory\r\n}\r\n__global__ void myKernel(int N, double *d_a) {\r\nint i = threadIdx.x + blockIdx.x*blockDim.x; \r\nif (i<N) {\r\nd_a[i] *= 2.0;\r\n}\r\n}\r\nThe host waits for the kernel to finish here\r\n51",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/c2fef2e5-77b9-4352-87e2-6ff75dbeabf4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5f2c5d0049f546666d6733e7d6e61884fa93a014ca9a29987bb77dc92adbcd6e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "30115cea-1a24-4a3e-83de-2c825768cb55",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 52,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Streams\r\n▪ A stream in HIP is a queue of tasks (e.g. kernels, memcpys, events). \r\n⁃ Tasks enqueued in a stream complete in order on that stream.\r\n⁃ Tasks being executed in different streams are allowed to overlap and share device resources.\r\n▪ Streams are created via:\r\nhipStream_t stream;\r\nhipStreamCreate(&stream);\r\n▪ And destroyed via:\r\nhipStreamDestroy(stream);\r\n▪ Passing 0 or NULL as the hipStream_t argument to a function instructs the function to execute on a stream called the \r\n‘NULL Stream’:\r\n⁃ No task on the NULL stream will begin until all previously enqueued tasks in all other streams have completed.\r\n⁃ Blocking calls like hipMemcpy run on the NULL stream. \r\n52 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/30115cea-1a24-4a3e-83de-2c825768cb55.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61e1796865cdd2e00ff17dad2921b4e63859d9997d822768d42a52cead03670d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "91e22f76-b8ec-4e9a-92fb-354e2acccbcc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 53,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Streams\r\n▪ Suppose we have 4 small kernels to execute:\r\nhipLaunchKernelGGL(myKernel1, dim3(1), dim3(256), 0, 0, 256, d_a1); \r\nhipLaunchKernelGGL(myKernel2, dim3(1), dim3(256), 0, 0, 256, d_a2); \r\nhipLaunchKernelGGL(myKernel3, dim3(1), dim3(256), 0, 0, 256, d_a3); \r\nhipLaunchKernelGGL(myKernel4, dim3(1), dim3(256), 0, 0, 256, d_a4); \r\n▪ Even though these kernels use only one block each, they’ll execute in serial on the NULL stream:\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nNULL Stream myKernel1 myKernel2 myKernel3 myKernel4\r\n53",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/91e22f76-b8ec-4e9a-92fb-354e2acccbcc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3f7b6c6d58d57e1cf482b69a3bd574f8d65ecf912ec4ab8f75b4008ba2b0520f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3c24d469-8253-431e-a8dc-75b3e40fb958",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 54,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Streams\r\n▪ With streams we can effectively share the GPU’s compute resources:\r\nhipLaunchKernelGGL(myKernel1, dim3(1), dim3(256), 0, stream1, 256, d_a1); \r\nhipLaunchKernelGGL(myKernel2, dim3(1), dim3(256), 0, stream2, 256, d_a2); \r\nhipLaunchKernelGGL(myKernel3, dim3(1), dim3(256), 0, stream3, 256, d_a3); \r\nhipLaunchKernelGGL(myKernel4, dim3(1), dim3(256), 0, stream4, 256, d_a4); \r\nNote 1: Check that the kernels modify different parts of memory to avoid data races. \r\nNote 2: With large kernels, overlapping computations may not help performance.\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nNULL Stream\r\nStream1\r\nStream2\r\nStream3\r\nStream4\r\nmyKernel1\r\nmyKernel2\r\nmyKernel3\r\nmyKernel4\r\n54",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/3c24d469-8253-431e-a8dc-75b3e40fb958.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6f5ae2aa28f4d93d40754c56b338d84f7c0329ebab7af5433bb16d328ed6eb3c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e31be454-37a8-4ee0-ae34-cf263521ab97",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 55,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Streams\r\n▪ There is another use for streams besides concurrent kernels: \r\n⁃ Overlapping kernels with data movement.\r\n▪ AMD GPUs have separate engines for: \r\n⁃ Host->Device memcpys\r\n⁃ Device->Host memcpys\r\n⁃ Compute kernels. \r\n▪ These three different operations can overlap without dividing the GPU’s resources.\r\n⁃ The overlapping operations should be in separate, non-NULL, streams. \r\n⁃ The host memory should be pinned.\r\n55 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/e31be454-37a8-4ee0-ae34-cf263521ab97.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9b18c8d91443ad1149b64d9a6e98fcf090f03f3af07a84207a205b8b9f94b92a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 497
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "7a42a25b-3840-4982-942f-8428ddaf4c77",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 56,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Pinned Memory\r\nHost data allocations are pageable by default. The GPU can directly access Host data if it is pinned instead.\r\n▪ Allocating pinned host memory:\r\ndouble *h_a = NULL;\r\nhipHostMalloc(&h_a, Nbytes);\r\n▪ Free pinned host memory:\r\nhipHostFree(h_a);\r\n▪ Host<->Device memcpy bandwidth increases significantly when host memory is pinned. \r\n⁃ It is good practice to allocate host memory that is frequently transferred to/from the device as pinned memory. \r\n56 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/7a42a25b-3840-4982-942f-8428ddaf4c77.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=444eb1980d812d52fb25568c268962fabc8631b7755456eb48f7983e3a1cac8e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a8b465a2-b8fc-4c45-8d16-be0da47a1e96",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 57,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Streams\r\nSuppose we have 3 kernels which require moving data to and from the device:\r\nhipMemcpy(d_a1, h_a1, Nbytes, hipMemcpyHostToDevice));\r\nhipMemcpy(d_a2, h_a2, Nbytes, hipMemcpyHostToDevice));\r\nhipMemcpy(d_a3, h_a3, Nbytes, hipMemcpyHostToDevice));\r\nhipLaunchKernelGGL(myKernel1, blocks, threads, 0, 0, N, d_a1); \r\nhipLaunchKernelGGL(myKernel2, blocks, threads, 0, 0, N, d_a2); \r\nhipLaunchKernelGGL(myKernel3, blocks, threads, 0, 0, N, d_a3); \r\nhipMemcpy(h_a1, d_a1, Nbytes, hipMemcpyDeviceToHost);\r\nhipMemcpy(h_a2, d_a2, Nbytes, hipMemcpyDeviceToHost);\r\nhipMemcpy(h_a3, d_a3, Nbytes, hipMemcpyDeviceToHost);\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nNULL Stream HToD1 HToD2 HToD3 myKernel1 myKernel2 myKernel3 DToH1 DToH2 DToH3\r\n57",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/a8b465a2-b8fc-4c45-8d16-be0da47a1e96.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=980c414ec16fd0306cf73a71c1fabbc8231dbfa3a3929984b27f81b4b3a787a3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8ddb2630-6c08-4485-a1ff-40552fdd12e4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 58,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Streams\r\nChanging to asynchronous memcpys and using streams:\r\nhipMemcpyAsync(d_a1, h_a1, Nbytes, hipMemcpyHostToDevice, stream1);\r\nhipMemcpyAsync(d_a2, h_a2, Nbytes, hipMemcpyHostToDevice, stream2);\r\nhipMemcpyAsync(d_a3, h_a3, Nbytes, hipMemcpyHostToDevice, stream3);\r\nhipLaunchKernelGGL(myKernel1, blocks, threads, 0, stream1, N, d_a1); \r\nhipLaunchKernelGGL(myKernel2, blocks, threads, 0, stream2, N, d_a2); \r\nhipLaunchKernelGGL(myKernel3, blocks, threads, 0, stream3, N, d_a3); \r\nhipMemcpyAsync(h_a1, d_a1, Nbytes, hipMemcpyDeviceToHost, stream1);\r\nhipMemcpyAsync(h_a2, d_a2, Nbytes, hipMemcpyDeviceToHost, stream2);\r\nhipMemcpyAsync(h_a3, d_a3, Nbytes, hipMemcpyDeviceToHost, stream3);\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nNULL Stream\r\nStream1\r\nStream2\r\nStream3\r\nmyKernel1\r\nmyKernel2\r\nmyKernel3\r\nHToD1\r\nHToD2\r\nHToD3\r\nDToH1\r\nDToH2\r\nDToH3\r\n58",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/8ddb2630-6c08-4485-a1ff-40552fdd12e4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ff4f69df289f53fe5a97d817a86fba09c95957c83c04e7c534b2bc41b3f6fa16",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9705f011-7ef0-4f48-aaaf-00c676e2b87c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 59,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Synchronization\r\nHow do we coordinate execution on device streams with host execution? Need some synchronization points.\r\n▪ hipDeviceSynchronize();\r\n⁃ Heavy-duty sync point.\r\n⁃ Blocks host until all work in all device streams has reported complete. \r\n▪ hipStreamSynchronize(stream);\r\n⁃ Blocks host until all work in stream has reported complete. \r\nCan a stream synchronize with another stream? For that we need ‘Events’.\r\n59 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/9705f011-7ef0-4f48-aaaf-00c676e2b87c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a2b6ea7c8d57c8978c8f5d90729b4f1f16bb3102b1f71dc208090ca24340f099",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ff95ab01-dd22-4400-b4ea-b4c8805d158c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 60,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Events\r\nA hipEvent_t object is created on a device via:\r\nhipEvent_t event;\r\nhipEventCreate(&event);\r\nWe queue an event into a stream:\r\nhipEventRecord(event, stream);\r\n⁃ The event records what work is currently enqueued in the stream.\r\n⁃ When the stream’s execution reaches the event, the event is considered ‘complete’.\r\nAt the end of the application, event objects should be destroyed:\r\nhipEventDestroy(event);\r\n60 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/ff95ab01-dd22-4400-b4ea-b4c8805d158c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dc101873bd6dfafa5e4d1253dfcf2fda66fd3125ee0bb718c7fb0d006e17600f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 421
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "036960ce-d4d2-4bec-bc0d-e36532c0d874",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 61,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Events\r\nWhat can we do with queued events?\r\n▪ hipEventSynchronize(event);\r\n⁃ Block host until event reports complete.\r\n⁃ Only a synchronization point with respect to the stream where event was enqueued.\r\n▪ hipEventElapsedTime(&time, startEvent, endEvent);\r\n⁃ Returns the time in ms between when two events, startEvent and endEvent, completed\r\n⁃ Can be very useful for timing kernels/memcpys\r\n▪ hipStreamWaitEvent(stream, event);\r\n⁃ Non-blocking for host.\r\n⁃ Instructs all future work submitted to stream to wait until event reports complete.\r\n⁃ Primary way we enforce an ‘ordering’ between tasks in separate streams.\r\n61 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/036960ce-d4d2-4bec-bc0d-e36532c0d874.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ac852e44780b7ecae772521f2469c9a55455e9d698cd98808effffc91ada43d4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9380f59b-f834-47de-b73e-e75656d4796e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 62,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Streams\r\nA common use-case for streams is MPI traffic:\r\n//Queue local compute kernel\r\nhipLaunchKernelGGL(myKernel, blocks, threads, 0, computeStream, N, d_a); \r\n//Copy halo data to host\r\nhipMemcpyAsync(h_commBuffer, d_commBuffer, Nbytes, hipMemcpyDeviceToHost, dataStream);\r\nhipStreamSynchronize(dataStream); //Wait for data to arrive\r\n//Exchange data with MPI\r\nMPI_Data_Exchange(h_commBuffer); \r\n//Send new data back to device\r\nhipMemcpyAsync(d_commBuffer, h_commBuffer, Nbytes, hipMemcpyHostToDevice, dataStream);\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nNULL Stream\r\ncomputeStream\r\ndataStream\r\nmyKernel\r\nDToH HToD\r\nMPI\r\n62",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/9380f59b-f834-47de-b73e-e75656d4796e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=41f8c02f427d815b2d943533fd67cb9a529e47c77135e3946911e78c0403ce81",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fb930529-6432-4921-b94c-5cec45c2dda7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 63,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Streams\r\nWith a GPU-aware MPI stack, the Host<->Device traffic can be omitted:\r\n//Some synchronization so that data on GPU and local compute are ready \r\nhipDeviceSynchronize(); \r\n//Exchange data with MPI (with device pointer)\r\nMPI_Data_Exchange(d_commBuffer, &request); \r\n//Queue local compute kernel\r\nhipLaunchKernelGGL(myKernel, blocks, threads, 0, computeStream, N, d_a); \r\n//Wait for MPI request to complete\r\nMPI_Wait(&request, &status);\r\n| AMD Confidential - Presented to Cray under NDA | 2019\r\nNULL Stream\r\ncomputeStream myKernel\r\nMPI",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/fb930529-6432-4921-b94c-5cec45c2dda7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1cb578ef798019d623a863436c38ee3b99a4af537163ba1ddea2c57fbd423283",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8209f0b6-77c4-4e0f-b012-554ac614c7c5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 64,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Device code, shared memory, and thread \r\nsynchronization\r\n64 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/8209f0b6-77c4-4e0f-b012-554ac614c7c5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=911c1bb4bde205556bb848862b4c327a67f00c962a29606ced741ed257d47314",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "341d0ee5-ca6e-4244-8939-4013e2835543",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 65,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Function Qualifiers\r\nhipcc makes two compilation passes through source code. One to compile host code, and one to compile device code.\r\n▪ __global__ functions: \r\n⁃ These are entry points to device code, called from the host\r\n⁃ Code in these regions will execute on SIMD units\r\n▪ __device__ functions: \r\n⁃ Can be called from __global__ and other __device__ functions.\r\n⁃ Cannot be called from host code.\r\n⁃ Not compiled into host code – essentially ignored during host compilation pass\r\n▪ __host__ __device__ functions: \r\n⁃ Can be called from __global__, __device__, and host functions.\r\n⁃ Will execute on SIMD units when called from device code!\r\n65 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/341d0ee5-ca6e-4244-8939-4013e2835543.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=69c0eb40ad9fd14b18ef2b8b46b198411fa110937c5211223d31f4803057df88",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "94d9f190-7da9-4909-8a0b-4c5e278d582e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 66,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "SIMD Execution\r\nOn SIMD units, be aware of divergence.\r\n▪ Branching logic (if – else) can be costly:\r\n⁃ Wavefront encounters an if statement \r\n⁃ Evaluates conditional\r\n⁃ If true, continues to statement body\r\n⁃ If false, also continues to statement body with all instructions replaced with NoOps. \r\n⁃ Known as ‘thread divergence’\r\n▪ Generally, wavefronts diverging from each other is okay.\r\n▪ Thread divergence within a wavefront can impact performance. \r\n66 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/94d9f190-7da9-4909-8a0b-4c5e278d582e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f1c8ae4190806ea7a6708c581a6c8f3a61e2060b730eb9a4be78a6a82dbe729a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 491
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "df1cdf31-af1a-42b3-b374-3b97884192e8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 67,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "SIMD Execution\r\nif (threadIdx.x % 2) {\r\na *= 2.0;\r\n} else {\r\na *= 3.14;\r\n}\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n//if (threadIdx.x % 2) {\r\nNoOp;\r\n//} else {\r\na *= 3.14;\r\n//}\r\n//if (threadIdx.x % 2) {\r\na *= 2.0;\r\n//} else {\r\nNoOp;\r\n//}\r\n67",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/df1cdf31-af1a-42b3-b374-3b97884192e8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a75d706b03ed6deaf1649d3852503cac56d0bf2e153aab0629e5144c1c8a251b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a3f0a590-4bd6-44e7-9e2f-37b40b1d653f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 68,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Memory declarations in Device Code\r\n▪ Malloc/free not supported in device code.\r\n▪ Variables/arrays can be declared on the stack. \r\n▪ Stack variables declared in device code are allocated in registers and are private to each thread.\r\n▪ Threads can all access common memory via device pointers, but otherwise do not share memory.\r\n⁃ Important exception: __shared__ memory\r\n▪ Stack variables declared as __shared__:\r\n⁃ Allocated once per block in LDS memory\r\n⁃ Shared and accessible by all threads in the same block\r\n⁃ Access is faster than device global memory (but slower than register)\r\n⁃ Must have size known at compile time \r\n68 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/a3f0a590-4bd6-44e7-9e2f-37b40b1d653f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4643fbf5aff5e9f9d048e7824e9fc376b01e44ad552ee82e4b648110ff29947e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5afe5728-79d0-43b8-90e4-6a9c7dafa21c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 69,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Shared Memory\r\n__global__ void reverse(double *d_a) {\r\n__shared__ double s_a[256]; //array of doubles, shared in this block\r\nint tid = threadIdx.x;\r\ns_a[tid] = d_a[tid]; //each thread fills one entry\r\n//all wavefronts must reach this point before any wavefront is allowed to continue.\r\n__syncthreads();\r\nd_a[tid] = s_a[255-tid]; //write out array in reverse order\r\n}\r\nint main() {\r\n…\r\nhipLaunchKernelGGL(reverse, dim3(1), dim3(256), 0, 0, d_a); //Launch kernel\r\n…\r\n}\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n//something is missing here…\r\n69",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/5afe5728-79d0-43b8-90e4-6a9c7dafa21c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a00fd6db7c60ef6498c9983c6d7260fca7e48d73b2ff12a89e7b07d31bc19196",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "724d2753-1ea1-4037-87ef-785b8418066b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 70,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Thread Synchronization\r\n▪ __syncthreads():\r\n⁃ Blocks a wavefront from continuing execution until all wavefronts have reached __syncthreads()\r\n⁃ Memory transactions made by a thread before __syncthreads() are visible to all other threads in the block after \r\n__syncthreads()\r\n⁃ Can have a noticeable overhead if called repeatedly\r\n▪ Best practice: Avoid deadlocks by checking that all threads in a block execute the same __syncthreads() instruction.\r\n▪ Note 1: So long as at least one thread in the wavefront encounters __syncthreads(), the whole wavefront is considered to \r\nhave encountered __syncthreads().\r\n▪ Note 2: Wavefronts can synchronize at different __syncthreads() instructions, and if a wavefront exits a kernel \r\ncompletely, other wavefronts waiting at a __syncthreads() may be allowed to continue.\r\n70 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/724d2753-1ea1-4037-87ef-785b8418066b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=20864ed2fa6e3dbb443031baca5dd98868c84c7343c1ee82137141cbcf1c1a5b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5808989a-12e4-4a1b-9026-c2cd3075539f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 71,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "HIP API\r\n▪ Device Management: \r\n⁃ hipSetDevice(), hipGetDevice(), hipGetDeviceProperties()\r\n▪ Memory Management\r\n⁃ hipMalloc(), hipMemcpy(), hipMemcpyAsync(), hipFree()\r\n▪ Streams\r\n⁃ hipStreamCreate(), hipSynchronize(), hipStreamSynchronize(), hipStreamFree()\r\n▪ Events\r\n⁃ hipEventCreate(), hipEventRecord(), hipStreamWaitEvent(), hipEventElapsedTime()\r\n▪ Device Kernels\r\n⁃ __global__, __device__, hipLaunchKernelGGL()\r\n▪ Device code\r\n⁃ threadIdx, blockIdx, blockDim, __shared__\r\n⁃ 200+ math functions covering entire CUDA math library.\r\n▪ Error handling\r\n⁃ hipGetLastError(), hipGetErrorString()\r\n71 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/5808989a-12e4-4a1b-9026-c2cd3075539f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b87b7cdddeeed56f5b7af1ba676309ae7fea325ec5dfc77e564e425eee39c82f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c57c015d-2571-4001-bcf6-4391fc4e18fe",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 72,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GPU Software\r\nRené van Oostrum <rene.vanoostrum@amd.com>\r\n72 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/c57c015d-2571-4001-bcf6-4391fc4e18fe.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=177374c48e65790442005f059d54119cadd04fdc297264e85cea3e600fe2d78f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 510
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1d5d5125-34fb-405e-8445-144f97457b66",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 73,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GPU Compilers\r\n73 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n▪ AMD supports several compilers that emit AMDGCN assembly\r\n⁃ hcc\r\n⁃ A fork of clang, will eventually be deprecated.\r\n⁃ hip-clang \r\n⁃ Based on upstream version of clang, currently in development\r\n⁃ AOMP\r\n▪ hipcc\r\n⁃ A perl script that will invoke nvcc or hcc (or hip-clang).\r\n⁃ Will automatically set the command line options needed by each compiler. \r\n▪ hcc\r\n⁃ Compiles HIP applications\r\n⁃ Fork of clang\r\n⁃ Generates and links AMDGCN from HIP device code\r\n⁃ All the x86 host code is handled as usual by clang\r\n▪ AOMP (AMD OpenMP Compiler)\r\n⁃ Compiles C/C++ code with OpenMP “target” pragmas\r\n⁃ Links with libomptarget to produce a binary that can offload work to the GPU\r\nhipcc\r\nhcc/hip-clang\r\namdgcn",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/1d5d5125-34fb-405e-8445-144f97457b66.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ab271bba3a58aee2501c35a6885769069cfd630440d11c7cb46e48fd5cea677f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1222d63c-d3e0-48a7-82b1-142d6637bbd1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 74,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GPU Compilers: the FORTRAN story\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n▪ FORTRAN is a technology important to the US Department of Energy\r\n▪ AMD has plans to support OpenMP 4.5+ target offload from FORTRAN with two open source options\r\n⁃ F18 (based on llvm)\r\n⁃ gfortran\r\n▪ FORTRAN compiler work is an ongoing effort\r\n▪ See the Frontier spec sheet for what is expected to be supported on Frontier\r\n⁃ https://www.olcf.ornl.gov/wp-content/uploads/2019/05/frontier_specsheet.pdf\r\n74",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/1222d63c-d3e0-48a7-82b1-142d6637bbd1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=92af39625a2df546ea86fe275768a565cb37188af21a4ec3aa4ceb1fde2fa1ed",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3bf96873-0b8f-4b12-bc26-03688df9b7c8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 75,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "hipcc usage\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nUsage is straightforward. Accepts all/any flags that vanilla clang accepts, e.g. \r\nhipcc dotprod.cpp -o dotprod\r\nSet HIPCC_VERBOSE=7 to see a bunch of useful information\r\n⁃ Compile and link lines\r\n⁃ Various paths\r\n$ HIPCC_VERBOSE=7 hipcc dotprod.cpp -o dotprod\r\nHIP_PATH=/opt/rocm\r\nHIP_PLATFORM=hcc\r\nHSA_PATH=/opt/rocm/hsa\r\nHCC_HOME=/opt/rocm/hcc\r\nhipcc-args: dotprod.cpp -o dotprod\r\nhipcc-cmd: /opt/rocm/hcc/bin/hcc -hc -D__HIPCC__ -isystem /opt/rocm/hcc/include\r\n-isystem /opt/rocm/include/hip/hcc_detail/cuda -isystem /opt/rocm/hsa/include -Wno-deprecated-register\r\n-isystem /opt/rocm/profiler/CXLActivityLogger/include -isystem /opt/rocm/include \r\n-DHIP_VERSION_MAJOR=1 -DHIP_VERSION_MINOR=5 -DHIP_VERSION_PATCH=19284 \r\n-D__HIP_ARCH_GFX900__=1 -D__HIP_ARCH_GFX906__=1\r\ndotprod.cpp -o dotprod\r\n75",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/3bf96873-0b8f-4b12-bc26-03688df9b7c8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=58aa02f58b557898d42d7bd646a12ae005c32482a38d2f70220a39b199a318fb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8ceeb4ba-11d0-4a53-8f4a-4498411cfb17",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 76,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Inspecting the AMD GCN ISA\r\n76 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n▪ You can inspect the AMD GCN ISA that was emitted by hcc (remember this is just clang)\r\n▪ The command you need is extractkernel\r\n▪ This is roughly equivalent to objdump (except it only dumps the GCN assembly, not x86)\r\n▪ The GCN ISA is publicly available: https://developer.amd.com/wp-content/resources/Vega_Shader_ISA_28July2017.pdf\r\n$ /opt/rocm/bin/extractkernel -i vectoradd\r\nGenerated GCN ISA for gfx900 at: vectoradd-000-gfx900.isa\r\n$ grep v_add vectoradd.000-gfx900.isa\r\nv_add_u32_e32 v1, s1, v1 // 000000001138: 68020201\r\nv_add3_u32 v0, s0, v0, v1 // 000000001154: D1FF0000 04060000\r\nv_add_co_u32_e32 v2, vcc, s2, v0 // 00000000119C: 32040002\r\nv_addc_co_u32_e32 v3, vcc, v3, v1, vcc // 0000000011A0: 38060303\r\nv_add_co_u32_e32 v4, vcc, s4, v0 // 0000000011A8: 32080004\r\nv_addc_co_u32_e32 v5, vcc, v5, v1, vcc // 0000000011AC: 380A0305\r\nv_add_co_u32_e32 v0, vcc, s0, v0 // 0000000011C0: 32000000\r\nv_addc_co_u32_e32 v1, vcc, v6, v1, vcc // 0000000011C4: 38020306\r\nv_add_f32_e32 v2, v2, v3 // 0000000011CC: 02040702",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/8ceeb4ba-11d0-4a53-8f4a-4498411cfb17.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a5883c7a02db9112e7bbd515c3864f4b4b8d681c54e5aa42ff89a21f8b91b09b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 478
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "eacca795-e9ca-4453-9a61-fbefd2b65e12",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 77,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Installing ROCm\r\n▪ Requirements:\r\n⁃ Linux®! \r\n⁃ Ubuntu: ROCm can be installed using a Debian repo.\r\n⁃ CentOS/RHEL: ROCm can be installed using a yum repo.\r\n⁃ Other distros: you must build from source (support planned for SUSE based distributions).\r\n⁃ To run on AMD hardware you need discrete GPUs in families GFX8 (Polaris) or GFX9 (Vega)\r\n⁃ APUs aren’t currently officially supported \r\n▪ ROCm has been on a monthly release cycle\r\n▪ ROCm is now compatible with AMD drivers in some upstream linux kernels.\r\n▪ ROCm can be installed with:\r\n⁃ ROCK kernel driver (from ROCm repos)\r\n⁃ Only supported on Ubuntu, CentOS/RHEL\r\n⁃ AMD drivers in some upstream kernels\r\n⁃ Should work on more distributions\r\n▪ Latest install instructions can be found here: https://github.com/RadeonOpenCompute/ROCm\r\n▪ Also check out: https://github.com/RadeonOpenCompute/Experimental_ROC\r\n77 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/eacca795-e9ca-4453-9a61-fbefd2b65e12.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1c739a442fef51d0e4f5d14da3d9ef7bd5a68ea2a8bd8ebefe15d85b0faa5827",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0387ecab-d11f-4278-8be8-84bf5bce8a3e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 78,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Querying System\r\n▪ rocminfo: Queries and displays information on the system’s hardware\r\n⁃ More info at: https://github.com/RadeonOpenCompute/rocminfo\r\n▪ Querying ROCm version: \r\n⁃ If you install ROCm in the standard location (/opt/rocm) version info is at: /opt/rocm/.info/version-dev\r\n⁃ Can also run the command ‘dkms status’ and the ROCm version will be displayed\r\n▪ rocm-smi: Queries and sets AMD GPU frequencies, power usage, and fan speeds\r\n⁃ sudo privileges are needed to set frequencies and power limits\r\n⁃ sudo privileges are not needed to query information\r\n⁃ Get more info by running ‘rocm-smi -h’ or looking at: https://github.com/RadeonOpenCompute/ROC-smi\r\n78 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n$ /opt/rocm/bin/rocm-smi\r\n========================ROCm System Management Interface========================\r\n================================================================================\r\nGPU Temp AvgPwr SCLK MCLK Fan Perf PwrCap VRAM% GPU%\r\n1 38.0c 18.0W 1440Mhz 945Mhz 0.0% manual 220.0W 0% 0%\r\n================================================================================\r\n==============================End of ROCm SMI Log ==============================",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/0387ecab-d11f-4278-8be8-84bf5bce8a3e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=675143a8f5c716ad135fd89d6daf81df94e35dc2b03c949df0bb1c117b902be1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "03c8ef2f-c3f3-4bb4-85f0-e9403eed7915",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 79,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GPU Libraries\r\n▪ A note on naming conventions:\r\n⁃ roc* -> AMGCN library usually written in HIP\r\n⁃ cu* -> NVIDIA PTX libraries\r\n⁃ hip* -> usually interface layer on top of roc*/cu* backends\r\n▪ hip* libraries:\r\n⁃ Can be compiled by hipcc and can generate a call for the device you have:\r\n⁃ hipcc->hcc->AMD GCN ISA\r\n⁃ hipcc->nvcc (inlined)->NVPTX\r\n⁃ Just a thin wrapper that marshals calls off to a “backend” library:\r\n⁃ corresponding roc* library backend containing optimized GCN\r\n⁃ corresponding cu* library backend containing NVPTX for NVIDIA devices\r\n⁃ E.g., hipBLAS is a marshalling library:\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nhipBLAS\r\nrocBLAS cuBLAS\r\n79",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/03c8ef2f-c3f3-4bb4-85f0-e9403eed7915.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=970411dd52aba3c1992e27f1bf01412fa1b4c8f6edd050789baf8d5de782e8a1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "37d64f28-23d8-43b4-bb11-429ecbe7e758",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 80,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Decoder ring: Math library equivalents\r\nBasic Linear Algebra \r\nSubroutines CUBLAS ROCBLAS\r\nCUFFT ROCFFT Fast Fourier Transforms\r\nTHRUST ROCTHRUST Deep Learning Library\r\nCUB ROCPRIM Optimized Parallel Primitives\r\nC++ Template Library for \r\nLinear Algebra EIGEN EIGEN\r\nMORE INFO AT: GITHUB.COM/ROCM-DEVELOPER-TOOLS/HIP → HIP_PORTING_GUIDE.MD\r\n80 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/37d64f28-23d8-43b4-bb11-429ecbe7e758.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=50253923551d4fa5872e37e21290e220b8038de649530de08a3078e21673e9c9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 475
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a63b6fa7-69e0-41b3-81f6-1061f38564b8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 81,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GPU Libraries: BLAS\r\n▪ rocBLAS – `sudo apt install rocblas`\r\n⁃ Source code: https://github.com/ROCmSoftwarePlatform/rocBLAS\r\n⁃ Documentation: https://rocblas.readthedocs.io/en/latest/\r\n⁃ Basic linear algebra functionality\r\n⁃ axpy, gemv, trsm, etc\r\n⁃ Use hipBLAS if you need portability between AMD and NVIDIA devices\r\n▪ hipBLAS - `sudo apt install hipblas`\r\n⁃ Documentation: https://github.com/ROCmSoftwarePlatform/hipBLAS/wiki/Exported-functions\r\n⁃ Use this if you need portability between AMD and NVIDIA\r\n⁃ It is just a thin wrapper:\r\n⁃ It can dispatch calls to rocBLAS for AMD devices\r\n⁃ It can dispatch calls to cuBLAS for NVIDIA devices\r\n81 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nhipBLAS\r\nrocBLAS cuBLAS",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/a63b6fa7-69e0-41b3-81f6-1061f38564b8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7bc6effb3e75fa3442f5cdf13858861b79b3bb5f75ca19a0f9e96e2e044b1551",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0e4437f8-bbc6-4661-9c13-5d071d545214",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 82,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GPU Libraries: rocBLAS example\r\n▪ rocBLAS\r\n⁃ Documentation: \r\nhttps://rocblas.readthedocs.io/en/latest/\r\n⁃ Level 1, 2, and 3 functionality\r\n⁃ axpy, gemv, trsm, etc\r\n⁃ Note: rocBLAS syntax matches BLAS closer \r\nthan hipBLAS or cuBLAS\r\n⁃ Use hipBLAS only if you need \r\nportability between AMD and NVIDIA \r\ndevices\r\n⁃ Link with: -lrocblas\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n#include <rocblas.h>\r\nint main(int argc, char ** argv) {\r\nrocblas_int N = 500000;\r\n// Allocate device memory\r\ndouble * dx, * dy;\r\nhipMalloc(&dx, sizeof(double) * N);\r\nhipMalloc(&dy, sizeof(double) * N);\r\n// Allocate host memory (and fill up the arrays) here\r\nstd::vector<double> hx(N), hy(N);\r\n// Copy host arrays to device\r\nhipMemcpy(dx, hx.data(), sizeof(double) * N, hipMemcpyHostToDevice);\r\nhipMemcpy(dy, hy.data(), sizeof(double) * N, hipMemcpyHostToDevice);\r\nconst double alpha = 1.0;\r\nrocblas_handle handle;\r\nrocblas_create_handle(&handle);\r\nrocblas_status status;\r\nstatus = rocblas_daxpy(handle, N, &alpha, dx, 1, dy, 1);\r\nrocblas_destroy_handle(handle);\r\n// Copy result back to host\r\nhipMemcpy(hy.data(), dy, sizeof(double) * N, hipMemcpyDeviceToHost);\r\nhipFree(dx);\r\nhipFree(dy);\r\nreturn 0;\r\n}\r\n82",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/0e4437f8-bbc6-4661-9c13-5d071d545214.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fa5598564817ae9930ce75a983128417720387a9faf8910c51cf550c88d0cd05",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0e761a51-4dbd-4e4d-b86e-f77590c4fb09",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 83,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Some Links to Key Libraries\r\n▪ BLAS \r\n⁃ rocBLAS (https://github.com/ROCmSoftwarePlatform/rocBLAS)\r\n⁃ hipBLAS (https://github.com/ROCmSoftwarePlatform/hipBLAS)\r\n▪ FFTs \r\n⁃ rocFFT (https://github.com/ROCmSoftwarePlatform/rocFFT)\r\n▪ Random number generation\r\n⁃ rocRAND (https://github.com/ROCmSoftwarePlatform/rocRAND)\r\n⁃ hipRAND (https://github.com/ROCmSoftwarePlatform/hipRAND) \r\n▪ Sparse linear algebra\r\n⁃ rocSPARSE (https://github.com/ROCmSoftwarePlatform/rocSPARSE)\r\n⁃ hipSPARSE (https://github.com/ROCmSoftwarePlatform/hipSPARSE)\r\n▪ Iterative solvers\r\n⁃ rocALUTION (https://github.com/ROCmSoftwarePlatform/rocALUTION)\r\n▪ Parallel primitives\r\n⁃ rocPRIM (https://github.com/ROCmSoftwarePlatform/rocPRIM)\r\n⁃ hipCUB (https://github.com/ROCmSoftwarePlatform/hipCUB)\r\n83 | HPC with AMD | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/0e761a51-4dbd-4e4d-b86e-f77590c4fb09.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8c161c1e352e7f65a33bc5fdb928fff3c8e861307c42c1b288052894f897b3f2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "51462eed-e3ee-42e7-a575-4896ff0c3a50",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 84,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "More links to key libraries\r\nMachine Learning libraries and Frameworks\r\n⁃ Tensorflow: https://github.com/ROCmSoftwarePlatform/tensorflow-upstream\r\n⁃ Pytorch: https://github.com/ROCmSoftwarePlatform/pytorch\r\n⁃ MIOpen (similar to cuDNN): https://github.com/ROCmSoftwarePlatform/MIOpen\r\n⁃ Tensile: https://github.com/ROCmSoftwarePlatform/Tensile\r\n⁃ RCCL (ROCm analogue of NCCL): https://github.com/ROCmSoftwarePlatform/rccl\r\n84 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/51462eed-e3ee-42e7-a575-4896ff0c3a50.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7c15af00e4a36502e79e08fce986890cae93d9abe035fcf2f0aba4f38e7d5348",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b5c32a1f-9cb0-47c8-ac1c-325a32135e0a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 85,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Porting CUDA Applications to HIP\r\nPaul Bauman <paul.bauman@amd.com>\r\n85 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/b5c32a1f-9cb0-47c8-ac1c-325a32135e0a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b8b0924e3d603766c481e93d9c76ef894130fae8a83a220202d14239a2d0d19f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "816c24e3-e611-41b5-80c4-785ae5dd6421",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 86,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Objectives\r\nThis training: \r\n• Demonstrates how to convert CUDA codes into HIP\r\n• Explains the meaning of the term ‘hipify’\r\n• Provides a simple means to examine port quality\r\n• Provides an idea of the common ‘gotchas’ of porting apps\r\n86 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/816c24e3-e611-41b5-80c4-785ae5dd6421.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f56e682a3359260dfbb4a3a7c35feaaa1de6b1082d09ff468729ab96ea9a21a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 476
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "604fc5d2-2af6-40e0-bd70-01bf1171cdb2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 87,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Getting started with HIP\r\n| HPC with AMD | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n__global__ void add(int n, \r\ndouble *x, \r\ndouble *y){\r\nint index = blockIdx.x * blockDim.x\r\n+ threadIdx.x;\r\nint stride = blockDim.x * gridDim.x;\r\nfor (int i = index; i < n; i += stride){\r\ny[i] = x[i] + y[i];\r\n}\r\n}\r\n__global__ void add(int n, \r\ndouble *x, \r\ndouble *y){\r\nint index = blockIdx.x * blockDim.x\r\n+ threadIdx.x;\r\nint stride = blockDim.x * gridDim.x;\r\nfor (int i = index; i < n; i += stride){\r\ny[i] = x[i] + y[i];\r\n}\r\n}\r\nKERNELS ARE SYNTACTICALLY THE SAME\r\nCUDA VECTOR ADD HIP VECTOR ADD\r\n87",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/604fc5d2-2af6-40e0-bd70-01bf1171cdb2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f6ce575a107b7e42efac798c75693ade4257bbe4302119e84a4c34603e8f6122",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7f6451eb-d11b-40f1-913d-2a0b93eed4b0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 88,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "CUDA APIs vs HIP API\r\n| HPC with AMD | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\ncudaMalloc(&d_x, N*sizeof(double));\r\ncudaMemcpy(d_x, x, N*sizeof(double), \r\ncudaMemcpyHostToDevice);\r\ncudaDeviceSynchronize();\r\nhipMalloc(&d_x, N*sizeof(double));\r\nhipMemcpy(d_x, x, N*sizeof(double), \r\nhipMemcpyHostToDevice);\r\nhipDeviceSynchronize();\r\nCUDA HIP\r\n88",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/7f6451eb-d11b-40f1-913d-2a0b93eed4b0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6aa4748f4eb91cf831fb906f1f50f19f9871e699199a40ccff6ecbf409ab07a4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "608aea1b-bf3d-4f60-bd7a-de8108cc7f99",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 89,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Launching a kernel\r\n| HPC with AMD | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nsome_kernel<<<gridsize, blocksize,\r\nshared_mem_size, stream>>>\r\n(arg0, arg1, ...);\r\nhipLaunchKernelGGL(some_kernel,\r\ngridsize, blocksize,\r\nshared_mem_size, stream,\r\narg0, arg1, ...);\r\nCUDA KERNEL LAUNCH SYNTAX HIP KERNEL LAUNCH SYNTAX\r\n89",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/608aea1b-bf3d-4f60-bd7a-de8108cc7f99.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=266d994d1b630fb7c594015888bc9534c5dabedad3c82d15aea1905a80dffe1b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "65302aa1-6517-4265-a61c-d507e937ac4b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 90,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Difference between HIP and CUDA\r\nSome things to be aware of writing HIP, or porting from CUDA:\r\n▪ AMD GCN hardware ‘warp’ size = 64 (warps are referred to as ‘wavefronts’ in AMD documentation)\r\n▪ Device and host pointers allocated by HIP API use flat addressing\r\n⁃ Unified virtual addressing is enabled by default\r\n⁃ Unified memory is available, but does not perform optimally currently\r\n▪ Dynamic parallelism not currently supported\r\n▪ CUDA 9+ thread independent scheduling not supported (e.g., no __syncwarp)\r\n▪ Some CUDA library functions do not have AMD equivalents\r\n▪ Shared memory and registers per thread can differ between AMD and Nvidia hardware\r\n▪ Inline PTX or AMD GCN assembly is not portable\r\nDespite differences, majority of CUDA code in applications can be simply translated.\r\n90 | HPC with AMD | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/65302aa1-6517-4265-a61c-d507e937ac4b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4d5e3c192fce82adb6b574a5fce2cd7a6c104d93b5a2da3c8d35eaaa7a473c2d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2569f72b-040a-4e6f-8596-3a2bfe308cbb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 91,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Enter Hipify\r\n▪ AMD provides ‘Hipify’ tools to automatically convert most CUDA code\r\n⁃ Hipify-perl\r\n⁃ Hipify-clang\r\n▪ Good resource to help with porting: https://github.com/ROCm-Developer\u0002Tools/HIP/blob/master/docs/markdown/hip_porting_guide.md\r\n▪ In practice, large portions of many HPC codes have been automatically Hipified:\r\n⁃ ~90% of CUDA code in CORAL-2 HACC\r\n⁃ ~80% of CUDA code in CORAL-2 PENNANT\r\n⁃ ~80% of CUDA code in CORAL-2 QMCPack\r\n⁃ ~95% of CUDA code in CORAL-2 Laghos\r\nThe remaining code requires programmer intervention\r\n91 | HPC with AMD | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/2569f72b-040a-4e6f-8596-3a2bfe308cbb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=83b83073663a865aee8ddd8d6db22f4bb7d403016df89fb492fb3f63a6bba31a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 416
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d3560f91-0076-4454-baec-6131deb809c4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 92,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Hipify tools\r\n▪ Hipify-perl:\r\n⁃ Easy to use –point at a directory and it will attempt to hipify CUDA code\r\n⁃ Very simple string replacement technique: may make incorrect translations\r\n⁃ sed -e ‘s/cuda/hip/g’, (e.g., cudaMemcpy becomes hipMemcpy)\r\n⁃ Recommended for quick scans of projects\r\n▪ Hipify-clang:\r\n⁃ Requires clang compiler\r\n⁃ More robust translation of the code. Uses clang to parse files and perform semantic translation\r\n⁃ Can generate warnings and assistance for code for additional user analysis\r\n⁃ High quality translation, particularly for cases where the user is familiar with the make system\r\n92 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/d3560f91-0076-4454-baec-6131deb809c4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e01d58f4f9210658cdc3dcc08be9acf2aac9cbb40bacdc5550a8a0af1b751bf5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4fb41aab-cc80-4ad8-b7de-f11b7648555d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 93,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Hipify-perl\r\n▪ Sits in $HIP/bin/ (export PATH=$PATH:[MYHIP]/bin)\r\n▪ Command line tool: hipify-perl foo.cu > new_foo.cpp\r\n▪ Compile: hipcc new_foo.cpp\r\n▪ How does this this work in practice? \r\n⁃ Hipify source code\r\n⁃ Check it in to your favorite version control\r\n⁃ Try to build\r\n⁃ Manually work on the rest\r\n93 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/4fb41aab-cc80-4ad8-b7de-f11b7648555d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7f887cee8a4fb57b40ac166444a0c41baac3ebc27278f57ee45505e2e427176a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "65c8fb97-dd93-4dcc-a8d3-a2e1e48a20e5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 94,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Hipify-clang\r\n▪ Build from source \r\n▪ hipify-clang has unit tests using LLVM lit/FileCheck (44 tests)\r\n▪ Hipification requires same headers that would be needed to compile it with clang:\r\n▪ ./hipify-clang foo.cu -I /usr/local/cuda-8.0/samples/common/inc\r\n▪ https://github.com/ROCm-Developer-Tools/HIP/tree/master/hipify-clang\r\n94 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/65c8fb97-dd93-4dcc-a8d3-a2e1e48a20e5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=03462ba91633893361e84f4cb18bae7b30ee335b47b0f5925aa6c1b4a108b41f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c5368077-880d-4b9c-a8e7-9919d83dfe8d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 95,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Example: HACC\r\n• Hardware Accelerated Cosmology Code\r\n• Simulates time-evolution of universe\r\n• Mpc = Megaparsec = 3.09 x 1022 meters\r\n• Our HIP success story: \r\n• Ported in an afternoon\r\n• Profiling:\r\n• 10% of time is spent in the tree walk\r\n• >80% in the short force kernels \r\n• (GPU kernel)\r\n• 5% in the 3d Transposes / FFTs\r\n95 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/c5368077-880d-4b9c-a8e7-9919d83dfe8d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7323826b2a2613ab8da7c48441e2572a2a74d290d443420070d83330e4ac50c3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dc237db4-4f71-4826-a60b-2529cbf0a174",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 96,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "HACC: What made it a success\r\n• What was easy?\r\n• Simple GPU kernel\r\n• Few library dependencies (FFTW, not in kernel)\r\n• No advanced CUDA features\r\n• What was difficult?\r\n• Inline PTX: required translation to AMD GCN\r\n• Hand-written wave-32 code (for a reduction)\r\n96 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/dc237db4-4f71-4826-a60b-2529cbf0a174.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fbb21521a4781e474f648841902556036dfc79a1fc6f5bfeba2f7510fd052423",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dd6456cf-9490-48a2-b90a-b40a3fb72bd8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 97,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Porting HACC\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\ncudaMemcpyAsync(d_npos,h_npos,Nposbytes,\r\ncudaMemcpyHostToDevice,stream);\r\ncudaMemcpyAsync(d_mask,h_mask,NmaskBytes,\r\ncudaMemcpyHostToDevice,stream);\r\ncalcHHCullenDehnen<<<blocksPerGrid, \r\nthreadsPerBlock, 0, stream>>> \r\n(cnt, SIZE, d_npos, d_mask, rsm);\r\ncudaMemcpyAsync(h_pos,\r\nd_npos+(SIZE-cnt),cntBytes, \r\ncudaMemcpyDeviceToHost,stream);\r\ncudaMemcpyAsync(h_mask,d_mask,NmaskBytes,\r\ncudaMemcpyDeviceToHost,stream);\r\nhipMemcpyAsync(d_npos,h_npos,Nposbytes,\r\nhipMemcpyHostToDevice,stream);\r\nhipMemcpyAsync(d_mask,h_mask,NmaskBytes,\r\nhipMemcpyHostToDevice,stream);\r\nhipLaunchKernelGGL((calcHHCullenDehnen), \r\nblocksPerGrid, threadsPerBlock, 0, stream, \r\ncnt, SIZE, d_npos, d_mask, rsm);\r\nhipMemcpyAsync(h_pos,\r\nd_npos+(SIZE-cnt),cntBytes, \r\nhipMemcpyDeviceToHost,stream);\r\nhipMemcpyAsync(h_mask,d_mask,NmaskBytes,\r\nhipMemcpyDeviceToHost,stream);\r\nCUDA HIP\r\n97",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/dd6456cf-9490-48a2-b90a-b40a3fb72bd8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a46b097a38c8d75548aefa1953474286c090f5c6e02af6b53e5233e785d6d512",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "18d4d266-ec22-4ec9-91d7-560ec4d870c5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 98,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "HACC: Comparison to the CUDA version\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n32 36\r\nTITAN-V W/ CUDA 9.0 MI-25 W/ HIP (ROCM 1.9)\r\n0\r\n92.5% 84%\r\n0\r\nDIVERGENCE\r\nREGISTER SPILLING\r\nREGISTER USE (VGPR)\r\nMEASUREMENT\r\n98",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/18d4d266-ec22-4ec9-91d7-560ec4d870c5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c8e0aaa96a2e7a42aad6293f15c0f60fb43bdf5589fb87759c7a1668851bd4ac",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 483
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "82385ea8-7f3b-43f5-b21d-d270837056d3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 99,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Performance portability\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\n30, 74, 44, 58, 53 12, 73, 25, 38, 24\r\nTITAN-V W/ CUDA 9.0 MI-25 W/ HIP (ROCM 1.9)\r\n0, 0, 0, 0, 0\r\n97, 95, 70, 99, 78 97, 90, 71, 98, 82\r\n0, 0, 0, 0, 0\r\nDIVERGENCE\r\nREGISTER SPILLING\r\nREGISTER USE (VGPR)\r\nMEASUREMENT\r\nPennant has 5 gpu kernels: Multiple entries denote each GPU kernel (GPUMain1, etc,)\r\nSimilar numbers observed in Quicksilver, HACC, etc\r\n99",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/82385ea8-7f3b-43f5-b21d-d270837056d3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d8b3227c67c93516da56e5c7584c063cb84c6e06f5cbb9b8a03c63b97116f51c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "892599c3-86d8-4038-aadf-8c8312ada465",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 100,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "HIPified (ported) codes\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nQUICKSILVER HACC\r\nSW4LITE HPL\r\nPENNANT LAGHOS\r\nAND (ALREADY) MANY MORE…\r\n100",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/892599c3-86d8-4038-aadf-8c8312ada465.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cd41caa3bf6fb15b6211cabee4d0cf191a1f2ab87c24f375c5a6788179cc7f6e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2e3b18a6-31e6-48dc-a8f3-a9b50df543e0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 101,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Portability layers using HIP\r\nSeveral portability layers are already supporting, or implementing, HIP\r\n▪ RAJA\r\n⁃ HIP kernel execution policies syntactically identical to CUDA\r\n⁃ Official PRs under review\r\n▪ Kokkos\r\n⁃ HIP kernel execution policies syntactically identical to CUDA\r\n⁃ Support is in Alpha and under development by Kokkos and AMD developers\r\n▪ OCCA\r\n⁃ OKL kernels can compile for HIP devices\r\n⁃ Available in OCCA’s master branch\r\n▪ OpenMP 5.0\r\n⁃ gcc and AMD’s aomp compilers support target offload regions, interop with HIP\r\n101 | HPC with AMD | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/2e3b18a6-31e6-48dc-a8f3-a9b50df543e0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f37c3ff7417942d7781ec48925d63c9c662c83e7633f380830d014ed1e2d5518",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8562b41a-4b7e-4d0e-9169-187e3ec9e1f0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 102,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Tips and tricks for performance\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nWhat to look for when porting:\r\n• Inline PTX assembly\r\n• CUDA intrinsics\r\n• Hard-coded dependencies on warp size, shared memory size\r\n• “grep 32”\r\n• Do not use hard coded dependencies on warp size!\r\n• Code geared toward limited size of register file on NVIDIA hardware\r\n• Functions implicitly inlined\r\n• Unified Memory\r\n102",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/8562b41a-4b7e-4d0e-9169-187e3ec9e1f0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eeb15f64501ab0475426f7893c0cdb0a6a072fbd4f0e5e3935b360e424bcb380",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7f4d5da0-2e8f-4c18-8a59-83b749c14955",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 103,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "QUESTIONS?\r\n103 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/7f4d5da0-2e8f-4c18-8a59-83b749c14955.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9870b30472dfe28f9c0d030c247e3f392f9f1dad1caaf820afbfc9b320dd5102",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8936a861-9727-40a1-8a2b-c64d1158e330",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 104,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Dynamic Shared Memory\r\n▪ Can actually use __shared__ arrays when sizes aren’t known at compile time\r\n⁃ Called dynamic shared memory\r\n⁃ Declare one array using HIP_DYNAMIC_SHARED macro, use for all dynamic LDS space \r\n⁃ Use the hipLaunchKernelGGL argument we haven’t discussed yet\r\n104 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/8936a861-9727-40a1-8a2b-c64d1158e330.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba970cb55b4c42d31ca9c8ed22ba1b087843e8a5616ef711412a04d2ed6757ca",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6a2a214e-bf99-45f3-bdf9-e7b0ab728ad6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 105,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Dynamic Shared Memory\r\n__global__ void reverse(double *d_a, int N) {\r\nHIP_DYNAMIC_SHARED(double, s_a); //dynamic array of doubles, shared in this block\r\nint tid = threadIdx.x;\r\ns_a[tid] = d_a[tid]; //each thread fills one entry\r\n//all wavefronts should reach this point before any wavefront is allowed to continue.\r\n__syncthreads();\r\nd_a[tid] = s_a[N-1-tid]; //write out array in reverse order\r\n}\r\nint main() {\r\n…\r\nsize_t NsharedBytes = N*sizeof(double);\r\nhipLaunchKernelGGL(reverse, dim3(1), dim3(N), NsharedBytes, 0, d_a, N); //Launch kernel\r\n…\r\n}\r\n105 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/6a2a214e-bf99-45f3-bdf9-e7b0ab728ad6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8dfd178a4f7b014abfddaece0a95034acb0efaabdd96886b74b650c05b3ebdc6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 466
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "358a727f-1ee5-43fe-a85d-970768f4df26",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 106,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Atomic Operations\r\nAtomic functions:\r\n▪ Perform a read+write of a single 32 or 64-bit word in device global or LDS memory\r\n▪ Can be called by multiple threads in device code\r\n▪ Performed in a conflict-free manner\r\n▪ AMD GPUs support atomic operations on 32-bit integers in hardware\r\n⁃ Float /double atomics implemented as atomicCAS (Compare And Swap) loops, may have poor performance\r\n▪ Can check at compile time if 32 or 64-bit atomic instructions are supported on target device\r\n⁃ #ifdef __HIP_ARCH_HAS_GLOBAL_INT32_ATOMICS__\r\n⁃ #ifdef __HIP_ARCH_HAS_GLOBAL_INT64_ATOMICS__\r\n106 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/358a727f-1ee5-43fe-a85d-970768f4df26.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4a28cc25c9820eec748402162d568257181ab7abd47381d704ac3dc9f5bcabbb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f537ab4b-6e57-4033-99a3-a1cd3998f814",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 107,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "Atomic Operations\r\nOperation Type, T Notes\r\nT atomicAdd(T* address, T val) int, long long int, float, double Adds val to *address\r\nT atomicExch(T* address, T val) int, long long int, float Replace *address with val and return \r\nold value\r\nT atomicMin(T* address, T val) int, long long int Replaces *address if val is smaller\r\nT atomicMax(T* address, T val) int, long long int Replaces *address if val is larger\r\nT atomicAnd(T* address, T val) int, long long int Bitwise AND between *address and val\r\nT atomicOr(T* address, T val) int, long long int Bitwise OR between *address and val\r\nT atomicXor(T* address, T val) int, long long int Bitwise XOR between *address and val\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nSupported atomic operations in HIP:\r\n107",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/f537ab4b-6e57-4033-99a3-a1cd3998f814.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=58848c1b71f07ab1327bf0c9bd1290aca5f1275252798f1bed61b1f0e181e8c2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "69d13bcc-7ee9-4b0c-8b4c-45c3794c7d7e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 108,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "AMD GPU programming resources\r\n• ROCm platform: https://github.com/RadeonOpenCompute/ROCm/\r\n• With instructions for installing from Debian/CentOS/RHEL binary repositories\r\n• Has links to source repositories for all components, including HIP\r\n• HIP porting guide: https://github.com/ROCm-Developer\u0002Tools/HIP/blob/master/docs/markdown/hip_porting_guide.md\r\n• ROCm/HIP libraries: https://github.com/ROCmSoftwarePlatform\r\n• ROC-profiler: https://github.com/ROCm-Developer-Tools/rocprofiler\r\n• Collects application traces and performance counters\r\n• Trace timeline can be visualized with chrome://tracing\r\n• AMD GPU ISA docs and more: https://developer.amd.com/resources/developer-guides-manuals/\r\n108 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/69d13bcc-7ee9-4b0c-8b4c-45c3794c7d7e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c4f9e1c1ca0d8e2dfa30ca8ba66de1d0ce0a837d534d67399a93489b99c6b9ad",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ef4018f6-c7aa-4b95-9485-78e6c574d659",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 109,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "CUDA features not supported by HIP\r\n• CUDA 5.0 :\r\n• Dynamic Parallelism (not supported)\r\n• cuIpc functions (under development).\r\n• CUDA 5.5 :\r\n• CUPTI (not directly supported, AMD GPUPerfAPI an alternative in some cases)\r\n• CUDA 6.0\r\n• Managed memory (under development)\r\n109 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/ef4018f6-c7aa-4b95-9485-78e6c574d659.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6dad765ca93b930dc465d16f9807ec916b56befa5625511631d045f410caa050",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b04ce7be-1b9e-44ff-9bfe-faf679bc4d50",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 110,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "CUDA features not in HIP, cont.\r\n• CUDA 7.0\r\n• Per-thread-streams (under development)\r\n• CUDA 8.0\r\n• Page Migration including cudaMemAdvise, cudaMemPrefetch, other cudaMem* APIs (not supported)\r\n▪ https://github.com/ROCm-Developer-Tools/HIP/blob/master/docs/markdown/hip_faq.md#what-specific-version-of\u0002cuda-does-hip-support\r\n110 | Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/b04ce7be-1b9e-44ff-9bfe-faf679bc4d50.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1abebadec57ed587d100fed8beb0eec648abe18e3a57154f68fd93b03c22d814",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 431
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3e5d5ba3-46e3-439b-9cd3-4548b086157e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "page_number": 111,
+            "page_width": 960,
+            "page_height": 540,
+            "content": "DISCLAIMER\r\n| Intro to AMD GPU Programming with HIP | ©2019 Advanced Micro Devices, Inc. All rights reserved.\r\nDISCLAIMER\r\nThe information contained herein is for informational purposes only and is subject to change without notice. While every \r\nprecaution has been taken in the preparation of this document, it may contain technical inaccuracies, omissions and \r\ntypographical errors, and AMD is under no obligation to update or otherwise correct this information. Advanced Micro \r\nDevices, Inc. makes no representations or warranties with respect to the accuracy or completeness of the contents of this \r\ndocument, and assumes no liability of any kind, including the implied warranties of noninfringement, merchantability or \r\nfitness for particular purposes, with respect to the operation or use of AMD hardware, software or other products \r\ndescribed herein. No license, including implied or arising by estoppel, to any intellectual property rights is granted by this \r\ndocument. All open source software listed in this presentation is governed by the associated open source license. Terms \r\nand limitations applicable to the purchase or use of AMD’s products are as set forth in a signed agreement between the \r\nparties or in AMD's Standard Terms and Conditions of Sale. GD-18\r\n©2019 Advanced Micro Devices, Inc. All rights reserved. AMD, the AMD Arrow logo, Ryzen, Threadripper, EPYC, Infinity \r\nFabric, and combinations thereof are trademarks of Advanced Micro Devices, Inc. Other product names used in this \r\npublication are for identification purposes only and may be trademarks of their respective companies.\r\nPCIe is a trademark (or registered trademark) of PCI-SIG Corporation.\r\nOpenCL is a trademark of Apple Inc. used by permission by Khronos Group, Inc.\r\nLinux is a trademark (or registered trademark) of Linus Torvalds.\r\n111",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49e9a7f8-dc40-40bf-8741-d74d8a7870f2/images/3e5d5ba3-46e3-439b-9cd3-4548b086157e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041753Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3662d84ac0e7b9bbab84b607d2864bfa9e4e28d4b482f4e49644a1526c87f546",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 276
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Intro to AMD GPU Programming with HIP\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Paul Bauman, Noel Chalmers, Nick Curtis, Chip Freitag, Joe Greathouse, Nicholas Malaya, Damon McDougall, Scott Moe, René van Oostrum, Noah Wolfe\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2019"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```string\nAMD GPUs\nNVIDIA GPUs\n```"
+        }
+      ]
+    }
+  }
+}

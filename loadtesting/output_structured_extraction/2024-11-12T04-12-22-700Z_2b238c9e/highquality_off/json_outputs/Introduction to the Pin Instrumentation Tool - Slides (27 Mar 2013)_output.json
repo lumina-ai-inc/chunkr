@@ -1,0 +1,535 @@
+{
+  "file_name": "Introduction to the Pin Instrumentation Tool - Slides (27 Mar 2013).pdf",
+  "task_id": "15d8cff3-7b2f-4f41-83ca-20160241711f",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "bddd0a82-ba1e-448a-8770-36b1e52cbf4c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nIntroduction to the Pin \r\nInstrumentation Tool \r\nQuan Jia\r\nMar 27, 2013 \r\nISA 673 \r\nOperating Systems’ Security\r\n1 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/bddd0a82-ba1e-448a-8770-36b1e52cbf4c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3ae4021a1daae743dea98c74e96325c0592993787c40243b7c477c36faec04ad",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ee6a492e-8871-4b78-bcce-43ca9e87fadf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 2,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nWhat is Pin? \r\n2 \r\nPin is Intel’s dynamic binary instrumentation \r\nengine. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/ee6a492e-8871-4b78-bcce-43ca9e87fadf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b847b09a17835065eb2f07789acfc06fc84164f67fc8ab131f9dc89cedf671fb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "577179de-41d3-49d9-806d-22d0118b98d1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 3,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nWhat is Instrumentation? \r\n• A technique that inserts extra code into a program to \r\ncollect runtime information. \r\n• Program analysis : performance profiling, error detection, \r\ncapture & replay \r\n• Architectural study : processor and cache simulation, trace \r\ncollection \r\n• Binary translation : Modify program behavior, emulate \r\nunsupported instructions \r\n3 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/577179de-41d3-49d9-806d-22d0118b98d1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=209ea36a4d660ada7c29b0ac485988d297a2429eceedda76738c4d2dab1d836f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bf94ecef-dcba-4bef-ae40-252f795b100d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 4,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nInstrumentation Approaches \r\n• Source Code Instrumentation (SCI) \r\n– instrument source programs \r\n• Binary Instrumentation (BI) \r\n– instrument binary executable directly \r\n4 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/bf94ecef-dcba-4bef-ae40-252f795b100d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d0f694a230e3bc371b8a98bf93be89c9229fc817a59ec7faa6e0a32b30ce919a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "530f9b48-77f6-479a-9757-099dba7256e6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 5,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nSCI Example (Code Coverage) \r\nOriginal Program \r\nvoid foo() { \r\n bool found=false; \r\n for (int i=0; i<100; ++i) { \r\nif (i==50) break; \r\n if (i==20) found=true; \r\n } \r\n printf(\"foo\\n\"); \r\n} \r\nInstrumented Program \r\nchar inst[5];\r\nvoid foo() { \r\n bool found=false; inst[0]=1;\r\n for (int i=0; i<100; ++i) { \r\nif (i==50) { inst[1]=1;break;}\r\nif (i==20) { inst[2]=1;found=true;}\r\ninst[3]=1; \r\n } \r\nprintf(\"foo\\n\"); \r\ninst[4]=1; \r\n} \r\n5 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/530f9b48-77f6-479a-9757-099dba7256e6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f93438238475c3557aa0cb15906128c56843b125de98d92a5a2f49e4217bb3a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cc7056c7-963c-46e3-a1c9-3637162cf61c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 6,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nBinary Instrumentation (BI) \r\n• Static binary instrumentation – inserts additional code \r\nand data before execution and generates a persistent \r\nmodified executable \r\n• Dynamic binary instrumentation – inserts additional \r\ncode and data during execution without making any \r\npermanent modifications to the executable. \r\n6 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/cc7056c7-963c-46e3-a1c9-3637162cf61c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e52e26c005dadfc57a4ff4fc80388aba33ee41d47cd58b06c25cdccdc16ee077",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6197a5a0-6d2a-4128-abab-45055a8e369a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 7,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nBI Example – Instruction Count \r\n7 \r\nsub $0xff, %edx\r\ncmp %esi, %edx\r\njle <L1> \r\nmov $0x1, %edi\r\nadd $0x10, %eax\r\ncounter++; \r\ncounter++; \r\ncounter++; \r\ncounter++; \r\ncounter++; ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/6197a5a0-6d2a-4128-abab-45055a8e369a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c3266338df774bf33ae58c7b471a89fa49a9c136d71220811a859d9bda5a3062",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7bf1bd84-a84d-42d0-98e5-f1641d5240f9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 8,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nBI Example – Instruction Trace \r\n8 \r\n sub $0xff, %edx\r\n cmp %esi, %edx\r\n jle <L1> \r\n mov $0x1, %edi\r\n add $0x10, %eax\r\nPrint(ip); \r\nPrint(ip); \r\nPrint(ip); \r\nPrint(ip); \r\nPrint(ip); ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/7bf1bd84-a84d-42d0-98e5-f1641d5240f9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eea3212ce7936975fc2d622b09a9e99a4816f52031e80768d0c58afed5e03559",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b4183af6-df49-4180-bc88-26574abca61f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 9,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nAdvantages \r\n• Binary instrumentation \r\n• Language independent \r\n• Machine-level view \r\n• Instrument legacy/proprietary software \r\n• Dynamic instrumentation \r\n• No need to recompile or relink \r\n• Discover code at runtime \r\n• Handle dynamically-generated code \r\n• Attach to running processes \r\n9 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/b4183af6-df49-4180-bc88-26574abca61f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ea4ca1cb04b37196e174b06946e46c50f805e0222f01983b4474e111e7bf31fa",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7a3e5c84-b23d-4f74-b0ba-64876fc1712b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 10,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nWhat is Pin? \r\n10 \r\nPin is Intel’s dynamic binary instrumentation \r\nengine. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/7a3e5c84-b23d-4f74-b0ba-64876fc1712b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=91fbbf4fb1398817363bab85c9811fc82627a5e8855ea259c2c8ccc7f1423776",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dd1f37fd-1c1b-4cbd-b4df-2c1ac421df77",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 11,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nAdvantages of Pin Instrumentation \r\n• Easy-to-use Instrumentation: \r\n• Uses dynamic instrumentation - Do not need source code, recompilation, post-linking \r\n• Programmable Instrumentation: \r\n• Provides rich APIs to write in C/C++ your own instrumentation tools (called \r\nPintools) \r\n• Multiplatform: \r\n• Supports x86, x86-64, Itanium, Xscale\r\n• OS’s: Windows, Linux, OSX, Android\r\n• Robust: \r\n• Instruments real-life applications: Database, web browsers, … \r\n• Instruments multithreaded applications \r\n• Supports signals \r\n• Efficient: \r\n• Applies compiler optimizations on instrumentation code \r\n11 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/dd1f37fd-1c1b-4cbd-b4df-2c1ac421df77.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ac057f823dab91e684a0c31c8e412dff3e1be18a1cb6c0d3d0efa0541524395e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "02539b68-540c-4e91-b67d-035b5643f660",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 12,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition 12 \r\nWidely Used and Supported \r\n• Large user base in academia and industry \r\n– 30,000+ downloads \r\n– 700+ citations \r\n– Active mailing list (Pinheads) \r\n• Actively developed at Intel \r\n– Intel products and internal tools depend on it \r\n– Nightly testing of 25000 binaries on 15 platforms ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/02539b68-540c-4e91-b67d-035b5643f660.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=54b2a860ad017c058ea82ba8e3c9c3efc0164f8f9eea2da5a38cdba46845e7de",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 468
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "de7c856f-d208-438f-85de-df1863206ea7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 13,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition 13 \r\nUsing Pin \r\nLaunch and instrument an application \r\n $ pin –t pintool.so –- application \r\nInstrumentation engine \r\n(provided in the kit) \r\nInstrumentation tool \r\n(write your own, or use one \r\nprovided in the kit) \r\nAttach to and instrument an application \r\n $ pin –t pintool.so –pid 1234 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/de7c856f-d208-438f-85de-df1863206ea7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1d105e5b7994545f789c832a6fdcd9178bd2a21a788fc49b689ea7940b1100fb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9be34a14-f6d3-478b-8d63-504e65ad12f8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 14,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nPin and Pintools\r\n• Pin – the instrumentation engine \r\n• Pintool – the instrumentation program\r\n• Pin provides the framework and API, Pintools run on \r\nPin to perform meaningful tasks.\r\n• Pintools\r\n – Written in C/C++ using Pin APIs \r\n – Many open source examples provided with the Pin kit \r\n – Certain Do’s and Don’ts apply \r\n14 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/9be34a14-f6d3-478b-8d63-504e65ad12f8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cd787f49f140e55126de2870e08fd78e99fce478eb55d9f4a0e4acfd96259e13",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a2c71791-945a-4c9b-b76b-66db1b802a7f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 15,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\n• Replace application functions with your own. \r\n• Fully examine any application instruction – insert a call to your \r\ninstrumenting function whenever that instruction executes. \r\n• Pass a large set of supported parameters to your instrumenting function. \r\n– Register values (including IP), Register values by reference (for \r\nmodification) \r\n– Memory addresses read/written by the instruction \r\n– Full register context \r\n• Track function calls including syscalls and examine/change arguments. \r\n• Track application threads. \r\n• Intercept signals. \r\n• Instrument a process tree. \r\n ……… \r\nPin Instrumentation Capabilities \r\n15 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/a2c71791-945a-4c9b-b76b-66db1b802a7f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d9493fb32cacd9cee6ae7067b619c422a21d730f64a57d03909154792fa809d3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0954cf00-29d9-43e8-9991-2538fbb904ee",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 16,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nHands-on Task \r\n• Download the latest Pin from http://www.pintool.org \r\n• For Windows: make sure you download the correct version \r\nthat matches your Visual Studio IDE. \r\n• Build all included Pintools under \r\n source/tools/SimpleExamples \r\n source/tools/ManualExmaples \r\n• Refer to the user’s manual for detailed instructions \r\n• Attention: Nmake does not work for Windows, use Cygwin \r\nto install GNU make instead. \r\n16 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/0954cf00-29d9-43e8-9991-2538fbb904ee.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dc365ac697d236d84a467e509fc34282baebba6bf450f7950395fa3064424d00",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "69a24667-0853-40a2-93c3-fd77b2d3b1ce",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 17,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nPintool 1: Instruction Count \r\n17 \r\nsub $0xff, %edx\r\ncmp %esi, %edx\r\njle <L1> \r\nmov $0x1, %edi\r\nadd $0x10, %eax\r\ncounter++; \r\ncounter++; \r\ncounter++; \r\ncounter++; \r\ncounter++; ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/69a24667-0853-40a2-93c3-fd77b2d3b1ce.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6597646ca2a1f1fe2cc76cf73e2d62b46a66258ba6fccc91a820f7683a5cc429",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0f9a24e2-1f6a-415f-9326-0f1ca27a127b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 18,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nPintool 1: Invocation \r\n• Windows examples: \r\n> pin.exe -t inscount0.dll -- dir.exe \r\n> pin.exe -t inscount0.dll -o incount.out -- gzip.exe FILE \r\n• Linux examples: \r\n$ pin -t inscount0.so -- /bin/ls \r\n$ pin -t inscount0.so -o incount.out -- gzip FILE \r\n18 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/0f9a24e2-1f6a-415f-9326-0f1ca27a127b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6338ebac1c8363cc98bf47d8d5054664276105b968657de75499b148658c8f96",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c6902bc1-db6d-4d03-8987-f754f55f4540",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 19,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition 19 \r\nManualExamples/inscount0.cpp \r\ninstrumentation routine \r\nanalysis routine \r\n#include <iostream> \r\n#include \"pin.h\" \r\nUINT64 icount = 0; \r\nvoid docount() { icount++; } \r\nvoid Instruction(INS ins, void *v) \r\n{ \r\n INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)docount, IARG_END); \r\n} \r\nvoid Fini(INT32 code, void *v) \r\n{ std::cerr << \"Count \" << icount << endl; } \r\n int main(int argc, char * argv[]) \r\n { \r\n PIN_Init(argc, argv); \r\n INS_AddInstrumentFunction(Instruction, 0); \r\n PIN_AddFiniFunction(Fini, 0); \r\n PIN_StartProgram(); \r\n return 0; \r\n } \r\nswitch to pin stack \r\nsave registers \r\ncall docount\r\nrestore registers \r\nswitch to app stack\r\nPintool 1: ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/c6902bc1-db6d-4d03-8987-f754f55f4540.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4928b124c44d35de045a8756253476c39ed58f0d0a44cb880c83abaf6ac33b1a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "136af89c-2492-40ba-bad5-5b348892461f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 20,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nPin Instrumentation APIs \r\n• Basic APIs are architecture independent: \r\n• Provide common functionalities like determining: \r\n– Control-flow changes \r\n– Memory accesses \r\n• Architecture-specific APIs \r\n• E.g., Info about segmentation registers on IA32 \r\n• Call-based APIs: \r\n• Instrumentation routines \r\n• Analysis routines",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/136af89c-2492-40ba-bad5-5b348892461f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4297e01fb504bf5a33617ea904c4f0249bc2968345d8f55cda67fc8eaf020911",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e153414b-29c1-4009-b5fb-61fb7131e726",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 21,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nPintool 2: Instruction Trace \r\n21 \r\n sub $0xff, %edx\r\n cmp %esi, %edx\r\n jle <L1> \r\n mov $0x1, %edi\r\n add $0x10, %eax\r\nPrint(ip); \r\nPrint(ip); \r\nPrint(ip); \r\nPrint(ip); \r\nPrint(ip); ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/e153414b-29c1-4009-b5fb-61fb7131e726.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=225132d3b13fa015203f713344e9e4e2e8f0af0e480b32ee194990579fb21dab",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 486
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "87c857af-bf50-4ca3-ba3a-cc0c3bb5867b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 22,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nManualExamples/itrace.cpp\r\nargument to analysis routine \r\nanalysis routine \r\ninstrumentation routine \r\n#include <stdio.h> \r\n#include \"pin.H\" \r\nFILE * trace; \r\nvoid printip(void *ip) { fprintf(trace, \"%p\\n\", ip); } \r\nvoid Instruction(INS ins, void *v) { \r\n INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)printip, \r\n IARG_INST_PTR, IARG_END); \r\n}\r\nvoid Fini(INT32 code, void *v) { fclose(trace); } \r\nint main(int argc, char * argv[]) { \r\n trace = fopen(\"itrace.out\", \"w\"); \r\n PIN_Init(argc, argv); \r\n INS_AddInstrumentFunction(Instruction, 0); \r\n PIN_AddFiniFunction(Fini, 0); \r\n PIN_StartProgram(); \r\n return 0; \r\n} \r\nPintool 2: ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/87c857af-bf50-4ca3-ba3a-cc0c3bb5867b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3ee3985cf08b75cf3f01376f633d3a6d5caa92742e2fe20607edf2332e36531f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d726b2d3-1693-42d2-8ab2-e26b55efe215",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 23,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition 23 \r\nExamples of Arguments to Analysis Routine \r\nIARG_INST_PTR \r\n• Instruction pointer (program counter) value\r\nIARG_UINT32 <value> \r\n• An integer value \r\nIARG_REG_VALUE <register name> \r\n• Value of the register specified \r\nIARG_BRANCH_TARGET_ADDR \r\n• Target address of the branch instrumented \r\nIARG_MEMORY_READ_EA \r\n• Effective address of a memory read \r\nAnd many more … (refer to the Pin manual for details)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/d726b2d3-1693-42d2-8ab2-e26b55efe215.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=895a80e44a60d7b51cfe709c6f0b3826b6bc32da02b42d220b9c82cf8dd09932",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ace6f345-2a59-4f1d-b0e1-c8fe4f373ef0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 24,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nInstrumentation Points \r\nInstrument points relative to an instruction: \r\n• Before (IPOINT_BEFORE) \r\n• After: \r\n– Fall-through edge (IPOINT_AFTER) \r\n– Taken edge (IPOINT_TAKEN) \r\ncmp %esi, %edx\r\njle <L1> \r\nmov $0x1, %edi\r\n \r\n<L1>: \r\nmov $0x8,%edi \r\ncount() \r\ncount() \r\ncount() ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/ace6f345-2a59-4f1d-b0e1-c8fe4f373ef0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ae3f72d757f3d40b64bde171981e8da2c8f934121620681c8f949757c1cbde2e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9e40198a-3a5f-4173-87ce-8ecc7afbc2dc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 25,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition 25 \r\n• Instruction \r\n• Basic block \r\n– A sequence of instructions terminated \r\nat a control-flow changing instruction \r\n– Single entry, single exit \r\n• Trace \r\n– A sequence of basic blocks terminated \r\nat an unconditional control-flow \r\nchanging instruction \r\n– Single entry, multiple exits \r\nInstrumentation Granularity \r\nsub $0xff, %edx\r\ncmp %esi, %edx\r\njle <L1> \r\nmov $0x1, %edi\r\nadd $0x10, %eax\r\njmp <L2> \r\n1 Trace, 2 BBs, 6 insts\r\nInstrumentation can be done at three different granularities: ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/9e40198a-3a5f-4173-87ce-8ecc7afbc2dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=50deea2da4ad1d4150b2addbf5914f4720a243513bf3e5bb590e75bdbdf0174b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a18b75f1-b766-42e6-9e0f-81f3d83d6c63",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 26,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nHands-on Task: Stack Monitor \r\n• Goal: Monitor runtime stack usage and alert if it \r\nexceeds a pre-defined limit. \r\n• Process address space: \r\n26 \r\nstack base \r\nstack pointer \r\nguard pages \r\nlimit ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/a18b75f1-b766-42e6-9e0f-81f3d83d6c63.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=31f51a22aed128ca8fa0ab9e6d77c3fe69e353a2bb553d221844b04c139ba36a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9c319aec-66f7-466a-a7e6-fcf3fe8360c5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 27,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Where Innovation Is Tradition \r\nHands-on Task: Stack Monitor \r\n• Steps: \r\n1. Obtain stack base address when process starts. \r\n2. Perform instruction-level instrumentation. \r\n3. Get runtime stack size (stack_base – stack_pointer). \r\n4. Compare stack size with supplied size limit. \r\n• Hint: refer to ManualExamples/stack-debugger.cpp\r\n \r\n27 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/15d8cff3-7b2f-4f41-83ca-20160241711f/images/9c319aec-66f7-466a-a7e6-fcf3fe8360c5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041913Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e1eca6731f762f060fea33294198dc4b6769cffd9460c5c4a1e2f2dd588e9b01",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 326
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Introduction to the Pin Instrumentation Tool\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Quan Jia\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "Mar 27, 2013\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "ISA 673 Operating Systems' Security\n"
+        }
+      ]
+    }
+  }
+}

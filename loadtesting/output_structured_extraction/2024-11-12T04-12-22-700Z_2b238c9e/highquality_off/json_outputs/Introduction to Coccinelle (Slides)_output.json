@@ -1,0 +1,702 @@
+{
+  "file_name": "Introduction to Coccinelle (Slides).pdf",
+  "task_id": "446193f6-d2f0-406e-a8c0-0a1dbb38146b",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "8931a579-ec77-4e28-9803-5358d18e66b1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 1,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Introduction to Coccinelle\r\nJulia Lawall\r\nUniversity of Copenhagen\r\nJanuary 26, 2011\r\n1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/8931a579-ec77-4e28-9803-5358d18e66b1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b53c51df4c1c2db5ad8f66d0986cd320c8f5625b7660a11b96c91d39ee359954",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a1dfc666-93f4-44f6-8ac4-f1f940b1175b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 2,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Overview\r\nI The structure of a semantic patch.\r\nI Isomorphisms.\r\nI Depends on.\r\nI Dots.\r\nI Nests.\r\nI Positions.\r\nI Python.\r\n2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/a1dfc666-93f4-44f6-8ac4-f1f940b1175b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=853db644415859880fe02cc42bd9ac9f08d6b944be13095c72090f0eae0511e5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4eeecb77-c7d4-4b47-8ca7-0e598a76e4dd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 3,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "The structure of a semantic patch\r\nGoals:\r\nI Specify patterns of code to be found and transformed.\r\nI Specify which terms should be abstracted over.\r\nI C-like, patch-like notation.\r\n3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/4eeecb77-c7d4-4b47-8ca7-0e598a76e4dd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d70ac0fc02ce0e13799f370b8b921b8fccfe43bf64d30103840f8759588312ff",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d67d8af6-b144-4535-a501-1369ab7e8de8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 4,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "The !& problem\r\nThe problem: Combining a boolean (0/1) with a constant using\r\n& is usually meaningless:\r\nif(!erq->flags & IW_ENCODE_MODE)\r\n{\r\nreturn -EINVAL;\r\n}\r\nThe solution: Add parentheses.\r\nOur goal: Do this automatically for any expression E and\r\nconstant C.\r\n4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/d67d8af6-b144-4535-a501-1369ab7e8de8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c22e6b5470cef5389d9f0c0e1b74f8248d9ac2c25cd040cf0a48cb6cc64fbda0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d0d2fd80-5428-43f0-92ca-6d2aef85d273",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 5,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "A semantic patch for the !& problem\r\n@@\r\nexpression E;\r\nconstant C;\r\n@@\r\n- !E & C\r\n+ !(E & C)\r\nTwo parts per rule:\r\nI Metavariable declaration\r\nI Transformation specification\r\nA semantic patch can contain multiple rules\r\n5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/d0d2fd80-5428-43f0-92ca-6d2aef85d273.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9ca6c43d091e6eba50741f18bd5c9cf2c8de2ed681d5cd76463635a29ef3ded8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d91de7a9-8b3c-492e-a275-57cd20dd9346",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 6,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Issues\r\nMetavariable types\r\nI expression, statement, type, constant, local idexpression\r\nI A type from the source program\r\nI iterator, declarer, iterator name, declarer name, typedef\r\nTransformation specification\r\nI - in the leftmost column for something to remove\r\nI + in the leftmost column for something to add\r\nI * in the leftmost column for something of interest\r\n– Cannot be used with + and -.\r\nI Spaces, newlines irrelevant.\r\n6",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/d91de7a9-8b3c-492e-a275-57cd20dd9346.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3a51bce62eb134ec3e754a8c25bc137eaf32cba2330af137ce4bfc1fdafe7c3b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5b7ad517-3099-438e-9a57-ed4d386b95da",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 7,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Exercise 1\r\nWrite rules to introduce calls to the following functions:\r\nstatic inline void *\r\nide_get_hwifdata (ide_hwif_t * hwif)\r\n{\r\nreturn hwif->hwif_data;\r\n}\r\nstatic inline void\r\nide_set_hwifdata (ide_hwif_t * hwif, void *data)\r\n{\r\nhwif->hwif_data = data;\r\n}\r\nHints:\r\nI To only consider ide_hwif_t-typed expressions, declare\r\na “metavariable” typedef ide_hwif_t;.\r\nI Consider both structures and pointers to structures.\r\nI Consider the ordering of the rules.\r\n7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/5b7ad517-3099-438e-9a57-ed4d386b95da.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=90f36b3f610a05f97df98cafbf7b5f7946503cb26b679c15e985b208916416ea",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a60ea49c-5d7c-48ae-aa71-193db53a3cfc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 8,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Practical issues\r\nTo check that your semantic patch is valid:\r\nspatch -parse_cocci mysp.cocci\r\nTo run your semantic patch:\r\nspatch -sp_file mysp.cocci -dir linux-x.y.z\r\nTo understand why your semantic patch didn’t work:\r\nspatch -sp_file mysp.cocci -dir linux-x.y.z -debug\r\nIf you don’t need to include header files:\r\nspatch -sp_file mysp.cocci -dir linux-x.y.z\r\n-no_includes -include_headers\r\n8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/a60ea49c-5d7c-48ae-aa71-193db53a3cfc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a202ab3f3d28e948eb1ed1a8beb8b55729bfbbd613cfd2b49122c3a6a66010f1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cd8d3507-09ed-494d-90c5-c0dc040b864e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 9,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Solution 1\r\n@@\r\ntypedef ide_hwif_t;\r\nide_hwif_t *dev;\r\nexpression data;\r\n@@\r\n- dev->hwif_data = data\r\n+ ide_set_hwifdata(dev,data)\r\n@@\r\nide_hwif_t *dev;\r\n@@\r\n- dev->hwif_data\r\n+ ide_get_hwifdata(dev)\r\n9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/cd8d3507-09ed-494d-90c5-c0dc040b864e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a39492a60a8c918aca0b8dd6f49c81bd056098229a6958d1b8cb051c99afa5e5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2ba037be-1d3f-47ef-98e4-e6a3963dc1c4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 10,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Solution 2 (more concise)\r\n@@\r\nide_hwif_t *dev;\r\nexpression data;\r\n@@\r\n(\r\n- dev->hwif_data = data\r\n+ ide_set_hwifdata(dev,data)\r\n|\r\n- dev->hwif_data\r\n+ ide_get_hwifdata(dev)\r\n)\r\n10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/2ba037be-1d3f-47ef-98e4-e6a3963dc1c4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d35e7d3341564911d66d25a8c1bcb443097fb26ca43f38aeabe8990ca4843605",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "43019fa5-44dd-4791-8dac-d90ab4606824",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 11,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Solution 3 (more complete)\r\n@@ ide_hwif_t *dev; expression data; @@\r\n(\r\n- dev->hwif_data = data\r\n+ ide_set_hwifdata(dev,data)\r\n|\r\n- dev->hwif_data\r\n+ ide_get_hwifdata(dev)\r\n)\r\n@@ ide_hwif_t dev; expression data; @@\r\n(\r\n- dev.hwif_data = data\r\n+ ide_set_hwifdata(&dev,data)\r\n|\r\n- dev.hwif_data\r\n+ ide_get_hwifdata(&dev)\r\n)\r\n11",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/43019fa5-44dd-4791-8dac-d90ab4606824.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d72dd1c863c32c89d52e5a7fbbcd7195d255a8c266053ac2649cda2a7e602a7c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "54e95616-7953-48e1-ade2-4bbcad9335a1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 12,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Isomorphisms\r\nGoals:\r\nI Transparently treat similar code patterns in a similar way.\r\n12",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/54e95616-7953-48e1-ade2-4bbcad9335a1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dea853369dadfeda78e96f7c9ee0a5ae5aa47e2f8c1fd86c5a48192135d45a88",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3432834d-e583-4a7e-9db5-12b2dd38ac9e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 13,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "DIV_ROUND_UP\r\nThe following code is fairly hard to understand:\r\nreturn (time_ns * 1000 + tick_ps - 1) / tick_ps;\r\nkernel.h provides the following macro:\r\n#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))\r\nThis is used, but not everywhere it could be.\r\nWe can write a semantic patch to introduce new uses.\r\n13",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/3432834d-e583-4a7e-9db5-12b2dd38ac9e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d2ac78e2e74f95f35afb525d369e9490151ce6d2a861081058cc830eee6926d3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 490
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "20efafdd-f9d3-4b78-8bda-a9dcb330155c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 14,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "DIV_ROUND_UP semantic patch\r\nOne option:\r\n@@ expression n,d; @@\r\n- (((n) + (d) - 1) / (d))\r\n+ DIV_ROUND_UP(n,d)\r\nAnother option:\r\n@@ expression n,d; @@\r\n- (n + d - 1) / d\r\n+ DIV_ROUND_UP(n,d)\r\nProblem: How many parentheses to put, to capture all\r\noccurrences?\r\n14",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/20efafdd-f9d3-4b78-8bda-a9dcb330155c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=49d85691600fcdcd69d99cc4c5ba0aad6c83754c5315ffa0022c1a4b0c87920a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "492f3158-6b69-41b7-9552-197b5055fb7f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 15,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Isomorphisms\r\nAn isomorphism relates code patterns that are considered to\r\nbe similar:\r\nExpression\r\n@ drop_cast @ expression E; pure type T; @@\r\n(T)E => E\r\nExpression\r\n@ paren @ expression E; @@\r\n(E) => E\r\nExpression\r\n@ is_null @ expression X; @@\r\nX == NULL <=> NULL == X => !X\r\n15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/492f3158-6b69-41b7-9552-197b5055fb7f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ac85b0b476af62a0d243d7b4f9c8a42d1c103cd1ffdbaa067980112a978724bd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2bd72c11-dd07-4c31-bc32-6a9073eec818",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 16,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Isomorphisms, contd.\r\nIsomorphisms are handled by rewriting.\r\n(((n) + (d) - 1) / (d))\r\nbecomes:\r\n(\r\n(((n) + (d) - 1) / (d))\r\n|\r\n(((n) + (d) - 1) / d)\r\n|\r\n(((n) + d - 1) / (d))\r\n|\r\n(((n) + d - 1) / d)\r\n|\r\n((n + (d) - 1) / (d))\r\n|\r\n((n + (d) - 1) / d)\r\n|\r\n((n + d - 1) / (d))\r\n|\r\n((n + d - 1) / d)\r\n|\r\netc.\r\n)\r\n16",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/2bd72c11-dd07-4c31-bc32-6a9073eec818.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3ce7b11d9bfa1510448d8e36eea10ab49364b2baab0f668157e2a0b3aeacd5cb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0d171809-ebfe-4a14-9183-b02338f5748d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 17,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Practical issues\r\nDefault isomorphisms are defined in standard.iso\r\nTo use a different set of default isomorphisms:\r\nspatch -sp_file mysp.cocci -dir linux-x.y.z -iso_file empty.iso\r\nTo drop specific isomorpshisms:\r\n@disable paren@ expression n,d; @@\r\n- (((n) + (d) - 1) / (d))\r\n+ DIV_ROUND_UP(n,d)\r\nTo add rule-specific isomorpshisms:\r\n@using \"myparen.iso\" disable paren@\r\nexpression n,d;\r\n@@\r\n- (((n) + (d) - 1) / (d))\r\n+ DIV_ROUND_UP(n,d)\r\n17",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/0d171809-ebfe-4a14-9183-b02338f5748d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2ff881deaca56e0cbdeea62bec097c6c8fd4714696e22663d9134b74f92c2bef",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7823752b-5cc5-4bf9-9526-ee64e0c68eb7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 18,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Depends on\r\nGoals:\r\nI Define multiple matching and transformation rules.\r\nI Express that the applicability of one rule depends on the\r\nsuccess or failure of another.\r\n18",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/7823752b-5cc5-4bf9-9526-ee64e0c68eb7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a764a13d7e8dd723746840dccccd1e4df1d3012a8cb8a15eae642b8df07b2386",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "85a52c9c-019e-4a8d-8377-17fae956709a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 19,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Header files\r\nDIV_ROUND_UP is defined in kernel.h\r\nI The transformation might not be correct if kernel.h is not\r\nincluded.\r\nI Problem: #include <linux/kernel.h> is far from the\r\ncall to DIV_ROUND_UP\r\n@r@\r\n@@\r\n#include <linux/kernel.h>\r\n@depends on r@\r\nexpression n,d;\r\n@@\r\n- (((n) + (d) - 1) / (d))\r\n+ DIV_ROUND_UP(n,d)\r\n19",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/85a52c9c-019e-4a8d-8377-17fae956709a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6e4dade4551d6ad3a22ad42d6969c045914376b7469b4eba77942e00c7d4c0b9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "28b7f4d6-cc1c-43c6-b13c-d008743954d8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 20,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Dots\r\nGoals:\r\nI Specify patterns consisting of fragments of code separated\r\nby arbitrary execution paths.\r\nI Specify constraints on the contents of those execution\r\npaths.\r\n20",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/28b7f4d6-cc1c-43c6-b13c-d008743954d8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a72f5eecb97b88463b1fbd6f56ec53a97d8366bcf4037b341c4865138a0cd87",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6d39d39d-cb44-4619-9fcd-231cb777410e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 21,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Nested spin_lock_irqsave\r\nspin_lock_irqsave(lock,flags):\r\nI Takes a lock.\r\nI Saves current interrupt status in flags.\r\nI Disables interrupts.\r\nInvalid nested usage:\r\nspin_lock_irqsave(&port->lock, flags);\r\nif (sx_crtscts(port->port.tty))\r\nif (set & TIOCM_RTS) port->MSVR |= MSVR_DTR;\r\nelse if (set & TIOCM_DTR) port->MSVR |= MSVR_DTR;\r\nspin_lock_irqsave(&bp->lock, flags);\r\nsx_out(bp, CD186x_CAR, port_No(port));\r\nsx_out(bp, CD186x_MSVR, port->MSVR);\r\nspin_unlock_irqrestore(&bp->lock, flags);\r\nspin_unlock_irqrestore(&port->lock, flags);\r\n21",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/6d39d39d-cb44-4619-9fcd-231cb777410e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e87133fcb466f0d457ebc64dc2a35ec9d93370af9fa81b1449b47f9ce1027f73",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1f64919e-9328-43a9-93ca-b5b7e679dab9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 22,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Detecting nested spin_lock_irqsave\r\nObservations:\r\nI Calls to spin_lock_irqsave share their second\r\nargument.\r\n– Solution: repeated metavariables.\r\nI Calls to spin_lock_irqsave may be separated by\r\narbitrary code.\r\n– Solution: ...\r\nI There should be no calls to spin_lock_irqrestore\r\nbetween the calls to spin_lock_irqsave.\r\n– Solution: when\r\n22",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/1f64919e-9328-43a9-93ca-b5b7e679dab9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f2e6b92aa48e00206eac373fc86255f1404a394ab9a7080b0f62d7f8e076b9ff",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "12a1d87b-7905-4398-b55a-71dedc9db77d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 23,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "A semantic match for detecting nested\r\nspin_lock_irqsave\r\n@@\r\nexpression lock1,lock2;\r\nexpression flags;\r\n@@\r\n*spin_lock_irqsave(lock1,flags)\r\n... when != flags\r\n*spin_lock_irqsave(lock2,flags)\r\n23",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/12a1d87b-7905-4398-b55a-71dedc9db77d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=79e97f67a84d59d8696c5ebc9dc26b2b8333709ee521b73f1f40f806a670665f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7c06acac-8446-4142-bf42-85ad138f9afa",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 24,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Nests\r\nGoals:\r\nI Describe terms that can occur any number of times within\r\nan execution path.\r\nI 0 or more times, or 1 or more times.\r\n24",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/7c06acac-8446-4142-bf42-85ad138f9afa.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f390bcc4806c3bac427e8c95ce7dc3925d9a6185e9cfdaf5dff6c786d7117e4d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 494
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fc311893-cabe-4b3d-ba15-99308f8340d4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 25,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Detecting memory leaks\r\nA simple case of a memory leak:\r\nI An allocation.\r\nI Storage in a local variable.\r\nI No use.\r\nI Return of an error code (negative constant).\r\n@@\r\nlocal idexpression x;\r\nstatement S;\r\nconstant C;\r\n@@\r\n*x = \\(kmalloc\\|kzalloc\\|kzalloc\\)(...);\r\n...\r\nif (x == NULL) S\r\n... when != x\r\n*return -C;\r\n25",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/fc311893-cabe-4b3d-ba15-99308f8340d4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df7d218166416954bc6bc4e8f3cf14f605e59a342267e870a67f6891d0b1a2f4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "569f2ca1-1384-4334-9716-0fa8db9886d1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 26,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Results\r\n3 bugs detected, for example:\r\ntmp_store = kmalloc(sizeof(*tmp_store), GFP_KERNEL);\r\nif (!tmp_store) {\r\nti->error = \"Exception store allocation failed\";\r\nreturn -ENOMEM;\r\n}\r\npersistent = toupper(*argv[1]);\r\nif (persistent != ’P’ && persistent != ’N’) {\r\nti->error = \"Persistent flag is not P or N\";\r\nreturn -EINVAL;\r\n}\r\n26",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/569f2ca1-1384-4334-9716-0fa8db9886d1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=73c44e5139aacae120024622f9923e39813bb1e2b232bed43b3fc32c19306e30",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bac770d9-c683-4804-94d8-1ae19c5c4951",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 27,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Towards a more general semantic match\r\nif (chip == NULL) {\r\nchip = kzalloc(sizeof(struct chip_data), GFP_KERNEL);\r\nif (!chip)\r\nreturn -ENOMEM;\r\nchip->enable_dma = 0;\r\nchip_info = spi->controller_data;\r\n}\r\nif (chip_info) {\r\nif (chip_info->ctl_reg&(SPE|MSTR|CPOL|CPHA|LSBF)) {\r\ndev_err(&spi->dev, \"do not set bits in ctl_reg \"\r\n\"that the SPI framework manages\");\r\nreturn -EINVAL;\r\n}\r\n...\r\n}\r\nAccessing a field of chip doesn’t eliminate the need to free it.\r\n27",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/bac770d9-c683-4804-94d8-1ae19c5c4951.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=60839942a08b5efae36e60b101845b2da4e853ab9e66c132c8e7681be9f51ad6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1f638d58-bfbc-417c-ab00-4a91af83ca55",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 28,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "A more general semantic match\r\n@@\r\nlocal idexpression x;\r\nstatement S;\r\nconstant C;\r\n@@\r\n*x = \\(kmalloc\\|kzalloc\\|kzalloc\\)(...);\r\n...\r\nif (x == NULL) S\r\n<... when != x\r\nx->fld = E\r\n...>\r\n*return -C;\r\nFinds 2 more bugs, but 1 false positive as well.\r\n28",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/1f638d58-bfbc-417c-ab00-4a91af83ca55.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=49d96c35bde6ed465c12709ef1e66e1719a43fbdbe4d83699820119c65edca80",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "87235802-0b1c-4bf4-a571-1278e238a8d0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 29,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Other uses of nests\r\n<... P ...>:\r\nI Change all occurrences within a region of code.\r\nI Example: a parameter is replaced by a call to an access\r\nfunction.\r\n<+... P ...+>:\r\nI Change or match at least one occurrence in a region of\r\ncode.\r\nI Change or match at least one occurrence within an\r\nexpression.\r\nI Example: kfree(<+... x ...+>);\r\n29",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/87235802-0b1c-4bf4-a571-1278e238a8d0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aa7043a31c9ef2ed6e0cffef71ce109905d969a8833ee0fca775f9f9f0fb9b83",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "160b10ba-7f55-438c-9fec-8d21fd5cd37f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 30,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Positions and Python\r\nGoals:\r\nI Positions: remember exactly what fragment of code was\r\nmatched.\r\nI Python: do arbitrary computation, especially printing.\r\n30",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/160b10ba-7f55-438c-9fec-8d21fd5cd37f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c6d8645552e01211f8d0eaf99252b82e7080e74300a686fb5d34a812576bfca8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "192f4f7b-456a-46a7-9678-f96dfb6fbf6f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 31,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "& with 0\r\nif (mode & V4L2_TUNER_MODE_MONO)\r\ns1 |= TDA8425_S1_STEREO_MONO;\r\nI V4L2_TUNER_MODE_MONO is 0.\r\nI The test is always false.\r\n31",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/192f4f7b-456a-46a7-9678-f96dfb6fbf6f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=531291596cdc101c0e2c8fd84d431a586563b0b597428ecfce534d280c93bdd5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "98ee66ce-a651-4c79-88c7-54b6da28bb2d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 32,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Detecting & with 0\r\nOne strategy:\r\nI Search for constants that are defined to 0.\r\nI Check that there is not another nonzero definition.\r\nI Find a corresponding use of &.\r\nAnother strategy:\r\nI Find a use of &.\r\nI Check that the constant is 0.\r\nI Check that there is not another nonzero definition.\r\nI Report on the bug site.\r\nThe better strategy depends on how many matches there are at\r\neach step.\r\nWe take the second strategy, for illustration.\r\n32",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/98ee66ce-a651-4c79-88c7-54b6da28bb2d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=714eed8b38fae0602df0a6f814b6491a889d3539e6b82ef3298b05a6a8b84efa",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "53b0f3fd-f41b-4222-a203-a9372bf1d53d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 33,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Find a use of &\r\n@r expression@\r\nidentifier C;\r\nexpression E;\r\nposition p;\r\n@@\r\nE & C@p\r\nI The rule has a name: r.\r\nI p is a position metavariable, so we can find the same &\r\nexpression later.\r\n33",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/53b0f3fd-f41b-4222-a203-a9372bf1d53d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7add498fb974a3c13e8068ab636b238690f3478be45b587205648cdfa848b099",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4fc82e56-53ba-49af-a7b3-3312a244894c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 34,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Check that C is 0\r\n@s@\r\nidentifier r.C;\r\n@@\r\n#define C 0\r\n@t@\r\nidentifier r.C;\r\nexpression E != 0;\r\n@@\r\n#define C E\r\nI Both rules inherit C.\r\nI Each rule is applied once for each value of C.\r\nI The second rule puts a constraint on E.\r\n– Constraints on constants, expressions, identifiers, positions\r\n– Regular expressions allowed for constants and identifiers.\r\n34",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/4fc82e56-53ba-49af-a7b3-3312a244894c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e1d9c54ec8ffd547c27797485b5026241282d4f47de65b78894da6bf126422a4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 501
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "98ae2858-5c2d-4ff8-b02f-a21ad3ac440e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 35,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Printing the result\r\n@script:python depends on s && !t@\r\np << r.p;\r\nC << r.C;\r\n@@\r\ncocci.print_main(\"and with 0\", p)\r\nI Python rules only inherit metavariables, using << notation.\r\nI Depends on clause is evaluated for each inherited set of\r\nmetavariable bindings.\r\nI print_main is part of a library for printing output in Emacs\r\norg mode.\r\n35",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/98ae2858-5c2d-4ff8-b02f-a21ad3ac440e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c0ed1471585ad5e731ad06766a854f2c723690cb6fda82bf5107cea89eb977b2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "26bfebc7-4086-457e-9989-57361f5ff53a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 36,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "The complete semantic patch\r\n@r expression@\r\nidentifier C;\r\nexpression E;\r\nposition p;\r\n@@\r\nE & C@p\r\n@s@ identifier r.C; @@\r\n#define C 0\r\n@t@ identifier r.C; expression E != 0; @@\r\n#define C E\r\n@script:python depends on s && !t@\r\np << r.p;\r\nC << r.C;\r\n@@\r\ncocci.print_main(\"and with 0\", p)\r\n36",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/446193f6-d2f0-406e-a8c0-0a1dbb38146b/images/26bfebc7-4086-457e-9989-57361f5ff53a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041657Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dfedaa34204b8290ee410bc43017bbf6be425412a23e2b67f468470ead7fd6c7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 109
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\"title\": \"Introduction to Coccinelle\"}\n```"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Julia Lawall\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2011-01-26\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```json\n{\"location\": null}\n```\n"
+        }
+      ]
+    }
+  }
+}

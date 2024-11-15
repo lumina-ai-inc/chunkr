@@ -1,0 +1,27 @@
+b6b72dfc-9b37-4ee5-b1d5-901822fb57a7,Inside the Python GIL - Dave Beazley (2009).pdf,0,Task queued,2024-11-12T02:42:17.925Z,2024-11-12T02:42:18.990Z,1065
+86529fcd-df71-43ce-8180-ff9f659e4916,Inside IOCP.pdf,4,Task queued,2024-11-12T02:42:17.925Z,2024-11-12T02:42:18.990Z,1065
+dac75bef-a10f-4340-ae25-759b50d5202b,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",0,Task queued,2024-11-12T02:42:18.054Z,2024-11-12T02:42:19.116Z,1062
+86529fcd-df71-43ce-8180-ff9f659e4916,Inside IOCP.pdf,4,Chunking queued,2024-11-12T02:42:18.990Z,2024-11-12T02:42:20.053Z,1063
+b6b72dfc-9b37-4ee5-b1d5-901822fb57a7,Inside the Python GIL - Dave Beazley (2009).pdf,23,Converting file to images,2024-11-12T02:42:18.990Z,2024-11-12T02:42:21.113Z,2123
+86529fcd-df71-43ce-8180-ff9f659e4916,Inside IOCP.pdf,4,Structured extraction queued,2024-11-12T02:42:20.053Z,2024-11-12T02:42:21.113Z,1060
+dac75bef-a10f-4340-ae25-759b50d5202b,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Converting file to images,2024-11-12T02:42:19.116Z,2024-11-12T02:42:21.245Z,2129
+b6b72dfc-9b37-4ee5-b1d5-901822fb57a7,Inside the Python GIL - Dave Beazley (2009).pdf,23,Chunking started,2024-11-12T02:42:21.113Z,2024-11-12T02:42:22.171Z,1058
+86529fcd-df71-43ce-8180-ff9f659e4916,Inside IOCP.pdf,4,Structured extraction started,2024-11-12T02:42:21.113Z,2024-11-12T02:42:22.291Z,1178
+86529fcd-df71-43ce-8180-ff9f659e4916,Inside IOCP.pdf,4,Structured extraction succeeded,2024-11-12T02:42:22.291Z,2024-11-12T02:42:22.291Z,4425
+dac75bef-a10f-4340-ae25-759b50d5202b,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Cropping segments,2024-11-12T02:42:21.245Z,2024-11-12T02:42:22.301Z,1056
+b6b72dfc-9b37-4ee5-b1d5-901822fb57a7,Inside the Python GIL - Dave Beazley (2009).pdf,23,Cropping segments,2024-11-12T02:42:22.171Z,2024-11-12T02:42:23.228Z,1057
+dac75bef-a10f-4340-ae25-759b50d5202b,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Structured extraction started,2024-11-12T02:42:22.301Z,2024-11-12T02:42:23.473Z,1172
+dac75bef-a10f-4340-ae25-759b50d5202b,"Instant Loading for Main Memory Databases - VLDB - 2013, Vol 6, No 14 (p1702-muehlbauer).pdf",12,Structured extraction succeeded,2024-11-12T02:42:23.473Z,2024-11-12T02:42:23.473Z,5478
+e882bcc4-5d04-4118-88f8-a85dbca5ab4c,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Task queued,2024-11-12T02:42:22.509Z,2024-11-12T02:42:23.573Z,1064
+b6b72dfc-9b37-4ee5-b1d5-901822fb57a7,Inside the Python GIL - Dave Beazley (2009).pdf,23,Structured extraction queued,2024-11-12T02:42:23.228Z,2024-11-12T02:42:24.394Z,1166
+b6b72dfc-9b37-4ee5-b1d5-901822fb57a7,Inside the Python GIL - Dave Beazley (2009).pdf,23,Structured extraction succeeded,2024-11-12T02:42:24.394Z,2024-11-12T02:42:24.394Z,6530
+e882bcc4-5d04-4118-88f8-a85dbca5ab4c,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Converting file to images,2024-11-12T02:42:23.573Z,2024-11-12T02:42:24.629Z,1056
+e882bcc4-5d04-4118-88f8-a85dbca5ab4c,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Chunking started,2024-11-12T02:42:24.629Z,2024-11-12T02:42:25.686Z,1057
+6cda71aa-3b1a-4e98-9264-da3fa2e3a5ca,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,0,Task queued,2024-11-12T02:42:24.835Z,2024-11-12T02:42:25.895Z,1060
+e882bcc4-5d04-4118-88f8-a85dbca5ab4c,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Structured extraction queued,2024-11-12T02:42:25.686Z,2024-11-12T02:42:26.811Z,1125
+e882bcc4-5d04-4118-88f8-a85dbca5ab4c,"Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",7,Structured extraction succeeded,2024-11-12T02:42:26.811Z,2024-11-12T02:42:26.811Z,4360
+6cda71aa-3b1a-4e98-9264-da3fa2e3a5ca,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Converting file to images,2024-11-12T02:42:25.895Z,2024-11-12T02:42:26.951Z,1056
+6cda71aa-3b1a-4e98-9264-da3fa2e3a5ca,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Chunking queued,2024-11-12T02:42:26.951Z,2024-11-12T02:42:28.012Z,1061
+6cda71aa-3b1a-4e98-9264-da3fa2e3a5ca,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Chunking segments,2024-11-12T02:42:28.012Z,2024-11-12T02:42:29.067Z,1055
+6cda71aa-3b1a-4e98-9264-da3fa2e3a5ca,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Structured extraction started,2024-11-12T02:42:29.067Z,2024-11-12T02:42:30.216Z,1149
+6cda71aa-3b1a-4e98-9264-da3fa2e3a5ca,Instant Loading for Main Memory Databases - 2013 (p1702-muehlbauer).pdf,12,Structured extraction succeeded,2024-11-12T02:42:30.216Z,2024-11-12T02:42:30.216Z,5437

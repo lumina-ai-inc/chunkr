@@ -1,0 +1,364 @@
+{
+  "file_name": "Intel Architecture Code Analyzer - User's Guide - v3.0 (2017).pdf",
+  "task_id": "4f139e53-48c5-4094-8325-8f854a6ce158",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "8f233384-d1a1-48b9-964a-ff31e3af519a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer\r\nUser's Guide\r\nCopyright © 2009-2017 Intel Corporation\r\nAll Rights Reserved\r\nDocument Number: 321356-001US \r\nRevision: 3.0\r\nWorld Wide Web: http://www.intel.com\r\nDocument Number: 321356-001US",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/8f233384-d1a1-48b9-964a-ff31e3af519a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3a7993aa8a84848d2300a938f93ce0a2dd6113a9b384fdc5c697d6df22f4e9a9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 26
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a13cda48-5151-47f7-bb77-1ce089c0e5d0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Introduction\r\nIntel® Architecture Code Analyzer User Guide 2\r\nLegal Information\r\nINFORMATION IN THIS DOCUMENT IS PROVIDED IN CONNECTION WITH INTEL PRODUCTS. NO LICENSE, EXPRESS OR IMPLIED, BY \r\nESTOPPEL OR OTHERWISE, TO ANY INTELLECTUAL PROPERTY RIGHTS IS GRANTED BY THIS DOCUMENT. EXCEPT AS PROVIDED IN \r\nINTEL'S TERMS AND CONDITIONS OF SALE FOR SUCH PRODUCTS, INTEL ASSUMES NO LIABILITY WHATSOEVER AND INTEL \r\nDISCLAIMS ANY EXPRESS OR IMPLIED WARRANTY, RELATING TO SALE AND/OR USE OF INTEL PRODUCTS INCLUDING LIABILITY OR \r\nWARRANTIES RELATING TO FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABILITY, OR INFRINGEMENT OF ANY PATENT, \r\nCOPYRIGHT OR OTHER INTELLECTUAL PROPERTY RIGHT.\r\nA \"Mission Critical Application\" is any application in which failure of the Intel Product could result, directly or indirectly, in personal injury \r\nor death. SHOULD YOU PURCHASE OR USE INTEL'S PRODUCTS FOR ANY SUCH MISSION CRITICAL APPLICATION, YOU SHALL \r\nINDEMNIFY AND HOLD INTEL AND ITS SUBSIDIARIES, SUBCONTRACTORS AND AFFILIATES, AND THE DIRECTORS, OFFICERS, AND \r\nEMPLOYEES OF EACH, HARMLESS AGAINST ALL CLAIMS COSTS, DAMAGES, AND EXPENSES AND REASONABLE ATTORNEYS' FEES \r\nARISING OUT OF, DIRECTLY OR INDIRECTLY, ANY CLAIM OF PRODUCT LIABILITY, PERSONAL INJURY, OR DEATH ARISING IN ANY WAY \r\nOUT OF SUCH MISSION CRITICAL APPLICATION, WHETHER OR NOT INTEL OR ITS SUBCONTRACTOR WAS NEGLIGENT IN THE DESIGN, \r\nMANUFACTURE, OR WARNING OF THE INTEL PRODUCT OR ANY OF ITS PARTS.\r\nIntel may make changes to specifications and product descriptions at any time, without notice. Designers must not rely on the absence \r\nor characteristics of any features or instructions marked \"reserved\" or \"undefined\". Intel reserves these for future definition and shall \r\nhave no responsibility whatsoever for conflicts or incompatibilities arising from future changes to them. The information here is subject \r\nto change without notice. Do not finalize a design with this information.\r\nThe products described in this document may contain design defects or errors known as errata which may cause the product to deviate \r\nfrom published specifications. Current characterized errata are available on request.\r\nContact your local Intel sales office or your distributor to obtain the latest specifications and before placing your product order. Copies\r\nof documents which have an order number and are referenced in this document, or other Intel literature, may be obtained by\r\ncalling 1-800-548-4725, or go to: http://www.intel.com/design/literature.htm\r\nThis document contains information on products in the design phase of development.\r\nSoftware and workloads used in performance tests may have been optimized for performance only on Intel microprocessors. \r\nPerformance tests, such as SYSmark and MobileMark, are measured using specific computer systems, components, software, operations\r\nand functions. Any change to any of those factors may cause the results to vary. You should consult other information and \r\nperformance tests to assist you in fully evaluating your contemplated purchases, including the performance of that product when \r\ncombined with other products.\r\nBlueMoon, BunnyPeople, Celeron, Celeron Inside, Centrino, Centrino Inside, Cilk, Core Inside, E-GOLD, Flexpipe, i960, Intel, the Intel \r\nlogo, Intel AppUp, Intel Atom, Intel Atom Inside, Intel Core, Intel Inside, Intel Insider, the Intel Inside logo, Intel NetBurst, Intel \r\nNetMerge, Intel NetStructure, Intel SingleDriver, Intel SpeedStep, Intel Sponsors of Tomorrow., the Intel Sponsors of Tomorrow. logo, \r\nIntel StrataFlash, Intel vPro, Intel XScale, InTru, the InTru logo, the InTru Inside logo, InTru soundmark, Itanium, Itanium Inside, MCS, \r\nMMX, Moblin, Pentium, Pentium Inside, Puma, skoool, the skoool logo, SMARTi, Sound Mark, Stay With It, The Creators Project, The \r\nJourney Inside, Thunderbolt, Ultrabook, vPro Inside, VTune, Xeon, Xeon Inside, X-GOLD, XMM, X-PMU and XPOSYS are trademarks of \r\nIntel Corporation in the U.S. and/or other countries.\r\n* Other names and brands may be claimed as the property of others. \r\nCopyright (C) 2009-2017, Intel Corporation. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/a13cda48-5151-47f7-bb77-1ce089c0e5d0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=601fe843d3dbf17880ba456f933730ad8efa0a5ad879d7343db2a998faeb8980",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 596
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a13cda48-5151-47f7-bb77-1ce089c0e5d0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Introduction\r\nIntel® Architecture Code Analyzer User Guide 2\r\nLegal Information\r\nINFORMATION IN THIS DOCUMENT IS PROVIDED IN CONNECTION WITH INTEL PRODUCTS. NO LICENSE, EXPRESS OR IMPLIED, BY \r\nESTOPPEL OR OTHERWISE, TO ANY INTELLECTUAL PROPERTY RIGHTS IS GRANTED BY THIS DOCUMENT. EXCEPT AS PROVIDED IN \r\nINTEL'S TERMS AND CONDITIONS OF SALE FOR SUCH PRODUCTS, INTEL ASSUMES NO LIABILITY WHATSOEVER AND INTEL \r\nDISCLAIMS ANY EXPRESS OR IMPLIED WARRANTY, RELATING TO SALE AND/OR USE OF INTEL PRODUCTS INCLUDING LIABILITY OR \r\nWARRANTIES RELATING TO FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABILITY, OR INFRINGEMENT OF ANY PATENT, \r\nCOPYRIGHT OR OTHER INTELLECTUAL PROPERTY RIGHT.\r\nA \"Mission Critical Application\" is any application in which failure of the Intel Product could result, directly or indirectly, in personal injury \r\nor death. SHOULD YOU PURCHASE OR USE INTEL'S PRODUCTS FOR ANY SUCH MISSION CRITICAL APPLICATION, YOU SHALL \r\nINDEMNIFY AND HOLD INTEL AND ITS SUBSIDIARIES, SUBCONTRACTORS AND AFFILIATES, AND THE DIRECTORS, OFFICERS, AND \r\nEMPLOYEES OF EACH, HARMLESS AGAINST ALL CLAIMS COSTS, DAMAGES, AND EXPENSES AND REASONABLE ATTORNEYS' FEES \r\nARISING OUT OF, DIRECTLY OR INDIRECTLY, ANY CLAIM OF PRODUCT LIABILITY, PERSONAL INJURY, OR DEATH ARISING IN ANY WAY \r\nOUT OF SUCH MISSION CRITICAL APPLICATION, WHETHER OR NOT INTEL OR ITS SUBCONTRACTOR WAS NEGLIGENT IN THE DESIGN, \r\nMANUFACTURE, OR WARNING OF THE INTEL PRODUCT OR ANY OF ITS PARTS.\r\nIntel may make changes to specifications and product descriptions at any time, without notice. Designers must not rely on the absence \r\nor characteristics of any features or instructions marked \"reserved\" or \"undefined\". Intel reserves these for future definition and shall \r\nhave no responsibility whatsoever for conflicts or incompatibilities arising from future changes to them. The information here is subject \r\nto change without notice. Do not finalize a design with this information.\r\nThe products described in this document may contain design defects or errors known as errata which may cause the product to deviate \r\nfrom published specifications. Current characterized errata are available on request.\r\nContact your local Intel sales office or your distributor to obtain the latest specifications and before placing your product order. Copies\r\nof documents which have an order number and are referenced in this document, or other Intel literature, may be obtained by\r\ncalling 1-800-548-4725, or go to: http://www.intel.com/design/literature.htm\r\nThis document contains information on products in the design phase of development.\r\nSoftware and workloads used in performance tests may have been optimized for performance only on Intel microprocessors. \r\nPerformance tests, such as SYSmark and MobileMark, are measured using specific computer systems, components, software, operations\r\nand functions. Any change to any of those factors may cause the results to vary. You should consult other information and \r\nperformance tests to assist you in fully evaluating your contemplated purchases, including the performance of that product when \r\ncombined with other products.\r\nBlueMoon, BunnyPeople, Celeron, Celeron Inside, Centrino, Centrino Inside, Cilk, Core Inside, E-GOLD, Flexpipe, i960, Intel, the Intel \r\nlogo, Intel AppUp, Intel Atom, Intel Atom Inside, Intel Core, Intel Inside, Intel Insider, the Intel Inside logo, Intel NetBurst, Intel \r\nNetMerge, Intel NetStructure, Intel SingleDriver, Intel SpeedStep, Intel Sponsors of Tomorrow., the Intel Sponsors of Tomorrow. logo, \r\nIntel StrataFlash, Intel vPro, Intel XScale, InTru, the InTru logo, the InTru Inside logo, InTru soundmark, Itanium, Itanium Inside, MCS, \r\nMMX, Moblin, Pentium, Pentium Inside, Puma, skoool, the skoool logo, SMARTi, Sound Mark, Stay With It, The Creators Project, The \r\nJourney Inside, Thunderbolt, Ultrabook, vPro Inside, VTune, Xeon, Xeon Inside, X-GOLD, XMM, X-PMU and XPOSYS are trademarks of \r\nIntel Corporation in the U.S. and/or other countries.\r\n* Other names and brands may be claimed as the property of others. \r\nCopyright (C) 2009-2017, Intel Corporation. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/a13cda48-5151-47f7-bb77-1ce089c0e5d0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=601fe843d3dbf17880ba456f933730ad8efa0a5ad879d7343db2a998faeb8980",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 596
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "72337f7c-ab11-4ee2-8614-44e3cbdc3826",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 3\r\nIntroduction\r\nContents\r\n1 Introduction.................................................................................................................................................. 4\r\n1.1 Intel® Architecture Code Analyzer Accuracy ................................................................................. 4\r\n1.2 Processor Support.............................................................................................................................. 4\r\n1.3 Platform Support................................................................................................................................. 4\r\n2 Analysis........................................................................................................................................................ 5\r\n2.1 Throughput Analysis .......................................................................................................................... 5\r\n2.2 Trace..................................................................................................................................................... 7\r\n2.3 Analysis Report Notes ....................................................................................................................... 8\r\n2.3.1 Unbound Instructions...................................................................................................................... 8\r\n2.3.2 Combining 256-bit Intel® AVX and Legacy Intel® SSE ........................................................... 8\r\n2.3.3 Unsupported Instructions.............................................................................................................. 8\r\n2.3.4 Bubbles in the execution of the front end .................................................................................. 8\r\n2.3.5 VDIV / VSQRT Latency................................................................................................................. 8\r\n3 Using Intel® Architecture Code Analyzer ............................................................................................... 9\r\n3.1 Building Your Binary........................................................................................................................... 9\r\n3.2 Command Line Options ................................................................................................................ 10\r\n3.3 Analysis Errors.................................................................................................................................. 10\r\n4 Examples ................................................................................................................................................... 11\r\n4.1 Throughput Analysis – Unrolling .................................................................................................... 11\r\n4.1.1 Initial Code..................................................................................................................................... 11\r\n4.1.2 Optimization .................................................................................................................................. 12\r\n5 Release Contents ..................................................................................................................................... 14\r\n5.1 Linux* OS........................................................................................................................................... 14\r\n5.2 Mac OS X*......................................................................................................................................... 14\r\n5.3 Windows* OS .................................................................................................................................... 14",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/72337f7c-ab11-4ee2-8614-44e3cbdc3826.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c27daf9bd4824347907b077d841d07f826e2ab095ab03d361ce5817f2c6751e7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "642f1ec8-49e2-4548-b65f-45c65ab0ccdf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 4\r\nIntroduction\r\n1 Introduction\r\nIntel® Architecture Code Analyzer helps you statically analyze the throughput of\r\ninstruction sequences (kernels) on Intel® microarchitectures.\r\nFor a given binary, Intel Architecture Code Analyzer:\r\n Identifies the binding of the kernel instructions to the processor ports under ideal front\u0002end, out-of-order engine and memory hierarchy conditions.\r\n Performs static analysis of the kernel throughput and reports its cycle count.\r\n1.1 Intel® Architecture Code Analyzer Accuracy\r\nIntel Architecture Code Analyzer enables you to do a first order estimate of the \r\nrelative performance of sections of code on different microarchitectures. It does not\r\nprovide absolute performance numbers.\r\nThe performance data reported by the tool may significantly deviate from actual \r\nperformance observed on an Intel® processor. You can achieve the most accurate \r\nthroughput measurements by executing the analyzed code on the processor itself. The\r\nIntel® Architecture Code Analyzer complements such measured data with information on\r\nport binding, bottlenecks, and critical paths.\r\n1.2 Processor Support\r\nIntel Architecture Code Analyzer supports analysis for 4\r\nth to 6th generation Intel® Core™\r\nprocessors, which correspond to Intel® microarchitectures codenamed Haswell (4\r\nth gen), \r\nBroadwell (5th gen) and Skylake (6th gen), including Skylake Server.\r\n1.3 Platform Support\r\nIntel Architecture Code Analyzer is a command-line utility that can analyze a binary file \r\nthat contains code with special markers that delimit the analyzed code. The tool analyses\r\nIntel® 64 bit code including Intel® Advanced Vector Extensions (Intel® AVX), AVX2 and \r\nAVX-512 instructions.\r\nIntel Architecture Code Analyzer is available on Windows*, Linux* and Mac OS X* \r\noperating systems (64-bit editions).\r\nNOTE: Intel® Architecture Code Analyzer has been validated on 64-bit SUSE* 11, Mac OS\r\nX* 10.12.1 and Microsoft* Windows 8.1 64-bit. It should work on other versions of\r\nLinux*, Mac OS X* and Microsoft* Windows operating systems.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/642f1ec8-49e2-4548-b65f-45c65ab0ccdf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4f227d706ea0f0f49edfa039883e52e213e28f8d7afb2c8725ba80b5364c43bb",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 438
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5042273d-4fc7-491a-9395-f86f5fd32938",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 5\r\nAnalysis\r\n2 Analysis\r\n2.1 Throughput Analysis\r\nThroughput Analysis is used to analyze the throughput and bottlenecks of a loop body; it \r\ntreats the contents of the analyzed block as an infinite loop, including considering inter\u0002iteration dependencies between instructions within the analyzed block. The Throughput \r\nAnalysis report provides the following information:\r\n Throughput of the whole analyzed block, counted in cycles. The block throughput \r\nis calculated as the maximum between:\r\no Throughput of the processor’s ports\r\no Maximum front-end throughput (4 micro-ops per cycle)\r\no Divider unit throughput \r\n Bottleneck source that limited the throughput: front-end, port number, divider unit, \r\nor long dependency chains.\r\n Total number of cycles each processor port was bound by micro-ops.\r\nThe detailed section of the throughput analysis report contains one line for each instruction \r\nin the analyzed block. Each line contains:\r\n Number of the instruction micro-ops.\r\n Average number of cycles per iteration that the instruction was bound to each \r\nprocessor port. For most instructions this simply means the number of cycles the \r\ninstruction was bound to each port. However, if a particular micro-op may execute \r\non more than one port, the average number of cycles per iteration may be a partial \r\ncycle for each port because that micro-op may bind to a different port on each \r\niteration.\r\n Instruction disassembly in Intel® Software Developer’s Manual (MASM) style\r\nSome ports have both a regular pipe and a secondary pipe. These ports are separated by a \r\nhyphen, and look like two separate ports in the detailed report. Specifically:\r\n Port 0 has the Divider pipe split from it. In the first cycle they are both busy, then \r\nport 0 is available for the next micro-op and the Divider pipe is kept busy for the \r\nduration of the divide operation.\r\n Load ports 2 and 3 have an Address Generation Unit (AGU) split from them.\r\nFollowing is an example Throughput Analysis report:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/5042273d-4fc7-491a-9395-f86f5fd32938.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4eccec5305d64b9c06d53e49f684409fdb930ab5dec9e2b8becd384f747f2160",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 323
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "be33b34c-ff79-44a8-9191-0e9ff5896ae9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 6\r\nAnalysis\r\nThroughput Analysis Report\r\n--------------------------\r\nBlock Throughput: 5.00 Cycles Throughput Bottleneck: Dependency chains\r\nLoop Count: 23 \r\nPort Binding In Cycles Per Iteration: \r\n--------------------------------------------------------------------------------------------------\r\n| Port | 0 - DV | 1 | 2 - D | 3 - D | 4 | 5 | 6 | 7 |\r\n--------------------------------------------------------------------------------------------------\r\n| Cycles | 2.5 0.0 | 2.5 | 2.0 2.0 | 2.0 1.0 | 1.0 | 4.0 | 2.0 | 0.0 |\r\n--------------------------------------------------------------------------------------------------\r\nDV - Divider pipe (on port 0)\r\nD - Data fetch pipe (on ports 2 and 3)\r\nF - Macro Fusion with the previous instruction occurred\r\n* - instruction micro-ops not bound to a port \r\n^ - Micro Fusion occurred \r\n# - ESP Tracking sync uop was issued \r\n@ - SSE instruction followed an AVX256/AVX512 instruction, dozens of cycles penalty is expected\r\nX - instruction not supported, was not accounted in Analysis \r\n| Num Of | Ports pressure in cycles | |\r\n| Uops | 0 - DV | 1 | 2 - D | 3 - D | 4 | 5 | 6 | 7 |\r\n-----------------------------------------------------------------------------------------\r\n| 1 | | | 1.0 1.0 | | | | | | mov r10, qword ptr [rbp+0x170]\r\n| 1 | | 1.0 | | | | | | | lea r9d, ptr [r8*4] \r\n| 1 | | | | | | | 1.0 | | movsxd r9, r9d \r\n| 1 | | | | | | | 1.0 | | inc r8d \r\n| 1 | | | | 1.0 1.0 | | | | | mov r11, qword ptr [rbp+0x178]\r\n| 1 | | | 1.0 1.0 | | | | | | vmovups xmm3, xmmword ptr [r10+r9*4]\r\n| 1 | | | | | | 1.0 | | | vpslldq xmm2, xmm3, 0x4 \r\n| 1 | | | | | | 1.0 | | | vpslldq xmm4, xmm3, 0x8 \r\n| 1 | 1.0 | | | | | | | | vaddps xmm6, xmm2, xmm3 \r\n| 1 | | | | | | 1.0 | | | vpslldq xmm5, xmm3, 0xc \r\n| 1 | 0.5 | 0.5 | | | | | | | vaddps xmm7, xmm4, xmm5 \r\n| 1 | 0.5 | 0.5 | | | | | | | vaddps xmm8, xmm6, xmm7 \r\n| 1 | 0.5 | 0.5 | | | | | | | vaddps xmm9, xmm8, xmm0 \r\n| 1 | | | | | | 1.0 | | | vshufps xmm0, xmm9, xmm9, 0xff \r\n| 2 | | | | 1.0 | 1.0 | | | | vmovups xmmword ptr [r11+r9*4], xmm9\r\n| 1* | | | | | | | | | cmp r8d, esi \r\n| 0*F | | | | | | | | | jl 0xffffffffffffffb0 \r\nTotal Num Of Uops: 17 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/be33b34c-ff79-44a8-9191-0e9ff5896ae9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e16d6278916e8a7abaa5500053492860a500f6a8e8cee051a392206c5286005e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 468
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "90089de2-5033-46ac-92eb-1c502e7eb227",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 7\r\nUsing Intel® Architecture Code Analyzer\r\n2.2 Trace\r\nTo generate a trace use ‘–trace <path>’ option to generate a trace file in \r\n<path>. \r\nTraces include in-depth information about different operation stages inside\r\nthe processor. A trace can be used to identify bottlenecks and pressure \r\npoints. \r\nAbove is an example of a trace output.\r\nThe kernel instructions are modeled, in order, from top to bottom while the processor’s cycles run from \r\nleft to right. The ‘it’ column shows the iteration count of the entire kernel, the ‘in’ column shows the \r\ninstruction count within the kernel and the ‘Disassembly’ column shows the instruction’s disassembly, \r\nalong with the micro-architectural instruction fragment information. By default the first 150 cycles of \r\nthe modeled execution are displayed.\r\nEach instruction is represented by at most 4 instruction-fragments (OP, STORE DATA, STORE \r\nADDRESS,LOAD). The trace displays the micro-architectural stage of each fragment inside the \r\nprocessor at any given cycle from allocation to retire and even post retire. If two stages happen at the \r\nsame cycle the most important one of is shown. Specifically when Alloc & sready stages happen at the \r\nsame time the sready stage is shown.\r\nThe stages and possible states are:\r\n[A] – Allocated\r\n[s] – Sources ready\r\n[c] – Port conflict\r\n[d] – Dispatched for execution\r\n[e] – Execute\r\n[w] – Writeback\r\n[R] – Retired\r\n[p] – Post Retire\r\n[-] – pending \r\n[_] – Stalled due to unavailable resources\r\nit|in|Dissasembly :01234567890123456789012345678901234567890\r\n0| 0|mov r10, qword ptr [rbp+0x170] : | | | \r\n0| 0| TYPE_LOAD (1 uops) :s---deeeew----R-------p | \r\n0| 1|lea r9d, ptr [r8*4] : | | | \r\n0| 1| TYPE_OP (1 uops) :sdw-----------R-------p | \r\n0| 2|movsxd r9, r9d : | | | \r\n0| 2| TYPE_OP (1 uops) :A-dw----------R-------p | \r\n0| 3|inc r8d : | | | \r\n0| 3| TYPE_OP (1 uops) :sdw-----------R-------p | \r\n0| 4|mov r11, qword ptr [rbp+0x178] : | | | \r\n0| 4| TYPE_LOAD (1 uops) : s---deeeew----R-------p | \r\n0| 5|vmovups xmm3, xmmword ptr [r10+r9*4] : | | | \r\n0| 5| TYPE_LOAD (1 uops) : A-------deeeeew----R-------p | \r\n0| 6|vpslldq xmm2, xmm3, 0x4 : | | | \r\n0| 6| TYPE_OP (1 uops) : A-------------dw----R-------p| \r\n0| 7|vpslldq xmm4, xmm3, 0x8 : | | | \r\n0| 7| TYPE_OP (1 uops) : A-------------cdw----R-------p \r\n0| 8|vaddps xmm6, xmm2, xmm3 : | | | \r\n0| 8| TYPE_OP (1 uops) : A-------------deeew----R-------p \r\n0| 9|vpslldq xmm5, xmm3, 0xc : | | | \r\n0| 9| TYPE_OP (1 uops) : A------------ccdw------R-------p ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/90089de2-5033-46ac-92eb-1c502e7eb227.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=68732d23c212a96d6eabee4dd73518f9791d2f07c7c55afab973ca86bc4a1493",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 405
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "13c1be34-1503-44fe-92f5-9e94f33a623d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 8\r\nUsing Intel® Architecture Code Analyzer\r\n2.3 Analysis Report Notes\r\n2.3.1 Unbound Instructions\r\nSome instructions do not require a processor functional unit to complete their execution. \r\nFor example, a xor eax, eax instruction does not require an execution port because the \r\nregister is directly set to 0. As a result, their micro-ops are not bound to any port. \r\nInstructions that are not bound to a port are marked with a ‘*’ character next to their \r\nnumber of micro-ops.\r\n2.3.2 Combining 256-bit Intel® AVX and Legacy Intel® SSE\r\nTransitioning between 256-bit Intel® AVX instructions and legacy Intel Streaming SIMD\r\nExtensions (Intel® SSE) instructions will cause performance penalties. Intel® Architecture\r\nCode Analyzer detects these transitions between 256-bit Intel® AVX and legacy Intel®\r\nSSE within the analyzed block, and ignores the associated performance penalty in the \r\ntotal throughput and total latency summary report. Instead, the summary report includes \r\ntwo additional lines at the top indicating that such sequence(s) exist in the analyzed block, \r\nand marks the first transition instruction with a ‘@’ character in the Num of Uops columns.\r\nFor more information on transitions between Intel® AVX and Intel® SSE, see Avoiding\r\nAVX-SSE Transition Penalties.\r\n2.3.3 Unsupported Instructions\r\nIntel® Architecture Code Analyzer does not support a small subset of the Intel® \r\nArchitecture Instruction Set. When it reaches an unsupported instruction in the analyzed \r\nblock it ignores the instruction. It does not take the instruction into account in the port \r\nbinding analysis or in the throughput calculations.\r\nIn such cases, the summary report includes a line indicating that such instruction(s) exist \r\nin the code, and marks the instruction with an ‘X’ character in all columns.\r\n2.3.4 Bubbles in the execution of the front end\r\nThe Intel® Architecture Code Analyzer models some of the internal resources of the \r\nmicroarchitecture front end. It may report “front end bubbles” if some or any of these \r\nresources become a bottleneck.\r\n2.3.5 VDIV / VSQRT Latency\r\nFor some values of their operands (e.g. zero or one) VDIV and VSQRT instructions can \r\nproduce results earlier than their specified latency. The Intel® Architecture Code \r\nAnalyzer does not model this behavior. As a result it could be more “pessimistic” for\r\nkernels that use these instructions. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/13c1be34-1503-44fe-92f5-9e94f33a623d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=84e7182af7a903fe199de34b28552f929cb2c0db86b2f1e15228923977035de5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 369
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "80e4be26-95c0-4949-af9c-8dcd22a2e685",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 9\r\nUsing Intel® Architecture Code Analyzer\r\n3 Using Intel® Architecture Code Analyzer\r\nThis section explains how to build your binary so that the Intel® Architecture Code\r\nAnalyzer can analyze it, and it lists the tool command-line options.\r\n3.1 Building Your Binary\r\nThe file iacaMarks.h contains macros to denote the start (IACA_START) and end \r\n(IACA_END) of the code section for the Intel® Architecture Code Analyzer to evaluate. The \r\nIntel Architecture Code Analyzer is a static tool. It treats the analyzed code section as a \r\nsingle consecutive block of instructions. It does not follow branch instructions, not even \r\nunconditional branches.\r\nWhen analyzing a loop construct, place the macros at the following locations:\r\nwhile ( condition )\r\n{\r\nIACA_START\r\n<loop body>\r\n}\r\nIACA_END\r\nThis placement skips the loop initialization and includes the loop-end branch instruction. \r\nThese macros modify the rbx register in IA-64 code. As a result, the compiler saves this\r\nregister just before the macro and restores it immediately after the macro.\r\nOnce you insert the macros into your code, build your code into an executable file or an \r\nobject file.\r\nFor Microsoft* Visual C++ compiler, 64-bit version, use IACA_VC64_START and \r\nIACA_VC64_END, instead.\r\nNOTE: Input files generated with the Intel compiler option –Qipo are not supported.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/80e4be26-95c0-4949-af9c-8dcd22a2e685.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d5e7485664743fc827f7387d014bd700996d3c03f04204402f79c0df5c280614",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9e1a543f-c846-46c1-97f0-a0b6159d2eb6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 10\r\nExamples\r\n3.2 Command Line Options\r\nThe following command runs the Intel® Architecture Code Analyzer:\r\niaca <options> <input file name>\r\n<input file name> represents the name of the input file.\r\nAvailable <options>:\r\n-arch <type>\r\nArchitecture type.\r\nThese are the available types: HSW, BDW, SKL and \r\nSKX.\r\n-trace <file> Generate an IACA trace and output it to a given file.\r\n-reduceout Output is reduced.\r\n-v Print version and exit.\r\n-trace-cycle-count Specify max cycle number to show in IACA trace\r\n3.3 Analysis Errors\r\nShould the analysis fail, the following error messages may appear:\r\nError message Possible Cause\r\nCOULD NOT OPEN FILE - <Error>\r\nThe supplied path for the input or output file was \r\nincorrect, the input file is not readable or failed to \r\ncreate the output file.\r\nILLEGAL INSTRUCTION - <Error num> Code contains an illegal instruction or other xed \r\nerror occurred, xed error number is printed.\r\nCOULD NOT FIND START_MARKER \r\nCOULD NOT FIND END_MARKER\r\nCode did not contain the proper marker(s). See \r\nsection 3.1 for more details.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/9e1a543f-c846-46c1-97f0-a0b6159d2eb6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4621a097dad380ec30ce4a0c9c61f4d988d439b1c6c33ec7a28fedddd473575d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 382
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "db13e936-87c7-47ec-9804-c7c855825020",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 11\r\nExamples\r\n4 Examples\r\nThis section provides examples of how to analyze and optimize code using Intel® \r\nArchitecture Code Analyzer.\r\n4.1 Throughput Analysis – Unrolling \r\nThis example performs summation of array elements (only the loop code is analyzed).\r\nThe initial code and throughput analysis report for Skylake micro-architecture are shown\r\nbelow.\r\n4.1.1 Initial Code \r\nThroughput Analysis Report\r\n--------------------------\r\nBlock Throughput: 4.00 Cycles Throughput Bottleneck: Dependency chains\r\nLoop Count: 50\r\nPort Binding In Cycles Per Iteration:\r\n--------------------------------------------------------------------------------------------------\r\n| Port | 0 - DV | 1 | 2 - D | 3 - D | 4 | 5 | 6 | 7 |\r\n--------------------------------------------------------------------------------------------------\r\n| Cycles | 0.5 0.0 | 0.5 | 0.5 0.5 | 0.5 0.5 | 0.0 | 0.5 | 0.5 | 0.0 |\r\n--------------------------------------------------------------------------------------------------\r\n| Num Of | Ports pressure in cycles | |\r\n| Uops | 0 - DV | 1 | 2 - D | 3 - D | 4 | 5 | 6 | 7 |\r\n-----------------------------------------------------------------------------------------\r\n| 1 | | | | | | 0.5 | 0.5 | | add rbx, 0x20\r\n| 2^ | 0.5 | 0.5 | 0.5 0.5 | 0.5 0.5 | | | | | vaddps ymm0, ymm0, ymmword ptr [rbx]\r\n| 1* | | | | | | | | | sub eax, 0x8\r\n| 0*F | | | | | | | | | jnle 0xfffffffffffffff5\r\nTotal Num Of Uops: 4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/db13e936-87c7-47ec-9804-c7c855825020.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4ab94c4a95cf004773ae771fc33a255053b003433233f77968a52321669df072",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 238
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "70314cc4-21d4-49d3-81ba-9df576028708",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 12\r\nExamples\r\n4.1.2 Optimization\r\nThe Throughput Analysis Report shows that the total throughput (Block Throughput) is 4\r\ncycles and so this is the throughput per iteration of the loop, and for each one of these \r\niteration one vaddps instruction is performed.\r\nIf we perform an unrolling of 8 operations per iteration for this loop we get the same \r\nthroughput but with a lot more work done, and this is due to the dependency between each \r\nvaddps operation that we avoid.\r\nThroughput Analysis Report\r\n--------------------------\r\nBlock Throughput: 4.00 Cycles Throughput Bottleneck: Backend\r\nLoop Count: 22 \r\nPort Binding In Cycles Per Iteration: \r\n--------------------------------------------------------------------------------------------------\r\n| Port | 0 - DV | 1 | 2 - D | 3 - D | 4 | 5 | 6 | 7 |\r\n--------------------------------------------------------------------------------------------------\r\n| Cycles | 4.0 0.0 | 4.0 | 4.0 4.0 | 4.0 4.0 | 0.0 | 0.5 | 0.5 | 0.0 |\r\n--------------------------------------------------------------------------------------------------\r\n| Num Of | Ports pressure in cycles | |\r\n| Uops | 0 - DV | 1 | 2 - D | 3 - D | 4 | 5 | 6 | 7 |\r\n-----------------------------------------------------------------------------------------\r\n| 1 | | | | | | 0.5 | 0.5 | | add rbx, 0x100\r\n| 2^ | | 1.0 | 1.0 1.0 | | | | | | vaddps ymm0, ymm0, ymmword ptr [rbx]\r\n| 2^ | 1.0 | | | 1.0 1.0 | | | | | vaddps ymm1, ymm1, ymmword ptr [rbx+0x20]\r\n| 2^ | | 1.0 | 1.0 1.0 | | | | | | vaddps ymm2, ymm2, ymmword ptr [rbx+0x40]\r\n| 2^ | 1.0 | | | 1.0 1.0 | | | | | vaddps ymm3, ymm3, ymmword ptr [rbx+0x60]\r\n| 2^ | | 1.0 | 1.0 1.0 | | | | | | vaddps ymm4, ymm4, ymmword ptr [rbx+0x80]\r\n| 2^ | 1.0 | | | 1.0 1.0 | | | | | vaddps ymm5, ymm5, ymmword ptr [rbx+0xa0]\r\n| 2^ | | 1.0 | 1.0 1.0 | | | | | | vaddps ymm6, ymm6, ymmword ptr [rbx+0xc0]\r\n| 2^ | 1.0 | | | 1.0 1.0 | | | | | vaddps ymm7, ymm7, ymmword ptr [rbx+0xe0]\r\n| 1* | | | | | | | | | sub eax, 0x40\r\n| 0*F | | | | | | | | | jnle 0xffffffffffffffc3\r\nTotal Num Of Uops: 18",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/70314cc4-21d4-49d3-81ba-9df576028708.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=09ee4364875e12943eefd2675c197cad5de0458d851eb4f51d028b03bdea6a5c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 400
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b7f247a1-c647-4b84-b01e-400f05c68e7b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 13\r\nExamples\r\nThe performance gain as seen in the IACA trace:\r\nit|in|Dissasembly :012345678901234567890123456789012345\r\n0| 0|add rbx, 0x20 : | | | \r\n0| 0| TYPE_OP (1 uops) :sdw----R-------p | | \r\n0| 1|vaddps ymm0, ymm0, ymmword ptr [rbx] : | | | \r\n0| 1| TYPE_LOAD (1 uops) :A-s-deeeeeew----R-------p | \r\n0| 1| TYPE_OP (1 uops) :A----------deeew----R-------p | \r\n0| 2|sub eax, 0x8 : | | | \r\n0| 2| TYPE_OP (1 uops) :sdw-----------------R-------p | \r\n0| 3|jnle 0xfffffffffffffff5 : | | | \r\n0| 3| TYPE_OP (0 uops) :w-------------------R-------p | \r\n1| 0|add rbx, 0x20 : | | | \r\n1| 0| TYPE_OP (1 uops) :A-dw----------------R-------p | \r\n1| 1|vaddps ymm0, ymm0, ymmword ptr [rbx] : | | | \r\n1| 1| TYPE_LOAD (1 uops) : A-s-deeeeeew-------R-------p | \r\n1| 1| TYPE_OP (1 uops) : A-------------deeew----R-------p \r\n1| 2|sub eax, 0x8 : | | | \r\n1| 2| TYPE_OP (1 uops) : Aw---------------------R-------p \r\n1| 3|jnle 0xfffffffffffffff5 : | | | \r\n1| 3| TYPE_OP (0 uops) : w----------------------R-------p\r\n it|in|Dissasembly :01234567890123456789012345678901234\r\n0| 0|add rbx, 0x100 : | | | \r\n0| 0| TYPE_OP (1 uops) :sdw----R-------p | | \r\n0| 1|vaddps ymm0, ymm0, ymmword ptr [rbx] : | | | \r\n0| 1| TYPE_LOAD (1 uops) :A-s-deeeeeew----R-------p | \r\n0| 1| TYPE_OP (1 uops) :A----------deeew----R-------p | \r\n0| 2|vaddps ymm1, ymm1, ymmword ptr [rbx+0x20] : | | | \r\n0| 2| TYPE_LOAD (1 uops) :A-s-deeeeeew--------R-------p | \r\n0| 2| TYPE_OP (1 uops) :A----------deeew----R-------p | \r\n0| 3|vaddps ymm2, ymm2, ymmword ptr [rbx+0x40] : | | | \r\n0| 3| TYPE_LOAD (1 uops) :A-s-cdeeeeeew-------R-------p | \r\n0| 3| TYPE_OP (1 uops) :A-----------deeew----R-------p| \r\n0| 4|vaddps ymm3, ymm3, ymmword ptr [rbx+0x60] : | | | \r\n0| 4| TYPE_LOAD (1 uops) : As--deeeeeew--------R-------p| \r\n0| 4| TYPE_OP (1 uops) : A----------deeew----R-------p| \r\n0| 5|vaddps ymm4, ymm4, ymmword ptr [rbx+0x80] : | | | \r\n0| 5| TYPE_LOAD (1 uops) : As--cdeeeeeew-------R-------p| \r\n0| 5| TYPE_OP (1 uops) : A-----------deeew----R-------p \r\n \r\nAs seen in the trace output, unrolling the loop gives a significant performance gain. \r\nThe vaddps operations seen in the top trace output are dependent due to ymm0, and so each \r\nOperation is performed only after the previous operation reached writeback stage.\r\nUnrolling the loop makes use of more registers and so parallel executions are possible.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/b7f247a1-c647-4b84-b01e-400f05c68e7b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=19466c88ccdf8d1d1ed7fb2bd4eb2c381d6c6f13e6f566520f37aaccbf6173e3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "13be613b-53b7-46a2-a54d-598b00427db9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel® Architecture Code Analyzer User Guide 14\r\nRelease Contents\r\n5 Release Contents\r\nThis section lists the files required for running on Linux*, and Mac OS X* operating\r\nsystems to analyze Intel® 64 code. Each section also explains which environmental\r\nvariables to modify.\r\n5.1 Linux* OS\r\nInclude iacaMarks.h in your code.\r\nFilename Description\r\niaca Intel Architecture Code Analyzer command-line tool\r\niacaMarks.h Header file for the start/end markers\r\n5.2 Mac OS X*\r\nInclude iacaMarks.h in your code.\r\nFilename Description\r\niaca Intel Architecture Code Analyzer command-line tool\r\niacaMarks.h Header file for the start/end markers\r\n5.3 Windows* OS\r\nInclude iacaMarks.h in your code.\r\nFilename Description\r\niaca Intel Architecture Code Analyzer command-line tool\r\niacaMarks.h Header file for the start/end markers",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4f139e53-48c5-4094-8325-8f854a6ce158/images/13be613b-53b7-46a2-a54d-598b00427db9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T042456Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=22e47593778971b4ea9d834e62ef4697cbbdf84e02feaf55055c4e94366047c5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 472
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```string\nIntel® Architecture Code Analyzer User's Guide\n```"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Intel Corporation\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2009-2017\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```string\nIntel® Architecture Code Analyzer User Guide 7\n```\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,3047 @@
+{
+  "file_name": "Inside the Python GIL - Dave Beazley (2009).pdf",
+  "task_id": "ad642b1b-2c7f-4284-91cb-395255852fed",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "5555a842-67cc-4422-8ff6-7914f67f6343",
+            "bbox": {
+              "left": 178.16666,
+              "top": 126.08333,
+              "width": 920.74994,
+              "height": 635.3333
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Inside the Python GIL 1 David Beazley http://www.dabeaz.com Originally presented at my \"Python Concurrency Workshop\", May 14-15, 2009 (Chicago) June 11, 2009 @ chipy",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/5555a842-67cc-4422-8ff6-7914f67f6343.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d99288550b39a3473bfea41472bab3d502c9c1a0e5e54a2d11de0b41a65ff0a0",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Inside the Python GIL 1 David Beazley http://www.dabeaz.com Originally presented at my \"Python Concurrency Workshop\", May 14-15, 2009 (Chicago) June 11, 2009 @ chipy</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Inside the Python GIL 1 David Beazley http://www.dabeaz.com Originally presented at my \"Python Concurrency Workshop\", May 14-15, 2009 (Chicago) June 11, 2009 @ chipy\n\n"
+          },
+          {
+            "segment_id": "e9ca6701-d87e-4c47-817c-2beb696cebeb",
+            "bbox": {
+              "left": 188.58333,
+              "top": 907.3333,
+              "width": 899.9166,
+              "height": 641.5833
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Video Presentation 2 You can watch the video of this presentation here: http://blip.tv/file/2232410 It expands upon the slides and is recommended.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/e9ca6701-d87e-4c47-817c-2beb696cebeb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bb070e7f7322aee00d01dbe4abca3da703aac0efeb4666838aab5bdb29a7373d",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Video Presentation 2 You can watch the video of this presentation here: http://blip.tv/file/2232410 It expands upon the slides and is recommended.</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Video Presentation 2 You can watch the video of this presentation here: http://blip.tv/file/2232410 It expands upon the slides and is recommended.\n\n"
+          },
+          {
+            "segment_id": "7cef70c8-e024-4741-ba85-72676e2a6d98",
+            "bbox": {
+              "left": 192.75,
+              "top": 115.666664,
+              "width": 906.1666,
+              "height": 645.75
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Introduction • As most programmers know, Python has a Global Interpreter Lock (GIL) • It imposes various restrictions on threads • Namely, you can't utilize multiple CPUs • Thus, it's a (frankly) tired subject for flamewars about how Python \"sucks\" (along with tail-call optimization, lambda, whitespace, etc.) 3",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/7cef70c8-e024-4741-ba85-72676e2a6d98.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0c8e1cbbd20b139304c8a29b7230e63d657124c5499025de6be61ebec9f1e79d",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Introduction • As most programmers know, Python has a Global Interpreter Lock (GIL) • It imposes various restrictions on threads • Namely, you can't utilize multiple CPUs • Thus, it's a (frankly) tired subject for flamewars about how Python \"sucks\" (along with tail-call optimization, lambda, whitespace, etc.) 3</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "74c4a95c-24f4-4275-aabb-64cc09fdb177",
+            "bbox": {
+              "left": 194.83333,
+              "top": 1534.4166,
+              "width": 297.8333,
+              "height": 14.5
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/74c4a95c-24f4-4275-aabb-64cc09fdb177.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=82854475482ae01834ae904cd6208c3fafd02fcc33e1d5f3169c059557355804",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          }
+        ],
+        "chunk_length": 117
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "765192b5-ed7a-43aa-b77a-6d15defe4759",
+            "bbox": {
+              "left": 463.5833,
+              "top": 909.4166,
+              "width": 341.5833,
+              "height": 81.166664
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Disclaimers",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/765192b5-ed7a-43aa-b77a-6d15defe4759.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=85731ddd5979c7de93e62763035d20ddb5a1559388fbcb09f5d72476bfd6ed36",
+            "html": "<h2>Disclaimers</h2>",
+            "markdown": "## Disclaimers\n\n"
+          },
+          {
+            "segment_id": "f745e488-a59d-4b27-970d-9f6f9fc2ebbf",
+            "bbox": {
+              "left": 274,
+              "top": 1042.75,
+              "width": 641.5833,
+              "height": 43.666664
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Python's use of a GIL doesn't bother me",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/f745e488-a59d-4b27-970d-9f6f9fc2ebbf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9436ef16348d7450bdf772534c6339de2f1e83f9a22c2875c38379f092103ec6",
+            "html": "<ul><li>Python's use of a GIL doesn't bother me</li></ul>",
+            "markdown": "- Python's use of a GIL doesn't bother me\n\n"
+          },
+          {
+            "segment_id": "d0b91e49-ea83-4baf-91ed-7e16f99ba2a9",
+            "bbox": {
+              "left": 274,
+              "top": 1109.4166,
+              "width": 729.0833,
+              "height": 41.583332
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• I don't have strong feelings about it either way",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/d0b91e49-ea83-4baf-91ed-7e16f99ba2a9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=71b5ccfcb4680e841a0cd5bb2cb075f8f2b07da25a8f4d855a72292035184630",
+            "html": "<ul><li>I don't have strong feelings about it either way</li></ul>",
+            "markdown": "- I don't have strong feelings about it either way\n\n"
+          },
+          {
+            "segment_id": "c8858470-9187-4abb-a7b0-89967c5d9636",
+            "bbox": {
+              "left": 274,
+              "top": 1169.8333,
+              "width": 772.8333,
+              "height": 170.75
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Bias : For parallel computing involving heavy CPU processing, I much prefer message passing and cooperating processes to thread programming (of course, it depends on the problem)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/c8858470-9187-4abb-a7b0-89967c5d9636.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4d49c8ae8ca2a9a6b3772e62a34e243fc8cf95caa9c25d369c3540ab97cbde4c",
+            "html": "<ul><li>Bias : For parallel computing involving heavy CPU processing, I much prefer message passing and cooperating processes to thread programming (of course, it depends on the problem)</li></ul>",
+            "markdown": "- Bias : For parallel computing involving heavy CPU processing, I much prefer message passing and cooperating processes to thread programming (of course, it depends on the problem)\n\n"
+          },
+          {
+            "segment_id": "b286da21-e446-41e4-ba22-c4ffa540a801",
+            "bbox": {
+              "left": 271.91666,
+              "top": 1365.6666,
+              "width": 710.3333,
+              "height": 83.25
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• However, the GIL has some pretty surprising behavior on multicore that interests me",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/b286da21-e446-41e4-ba22-c4ffa540a801.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a65892ae46eaa13ddc175e138e020cf5c34592cf9787656df4850dc7160601a5",
+            "html": "<ul><li>However, the GIL has some pretty surprising behavior on multicore that interests me</li></ul>",
+            "markdown": "- However, the GIL has some pretty surprising behavior on multicore that interests me\n\n"
+          },
+          {
+            "segment_id": "40781b9b-ef1d-472c-92b0-3a9c43d1803d",
+            "bbox": {
+              "left": 194.83333,
+              "top": 119.83333,
+              "width": 889.49994,
+              "height": 641.5833
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "A Performance Experiment Consider thistrivial CPU-bound function defcount（n)： whilen>0： 8 1 Run it twice in series count（100000000） count（100000000） Now, run it in parallel in two threads t1=Thread（target=count,args=（looooooo0,)） tl.start（) 七2 Thread（target=count,args=（l0oooooo0,)） t2.start（) tl.join（）；t2.join（） 5",
+            "segment_type": "Table",
+            "ocr": [
+              {
+                "bbox": {
+                  "left": 40,
+                  "top": 3,
+                  "width": 828,
+                  "height": 82
+                },
+                "text": "A Performance Experiment",
+                "confidence": 0.99875736
+              },
+              {
+                "bbox": {
+                  "left": 132,
+                  "top": 122,
+                  "width": 614,
+                  "height": 31
+                },
+                "text": "Consider thistrivial CPU-bound function",
+                "confidence": 0.9618083
+              },
+              {
+                "bbox": {
+                  "left": 134,
+                  "top": 178,
+                  "width": 162,
+                  "height": 23
+                },
+                "text": "defcount（n)：",
+                "confidence": 0.910167
+              },
+              {
+                "bbox": {
+                  "left": 185,
+                  "top": 206,
+                  "width": 150,
+                  "height": 17
+                },
+                "text": "whilen>0：",
+                "confidence": 0.90169305
+              },
+              {
+                "bbox": {
+                  "left": 238,
+                  "top": 238,
+                  "width": 9,
+                  "height": 6
+                },
+                "text": "8",
+                "confidence": 0.06584523
+              },
+              {
+                "bbox": {
+                  "left": 301,
+                  "top": 235,
+                  "width": 8,
+                  "height": 9
+                },
+                "text": "1",
+                "confidence": 0.9558984
+              },
+              {
+                "bbox": {
+                  "left": 136,
+                  "top": 272,
+                  "width": 316,
+                  "height": 33
+                },
+                "text": "Run it twice in series",
+                "confidence": 0.9534338
+              },
+              {
+                "bbox": {
+                  "left": 144,
+                  "top": 325,
+                  "width": 196,
+                  "height": 20
+                },
+                "text": "count（100000000）",
+                "confidence": 0.932302
+              },
+              {
+                "bbox": {
+                  "left": 144,
+                  "top": 350,
+                  "width": 197,
+                  "height": 20
+                },
+                "text": "count（100000000）",
+                "confidence": 0.928707
+              },
+              {
+                "bbox": {
+                  "left": 136,
+                  "top": 383,
+                  "width": 551,
+                  "height": 51
+                },
+                "text": "Now, run it in parallel in two threads",
+                "confidence": 0.9954836
+              },
+              {
+                "bbox": {
+                  "left": 140,
+                  "top": 450,
+                  "width": 541,
+                  "height": 22
+                },
+                "text": "t1=Thread（target=count,args=（looooooo0,)）",
+                "confidence": 0.88163227
+              },
+              {
+                "bbox": {
+                  "left": 140,
+                  "top": 476,
+                  "width": 126,
+                  "height": 23
+                },
+                "text": "tl.start（)",
+                "confidence": 0.89551336
+              },
+              {
+                "bbox": {
+                  "left": 143,
+                  "top": 505,
+                  "width": 27,
+                  "height": 15
+                },
+                "text": "七2",
+                "confidence": 0.79887486
+              },
+              {
+                "bbox": {
+                  "left": 190,
+                  "top": 503,
+                  "width": 490,
+                  "height": 20
+                },
+                "text": "Thread（target=count,args=（l0oooooo0,)）",
+                "confidence": 0.865535
+              },
+              {
+                "bbox": {
+                  "left": 140,
+                  "top": 526,
+                  "width": 126,
+                  "height": 23
+                },
+                "text": "t2.start（)",
+                "confidence": 0.9076478
+              },
+              {
+                "bbox": {
+                  "left": 141,
+                  "top": 553,
+                  "width": 249,
+                  "height": 22
+                },
+                "text": "tl.join（）；t2.join（）",
+                "confidence": 0.89868563
+              },
+              {
+                "bbox": {
+                  "left": 861,
+                  "top": 618,
+                  "width": 18,
+                  "height": 22
+                },
+                "text": "5",
+                "confidence": 0.9975535
+              }
+            ],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/40781b9b-ef1d-472c-92b0-3a9c43d1803d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=91d3d69355ec1b5b66b87928ed026c88d2242702d9c60acfcab39fad2b79db18",
+            "html": "<span class=\"table\">A Performance Experiment Consider thistrivial CPU-bound function defcount（n)： whilen>0： 8 1 Run it twice in series count（100000000） count（100000000） Now, run it in parallel in two threads t1=Thread（target=count,args=（looooooo0,)） tl.start（) 七2 Thread（target=count,args=（l0oooooo0,)） t2.start（) tl.join（）；t2.join（） 5</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "1779d8f2-984c-4dfb-a76c-36a0ead1ccc6",
+            "bbox": {
+              "left": 194.83333,
+              "top": 1534.4166,
+              "width": 295.75,
+              "height": 14.5
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/1779d8f2-984c-4dfb-a76c-36a0ead1ccc6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=52a28312e32e6ead1b1d03b4bb6980b475f0af0f907e38d6546b605f0a5e1d01",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          }
+        ],
+        "chunk_length": 120
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "180a5f90-7d14-4aed-9b7f-eda4fe1e3c03",
+            "bbox": {
+              "left": 490.66666,
+              "top": 911.49994,
+              "width": 312.41666,
+              "height": 83.25
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "A Mystery",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/180a5f90-7d14-4aed-9b7f-eda4fe1e3c03.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=808d84ddba82a793e02e968b798e14748ee42956be7662d83ddec74347407922",
+            "html": "<h2>A Mystery</h2>",
+            "markdown": "## A Mystery\n\n"
+          },
+          {
+            "segment_id": "761be347-19a4-4e2a-a306-bedee238398d",
+            "bbox": {
+              "left": 286.5,
+              "top": 1032.3333,
+              "width": 691.5833,
+              "height": 185.33333
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Why do I get these performance results on my Dual-Core MacBook? Sequential    : 24.6s Threaded     : 45.5s  (1.8X slower!)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/761be347-19a4-4e2a-a306-bedee238398d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6c9be0c94ef134607872afe26080cab5e7aa8cc7a8de6f26e5c4a41751366133",
+            "html": "<ul><li>Why do I get these performance results on my Dual-Core MacBook? Sequential    : 24.6s Threaded     : 45.5s  (1.8X slower!)</li></ul>",
+            "markdown": "- Why do I get these performance results on my Dual-Core MacBook? Sequential    : 24.6s Threaded     : 45.5s  (1.8X slower!)\n\n"
+          },
+          {
+            "segment_id": "354b5104-bc09-4a8d-a6cb-3c0c873c5293",
+            "bbox": {
+              "left": 290.66666,
+              "top": 1234.4166,
+              "width": 687.4166,
+              "height": 147.83333
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• And if I disable one of the CPU cores, why does the threaded performance get better? Threaded     : 38.0s",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/354b5104-bc09-4a8d-a6cb-3c0c873c5293.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6873bfd55f6f40ecc09d0445ac800abd814bea34de53653722bffb73974cd40e",
+            "html": "<ul><li>And if I disable one of the CPU cores, why does the threaded performance get better? Threaded     : 38.0s</li></ul>",
+            "markdown": "- And if I disable one of the CPU cores, why does the threaded performance get better? Threaded     : 38.0s\n\n"
+          },
+          {
+            "segment_id": "74c96503-4e73-4966-972e-321377bde920",
+            "bbox": {
+              "left": 290.66666,
+              "top": 1411.5,
+              "width": 693.6666,
+              "height": 56.166664
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Think about that for a minute... Bloody hell!",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/74c96503-4e73-4966-972e-321377bde920.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3d479c60993b17513af161b5dee89e3a9ba4549166cf8ed4400d6b678035ba07",
+            "html": "<ul><li>Think about that for a minute... Bloody hell!</li></ul>",
+            "markdown": "- Think about that for a minute... Bloody hell!\n\n"
+          },
+          {
+            "segment_id": "3d000afc-c544-4148-be6e-1e4efce10739",
+            "bbox": {
+              "left": 194.83333,
+              "top": 746.9166,
+              "width": 297.8333,
+              "height": 14.5
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/3d000afc-c544-4148-be6e-1e4efce10739.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6fa910de625c8caffedc73e683d725f138c5e0fbc60f523907cae92e4e5bfa44",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          }
+        ],
+        "chunk_length": 57
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "17dbbd08-4ab5-4eda-a3ef-3049f851c969",
+            "bbox": {
+              "left": 498.99997,
+              "top": 121.916664,
+              "width": 293.66666,
+              "height": 83.25
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Overview",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/17dbbd08-4ab5-4eda-a3ef-3049f851c969.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b1133dc3882afe4c62d1bbdac10e57d271e07c1df3e58f823c806fc11ee0ee27",
+            "html": "<h2>Overview</h2>",
+            "markdown": "## Overview\n\n"
+          },
+          {
+            "segment_id": "43e0ab8b-f102-4276-a9c4-17ebd8c1058f",
+            "bbox": {
+              "left": 271.91666,
+              "top": 221.91666,
+              "width": 674.9166,
+              "height": 43.666664
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• I don't like unexplained mysteries or magic",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/43e0ab8b-f102-4276-a9c4-17ebd8c1058f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d3c52ccb5b02652d27cb5b7b320f2a7ef36178a2b56ed51b1787fffb7c097097",
+            "html": "<ul><li>I don't like unexplained mysteries or magic</li></ul>",
+            "markdown": "- I don't like unexplained mysteries or magic\n\n"
+          },
+          {
+            "segment_id": "1fe1bbf1-f5e3-404e-af3b-9de1aeed85bd",
+            "bbox": {
+              "left": 271.91666,
+              "top": 286.5,
+              "width": 754.0833,
+              "height": 172.83333
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• As part of a workshop I ran in May, I went digging into the GIL implementation to see if I could figure out exactly why I was getting those performance results",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/1fe1bbf1-f5e3-404e-af3b-9de1aeed85bd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=faa73b01c38f3c55e84ee9c537de6841c1b3fabebf8f44452fee97368f4cdec8",
+            "html": "<ul><li>As part of a workshop I ran in May, I went digging into the GIL implementation to see if I could figure out exactly why I was getting those performance results</li></ul>",
+            "markdown": "- As part of a workshop I ran in May, I went digging into the GIL implementation to see if I could figure out exactly why I was getting those performance results\n\n"
+          },
+          {
+            "segment_id": "0a4ee2cb-65ea-4c5d-bba1-46368e674cc4",
+            "bbox": {
+              "left": 274,
+              "top": 478.16666,
+              "width": 683.25,
+              "height": 170.75
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• An exploration that went all the way from Python scripts to the C source code of the pthreads library (yes, I probably need to go outside more often)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/0a4ee2cb-65ea-4c5d-bba1-46368e674cc4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=746865847d905ac860b0767f63a2cda0303398b5ae51ff46aaa6d0cd430652a1",
+            "html": "<ul><li>An exploration that went all the way from Python scripts to the C source code of the pthreads library (yes, I probably need to go outside more often)</li></ul>",
+            "markdown": "- An exploration that went all the way from Python scripts to the C source code of the pthreads library (yes, I probably need to go outside more often)\n\n"
+          },
+          {
+            "segment_id": "3772d0bf-81b2-4493-bf49-cdc097b39e68",
+            "bbox": {
+              "left": 271.91666,
+              "top": 669.8333,
+              "width": 418.66666,
+              "height": 43.666664
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• So, let's just jump into it...",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/3772d0bf-81b2-4493-bf49-cdc097b39e68.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9f7aa7d6ad73507a268ee91e6533ce0332211b1af3493b0efbf4f89dbf0fb32b",
+            "html": "<ul><li>So, let's just jump into it...</li></ul>",
+            "markdown": "- So, let's just jump into it...\n\n"
+          },
+          {
+            "segment_id": "be8eeacc-9821-4426-a2a1-7c6ffeed64d0",
+            "bbox": {
+              "left": 1057.3333,
+              "top": 734.4166,
+              "width": 14.5,
+              "height": 24.916666
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "7",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/be8eeacc-9821-4426-a2a1-7c6ffeed64d0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=127157d61f20d906ee96b8ae54978f396159287bc60ddbb73d3fb571b8749057",
+            "html": "<p>7</p>",
+            "markdown": "7\n\n"
+          }
+        ],
+        "chunk_length": 78
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c506ad6f-4b84-4628-9cf9-fa9b9249cf62",
+            "bbox": {
+              "left": 380.25,
+              "top": 894.8333,
+              "width": 535.3333,
+              "height": 91.58333
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "What is a Thread?",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/c506ad6f-4b84-4628-9cf9-fa9b9249cf62.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5393b11625c6deabd7fa3a10e66e92cf2c09354f8c70b4b5c68d6bd849683df6",
+            "html": "<h2>What is a Thread?</h2>",
+            "markdown": "## What is a Thread?\n\n"
+          },
+          {
+            "segment_id": "aa499dc9-5d7b-4cbc-a594-9c4dbc1f530b",
+            "bbox": {
+              "left": 274,
+              "top": 1042.75,
+              "width": 620.75,
+              "height": 43.666664
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Python threads are real system threads",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/aa499dc9-5d7b-4cbc-a594-9c4dbc1f530b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2d9252c67c86406c34bf2ff889a4a2b27d832f1a677e53df6b7c8ec737400494",
+            "html": "<ul><li>Python threads are real system threads</li></ul>",
+            "markdown": "- Python threads are real system threads\n\n"
+          },
+          {
+            "segment_id": "e22b4c16-b9a4-491f-8ca6-58ff107cb6ec",
+            "bbox": {
+              "left": 336.5,
+              "top": 1107.3333,
+              "width": 424.91666,
+              "height": 41.583332
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• POSIX threads (pthreads)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/e22b4c16-b9a4-491f-8ca6-58ff107cb6ec.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f0982c38c1a18c3e0132e6c60ec4c9f18876f7d2b57376ba9c4a720cc0b7c6ff",
+            "html": "<ul><li>POSIX threads (pthreads)</li></ul>",
+            "markdown": "- POSIX threads (pthreads)\n\n"
+          },
+          {
+            "segment_id": "89ee2b0c-7dc6-4062-b20b-4f979eb7b880",
+            "bbox": {
+              "left": 338.5833,
+              "top": 1167.75,
+              "width": 302,
+              "height": 45.75
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Windows threads",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/89ee2b0c-7dc6-4062-b20b-4f979eb7b880.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=32927a444b725f96f72d46a92e311099fccc61540667c8006259f63f1b71fd49",
+            "html": "<ul><li>Windows threads</li></ul>",
+            "markdown": "- Windows threads\n\n"
+          },
+          {
+            "segment_id": "0bba78eb-29d4-4c99-83eb-54a02e76eb76",
+            "bbox": {
+              "left": 274,
+              "top": 1234.4166,
+              "width": 691.5833,
+              "height": 45.75
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Fully managed by the host operating system",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/0bba78eb-29d4-4c99-83eb-54a02e76eb76.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f35ceee10ff466a6e8bc35134d10b6df074b8c6a34c2b80e7e2c6ba4b5dc823c",
+            "html": "<ul><li>Fully managed by the host operating system</li></ul>",
+            "markdown": "- Fully managed by the host operating system\n\n"
+          },
+          {
+            "segment_id": "07527af8-3a31-4227-a0e7-ddcc6e54fc33",
+            "bbox": {
+              "left": 338.5833,
+              "top": 1296.9166,
+              "width": 495.74997,
+              "height": 45.75
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• All scheduling/thread switching",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/07527af8-3a31-4227-a0e7-ddcc6e54fc33.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cc8c32d556941f8e84074081c58c88b022be0908249197eec37c119e22b55a74",
+            "html": "<ul><li>All scheduling/thread switching</li></ul>",
+            "markdown": "- All scheduling/thread switching\n\n"
+          },
+          {
+            "segment_id": "8e821c60-38f9-4375-8812-221cde2b81a9",
+            "bbox": {
+              "left": 271.91666,
+              "top": 1361.5,
+              "width": 712.4166,
+              "height": 83.25
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Represent threaded execution of the Python interpreter process (written in C)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/8e821c60-38f9-4375-8812-221cde2b81a9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=51b5df59a57e02f87cdfc504fcac1c8c6156dc72788dcd728320f6c2b43c8772",
+            "html": "<ul><li>Represent threaded execution of the Python interpreter process (written in C)</li></ul>",
+            "markdown": "- Represent threaded execution of the Python interpreter process (written in C)\n\n"
+          },
+          {
+            "segment_id": "9736e457-9dbb-4a5b-a7ca-50f3bc8582c5",
+            "bbox": {
+              "left": 188.58333,
+              "top": 109.416664,
+              "width": 891.5833,
+              "height": 652
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread Creation • Python threads simply execute a \"callable\" • The run() method of Thread (or a function) 9 import time import threading class CountdownThread(threading.Thread): def __init__(self,count): threading.Thread.__init__(self) self.count = count def run(self): while self.count > 0: print \"Counting down\", self.count self.count -= 1 time.sleep(5) return",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/9736e457-9dbb-4a5b-a7ca-50f3bc8582c5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=17f8592e221c36af7e25d40aa00052c5214c602dcb3c8e99bfe481189bfde6f3",
+            "html": "<ul><li>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread Creation • Python threads simply execute a \"callable\" • The run() method of Thread (or a function) 9 import time import threading class CountdownThread(threading.Thread): def __init__(self,count): threading.Thread.__init__(self) self.count = count def run(self): while self.count > 0: print \"Counting down\", self.count self.count -= 1 time.sleep(5) return</li></ul>",
+            "markdown": "- Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread Creation • Python threads simply execute a \"callable\" • The run() method of Thread (or a function) 9 import time import threading class CountdownThread(threading.Thread): def __init__(self,count): threading.Thread.__init__(self) self.count = count def run(self): while self.count > 0: print \"Counting down\", self.count self.count -= 1 time.sleep(5) return\n\n"
+          },
+          {
+            "segment_id": "4f114e55-7d04-4026-8c05-d7e91fd445e6",
+            "bbox": {
+              "left": 194.83333,
+              "top": 1534.4166,
+              "width": 297.8333,
+              "height": 14.5
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/4f114e55-7d04-4026-8c05-d7e91fd445e6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e0021649792ddfbbd0d387e0fcf4d123da7d7180cf762dca5ee1ca2851a24574",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          }
+        ],
+        "chunk_length": 100
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "45a28c64-47b6-40a8-8921-794dcfbb5ec4",
+            "bbox": {
+              "left": 378.16666,
+              "top": 898.99994,
+              "width": 547.8333,
+              "height": 87.416664
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Behind the Scenes",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/45a28c64-47b6-40a8-8921-794dcfbb5ec4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5222322ad0662231bcf137a506d92056952e21f48ce9070b45c45645db9556a2",
+            "html": "<h2>Behind the Scenes</h2>",
+            "markdown": "## Behind the Scenes\n\n"
+          },
+          {
+            "segment_id": "4e82f53d-f425-4a46-ac8a-5724b97a63ed",
+            "bbox": {
+              "left": 294.8333,
+              "top": 1026.0833,
+              "width": 554.0833,
+              "height": 41.583332
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• There's not a whole lot going on...",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/4e82f53d-f425-4a46-ac8a-5724b97a63ed.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=89a3e2e49d43d909dcd9b9f3d9dd80cae9e552992a13250bb3b6d6b4a76c3eb6",
+            "html": "<ul><li>There's not a whole lot going on...</li></ul>",
+            "markdown": "- There's not a whole lot going on...\n\n"
+          },
+          {
+            "segment_id": "4c675e92-534c-401f-9b37-6b73cb17e865",
+            "bbox": {
+              "left": 294.8333,
+              "top": 1088.5833,
+              "width": 637.4166,
+              "height": 45.75
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Here's what happens on thread creation",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/4c675e92-534c-401f-9b37-6b73cb17e865.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7202bb5a6cb6624220c9f715b2f3b19b498bb0df8182a20da828e5da02fa04ee",
+            "html": "<ul><li>Here's what happens on thread creation</li></ul>",
+            "markdown": "- Here's what happens on thread creation\n\n"
+          },
+          {
+            "segment_id": "b46f04e5-968c-459e-a376-2923dd79553a",
+            "bbox": {
+              "left": 355.25,
+              "top": 1151.0833,
+              "width": 595.75,
+              "height": 85.33333
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Python creates a small data structure containing some interpreter state",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/b46f04e5-968c-459e-a376-2923dd79553a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=311be7bc6be205ff86637fc73e647dbe169948df91a760b5469bee317ef7cf44",
+            "html": "<ul><li>Python creates a small data structure containing some interpreter state</li></ul>",
+            "markdown": "- Python creates a small data structure containing some interpreter state\n\n"
+          },
+          {
+            "segment_id": "98003db7-bf3d-49c8-8663-0749399204c6",
+            "bbox": {
+              "left": 357.3333,
+              "top": 1261.5,
+              "width": 566.5833,
+              "height": 39.5
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• A new thread (pthread) is launched",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/98003db7-bf3d-49c8-8663-0749399204c6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a6f55d167b511110c0a22ee8beff1e5f52bac0e51f33c2c3ace7d68e6b706f80",
+            "html": "<ul><li>A new thread (pthread) is launched</li></ul>",
+            "markdown": "- A new thread (pthread) is launched\n\n"
+          },
+          {
+            "segment_id": "37c30d12-ab8e-4aac-953d-ac17792f8283",
+            "bbox": {
+              "left": 357.3333,
+              "top": 1321.9166,
+              "width": 562.4166,
+              "height": 43.666664
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• The thread calls PyEval_CallObject",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/37c30d12-ab8e-4aac-953d-ac17792f8283.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7e278b8acb57071da0b37f509127ae00f72256a1ea4851275a72b18d2702ef2b",
+            "html": "<ul><li>The thread calls PyEval_CallObject</li></ul>",
+            "markdown": "- The thread calls PyEval_CallObject\n\n"
+          },
+          {
+            "segment_id": "5fa10c8f-3146-40e5-9eb7-f52cf29c6cac",
+            "bbox": {
+              "left": 294.8333,
+              "top": 1386.5,
+              "width": 670.75,
+              "height": 87.416664
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Last step is just a C function call that runs whatever Python callable was specified",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/5fa10c8f-3146-40e5-9eb7-f52cf29c6cac.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d81b90dd32e30459c19d36a60b867279bcd9f85dc8ee3513b37455752c96e60e",
+            "html": "<ul><li>Last step is just a C function call that runs whatever Python callable was specified</li></ul>",
+            "markdown": "- Last step is just a C function call that runs whatever Python callable was specified\n\n"
+          },
+          {
+            "segment_id": "070d06b3-d147-4276-9047-f90f8618feae",
+            "bbox": {
+              "left": 192.75,
+              "top": 115.666664,
+              "width": 893.6666,
+              "height": 645.75
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread-Specific State • Each thread has its own interpreter specific data structure (PyThreadState) • Current stack frame (for Python code) • Current recursion depth • Thread ID • Some per-thread exception information • Optional tracing/profiling/debugging hooks • It's a small C structure (<100 bytes) 11",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/070d06b3-d147-4276-9047-f90f8618feae.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dcdfdce8f157459975c38b4e7a59f1d0bca8c5e823c15372b2f5944aed91d90f",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread-Specific State • Each thread has its own interpreter specific data structure (PyThreadState) • Current stack frame (for Python code) • Current recursion depth • Thread ID • Some per-thread exception information • Optional tracing/profiling/debugging hooks • It's a small C structure (<100 bytes) 11</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "05d66876-cc5f-4b3b-a915-54444ad43aa6",
+            "bbox": {
+              "left": 194.83333,
+              "top": 1534.4166,
+              "width": 295.75,
+              "height": 14.5
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/05d66876-cc5f-4b3b-a915-54444ad43aa6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=727c5a8233236dadffdc0d3fc31620b31e9e52df5fce06f8571d7ffff028c240",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          },
+          {
+            "segment_id": "45664fc5-1777-4291-b667-75aeb2882906",
+            "bbox": {
+              "left": 182.33333,
+              "top": 903.1666,
+              "width": 899.9166,
+              "height": 622.8333
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "ThreadState Structure typedefstruct ts structts *next; PyInterpreterState*interp; struct frame *frame; int recursion_depth; int tracing; int use_tracing; Py_tracefunc c_profilefunc Py_tracefunc c_tracefunc； PyObject *cprofileobj; PyObject *c_traceobj； PyObject *curexctype; PyObject *curexcvalue; PyObject *curexctraceback; PyObject *exc_type; PyObject *excvalue; PyObject *exctraceback; PyObject *dict; int tick counter; int gilstatecounter PyObject *async_exc; long threadid; }PyThreadstate;",
+            "segment_type": "Table",
+            "ocr": [
+              {
+                "bbox": {
+                  "left": 153,
+                  "top": 9,
+                  "width": 670,
+                  "height": 67
+                },
+                "text": "ThreadState Structure",
+                "confidence": 0.9993258
+              },
+              {
+                "bbox": {
+                  "left": 159,
+                  "top": 98,
+                  "width": 163,
+                  "height": 15
+                },
+                "text": "typedefstruct",
+                "confidence": 0.99279493
+              },
+              {
+                "bbox": {
+                  "left": 317,
+                  "top": 99,
+                  "width": 49,
+                  "height": 15
+                },
+                "text": "ts",
+                "confidence": 0.97618395
+              },
+              {
+                "bbox": {
+                  "left": 203,
+                  "top": 122,
+                  "width": 115,
+                  "height": 14
+                },
+                "text": "structts",
+                "confidence": 0.9911747
+              },
+              {
+                "bbox": {
+                  "left": 421,
+                  "top": 120,
+                  "width": 69,
+                  "height": 17
+                },
+                "text": "*next;",
+                "confidence": 0.9767546
+              },
+              {
+                "bbox": {
+                  "left": 203,
+                  "top": 142,
+                  "width": 309,
+                  "height": 18
+                },
+                "text": "PyInterpreterState*interp;",
+                "confidence": 0.9679568
+              },
+              {
+                "bbox": {
+                  "left": 203,
+                  "top": 166,
+                  "width": 69,
+                  "height": 14
+                },
+                "text": "struct",
+                "confidence": 0.9947715
+              },
+              {
+                "bbox": {
+                  "left": 293,
+                  "top": 165,
+                  "width": 60,
+                  "height": 17
+                },
+                "text": "frame",
+                "confidence": 0.9892313
+              },
+              {
+                "bbox": {
+                  "left": 422,
+                  "top": 165,
+                  "width": 79,
+                  "height": 17
+                },
+                "text": "*frame;",
+                "confidence": 0.9883939
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 186,
+                  "width": 38,
+                  "height": 19
+                },
+                "text": "int",
+                "confidence": 0.9973896
+              },
+              {
+                "bbox": {
+                  "left": 433,
+                  "top": 188,
+                  "width": 182,
+                  "height": 18
+                },
+                "text": "recursion_depth;",
+                "confidence": 0.94555837
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 210,
+                  "width": 38,
+                  "height": 18
+                },
+                "text": "int",
+                "confidence": 0.99766845
+              },
+              {
+                "bbox": {
+                  "left": 432,
+                  "top": 212,
+                  "width": 92,
+                  "height": 17
+                },
+                "text": "tracing;",
+                "confidence": 0.9824839
+              },
+              {
+                "bbox": {
+                  "left": 201,
+                  "top": 231,
+                  "width": 39,
+                  "height": 19
+                },
+                "text": "int",
+                "confidence": 0.9975672
+              },
+              {
+                "bbox": {
+                  "left": 432,
+                  "top": 233,
+                  "width": 137,
+                  "height": 18
+                },
+                "text": "use_tracing;",
+                "confidence": 0.9201965
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 257,
+                  "width": 139,
+                  "height": 17
+                },
+                "text": "Py_tracefunc",
+                "confidence": 0.97364444
+              },
+              {
+                "bbox": {
+                  "left": 432,
+                  "top": 257,
+                  "width": 158,
+                  "height": 17
+                },
+                "text": "c_profilefunc",
+                "confidence": 0.970047
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 279,
+                  "width": 139,
+                  "height": 18
+                },
+                "text": "Py_tracefunc",
+                "confidence": 0.97571135
+              },
+              {
+                "bbox": {
+                  "left": 432,
+                  "top": 279,
+                  "width": 137,
+                  "height": 18
+                },
+                "text": "c_tracefunc；",
+                "confidence": 0.929226
+              },
+              {
+                "bbox": {
+                  "left": 201,
+                  "top": 300,
+                  "width": 95,
+                  "height": 20
+                },
+                "text": "PyObject",
+                "confidence": 0.9352065
+              },
+              {
+                "bbox": {
+                  "left": 423,
+                  "top": 301,
+                  "width": 158,
+                  "height": 17
+                },
+                "text": "*cprofileobj;",
+                "confidence": 0.9252331
+              },
+              {
+                "bbox": {
+                  "left": 203,
+                  "top": 323,
+                  "width": 92,
+                  "height": 19
+                },
+                "text": "PyObject",
+                "confidence": 0.9350027
+              },
+              {
+                "bbox": {
+                  "left": 423,
+                  "top": 324,
+                  "width": 135,
+                  "height": 18
+                },
+                "text": "*c_traceobj；",
+                "confidence": 0.92568135
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 347,
+                  "width": 93,
+                  "height": 17
+                },
+                "text": "PyObject",
+                "confidence": 0.9266908
+              },
+              {
+                "bbox": {
+                  "left": 423,
+                  "top": 349,
+                  "width": 147,
+                  "height": 14
+                },
+                "text": "*curexctype;",
+                "confidence": 0.9583984
+              },
+              {
+                "bbox": {
+                  "left": 201,
+                  "top": 368,
+                  "width": 94,
+                  "height": 21
+                },
+                "text": "PyObject",
+                "confidence": 0.92110324
+              },
+              {
+                "bbox": {
+                  "left": 423,
+                  "top": 371,
+                  "width": 157,
+                  "height": 15
+                },
+                "text": "*curexcvalue;",
+                "confidence": 0.9473642
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 393,
+                  "width": 93,
+                  "height": 17
+                },
+                "text": "PyObject",
+                "confidence": 0.93817985
+              },
+              {
+                "bbox": {
+                  "left": 421,
+                  "top": 392,
+                  "width": 207,
+                  "height": 18
+                },
+                "text": "*curexctraceback;",
+                "confidence": 0.9792824
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 415,
+                  "width": 93,
+                  "height": 18
+                },
+                "text": "PyObject",
+                "confidence": 0.9498396
+              },
+              {
+                "bbox": {
+                  "left": 421,
+                  "top": 414,
+                  "width": 116,
+                  "height": 20
+                },
+                "text": "*exc_type;",
+                "confidence": 0.95223874
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 438,
+                  "width": 93,
+                  "height": 17
+                },
+                "text": "PyObject",
+                "confidence": 0.930271
+              },
+              {
+                "bbox": {
+                  "left": 422,
+                  "top": 438,
+                  "width": 125,
+                  "height": 17
+                },
+                "text": "*excvalue;",
+                "confidence": 0.9448026
+              },
+              {
+                "bbox": {
+                  "left": 203,
+                  "top": 460,
+                  "width": 92,
+                  "height": 18
+                },
+                "text": "PyObject",
+                "confidence": 0.94059634
+              },
+              {
+                "bbox": {
+                  "left": 422,
+                  "top": 460,
+                  "width": 171,
+                  "height": 18
+                },
+                "text": "*exctraceback;",
+                "confidence": 0.9549943
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 484,
+                  "width": 93,
+                  "height": 17
+                },
+                "text": "PyObject",
+                "confidence": 0.9216165
+              },
+              {
+                "bbox": {
+                  "left": 422,
+                  "top": 483,
+                  "width": 69,
+                  "height": 17
+                },
+                "text": "*dict;",
+                "confidence": 0.97666067
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 504,
+                  "width": 38,
+                  "height": 19
+                },
+                "text": "int",
+                "confidence": 0.9972966
+              },
+              {
+                "bbox": {
+                  "left": 432,
+                  "top": 504,
+                  "width": 150,
+                  "height": 20
+                },
+                "text": "tick counter;",
+                "confidence": 0.950916
+              },
+              {
+                "bbox": {
+                  "left": 203,
+                  "top": 529,
+                  "width": 36,
+                  "height": 15
+                },
+                "text": "int",
+                "confidence": 0.9968627
+              },
+              {
+                "bbox": {
+                  "left": 434,
+                  "top": 531,
+                  "width": 191,
+                  "height": 14
+                },
+                "text": "gilstatecounter",
+                "confidence": 0.97100675
+              },
+              {
+                "bbox": {
+                  "left": 202,
+                  "top": 551,
+                  "width": 93,
+                  "height": 19
+                },
+                "text": "PyObject",
+                "confidence": 0.94344616
+              },
+              {
+                "bbox": {
+                  "left": 421,
+                  "top": 551,
+                  "width": 126,
+                  "height": 20
+                },
+                "text": "*async_exc;",
+                "confidence": 0.9402886
+              },
+              {
+                "bbox": {
+                  "left": 203,
+                  "top": 574,
+                  "width": 48,
+                  "height": 18
+                },
+                "text": "long",
+                "confidence": 0.9943222
+              },
+              {
+                "bbox": {
+                  "left": 433,
+                  "top": 574,
+                  "width": 114,
+                  "height": 17
+                },
+                "text": "threadid;",
+                "confidence": 0.96184796
+              },
+              {
+                "bbox": {
+                  "left": 158,
+                  "top": 597,
+                  "width": 180,
+                  "height": 18
+                },
+                "text": "}PyThreadstate;",
+                "confidence": 0.9123654
+              }
+            ],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/45664fc5-1777-4291-b667-75aeb2882906.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ed8c9858b41fda6fc3d3fd681042731f093379379747bce1ed8274e59fea05f1",
+            "html": "<span class=\"table\">ThreadState Structure typedefstruct ts structts *next; PyInterpreterState*interp; struct frame *frame; int recursion_depth; int tracing; int use_tracing; Py_tracefunc c_profilefunc Py_tracefunc c_tracefunc； PyObject *cprofileobj; PyObject *c_traceobj； PyObject *curexctype; PyObject *curexcvalue; PyObject *curexctraceback; PyObject *exc_type; PyObject *excvalue; PyObject *exctraceback; PyObject *dict; int tick counter; int gilstatecounter PyObject *async_exc; long threadid; }PyThreadstate;</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "e55afbe1-4bf6-40a1-a555-b9d6ed8aadc6",
+            "bbox": {
+              "left": 194.83333,
+              "top": 115.666664,
+              "width": 881.1666,
+              "height": 645.75
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread Execution • The interpreter has a global variable that simply points to the ThreadState structure of the currently running thread 13 /* Python/pystate.c */ ... PyThreadState *_PyThreadState_Current = NULL; • Operations in the interpreter implicitly depend this variable to know what thread they're currently working with",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/e55afbe1-4bf6-40a1-a555-b9d6ed8aadc6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dc0df5c43706e6e888a14c27adce7f8f68795467b19a84c5738d52d36aab9879",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread Execution • The interpreter has a global variable that simply points to the ThreadState structure of the currently running thread 13 /* Python/pystate.c */ ... PyThreadState *_PyThreadState_Current = NULL; • Operations in the interpreter implicitly depend this variable to know what thread they're currently working with</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "5be619c0-b80a-421f-88fe-7cb622f62d05",
+            "bbox": {
+              "left": 192.75,
+              "top": 1534.4166,
+              "width": 299.91666,
+              "height": 14.5
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/5be619c0-b80a-421f-88fe-7cb622f62d05.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=64ed6b026c26f202f160a6d4d8bf285de952077c97a206fb0837f3e83b06d95f",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          }
+        ],
+        "chunk_length": 225
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ec19dffd-c72a-4f65-a3e3-96e5c2945108",
+            "bbox": {
+              "left": 392.75,
+              "top": 892.74994,
+              "width": 535.3333,
+              "height": 93.666664
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "The Infamous GIL",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/ec19dffd-c72a-4f65-a3e3-96e5c2945108.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=17d0a259dd607d88e3c7ef6b2a24f4928c84bb1a7f1ee2ccb35c6481e99f3c61",
+            "html": "<h2>The Infamous GIL</h2>",
+            "markdown": "## The Infamous GIL\n\n"
+          },
+          {
+            "segment_id": "87997ba4-af61-4f66-94b6-952cf6cd7b86",
+            "bbox": {
+              "left": 301.0833,
+              "top": 1034.4166,
+              "width": 281.16666,
+              "height": 43.666664
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Here's the rub...",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/87997ba4-af61-4f66-94b6-952cf6cd7b86.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ebcf462f16bfceacb993d762f2369a8d6ca12851e5673d407d013870a209ee2b",
+            "html": "<ul><li>Here's the rub...</li></ul>",
+            "markdown": "- Here's the rub...\n\n"
+          },
+          {
+            "segment_id": "a0cd96a8-00f5-4d30-846b-ba749d4ef049",
+            "bbox": {
+              "left": 301.0833,
+              "top": 1101.0833,
+              "width": 685.3333,
+              "height": 81.166664
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Only one Python thread can execute in the interpreter at once",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/a0cd96a8-00f5-4d30-846b-ba749d4ef049.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5e883f67e6adb2842b2286f5a4238bbd57cccface5483bc55393beb049301e84",
+            "html": "<ul><li>Only one Python thread can execute in the interpreter at once</li></ul>",
+            "markdown": "- Only one Python thread can execute in the interpreter at once\n\n"
+          },
+          {
+            "segment_id": "d9a7f9e3-92fe-4835-abbe-9e7b736f794a",
+            "bbox": {
+              "left": 301.0833,
+              "top": 1205.25,
+              "width": 631.1666,
+              "height": 85.33333
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• There is a \"global interpreter lock\" that carefully controls thread execution",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/d9a7f9e3-92fe-4835-abbe-9e7b736f794a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=84d0bdb7cfb6ecc6a260580989bf18c6fe04c4e019e1bc067639f3a3a80ba3cb",
+            "html": "<ul><li>There is a \"global interpreter lock\" that carefully controls thread execution</li></ul>",
+            "markdown": "- There is a \"global interpreter lock\" that carefully controls thread execution\n\n"
+          },
+          {
+            "segment_id": "d6e7921a-074f-419c-b1b7-d10aed25c970",
+            "bbox": {
+              "left": 301.0833,
+              "top": 1313.5833,
+              "width": 695.75,
+              "height": 168.66666
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• The GIL ensures that sure each thread gets exclusive access to the interpreter internals when it's running (and that call-outs to C extensions play nice)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/d6e7921a-074f-419c-b1b7-d10aed25c970.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=760bb025ae22cf2f68fc4082592d4a087555a33caefdd8863eb79100e2a283d4",
+            "html": "<ul><li>The GIL ensures that sure each thread gets exclusive access to the interpreter internals when it's running (and that call-outs to C extensions play nice)</li></ul>",
+            "markdown": "- The GIL ensures that sure each thread gets exclusive access to the interpreter internals when it's running (and that call-outs to C extensions play nice)\n\n"
+          },
+          {
+            "segment_id": "3f68bd49-e0d1-4a35-bf5c-585d1b2dfb64",
+            "bbox": {
+              "left": 182.33333,
+              "top": 101.08333,
+              "width": 910.3333,
+              "height": 670.75
+            },
+            "page_number": 8,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com GIL Behavior • It's simple : threads hold the GIL when running • However, they release it when blocking for I/O 15 I/O I/O I/O rel ea se acqui re rel ea se acqui re acqui re rel ea se • So, any time a thread is forced to wait, other \"ready\" threads get their chance to run • Basically a kind of \"cooperative\" multitasking run run run run acqui re",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/3f68bd49-e0d1-4a35-bf5c-585d1b2dfb64.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5c4761a7f17fd8708e5d29e3c7375587be15622f9efb7e57b237cd6c463ff1d3",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com GIL Behavior • It's simple : threads hold the GIL when running • However, they release it when blocking for I/O 15 I/O I/O I/O rel ea se acqui re rel ea se acqui re acqui re rel ea se • So, any time a thread is forced to wait, other \"ready\" threads get their chance to run • Basically a kind of \"cooperative\" multitasking run run run run acqui re</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "3cee5735-005b-428b-bc06-e6d23a91497a",
+            "bbox": {
+              "left": 188.58333,
+              "top": 886.49994,
+              "width": 904.0833,
+              "height": 662.4166
+            },
+            "page_number": 8,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com CPU Bound Processing • To deal with CPU-bound threads that never perform any I/O, the interpreter periodically performs a \"check\" • By default, every 100 interpreter \"ticks\" 16 CPU Bound Thread Run 100 ticks Run 100 ticks Run 100 ticks check check check • sys.setcheckinterval() changes the setting",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/3cee5735-005b-428b-bc06-e6d23a91497a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aa13a00a340fcf5781fe2b5b9312b171ce867d99f120d4202dcc0135dfa72119",
+            "html": "<ul><li>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com CPU Bound Processing • To deal with CPU-bound threads that never perform any I/O, the interpreter periodically performs a \"check\" • By default, every 100 interpreter \"ticks\" 16 CPU Bound Thread Run 100 ticks Run 100 ticks Run 100 ticks check check check • sys.setcheckinterval() changes the setting</li></ul>",
+            "markdown": "- Copyright (C) 2009,  David Beazley, http://www.dabeaz.com CPU Bound Processing • To deal with CPU-bound threads that never perform any I/O, the interpreter periodically performs a \"check\" • By default, every 100 interpreter \"ticks\" 16 CPU Bound Thread Run 100 ticks Run 100 ticks Run 100 ticks check check check • sys.setcheckinterval() changes the setting\n\n"
+          },
+          {
+            "segment_id": "11910163-e3c9-4d34-a461-5d9a25b9c817",
+            "bbox": {
+              "left": 182.33333,
+              "top": 92.75,
+              "width": 906.1666,
+              "height": 677
+            },
+            "page_number": 9,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com The Check Interval • The check interval is a global counter that is completely independent of thread scheduling 17 Main Thread 100 ticks check check check 100 ticks 100 ticks Thread 2 Thread 3 Thread 4 100 ticks • A \"check\" is simply made every 100 \"ticks\"",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/11910163-e3c9-4d34-a461-5d9a25b9c817.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fdb8cf997b34b7cb18da8e791fb6a98f6dc80149c355dcb2749303bea7b3ee2e",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com The Check Interval • The check interval is a global counter that is completely independent of thread scheduling 17 Main Thread 100 ticks check check check 100 ticks 100 ticks Thread 2 Thread 3 Thread 4 100 ticks • A \"check\" is simply made every 100 \"ticks\"</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com The Check Interval • The check interval is a global counter that is completely independent of thread scheduling 17 Main Thread 100 ticks check check check 100 ticks 100 ticks Thread 2 Thread 3 Thread 4 100 ticks • A \"check\" is simply made every 100 \"ticks\"\n\n"
+          },
+          {
+            "segment_id": "89d4e3e7-0662-49bc-8fb3-422f3affe57a",
+            "bbox": {
+              "left": 182.33333,
+              "top": 890.6666,
+              "width": 914.49994,
+              "height": 658.25
+            },
+            "page_number": 9,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com The Periodic Check • What happens during the periodic check? • In the main thread only, signal handlers will execute if there are any pending signals (more shortly) • Release and reacquire the GIL • That last bullet describes how multiple CPU- bound threads get to run (by briefly releasing the GIL, other threads get a chance to run). 18",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/89d4e3e7-0662-49bc-8fb3-422f3affe57a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4dbde571c4701ffbd5c94354ebcf17079acc8ad86234917c1130454598c81cc9",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com The Periodic Check • What happens during the periodic check? • In the main thread only, signal handlers will execute if there are any pending signals (more shortly) • Release and reacquire the GIL • That last bullet describes how multiple CPU- bound threads get to run (by briefly releasing the GIL, other threads get a chance to run). 18</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "7c97d3f4-a350-45a2-be0a-054f3a8f57fe",
+            "bbox": {
+              "left": 186.5,
+              "top": 99,
+              "width": 733.25,
+              "height": 668.6666
+            },
+            "page_number": 10,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com ceval.c execution /* Python/ceval.c */ ... if (--_Py_Ticker < 0) { ... _Py_Ticker = _Py_CheckInterval; ... if (things_to_do) { if (Py_MakePendingCalls() < 0) { ... } } if (interpreter_lock) { /* Give another thread a chance */ ... PyThread_release_lock(interpreter_lock); /* Other threads may run now */ PyThread_acquire_lock(interpreter_lock, 1); ... }",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/7c97d3f4-a350-45a2-be0a-054f3a8f57fe.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b1b355eeada64fafba3f378008be5ccf0674af2b9a37e70cda2aade14c250944",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com ceval.c execution /* Python/ceval.c */ ... if (--_Py_Ticker < 0) { ... _Py_Ticker = _Py_CheckInterval; ... if (things_to_do) { if (Py_MakePendingCalls() < 0) { ... } } if (interpreter_lock) { /* Give another thread a chance */ ... PyThread_release_lock(interpreter_lock); /* Other threads may run now */ PyThread_acquire_lock(interpreter_lock, 1); ... }</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com ceval.c execution /* Python/ceval.c */ ... if (--_Py_Ticker < 0) { ... _Py_Ticker = _Py_CheckInterval; ... if (things_to_do) { if (Py_MakePendingCalls() < 0) { ... } } if (interpreter_lock) { /* Give another thread a chance */ ... PyThread_release_lock(interpreter_lock); /* Other threads may run now */ PyThread_acquire_lock(interpreter_lock, 1); ... }\n\n"
+          },
+          {
+            "segment_id": "367edaf8-68fb-4a0b-aa33-e753c2efbc16",
+            "bbox": {
+              "left": 188.58333,
+              "top": 886.49994,
+              "width": 891.5833,
+              "height": 662.4166
+            },
+            "page_number": 10,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com What is a \"Tick?\" • Ticks loosely map to interpreter instructions 20 def countdown(n): while n > 0: print n n -= 1 >>> import dis >>> dis.dis(countdown) 0 SETUP_LOOP              33 (to 36) 3 LOAD_FAST                0 (n) 6 LOAD_CONST               1 (0) 9 COMPARE_OP               4 (>) 12 JUMP_IF_FALSE           19 (to 34) 15 POP_TOP 16 LOAD_FAST                0 (n) 19 PRINT_ITEM 20 PRINT_NEWLINE 21 LOAD_FAST                0 (n) 24 LOAD_CONST               2 (1) 27 INPLACE_SUBTRACT 28 STORE_FAST               0 (n) 31 JUMP_ABSOLUTE            3 ... Tick 1 Tick 2 Tick 3 Tick 4 • Instructions in the Python VM",
+            "segment_type": "Picture",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/367edaf8-68fb-4a0b-aa33-e753c2efbc16.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d4a4934cf3e000eab39a184279107d1a1d0abe2940465ac9ae02bf1ecd11aa3a",
+            "html": "<img src=\"https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/367edaf8-68fb-4a0b-aa33-e753c2efbc16.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d4a4934cf3e000eab39a184279107d1a1d0abe2940465ac9ae02bf1ecd11aa3a\" />",
+            "markdown": "![Image](https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/367edaf8-68fb-4a0b-aa33-e753c2efbc16.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d4a4934cf3e000eab39a184279107d1a1d0abe2940465ac9ae02bf1ecd11aa3a)"
+          }
+        ],
+        "chunk_length": 461
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c91e9b9f-a51f-4e05-8d10-68e1c4b2f4c2",
+            "bbox": {
+              "left": 190.66666,
+              "top": 119.83333,
+              "width": 839.49994,
+              "height": 641.5833
+            },
+            "page_number": 11,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Tick Execution • Interpreter ticks are not time-based • In fact, long operations can block everything >>> nums = xrange(100000000) >>> -1 in nums False >>> 1 tick (~ 6.6 seconds) • Try hitting Ctrl-C (ticks are uninterruptible) >>> nums = xrange(100000000) >>> -1 in nums ^C^C^C   (nothing happens, long pause) ... KeyboardInterrupt >>>",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/c91e9b9f-a51f-4e05-8d10-68e1c4b2f4c2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8c760fec5b162b0ced3452f5812338e5ac9c6b4300f240c9340d649744ae61b2",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Tick Execution • Interpreter ticks are not time-based • In fact, long operations can block everything >>> nums = xrange(100000000) >>> -1 in nums False >>> 1 tick (~ 6.6 seconds) • Try hitting Ctrl-C (ticks are uninterruptible) >>> nums = xrange(100000000) >>> -1 in nums ^C^C^C   (nothing happens, long pause) ... KeyboardInterrupt >>></span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "405dd9e3-30e0-4183-990f-6472df4f0f43",
+            "bbox": {
+              "left": 192.75,
+              "top": 903.1666,
+              "width": 901.99994,
+              "height": 645.75
+            },
+            "page_number": 11,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Interlude : Signals • Let's briefly talk about Ctrl-C • A very common problem encountered with Python thread programming is that threaded programs can no longer be killed with the keyboard interrupt • It is EXTREMELY ANNOYING (you have to use kill -9 in a separate window) • Ever wonder why it doesn't work? 22",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/405dd9e3-30e0-4183-990f-6472df4f0f43.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df3de89570f0ef58651252f8d7cc6ec978d17e15ba143d8b350b79ff80dd0491",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Interlude : Signals • Let's briefly talk about Ctrl-C • A very common problem encountered with Python thread programming is that threaded programs can no longer be killed with the keyboard interrupt • It is EXTREMELY ANNOYING (you have to use kill -9 in a separate window) • Ever wonder why it doesn't work? 22</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "a5f6c165-e1e1-456a-95ec-c2fa432e5c6c",
+            "bbox": {
+              "left": 184.41666,
+              "top": 99,
+              "width": 895.74994,
+              "height": 662.4166
+            },
+            "page_number": 12,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Signal Handling • If a signal arrives, the interpreter runs the \"check\" after every tick until the main thread runs 23 Main Thread 100 ticks check Thread 2 Thread 3 • Since signal handlers can only run in the main thread, the interpreter quickly acquires/releases the GIL after every tick until it gets scheduled check SIGNAL checkcheck 1 tick 100 ticks checkcheckcheck signal handler",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/a5f6c165-e1e1-456a-95ec-c2fa432e5c6c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5387386793ef35697445b0460b8cf3f95bf2d9a82a03532a66f87ac60822dcd8",
+            "html": "<ul><li>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Signal Handling • If a signal arrives, the interpreter runs the \"check\" after every tick until the main thread runs 23 Main Thread 100 ticks check Thread 2 Thread 3 • Since signal handlers can only run in the main thread, the interpreter quickly acquires/releases the GIL after every tick until it gets scheduled check SIGNAL checkcheck 1 tick 100 ticks checkcheckcheck signal handler</li></ul>",
+            "markdown": "- Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Signal Handling • If a signal arrives, the interpreter runs the \"check\" after every tick until the main thread runs 23 Main Thread 100 ticks check Thread 2 Thread 3 • Since signal handlers can only run in the main thread, the interpreter quickly acquires/releases the GIL after every tick until it gets scheduled check SIGNAL checkcheck 1 tick 100 ticks checkcheckcheck signal handler\n\n"
+          }
+        ],
+        "chunk_length": 191
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "858c6916-48e2-419a-a39b-4cbe970b1d3c",
+            "bbox": {
+              "left": 384.41666,
+              "top": 898.99994,
+              "width": 547.8333,
+              "height": 89.5
+            },
+            "page_number": 12,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Thread Scheduling",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/858c6916-48e2-419a-a39b-4cbe970b1d3c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=16ca4dcdde1c93204f78e75e4d04e1fd2b41094e3b6aad5a73cd053cacf9e572",
+            "html": "<h2>Thread Scheduling</h2>",
+            "markdown": "## Thread Scheduling\n\n"
+          },
+          {
+            "segment_id": "a16fa351-9051-47cb-b77f-458cc0a62733",
+            "bbox": {
+              "left": 280.25,
+              "top": 1036.5,
+              "width": 647.8333,
+              "height": 43.666664
+            },
+            "page_number": 12,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Python does not have a thread scheduler",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/a16fa351-9051-47cb-b77f-458cc0a62733.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1586ad235652a837fc54c2c1778e202832bf6d3c9e86795713b60e678ee92f49",
+            "html": "<ul><li>Python does not have a thread scheduler</li></ul>",
+            "markdown": "- Python does not have a thread scheduler\n\n"
+          },
+          {
+            "segment_id": "adf89e33-8784-49c4-a2b3-bcec784af264",
+            "bbox": {
+              "left": 280.25,
+              "top": 1099,
+              "width": 639.5,
+              "height": 87.416664
+            },
+            "page_number": 12,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• There is no notion of thread priorities, preemption, round-robin scheduling, etc.",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/adf89e33-8784-49c4-a2b3-bcec784af264.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=de0457b00c688a3a892e7ca9ad2c462e5170810389b042945cb9afd468483803",
+            "html": "<ul><li>There is no notion of thread priorities, preemption, round-robin scheduling, etc.</li></ul>",
+            "markdown": "- There is no notion of thread priorities, preemption, round-robin scheduling, etc.\n\n"
+          },
+          {
+            "segment_id": "81e223ad-39d4-4d33-96a6-7d30c72e2078",
+            "bbox": {
+              "left": 280.25,
+              "top": 1203.1666,
+              "width": 697.8333,
+              "height": 89.5
+            },
+            "page_number": 12,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• All thread scheduling is left to the host operating system (e.g., Linux, Windows, etc.)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/81e223ad-39d4-4d33-96a6-7d30c72e2078.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=12af2fa8fe1ebd77a5cddea9cdcb838a9dd9fba0133fc14c68cf57b9860ceb77",
+            "html": "<ul><li>All thread scheduling is left to the host operating system (e.g., Linux, Windows, etc.)</li></ul>",
+            "markdown": "- All thread scheduling is left to the host operating system (e.g., Linux, Windows, etc.)\n\n"
+          },
+          {
+            "segment_id": "f508ae10-bfff-48ca-901c-67c2ec024954",
+            "bbox": {
+              "left": 280.25,
+              "top": 1313.5833,
+              "width": 720.75,
+              "height": 168.66666
+            },
+            "page_number": 12,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• This is partly why signals get so weird (the interpreter has no control over scheduling so it just attempts to thread switch as fast as possible with the hope that main will run)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/f508ae10-bfff-48ca-901c-67c2ec024954.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bb1beebdb31be3764f0e7ad26ca56881ff23a93d109bdb26b29c03ba1e0aa0a6",
+            "html": "<ul><li>This is partly why signals get so weird (the interpreter has no control over scheduling so it just attempts to thread switch as fast as possible with the hope that main will run)</li></ul>",
+            "markdown": "- This is partly why signals get so weird (the interpreter has no control over scheduling so it just attempts to thread switch as fast as possible with the hope that main will run)\n\n"
+          }
+        ],
+        "chunk_length": 71
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "7d6f5ced-8c60-4fe9-a31f-7185da3ac2a0",
+            "bbox": {
+              "left": 451.0833,
+              "top": 105.24999,
+              "width": 418.66666,
+              "height": 95.75
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Frozen Signals",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/7d6f5ced-8c60-4fe9-a31f-7185da3ac2a0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=23dce882fb9947f47a595d3bb11dd9f52614ffef2e5d795cf068ebea94fbf1d4",
+            "html": "<h2>Frozen Signals</h2>",
+            "markdown": "## Frozen Signals\n\n"
+          },
+          {
+            "segment_id": "f4de819f-df3e-496a-b007-075e69ad8b29",
+            "bbox": {
+              "left": 251.08333,
+              "top": 246.91666,
+              "width": 779.0833,
+              "height": 133.25
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• The reason Ctrl-C doesn't work with threaded programs is that the main thread is often blocked on an uninterruptible thread-join or lock",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/f4de819f-df3e-496a-b007-075e69ad8b29.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e1d6cb9994b7b92eead235772b4b50302031e914c86108039390af10120e1007",
+            "html": "<ul><li>The reason Ctrl-C doesn't work with threaded programs is that the main thread is often blocked on an uninterruptible thread-join or lock</li></ul>",
+            "markdown": "- The reason Ctrl-C doesn't work with threaded programs is that the main thread is often blocked on an uninterruptible thread-join or lock\n\n"
+          },
+          {
+            "segment_id": "3ac2bade-52ac-46b7-88bb-785e91312bd1",
+            "bbox": {
+              "left": 251.08333,
+              "top": 394.8333,
+              "width": 756.1666,
+              "height": 93.666664
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Since it's blocked, it never gets scheduled to run any kind of signal handler for it",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/3ac2bade-52ac-46b7-88bb-785e91312bd1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d1a8efcc0627ed20ef2d792cf979b032cd6b7aa43078320364ae1f7a032c1f5e",
+            "html": "<ul><li>Since it's blocked, it never gets scheduled to run any kind of signal handler for it</li></ul>",
+            "markdown": "- Since it's blocked, it never gets scheduled to run any kind of signal handler for it\n\n"
+          },
+          {
+            "segment_id": "72c5ca29-3c87-4b5c-94a5-f146b2dfdcc1",
+            "bbox": {
+              "left": 253.16666,
+              "top": 505.24997,
+              "width": 783.25,
+              "height": 174.91666
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• And as an extra little bonus, the interpreter is left in a state where it tries to thread-switch after every tick (so not only can you not interrupt your program, it runs slow as hell!)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/72c5ca29-3c87-4b5c-94a5-f146b2dfdcc1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=649d7067473ed34955cf195b730a05e0d603cb586bd672808642ca56ccd72d6b",
+            "html": "<ul><li>And as an extra little bonus, the interpreter is left in a state where it tries to thread-switch after every tick (so not only can you not interrupt your program, it runs slow as hell!)</li></ul>",
+            "markdown": "- And as an extra little bonus, the interpreter is left in a state where it tries to thread-switch after every tick (so not only can you not interrupt your program, it runs slow as hell!)\n\n"
+          }
+        ],
+        "chunk_length": 78
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2e049164-a5e1-47fa-9798-28d4e4335f1e",
+            "bbox": {
+              "left": 361.5,
+              "top": 884.4166,
+              "width": 597.8333,
+              "height": 104.08333
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "GIL Implementation",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/2e049164-a5e1-47fa-9798-28d4e4335f1e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b8b546855451d334a9ea1c73d3a7d0b11644c3128741540511dc645846d4f45c",
+            "html": "<h2>GIL Implementation</h2>",
+            "markdown": "## GIL Implementation\n\n"
+          },
+          {
+            "segment_id": "bc860bca-1ed2-4784-95c9-b513872463be",
+            "bbox": {
+              "left": 271.91666,
+              "top": 1007.3333,
+              "width": 572.8333,
+              "height": 52
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• The GIL is not a simple mutex lock",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/bc860bca-1ed2-4784-95c9-b513872463be.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6a33b44640bcab6cad6bb318e4e6d56acfc796e533f14f9a28adfc393db0395d",
+            "html": "<ul><li>The GIL is not a simple mutex lock</li></ul>",
+            "markdown": "- The GIL is not a simple mutex lock\n\n"
+          },
+          {
+            "segment_id": "8cde3cf3-f13e-475a-b7fa-a20443ccfe58",
+            "bbox": {
+              "left": 271.91666,
+              "top": 1074,
+              "width": 597.8333,
+              "height": 47.833332
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• The implementation (Unix) is either...",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/8cde3cf3-f13e-475a-b7fa-a20443ccfe58.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=39a46f7a1b9e23274c4fdc47608f4ff5a8db243b955c080409d9b6f190eb94e7",
+            "html": "<ul><li>The implementation (Unix) is either...</li></ul>",
+            "markdown": "- The implementation (Unix) is either...\n\n"
+          },
+          {
+            "segment_id": "55ddf470-4069-44b6-961d-7af21e45dac5",
+            "bbox": {
+              "left": 332.3333,
+              "top": 1134.4166,
+              "width": 499.91666,
+              "height": 54.083332
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• A POSIX unnamed semaphore",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/55ddf470-4069-44b6-961d-7af21e45dac5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aa80f8cf9c91ef487cfd40176ef552fb4c2f47022188bfb0b18913e46457d2b7",
+            "html": "<ul><li>A POSIX unnamed semaphore</li></ul>",
+            "markdown": "- A POSIX unnamed semaphore\n\n"
+          },
+          {
+            "segment_id": "3480ad10-cf9d-4be1-9781-a5d4d67976b7",
+            "bbox": {
+              "left": 334.41666,
+              "top": 1201.0833,
+              "width": 529.0833,
+              "height": 47.833332
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Or a pthreads condition variable",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/3480ad10-cf9d-4be1-9781-a5d4d67976b7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3a24371cad8a808e74c4077ed6f6a878792645ebcfebbcfc6fc8bfadc2921199",
+            "html": "<ul><li>Or a pthreads condition variable</li></ul>",
+            "markdown": "- Or a pthreads condition variable\n\n"
+          },
+          {
+            "segment_id": "a4fd5baa-0318-446a-a7b7-161d82f48258",
+            "bbox": {
+              "left": 271.91666,
+              "top": 1263.5833,
+              "width": 685.3333,
+              "height": 49.916664
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• All interpreter locking is based on signaling",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/a4fd5baa-0318-446a-a7b7-161d82f48258.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f890e2aeaaec15a718303817fd212335cb3c96d24e9ba11c3e902d0199e2558",
+            "html": "<ul><li>All interpreter locking is based on signaling</li></ul>",
+            "markdown": "- All interpreter locking is based on signaling\n\n"
+          },
+          {
+            "segment_id": "8129271c-a46b-4ca0-af78-6a2edb9e3393",
+            "bbox": {
+              "left": 330.25,
+              "top": 1326.0833,
+              "width": 608.25,
+              "height": 91.58333
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• To acquire the GIL, check if it's free. If not, go to sleep and wait for a signal",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/8129271c-a46b-4ca0-af78-6a2edb9e3393.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6a18f27f45078d14e7360934c52be903be87d543f748926999d3c35c058892c1",
+            "html": "<ul><li>To acquire the GIL, check if it's free. If not, go to sleep and wait for a signal</li></ul>",
+            "markdown": "- To acquire the GIL, check if it's free. If not, go to sleep and wait for a signal\n\n"
+          },
+          {
+            "segment_id": "410c364f-392f-4c72-af6e-ce4d29f1697f",
+            "bbox": {
+              "left": 332.3333,
+              "top": 1438.5833,
+              "width": 574.9166,
+              "height": 45.75
+            },
+            "page_number": 13,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• To release the GIL, free it and signal",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/410c364f-392f-4c72-af6e-ce4d29f1697f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=01aba1b941b9781c78cc387247bad512f42e4d9a7f2426da516cb7508f21cfa1",
+            "html": "<ul><li>To release the GIL, free it and signal</li></ul>",
+            "markdown": "- To release the GIL, free it and signal\n\n"
+          },
+          {
+            "segment_id": "e9f0e85a-5ccf-45b7-bbe0-2d9f93046cb3",
+            "bbox": {
+              "left": 180.25,
+              "top": 99,
+              "width": 904.0833,
+              "height": 664.5
+            },
+            "page_number": 14,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread Scheduling • Thread switching is far more subtle than most programmers realize 27 Thread 1 100 ticks check check check 100 ticks Thread 2 ... Operating System signal signal SUSPENDED Thread Context Switch check • The lag between signaling and execution may be significant (depends on the OS) SUSPENDED signal signal check signal",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/e9f0e85a-5ccf-45b7-bbe0-2d9f93046cb3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=831e14562e29acb052efae359699225c42503b005e93dc2f844ecce8a2a8f9c6",
+            "html": "<ul><li>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread Scheduling • Thread switching is far more subtle than most programmers realize 27 Thread 1 100 ticks check check check 100 ticks Thread 2 ... Operating System signal signal SUSPENDED Thread Context Switch check • The lag between signaling and execution may be significant (depends on the OS) SUSPENDED signal signal check signal</li></ul>",
+            "markdown": "- Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Thread Scheduling • Thread switching is far more subtle than most programmers realize 27 Thread 1 100 ticks check check check 100 ticks Thread 2 ... Operating System signal signal SUSPENDED Thread Context Switch check • The lag between signaling and execution may be significant (depends on the OS) SUSPENDED signal signal check signal\n\n"
+          },
+          {
+            "segment_id": "518601aa-0845-4e77-9691-2d3c312d3bce",
+            "bbox": {
+              "left": 194.83333,
+              "top": 1534.4166,
+              "width": 295.75,
+              "height": 14.5
+            },
+            "page_number": 14,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/518601aa-0845-4e77-9691-2d3c312d3bce.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=78afef6605fd8048794ff0dddc381d2e8685344f07d5486dc76f1a1ff2c033b9",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          }
+        ],
+        "chunk_length": 130
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "78d2d557-c71f-47f2-ac07-bf0e8964a57e",
+            "bbox": {
+              "left": 369.8333,
+              "top": 888.5833,
+              "width": 556.1666,
+              "height": 97.83333
+            },
+            "page_number": 14,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Thread Scheduling",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/78d2d557-c71f-47f2-ac07-bf0e8964a57e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f5b900343c3e333464126b177f67fd8fef1d5a6ec484fac04023dbdfc160bf36",
+            "html": "<h2>Thread Scheduling</h2>",
+            "markdown": "## Thread Scheduling\n\n"
+          },
+          {
+            "segment_id": "b8819b1e-3bb7-417f-a810-92154ae97b12",
+            "bbox": {
+              "left": 296.91666,
+              "top": 1030.25,
+              "width": 687.4166,
+              "height": 83.25
+            },
+            "page_number": 14,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• The OS is just going to schedule whichever thread has the highest execution \"priority\"",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/b8819b1e-3bb7-417f-a810-92154ae97b12.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=044abda2e8074e8c1cc30a15fecd8cf65e8d846bf89e3517b9a620e58ca637d0",
+            "html": "<ul><li>The OS is just going to schedule whichever thread has the highest execution \"priority\"</li></ul>",
+            "markdown": "- The OS is just going to schedule whichever thread has the highest execution \"priority\"\n\n"
+          },
+          {
+            "segment_id": "f1126ae7-8526-4964-bc15-0d3fc1cc79f2",
+            "bbox": {
+              "left": 388.5833,
+              "top": 1136.5,
+              "width": 420.74997,
+              "height": 45.75
+            },
+            "page_number": 14,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• CPU-bound : low priority",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/f1126ae7-8526-4964-bc15-0d3fc1cc79f2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8b89b16a8bea227e66d3a5bdd1f03d101a40639dc804d13f4065054429a40356",
+            "html": "<ul><li>CPU-bound : low priority</li></ul>",
+            "markdown": "- CPU-bound : low priority\n\n"
+          },
+          {
+            "segment_id": "5fa3ad37-8bdc-4e26-a940-73392c566fdd",
+            "bbox": {
+              "left": 388.5833,
+              "top": 1199,
+              "width": 406.16666,
+              "height": 45.75
+            },
+            "page_number": 14,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• I/O bound : high priority",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/5fa3ad37-8bdc-4e26-a940-73392c566fdd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b5cb6cc3afc8737d7e59be5ea77f0a4337d3553fe5f0785e6bbb8d311af7044c",
+            "html": "<ul><li>I/O bound : high priority</li></ul>",
+            "markdown": "- I/O bound : high priority\n\n"
+          },
+          {
+            "segment_id": "4870134c-245b-419e-9451-dc85acd0a58c",
+            "bbox": {
+              "left": 296.91666,
+              "top": 1263.5833,
+              "width": 722.8333,
+              "height": 126.99999
+            },
+            "page_number": 14,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• If a signal is sent to a thread with low priority and the CPUs are busy with higher priority tasks, it won't run until some later point",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/4870134c-245b-419e-9451-dc85acd0a58c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0fbbec83d316bcdb6d7008206832fc32d53f78f065ceabdef983150a293f277a",
+            "html": "<ul><li>If a signal is sent to a thread with low priority and the CPUs are busy with higher priority tasks, it won't run until some later point</li></ul>",
+            "markdown": "- If a signal is sent to a thread with low priority and the CPUs are busy with higher priority tasks, it won't run until some later point\n\n"
+          },
+          {
+            "segment_id": "38411388-3823-402b-aebc-b09c0914c312",
+            "bbox": {
+              "left": 296.91666,
+              "top": 1413.5833,
+              "width": 520.75,
+              "height": 41.583332
+            },
+            "page_number": 14,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Read an OS textbook for details",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/38411388-3823-402b-aebc-b09c0914c312.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a7940872f0836203d8e67f9296176d8c08f9157bf011b3b1970df35538337413",
+            "html": "<ul><li>Read an OS textbook for details</li></ul>",
+            "markdown": "- Read an OS textbook for details\n\n"
+          },
+          {
+            "segment_id": "082726a3-8758-4d1d-a4ed-cda254e9998a",
+            "bbox": {
+              "left": 180.25,
+              "top": 105.24999,
+              "width": 908.24994,
+              "height": 656.1666
+            },
+            "page_number": 15,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com CPU-Bound Threads • As we saw earlier, CPU-bound threads have horrible performance properties • Far worse than simple sequential execution • 24.6 seconds (sequential) • 45.5 seconds (2 threads) • A big question : Why? • What is the source of that overhead? 29",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/082726a3-8758-4d1d-a4ed-cda254e9998a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=686e58d1011a43d32ad2e4ece7889628aa79403e3f7582613ca7390b2dde033d",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com CPU-Bound Threads • As we saw earlier, CPU-bound threads have horrible performance properties • Far worse than simple sequential execution • 24.6 seconds (sequential) • 45.5 seconds (2 threads) • A big question : Why? • What is the source of that overhead? 29</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "a9cd91cd-ef50-4243-afc9-c24de3512e03",
+            "bbox": {
+              "left": 188.58333,
+              "top": 888.5833,
+              "width": 916.5833,
+              "height": 614.5
+            },
+            "page_number": 15,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Signaling Overhead GIL thread signaling is the source of that ●After every I00 ticks,the interpreter Locksa mutex Signals on a condition variable/semaphore where another thread is always waiting Because another thread is waiting,extra pthreads processing and system calls get triggered to deliver the signal",
+            "segment_type": "Table",
+            "ocr": [
+              {
+                "bbox": {
+                  "left": 170,
+                  "top": 19,
+                  "width": 581,
+                  "height": 79
+                },
+                "text": "Signaling Overhead",
+                "confidence": 0.9908976
+              },
+              {
+                "bbox": {
+                  "left": 103,
+                  "top": 150,
+                  "width": 617,
+                  "height": 36
+                },
+                "text": "GIL thread signaling is the source of that",
+                "confidence": 0.9637383
+              },
+              {
+                "bbox": {
+                  "left": 80,
+                  "top": 217,
+                  "width": 588,
+                  "height": 34
+                },
+                "text": "●After every I00 ticks,the interpreter",
+                "confidence": 0.9196674
+              },
+              {
+                "bbox": {
+                  "left": 159,
+                  "top": 280,
+                  "width": 235,
+                  "height": 32
+                },
+                "text": "Locksa mutex",
+                "confidence": 0.9562351
+              },
+              {
+                "bbox": {
+                  "left": 170,
+                  "top": 342,
+                  "width": 627,
+                  "height": 36
+                },
+                "text": "Signals on a condition variable/semaphore",
+                "confidence": 0.9810914
+              },
+              {
+                "bbox": {
+                  "left": 173,
+                  "top": 384,
+                  "width": 583,
+                  "height": 36
+                },
+                "text": "where another thread is always waiting",
+                "confidence": 0.95017856
+              },
+              {
+                "bbox": {
+                  "left": 173,
+                  "top": 448,
+                  "width": 598,
+                  "height": 37
+                },
+                "text": "Because another thread is waiting,extra",
+                "confidence": 0.96161366
+              },
+              {
+                "bbox": {
+                  "left": 173,
+                  "top": 491,
+                  "width": 604,
+                  "height": 38
+                },
+                "text": "pthreads processing and system calls get",
+                "confidence": 0.97221994
+              },
+              {
+                "bbox": {
+                  "left": 173,
+                  "top": 535,
+                  "width": 439,
+                  "height": 37
+                },
+                "text": "triggered to deliver the signal",
+                "confidence": 0.9597696
+              }
+            ],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/a9cd91cd-ef50-4243-afc9-c24de3512e03.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=81904367b4b5e868f99682b14a178bce2288482421c83b3c15884866fffa3a93",
+            "html": "<span class=\"table\">Signaling Overhead GIL thread signaling is the source of that ●After every I00 ticks,the interpreter Locksa mutex Signals on a condition variable/semaphore where another thread is always waiting Because another thread is waiting,extra pthreads processing and system calls get triggered to deliver the signal</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "db8ca991-f853-4463-9ae9-292f6f4f0e3c",
+            "bbox": {
+              "left": 188.58333,
+              "top": 107.33333,
+              "width": 899.9166,
+              "height": 658.25
+            },
+            "page_number": 16,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com A Rough Measurement • Sequential Execution (OS-X, 1 CPU) • 736 Unix system calls • 117 Mach System Calls • Two CPU-bound threads (OS-X, 1 CPU) • 1149 Unix system calls • ~ 3.3 Million Mach System Calls • Yow! Look at that last figure. 31",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/db8ca991-f853-4463-9ae9-292f6f4f0e3c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=19d06252ec1ea751219932a7d47f693834c53f0ebbc521721dc682a0e22386a9",
+            "html": "<ul><li>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com A Rough Measurement • Sequential Execution (OS-X, 1 CPU) • 736 Unix system calls • 117 Mach System Calls • Two CPU-bound threads (OS-X, 1 CPU) • 1149 Unix system calls • ~ 3.3 Million Mach System Calls • Yow! Look at that last figure. 31</li></ul>",
+            "markdown": "- Copyright (C) 2009,  David Beazley, http://www.dabeaz.com A Rough Measurement • Sequential Execution (OS-X, 1 CPU) • 736 Unix system calls • 117 Mach System Calls • Two CPU-bound threads (OS-X, 1 CPU) • 1149 Unix system calls • ~ 3.3 Million Mach System Calls • Yow! Look at that last figure. 31\n\n"
+          },
+          {
+            "segment_id": "ca93f1c2-cfb1-4a78-9fb2-ab09b90647a6",
+            "bbox": {
+              "left": 192.75,
+              "top": 888.5833,
+              "width": 914.49994,
+              "height": 660.3333
+            },
+            "page_number": 16,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Multiple CPU Cores • The penalty gets far worse on multiple cores • Two CPU-bound threads (OS-X, 1 CPU) • 1149 Unix system calls • ~3.3 Million Mach System Calls • Two CPU-bound threads (OS-X, 2 CPUs) • 1149 Unix system calls • ~9.5 Million Mach System calls 32",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/ca93f1c2-cfb1-4a78-9fb2-ab09b90647a6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f82b4ba698ed798c92e8ea233e2630b3932b58aef31a577fc786284237f4b0d0",
+            "html": "<ul><li>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Multiple CPU Cores • The penalty gets far worse on multiple cores • Two CPU-bound threads (OS-X, 1 CPU) • 1149 Unix system calls • ~3.3 Million Mach System Calls • Two CPU-bound threads (OS-X, 2 CPUs) • 1149 Unix system calls • ~9.5 Million Mach System calls 32</li></ul>",
+            "markdown": "- Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Multiple CPU Cores • The penalty gets far worse on multiple cores • Two CPU-bound threads (OS-X, 1 CPU) • 1149 Unix system calls • ~3.3 Million Mach System Calls • Two CPU-bound threads (OS-X, 2 CPUs) • 1149 Unix system calls • ~9.5 Million Mach System calls 32\n\n"
+          },
+          {
+            "segment_id": "6b2bde18-ccbd-4028-ac23-0b255dbd9072",
+            "bbox": {
+              "left": 194.83333,
+              "top": 111.49999,
+              "width": 881.1666,
+              "height": 654.0833
+            },
+            "page_number": 17,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "An Experiment I did some instrumentation of the Python interpreter to look into this a little deeper Recorded a real-time trace of all GIL  acquisitions,releases, conflicts, retries,etc. Trying to get an idea of what the interpreter is doing,what different threads are doing interactions between threads and the GlL,and the overall sequencing of events 33 Copyright （C）2009.David Beazle",
+            "segment_type": "Table",
+            "ocr": [
+              {
+                "bbox": {
+                  "left": 222,
+                  "top": 13,
+                  "width": 463,
+                  "height": 72
+                },
+                "text": "An Experiment",
+                "confidence": 0.99948406
+              },
+              {
+                "bbox": {
+                  "left": 89,
+                  "top": 155,
+                  "width": 635,
+                  "height": 41
+                },
+                "text": "I did some instrumentation of the Python",
+                "confidence": 0.98753816
+              },
+              {
+                "bbox": {
+                  "left": 108,
+                  "top": 203,
+                  "width": 633,
+                  "height": 34
+                },
+                "text": "interpreter to look into this a little deeper",
+                "confidence": 0.9366714
+              },
+              {
+                "bbox": {
+                  "left": 103,
+                  "top": 263,
+                  "width": 554,
+                  "height": 36
+                },
+                "text": "Recorded a real-time trace of all GIL",
+                "confidence": 0.9360736
+              },
+              {
+                "bbox": {
+                  "left": 98,
+                  "top": 276,
+                  "width": 9,
+                  "height": 9
+                },
+                "text": "",
+                "confidence": 0
+              },
+              {
+                "bbox": {
+                  "left": 106,
+                  "top": 310,
+                  "width": 629,
+                  "height": 35
+                },
+                "text": "acquisitions,releases, conflicts, retries,etc.",
+                "confidence": 0.97623926
+              },
+              {
+                "bbox": {
+                  "left": 105,
+                  "top": 371,
+                  "width": 696,
+                  "height": 42
+                },
+                "text": "Trying to get an idea of what the interpreter is",
+                "confidence": 0.99443054
+              },
+              {
+                "bbox": {
+                  "left": 107,
+                  "top": 416,
+                  "width": 579,
+                  "height": 36
+                },
+                "text": "doing,what different threads are doing",
+                "confidence": 0.9774963
+              },
+              {
+                "bbox": {
+                  "left": 107,
+                  "top": 461,
+                  "width": 688,
+                  "height": 31
+                },
+                "text": "interactions between threads and the GlL,and",
+                "confidence": 0.941258
+              },
+              {
+                "bbox": {
+                  "left": 107,
+                  "top": 502,
+                  "width": 475,
+                  "height": 34
+                },
+                "text": "the overall sequencing of events",
+                "confidence": 0.9478282
+              },
+              {
+                "bbox": {
+                  "left": 860,
+                  "top": 626,
+                  "width": 20,
+                  "height": 19
+                },
+                "text": "33",
+                "confidence": 0.9976368
+              },
+              {
+                "bbox": {
+                  "left": 3,
+                  "top": 634,
+                  "width": 171,
+                  "height": 16
+                },
+                "text": "Copyright （C）2009.David Beazle",
+                "confidence": 0.8992829
+              }
+            ],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/6b2bde18-ccbd-4028-ac23-0b255dbd9072.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7ce20994042824d35e48da506215e108a3d85e81e52d9f3bbf18a9cbdb040cca",
+            "html": "<span class=\"table\">An Experiment I did some instrumentation of the Python interpreter to look into this a little deeper Recorded a real-time trace of all GIL  acquisitions,releases, conflicts, retries,etc. Trying to get an idea of what the interpreter is doing,what different threads are doing interactions between threads and the GlL,and the overall sequencing of events 33 Copyright （C）2009.David Beazle</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "e75ea150-0f2a-4148-af52-6ea647f03e57",
+            "bbox": {
+              "left": 190.66666,
+              "top": 888.5833,
+              "width": 889.49994,
+              "height": 660.3333
+            },
+            "page_number": 17,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com A Sample Trace 34 t2 100 5351 ENTRY t2 100 5351 ACQUIRE t2 100 5352 RELEASE t2 100 5352 ENTRY t2 100 5352 ACQUIRE t2 100 5353 RELEASE t1 100 5353 ACQUIRE t2 100 5353 ENTRY t2  38 5353 BUSY t1 100 5354 RELEASE t1 100 5354 ENTRY t1 100 5354 ACQUIRE t2  79 5354 RETRY t1 100 5355 RELEASE t1 100 5355 ENTRY t1 100 5355 ACQUIRE t2  73 5355 RETRY t1 100 5356 RELEASE t2 100 5356 ACQUIRE t1 100 5356 ENTRY t1  24 5356 BUSY t2 100 5357 RELEASE thread id ENTRY : Entering GIL critical section ACQUIRE : GIL acquired RELEASE : GIL released BUSY : Attempted to acquire GIL, but it was already in use RETRY :  Repeated attempt to acquire the GIL, but it was still in use tick countdown total number of \"checks\" executed",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/e75ea150-0f2a-4148-af52-6ea647f03e57.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ca1a01e416ea75f63bae847f457f3faf9af6fd9e0f90be629b72ee98823731df",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com A Sample Trace 34 t2 100 5351 ENTRY t2 100 5351 ACQUIRE t2 100 5352 RELEASE t2 100 5352 ENTRY t2 100 5352 ACQUIRE t2 100 5353 RELEASE t1 100 5353 ACQUIRE t2 100 5353 ENTRY t2  38 5353 BUSY t1 100 5354 RELEASE t1 100 5354 ENTRY t1 100 5354 ACQUIRE t2  79 5354 RETRY t1 100 5355 RELEASE t1 100 5355 ENTRY t1 100 5355 ACQUIRE t2  73 5355 RETRY t1 100 5356 RELEASE t2 100 5356 ACQUIRE t1 100 5356 ENTRY t1  24 5356 BUSY t2 100 5357 RELEASE thread id ENTRY : Entering GIL critical section ACQUIRE : GIL acquired RELEASE : GIL released BUSY : Attempted to acquire GIL, but it was already in use RETRY :  Repeated attempt to acquire the GIL, but it was still in use tick countdown total number of \"checks\" executed</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com A Sample Trace 34 t2 100 5351 ENTRY t2 100 5351 ACQUIRE t2 100 5352 RELEASE t2 100 5352 ENTRY t2 100 5352 ACQUIRE t2 100 5353 RELEASE t1 100 5353 ACQUIRE t2 100 5353 ENTRY t2  38 5353 BUSY t1 100 5354 RELEASE t1 100 5354 ENTRY t1 100 5354 ACQUIRE t2  79 5354 RETRY t1 100 5355 RELEASE t1 100 5355 ENTRY t1 100 5355 ACQUIRE t2  73 5355 RETRY t1 100 5356 RELEASE t2 100 5356 ACQUIRE t1 100 5356 ENTRY t1  24 5356 BUSY t2 100 5357 RELEASE thread id ENTRY : Entering GIL critical section ACQUIRE : GIL acquired RELEASE : GIL released BUSY : Attempted to acquire GIL, but it was already in use RETRY :  Repeated attempt to acquire the GIL, but it was still in use tick countdown total number of \"checks\" executed\n\n"
+          }
+        ],
+        "chunk_length": 486
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4ee6437b-27f2-4ebf-a8c6-bc4f80062891",
+            "bbox": {
+              "left": 186.5,
+              "top": 111.49999,
+              "width": 897.8333,
+              "height": 649.9166
+            },
+            "page_number": 18,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Multicore GIL Contention • With multiple cores, CPU-bound threads get scheduled simultaneously (on different cores) and then have a GIL battle 35 Thread 1 (CPU 1) Thread 2 (CPU 2) Release GIL signal Acquire GIL Wake Acquire GIL (fails) Release GIL Acquire GIL signal Wake Acquire GIL (fails) run run run • The waiting thread (T2) may make 100s of failed GIL acquisitions before any success",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/4ee6437b-27f2-4ebf-a8c6-bc4f80062891.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ac1ea83cba011ee7e578fd6839a5170ce53f4f5d68040d1706f811746d634020",
+            "html": "<ul><li>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Multicore GIL Contention • With multiple cores, CPU-bound threads get scheduled simultaneously (on different cores) and then have a GIL battle 35 Thread 1 (CPU 1) Thread 2 (CPU 2) Release GIL signal Acquire GIL Wake Acquire GIL (fails) Release GIL Acquire GIL signal Wake Acquire GIL (fails) run run run • The waiting thread (T2) may make 100s of failed GIL acquisitions before any success</li></ul>",
+            "markdown": "- Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Multicore GIL Contention • With multiple cores, CPU-bound threads get scheduled simultaneously (on different cores) and then have a GIL battle 35 Thread 1 (CPU 1) Thread 2 (CPU 2) Release GIL signal Acquire GIL Wake Acquire GIL (fails) Release GIL Acquire GIL signal Wake Acquire GIL (fails) run run run • The waiting thread (T2) may make 100s of failed GIL acquisitions before any success\n\n"
+          },
+          {
+            "segment_id": "aa19cf60-710d-4d83-b632-0d7ed35f7b25",
+            "bbox": {
+              "left": 184.41666,
+              "top": 886.49994,
+              "width": 893.6666,
+              "height": 662.4166
+            },
+            "page_number": 18,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com The GIL Battle (Traced) 36 t2 100 5392 ENTRY t2 100 5392 ACQUIRE t2 100 5393 RELEASE t1 100 5393 ACQUIRE t2 100 5393 ENTRY t2  27 5393 BUSY t1 100 5394 RELEASE t1 100 5394 ENTRY t1 100 5394 ACQUIRE t2  74 5394 RETRY t1 100 5395 RELEASE t1 100 5395 ENTRY t1 100 5395 ACQUIRE t2  83 5395 RETRY t1 100 5396 RELEASE t1 100 5396 ENTRY t1 100 5396 ACQUIRE t2  80 5396 RETRY t1 100 5397 RELEASE t1 100 5397 ENTRY t1 100 5397 ACQUIRE t2  79 5397 RETRY ... A thread switch t2 tries to keep running, but immediately has to block because t1 acquired the GIL signal signal signal signal Here, the GIL battle begins.  Every RELEASE of the GIL signals t2.  Since there are two cores, the OS schedules t2, but leaves t1 running on the other core.  Since t1 is left running, it immediately reacquires the GIL before t2 can get to it (so, t2 wakes up, finds the GIL is in use, and blocks again)",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/aa19cf60-710d-4d83-b632-0d7ed35f7b25.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6b8625aa1f77474978c913364ec43940d3adad666e9daa930e1c0d3d546a30c8",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com The GIL Battle (Traced) 36 t2 100 5392 ENTRY t2 100 5392 ACQUIRE t2 100 5393 RELEASE t1 100 5393 ACQUIRE t2 100 5393 ENTRY t2  27 5393 BUSY t1 100 5394 RELEASE t1 100 5394 ENTRY t1 100 5394 ACQUIRE t2  74 5394 RETRY t1 100 5395 RELEASE t1 100 5395 ENTRY t1 100 5395 ACQUIRE t2  83 5395 RETRY t1 100 5396 RELEASE t1 100 5396 ENTRY t1 100 5396 ACQUIRE t2  80 5396 RETRY t1 100 5397 RELEASE t1 100 5397 ENTRY t1 100 5397 ACQUIRE t2  79 5397 RETRY ... A thread switch t2 tries to keep running, but immediately has to block because t1 acquired the GIL signal signal signal signal Here, the GIL battle begins.  Every RELEASE of the GIL signals t2.  Since there are two cores, the OS schedules t2, but leaves t1 running on the other core.  Since t1 is left running, it immediately reacquires the GIL before t2 can get to it (so, t2 wakes up, finds the GIL is in use, and blocks again)</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com The GIL Battle (Traced) 36 t2 100 5392 ENTRY t2 100 5392 ACQUIRE t2 100 5393 RELEASE t1 100 5393 ACQUIRE t2 100 5393 ENTRY t2  27 5393 BUSY t1 100 5394 RELEASE t1 100 5394 ENTRY t1 100 5394 ACQUIRE t2  74 5394 RETRY t1 100 5395 RELEASE t1 100 5395 ENTRY t1 100 5395 ACQUIRE t2  83 5395 RETRY t1 100 5396 RELEASE t1 100 5396 ENTRY t1 100 5396 ACQUIRE t2  80 5396 RETRY t1 100 5397 RELEASE t1 100 5397 ENTRY t1 100 5397 ACQUIRE t2  79 5397 RETRY ... A thread switch t2 tries to keep running, but immediately has to block because t1 acquired the GIL signal signal signal signal Here, the GIL battle begins.  Every RELEASE of the GIL signals t2.  Since there are two cores, the OS schedules t2, but leaves t1 running on the other core.  Since t1 is left running, it immediately reacquires the GIL before t2 can get to it (so, t2 wakes up, finds the GIL is in use, and blocks again)\n\n"
+          },
+          {
+            "segment_id": "baecb902-18de-444c-ab86-80c987a9ef10",
+            "bbox": {
+              "left": 194.83333,
+              "top": 746.9166,
+              "width": 297.8333,
+              "height": 14.5
+            },
+            "page_number": 19,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/baecb902-18de-444c-ab86-80c987a9ef10.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4a555d9f3381e694209dd6b4a82b36ca8e19a3bd4524ae51cf1edadcb27a3664",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          },
+          {
+            "segment_id": "28831a86-563f-4d7b-bce7-d5b05e1565c1",
+            "bbox": {
+              "left": 186.5,
+              "top": 119.83333,
+              "width": 845.74994,
+              "height": 618.6666
+            },
+            "page_number": 19,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "A Scheduler Conflict • What's happening here is that you're seeing a battle between two competing (and ultimately incompatible) goals • Python - only wants to run single- threaded, but doesn't want anything to do with thread scheduling (up to OS) • OS - \"Oooh. Multiple cores.\"  Freely schedules processes/threads to take advantage of as many cores as possible",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/28831a86-563f-4d7b-bce7-d5b05e1565c1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=21ff3db57c826f7a3bbfedd0612a320b1ae6ce91a7ae2296c99cbda4c50dfc62",
+            "html": "<span class=\"table\">A Scheduler Conflict • What's happening here is that you're seeing a battle between two competing (and ultimately incompatible) goals • Python - only wants to run single- threaded, but doesn't want anything to do with thread scheduling (up to OS) • OS - \"Oooh. Multiple cores.\"  Freely schedules processes/threads to take advantage of as many cores as possible</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "9e601ba8-0f94-4b62-839c-d80e4f47f782",
+            "bbox": {
+              "left": 1051.0833,
+              "top": 736.5,
+              "width": 24.916666,
+              "height": 24.916666
+            },
+            "page_number": 19,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "37",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/9e601ba8-0f94-4b62-839c-d80e4f47f782.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3c7abdb805e2113911809e8b10d9464a1ec025846d8614f93b7fd8152d3602df",
+            "html": "<p>37</p>",
+            "markdown": "37\n\n"
+          },
+          {
+            "segment_id": "52ed0993-666c-4436-a97d-8844c63c3a6e",
+            "bbox": {
+              "left": 190.66666,
+              "top": 901.0833,
+              "width": 885.3333,
+              "height": 647.8333
+            },
+            "page_number": 19,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Multicore GIL Contention • Even 1 CPU-bound thread causes problems • It degrades response time of I/O-bound threads 38 Thread 1 (CPU 1) Thread 2 (CPU 2) Network Packet Acquire GIL (fails) run Acquire GIL (fails) Acquire GIL (fails) Acquire GIL (success) signal signal signal signal run sleep",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/52ed0993-666c-4436-a97d-8844c63c3a6e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d295e7fecbb99058f93db7df8e187f3426a24a3e38fc5e2894a562648ba585f1",
+            "html": "<ul><li>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Multicore GIL Contention • Even 1 CPU-bound thread causes problems • It degrades response time of I/O-bound threads 38 Thread 1 (CPU 1) Thread 2 (CPU 2) Network Packet Acquire GIL (fails) run Acquire GIL (fails) Acquire GIL (fails) Acquire GIL (success) signal signal signal signal run sleep</li></ul>",
+            "markdown": "- Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Multicore GIL Contention • Even 1 CPU-bound thread causes problems • It degrades response time of I/O-bound threads 38 Thread 1 (CPU 1) Thread 2 (CPU 2) Network Packet Acquire GIL (fails) run Acquire GIL (fails) Acquire GIL (fails) Acquire GIL (success) signal signal signal signal run sleep\n\n"
+          },
+          {
+            "segment_id": "ea530ebd-0502-482b-b3fd-5acf3eb13af2",
+            "bbox": {
+              "left": 186.5,
+              "top": 94.83333,
+              "width": 893.6666,
+              "height": 674.9166
+            },
+            "page_number": 20,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com An I/O Bound Trace 39 ... t2 100 161241 ACQUIRE t2 100 161242 RELEASE t2 100 161242 ENTRY t2 100 161242 ACQUIRE t2 100 161243 RELEASE t2 100 161243 ENTRY t2 100 161243 ACQUIRE t1  45 161243 ENTRY t1  38 161243 BUSY t2 100 161244 RELEASE t2 100 161244 ENTRY t2 100 161244 ACQUIRE t1  68 161244 RETRY t2 100 161245 RELEASE t2 100 161245 ENTRY t2 100 161245 ACQUIRE t1  77 161245 RETRY ... t1 100 161404 ACQUIRE t1  97 161404 RELEASE CPU bound thread running Incoming I/O I/O bound thread attempting to acquire the GIL (in response to I/O) ~16000 ticks!",
+            "segment_type": "Picture",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/ea530ebd-0502-482b-b3fd-5acf3eb13af2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=41be6902da90750714c5400e9e0ad9bd4e340d5b66bb085063a915031e48c776",
+            "html": "<img src=\"https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/ea530ebd-0502-482b-b3fd-5acf3eb13af2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=41be6902da90750714c5400e9e0ad9bd4e340d5b66bb085063a915031e48c776\" />",
+            "markdown": "![Image](https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/ea530ebd-0502-482b-b3fd-5acf3eb13af2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=41be6902da90750714c5400e9e0ad9bd4e340d5b66bb085063a915031e48c776)"
+          }
+        ],
+        "chunk_length": 481
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "192eed6c-a327-4faf-a497-01d546218256",
+            "bbox": {
+              "left": 186.5,
+              "top": 882.3333,
+              "width": 899.9166,
+              "height": 670.75
+            },
+            "page_number": 20,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com An I/O Bound Trace 40 ... t2 100 161241 ACQUIRE t2 100 161242 RELEASE t2 100 161242 ENTRY t2 100 161242 ACQUIRE t2 100 161243 RELEASE t2 100 161243 ENTRY t2 100 161243 ACQUIRE t1  45 161243 ENTRY t1  38 161243 BUSY t2 100 161244 RELEASE t2 100 161244 ENTRY t2 100 161244 ACQUIRE t1  68 161244 RETRY t2 100 161245 RELEASE t2 100 161245 ENTRY t2 100 161245 ACQUIRE t1  77 161245 RETRY ... t1 100 161404 ACQUIRE t1  97 161404 RELEASE CPU bound thread running Incoming I/O I/O bound thread attempting to acquire the GIL (in response to I/O) ~16000 ticks! And all this work just to execute 3 ticks",
+            "segment_type": "Picture",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/192eed6c-a327-4faf-a497-01d546218256.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61a587f5d195e66e637d41a9ec3c02673ba95ba37846d7a6bc5e9f22dbc0cccd",
+            "html": "<img src=\"https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/192eed6c-a327-4faf-a497-01d546218256.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61a587f5d195e66e637d41a9ec3c02673ba95ba37846d7a6bc5e9f22dbc0cccd\" />",
+            "markdown": "![Image](https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/192eed6c-a327-4faf-a497-01d546218256.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61a587f5d195e66e637d41a9ec3c02673ba95ba37846d7a6bc5e9f22dbc0cccd)"
+          },
+          {
+            "segment_id": "5ea82072-8f60-4183-bdc6-6ed61beb9284",
+            "bbox": {
+              "left": 184.41666,
+              "top": 117.74999,
+              "width": 920.74994,
+              "height": 645.75
+            },
+            "page_number": 21,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Priority Inversion • This last scenario is a bizarre sort of \"priority inversion\" problem • A CPU-bound thread (low priority) is blocking the execution of an I/O-bound thread (high priority) • It occurs because the I/O thread can't wake up fast enough to acquire the GIL before the CPU-bound thread reacquires it • And it only happens on multicore... 41",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/5ea82072-8f60-4183-bdc6-6ed61beb9284.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b30455f3b18bfd16150e4f6e576a6ff3fefafe4777e4a9027b3420c8f63ce696",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Priority Inversion • This last scenario is a bizarre sort of \"priority inversion\" problem • A CPU-bound thread (low priority) is blocking the execution of an I/O-bound thread (high priority) • It occurs because the I/O thread can't wake up fast enough to acquire the GIL before the CPU-bound thread reacquires it • And it only happens on multicore... 41</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "e192e2d8-908d-42c4-81f0-323be70b41dc",
+            "bbox": {
+              "left": 192.75,
+              "top": 1534.4166,
+              "width": 297.8333,
+              "height": 14.5
+            },
+            "page_number": 21,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/e192e2d8-908d-42c4-81f0-323be70b41dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=136c194c842a58e768623b93250ee92ad1d1a520b118f6c760b8d1eb97a03d7c",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          },
+          {
+            "segment_id": "c2ef0cb0-0051-4544-86e6-27ef005ba96c",
+            "bbox": {
+              "left": 182.33333,
+              "top": 890.6666,
+              "width": 897.8333,
+              "height": 616.5833
+            },
+            "page_number": 21,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Comments • As far as I can tell, the Python GIL implementation has not changed much (if at all) in the last 10 years • The GIL code in Python 1.5.2 looks almost identical to the code in Python 3.0 • I don't know whether it's even been studied all that much (especially on multicore) • There is more interest in removing the GIL than simply changing the GIL",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/c2ef0cb0-0051-4544-86e6-27ef005ba96c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bbf29d1c9d240cffd0f4d71b30895ef170ffc628ff72484aa077ddc24f3ab08c",
+            "html": "<span class=\"table\">Comments • As far as I can tell, the Python GIL implementation has not changed much (if at all) in the last 10 years • The GIL code in Python 1.5.2 looks almost identical to the code in Python 3.0 • I don't know whether it's even been studied all that much (especially on multicore) • There is more interest in removing the GIL than simply changing the GIL</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "6198e9a8-a6a9-45ec-97f6-8cece6963392",
+            "bbox": {
+              "left": 171.91666,
+              "top": 107.33333,
+              "width": 922.8333,
+              "height": 654.0833
+            },
+            "page_number": 22,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Comments Ithink this deserves further study There is a pretty severe performance penalty for using threads on multicore Thepriority inversion forI/O-bound processing is somewhat disturbing Probably worth fixing--especially if the GIL is going to stick around 43",
+            "segment_type": "Table",
+            "ocr": [
+              {
+                "bbox": {
+                  "left": 318,
+                  "top": 24,
+                  "width": 333,
+                  "height": 60
+                },
+                "text": "Comments",
+                "confidence": 0.99965227
+              },
+              {
+                "bbox": {
+                  "left": 171,
+                  "top": 166,
+                  "width": 520,
+                  "height": 38
+                },
+                "text": "Ithink this deserves further study",
+                "confidence": 0.9714846
+              },
+              {
+                "bbox": {
+                  "left": 241,
+                  "top": 229,
+                  "width": 564,
+                  "height": 40
+                },
+                "text": "There is a pretty severe performance",
+                "confidence": 0.9873307
+              },
+              {
+                "bbox": {
+                  "left": 246,
+                  "top": 277,
+                  "width": 570,
+                  "height": 34
+                },
+                "text": "penalty for using threads on multicore",
+                "confidence": 0.9441971
+              },
+              {
+                "bbox": {
+                  "left": 244,
+                  "top": 337,
+                  "width": 548,
+                  "height": 36
+                },
+                "text": "Thepriority inversion forI/O-bound",
+                "confidence": 0.95428324
+              },
+              {
+                "bbox": {
+                  "left": 244,
+                  "top": 379,
+                  "width": 515,
+                  "height": 42
+                },
+                "text": "processing is somewhat disturbing",
+                "confidence": 0.9970366
+              },
+              {
+                "bbox": {
+                  "left": 183,
+                  "top": 446,
+                  "width": 637,
+                  "height": 34
+                },
+                "text": "Probably worth fixing--especially if the GIL",
+                "confidence": 0.9616676
+              },
+              {
+                "bbox": {
+                  "left": 186,
+                  "top": 492,
+                  "width": 346,
+                  "height": 31
+                },
+                "text": "is going to stick around",
+                "confidence": 0.9236834
+              },
+              {
+                "bbox": {
+                  "left": 880,
+                  "top": 628,
+                  "width": 28,
+                  "height": 23
+                },
+                "text": "43",
+                "confidence": 0.99941134
+              }
+            ],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/6198e9a8-a6a9-45ec-97f6-8cece6963392.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=38eb257c066adfed1165e8bf1f4576f67fa620ed6a13bec31db6c962987f656c",
+            "html": "<span class=\"table\">Comments Ithink this deserves further study There is a pretty severe performance penalty for using threads on multicore Thepriority inversion forI/O-bound processing is somewhat disturbing Probably worth fixing--especially if the GIL is going to stick around 43</span>",
+            "markdown": "\n"
+          },
+          {
+            "segment_id": "4dae39ea-9bbb-4c11-bc51-f2d23aff5fab",
+            "bbox": {
+              "left": 194.83333,
+              "top": 1534.4166,
+              "width": 295.75,
+              "height": 14.5
+            },
+            "page_number": 22,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/4dae39ea-9bbb-4c11-bc51-f2d23aff5fab.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=002d0fd7f9317d96ff98599774bd7d457e4112f348fd86090deec5ddf8c07a6e",
+            "html": "<p>Copyright (C) 2009,  David Beazley, http://www.dabeaz.com</p>",
+            "markdown": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com\n\n"
+          }
+        ],
+        "chunk_length": 315
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b2e8fd84-54c6-4f8c-ba9d-3a8479ddbc02",
+            "bbox": {
+              "left": 403.16666,
+              "top": 892.74994,
+              "width": 499.91666,
+              "height": 95.75
+            },
+            "page_number": 22,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Open Questions",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/b2e8fd84-54c6-4f8c-ba9d-3a8479ddbc02.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=52c7eb32ebe5d6aa06d4f8651042be0287552326453d28a8cc2c9c551e212fc0",
+            "html": "<h2>Open Questions</h2>",
+            "markdown": "## Open Questions\n\n"
+          },
+          {
+            "segment_id": "236ab3ab-b0a4-4e0b-8671-e4637364bd4c",
+            "bbox": {
+              "left": 294.8333,
+              "top": 1046.9166,
+              "width": 556.1666,
+              "height": 41.583332
+            },
+            "page_number": 22,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• How in the hell would you fix this?",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/236ab3ab-b0a4-4e0b-8671-e4637364bd4c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=31fd9ad174ca986eaa9a066e80f716c01cfbd594b9ff0f0f98497604deb44253",
+            "html": "<ul><li>How in the hell would you fix this?</li></ul>",
+            "markdown": "- How in the hell would you fix this?\n\n"
+          },
+          {
+            "segment_id": "982c4f2b-8c39-4a7e-8ea3-48ac55523375",
+            "bbox": {
+              "left": 290.66666,
+              "top": 1109.4166,
+              "width": 718.6666,
+              "height": 45.75
+            },
+            "page_number": 22,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• I have some vague ideas, but they're all \"hard\"",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/982c4f2b-8c39-4a7e-8ea3-48ac55523375.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=60bfd5b7cb7f1272c0743e06a1e1d6a2e942421f4e53f536855cd884a3f6e130",
+            "html": "<ul><li>I have some vague ideas, but they're all \"hard\"</li></ul>",
+            "markdown": "- I have some vague ideas, but they're all \"hard\"\n\n"
+          },
+          {
+            "segment_id": "173481ba-1e77-4a2b-a384-723325929c61",
+            "bbox": {
+              "left": 292.75,
+              "top": 1171.9166,
+              "width": 731.1666,
+              "height": 87.416664
+            },
+            "page_number": 22,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Require Python to do its own form of thread scheduling (or at least cooperate with the OS)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/173481ba-1e77-4a2b-a384-723325929c61.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6f7c6f9bd5afa1d38d6a30c9d9f35ca0b075081dab38a5b5743ea0ba8e70a97a",
+            "html": "<ul><li>Require Python to do its own form of thread scheduling (or at least cooperate with the OS)</li></ul>",
+            "markdown": "- Require Python to do its own form of thread scheduling (or at least cooperate with the OS)\n\n"
+          },
+          {
+            "segment_id": "e9d4f12f-2fc3-41ad-8e1b-f05f5146f12c",
+            "bbox": {
+              "left": 290.66666,
+              "top": 1280.25,
+              "width": 731.1666,
+              "height": 174.91666
+            },
+            "page_number": 22,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• Would involve a non-trivial interaction between the interpreter implementation, the operating system scheduler, the thread library, and C extension modules (egad!)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/e9d4f12f-2fc3-41ad-8e1b-f05f5146f12c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b7c427bf076681bca62537a1d2464f841053f470a2a6290b0ca114fe4b4e33dd",
+            "html": "<ul><li>Would involve a non-trivial interaction between the interpreter implementation, the operating system scheduler, the thread library, and C extension modules (egad!)</li></ul>",
+            "markdown": "- Would involve a non-trivial interaction between the interpreter implementation, the operating system scheduler, the thread library, and C extension modules (egad!)\n\n"
+          },
+          {
+            "segment_id": "155f6ccc-af50-4ba8-97d2-65a4cd6382ef",
+            "bbox": {
+              "left": 186.5,
+              "top": 115.666664,
+              "width": 901.99994,
+              "height": 645.75
+            },
+            "page_number": 23,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Is it Worth It? • If you could fix it, it would make thread execution (even with the GIL) more predictable and less resource intensive • Might improve performance/responsiveness of applications that have a mix of CPU and I/O- bound processing • Probably good for libraries that use threads in the background (e.g., multiprocessing) • Might be able to do it without rewriting the whole interpreter. 45",
+            "segment_type": "Table",
+            "ocr": [],
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/155f6ccc-af50-4ba8-97d2-65a4cd6382ef.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b99469fbf93e57814f7a62cb9fc92e0858c811e5b731bbb527724566baf0ee6e",
+            "html": "<span class=\"table\">Copyright (C) 2009,  David Beazley, http://www.dabeaz.com Is it Worth It? • If you could fix it, it would make thread execution (even with the GIL) more predictable and less resource intensive • Might improve performance/responsiveness of applications that have a mix of CPU and I/O- bound processing • Probably good for libraries that use threads in the background (e.g., multiprocessing) • Might be able to do it without rewriting the whole interpreter. 45</span>",
+            "markdown": "\n"
+          }
+        ],
+        "chunk_length": 134
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2f20e960-e510-4cfe-b266-d007d7185ed9",
+            "bbox": {
+              "left": 432.3333,
+              "top": 901.0833,
+              "width": 447.8333,
+              "height": 85.33333
+            },
+            "page_number": 23,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "That's All Folks",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/2f20e960-e510-4cfe-b266-d007d7185ed9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c3992639ff0495eb96cd9eaeccf1258cdd437f93094844dc9cd18189fa42ad57",
+            "html": "<h2>That's All Folks</h2>",
+            "markdown": "## That's All Folks\n\n"
+          },
+          {
+            "segment_id": "d4da0473-5146-4222-a67c-1619a967cdd2",
+            "bbox": {
+              "left": 315.66666,
+              "top": 1090.6666,
+              "width": 677,
+              "height": 87.416664
+            },
+            "page_number": 23,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• I'm not actively working on any patches or code related to this presentation",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/d4da0473-5146-4222-a67c-1619a967cdd2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=36eb984e600cf77ff741792b0d5c6ae8c7ee531efdaaf8a0555d904bff8cad62",
+            "html": "<ul><li>I'm not actively working on any patches or code related to this presentation</li></ul>",
+            "markdown": "- I'm not actively working on any patches or code related to this presentation\n\n"
+          },
+          {
+            "segment_id": "f3d178ad-623b-49d7-a9cd-38d345fc0fab",
+            "bbox": {
+              "left": 317.75,
+              "top": 1194.8333,
+              "width": 564.5,
+              "height": 49.916664
+            },
+            "page_number": 23,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• However, the problem interests me",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/f3d178ad-623b-49d7-a9cd-38d345fc0fab.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0ac3988cbad9ec59fb8119091f54d5f02de689727c8bce68413912fcfd33899a",
+            "html": "<ul><li>However, the problem interests me</li></ul>",
+            "markdown": "- However, the problem interests me\n\n"
+          },
+          {
+            "segment_id": "9d18cc44-b045-43a0-a549-070f40c10476",
+            "bbox": {
+              "left": 315.66666,
+              "top": 1263.5833,
+              "width": 679.0833,
+              "height": 126.99999
+            },
+            "page_number": 23,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "• If it interests you and you want to hack on any of my code or examples, send me an email (dave@dabeaz.com)",
+            "segment_type": "List item",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/ad642b1b-2c7f-4284-91cb-395255852fed/images/9d18cc44-b045-43a0-a549-070f40c10476.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035052Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=410b087490d513b34bbca2b4639b56b219626c05615cc244e8424530e2f2ec43",
+            "html": "<ul><li>If it interests you and you want to hack on any of my code or examples, send me an email (dave@dabeaz.com)</li></ul>",
+            "markdown": "- If it interests you and you want to hack on any of my code or examples, send me an email (dave@dabeaz.com)\n\n"
+          }
+        ],
+        "chunk_length": 45
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Understanding the Python GIL\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "David Beazley\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2009\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```string\nhttp://blip.tv/file/2232410\nhttp://www.dabeaz.com\n```\n"
+        }
+      ]
+    }
+  }
+}

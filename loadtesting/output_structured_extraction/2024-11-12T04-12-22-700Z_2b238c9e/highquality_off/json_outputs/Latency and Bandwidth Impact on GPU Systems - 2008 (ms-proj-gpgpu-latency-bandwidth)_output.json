@@ -1,0 +1,1561 @@
+{
+  "file_name": "Latency and Bandwidth Impact on GPU Systems - 2008 (ms-proj-gpgpu-latency-bandwidth).pdf",
+  "task_id": "49a9c8a4-0532-4c7d-8510-24d034cdb64b",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "9c83e0d2-e5c0-4efc-a08e-6019b9caea31",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 1,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "TDT4590\r\nComplex Computer Systems, Specialization Project\r\nNTNU\r\nNorwegian University of Science and Technology\r\nFaculty of Information Technology, Mathematics and Electrical Engineering\r\nDepartment of Computer and Information Science\r\nRune Johan Hovland\r\nTrondheim, Norway, December 17, 2008\r\nLatency and Bandwidth \r\nImpact on GPU-systems",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/9c83e0d2-e5c0-4efc-a08e-6019b9caea31.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d7bdc7fcba93a4a6118096e224439960ae1824964c09db94864f03d46ebbbc52",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d2947f01-0b54-4273-aceb-d7274a72de61",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 2,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/d2947f01-0b54-4273-aceb-d7274a72de61.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=218d2d9cd852addce1576fe6a5d5418cd30f4ed96d5a401afc5986f055ba6fcc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dcc89b54-e4d9-4bfa-9186-7b8f15f93761",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 3,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Abstract\r\nGeneral-purpose computing on graphics processing units (GPGPU) has become\r\na hot topic for computer scientists. Especially within the High-Performance\r\nComputing (HPC) community, these massively parallel graphics processors have\r\nreceived much attention, and with good reason. Benchmarking of common\r\nproblems solved on the newest GPUs from NVIDIA and other vendors shows\r\na speedup of up to 70 times that of a single CPU implementation. Among the\r\nheart of all this innovation is the NVIDIA Tesla architecture, capable of scaling\r\nbeyond that of modern CPUs, reaching a total of 240 streaming processors with\r\nits latest models. Much attention has been given to the architecture and imple\u0002mentation details, but little or no focus has been given upon the components\r\nsurrounding the GPU, namely the computer and its components.\r\nThe process of moving data to and from the GPU is influenced by two\r\nimportant metrics, latency and bandwidth. For small transfers, the latency can\r\nseverely impact the performance, while for larger transfers the bandwidth comes\r\nmore and more into play. These metrics are therefore the metrics that will be\r\nused throughout this report to judge the important of various properties of\r\nthe host system. These properties include processor clock frequencies, chipsets,\r\nmemory frequencies and architecture, as well as the PCI Express bus.\r\nOur measurements performed shows how the PCI Express bus is a major\r\nbottleneck for the transfers to and from the GPU, making overclocking this bus\r\nan action worth considering. The CPU clock frequency which one would assume\r\nto have great influence, proved not to affect the bandwidth at all, and affected\r\nthe latency only to a small extent. The architecture of the CPU, however proved\r\nto be a crucial aspect. The Intel CPU we tested, greatly outperformed the AMD\r\ncounterparts on all metrics.\r\nFinally, note that there is still one important fact that has not yet been men\u0002tioned, and that is that the GPU is still not capable of performing all the tasks\r\nrequired of a realistic application. This makes the high-end general CPU still\r\na necessity to achieve peak performance. However as more and more computa\u0002tions are moved over to the GPU, the trade-of between cost and performance\r\ncan soon make the investment in high-end computers unacceptably large for a\r\nmarginal improvement.\r\ni",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/dcc89b54-e4d9-4bfa-9186-7b8f15f93761.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4d5c8d5781368f90e07938f65df1476a46582b9e2d51431bac6901c9995b0925",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f5bc45d8-ac62-4fb8-928a-6961be97672f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 4,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "ii",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/f5bc45d8-ac62-4fb8-928a-6961be97672f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c11adedeeab481c3364e214e99f2d026ad4557a6d0628366d16cdc9f5ea30a7d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 415
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fb557e0e-25fb-4c64-9c15-5d4973579665",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 5,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Preface\r\nThis report is the product of a student project at HPC-group at Department of\r\nComputer and Information Science at the Norwegian University of Science and\r\nTechnology (NTNU). It was first intended as a pre-study for my master thesis,\r\nbut has over the duration evolved into an independent report.\r\nTo be able to complete this report, there are many people who deserve my\r\nacknowledgement. First and foremost I would like to thank Associate Professor\r\nAnne C. Elster, who through her guidance and supervision made this report\r\npossible. Had it not been for her dedication towards building the HPC-lab at\r\nNTNU, this report would not have been possible. In that regard I must also\r\nsend my gratitude to NVIDIA Corporation for donating most of the graphics\r\ncards used throughout this report, through Elsters Professor Partnership with\r\nNVIDIA. I would also like to thank Rune Erlend Jensen for beating even Google\r\nin quickly answering my many small questions. He and the rest of the HPC\u0002group at NTNU has been a valuable source of information and support during\r\nthis period.\r\nRune Johan Hovland\r\niii",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/fb557e0e-25fb-4c64-9c15-5d4973579665.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=109f83aef068995760ef0eb81e463296a9994a4a24dd26bd261e7a67330c51d6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "66d6556a-1494-4d31-94c0-d75cdc4ff755",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 6,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "iv",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/66d6556a-1494-4d31-94c0-d75cdc4ff755.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a01a62c300fd53d8d598548b00f81f47c0c113a87ae0d6b2bf0d75bd45856d8e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 182
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d06445c0-245b-4c87-88b1-b622241aeed6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 7,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Contents\r\nAbstract i\r\nPreface iii\r\n1 Introduction 1\r\n1.1 Outline . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2\r\n2 Background 3\r\n2.1 Benchmarking . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3\r\n2.2 Graphics Processors . . . . . . . . . . . . . . . . . . . . . . . . . 4\r\n2.3 Computer architecture . . . . . . . . . . . . . . . . . . . . . . . . 5\r\n3 Methodology and models 9\r\n3.1 Properties to test . . . . . . . . . . . . . . . . . . . . . . . . . . . 9\r\n3.2 Model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10\r\n3.3 Test hardware . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12\r\n3.4 Test software . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14\r\n3.5 Potential sources of error . . . . . . . . . . . . . . . . . . . . . . 14\r\n4 Benchmarks 17\r\n4.1 Graphics cards . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17\r\n4.2 Memory allocation . . . . . . . . . . . . . . . . . . . . . . . . . . 19\r\n4.3 Memory architecture . . . . . . . . . . . . . . . . . . . . . . . . . 20\r\n4.4 Memory speed . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22\r\n4.5 Memory size . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24\r\n4.6 CPU Architecture . . . . . . . . . . . . . . . . . . . . . . . . . . 26\r\n4.7 CPU Speed . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27\r\n4.8 Chipsets . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29\r\n4.9 PCI Express bus clock frequency . . . . . . . . . . . . . . . . . . 30\r\n5 Conclusion and Future Works 33\r\n5.1 Our CPU-GPU System Model versus Test Results . . . . . . . . 33\r\n5.2 Future works . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34\r\n5.3 Final thoughts . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34\r\nA Hardware specifications 35\r\nv",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/d06445c0-245b-4c87-88b1-b622241aeed6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fa17d6e44e4a18fda466d8dcba9a1855bd007dfc4bf1013c69337afc566d3b6a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 679
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d06445c0-245b-4c87-88b1-b622241aeed6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 7,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Contents\r\nAbstract i\r\nPreface iii\r\n1 Introduction 1\r\n1.1 Outline . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2\r\n2 Background 3\r\n2.1 Benchmarking . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3\r\n2.2 Graphics Processors . . . . . . . . . . . . . . . . . . . . . . . . . 4\r\n2.3 Computer architecture . . . . . . . . . . . . . . . . . . . . . . . . 5\r\n3 Methodology and models 9\r\n3.1 Properties to test . . . . . . . . . . . . . . . . . . . . . . . . . . . 9\r\n3.2 Model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10\r\n3.3 Test hardware . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12\r\n3.4 Test software . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14\r\n3.5 Potential sources of error . . . . . . . . . . . . . . . . . . . . . . 14\r\n4 Benchmarks 17\r\n4.1 Graphics cards . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17\r\n4.2 Memory allocation . . . . . . . . . . . . . . . . . . . . . . . . . . 19\r\n4.3 Memory architecture . . . . . . . . . . . . . . . . . . . . . . . . . 20\r\n4.4 Memory speed . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22\r\n4.5 Memory size . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24\r\n4.6 CPU Architecture . . . . . . . . . . . . . . . . . . . . . . . . . . 26\r\n4.7 CPU Speed . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27\r\n4.8 Chipsets . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29\r\n4.9 PCI Express bus clock frequency . . . . . . . . . . . . . . . . . . 30\r\n5 Conclusion and Future Works 33\r\n5.1 Our CPU-GPU System Model versus Test Results . . . . . . . . 33\r\n5.2 Future works . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34\r\n5.3 Final thoughts . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34\r\nA Hardware specifications 35\r\nv",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/d06445c0-245b-4c87-88b1-b622241aeed6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fa17d6e44e4a18fda466d8dcba9a1855bd007dfc4bf1013c69337afc566d3b6a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 679
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d9115e67-ea45-4eb2-be1a-94042b1805ff",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 8,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "B Test Program 37\r\nB.1 main.cu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 37\r\nB.2 common.cu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38\r\nB.3 measureTransferMalloc.cu . . . . . . . . . . . . . . . . . . . . . . 40\r\nB.4 measureTransferCudaMallocHost.cu . . . . . . . . . . . . . . . . 44\r\nC Load-Simulator Software 49\r\nC.1 loadSimulator.cu . . . . . . . . . . . . . . . . . . . . . . . . . . . 49\r\nBibliography 53\r\nvi",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/d9115e67-ea45-4eb2-be1a-94042b1805ff.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7bb2fea27d9a51d729ef637d4d5b9d0b91879b8b77aa8d3949b0d2652689667e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 153
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8e783d13-ad9b-4c47-9912-ce29fc8b3dc1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 9,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Chapter 1\r\nIntroduction\r\nThe field of High Performance Computing (HPC) is a large industry with many\r\nlarge installations trying to maximize the computing power accessible to the\r\nresearchers. The modern processors suffers from physical constraints, and are\r\ntoday near their maximum frequency achievable with existing production tech\u0002niques [4]. This combined with the development of programmable pipelines on\r\nthe Graphics Processing Unit (GPU) has become the origin of a new research\r\nfield for General-Purpose computing on the GPU (GPGPU). The graphics pro\u0002cessor is a massively multi-core processor optimized for floating-point operations\r\ndone in parallel. These properties suites the HPC community since a single GPU\r\nmay hence provide computing power equivalent to small supercomputers [26].\r\nBigger is better is a statement which well has described the HPC community\r\nfor the last decades. The eagerness to achieve higher and higher number of flops\r\nhas been a metric for success. But with GPU, the landscape has changed; leaving\r\nthe computers as mere supporting devices which only purpose is to facilitate for\r\nthe graphics processors. The performance of a GPU is the same regardless of\r\nthe surrounding system with respect to pure calculations. This has reduced\r\nthe computer to a device whose purpose is to provide the GPU with the data\r\nrequired to perform the calculations. For at this key area, the GPU has yet to\r\nventure, since the GPU is not an alternative to a CPU, but rather an accelerator\r\ncard. With this in mind, this report will put the focus on the surrounding system\r\nto determine wetter the high-end systems are still required or if a mere budget\r\ncomputer would suffice at achieving peak performance from the GPU.\r\nGPGPU receives much attention from HPC-researchers due to its possibil\u0002ities, but many properties of this field have yet to be unveiled. In this report\r\nthe influence of some of these properties will be determined. By conducting\r\nthese measurements and checking for the comformance with the model given\r\nin Section 3.2, this report seeks to provide the GPGPU developers and system\r\nadministrators with one additional metric when considering computer systems\r\nand their suitability for GPGPU applications. There is a vast number of in\u0002dividual properties which may affect the performance of the GPU, This report\r\nfocuses primarily on the external properties such as CPU frequency, memory\r\nbandwidth and others. Through isolating each of these properties in designated\r\ntest-systems, the properties can be adjusted to measure the impact of different\r\nsettings. This approach is somewhat limited in the sense that there might be\r\ncombination of settings which may give unexpected results, but the vast num\u00021",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/8e783d13-ad9b-4c47-9912-ce29fc8b3dc1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5d1f5079b209d69ec25374695c36edb432f3e390879ac75716bb87f684ccb964",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 427
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "043e28f4-01f8-4c90-8239-fcd03009a29a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 10,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "ber of combinations makes it impossible to test all these under the scope of this\r\nreport.\r\n1.1 Outline\r\nThis report will start with a brief introduction to the graphics processor and\r\nGPGPU programming in Chapter 2, and then continue on to describe the vari\u0002ous components in a computer system which have properties that can affect the\r\nperformance with respect to GPGPU applications.\r\nChapter 3 contains an explanation of latency and bandwidth, as well as a\r\ndescription of the methods which are used to test these two metrics. It then\r\ndescribes a theoretical model which seeks to give an abstraction of a GPGPU\r\nsystem. After that, the various system used in this report to isolate the dif\u0002ferent properties are described, including a brief introduction to the HPC-Lab\r\nlocated at Department of Computer and Information Science at the Norwegian\r\nUniversity of Science and Technology, which was set up during the writing of\r\nthis report. This chapter also includes a description of the proprietary soft\u0002ware developed to perform the measurements used in this report, and finally a\r\ndiscussion of the various potential sources of error.\r\nThe results of the measurements and discussion of these are presented in\r\nChapter 4, starting first with a test of the various graphics cards available,\r\nfollowed by a presentation of the properties tested with its results and a short\r\ncomment on the impact these properties may have on GPGPU applications.\r\nFinally, the conclusion and recommendations regarding various properties for\r\nGPGPU-systems, as well as an outline of future work will be given in Chapter 5.\r\n2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/043e28f4-01f8-4c90-8239-fcd03009a29a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d2440d8632c6ac83a6836ef5b630470bc6520cc36c247345dd45184ae91eb3f9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 257
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a17b38ab-ead7-417f-8629-abeae46da5e5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 11,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Chapter 2\r\nBackground\r\nThis chapter will give a brief introduction to main concepts which are used in\r\nthis report. First it starts with an overview of the field of benchmarking. Later\r\nit continues with a overview of the GPGPU and the NVIDIA Tesla architecture\r\nas well as CUDA which is used to develop for the Tesla architecture. Finally,\r\nthe different hardware components tested in this report are described.\r\n2.1 Benchmarking\r\nA key aspect of choosing the right computing system for a calculation is knowing\r\nwhich system will perform the calculations fastest. But running the calculations\r\non several machines just to test this would be pointless since it would require\r\nmore time than running the calculations. To overcome this obstacle, a set\r\nof benchmarking tests can be performed. These tests seek to give a certain\r\nnumber of metrics to which on can derive the expected performance of a given\r\ncalculation on the specified system. There exists many ways to perform these\r\nbenchmarks, but common for most of them is that they give no complete view\r\nof the performanceof the system. As described by [13], the benchmarking can\r\nbe biased with respect to the various metrics. In his case, he describes the\r\nrelation between bandwidth and latency. These two metrics will be described\r\nmore thoroughly in Section 3.1.1 and 3.1.2.\r\n2.1.1 Hockney model\r\nThe two metrics latency and bandwidth are both part of a simple computer\r\nsystem model developed by Hockney [13]. The model describes in its simplest\r\nform how the bandwidth and latency affects the time it takes to transfer a given\r\nset of data. This relationship is described in Equation 2.1, where the time T is\r\ngiven as a function of the latency α, bandwidth β and transfer size m in bytes.\r\nT = α + β ∗ m (2.1)\r\n2.1.2 Dwarfs and Motifs\r\nAnother approach to benchmarking a system is to consider how the system\r\nwould perform on a set of problems considered to be representative of the full\r\n3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/a17b38ab-ead7-417f-8629-abeae46da5e5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0d9d7b46ff76a78c9048671dc2f93f0dec9f2398322f2721fecd081adfef5f69",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 331
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2c0bd414-e489-453e-9982-f23772ecb078",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 12,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "set of problems which could be solved at the given system. These problems\r\nwhere first described by Phil Colella under the name dwarfs [4]. The seven\r\ndwarfs where later expanded to 13 problems and renamed to Motifs by a group\r\nof scientists in the important Berkeley view article [4] by Patterson et al. This\r\nextension where made to include the many new areas computers are used today,\r\nsuch as machine learning, database software and computer graphics.\r\nThese reference problems try to give metrics for a system without considering\r\nthe details of the system, but rather focus on the performance. This approach\r\nalso removes the hardware details from the metrics, allowing the metrics to be\r\ncompared between a vast number of different computer architectures. Recently\r\na group of researchers and students at the University of Virginia used some\r\nof these reference problems to measure the use performance of GPGPU with\r\nCUDA compared to single and multi-core CPU implementations [7].\r\n2.2 Graphics Processors\r\nThe GPUs were primarily designed to output a 2D surface which can be dis\u0002played on screen. This has influenced the architecture of the graphics processors.\r\nDue to the highly parallelizable nature of this task the graphics processor has\r\ndeveloped into a parallel processor which consists of several hundred streaming\r\nprocessors [24][2].\r\n2.2.1 General-purpose computing on graphics processing\r\nunits\r\nWith the introduction of programmable vertex and fragment-shaders in the\r\ngraphics processor, the possibility to manipulate the graphics calculations emerged\r\n[6]. The fact that still the graphics processor was foremost a graphics processor\r\nand thus only had a instruction set intended for graphics forced the general\r\npurpose calculations to be masked as graphics calculations. This was done by\r\nmapping the calculations into polygons and textures, and passing them through\r\nthe graphics pipeline. The results could then be read from the resulting tex\u0002tures and images produced [12][28]. This process required a great creativity\r\nof the programmers, and was thus not suited for the general market. These\r\ncamouflaged calculations were done using shading languages which were used\r\nto manipulate the appearance of polygons and its textures. While the shading\r\nlanguages originally developed for just this purpose was not suited for general\r\npurpose calculations, and new languages had to be developed which hid the\r\ngraphical computations from the developers. One of these attempts is CUDA\r\nwhich will be described more in Section 2.2.3.\r\nBecause of the vast number of parallel processors located on the GPU, it\r\nis such a sought after computing medium. Modern GPUs have up to 800\r\nstreaming processing units working in parallel [2]. Being able to utilize this\r\nmassive parallelism would enable the scientist to have access to a personal mini\u0002supercomputer. Utilizing this power properly can result in great speedups for\r\ncalculations as shown by a group of researchers a University of Virginia [7]\r\nwhich achieved speedups ranging from 3 to 70 times that of a modern single\r\ncore processor.\r\n4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/2c0bd414-e489-453e-9982-f23772ecb078.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0aaa0edeb1f494f4f5745e8b682033185f3bc53387114654b3bc754e618697c5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 480
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d3bfd79e-077b-4062-ae2c-d74115b645e2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 13,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "2.2.2 The Tesla Architecture\r\nIn November 2006, NVIDIA released its Tesla architecture which enabled general\u0002purpose computations on the graphics cards [21]. Other vendors such as ATI\r\nalso has similar architectures. The Tesla architecture is used in all of NVIDIAs\r\nresent graphics processors as of GeForce 8xxx. The intention is to create a\r\nscalable, general-purpose architecture which can be used in a wide range of\r\ngraphics processors. This is achieved through a SIMT (single-instruction, mul\u0002tiplethread) multiprocessor with 16 streaming processors, designed to handle\r\n32 threads in parallel, called a warp. These 32 threads are executed 8 at a\r\ntime, and all 32 threads execute the same instruction. On the graphics proces\u0002sor the multiprocessor is duplicated to achieve the desired number of streaming\r\nprocessors.\r\nFigure 2.1: Architecture of modern NVIDIA graphics card [6].\r\n2.2.3 CUDA\r\nCUDA is a programming language extension created by NVIDIA Corporation.\r\nIt allows the developer access to performing calculations on the graphics pro\u0002cessor implementing the Tesla Architecture without having to camouflage the\r\ncalculations as graphical calculations. The language extension is developed for\r\nthe C language, but there has also been developed support for Python [16],\r\nand more languages will probably follow. CUDA allows the developer to write\r\nkernels which will be performed in parallel on the streaming processors on the\r\nGPU.\r\n2.3 Computer architecture\r\nEven though this report seeks to enhance the performance of GPGPU systems,\r\nit does not focus on the graphics processor itself since there are many other\r\ncomponents within the computer which also play a role in the performance of\r\nthe graphics card. The influence of many of these components will be tested\r\n5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/d3bfd79e-077b-4062-ae2c-d74115b645e2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=08dba95783f5855701b60b7f102e1b1d7e358003a68fd57641c43c9f4bc12963",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 269
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "39026378-7f34-4673-84bb-2d954dd246e2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 14,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "throughout this report, and a brief description of the various components is\r\ngiven here.\r\n2.3.1 Processors\r\nThe Central Processing Unit (CPU) is traditionally the main computational\r\nresource in the computer. It is responsible for interpret and execute the in\u0002structions in a program, and thus has a finger involved in all that happens\r\nduring program execution. The clock frequency of the processor determines\r\nhow fast the processor is able to process each instruction, and can thus play\r\na crucial part in the overall performance of the system. The increase in CPU\r\nclock frequency has stagnated in the last couple of years due to the brick wall\r\ndiscussed in the Berkeley view article [4]. As a least-effort solution to increase\r\nsystem performance, the CPU manufacturers have begun creating multi-core\r\nCPUs instead of trying to increase the clock frequency. As of 2008, most pro\u0002cessors are either dual or quad-core processors. This focus on parallelism forces\r\nthe developers to redesign their programs for parallelism to achieve speedups.\r\nIn this report three recent processors are used during the tests, Intel Core\r\n2 Quad Q9300, Intel Core 2 Quad Q9550 and AMD Phenom X4 9850 Black\r\nEdition. The two Intel processors [14] are both quad-core processors of the same\r\nseries, but with different cache size and processor speed. The AMD processor\r\n[3] is also a quad-core. The key difference between the Intel and AMD processor\r\nis that the AMD has the memory-controller integrated on the chip instead of on\r\nthe chipset, and also has lower cache size than the Intel counterparts. The Intel\r\nQ9300 and the AMD processors both have the same clock frequency, while the\r\nIntel Q9550 have a higher clock frequency.\r\n2.3.2 Chipsets\r\nThe chipset is the infrastructure in the modern computer. It is responsible\r\nfor connecting the processor(s) to the memory and peripheral units such as\r\ngraphics cards. Vital in this infrastructure is the buses allowing data to be\r\ntransported between the various locations. The chipset is normally divided into\r\ntwo parts, Northbridge and Southbridge. The Northbridge connects the high\r\nspeed demanding units such as processors, memory and PCIe x16 ports, while\r\nthe Southbridge connects the units with lower bus speed requirements such\r\nas PCI x1 ports, PCI, USB and so on. The Southbridge is connected to the\r\nNorthbridge giving the chipset a hierarchical layout, where the peripheral units\r\nare connected on the layer providing the required bandwidth, without requiring\r\npeek-performance buses unless necessary. This approach reduces the cost of the\r\nchipsets.\r\nDuring these tests, three different chipsets will be used, Intel X48[15], NVIDIA\r\nnForce 790i [25] and AMD 790FX [1]. These chipsets have somewhat differ\u0002ent architecture and performance characteristics, but these details are beyond\r\nthe scope of this report. And vital difference however is which processors the\r\nchipsets are designed for. While the NVIDIA chipset support Intel, the two\r\nother chipsets only supports its own vendors processors naturally. The AMD\r\nprocessor supported by the 790FX chipset has an integrated memory controller,\r\nand this is thus removed from the chipset as well.\r\n6",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/39026378-7f34-4673-84bb-2d954dd246e2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eb1c70b0f42e8780c81ec3e76068f697fc31bfa5b8273d814bfd37ead28ba74f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 500
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8c516d63-a123-4a16-b3a6-4dc50b8b16c5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 15,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "2.3.3 Random Access Memory\r\nThe memory is the backbone of the data storage of a modern computer. To\r\novercome the high access time for data located on harddrives, Random Ac\u0002cess Memory (RAM) has become a vital level in the cache-hierarchy designed\r\nto camouflage these access times. The most common RAM used as of 2008\r\nis Double-Data-Rate Synchronous Dynamic RAM (DDR-SDRAM or DDR for\r\nshort). The DDR modules can operate on many different clock frequencies,\r\nand this in correlation with the timings [30] determines how fast the module\r\ncan supply the computer with the required data. Once a request for data has\r\nbeen made to the memory module, the module requires a number of clock cy\u0002cles to prepare and fetch the first piece of a set of data, and then usually a\r\nlower number of clock cycles to fetch the following pieces. The number of cy\u0002cles required is given by the timings of the memory module. How long time a\r\ncycle takes is determined by the clock frequency the memory operates on and\r\nthus a speedup of the memory can be achieved both by reducing the timings\r\nand by increasing the clock frequency. However, an increase in the clock fre\u0002quency may also require an increase in the timings of the module, and wetter a\r\nclock frequency increase would speed up the performance is situation dependent\r\n[17]. Most modern motherboards would automatically adjust the timings to a\r\nsuitable level based on the clock frequency.\r\n2.3.4 PCI Express bus\r\nThe PCI Express bus [5] technology was aimed to replace the aging PCI and\r\nAGP bus, due to the increased demand for bandwidth over the bus, mainly\r\nby the graphics cards producers. The design of the bus is modular with the\r\npossibility to change the number of lanes for each connection. The standard\r\nnumbers of lanes are 1, 2, 4, 8 and 16. 32 lanes are also allowed but rarely\r\nseen. The notation for a connector is PCIe x16, where the number specifies\r\nthe number for lanes. There are also possible to create connections with high\r\nnumber of lane connectors, while only using a lower number of bus-lanes. The\r\nextension card would then operate on a bus with a lower bandwidth than a card\r\nplaced in a PCI Express connector with a full number of bus-lanes. This mode\r\nis denoted as PCIe x16 (x8 mode), where the number inside the parentheses\r\ngives the actual number of lanes used on the bus. This reduction of lanes is\r\ncommon for the second PCIe x16 port for budget-motherboards.\r\nThe first version of the PCI Express was capable of delivering 250 MB/s per\r\nlane, giving a total of 8 GB/s for a 16 lane bus [29]. The version mostly in used\r\nfor graphics cards as of 2008 are version 2.0 which doubles this bandwidth. A\r\nversion 3.0 is under development, promising another doubling of the bandwidth\r\ngiving a total of 32 GB/s for a 16 lane bus.\r\n7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/8c516d63-a123-4a16-b3a6-4dc50b8b16c5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5708f7edfd6099ab64f41ce0c8e2701781083b97db06e1539b436ff60c20f59c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7b5bd9c7-d8f3-4ab5-9cca-e46d25b56702",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 16,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/7b5bd9c7-d8f3-4ab5-9cca-e46d25b56702.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9fa34b3cd4bbd7a7efa4803e2d411866b9526eae6b3cdcf46034688106033966",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 491
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2412baef-f8c9-49a3-af52-96995347043b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 17,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Chapter 3\r\nMethodology and models\r\nThis chapter will discuss the various properties to test, and the hardware and\r\nsoftware used to perform these tests. The validity of the test and how they\r\nshould behave according to the theoretical model defined in this chapter is also\r\ndiscussed.\r\n3.1 Properties to test\r\nThe intention of this paper is to investigate the properties exterior to the graph\u0002ics processor which may affect its performance. Due to this focus the only mea\u0002surable properties are bandwidth and latency when transferring data to and\r\nfrom the GPU. These two metrics are the key metrics in the Hockney model\r\ndescribed in 2.1.1, and will be described in more detail in the following two\r\nsections.\r\n3.1.1 Latency\r\nLatency is the time between a given task is initiated and the task is beginning to\r\nexecute. In terms of data-transfer, the latency is the time between the instruc\u0002tions to transfer is given and the data-transfer actually commence. This delay\r\nmay occur due to instruction decoding, memory latency, waiting for bus-access\r\nand other causes. The latency may have a great impact on performance when\r\ntransferring small amounts of data, since the latency is a constant startup cost,\r\nwhich must be paid regardless of how many items are to be transferred.\r\nTesting the latency is not a trivial task to test correctly, but there are ways\r\nto approximate the measurements by measuring transfer times. The latency is\r\nas given the startup time of a transfer, and can thus be measured by transferring\r\nas small as possible amount of data and use the timing as an approximation of\r\nthe latency. Due to the possibility of computer components being optimized\r\nfor transfers of data in blocks, the latency measurements will be done on sev\u0002eral sizes and choosing the lowest time, under the assumption that this is the\r\nmeasurements closest to the actual latency. In this particular case the test\r\nwill be performed for 1, 2, 4, . . . , 1024 floats (32 bit), and averaging the time\r\nmeasurement over 10 000 transfers.\r\n9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/2412baef-f8c9-49a3-af52-96995347043b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e6eb0381fc5a4398665263115e13f4f6e1c4ec607de5b31687c9980a7192a2ae",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 339
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e1872da5-2cbc-40ae-b62d-7e7ca259b59b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 18,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "3.1.2 Bandwidth\r\nBandwidth is the amount of data which can be transfer in a given amount of\r\ntime. This property has great impact on the performance of a graphic processor\r\nsince all data which shall be used in the computation must be copied to the\r\ngraphics processor. To measure the bandwidth one has to take into account the\r\nlatency, since each transfer will have a period of time before the actual transfer\r\ncommence. The formula for calculating the bandwidth is given in Formula 3.1\r\nas a function of size, time and latency.\r\nbandwidth =\r\nsize\r\ntime − latency (3.1)\r\nMeasuring the bandwidth will be done by conducting the test for a wide\r\nrange of sizes and measuring the time each transfer took. For the tests in this\r\nreport the sizes and number of transfers for each test is given in Table 3.1.\r\nTable 3.1: Transfer sizes and number of transfers used for bandwidth tests.\r\nTransfer size 4KB 16KB 64KB 256KB 1MB 4MB 16MB\r\n# of transfers 5718 3270 1870 1069 611 349 200\r\n3.2 Model\r\nThe computer is a complex machinery, with numerous connections and compo\u0002nents. To try to encompass all this in a model over the common GPPGU system\r\nand how memory is copied between host and device-memory would render the\r\nresults to complex to interpret. To overcome this obstacle, a simplified model\r\nhas been constructed. This model as given in Figure 3.1 generalizes the system\r\nto such a coarse model that each single property can be isolated and tested.\r\nThe first important assumption used in this model is that the system com\u0002plies with Hockneys model [13]. The Hockney model describes the relationship\r\nbetween the time needed to transfer a given amount of data between two places\r\nbased on the parameters latency and bandwidth. To adapt this model to the\r\nmodel used in this report, the transfer can be thought of as a chain of transfers\r\nbetween the components on the path between the memory and GPU. This gives\r\nthat the latency would be the sum of latencies on the chain of transfers, and that\r\nthe bandwidth would be dictated by the transfer with the lowest bandwidth in\r\nthe chain.\r\nThe model used in this report assumes the use of Direct Memory Access\r\n(DMA), since this is used by the graphics card. In case of copying from a\r\nnon-DMA accessible memory location, the graphics card requires the data to\r\nbe copied to a DMA-accessible location. To encompass this into the model,\r\nthe reduction in performance will be view upon as a lower bandwidth from a\r\nnon-DMA accessible location due to the extra memory copying. Also the buses\r\nbetween the memory, memory controller and chipset are considered to offer the\r\nrequired bandwidth and thus not affect the performance. When considering\r\nlatency for these buses, this latency is considered to be a part of the latency\r\ninflicted by the chipset.\r\n10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/e1872da5-2cbc-40ae-b62d-7e7ca259b59b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b1bf8a03af0e2c66cbad616d577c3ce536db4d322fa2ca1b3e87adffd2ab9ef6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 480
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1eb75323-e2b5-4653-a1a8-2202f75301f3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 19,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Figure 3.1: Proposed model of GPGPU system.\r\nThe use of DMA would require the CPU only to decode and interpret the\r\ncopy-instruction, and signal the CPU to perform the copy. Thus the CPU should\r\nonly be active during the initialization of the transfer, and thus only affect the\r\nlatency and not the bandwidth. For the CPU, the only parameter adjustable in\r\nthis model is the clock frequency.\r\nThe memory is considered to be a single memory module with equal access\r\ntime regardless of location. This abstraction could be false for few test-runs,\r\nbut due to the high number of runs the memory would statistically behave in\r\naccordance with the given abstraction. The timings of the memory module\r\nare considered to be directly linked to the clock frequency and are thus not\r\ntunable, but rather set by the system itself based on the given clock frequency.\r\nIn addition to the clock frequency, both the size and architecture (DDR2 or\r\nDDR3) are tunable parameters. The memory‘s parameters are expected to\r\naffect both latency and bandwidth, with the exception of the size which should\r\nonly affect the latency.\r\nThe chipset does in real life consist of many components with numerous\r\ninterconnects between, but in this model these are abstracted down to a single\r\ncomponent with no tunable parameters. The only alteration which can be made\r\nis choosing different chipsets. This abstraction is done due to the inability to\r\nadjust the low-level parameters of the chipset to such a degree that it can be\r\nisolated as independent properties. This, as well as the fact that the chipset\r\nis merely a transporting stage in the transfer; this abstraction will suffice for\r\nthis report. As for the influence of the chipset towards the performance, it is\r\nconsidered to affect both the bandwidth and latency due to its involvement in\r\nrouting packets between the various components connected to the chipset.\r\nThe transfer between the chipset and the GPU is conducted over the PCI\r\nExpress bus. The bandwidth of this bus is expected to be a bottleneck and\r\n11",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/1eb75323-e2b5-4653-a1a8-2202f75301f3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0abc749440555cc7f5c302183a580474f60e842b75fc0f13026815a548348b7b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 341
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d1724733-48f9-4ea9-abdc-1510f4934277",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 20,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "is therefore emphasized as a separate component in the model. Packet switch\u0002ing and setup time are considered to be parts of the bandwidth and latency\r\nrespectively, and the PCI Express bus will therefore be able to affect both.\r\nThe GPU are in this model considered to behave in the same way as a\r\nmemory module with respect to memory transfers, but without its tunable\r\nparameters. These parameters are fixed for each graphics card model, and are\r\nnot tunable. Even though graphics cards can be tuned for these parameters,\r\nthis operation is considered to be outside the scope of this report. The various\r\ngraphics cards models can however be changed. In the same way as the memory,\r\nthe graphics card is expected to affect both latency and bandwidth.\r\n3.3 Test hardware\r\nThe test systems are all various machines located at the HPC-Lab [9] [10] at the\r\nDepartment of Computer and Information Science at the Norwegian University\r\nof Science and Technology. The lab and its machines were assembled during fall\r\n2008 to facilitate for research within GPGPU and other HPC activities. The\r\nparticipated in the construction of this lab has been a part of this project, trying\r\nto assure a wide range of systems which enables the user to develop applications\r\nfor a wide range of systems. With this intention in mind the lab is also highly\r\ncustomizable, allowing the students and researchers to customize the hardware\r\nto fit their current needs. Each machine has been labeled HCPx and the default\r\nconfiguration for each system used in this report is given in Appendix A. In\r\nthe following sections the reason for using each of the systems will be given.\r\nDuring the tests many alterations were conducted to the machines and these\r\nalterations are described in a separate section along with the test in question.\r\nThe important differences are listed in Table 3.2.\r\nTable 3.2: Comparison of important aspects of the machines.\r\nProcessor Chipset Memory\r\nHPC2 AMD Phenom, AMD 790FX, DDR2 DDR2, 4GB, z\r\n2.50GHz, 4MB cache 1066MH\r\nHPC3 Intel Core 2 Quad, Intel X48 Express DDR2, 4GB,\r\n2.50GHz, 6MB cache 1066MHz\r\nHPC4 Intel Core 2 Quad, Intel X48 Express DDR2, 4GB,\r\n2.83GH, 12MB cache 1066MHz\r\nHPC5 Intel Core 2 Quad, Intel X48 Express DDR3, 4GB,\r\n2.83GH, 12MB cache 1600MHz\r\nHPC6 Intel Core 2 Quad, NVIDIA nForce DDR3, 4GB,\r\n2.83GH, 12MB cache 790i Ultra SLI 1600MHz\r\nFor the tests conducted the NVIDIA GeForce GTX 280 graphics card were\r\nused since it was at the time the most powerful GPU available at the lab. At\r\na later time the Tesla C1060 were also made available giving a wide range of\r\navailable graphics card available at the lab, as can be seen in Table 3.3.\r\n12",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/d1724733-48f9-4ea9-abdc-1510f4934277.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f6fd09f41a6b9bd22b0f839e9638c288f952618416e12ba57be682baffd206e6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 451
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "29154b11-56ff-4afb-8114-42d9c9e0c96d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 21,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Table 3.3: List of available graphics card at the HPC-Lab as of December 2008.\r\nGraphics card Quantity\r\nNVIDIA GeForce 8400 GS 1\r\nNVIDIA GeForce 8600 GT 1\r\nNVIDIA GeForce 8800 GTX 1\r\nNVIDIA Tesla C870 2\r\nNVIDIA Quadro FX 5600 1\r\nNVIDIA GeForce 9800 GTX 1\r\nNVIDIA GeForce 9800 GX2 2\r\nNVIDIA GeForce GTX280 2\r\nNVIDIA Tesla C1060 2\r\n3.3.1 HPC2\r\nHPC2 is the only AMD machine used in this series of testing, and is included\r\nonly to be able to test the Intel processor versus the AMD processor, and the\r\neffect integrated memory controller might have on transfers between host and\r\ndevice-memory.\r\n3.3.2 HCP3\r\nThe HPC3 machine is not particularly interesting hardware vise, but it is used\r\nin these tests to compare against HPC2 in the processor architecture tests. The\r\nreason for choosing HPC3 over one of the others is the default frequency of the\r\nprocessor in HPC3 which matches the AMD processor in HPC2.\r\n3.3.3 HPC4\r\nHPC4 is included in these tests due to the DDR2 memory. It is the only\r\ndifference compared to the HPC5 machine, and thus enables the testing of\r\ndifferent memory architecture.\r\n3.3.4 HPC5\r\nHPC5 is the main machine used in these tests. The reason for this choice is due\r\nto this machine being the one which can most easily be compared to the other\r\nmachines and thus giving easy access to several properties desirable to test.\r\nIt is also a machine that in my opinion closely resembles a standard machine\r\nconfigured to run GPGPU applications on.\r\n3.3.5 HPC6\r\nThis machine is included in the tests mainly because of its NVIDIA nForce\r\nchipset which enables tests of different chipsets.\r\n13",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/29154b11-56ff-4afb-8114-42d9c9e0c96d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0a03470a9ce9c0b7beea15a5a4ff41b732bdffd4aa63105a2aef30d6ac98b408",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 276
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c9834f28-c260-4b5d-b636-10226941c951",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 22,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "3.4 Test software\r\nEven though there without doubt exists several programs capable of testing the\r\nproperties which are to be tested throughout this report, the extra time needed\r\nto locate and verify the fitness of these programs would exceed the time required\r\nto write the program. Thus, the program used for this report was written from\r\nscratch using C++ and Cuda. Due to the crude testing methods the program\r\nis a simple ping pong program with timings for a group of transfers, In addition\r\nthere has been created a program which simulates load on the host-memory by\r\nconducting copies of data between various memory locations.\r\n3.4.1 Test program\r\nThe test program is an implementation of the latency and bandwidth test de\u0002scribed in 3.1. It was implemented in C++ using CUDA to communicate with\r\nthe graphics processor. The program contains a vital method testTransfer which\r\naccepts two memory locations and a transfertype-enum, as well as data size,\r\nnumber of iterations, which allows the method to perform the test as given by\r\nthe parameters and return the average time per run. This complies with the\r\nremark in 3.1, which stated that the latency test is just a bandwidth test with ne\u0002glectable amount of data. The method is located in common.cu along with other\r\nusefull code-snppets. The measureMalloc.cu and measureCudaMallocHost.cu is\r\nresponsible for initiating the test of testing with malloc and cudaMallocHost,\r\nand also writes the results to the output file. The complete code can be found\r\nin Appendix B.\r\n3.4.2 Load simulator\r\nThe load simulator simulates memory load by allocating four memory locations\r\nof a given size, and copying data between these locations in a circle. By doing\r\nso the memory’s bandwidth is being used, and would potentially affect the\r\nperformance of the host to device transfers. The constant copying of memory\r\nwould also require the processor to run the program and oversee the data copy.\r\nThe program may have several instances of it running at the same time, and\r\ntakes as an optional parameter the number of kilobytes which are to be copied\r\nbetween the memory locations. The code can be seen in Appendix C.\r\n3.5 Potential sources of error\r\nEven though the systems described in the previous sections were put together\r\nto provide the possibility to be able to alter single properties with the system\r\nfor testing purposes, there are several potential sources of error.\r\n3.5.1 Test methods\r\nThe testing methods used in these experiments are simple tests designed to\r\ngive an indication of the properties. To be able to fully and correctly test\r\nthe properties tested in this report, more accurate testing methods must be\r\ndeveloped. This however would include testing done in hardware, not in software\r\n14",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/c9834f28-c260-4b5d-b636-10226941c951.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ae7c936d01e52abcbfc6f20252be2695779ef93d9a3bc8d5916cfc4f71bc0a61",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 449
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c745c044-17d4-4b50-b798-f11d085b8981",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 23,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "as is done her, and is beyond both my level of expertise and the scope of this\r\nreport.\r\n3.5.2 Multi-property variations\r\nThe machines used for these tests were selected because they were in many\r\nways similar so the changes in hardware between two systems would be as few\r\nas possible. This enabled the possibility to make configurations where only sin\u0002gle properties where different. However there might be other properties which\r\nare not accounted for which differentiates the systems and affect the results.\r\nFor instance between the HPC4 and HPC5 machines there might be other dif\u0002ferences between the machines other than the memory architecture due to the\r\nfact that they have different motherboards even if the motherboards uses the\r\nsame chipsets. These hidden properties are hard to remove from the tests and\r\nmust be taken into account when reviewing the results.\r\n3.5.3 Background noise\r\nThese tests were performed in a controlled environment assuring the machines\r\nwere unchanged between each group of tests. But due to the need for an oper\u0002ating system to run the tests on there are possibilities for background processes\r\nhaving affected the performance. These as well as process scheduling are factors\r\nwhich add indeterminism to the execution of the tests, but statistically would\r\neven out in the long run. To counter this, the tests are performed several times\r\naveraging the results over the multiple measurements. This approach reduces\r\nthe likelihood of one of these factors to greatly influence the result, but does\r\nnot remove it completely.\r\n15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/c745c044-17d4-4b50-b798-f11d085b8981.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba0055b5c331fb46b2e3a68286d754df2d76fdc298d4ef255bba4cceb1124510",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3a8c72b1-4678-4826-9aba-b8766a96dcc7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 24,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "16",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/3a8c72b1-4678-4826-9aba-b8766a96dcc7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=392bb7fed465cc3b921153062fcd2dba5fcca8a3445be78534cc313a44234df0",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 250
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "02fbb918-cc61-4d03-9886-06acd6db00d7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 25,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Chapter 4\r\nBenchmarks\r\nThrough this chapter several different properties which can affect the perfor\u0002mance of data transfer to and from the GPU will be examined. The first sec\u0002tion covers the selection of a suitable graphics card to conduct the tests on.\r\nFurther on the various properties are tested. Giving first a description of the\r\nconfiguration of the system which the tests are conducted, and the a review\r\nof the results for the latency and bandwidth tests, this chapter tries to give\r\nthe reader an insight in how each of the properties affect the performance of\r\nGPGPU applications.\r\n4.1 Graphics cards\r\nOf course, when running GPGPU applications the graphics card which these\r\napplications are vital to the performance. However, this report does not focus\r\non the graphics card itself, but rather on the properties of the system which\r\nare external to the graphics card. The following comparison of various graphics\r\ncards is merely to determine a fit graphics card to use throughout the tests\r\nconducted in this report.\r\n4.1.1 NVIDIA G80 series\r\nThe G80 series from NVIDIA introduced the Tesla architecture, and is thus\r\nthe first CUDA-enabled graphics cards. In that occasion NVIDIA also intro\u0002duced the Tesla product lines, which are computational versions of its graphics\r\ncounterparts. This is reality is basically a graphic cards without monitor connec\u0002tors, and with extra device-memory. As can be seen in Figure 4.1, the GeForce\r\n8800GTX and the Tesla c870 performs equally well. Also from the G80 series\r\nis the Quadro FX5600, which is a combination of the GeForce and the Tesla,\r\nproviding large memory and graphical output.\r\n4.1.2 NVIDIA G90 series\r\nThe G90 series did not provide a new card for the Tesla series, but provided a\r\nnew type of card for the GeForce series, the GX2 cards as well as PCI Express\r\n2.0 support. The 9800GX2 card [19] is basically two 9800GTX cores on the\r\nsame graphics cards. They share the PCI Express connection, but besides that\r\n17",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/02fbb918-cc61-4d03-9886-06acd6db00d7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f1e7dbec26171c4b0619b360922763dffc1e833d522f408e3497884f0c817dba",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 325
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8f14876a-e96e-48c2-9740-4c645aaa5f1a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 26,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Figure 4.1: Performance of the cards of the G80 series.\r\noperate independently as two separate cards. This sharing of the PCI Express\r\nbus gives a performance reduction in some cases as can be seen in Figure 4.2.\r\nOther cards tested from the G90 series is the 9800GTX [18].\r\nFigure 4.2: Performance of the cards of the G90 series.\r\n4.1.3 NVIDIA G200 series\r\nThe G200 series is the newest of the NVIDIA graphics cards series. It does, like\r\nits predecessors, conform to the Tesla architecture, but provides a total of 30\r\nStreaming Multiprocessors giving it a total of 240 Streaming processors. The\r\nG200 series does as the G90 series support PCI Express 2.0 over its connector.\r\nNew with this series is the support for double precision, even though there is\r\nnot fully supported due to the way double precision is implemented. For each\r\nStreaming Multiprocessor, there is added a single double precision unit, forcing\r\na performance reduction when using double precision.\r\nThe G200 series provides cards for the GeForce, Tesla and Quadro product\r\nlines from NVIDIA with its GeForce GTX280 [20], Tesla c1060 [23] and Quadro\r\nFX5800 [22]. The GeForce card was the only card accessible at the lab when this\r\nreport was started and was therefore the card of choice for the tests conducted.\r\nAt the end of the period the Tesla c1060 was also made available so it is included\r\nin the tests of the various G200 series cards, but not used in the other tests. As\r\nthe tests in Figure 4.3 show, there are only minor differences between the two\r\ncards, and the only difference between the two cards in respect to these tests\r\nwould be the memory size, which in any case is large enough for both cards. The\r\n18",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/8f14876a-e96e-48c2-9740-4c645aaa5f1a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a5f4737523f18c6de2984935b276f74ee2f3750a4659342c49dce00dbacdc71f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 293
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "aa450611-be58-48f2-8bb9-4e929d4c6d08",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 27,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Quadro FX5800 was regrettably not available for testing at the time of writing.\r\nFor the remainder of this report, the GeForce GTX280 card will be used.\r\nFigure 4.3: Performance of the cards of the G200 series.\r\nNVIDIA has also announced some new models which will be available from\r\nJanuary 2009. These models continue the trend from the earlier series, providing\r\na high performance, low production technique version of the GTX280, named\r\nGTX285, as well as a new dual core card named GTX295. If NVIDIA has\r\nimplemented their bus-sharing better than on the 9800GX2 cards, the GTX295,\r\nmay prove to be a potent addition to any CUDA environment, as well as for\r\nthe gaming enthusiasts.\r\n4.2 Memory allocation\r\nWhen using CUDA to do calculations on the GPU, the data on which to perform\r\nthe calculations must be copied to the GPU. The location in memory of the data\r\nto be copied can affect the performance, and thus this may be an important\r\naspect to consider. CUDA provides its own method cudaMallocHost in addition\r\nto C/C++’s malloc. It will be shown how the new CUDA method performs\r\nrelative to malloc in both latency and bandwidth.\r\n4.2.1 Setup\r\nThese tests were conducted on the HPC5 machine, with standard DDR3 memory\r\nrunning at 1600MHz.\r\n4.2.2 Latency\r\nWhile one would assume the latency should be the same, since the memory is\r\nallocated on the same memory modules, the test shows significant difference in\r\nlatency as seen in Figure 4.4. The memory allocated which cudaMallocHost have\r\none important feature, and that is that it is page-locked [21]. Why this is impor\u0002tant is the way the NVIDIA GPUs transfer memory between the host-memory\r\nand device-memory. All transfers must be using DMA, and this requires that\r\nthe memory is not pageable. To use DMA with pageable memory, the data\r\nmust be copied to a location accessible to the DMA before it can be copied to\r\nthe GPU [27]. While this effect should not affect the latency of the transfer, the\r\n19",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/aa450611-be58-48f2-8bb9-4e929d4c6d08.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4c76da4a768664c0a498fb0cefe84d0fe2b3909cb35065451e1822433374c957",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 333
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "17f2d479-cbe9-424b-98df-f5212454da93",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 28,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "measurements show a reduced latency for cudaMallocHost allocated memory.\r\nThis effect is an artifact of the way the latency is measured, since the measure\u0002ment actually is a measurement of transfer time for a neglectable amount of\r\ndata. Due to this way to measure the latency, each measurement of latency for\r\nthe malloc allocated memory also include the overhead of a memcpy-instruction.\r\nFigure 4.4: Latency when transferring to and from memory allocated using\r\nmalloc and cudaMallocHost (CMH).\r\n4.2.3 Bandwidth\r\nSince the first obstacle one encounters in a GPGPU enabled application is the\r\nbandwidth on transfers to and from the GPU, this is an important issue. As\r\nmentioned in 4.2.2, there is a requirement for page-locked memory when trans\u0002ferring to the GPU. The extra copying of data required to fulfill this requirement\r\nwhen using malloc should have a noticeable effect on the measured bandwidth\r\nwhen copying to and from the GPU. As one can see in Figure 4.4, the band\u0002width when using cudaMallocHost is at the best 300 percent better than the\r\nbandwidth achievable with malloc-allocated memory. The interesting aspect of\r\nthis measurement is the fact that the transfers from cudaMallocHost-allocated\r\nmemory are seemingly not affected by the memory-load on the host-system. On\r\nthe other hand, malloc-allocated memory is greatly affected with a 50 percent\r\nreduction in bandwidth when there is heavy memory-load on the system.\r\n4.3 Memory architecture\r\nThe preferred memory technology is in a change, since the introduction of\r\nDDR3, which aims to supersede DDR2. Both technologies are part of the Syn\u0002chronous Dynamic Random Access Memory (SDRAM) family.\r\nDDR3 provides several improvements over the DDR2 memory [8]. Most no\u0002ticeable is the increased speed which the DDR3 can offer. This improvement\r\ncomes from the change in hardware architecture for the DDR3. The DDR2s\r\narchitecture does not permit higher speeds due to mechanical reasons, even\r\nthough it is theoretically possible, but the mechanical technology is not just\r\ngood enough to maintain the memory’s integrity at increased speeds. The ar\u0002chitecture used in DDR3 however is more suited for higher speeds, and according\r\n20",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/17f2d479-cbe9-424b-98df-f5212454da93.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f22255a606a21b34389f5a8c98eff96e81099fcc81a04fd3df6e2249362ceab3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 340
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "be560ad2-ab94-4692-b0b5-3f81a1ef27bd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 29,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Figure 4.5: Bandwidth to and from memory allocated using malloc and cud\u0002aMallocHost (CMH).\r\nto the specifications its speeds can reach twice that of the DDR2. Another im\u0002provement for the DDR3 is the decrease in power consumptions. As while the\r\nDDR2 required 1.8V as a base power, the DDR3 has reduced this requirement\r\nto 1.5V. This reduction may not seem important to a normal consumer, but\r\nto the large installations such as super computers and server farms, the power\r\nconsumptions is one of the main financial burdens.\r\nOne of the drawbacks with DDR3 compared to DDR2 is the increased cost\r\nof purchase. Another vital difference is the lack of compatibility between DDR2\r\nand DDR3 which forces a substitution of motherboard as well if one is to consider\r\nDDR3.\r\n4.3.1 Setup\r\nTo test DDR2 and DDR3 against each other, the two systems HPC4 and HPC5\r\nproved to be the most similar with only the memory being different. To allow the\r\ntwo memory architecture to compete on equal terms, the speed of the DDR3\r\nmemory on HPC5 were reduced to 1066MHz which is the standard running\r\nspeed for the DDR2 memory on HPC4.\r\n4.3.2 Latency\r\nWhen it comes to latency, DDR3 is said to improve the latency compared to\r\nDDR2 but the initial DDR3 memory had the same latencies or worse as equiva\u0002lent DDR2 memory [11]. This however is expected to change as the production\r\ntechniques for DDR3 improves. The DDR3 memory contained in HPC5 has\r\nhigher latencies than the ones contained in HPC4.\r\nMeasurement of latency when transferring between memory allocated with\r\ncudaMallocHost and the GPU however shows that the use of DDR3 memory\r\ngives on average a 0.4 percent reduction in latency. The specific latencies for each\r\nmeasurement can be seen in Figure 4.6. This reduction varies across the different\r\nlevel of memory load. On zero background load on the memory, the DDR2\r\nmemory outperformed the DDR3 memory as expected since the DDR3 memory\r\nhas a higher latency. When the background load on the memory increases the\r\n21",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/be560ad2-ab94-4692-b0b5-3f81a1ef27bd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=765ac5a207b25916ea8c24c3e426d06dde4c40dac32e267430eadf83cba65dc3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 337
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "eefc303d-4a6b-4e8d-85c8-642b061751b5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 30,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "DDR3 performs better. The average reduction on latencies with background\r\nmemory load is 0.7 percent. This may be due to the increased bandwidth,\r\nwhich makes the DDR3 memory perform the memory operations faster and\r\nthus reducing the latency.\r\nFigure 4.6: Latency to and from memory allocated on DDR2 and DDR3.\r\n4.3.3 Bandwidth\r\nThe improvement DDR3 provides over DDR2 is the possibility for increased\r\nspeed, which in turn give an increased bandwidth. However the intention with\r\nthis test is not to check whether increased bandwidth gives increased bandwidth\r\nwith use of CUDA. This test seeks to determine the difference in bandwidth with\r\nCUDA when using DDR3 compared to DDR2 with equal speed. The highest\r\ncommon speed achievable for both memory architectures was 1066MHz, which\r\nis slower than the default speed for the DDR3 modules. It is no ideal to alter\r\nthe speed for the module, but due to the lack of a module with the correct\r\nspeed, this is the alternative which gives the most correct test environment.\r\nThe measurement of the bandwidth for DDR3 shows the same bandwidth as for\r\nthe DDR2 with low or no memory load in the background. This is most likely\r\nbecause most of the memory load does not require the usage of the memory\r\nmodule due to caching. However, for high background memory load, the DDR3\r\nmemory outperforms the DDR2 memory by 4.4 percent when transferring to the\r\nGPU, and 7.6 percent when transferring from the GPU as seen in Figure 4.7. As\r\nthe DDR2 and DDR3 in theory should have the same bandwidth, this difference\r\nmay be due to the reduced latency of the DDR3 memory.\r\n4.4 Memory speed\r\nThere is a direct relation between the speed of the memory and the bandwidth,\r\nand then since bandwidth is an important issue for GPGPU applications, this\r\nshould be an important property of the computing system. Through these\r\ntests the impact on both bandwidth and latency shall be measured for various\r\nmemory speeds, to determine the importance of high-speed memory for GPGU\r\napplications.\r\n22",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/eefc303d-4a6b-4e8d-85c8-642b061751b5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=63a84d3751ef37bbac07813023d6c1a4418b88e94f90b3e26a3b0cf25440be90",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 338
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "210c9719-b81a-4f2d-a594-cf043e26ef21",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 31,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Figure 4.7: Speedup of bandwidth for DDR3 memory versus DDR2 memory\r\n4.4.1 Setup\r\nThese tests are performed on HPC5 which has a DDR3 memory with a default\r\nspeed of 1600MHz. The speeds 800MHz, 1066MHz, 1333MHz and 1600MHz\r\nare tested. The timings for the various speeds are determined by the system\r\nautomatically to allow suitable timings for each memory speed. Adjusting the\r\ntimings manually would require fine-tuning of the parameters and could lead to\r\noverclocking the memory which is unwanted in these tests.\r\n4.4.2 Latency\r\nThe timings of a memory module affect latency by giving how many cycles it\r\ntakes from the request for the data is made to the data is available at the pins\r\nof the memory. By increasing the memory’s speed these cycles becomes shorter,\r\nand thus giving a lower latency. As one can see from Figure 4.8, this effect is\r\nnoticeable. However there is not a one-to-one correlation between the speed and\r\nthe latency, and this is due to the fact that higher memory speeds require higher\r\ntimings to guaranty the correctness of the signal placed on the memory-pins,\r\nbut still one can see an improvement in the latency for higher memory speeds.\r\nFigure 4.8: Latency up and down for increasing memory speeds.\r\n23",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/210c9719-b81a-4f2d-a594-cf043e26ef21.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=edeb265b13f4ecb949f04dff8df5da807931910c0b6af05abf356a7164abaebd",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 207
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "bf3fcb8a-8e72-4888-aaed-52914f07b4ee",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 32,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "4.4.3 Bandwidth\r\nThe bandwidth should, in the same way as the latency, be greatly related to\r\nthe speed of the memory, since the bandwidth is related to the timings of the\r\nmemory module, and thus also related to the speed. However, as with the\r\nlatency, the bandwidth is not expected to have a one-to-one relationship due to\r\nthe increase in timings for higher memory speeds. The measured bandwidths\r\nare shown in Figure 4.9, where the bandwidth is the average over the various\r\ntransfer sizes. As one can see from the graphs the speed of the memory affects\r\nthe bandwidth when transferring from the GPU, but the same effect is not\r\nvisible for transfers to the GPU. This is most likely due to the fact that the\r\nmemory is not the limiting factor in the transfer.\r\nFigure 4.9: Average bandwidth up and down for increasing memory speeds.\r\n4.5 Memory size\r\nWhen configuring a computer system, one usually has the possibility to insert\r\nup to four memory modules to achieve a maximum size of the memory. These\r\nmemory modules share two buses giving the situation where two and two mod\u0002ules share a bus if all four slots are occupied. Given this limitation, using more\r\nmemory modules than necessary for the task to compute could affect the per\u0002formanceboth in a positive and negative direction, and this test will try to shed\r\nsome light on the effects of inserting all four memory modules compared to just\r\nusing two.\r\n4.5.1 Setup\r\nThe system used in this test is HPC5 with 4 and 8GB of DDR3 RAM. For\r\nthe 4GB test two OCZ DDR3 4 GB Platinum EB XTC Dual Channel memory\r\nmodules are used. When testing with 8GB, two additional modules of the same\r\ntype are inserted.\r\n4.5.2 Latency\r\nThe effect this alteration in memory configurations should have on the latency\r\nshould if any be due to the fact that the bus to the memory is now shared\r\n24",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/bf3fcb8a-8e72-4888-aaed-52914f07b4ee.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9d08a075df748e1487d6c60629bd0877c59da12f827dcd5165c32d5329185920",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 324
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a666a10d-f48c-4412-ac3a-58af96a303db",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 33,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "between two memory modules. Since none of the tests exceed the available\r\nstorage on the memory modules, the memory size itself should have no affect on\r\nthe performance. As seen in Figure 4.10, the latency is unaffected at no memory\r\nload, but at higher load the latency improves slightly for the 8GB configuration.\r\nHowever, if this effect is due to CUDA utilizing the memory better, or Ubuntu\r\nallocating the memory in a different way is difficult to determine based on this\r\nsimple test.\r\nFigure 4.10: Latency up and down for memory size of 4GB and 8GB.\r\n4.5.3 Bandwidth\r\nAs for the latency, the bandwidth may be affected both ways from the increase\r\nin memory size, and the results show the same. As one can see from Figure 4.11,\r\nthere are cases which favors both the 4GB and 8GB configuration, and based on\r\nthese results it is difficult to determine wetter the extra memory had a positive\r\nor negative effect. However, added memory may benefits other parts of the\r\napplications, so the added memory may not be a wasted investment after all.\r\nFigure 4.11: Bandwidth up and down for memory size of 4GB and 8GB.\r\n25",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/a666a10d-f48c-4412-ac3a-58af96a303db.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c6d7eb822dc6f5af4da9fa5d38e47466b462eee11fd28182fd23b2e2f33946eb",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 195
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b1053116-514b-43a7-9c45-a986c8d0b05b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 34,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "4.6 CPU Architecture\r\nThe two companies Intel and AMD each produce state-of-the-art processors\r\nfor the same instruction-set, but these processors and their related chipsets are\r\ndifferent in architecture. Since the transfer from the host-memory to the device\u0002memory also includes the interference of CPU, this is a property of a GPGPU\r\nsystem to be looked upon. As the two processors require different chipsets, this\r\ntest will not be an entirely correct view upon the performance of the processors\r\nitself, but will also contain any difference in the performance of the two chipsets.\r\n4.6.1 Setup\r\nThis test is performed using the AMD based HPC2 and Intel based HPC3. The\r\nuse of HPC3 instead of HPC4 is to eliminate the need to reduce the speed of the\r\nprocessor, and thus adding another uncertainty to the test. Due to a lower cache\r\nsize on both the Intel and AMD processor, the performance is not measured for\r\n512KB memory load. Other tests however show that the increase in memory\r\nload does not affect the performance noticeable before it exceeds the available\r\ncache, and this should therefore not reduce the value of this test. Since there is\r\nno DDR3 enabled AMD machine available for testing, this test is conducted on\r\ntwo machines with DDR2 memory to allow an impartial comparison.\r\n4.6.2 Latency\r\nSince the transfer between the host-memory and device-memory is conducted\r\nusing DMA, one would assume that the transfer is not to a great extent affected\r\nby the architecture of the CPU. This however proves to be incorrect as can\r\nbe seen in Figure 4.13. The latency on the Intel-based system is half of the\r\none measured on the AMD-based system. An important difference for between\r\nthe AMD and Intel processors is the use of integrated memory controller for\r\nthe AMD processor. This makes the data transfer pass through the processor\r\non its way to the GPU, thus increasing the length of the wires as shown in\r\nFigure 4.12, and possibly reducing the performance. The benefit of having an\r\non-board memory controller is the increased performance for memory operations\r\nperformed by the CPU, which shows in Figure 15 where one can see the latency\r\nincreases for the Intel processors and decreases for the AMD processor when the\r\nmemory load on the system increases.\r\n4.6.3 Bandwidth\r\nThe bandwidth is in the same way as the latency affected by the increased length\r\nas discussed in 4.6.2. This does reduce the bandwidth for the AMD processor\r\nversus the Intel processor. What is worth noticing is the reduction for the AMD\r\nprocessor when there is heavy memory load as can be seen in Figure 4.14. As\r\nopposed to the Intel processor, the AMD processor experiences a performance\r\nhit in this case.\r\n26",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/b1053116-514b-43a7-9c45-a986c8d0b05b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4df4f59917ae1b48bdc94902d79a9073f5db676770ab1be969190e6ad1a79853",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 453
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "195caced-0fbf-40c4-afec-b5006a8ea05e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 35,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Figure 4.12: Paths for data transfer between memory and GPU on AMD (to\r\nthe left) and Intel (to the right) processors.\r\nFigure 4.13: Latency up and down for Intel and AMD processors.\r\n4.7 CPU Speed\r\nDue to the use of DMA when transferring between host and device-memory,\r\nthe speed of the processor should not have an impact on the bandwidth of the\r\ntransfer. However, the speed may contribute to the latency, and this will be\r\nshown in Section 4.7.2.\r\n4.7.1 Setup\r\nThe machine used in this test is HPC5, which has a Intel Core 2 Quad Q9550\r\nprocessor with a speed of 2.83 GHz. To test the various speeds the multiplier of\r\nthe processor were adjusted between 6 and 9.5. This gave the following speeds\r\nto test 2.00GHz, 2.33GHz, 2.50GHz, 2.67GHz and 2.83GHz. The computer did\r\nnot manage to stabilize at 2.17GHz, and is thus not included in the test.\r\n4.7.2 Latency\r\nEven though the transfers between host and device-memory are conducted us\u0002ing DMA, there are still involvement from the CPU in terms of initialization\r\nand thus can the processors speed have an effect on the latency. However this\r\n27",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/195caced-0fbf-40c4-afec-b5006a8ea05e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4236efeb4d0b3c149b2d909ae08572f7bc906d49d080713207f9db8134a5ae98",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a6179a78-ad8b-4e51-9807-fa5751112c8e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 36,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Figure 4.14: Bandwidth up and down for Intel and AMD processors.\r\nimprovement should not be very significant due to the low involvement of the\r\nCPU. This is also shown by the measurements presented in Figure 4.15, where\r\none can see that a 40 percent increase in processor speed only yields a 3 percent\r\nreduction of latency in the best case.\r\nFigure 4.15: Latency up and down for various processor speeds.\r\n4.7.3 Bandwidth\r\nThe bandwidth for the transfer between host and device-memory should how\u0002ever not be affected by the CPU speed since as mention earlier, the transfer\r\nis conducted using DMA. This implies that once the transfer is initialized, the\r\nCPU has no more involvement in the transfer, and should in theory have no ef\u0002fect on the transfer. Having measured the bandwidth for various memory loads\r\nunder different CPU-speeds and different transfer sizes, it is evident that the\r\nspeed of the processor does not affect the bandwidth. The results can be viewed\r\nin Figure 4.16 where the averages of the bandwidth for different memory loads\r\nare displayed. This generalization is done since there were no alterations in the\r\nratio between the performances under different memory loads for the different\r\nCPU speeds.\r\n28",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/a6179a78-ad8b-4e51-9807-fa5751112c8e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c99fcd45387020d550873de45aea6d68d48a48ce4cf31148bebb43f04ee0bb40",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 391
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5365f8f5-17d2-4c82-a939-a95b8fa1e707",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 37,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Figure 4.16: Average bandwidth up and down for various processor speeds.\r\n4.8 Chipsets\r\nThe chipsets on the motherboard is the infrastructure of any computer. It\r\ncontains the logic which processes requests for use of the bus and access to\r\nmemory. This makes the implementation of the chipset an important property\r\nwith respect to transfers between host and device memory.\r\n4.8.1 Setup\r\nIn this test the two machines HPC5 and HPC6 were used to measure the differ\u0002ences between the Intel X48 chipset located In HPC5 and the NVIDIA nForce\r\n790i chipset which is found in HPC6. Besides the difference in chipset these two\r\nsystems are similar.\r\n4.8.2 Latency\r\nAs part of latency, initialization of transfer in hardware is a vital part. The\r\nGPU has to request for memory access and use of the bus. This including the\r\nactual latency on the signal transmitted over the bus adds up to a significant\r\nfactor in the latency. The PCI Express bus is also subject to differences on the\r\nvarious chipsets, in terms of transfer speeds and initialization latencies. As can\r\nbe seen in Figure 4.17, the difference in latency is noticeable, and measuring\r\nthe NVIDIA nForce 790i chipsets to have a much lower latency.\r\n4.8.3 Bandwidth\r\nAs well as with the latency, bandwidth is also subject to influence by the im\u0002plementation details of the chipset in terms of speed of the PCI express bus\r\nand load-handling. The load handling capabilities comes into play when there\r\nare several simultaneous requests for data located in memory and the chipset\r\nhas to prioritize them. This also occurs for the busses on the motherboard,\r\nincluding the PCI Express bus. It is then up to the vendor to device algo\u0002rithms which decides which request should have priority and how the resources\r\nshould be timeshared. One noticeable result from this test is how the NVIDIA\r\nchipset suffers a performance penalty when there is heavy background memory\r\n29",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/5365f8f5-17d2-4c82-a939-a95b8fa1e707.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7d40f4ba2eb6190b11982cbcd6a2f8c7e5af2a6c9f2eeb99a02682112eaee419",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "19d8f675-4157-4354-93e9-ee2422b37383",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 38,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Figure 4.17: Latency up and down for Intel X48 and NVIDIA nForce 790i\r\nchipsets.\r\nload, while the Intel chipset only has a minor reduction in bandwidth. Besides\r\nthis effect, the NVIDIA chipset outperforms its counterpart from Intel, but the\r\nperformance hit is worth having in mind when deciding between the various\r\nchipsets.\r\nFigure 4.18: Average bandwidth up and down for Intel X48 and NVIDIA nForce\r\n790i chipsets.\r\n4.9 PCI Express bus clock frequency\r\nOnce the memory controller has allowed the transfer between the host-memory\r\nand device-memory, the transfer is conducted over the PCI-express bus. As\r\none of many possible bottlenecks limiting the speed of the transfer, the PCI\u0002express bus is one place where a performance gain could be achieved using\r\noverclocking should it prove to be the bottleneck. Overclocking however is not\r\nan exact science, and could prove damaging for the hardware, so this test will\r\nnot overclock beyond what is possible by just changing the PCI-express bus\r\nclock frequency.\r\n30",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/19d8f675-4157-4354-93e9-ee2422b37383.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=75cdc31276ba3ae606384e1fe68374ad27cb2648b3eb820d994cef22fa3c3946",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 479
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "22a6d18c-5b10-44a5-8fd4-e117907689b5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 39,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "4.9.1 Setup\r\nFor this test, the HPC5 machine was used, due to the ability to adjust the clock\r\nfrequency of the PCI Express bus. It was possible to achieve a stable system\r\nusing clock frequencies ranging from 100 MHz to 115 MHz, so this test will\r\nmeasure the performance within this range for increases of 5 MHz for each step.\r\n4.9.2 Latency\r\nIt is expected that the PCI Express bus would be one of the bottlenecks limiting\r\nthe transfer to the GPU. This assumption proves correctly when one sees the\r\nmeasurements shown in Figure 4.19. Here one can see that a 15 percent increase\r\nin bandwidth yields a 7 percent reduction in latency. Most of this gain is\r\nachieved through the first 5 percent increase in clock frequency which yields a\r\n5 percent reduction in latency. These results clearly show that the PCI Express\r\nbus is a key bottleneck for the data transfers between host and device memory.\r\nFigure 4.19: Latency up and down for various PCI Express bus clock frequencies.\r\nFigure 4.20: Bandwidth up and down for various PCI Express bus clock fre\u0002quencies.\r\n31",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/22a6d18c-5b10-44a5-8fd4-e117907689b5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=da47cdd32c6e84caf13edf458fe0c42c8eaa3524c5574c9e10eb46e401b512ca",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3472d19b-0ca3-4457-82aa-10149ec0ed2d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 40,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "4.9.3 Bandwidth\r\nAfter achieving such significant reductions in latency for adjustment of the clock\r\nfrequency of the PCI Express bus, one would assume there to be equal improve\u0002ments in bandwidth. If one look at the bandwidth for transfers from host to\r\ndevice-memory one improvements ranging from 6 to 13 percent as seen in Fig\u0002ure 4.20, For transfers the opposite way there are only minor improvements\r\nwhich suggests that the PCI Express bus is not the only bottleneck limiting the\r\ntransfers in that direction.\r\n32",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/3472d19b-0ca3-4457-82aa-10149ec0ed2d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0ef2b4594488bacf0b6d700534df0cf4aec3e202fba3a378ed8d3e497061bf2f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 269
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c77f3140-5684-475b-b5dd-15ab638324a3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 41,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Chapter 5\r\nConclusion and Future\r\nWorks\r\nThis chapter summarizes the findings in this report and discusses the validity of\r\nthe model defined in Chapter 3. It also gives a list of suggestions for future work,\r\nas well as gives some final thoughts on hardware configurations for GPGPU\r\nsystems.\r\n5.1 Our CPU-GPU System Model versus Test\r\nResults\r\nOur model of general GPU - CPU systems, is a fairly simple one, but by mod\u0002elling the GPU as a black box, allowed the examination of individual system\r\nproperties such as memory bandwidth and latency. Expected property behavior\r\nof our model were provided and compared with actual benchmarks to verify the\r\ncorrectness of our assumptions.\r\nOur model complied well with the results. regarding memory and memory\r\nlated properties such as size, clock frequency and memory architecture. The\r\nnewer DDR3 architecture seems to improve the latency and bandwidth in the\r\nhigh-load cases, ragrdless of memory frequency. The clock frequency affects\r\nboth latency and bandwidth greatly. However, the amount of available memory\r\ngave inconclusive results with regards to latency and bandwidth.\r\nThe properties regarding the CPU should not have too much influence on\r\nthe performance due to the use of DMA. However, for the test of architecture\r\nand its influence, the tests gave huge influence. This test tries to put the Intel\r\nand AMD processors up against each other in a test designed to allow them to\r\nbe compared on equal terms. However, due to the massive differences in both\r\nlatency and bandwidth, the test must be further refined to give a conclusive\r\nresult. In terms of clock frequency, the CPU performed exactly as predicted in\r\nthe model, having no influence over the bandwidth, and gave a small reduction\r\nin latency.\r\nThe chipset proved to give the expected influence over the latency and the\r\nbandwidth. However, the two Intel and NVIDIA chipsets we tested probably\r\nhad different design goals, given that one is mainly a processor manufacturer\r\n33",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/c77f3140-5684-475b-b5dd-15ab638324a3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ab68dc1fd5980fa08a8215999bebf6608a3b6c7fc75d23d4d08791bbd2e8e6b2",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 322
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "07a528fe-c5e6-4f32-ba7f-bc6c5c3d7cec",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 42,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "whereas the other is primarily a graphics cards manufacturer. Our point was not\r\nto show that one is better than the other, but that one needs to pay attention\r\nto the chipset and ones goal when building a CPU - GPU system for HPC.\r\nHowever, performance for the two chipsets supports the model in the sense that\r\nthe chipset are a key component in the GPU system.\r\nOne of our more clear results, was the influence of the PCI Express bus.\r\nBoth the latency and bandwidth showed good improvements when overclocking\r\nthe bus. Overclocking is not an exact science, and there might be additional\r\neffects from this alteration, but the results show an improvement.\r\n5.2 Future works\r\nWhile this report covered several CPU- GPU properties, many still remain. As\r\nmentioned earlier, there are possibilities for many dependent properties which\r\nhave not been tested here due to the sheer number of such combinations. Many\r\nof these properties might also behave differently for other combinations of hard\u0002ware. Therefore these tests must be further verified for other architectures and\r\ncombinations of hardware.\r\nJust a month prior to the completion of this report, the specifications for\r\nOpenCL where released. OpenCL is a language extentions designed to provide\r\nthe HPC community with a language capable of addressing all forms of pro\u0002cessing platforms ranging from multi-core CPU, Cell BE and GPUs. It also\r\naims to be vendor independent which would allow it to utilize both NVIDIA\r\nand ATI graphics cards. The introduction of OpenCL would allow more tests\r\nto be developed and an easier comparing between NVIDIA and ATI, as well as\r\nGPGPU versus Cell BE for instance. However, the late release of OpenCL and\r\nits lack of support yet for graphics cards leaves this as a task for future work.\r\nHere one could draw upon the findings in this report and that of one of my\r\nfellow students who is assessing the usability of OpenCL compared to Cuda.\r\n5.3 Final thoughts\r\nWhile this report has given the reader an indication of which components of\r\nthe GPGPU system which affects the performance and which who does not, the\r\nreader must not forget that the system might be used for more than just pure\r\nGPGPU. Even if the system is intended for GPGPU, the graphics cards are not\r\noptimal for all types of tasks, and a GPGPU application might perform faster\r\nby ofloading some of the calculations to the CPU. With this in mind, the Bigger\r\nis better statement still holds for purchases of new equipment, but this report\r\nmight have shifted the prioritization among the components.\r\n34",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/07a528fe-c5e6-4f32-ba7f-bc6c5c3d7cec.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=694274bcce18204217d3deb4fcd45d25403fdd5316e1ee7b4423e4e2fb065394",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 431
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d84d854b-f24b-48fe-9ca9-e3220e6d8c02",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 43,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Appendix A\r\nHardware specifications\r\nTable A.1: HPC2 Specifications.\r\nProcessor\r\nAMD Phenom X4 9850 Black Edition\r\nClock frequency 2.50 GHz\r\nL2 Cache 2 MB\r\nL3 Cache 2 MB\r\nMotherboard\r\nGigabyte GA-MA790FX-DQ6 AMD790FX DDR2\r\nChipset AMD 790FX\r\nMemory\r\nMushkin DDR2 4096MB REDLINE extreme performance\r\nFrequency 1066 MHz\r\nSize 2x 2048 MB\r\nTable A.2: HPC3 Specifications.\r\nProcessor\r\nIntel Core 2 Quad Q9300, 64 bit\r\nClock frequency 2.50 GHz\r\nL2 Cache 6 MB\r\nBus speed 1333 MHz\r\nMotherboard\r\nASUS Rampage Formula X48\r\nChipset Intel X48 Express\r\nMemory\r\nMushkin DDR2 4096MB REDLINE extreme performance\r\nFrequency 1066 MHz\r\nSize 2x 2048 MB\r\n35",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/d84d854b-f24b-48fe-9ca9-e3220e6d8c02.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9276e281264fc7e833cf4d23d6835dc97be237820b4a2d9c32d40cf0e76fc53a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0fcbf3aa-bc2d-45a5-9f8d-2e4f1044320a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 44,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Table A.3: HPC4 Specifications.\r\nProcessor\r\nIntel Core 2 Quad Q9550, 64 bit\r\nClock frequency 2.83 GHz\r\nL2 Cache 12 MB\r\nBus speed 1333 MHz\r\nMotherboard\r\nASUS Rampage Formula X48\r\nChipset Intel X48 Express\r\nMemory\r\nMushkin DDR2 4096MB REDLINE extreme performance\r\nFrequency 1066 MHz\r\nSize 2x 2048 MB\r\nTable A.4: HPC5 Specifications.\r\nProcessor\r\nIntel Core 2 Quad Q9550, 64 bit\r\nClock frequency 2.83 GHz\r\nL2 Cache 12 MB\r\nBus speed 1333 MHz\r\nMotherboard\r\nASUS P5E3 Premium\r\nChipset Intel X48 Express\r\nMemory\r\nOCZ DDR3 4 GB Platinum EB XTC Dual Channel\r\nFrequency 1600 MHz\r\nSize 2x 2048 MB\r\nTable A.5: HPC6 Specifications.\r\nProcessor\r\nIntel Core 2 Quad Q9550, 64 bit\r\nClock frequency 2.83 GHz\r\nL2 Cache 12 MB\r\nBus speed 1333 MHz\r\nMotherboard\r\nEVGA nForce 790i Ultra SLI\r\nChipset NVIDIA nForce 790i Ultra SLI\r\nMemory\r\nOCZ DDR3 4 GB Platinum EB XTC Dual Channel\r\nFrequency 1600 MHz\r\nSize 2x 2048 MB\r\n36",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/0fcbf3aa-bc2d-45a5-9f8d-2e4f1044320a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=740f33e00d59d73de6a673dc4d8a55f7f70279ce310f750017a979e3368e3d1e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 247
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "48ec24e4-939c-4949-ba0e-e0230ddd3bb4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 45,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Appendix B\r\nTest Program\r\nHere follows the code used in the testing software\r\nB.1 main.cu\r\n1 /∗\r\n2 The MIT L ic e n s e\r\n3\r\n4 C o py r i g h t ( c ) 2008 Rune Johan Hovland\r\n5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\nper s on o b t a i n i n g a copy o f t h i s s o f tw a r e and\r\na s s o c i a t e d documen ta t ion f i l e s ( t h e ” S o f tw a r e ”) , t o\r\nd e a l in t h e S o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g\r\nw i t h o u t l i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy ,\r\nmerge , p u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l\r\nc o p i e s o f t h e S o f tw are , and t o pe rm i t p e r s o n s t o whom\r\nt h e S o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a r e .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n37",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/48ec24e4-939c-4949-ba0e-e0230ddd3bb4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d23609e5a410dd1a1fac9b29ba3b4a7044e739e622cab45ad4fc4ed0429b3094",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 525
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "48ec24e4-939c-4949-ba0e-e0230ddd3bb4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 45,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Appendix B\r\nTest Program\r\nHere follows the code used in the testing software\r\nB.1 main.cu\r\n1 /∗\r\n2 The MIT L ic e n s e\r\n3\r\n4 C o py r i g h t ( c ) 2008 Rune Johan Hovland\r\n5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\nper s on o b t a i n i n g a copy o f t h i s s o f tw a r e and\r\na s s o c i a t e d documen ta t ion f i l e s ( t h e ” S o f tw a r e ”) , t o\r\nd e a l in t h e S o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g\r\nw i t h o u t l i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy ,\r\nmerge , p u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l\r\nc o p i e s o f t h e S o f tw are , and t o pe rm i t p e r s o n s t o whom\r\nt h e S o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a r e .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n37",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/48ec24e4-939c-4949-ba0e-e0230ddd3bb4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d23609e5a410dd1a1fac9b29ba3b4a7044e739e622cab45ad4fc4ed0429b3094",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 525
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b41c5e3a-faa6-4e3f-8d02-29b9243bbff3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 46,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "13 #include <s t d l i b . h>\r\n14 #include <s t d i o . h>\r\n15 #include <s t r i n g . h>\r\n16 #include <math . h>\r\n17 #include <c u t i l . h>\r\n18 #include <common . cu>\r\n19\r\n20 #include ” me a su reT r an s fe rM all oc . cu ”\r\n21 #include ” measureTrans ferCudaMallocHost . cu ”\r\n22\r\n23 int\r\n24 main ( int argc , char∗∗ argv )\r\n25 {\r\n26 i f ( a r g c > 0 ) {\r\n27 int c o r e = a t o i ( argv [ 1 ] ) ;\r\n28\r\n29 // measure b an dw i d t h and l a t e n c y up and down w i t h\r\nm all oc\r\n30 me a su reT r an s fe rM all oc ( c o r e ) ;\r\n31\r\n32 // measure b an dw i d t h up and down w i t h cudaMalloc\r\n33 measureTrans ferCudaMallocHost ( c o r e ) ;\r\n34 }\r\n35 }\r\nB.2 common.cu\r\n1 /∗\r\n2 The MIT L ic e n s e\r\n3\r\n4 C o py r i g h t ( c ) 2008 Rune Johan Hovland\r\n5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\nper s on o b t a i n i n g a copy o f t h i s s o f tw a r e and\r\na s s o c i a t e d documen ta t ion f i l e s ( t h e ” S o f tw a r e ”) , t o\r\nd e a l in t h e S o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g\r\nw i t h o u t l i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy ,\r\nmerge , p u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l\r\nc o p i e s o f t h e S o f tw are , and t o pe rm i t p e r s o n s t o whom\r\nt h e S o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a r e .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\n38",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/b41c5e3a-faa6-4e3f-8d02-29b9243bbff3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=76273c8233f847b92bd44865dfebb78be96d375c01ad1a8c8a5265ef89891fe9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 664
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b41c5e3a-faa6-4e3f-8d02-29b9243bbff3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 46,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "13 #include <s t d l i b . h>\r\n14 #include <s t d i o . h>\r\n15 #include <s t r i n g . h>\r\n16 #include <math . h>\r\n17 #include <c u t i l . h>\r\n18 #include <common . cu>\r\n19\r\n20 #include ” me a su reT r an s fe rM all oc . cu ”\r\n21 #include ” measureTrans ferCudaMallocHost . cu ”\r\n22\r\n23 int\r\n24 main ( int argc , char∗∗ argv )\r\n25 {\r\n26 i f ( a r g c > 0 ) {\r\n27 int c o r e = a t o i ( argv [ 1 ] ) ;\r\n28\r\n29 // measure b an dw i d t h and l a t e n c y up and down w i t h\r\nm all oc\r\n30 me a su reT r an s fe rM all oc ( c o r e ) ;\r\n31\r\n32 // measure b an dw i d t h up and down w i t h cudaMalloc\r\n33 measureTrans ferCudaMallocHost ( c o r e ) ;\r\n34 }\r\n35 }\r\nB.2 common.cu\r\n1 /∗\r\n2 The MIT L ic e n s e\r\n3\r\n4 C o py r i g h t ( c ) 2008 Rune Johan Hovland\r\n5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\nper s on o b t a i n i n g a copy o f t h i s s o f tw a r e and\r\na s s o c i a t e d documen ta t ion f i l e s ( t h e ” S o f tw a r e ”) , t o\r\nd e a l in t h e S o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g\r\nw i t h o u t l i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy ,\r\nmerge , p u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l\r\nc o p i e s o f t h e S o f tw are , and t o pe rm i t p e r s o n s t o whom\r\nt h e S o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a r e .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\n38",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/b41c5e3a-faa6-4e3f-8d02-29b9243bbff3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=76273c8233f847b92bd44865dfebb78be96d375c01ad1a8c8a5265ef89891fe9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 664
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "7b1a0016-1b0f-4e05-bdf6-d03e29dcf0dc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 47,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n13 #i fnd e f common\r\n14 #def ine common\r\n15\r\n16 #include <s t d i o . h>\r\n17 #include <s t d l i b . h>\r\n18 #include <s y s / time . h>\r\n19 #include <cmath>\r\n20 #include <cuda . h>\r\n21\r\n22 #def ine MB ( 1 0 2 4 ∗ 1 0 2 4 )\r\n23 #def ine ITERATIONS FEW 200\r\n24 #def ine ITERATIONS MANY 10000\r\n25 #def ine LATENCY LIMIT 4096\r\n26\r\n27 #def ine s t a r tTimi n g g e t tim e o f d a y (& s tartTime , NULL) ;\r\n28 #def ine endTiming g e t tim e o f d a y (&endTime , NULL) ;\r\nmeasuredTime = t i m e d i f f ( endTime , s t a r tTime ) ;\r\n29 #def ine setDummy dummyMeasurement = true ;\r\n30 #def ine checkDummy i f ( dummyMeasurement ) { dummyMeasurement\r\n= f a l s e ; i −=2; continue ; }\r\n31 #def ine f o rL o op for ( int i = 8 ; i < 2 4; i +=2){ int\r\nd a t a s i z e = 1 << i ; i t e r a t i o n s = ITERATIONS FEW ∗ pow\r\n(1.3223 7785818103 , 22 − i ) ;\r\n32 #def ine p r i n t ( r e s u l t , d a t a si z e , i t e r a t i o n s ) p r i n t f ( ”%.15 f\r\n\\ t%d\\ t%d\\n” , r e s u l t , d a t a si z e , i t e r a t i o n s ) ; f f l u s h ( s t d o u t )\r\n;\r\n33\r\n34 int i t e r a t i o n s ;\r\n35 struct tim e v al s tartTime , endTime ;\r\n36 double measuredTime ;\r\n37 bool dummyMeasurement ;\r\n38\r\n39 // C a l c u l a t e d i f f e r e n c e in t ime be tween two t ime s .\r\n40 double\r\n41 t i m e d i f f ( tim e v al end , tim e v al s t a r t )\r\n42 {\r\n43 double t s = s t a r t . t v s e c + ( s t a r t . t v u s e c / 1 0 0 0 0 0 0. 0 ) ;\r\n44 double t e = end . t v s e c + ( end . t v u s e c / 1 0 0 0 0 0 0. 0 ) ;\r\n45 return t e − t s ;\r\n46 }\r\n47\r\n48 // Te s t s t h e t ime needed t o per form t h e g i v e n\r\nt r a n s f e r t y p e and d a t a s i z e .\r\n39",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/7b1a0016-1b0f-4e05-bdf6-d03e29dcf0dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=95f4978c282cdc167821a0af794178e0e0621ac1835c563b4e4d55d3bd801037",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 599
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "7b1a0016-1b0f-4e05-bdf6-d03e29dcf0dc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 47,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n13 #i fnd e f common\r\n14 #def ine common\r\n15\r\n16 #include <s t d i o . h>\r\n17 #include <s t d l i b . h>\r\n18 #include <s y s / time . h>\r\n19 #include <cmath>\r\n20 #include <cuda . h>\r\n21\r\n22 #def ine MB ( 1 0 2 4 ∗ 1 0 2 4 )\r\n23 #def ine ITERATIONS FEW 200\r\n24 #def ine ITERATIONS MANY 10000\r\n25 #def ine LATENCY LIMIT 4096\r\n26\r\n27 #def ine s t a r tTimi n g g e t tim e o f d a y (& s tartTime , NULL) ;\r\n28 #def ine endTiming g e t tim e o f d a y (&endTime , NULL) ;\r\nmeasuredTime = t i m e d i f f ( endTime , s t a r tTime ) ;\r\n29 #def ine setDummy dummyMeasurement = true ;\r\n30 #def ine checkDummy i f ( dummyMeasurement ) { dummyMeasurement\r\n= f a l s e ; i −=2; continue ; }\r\n31 #def ine f o rL o op for ( int i = 8 ; i < 2 4; i +=2){ int\r\nd a t a s i z e = 1 << i ; i t e r a t i o n s = ITERATIONS FEW ∗ pow\r\n(1.3223 7785818103 , 22 − i ) ;\r\n32 #def ine p r i n t ( r e s u l t , d a t a si z e , i t e r a t i o n s ) p r i n t f ( ”%.15 f\r\n\\ t%d\\ t%d\\n” , r e s u l t , d a t a si z e , i t e r a t i o n s ) ; f f l u s h ( s t d o u t )\r\n;\r\n33\r\n34 int i t e r a t i o n s ;\r\n35 struct tim e v al s tartTime , endTime ;\r\n36 double measuredTime ;\r\n37 bool dummyMeasurement ;\r\n38\r\n39 // C a l c u l a t e d i f f e r e n c e in t ime be tween two t ime s .\r\n40 double\r\n41 t i m e d i f f ( tim e v al end , tim e v al s t a r t )\r\n42 {\r\n43 double t s = s t a r t . t v s e c + ( s t a r t . t v u s e c / 1 0 0 0 0 0 0. 0 ) ;\r\n44 double t e = end . t v s e c + ( end . t v u s e c / 1 0 0 0 0 0 0. 0 ) ;\r\n45 return t e − t s ;\r\n46 }\r\n47\r\n48 // Te s t s t h e t ime needed t o per form t h e g i v e n\r\nt r a n s f e r t y p e and d a t a s i z e .\r\n39",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/7b1a0016-1b0f-4e05-bdf6-d03e29dcf0dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=95f4978c282cdc167821a0af794178e0e0621ac1835c563b4e4d55d3bd801037",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 599
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6d574d2c-dee3-4df3-bb00-b387cbbb18d5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 48,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "49 double\r\n50 t e s t T r a n s f e r ( int d a t a si z e , int t e s t c o u n t , f l o a t ∗ from ,\r\nf l o a t ∗ to , enum cudaMemcpyKind type )\r\n51 {\r\n52 // A l l o c a t e and c r e a t e t e s t d a t a\r\n53 s i z e t s i z e = d a t a s i z e ∗ s i z e o f ( f l o a t ) ;\r\n54\r\n55 // A l l o c a t e l o c a l memory and f i l l w i t h d a t a .\r\n56 i f ( type == cudaMemcpyHostToDevice | | type ==\r\ncudaMemcpyHostToHost )\r\n57 {\r\n58 for ( int i = 0 ; i < d a t a s i z e ; i++)\r\n59 {\r\n60 from [ i ] = ( f l o a t ) i ;\r\n61 }\r\n62 }\r\n63\r\n64 // A l l o c a t e memory on d e v i c e and f i l l w i t h memory .\r\n65 e l s e i f ( type == cudaMemcpyDeviceToHost | | type ==\r\ncudaMemcpyDeviceToDevice )\r\n66 {\r\n67 f l o a t ∗ data = ( f l o a t ∗) m all oc ( d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n68 for ( int i = 0 ; i < d a t a s i z e ; i++)\r\n69 {\r\n70 data [ i ] = ( f l o a t ) i ;\r\n71 }\r\n72 cudaMemcpy ( data , from , s i z e , cudaMemcpyHostToDevice ) ;\r\n73 f r e e ( data ) ;\r\n74 }\r\n75\r\n76 // I n i t i a l i z e and s t a r t t ime r\r\n77 s t a r tTimi n g\r\n78 for ( int i = 0 ; i < t e s t c o u n t ; i++ )\r\n79 {\r\n80 cudaMemcpy ( to , from , s i z e , type ) ;\r\n81 }\r\n82 endTiming\r\n83\r\n84 // r e t u r n measured t ime\r\n85 return measuredTime / ( ( double ) t e s t c o u n t ) ;\r\n86 }\r\n87\r\n88 #end i f\r\nB.3 measureTransferMalloc.cu\r\n1 /∗\r\n2 The MIT L ic e n s e\r\n3\r\n4 C o py r i g h t ( c ) 2008 Rune Johan Hovland\r\n40",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/6d574d2c-dee3-4df3-bb00-b387cbbb18d5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8e20f85d1dd2da39ef868133158e9a488e007119a1737b02874caa53fa183928",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 504
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5d0190e6-a3b8-47ce-b561-cf2fd5efe3f8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 49,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\nper s on o b t a i n i n g a copy o f t h i s s o f tw a r e and\r\na s s o c i a t e d documen ta t ion f i l e s ( t h e ” S o f tw a r e ”) , t o\r\nd e a l in t h e S o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g\r\nw i t h o u t l i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy ,\r\nmerge , p u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l\r\nc o p i e s o f t h e S o f tw are , and t o pe rm i t p e r s o n s t o whom\r\nt h e S o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a r e .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n13 #i fnd e f m e a s u r eT r a n s f e rM all o c\r\n14 #def ine m e a s u r eT r a n s f e rM all o c\r\n15\r\n16 #include ”common . cu ”\r\n17\r\n18 void\r\n19 me a su reT r an s fe rM all oc ( int c o r e )\r\n20 {\r\n21 p r i n t f ( ”\\n” ) ;\r\n22 p r i n t f ( ”\r\n+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−>\\\r\nn” ) ;\r\n23 p r i n t f ( ” | Measuring t r a n s f e r s with m all oc . \\ n” ) ;\r\n24 p r i n t f ( ” | ( c o r e %d ) \\n” , c o r e ) ;\r\n25 p r i n t f ( ”\r\n+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−>\\\r\nn” ) ;\r\n26 p r i n t f ( ”\\n” ) ;\r\n27\r\n28 f l o a t ∗from , ∗ t o ;\r\n29\r\n30 // Measure l a t e n c y up\r\n31 p r i n t f ( ” Latency up\\n” ) ;\r\n32 double meanTsUp = 1 0 0 0 0 0;\r\n41",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/5d0190e6-a3b8-47ce-b561-cf2fd5efe3f8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6eb6c77a513429761f8829eb7c9028f70bb32a77bd50320f2e48b1cb2d366a8d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 705
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5d0190e6-a3b8-47ce-b561-cf2fd5efe3f8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 49,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\nper s on o b t a i n i n g a copy o f t h i s s o f tw a r e and\r\na s s o c i a t e d documen ta t ion f i l e s ( t h e ” S o f tw a r e ”) , t o\r\nd e a l in t h e S o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g\r\nw i t h o u t l i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy ,\r\nmerge , p u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l\r\nc o p i e s o f t h e S o f tw are , and t o pe rm i t p e r s o n s t o whom\r\nt h e S o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a r e .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n13 #i fnd e f m e a s u r eT r a n s f e rM all o c\r\n14 #def ine m e a s u r eT r a n s f e rM all o c\r\n15\r\n16 #include ”common . cu ”\r\n17\r\n18 void\r\n19 me a su reT r an s fe rM all oc ( int c o r e )\r\n20 {\r\n21 p r i n t f ( ”\\n” ) ;\r\n22 p r i n t f ( ”\r\n+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−>\\\r\nn” ) ;\r\n23 p r i n t f ( ” | Measuring t r a n s f e r s with m all oc . \\ n” ) ;\r\n24 p r i n t f ( ” | ( c o r e %d ) \\n” , c o r e ) ;\r\n25 p r i n t f ( ”\r\n+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−>\\\r\nn” ) ;\r\n26 p r i n t f ( ”\\n” ) ;\r\n27\r\n28 f l o a t ∗from , ∗ t o ;\r\n29\r\n30 // Measure l a t e n c y up\r\n31 p r i n t f ( ” Latency up\\n” ) ;\r\n32 double meanTsUp = 1 0 0 0 0 0;\r\n41",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/5d0190e6-a3b8-47ce-b561-cf2fd5efe3f8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6eb6c77a513429761f8829eb7c9028f70bb32a77bd50320f2e48b1cb2d366a8d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 705
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8d57f6e5-ecf1-482c-be83-0e73d708d88b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 50,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "33\r\n34 for ( int i = 1 ; i <= LATENCY LIMIT; i ∗=2)\r\n35 {\r\n36 // A l l o c a t e memory .\r\n37 from = ( f l o a t ∗) m all oc ( i ∗ s i z e o f ( f l o a t ) ) ;\r\n38 cudaMalloc ( ( void∗ ∗)&to , i ∗ s i z e o f ( f l o a t ) ) ;\r\n39\r\n40 // Perform t e s t .\r\n41 double meanTsUpTmp = t e s t T r a n s f e r ( i , ITERATIONS MANY,\r\nfrom , to , cudaMemcpyHostToDevice ) ;\r\n42\r\n43 i f (meanTsUpTmp < meanTsUp ) {\r\n44 meanTsUp = meanTsUpTmp;\r\n45 }\r\n46\r\n47 // Free memory .\r\n48 f r e e ( from ) ;\r\n49 cudaFree ( t o ) ;\r\n50 p ri n t (meanTsUpTmp, i , ITERATIONS MANY) ;\r\n51 }\r\n52 p r i n t f ( ”\\n” ) ;\r\n53\r\n54 // Measure l a t e n c y down\r\n55 p r i n t f ( ” Latency down\\n” ) ;\r\n56 double meanTsDown = 1 0 0 0 0 0;\r\n57\r\n58 for ( int i = 1 ; i <= LATENCY LIMIT; i ∗= 2 )\r\n59 {\r\n60 // A l l o c a t e memory .\r\n61 cudaMalloc ( ( void∗ ∗)&from , i ∗ s i z e o f ( f l o a t ) ) ;\r\n62 t o = ( f l o a t ∗) m all oc ( i ∗ s i z e o f ( f l o a t ) ) ;\r\n63\r\n64 // Perform t e s t .\r\n65 double meanTsDownTmp = t e s t T r a n s f e r ( i ,\r\nITERATIONS MANY, from , to , cudaMemcpyDeviceToHost )\r\n;\r\n66\r\n67 i f (meanTsDownTmp < meanTsDown ) {\r\n68 meanTsDown = meanTsDownTmp ;\r\n69 }\r\n70\r\n71 // Free memory .\r\n72 cudaFree ( from ) ;\r\n73 f r e e ( t o ) ;\r\n74 p ri n t (meanTsDownTmp, i , ITERATIONS MANY) ;\r\n75 }\r\n76 p r i n t f ( ”\\n” ) ;\r\n77\r\n78 // Measure b an dw i d t h up\r\n79 p r i n t f ( ”Bandwidth up\\n” ) ;\r\n42",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/8d57f6e5-ecf1-482c-be83-0e73d708d88b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c62411907617f10d949d089e79418abb0dbfeb5ff3dc62164c90300074dfe287",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 428
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "cbdfcec8-a24a-4b80-9cb7-b42b932702fb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 51,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "80 setDummy\r\n81 f o rL o op\r\n82 // A l l o c a t e memory .\r\n83 from = ( f l o a t ∗) m all oc ( d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n84 cudaMalloc ( ( void∗ ∗)&to , d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n85\r\n86 // Perform t e s t .\r\n87 double betaTime = t e s t T r a n s f e r ( d a t a si z e , i t e r a t i o n s ,\r\nfrom , to , cudaMemcpyHostToDevice ) ;\r\n88\r\n89 // Free memory .\r\n90 f r e e ( from ) ;\r\n91 cudaFree ( t o ) ;\r\n92\r\n93 // C a l c u l a t e b an dw i d t h .\r\n94 double meanBeta = ( ( betaTime − meanTsUp ) / d a t a s i z e\r\n) ∗ (MB / s i z e o f ( f l o a t ) ) ;\r\n95 double bandwidth = 1 / meanBeta ;\r\n96\r\n97 // Redo run i f dummy−t e s t .\r\n98 checkDummy\r\n99 p ri n t ( bandwidth , d a t a si z e , i t e r a t i o n s ) ;\r\n100 }\r\n101 p r i n t f ( ”\\n” ) ;\r\n102\r\n103 // Measure b an dw i d t h down\r\n104 p r i n t f ( ”Bandwidth down\\n” ) ;\r\n105 setDummy\r\n106 f o rL o op\r\n107 // A l l o c a t e memory .\r\n108 cudaMalloc ( ( void∗ ∗)&from , d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n109 t o = ( f l o a t ∗) m all oc ( d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n110\r\n111 // Perform t e s t .\r\n112 double betaTime = t e s t T r a n s f e r ( d a t a si z e , i t e r a t i o n s ,\r\nfrom , to , cudaMemcpyDeviceToHost ) ;\r\n113\r\n114 // Free memory .\r\n115 cudaFree ( from ) ;\r\n116 f r e e ( t o ) ;\r\n117\r\n118 // C a l c u l a t e b an dw i d t h .\r\n119 double meanBeta = ( ( betaTime − meanTsDown ) /\r\nd a t a s i z e ) ∗ (MB / s i z e o f ( f l o a t ) ) ;\r\n120 double bandwidth = 1 / meanBeta ;\r\n121\r\n122 // Redo run i f dummy−t e s t .\r\n123 checkDummy\r\n124 p ri n t ( bandwidth , d a t a si z e , i t e r a t i o n s ) ;\r\n125 }\r\n43",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/cbdfcec8-a24a-4b80-9cb7-b42b932702fb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f90d3447bd782bd85920cfb1f293f24c64e5885b7a47c7528a09752012c70d42",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 583
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "cbdfcec8-a24a-4b80-9cb7-b42b932702fb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 51,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "80 setDummy\r\n81 f o rL o op\r\n82 // A l l o c a t e memory .\r\n83 from = ( f l o a t ∗) m all oc ( d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n84 cudaMalloc ( ( void∗ ∗)&to , d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n85\r\n86 // Perform t e s t .\r\n87 double betaTime = t e s t T r a n s f e r ( d a t a si z e , i t e r a t i o n s ,\r\nfrom , to , cudaMemcpyHostToDevice ) ;\r\n88\r\n89 // Free memory .\r\n90 f r e e ( from ) ;\r\n91 cudaFree ( t o ) ;\r\n92\r\n93 // C a l c u l a t e b an dw i d t h .\r\n94 double meanBeta = ( ( betaTime − meanTsUp ) / d a t a s i z e\r\n) ∗ (MB / s i z e o f ( f l o a t ) ) ;\r\n95 double bandwidth = 1 / meanBeta ;\r\n96\r\n97 // Redo run i f dummy−t e s t .\r\n98 checkDummy\r\n99 p ri n t ( bandwidth , d a t a si z e , i t e r a t i o n s ) ;\r\n100 }\r\n101 p r i n t f ( ”\\n” ) ;\r\n102\r\n103 // Measure b an dw i d t h down\r\n104 p r i n t f ( ”Bandwidth down\\n” ) ;\r\n105 setDummy\r\n106 f o rL o op\r\n107 // A l l o c a t e memory .\r\n108 cudaMalloc ( ( void∗ ∗)&from , d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n109 t o = ( f l o a t ∗) m all oc ( d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n110\r\n111 // Perform t e s t .\r\n112 double betaTime = t e s t T r a n s f e r ( d a t a si z e , i t e r a t i o n s ,\r\nfrom , to , cudaMemcpyDeviceToHost ) ;\r\n113\r\n114 // Free memory .\r\n115 cudaFree ( from ) ;\r\n116 f r e e ( t o ) ;\r\n117\r\n118 // C a l c u l a t e b an dw i d t h .\r\n119 double meanBeta = ( ( betaTime − meanTsDown ) /\r\nd a t a s i z e ) ∗ (MB / s i z e o f ( f l o a t ) ) ;\r\n120 double bandwidth = 1 / meanBeta ;\r\n121\r\n122 // Redo run i f dummy−t e s t .\r\n123 checkDummy\r\n124 p ri n t ( bandwidth , d a t a si z e , i t e r a t i o n s ) ;\r\n125 }\r\n43",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/cbdfcec8-a24a-4b80-9cb7-b42b932702fb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f90d3447bd782bd85920cfb1f293f24c64e5885b7a47c7528a09752012c70d42",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 583
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "65039138-bc94-4b4c-b172-fb1c451b37d1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 52,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "126 p r i n t f ( ”\\n” ) ;\r\n127 }\r\n128\r\n129 #end i f\r\nB.4 measureTransferCudaMallocHost.cu\r\n1 /∗\r\n2 The MIT L ic e n s e\r\n3\r\n4 C o py r i g h t ( c ) 2008 Rune Johan Hovland\r\n5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\nper s on o b t a i n i n g a copy o f t h i s s o f tw a r e and\r\na s s o c i a t e d documen ta t ion f i l e s ( t h e ” S o f tw a r e ”) , t o\r\nd e a l in t h e S o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g\r\nw i t h o u t l i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy ,\r\nmerge , p u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l\r\nc o p i e s o f t h e S o f tw are , and t o pe rm i t p e r s o n s t o whom\r\nt h e S o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a r e .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n13 #i fnd e f me a su reT r an s fe rCud aM all ocH o s t\r\n14 #def ine me au s reT r an s fe rCud aM all ocH o s t\r\n15\r\n16 void\r\n17 measureTrans ferCudaMallocHost ( int c o r e )\r\n18 {\r\n19 p r i n t f ( ”\\n” ) ;\r\n20 p r i n t f ( ”\r\n+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−>\\\r\nn” ) ;\r\n21 p r i n t f ( ” | Measuring t r a n s f e r s with cudaMallocHost . \\ n” ) ;\r\n22 p r i n t f ( ” | ( c o r e %d ) \\n” , c o r e ) ;\r\n44",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/65039138-bc94-4b4c-b172-fb1c451b37d1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=04d77e0d173c646cc8fefa374b7c06eb183444fccefd9bd75f6e16360cd11e36",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 659
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "65039138-bc94-4b4c-b172-fb1c451b37d1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 52,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "126 p r i n t f ( ”\\n” ) ;\r\n127 }\r\n128\r\n129 #end i f\r\nB.4 measureTransferCudaMallocHost.cu\r\n1 /∗\r\n2 The MIT L ic e n s e\r\n3\r\n4 C o py r i g h t ( c ) 2008 Rune Johan Hovland\r\n5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\nper s on o b t a i n i n g a copy o f t h i s s o f tw a r e and\r\na s s o c i a t e d documen ta t ion f i l e s ( t h e ” S o f tw a r e ”) , t o\r\nd e a l in t h e S o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g\r\nw i t h o u t l i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy ,\r\nmerge , p u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l\r\nc o p i e s o f t h e S o f tw are , and t o pe rm i t p e r s o n s t o whom\r\nt h e S o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a r e .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n13 #i fnd e f me a su reT r an s fe rCud aM all ocH o s t\r\n14 #def ine me au s reT r an s fe rCud aM all ocH o s t\r\n15\r\n16 void\r\n17 measureTrans ferCudaMallocHost ( int c o r e )\r\n18 {\r\n19 p r i n t f ( ”\\n” ) ;\r\n20 p r i n t f ( ”\r\n+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−>\\\r\nn” ) ;\r\n21 p r i n t f ( ” | Measuring t r a n s f e r s with cudaMallocHost . \\ n” ) ;\r\n22 p r i n t f ( ” | ( c o r e %d ) \\n” , c o r e ) ;\r\n44",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/65039138-bc94-4b4c-b172-fb1c451b37d1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=04d77e0d173c646cc8fefa374b7c06eb183444fccefd9bd75f6e16360cd11e36",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 659
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d5defb76-5345-4b91-b97b-22fc85f65286",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 53,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "23 p r i n t f ( ”\r\n+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−>\\\r\nn” ) ;\r\n24 p r i n t f ( ”\\n” ) ;\r\n25\r\n26 f l o a t ∗from , ∗ t o ;\r\n27\r\n28 // Measure l a t e n c y up\r\n29 p r i n t f ( ” Latency up\\n” ) ;\r\n30 double meanTsUp = 1 0 0 0 0 0;\r\n31\r\n32 for ( int i = 1 ; i <= LATENCY LIMIT; i ∗=2)\r\n33 {\r\n34 // A l l o c a t e memory l o c a t i o n s\r\n35 cudaMallocHost ( ( void∗ ∗)&from , i ∗ s i z e o f ( f l o a t ) ) ;\r\n36 cudaMalloc ( ( void∗ ∗)&to , i ∗ s i z e o f ( f l o a t ) ) ;\r\n37\r\n38 // Perform t e s t .\r\n39 double meanTsUpTmp = t e s t T r a n s f e r ( i , ITERATIONS MANY,\r\nfrom , to , cudaMemcpyHostToDevice ) ;\r\n40\r\n41 i f (meanTsUpTmp < meanTsUp ) {\r\n42 meanTsUp = meanTsUpTmp;\r\n43 }\r\n44\r\n45 // Free memory .\r\n46 cudaFreeHost ( from ) ;\r\n47 cudaFree ( t o ) ;\r\n48 p ri n t (meanTsUpTmp, i , ITERATIONS MANY) ;\r\n49 }\r\n50 p r i n t f ( ”\\n” ) ;\r\n51\r\n52 // Measure l a t e n c y down\r\n53 p r i n t f ( ” Latency down\\n” ) ;\r\n54 double meanTsDown = 1 0 0 0 0 0;\r\n55\r\n56 for ( int i = 1 ; i <= LATENCY LIMIT; i ∗= 2 )\r\n57 {\r\n58 // A l l o c a t e memory l o c a t i o n s\r\n59 cudaMalloc ( ( void∗ ∗)&from , i ∗ s i z e o f ( f l o a t ) ) ;\r\n60 cudaMallocHost ( ( void∗ ∗)&to , i ∗ s i z e o f ( f l o a t ) ) ;\r\n61\r\n62 // Perform t e s t .\r\n63 double meanTsDownTmp = t e s t T r a n s f e r ( i ,\r\nITERATIONS MANY, from , to , cudaMemcpyDeviceToHost )\r\n;\r\n64\r\n65 i f (meanTsDownTmp < meanTsDown ) {\r\n66 meanTsDown = meanTsDownTmp ;\r\n67 }\r\n45",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/d5defb76-5345-4b91-b97b-22fc85f65286.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=599133b7e1a911c82a79c534b746b00f863f7bed68a4b0ce98ce58563366b73d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 428
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c9560947-6dc6-4435-8165-63c513cf6f8b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 54,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "68\r\n69 // Free memory .\r\n70 cudaFree ( from ) ;\r\n71 cudaFreeHost ( t o ) ;\r\n72 p ri n t (meanTsDownTmp, i , ITERATIONS MANY) ;\r\n73 }\r\n74 p r i n t f ( ”\\n” ) ;\r\n75\r\n76 // Measure b an dw i d t h up\r\n77 p r i n t f ( ”Bandwidth up\\n” ) ;\r\n78 setDummy\r\n79 f o rL o op\r\n80 // A l l o c a t e memory .\r\n81 cudaMallocHost ( ( void∗ ∗)&from , d a t a s i z e ∗ s i z e o f ( f l o a t ) )\r\n;\r\n82 cudaMalloc ( ( void∗ ∗)&to , d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n83\r\n84 // Perform t e s t .\r\n85 double betaTime = t e s t T r a n s f e r ( d a t a si z e , i t e r a t i o n s ,\r\nfrom , to , cudaMemcpyHostToDevice ) ;\r\n86\r\n87 // Free memory .\r\n88 cudaFreeHost ( from ) ;\r\n89 cudaFree ( t o ) ;\r\n90\r\n91 // C a l c u l a t e b an dw i d t h .\r\n92 double meanBeta = ( ( betaTime − meanTsUp ) / d a t a s i z e\r\n) ∗ (MB / s i z e o f ( f l o a t ) ) ;\r\n93 double bandwidth = 1 / meanBeta ;\r\n94\r\n95 // Redo run i f dummy−t e s t .\r\n96 checkDummy\r\n97 p ri n t ( bandwidth , d a t a si z e , i t e r a t i o n s ) ;\r\n98 }\r\n99 p r i n t f ( ”\\n” ) ;\r\n100\r\n101 // Measure b an dw i d t h down\r\n102 p r i n t f ( ”Bandwidth down\\n” ) ;\r\n103 setDummy\r\n104 f o rL o op\r\n105 // A l l o c a t e memory .\r\n106 cudaMalloc ( ( void∗ ∗)&from , d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n107 cudaMallocHost ( ( void∗ ∗)&to , d a t a s i z e ∗ s i z e o f ( f l o a t ) ) ;\r\n108\r\n109 // Perform t e s t .\r\n110 double betaTime = t e s t T r a n s f e r ( d a t a si z e , i t e r a t i o n s ,\r\nfrom , to , cudaMemcpyDeviceToHost ) ;\r\n111\r\n112 // Free memory .\r\n113 cudaFree ( from ) ;\r\n46",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/c9560947-6dc6-4435-8165-63c513cf6f8b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5a1c23c3746f479a27b5e0141ca22baa082bdce3b0ca2f45361d35b41a811321",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 512
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ab42c0a3-945e-4e6c-a7e8-c744ae7ff654",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 55,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "114 cudaFreeHost ( t o ) ;\r\n115\r\n116 // C a l c u l a t e b an dw i d t h .\r\n117 double meanBeta = ( ( betaTime − meanTsDown ) /\r\nd a t a s i z e ) ∗ (MB / s i z e o f ( f l o a t ) ) ;\r\n118 double bandwidth = 1 / meanBeta ;\r\n119\r\n120 // Redo run i f dummy−t e s t .\r\n121 checkDummy\r\n122 p ri n t ( bandwidth , d a t a si z e , i t e r a t i o n s ) ;\r\n123 }\r\n124 p r i n t f ( ”\\n” ) ;\r\n125 }\r\n126\r\n127 #end i f\r\n47",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/ab42c0a3-945e-4e6c-a7e8-c744ae7ff654.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2f4d7772d2cb36ae2621afd91aba86503b202a25297ca9e2ca2c495aaa1e7441",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6e501a68-ce28-42a4-9ca9-65830909337d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 56,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "48",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/6e501a68-ce28-42a4-9ca9-65830909337d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7e002f335929c94c33dcd2f63cbcf71818c69e6938f094231299019e374c0d46",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 137
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "860613c2-0fde-478f-bc85-3a7fe0baf0c3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 57,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Appendix C\r\nLoad-Simulator Software\r\nHere follows the code used in the load simulator.\r\nC.1 loadSimulator.cu\r\n1 /∗\r\n2 The MIT L ic e n s e\r\n3\r\n4 C o py r i g h t ( c ) 2008 Rune Johan Hovland\r\n5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\np e r s o n o b t a i n i n g a copy o f t h i s s o f tw a r e and a s s o c i a t e d\r\ndocumen ta t ion f i l e s ( t h e ” S o f tw a re ”) , t o d e a l in t h e\r\nS o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g w i t h o u t\r\nl i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy , merge ,\r\np u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l c o p i e s o f\r\nt h e S o f tw are , and t o pe rm i t p e r s o n s t o whom t h e\r\nS o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a re .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n49",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/860613c2-0fde-478f-bc85-3a7fe0baf0c3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aae0bdb5bad21833271c0430c17cbfcc55e7fb985fb61c853691bca22701151e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 526
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "860613c2-0fde-478f-bc85-3a7fe0baf0c3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 57,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Appendix C\r\nLoad-Simulator Software\r\nHere follows the code used in the load simulator.\r\nC.1 loadSimulator.cu\r\n1 /∗\r\n2 The MIT L ic e n s e\r\n3\r\n4 C o py r i g h t ( c ) 2008 Rune Johan Hovland\r\n5\r\n6 Perm is s ion i s h e r eby gr an te d , f r e e o f charge , t o any\r\np e r s o n o b t a i n i n g a copy o f t h i s s o f tw a r e and a s s o c i a t e d\r\ndocumen ta t ion f i l e s ( t h e ” S o f tw a re ”) , t o d e a l in t h e\r\nS o f tw a r e w i t h o u t r e s t r i c t i o n , i n c l u d i n g w i t h o u t\r\nl i m i t a t i o n t h e r i g h t s t o use , copy , mod i fy , merge ,\r\np u b l i s h , d i s t r i b u t e , s u b l i c e n s e , and/ or s e l l c o p i e s o f\r\nt h e S o f tw are , and t o pe rm i t p e r s o n s t o whom t h e\r\nS o f tw a r e i s f u r n i s h e d t o do so , s u b j e c t t o t h e\r\nf o l l o w i n g c o n d i t i o n s :\r\n7\r\n8 The above c o p y r i g h t n o t i c e and t h i s p e rm i s s i o n n o t i c e\r\ns h a l l be i n c l u d e d in a l l c o p i e s or s u b s t a n t i a l\r\np o r t i o n s o f t h e S o f tw a re .\r\n9\r\n10 THE SOFTWARE IS PROVIDED ”AS IS ” , WITHOUT WARRANTY OF ANY\r\nKIND, EXPRESS OR IMPLIED , INCLUDING BUT NOT LIMITED\r\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\r\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\r\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR\r\nANY CLAIM, DAMAGES OR OTHER LIABILITY , WHETHER IN AN\r\nACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE\r\nOR OTHER DEALINGS IN THE SOFTWARE.\r\n11 ∗/\r\n12\r\n49",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/860613c2-0fde-478f-bc85-3a7fe0baf0c3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aae0bdb5bad21833271c0430c17cbfcc55e7fb985fb61c853691bca22701151e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 526
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "73e40b04-b49c-43aa-9996-805cf4d6ff2e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 58,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "13 #include ” s t d i o . h”\r\n14 #include <c s t d l i b >\r\n15\r\n16 int\r\n17 main ( int argc , char∗∗ argv )\r\n18 {\r\n19 // S i z e o f a l l o c a t i o n .\r\n20 int s i z e = 2∗1 0 2 4∗1 0 2 4;\r\n21\r\n22 // change s i z e i f s p e c i f i e d .\r\n23 i f ( a r g c > 1 )\r\n24 {\r\n25 s i z e = a t o i ( argv [ 1 ] ) ∗ 1 0 2 4;\r\n26 }\r\n27\r\n28 // A l l o c a t e memory t o copy be tween .\r\n29 f l o a t ∗ a = ( f l o a t ∗) m all oc ( s i z e ) ;\r\n30 f l o a t ∗ b = ( f l o a t ∗) m all oc ( s i z e ) ;\r\n31 f l o a t ∗ c = ( f l o a t ∗) m all oc ( s i z e ) ;\r\n32 f l o a t ∗ d = ( f l o a t ∗) m all oc ( s i z e ) ;\r\n33\r\n34 // F i l l memory w i t h d a t a .\r\n35 for ( int i = 0 ; i < s i z e / 4 ; i++)\r\n36 {\r\n37 a [ i ] = i ;\r\n38 }\r\n39\r\n40 // In form u se r t h a t l o a d s im u l a t o r has s t a r t e t .\r\n41 p r i n t f ( ”Load sim ul a ti o n s t a r t e d (%db ) \\n” , s i z e ) ;\r\n42\r\n43 // Copy memory be tween v a r i o u s l o c a t i o n s f o r e v e r .\r\n44 while ( true )\r\n45 {\r\n46 memcpy ( b , a , s i z e ) ;\r\n47 memcpy ( c , b , s i z e ) ;\r\n48 memcpy ( d , c , s i z e ) ;\r\n49 memcpy ( a , d , s i z e ) ;\r\n50 }\r\n51 }\r\n50",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/73e40b04-b49c-43aa-9996-805cf4d6ff2e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ab0710d99899ca27b8d277b2939c791ad80fc505c156c47b23971ef70e97b3f9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 452
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3435057b-c22c-4f4b-af0f-7a71823f094e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 59,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "Bibliography\r\n[1] Advanced Micro Devices (AMD), “AMD 790FX Chipset Specifications,”\r\n[Cited: December 7, 2008.]. [Online]. Available: http://www.amd.com/\r\nus-en/0,,3715 15337 15354 15358,00.html#top\r\n[2] ——, “ATI Radeon HD 4800 Series - GPU Specifications,” [Cited:\r\nOctober 22, 2008.]. [Online]. Available: http://ati.amd.com/products/\r\nradeonhd4800/specs.html\r\n[3] ——, “Key Architectural Features of AMD Phenom X4 Quad\u0002Core Processors,” [Cited: December 7, 2008.]. [Online]. Avail\u0002able: http://www.amd.com/us-en/Processors/ProductInformation/0,\r\n,30 118 15331 15332%5E15334,00.html\r\n[4] K. Asanovic, R. Bodik, B. C. Catanzaro, J. J. Gebis, P. Husbands,\r\nK. Keutzer, D. A. Patterson, W. L. Plishker, J. Shalf, S. W. Williams, and\r\nK. A. Yellick., “The Landscape of Parallel Computing Research: A view\r\nfrom Berkeley,” Electrical Engineering and Computer Sciences, University\r\nof California at Berkeley, Tech. Rep., 2006.\r\n[5] A. V. Bhatt, “Creating a PCI Express Interconnect,” [Cited: December\r\n7, 2008.]. [Online]. Available: http://www.pcisig.com/specifications/\r\npciexpress/resources/PCI Express% White Paper.pdf\r\n[6] D. Blythe, “Rise of the Graphics Processor,” Proceedings of the IEEE,\r\nvol. 96, no. 5, pp. 761–777, May 2008.\r\n[7] S. Che, M. Boyer, J. Meng, D. Tarjan, J. W. Sheaffer, and K. Skadron,\r\n“A performance study of general-purpose applications on graphics proces\u0002sors using CUDA,” Journal of Parallel and Distributed Computing, vol. 68,\r\nno. 10, pp. 1370–1380, October 2008.\r\n[8] O. Coles, “DDR3 RAM: System Memory Technology Ex\u0002plained,” May 10, 2008, [Cited: November 13, 2008.].\r\n[Online]. Available: http://benchmarkreviews.com/index.php?option=\r\ncom content&task=view\\&id=174\\&Itemid=1\r\n[9] A. C. Elster, “HPC Lab at IDI/NTNU,” [Cited: December 10, 2008.].\r\n[Online]. Available: http://www.idi.ntnu.no/∼elster/hpc-lab/\r\n[10] A. K. B. Ernes, “NTNU vil lage de kuleste pc-ene,” October\r\n29, 2008, [Cited: November 29, 2008.]. [Online]. Available: http:\r\n//digi.no/php/art.php?id=792051\r\n51",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/3435057b-c22c-4f4b-af0f-7a71823f094e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2cd7c04ee9f835b5a6f57542d9c85b9570a8edcbbb452666941c2be3ecec3a3e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "adfdd5b0-b212-4ddd-a812-2d70cebd8495",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 60,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "[11] W. Fink, “DDR3 vs. DDR2,” May 15, 2007, [Cited: November 14, 2008.].\r\n[Online]. Available: http://www.anandtech.com/memory/showdoc.aspx?\r\ni=2989\r\n[12] M. Harris, “Mapping Computational Concepts to GPUs,” in GPU Gems\r\n2, M. Pharr and R. Fernando, Eds. Addison-Wesley Professional, 2005,\r\npp. 493–508.\r\n[13] R. W. Hockney, “The communication challenge for MPP: Intel Paragon\r\nand Meiko CS-2,” Parallel Computing, vol. 20, no. 3, pp. 389–398, March\r\n1994.\r\n[14] Intel Corporation, “Intel Core 2 Quad Processor, Product Brief,” [Cited:\r\nDecember 7, 2008.]. [Online]. Available: http://www.intel.com/products/\r\nprocessor/core2quad/prod brief.pdf\r\n[15] ——, “Intel X48 Express Chipset, Product Brief,” 2008, [Cited:\r\nDecember 7, 2008.]. [Online]. Available: http://www.intel.com/Assets/\r\nPDF/prodbrief/319646.pdf\r\n[16] A. Klckner, “PyCuda,” [Cited: October 22, 2008.]. [Online]. Available:\r\nhttp://mathema.tician.de/software/pycuda\r\n[17] J. Kullberg, “Tight Timings vs High Clock Fre\u0002quencies,” March 31, 2006, [Cited: December 7,\r\n2008.]. [Online]. Available: http://www.tomshardware.com/reviews/\r\ntight-timings-high-clock-frequencies,1236.html\r\n[18] NVIDIA Corporation, “GeForce 9800GTX Specifications,” [Cited:\r\nDecember 7, 2008.]. [Online]. Available: http://www.nvidia.com/object/\r\nproduct geforce 9800 gtx us.html\r\n[19] ——, “GeForce 9800GX2 Specifications,” [Cited: December 7, 2008.].\r\n[Online]. Available: http://www.nvidia.com/object/product geforce 9800\r\ngx2 us.html\r\n[20] ——, “GeForce GTX280 Specifications,” [Cited: December 7, 2008.].\r\n[Online]. Available: http://www.nvidia.com/object/product geforce gtx\r\n280 us.html\r\n[21] ——, “NVIDIA CUDA Compute Unified Device Architecture, Pro\u0002gramming Guide,” [Cited: September 26, 2008.]. [Online]. Avail\u0002able: http://developer.download.nvidia.com/compute/cuda/2 0/docs/\r\nNVIDIA CUDA Programming Guide 2.0.pdf\r\n[22] ——, “Quadro FX5800 Specifications,” [Cited: December 7, 2008.].\r\n[Online]. Available: http://www.nvidia.com/object/product quadro fx\r\n5800 us.html\r\n[23] ——, “Tesla c1060 Specifications,” [Cited: December 7, 2008.]. [Online].\r\nAvailable: http://www.nvidia.com/object/product tesla c1060 us.html\r\n[24] ——, “NVIDIA GeForce 8800 GPU Architecture Overview,” November\r\n2006, [Cited: October 22, 2008.]. [Online]. Available: http://www.nvidia.\r\ncom/object/IO 37100.html\r\n52",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/adfdd5b0-b212-4ddd-a812-2d70cebd8495.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=48c5497cecb0cd1bfb79488c2229f717d5e28e9a3fd36a90cd7f3ee4c2671353",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 508
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f5edb49d-2423-4165-beec-c6899daa2251",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 595.276,
+              "height": 841.89
+            },
+            "page_number": 61,
+            "page_width": 595.276,
+            "page_height": 841.89,
+            "content": "[25] ——, “NVIDIA-based Motherboard Family for Intel,” March 2008, [Cited:\r\nDecember 7, 2008.]. [Online]. Available: http://www.nvidia.com/docs/\r\nIO/35382/LC NV motherboards INTEL Mar08.pdf\r\n[26] ——, “NVIDIA Tesla Makes Personal SuperComputing A Reality,”\r\nNovember 19, 2008, [Cited: November 28, 2008]. [Online]. Available:\r\nhttp://www.nvidia.com/object/io 1227008280995.html\r\n[27] nwilt, “Page-locked memory,” February 1, 2008, [Cited: November\r\n26, 2008.]. [Online]. Available: http://forums.nvidia.com/index.php?\r\nshowtopic=58505\\&st=0\\&p=318592\\&#entry318592\r\n[28] J. D. Owens, M. Houston, D. Luebke, S. Green, J. E. Stone, and J. C.\r\nPhillips, “GPU Computing,” Proceedings of the IEEE, vol. 96, no. 5, pp.\r\n879–899, May 2008.\r\n[29] PCI Sig., “PCI Express 3.0 Frequently Asked Questions,” [Cited: December\r\n7, 2008.]. [Online]. Available: http://www.pcisig.com/news room/faqs/\r\nPCI Express Gen3 faq FINAL.pdf\r\n[30] P. Schmid, “Ups and Downs: Memory Timings Put to the Test,”\r\nJanuary 19, 2004, [Cited: December 7, 2008.]. [Online]. Available:\r\nhttp://www.tomshardware.com/reviews/ups-downs,743.html\r\n53",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/49a9c8a4-0532-4c7d-8510-24d034cdb64b/images/f5edb49d-2423-4165-beec-c6899daa2251.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041823Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f4c794185a812724526b07644282a8566626fc3bd64b874f24377476d2a5b45c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 132
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Latency and Bandwidth Impact on GPU-systems\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "```string\nRune Johan Hovland\n```"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "```json\n{\"date_published\": \"December 17, 2008\"}\n```"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Norwegian University of Science and Technology (NTNU)"
+        }
+      ]
+    }
+  }
+}

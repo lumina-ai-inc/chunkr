@@ -1,0 +1,548 @@
+{
+  "file_name": "Kernel Patch Tutorial.pdf",
+  "task_id": "997b0c75-d82e-4713-9c51-78943c4eb0f2",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "bd23e0df-f3aa-45b4-86be-7c52be3fe0a8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 1,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Write and Submit \r\nyour first Linux \r\nKernel Patch\r\nGreg Kroah-Hartman\r\ngregkh@linuxfoundation.org\r\ngithub.com/gregkh/kernel-tutorial.git",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/bd23e0df-f3aa-45b4-86be-7c52be3fe0a8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8314dc23cde3096ceddb981ca36b00618410cbbfb935ac937fb6bb1076b66783",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ff505d58-55f4-4e88-892b-2a8cdb078827",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 2,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Documentation/HOWTO\r\nDocumentation/\r\ndevelopment_process",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/ff505d58-55f4-4e88-892b-2a8cdb078827.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f19bd7e0abd959968a15014b662c6ce033d35dc47be486896a8fa043b5366819",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7ccee1e1-6a97-4f53-a1c3-5d02cc4e0334",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 3,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "$ git remote add linux-next \\\r\ngit://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git\r\n$ git fetch linux-next\r\n$ git fetch --tags linux-next\r\n... # later on\r\n$ git remote update \r\n \r\nWorking with linux-next",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/7ccee1e1-6a97-4f53-a1c3-5d02cc4e0334.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fe62db9d823a425e2f2d5e423826a499089f5bbb41405efc54e3c7739713dd47",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "28f321a0-55c5-45b7-966a-8082fc015543",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 4,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Linux Kernel Coding Style\r\nWhy Care?",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/28f321a0-55c5-45b7-966a-8082fc015543.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5d8f8e9a090649daf85c7746fab6a7d6ecc6c5b0a4fcd61919457981e95f4ead",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7a18d46e-db94-41a4-91d2-20468425a780",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 5,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "“It is not merely a matter of aesthetics that \r\nprograms should be written in a particular \r\nstyle. Rather there is a psychological basis for \r\nwriting programs in a conventional manner: \r\nprogrammers have strong expectations that \r\nother programmers will follow these \r\ndiscourse rules. If the rules are violated, then \r\nthe utility afforded by the expectations that \r\nprogrammers have built up over time is \r\neffectively nullified.”\r\n– Soloway & Ehrlich",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/7a18d46e-db94-41a4-91d2-20468425a780.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=48998762169b0e8a42892b42e7b757b69209e442938aee37f09dbfcfa2342ad3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9cd16c26-e2c4-4a84-b5a2-4cdc1bf662f7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 6,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Documentation/CodingStyle",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/9cd16c26-e2c4-4a84-b5a2-4cdc1bf662f7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3376c8e99b4c913d535412d5fbb73ef548aa7be901a0ae0e98ad82e2e15dca16",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a38edd4d-cd81-498f-8c48-a7d84a1b8d4c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 7,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "scripts/checkpatch.pl",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/a38edd4d-cd81-498f-8c48-a7d84a1b8d4c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c11a9794832d9c75b17aca75073f1a70607d32797b4f9c54efe61c2207c220ae",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cafeb91e-9db8-4d41-8ddc-d86f920b3a8f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 8,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "USB: otg: Fix bug on remove path without transceiver\r\n \r\nIn the case where a gadget driver is removed while no\r\ntransceiver was found at probe time, a bug in\r\notg_put_transceiver() will trigger.\r\n \r\nSigned-off-by: Robert Jarzmik <robert.jarzmik@free.fr>\r\nAcked-by: David Brownell <dbrownell@users.sourceforge.net>\r\nSigned-off-by: Greg Kroah-Hartman <gregkh@suse.de>\r\n--- a/drivers/usb/otg/otg.c\r\n+++ b/drivers/usb/otg/otg.c\r\n@@ -43,7 +43,8 @@ EXPORT_SYMBOL(otg_get_transceiver);\r\nvoid otg_put_transceiver(struct otg_transceiver *x)\r\n{\r\n- put_device(x->dev);\r\n+ if (x)\r\n+ put_device(x->dev);\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/cafeb91e-9db8-4d41-8ddc-d86f920b3a8f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c5ac965162d6284a6e044e8590a88845deef437d27695b39bc0b7b91c11fa3d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "692e0a2b-bd72-4f70-9fda-f5a4951c26f3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 9,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Developer's Certificate of Origin\r\n(a) I created this change; or\r\n(b) Based this on a previous work with a\r\n compatible license; or\r\n(c) Provided to me by (a), (b), or (c) and not\r\n modified\r\n(d) This contribution is public.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/692e0a2b-bd72-4f70-9fda-f5a4951c26f3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e8b34e9ca593c5a942fe07da5b473acf4cff0227eb6d8050ace8e53ca46414d8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a7e11338-e744-43e2-8fb8-c8ffdab3b71e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 10,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "git diff\r\ngit commit\r\ngit show\r\ngit format-patch\r\ngit send-email",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/a7e11338-e744-43e2-8fb8-c8ffdab3b71e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c786cbf021af63818dd4cfe1acc0627029c6cb8bf04c3bbd7d0c231d166617e5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8b122ac2-0a54-478e-ae08-5b01870d9db1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 11,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "scripts/get_maintainer.pl",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/8b122ac2-0a54-478e-ae08-5b01870d9db1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0995b1af93782969c6427454349520be7350c09619fadda86208a67f37aa6465",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7ce89240-f7c3-4a58-a2f7-f3947696c9e0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 12,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "Checklist\r\n● Kernel builds with patch applied\r\n● Correct “From:” address\r\n● Concise “Subject:”\r\n● Explain the patch\r\n● Signed-off-by",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/7ce89240-f7c3-4a58-a2f7-f3947696c9e0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3ff2d76d9002ee8d4c3a2273075228c8a4510b075025ee062c6cbb5531242429",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "50dd6b2a-4163-4f26-a250-801a5ca7096a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 13,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "2.6.20 to 2.6.24­rc8\r\nkernelnewbies.org",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/50dd6b2a-4163-4f26-a250-801a5ca7096a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=03fc1faab753515002904076fbad0d6d26c47661a8870afbbf355639beae847e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0349fb67-6081-4b4b-b9f8-61527ebdc11f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 794,
+              "height": 595
+            },
+            "page_number": 14,
+            "page_width": 794,
+            "page_height": 595,
+            "content": "",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/0349fb67-6081-4b4b-b9f8-61527ebdc11f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=47c67544e1c67b42f4e760da2c6f3142f31ee5d398d650e42a3d8da3ebd3df18",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e53cfe3c-826d-4607-8d0c-8f57899676e5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Write and Submit \r\nyour first Linux \r\nKernel Patch\r\nGreg Kroah-Hartman\r\ngregkh@linuxfoundation.org\r\ngithub.com/gregkh/kernel-tutorial.git",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/e53cfe3c-826d-4607-8d0c-8f57899676e5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3b260222784beb66afea1431a36c7be9ba75d61c95a662bd8dbff65b418183ec",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bc88c3dc-d8aa-4b03-88f6-266a65a96acb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 16,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Documentation/HOWTO\r\nDocumentation/\r\ndevelopment_process",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/bc88c3dc-d8aa-4b03-88f6-266a65a96acb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aa6ac84392bbd02b7796dd10e3645323ccee5893f85546bd68705d366488d78f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9b0469b2-cf50-471d-baba-90754aec8ce2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 17,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "$ git remote add linux-next \\\r\ngit://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git\r\n$ git fetch linux-next\r\n$ git fetch --tags linux-next\r\n... # later on\r\n$ git remote update \r\n \r\nWorking with linux-next",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/9b0469b2-cf50-471d-baba-90754aec8ce2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8ad793f33b784c8189f04bd16b542c613e5da811bb84ffd195c3dc9c553c4c1c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "59ed6c3f-1c52-43ab-b360-c29293321603",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 18,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Linux Kernel Coding Style\r\nWhy Care?",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/59ed6c3f-1c52-43ab-b360-c29293321603.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=942556faa8a5f8d2f70b96111e8846a33fd3506e039c5660e7f85494a257598c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9a9c5c85-e200-4c7c-b650-459af9285236",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 19,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "“It is not merely a matter of aesthetics that \r\nprograms should be written in a particular \r\nstyle. Rather there is a psychological basis for \r\nwriting programs in a conventional manner: \r\nprogrammers have strong expectations that \r\nother programmers will follow these \r\ndiscourse rules. If the rules are violated, then \r\nthe utility afforded by the expectations that \r\nprogrammers have built up over time is \r\neffectively nullified.”\r\n– Soloway & Ehrlich",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/9a9c5c85-e200-4c7c-b650-459af9285236.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c2c7ead722789261b7b8400eb48d9f3b86f9ab4a8f131b285569ad1700e3fbad",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8cd2ddeb-12d4-474c-8162-9fdc401dbbd8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 20,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Documentation/CodingStyle",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/8cd2ddeb-12d4-474c-8162-9fdc401dbbd8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dab98c181975a4f920c8a49ac1b0843360269b5ef0456fbf675dfe7eee79f4a4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e5c8e080-16b1-4ed3-acc9-23da2343b513",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 21,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "scripts/checkpatch.pl",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/e5c8e080-16b1-4ed3-acc9-23da2343b513.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a609984f412f07ac148926c7f20e8a5b144ceaba1bc5cdde70b907355982cd4a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e8496c99-6cbb-461e-821e-37e6dc1ec937",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 22,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "commit \r\nAuthor: \r\nAuthorD\r\nCommit: \r\nCommitD\r\n USB\r\n \r\n In \r\n tra\r\n otg\r\n \r\n Sig\r\n Ack\r\n Sig\r\n--- a/d\r\n+++ b/d\r\n@@ -43,\r\nvoid o\r\n{\r\n- \r\n+ \r\n+ \r\n}\r\nUSB: otg: Fix bug on remove path without transceiver\r\n \r\nIn the case where a gadget driver is removed while no\r\ntransceiver was found at probe time, a bug in\r\notg_put_transceiver() will trigger.\r\n \r\nSigned-off-by: Robert Jarzmik <robert.jarzmik@free.fr>\r\nAcked-by: David Brownell <dbrownell@users.sourceforge.net>\r\nSigned-off-by: Greg Kroah-Hartman <gregkh@suse.de>\r\n--- a/drivers/usb/otg/otg.c\r\n+++ b/drivers/usb/otg/otg.c\r\n@@ -43,7 +43,8 @@ EXPORT_SYMBOL(otg_get_transceiver);\r\nvoid otg_put_transceiver(struct otg_transceiver *x)\r\n{\r\n- put_device(x->dev);\r\n+ if (x)\r\n+ put_device(x->dev);\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/e8496c99-6cbb-461e-821e-37e6dc1ec937.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ce4600c4eb020e07aa6dac1aaa402144f5cf4f4e5d71e862ba6a8e235bc61f9d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 467
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2dd05a3f-4b88-431e-a4a6-388b2a45ca28",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 23,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Developer's Certificate of Origin\r\n(a) I\r\n(b) B\r\n      c\r\n(c) P\r\n     m\r\n(d) T\r\n(a) I created this change; or\r\n(b) Based this on a previous work with a\r\n compatible license; or\r\n(c) Provided to me by (a), (b), or (c) and not\r\n modified\r\n(d) This contribution is public.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/2dd05a3f-4b88-431e-a4a6-388b2a45ca28.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0ce22fc4c1e6f46439762cd97b4ac0d9163fb971d9b2e0277735beb24a6fe60f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4bd1ebcc-5316-4971-ab7c-c8c3eafbaa57",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 24,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "git diff\r\ngit commit\r\ngit show\r\ngit format-patch\r\ngit send-email",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/4bd1ebcc-5316-4971-ab7c-c8c3eafbaa57.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c11ff197994c4b15b15b2b8f67dc0be068b039f6f8ce288a946597c4664bb71",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "95adc069-002c-4b11-bca0-fe1514d59f47",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 25,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "scripts/get_maintainer.pl",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/95adc069-002c-4b11-bca0-fe1514d59f47.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fb0678b0062b3d7d8c081e072728a24f4700ad58108dbbc7ebf781b00200cb45",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ce2f55bc-8765-4dbe-9840-45980ca67307",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 26,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Checklist\r\n● Kernel builds with patch applied\r\n● Correct “From:” address\r\n● Concise “Subject:”\r\n● Explain the patch\r\n● Signed-off-by",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/ce2f55bc-8765-4dbe-9840-45980ca67307.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=395de24e41e20cc08211fe9e924b3f7d409afd82094442a65b43808f57a7987d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "de1a31c7-e777-4895-ae45-59f6fe69092a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 27,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "2.6.20 to 2.6.24­rc8\r\nkernelnewbies.org",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/de1a31c7-e777-4895-ae45-59f6fe69092a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a31577828d699834b7c7094a335ed1f9078d20516ca031212cabb88d626fe4b3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5b857cd6-d4dc-4576-a57d-853ad9416785",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 28,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/997b0c75-d82e-4713-9c51-78943c4eb0f2/images/5b857cd6-d4dc-4576-a57d-853ad9416785.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041559Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=42ffd811bf290fc958347f6bd1bf158f42c1c7fcef40be6c327edc0eea779ba8",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 84
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Write and Submit your first Linux Kernel Patch\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Greg Kroah-Hartman\nRobert Jarzmik\nDavid Brownell\nSoloway & Ehrlich\nAuthorD\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I am unable to find the date this document was published. Therefore, I cannot provide a value for `date_published`.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Documentation/HOWTO\nDocumentation/development_process\ngithub.com/gregkh/kernel-tutorial.git\nDocumentation/CodingStyle\ndrivers/usb/otg/otg.c\nDeveloper's Certificate of Origin\nChecklist\nscripts/get_maintainer.pl\nscripts/checkpatch.pl\nWorking with linux-next\nkernelnewbies.org\nLinux Kernel Coding Style\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "file_name": "Intel - Improving Real-Time Performance by Utilizing Cache Allocation Technology - Whitepaper (April 2015).pdf",
+  "task_id": "32d0257f-3f82-4c02-8ce4-2cfe2d7ed0b7",
+  "output": {
+    "chunks": [],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\n  \"title\": \"\"\n}\n```\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "I cannot find any information about the author of the document.\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I cannot provide a value for `date_published` as there is no date or date-related information in the provided context.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Unfortunately, there is no context provided to extract a location from.  Therefore, I cannot provide a value for the \"location\" field.\n"
+        }
+      ]
+    }
+  }
+}

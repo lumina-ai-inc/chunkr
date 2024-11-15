@@ -1,0 +1,815 @@
+{
+  "file_name": "Intel - How to Benchmark Code Execution Times on Intel IA-32 and IA-64 Instruction Set Architectures (2010).pdf",
+  "task_id": "98f0362f-7bca-4f07-8dbb-f49638909960",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "a99bd3b1-8a97-43f7-859a-d96d26bf3e27",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "324264-001\r\nHow to Benchmark \r\nCode Execution \r\nTimes on Intel®\r\nIA-32 and IA-64 \r\nInstruction Set \r\nArchitectures\r\nSeptember 2010\r\nWhite Paper\r\nGabriele Paoloni\r\nLinux Kernel/Embedded \r\nSoftware Engineer\r\nIntel Corporation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/a99bd3b1-8a97-43f7-859a-d96d26bf3e27.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e191a79c27b36ed8c96391b062b0c7da476129d94ab8b90993ad12da63c34071",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ee859980-1410-4d3d-9042-f070193d8dc6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n2\r\nAbstract\r\nThis paper provides precise methods to measure the clock cycles spent \r\nwhen executing a certain C code on a Linux* environment with a generic \r\nIntel architecture processor (either 32 bits or 64 bits).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/ee859980-1410-4d3d-9042-f070193d8dc6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bf7968b09040a7b26abc89b74520518ed0ce6a372cec73c6fbb64c1d3eb94e94",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6fec9420-fc14-4f56-a657-5578fbe30b1a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n3\r\nContents\r\n1 0BIntroduction ..................................................................................................5\r\n1.1 Purpose/Scope .....................................................................................5\r\n1.2 Assumptions.........................................................................................5\r\n1.3 Terminology .........................................................................................5\r\n2 Problem Description ......................................................................................7\r\n2.1 Introduction .........................................................................................7\r\n2.2 Problems with RDTSC Instruction in C Inline Assembly ...............................7\r\n3 Variance Introduced by CPUID and Improvements with RTDSCP Instruction11\r\n3.1 Problems with the CPUID Instruction......................................................11\r\n3.1.1 Code Analysis.........................................................................11\r\n3.1.2 Evaluation of the First Benchmarking Method..............................12\r\n3.2 Improvements Using RDTSCP Instruction ...............................................15\r\n3.2.1 The Improved Benchmarking Method.........................................16\r\n3.2.2 Evaluation of the Improved Benchmarking Method ......................17\r\n3.2.3 An Alternative Method for Architecture Not Supporting RDTSCP.....20\r\n3.2.4 Evaluation of the Alternative Method .........................................22\r\n3.3 Resolution of the Benchmarking Methodologies .......................................24\r\n3.3.1 Resolution with RDTSCP...........................................................24\r\n3.3.2 Resolution with the Alternative Method ......................................27\r\n4 5BSummary .....................................................................................................30\r\n5 Appendix .....................................................................................................31\r\n6 Reference List..............................................................................................35\r\nFigures\r\nFigure 1. Minimum Value Behavior Graph 1 .................................................................. 14\r\nFigure 2. Variance Behavior Graph 2............................................................................ 15\r\nFigure 3. Minimum Value Behavior Graph 3 .................................................................. 19\r\nFigure 4. Variance Behavior Graph 4............................................................................ 20\r\nFigure 5. Minimum Value Behavior Graph 5 .................................................................. 23\r\nFigure 6. Variance Behavior Graph 6............................................................................ 23\r\nFigure 7. Minimum Value Behavior Graph 7 .................................................................. 26\r\nFigure 8. Variance Behavior Graph 8............................................................................ 27\r\nFigure 9. Variance Behavior Graph 9............................................................................ 28",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/6fec9420-fc14-4f56-a657-5578fbe30b1a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6a3f899b5c4a52d7ec14ddfb3f3882e41c2c9ccb6795f8a06630fafd0a87ea54",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fd0d47c6-be49-479f-9378-606b6effccee",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n4\r\nFigure 10. Variance Behavior Graph 10 ........................................................................ 29\r\nTables\r\nTable 1. List of Terms..................................................................................................5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/fd0d47c6-be49-479f-9378-606b6effccee.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9afb9473a2d285a3c5d97748b2f1552faa127d42695e4f6faac0947bbaf3caa1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 309
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "73eae7b4-72d9-4dbd-8a3a-f24e8cd43288",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n5\r\n1 0BIntroduction\r\n1.1 Purpose/Scope\r\nThe purpose of this document is to provide software developers with precise \r\nmethods to measure the clock cycles required to execute specific C code in a Linux \r\nenvironment running on a generic Intel architecture processor. These methods can \r\nbe very useful in a CPU-benchmarking context, in a code-optimization context, and \r\nalso in an OS-tuning context. In all these cases, the developer is interested in \r\nknowing exactly how many clock cycles are elapsed while executing code.\r\nAt the time of this writing, the best description of how to benchmark code \r\nexecution can be found in [1]. Unfortunately, many problems were encountered \r\nwhile using this method. This paper describes the problems and proposes two \r\nseparate solutions.\r\n1.2 Assumptions\r\nIn this paper, all the results shown were obtained by running tests on a platform \r\nwhose BIOS was optimized by removing every factor that could cause \r\nindeterminism. All power optimization, Intel Hyper-Threading technology, \r\nfrequency scaling and turbo mode functionalities were turned off.\r\nThe OS used was openSUSE* 11.2 (linux-2.6.31.5-0.1).\r\n1.3 Terminology\r\nTable 1 lists the terms used in this document.\r\nTable 1. List of Terms\r\nTerm Description\r\nCPU Central Processing Unit\r\nIA32 Intel 32-bit Architecture\r\nIA64 Intel 64-bit Architecture\r\nGCC GNU* Compiler Collection\r\nICC Intel C/C++ Compiler",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/73eae7b4-72d9-4dbd-8a3a-f24e8cd43288.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8f78a15d7ddeda1eca367c57530911a18ce3c322297583dc3f3bb5f00839bbc5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4c418e61-de21-4ba1-9559-c4cc86a41a72",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n6\r\nTerm Description\r\nRDTSCP Read Time-Stamp Counter and Processor ID IA assembly instruction\r\nRTDSC Read Time-Stamp Counter and Processor ID IA assembly instruction",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/4c418e61-de21-4ba1-9559-c4cc86a41a72.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ab7395b2434304a1fe5eb8742ab2e1f143f55c71d1ecf0608e649b35983d9552",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 259
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "0dee29ed-0c33-42f9-9bdb-370b388bc1c1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n7\r\n2 Problem Description\r\nThis section explains the issues involved in reading the timestamp register and \r\ndiscusses the correct methodology to return precise and reliable clock cycles \r\nmeasurements. It is expected that readers have knowledge of basic GCC and ICC \r\ncompiling techniques, basic Intel assembly syntax, and AT&T* assembly syntax. \r\nThose not interested in the problem description and method justification can skip \r\nthis section and go to Section 3.2.1 (if their platform supports the RDTSCP \r\ninstruction) or Section 3.2.3 (if not) to acquire the code.\r\n2.1 Introduction\r\nIntel CPUs have a timestamp counter to keep track of every cycle that occurs on \r\nthe CPU. Starting with the Intel Pentium® processor, the devices have included a \r\nper-core timestamp register that stores the value of the timestamp counter and \r\nthat can be accessed by the RDTSC and RDTSCP assembly instructions.\r\nWhen running a Linux OS, the developer can check if his CPU supports the RDTSCP \r\ninstruction by looking at the flags field of “/proc/cpuinfo”; if rdtscp is one of the \r\nflags, then it is supported.\r\n2.2 Problems with RDTSC Instruction in C Inline \r\nAssembly\r\nAssume that you are working in a Linux environment, and are compiling by using \r\nGCC. You have C code and want to know how many clock cycles are spent to \r\nexecute the code itself or just a part of it. To make sure that our measurements \r\nare not tainted by any kind of interrupt (including scheduling preemption), we are \r\ngoing to write a kernel module where we guarantee the exclusive ownership of the \r\nCPU when executing the code that we want to benchmark. \r\nTo understand the practical implementation, let’s consider the following dummy \r\nkernel module; it simply calls a function that is taking a pointer as input and is \r\nsetting the pointed value to “1”. We want to measure how many clock cycles it \r\ntakes to call such a function:\r\n#include <linux/module.h> \r\n#include <linux/kernel.h> \r\n#include <linux/init.h> \r\n#include <linux/hardirq.h>\r\n#include <linux/preempt.h>\r\n#include <linux/sched.h>\r\nvoid inline measured_function(volatile int *var)\r\n{\r\n(*var) = 1;",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/0dee29ed-0c33-42f9-9bdb-370b388bc1c1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=71f37c3d55c80aee77db4a2042cd3b19a8fb3d31de18f8af13d6851ddb374b7b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 347
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "339d56f0-403d-4e4b-b7db-7f8bf278081a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n8\r\n}\r\nstatic int __init hello_start(void)\r\n{\r\nunsigned long flags;\r\nuint64_t start, end;\r\nint variable = 0;\r\nunsigned cycles_low, cycles_high, cycles_low1, cycles_high1;\r\nprintk(KERN_INFO \"Loading test module...\\n\");\r\npreempt_disable(); /*we disable preemption on our CPU*/\r\nraw_local_irq_save(flags); /*we disable hard interrupts on our CPU*/\r\n/*at this stage we exclusively own the CPU*/\r\nasm volatile (\r\n\"RDTSC\\n\\t\"\r\n\"mov %%edx, %0\\n\\t\"\r\n\"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low));\r\nmeasured_function(&variable);\r\nasm volatile (\r\n\"RDTSC\\n\\t\"\r\n\"mov %%edx, %0\\n\\t\"\r\n\"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high1), \"=r\" (cycles_low1));\r\nraw_local_irq_restore(flags);\r\n/*we enable hard interrupts on our CPU*/\r\npreempt_enable();/*we enable preemption*/\r\nstart = ( ((uint64_t)cycles_high << 32) | cycles_low );\r\nend = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );\r\nprintk(KERN_INFO \"\\n function execution time is %llu clock cycles\", (end\u0002start));\r\nreturn 0;\r\n}\r\nstatic void __exit hello_end(void)\r\n{\r\nprintk(KERN_INFO \"Goodbye Mr.\\n\");\r\n}\r\nmodule_init(hello_start);\r\nmodule_exit(hello_end);\r\nThe RDTSC instruction loads the high-order 32 bits of the timestamp register into \r\nEDX, and the low-order 32 bits into EAX. A bitwise OR is performed to reconstruct \r\nand store the register value into a local variable.\r\nIn the code above, to guarantee the exclusive ownership of the CPU before \r\nperforming the measure, we disable the preemption (preempt_disable()) and we \r\ndisable the hard interrupts (raw_local_irq_save()). Then we call the “RDTSC” \r\nassembly instruction to read the timestamp register. We call our function \r\n(measured_function()), and we read the timestamp register again (RDTSC) to see \r\nhow many clock cycles have been elapsed since the first read. The two variables ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/339d56f0-403d-4e4b-b7db-7f8bf278081a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=752a89ff879f89195b638c3203a0e6645fd94e641d0845620c33ceb2ee2ecdc7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 251
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ac49ab92-7f9b-4dd8-b5d0-fc349bc38ce8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n9\r\nstart and end store the timestamp register values at the respective times of the \r\nRDTSC calls. Finally, we print the measurement on the screen.\r\nLogically the code above makes sense, but if we try to compile it, we could get \r\nsegmentation faults or some weird results. This is because we didn’t consider a few \r\nissues that are related to the “RDTSC” instruction itself and to the Intel \r\nArchitecture:\r\nRegister Overwriting\r\nRDTSC instruction, once called, overwrites the EAX and EDX registers. In the inline \r\nassembly that we presented above, we didn’t declare any clobbered register. \r\nBasically we have to push those register statuses onto the stack before calling \r\nRDTSC and popping them afterwards. The practical solution for that is to write the \r\ninline assembly as follows (note bold items):\r\nasm volatile (\"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low):: \r\n“%eax”, “%edx”);\r\nIn case we are using an IA64 platform rather than an IA32, in the list of clobbered \r\nregisters we have to replace “%eax”, “%edx” with “%rax”, “%rdx”. In fact, in the \r\nIntel® 64 and IA-32 Architectures Software Developer’s Manual Volume 2B ([3]), it \r\nstates that “On processors that support the Intel 64 architecture, the high-order \r\n32 bits of each of RAX and RDX are cleared”.\r\nOut of Order Execution\r\nStarting with the Intel Pentium processor, most Intel CPUs support out-of-order \r\nexecution of the code. The purpose is to optimize the penalties due to the different \r\ninstruction latencies. Unfortunately this feature does not guarantee that the \r\ntemporal sequence of the single compiled C instructions will respect the sequence \r\nof the instruction themselves as written in the source C file. When we call the \r\nRDTSC instruction, we pretend that that instruction will be executed exactly at the \r\nbeginning and at the end of code being measured (i.e., we don’t want to measure\r\ncompiled code executed outside of the RDTSC calls or executed in between the \r\ncalls themselves).\r\nThe solution is to call a serializing instruction before calling the RDTSC one. A \r\nserializing instruction is an instruction that forces the CPU to complete every \r\npreceding instruction of the C code before continuing the program execution. By \r\ndoing so we guarantee that only the code that is under measurement will be \r\nexecuted in between the RDTSC calls and that no part of that code will be \r\nexecuted outside the calls.\r\nThe complete list of available serializing instructions on IA64 and IA32 can be \r\nfound in the Intel® 64 and IA-32 Architectures Software Developer’s Manual \r\nVolume 3A [4]. Reading this manual, we find that “CPUID can be executed at any \r\nprivilege level to serialize instruction execution with no effect on program flow, \r\nexcept that the EAX, EBX, ECX and EDX registers are modified”. Accordingly, the ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/ac49ab92-7f9b-4dd8-b5d0-fc349bc38ce8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61b06ddc06d51b9314e63a216e91693040ba15f0637155402886ae8ac4b74dfa",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 468
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3cb046a4-b704-43ce-b048-b161754aeb09",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n10\r\nnatural choice to avoid out of order execution would be to call CPUID just before \r\nboth RTDSC calls; this method works but there is a lot of variance (in terms of \r\nclock cycles) that is intrinsically associated with the CPUID instruction execution \r\nitself. This means that to guarantee serialization of instructions, we lose in terms \r\nof measurement resolution when using CPUID. A quantitative analysis about this is \r\npresented in Section 3.1.2.\r\nAn important consideration that we have to make is that the CPUID instruction \r\noverwrites EAX, EBX, ECX, and EDX registers. So we have to add EBX and ECX to \r\nthe list of clobbered registers mentioned in Register Overwriting above.\r\nIf we are using an IA64 rather than an IA32 platform, in the list of clobbered \r\nregisters we have to replace \"%eax\", \"%ebx\", \"%ecx\", \"%edx\" with \"%rax\", \r\n\"%rbx\", \"%rcx\", \"%rdx\". In fact, in the Intel® 64 and IA-32 Architectures \r\nSoftware Developer’s Manual Volume 2A ([3]), it states that “On Intel 64 \r\nprocessors, CPUID clears the high 32 bits of the RAX/RBX/RCX/RDX registers in all\r\nmodes”.\r\nOverhead in Calling CPUID and RDTSC\r\nWhen we call the instructions to capture the clock (the serializing one plus RDTSC) \r\nan overhead (in terms of clock cycles) is associated with the calls themselves; \r\nsuch overhead has to be measured and subtracted from the measurement of the \r\ncode we are interested in. Later in this paper, we show how to properly measure \r\nthe overhead involved in taking the measurement itself.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/3cb046a4-b704-43ce-b048-b161754aeb09.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=25981308e8c649a152d530ad795071b559f3e027807a4f1acda9b6c8968b04e3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 259
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c269aa11-a7bb-45ae-9a78-eb5cb0296b81",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n11\r\n3 Variance Introduced by CPUID \r\nand Improvements with RTDSCP \r\nInstruction\r\nThis section shows that if, from one side, the CPUID instruction guarantees no \r\ncode cross-contamination, then, from a measurement perspective, the other can \r\nintroduce a variance in terms of clock cycles that is too high to guarantee an \r\nacceptable measurement resolution. To solve this issue, we use an alternative \r\nimplementation using the RTDSCP instruction.\r\n3.1 Problems with the CPUID Instruction\r\nLet’s consider the code shown in the Appendix. Later in this paper we reference \r\nnumbered code lines in the appendix to help avoid duplication of code.\r\nAlso, in this case, the code has been written in kernel space to guarantee the \r\nexclusive ownership of the CPU.\r\n3.1.1 Code Analysis\r\nLn98: Init function of the kernel module.\r\nLn101: Here we declare **times double pointer. This pointer is allocated with a \r\ndouble array of memory (ln108 to ln122) of size BOUND_OF_LOOP*SIZE_OF_STAT: \r\nthe meaning of these two values is explained later in this paper. The purpose of \r\n**times is to store all the time measurements (clock cycles).\r\nLn102/ln103: The pointers *variances and *min_values are declared. Those \r\npointers are used to respectively store the array of the variances and the array of \r\nminimum values of different ensembles of measures. The memory for both arrays \r\nis allocated at lines 124 to 134.\r\nLn137: Filltimes function is called. Such function is defined at ln12; it is the core \r\nfunction of our code. Its purpose is to calculate the execution times of the code \r\nunder measurement and to fill accordingly the **times double array.\r\nLn19 to Ln30: In these lines we are consecutively calling the inline assembly \r\ninstructions used just afterwards in the code to calculate the times. The purpose of \r\nthis is to ‘warm up’ the instruction cache to avoid spurious measurements due to \r\ncache effects in the first iterations of the following loop.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/c269aa11-a7bb-45ae-9a78-eb5cb0296b81.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=99b356f9d655bad994eabc07c647db72699d449a5ac17b58f4392aeff7740659",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 323
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "65fca5a1-c13f-45a2-ac7e-182231bc92a5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n12\r\nLn33/34: Here we have two nested loops inside which the measurements take \r\nplace. There are two reasons for having two loops for the following scenarios:\r\n· When there is no function to be measured - in this case we are evaluating \r\nthe statistical nature of the offset associated with the process of taking the \r\nmeasure itself. The inner loop is used to calculate statistic values such as \r\nminimum, maximum deviation from the minimum, variance; the outer loop is \r\nused to evaluate the ergodicity of the method taking the measures.\r\n· When evaluating a function duration - the outer loop is used to increase \r\nstep by step the complexity of the function itself in such a way to evaluate the \r\ngoodness of the measuring method itself (in terms of clock cycles resolution).\r\nLn38/39: Here we get the exclusive ownership of the CPU (see Section 2.2).\r\nLn41 to Ln51: Here we implement the inline assembly code used to take the \r\nmeasurement. This is the part that ¾ along with this paper ¾ can change \r\nevaluation techniques and introduce improvements in the method.\r\nLn53/54: We release the ownership of the CPU (see Section 2.2).\r\nLn68: We fill the times array with the measured time.\r\nLn139: At this stage the **times array is entirely filled with the calculated values. \r\nFollowing the array there are two nested loops: the inner one (ln145 to ln150) \r\ngoes from zero to (SIZE_OF_STAT-1) and is used to calculate the minimum value \r\nand the maximum deviation from the minimum (max - min) for a certain ensemble \r\nof measures; the external one (ln139) is used to go across different ensembles. On \r\nthe same ensemble the variance is calculated (ln160) and is stored in the array of \r\nvariances. An accumulator (tot_var) is used to calculate the total variance \r\n(calculated also on the outer loop) of all the measurements. spurious (ln156) is a \r\ncounter that is increased whenever between contiguous ensembles the minimum \r\nvalue of the previous is bigger than the one that follows. It is a useful index in case \r\nwe are evaluating a function whose complexity is increasing along the external \r\nloop: a more complex function has to take more cycles to be executed; if the \r\nminimum measured value is smaller than the one measured on the ensemble for \r\nthe less complex function, there is something wrong (we will see later how this \r\nindex is useful). Finally, at ln168/169, the variance of the variances is calculated, \r\nand the variance of the minimum values. Both are needed to evaluate the \r\nergodicity of the measurement process (if the process is ergodic the variance of \r\nvariances tends to zero and, in this specific case, also the variance of the minimum \r\nvalue).\r\n3.1.2 Evaluation of the First Benchmarking Method\r\nHaving built the kernel module using the code in the Appendix, we load this \r\nmodule and look at the kernel log (“dmesg”). The output is as follows:\r\nLoading hello module...\r\nloop_size:0 >>>> variance(cycles): 85; max_deviation: 80 ;min time: 452",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/65fca5a1-c13f-45a2-ac7e-182231bc92a5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=386295c0b240dd2bf8048befebfa1abf1827bacc8fc729ed6f4ad4983c63eb1d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 508
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "684c52db-5e70-40bf-a03a-56e03eb8ef17",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n13\r\nloop_size:1 >>>> variance(cycles): 85; max_deviation: 56 ;min time: 456\r\nloop_size:2 >>>> variance(cycles): 85; max_deviation: 96 ;min time: 456\r\n…………………………………\r\n…………………………………\r\nloop_size:997 >>>> variance(cycles): 85; max_deviation: 92 ;min time: 456\r\nloop_size:998 >>>> variance(cycles): 85; max_deviation: 100 ;min time: 452\r\nloop_size:999 >>>> variance(cycles): 85; max_deviation: 60 ;min time: 452\r\ntotal number of spurious min values = 262 \r\ntotal variance = 48 \r\nabsolute max deviation = 636 \r\nvariance of variances = 2306 \r\nvariance of minimum values = 118\r\nThe “loop_size” index refers to the external loop (ln33); accordingly each row of the log \r\nshows, for a certain ensemble of measures, the variance, the maximum deviation and the \r\nminimum measured time (all of them in clock cycles).\r\nAt the end of the log there are: the number of “spurious” minimum values (that in \r\nthis case is meaningless and can be neglected): the total variance (the average of \r\nthe variances in each row); the absolute maximum deviation (the maximum value \r\namongst the max deviations of all the rows); the variance of variances and the \r\nvariance of the minimum values.\r\nLooking at the results, it is clear that this method is not reliable for benchmarking. \r\nThere are different reasons for this:\r\n· The minimum value is not constant between different ensembles (the variance \r\nof the minimum values is 118 cycles). This means that we cannot evaluate the \r\ncost of calling the benchmarking function itself. When we are benchmarking a \r\nfunction we want to be able to subtract the cost of calling the benchmarking \r\nfunction itself from the measurement of the function to be benchmarked. This \r\ncost is the minimum possible number of cycles that it takes to call the \r\nbenchmarking function (i.e., the min times in the rows of the kernel log \r\nabove). Basically, in this case, each statistic is performed over 100,000 \r\nsamples. The fact that over 100,000 samples an absolute minimum cannot be \r\ndetermined means that we cannot calculate the cost to be subtracted when \r\nbenchmarking any function. A solution could be to increase the number of \r\nsamples till we always get the same minimum value, but this is practically too \r\ncostly since the developer would have to wait quite a lot for orders of \r\nmagnitude greater than 10^5 samples.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/684c52db-5e70-40bf-a03a-56e03eb8ef17.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=939865480f8e3a4412fb3dec5a479487fa44ed0b358f6a935d840c8d8fdb94a4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 381
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3082b734-4ec2-411f-888d-fb6267c2ec91",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n14\r\n· The total variance is 48 cycles. This means that this method would introduce an \r\nuncertainty on the measure (standard deviation) of 6.9 cycles. If the developer \r\nwanted to have an average error on the measure less than 5%, it would mean \r\nthat he cannot benchmark functions whose execution is shorter than 139 clock \r\ncycles. If the average desired error was less than 1%, he couldn’t benchmark \r\nfunctions that take less than 690 cycles!\r\n· The variance itself is not constant between different ensembles: the variance of \r\nthe variances is 2306 cycles (i.e., a standard error on the variance of 48 cycles \r\nthat is as big as the total variance itself!). This means that the standard \r\ndeviation varies between measurements (i.e., the measuring process itself is \r\nnot ergodic) and the error on the measure cannot be identified.\r\nA graphic view of both variances and minimum values behavior between different \r\nensembles is shown in Figure 1 and Figure 2:\r\nFigure 1. Minimum Value Behavior Graph 1\r\ngraph1\r\n400\r\n410\r\n420\r\n430\r\n440\r\n450\r\n460\r\n1 51 101 151 201 251 301 351 401 451 501 551 601 651 701 751 801 851 901 951\r\nensembles\r\nclock cycles\r\nSeries1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/3082b734-4ec2-411f-888d-fb6267c2ec91.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=260374a906e688bbd4a85f8accf001f17b3a98641d36de8e3ebc4a6cfa9d0490",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d15bbe2a-67dd-412b-a843-8e34f1f72032",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n15\r\nFigure 2. Variance Behavior Graph 2\r\n3.2 Improvements Using RDTSCP Instruction\r\nThe RDTSCP instruction is described in the Intel® 64 and IA-32 Architectures \r\nSoftware Developer’s Manual Volume 2B ([3]) as an assembly instruction that, at \r\nthe same time, reads the timestamp register and the CPU identifier. The value of \r\nthe timestamp register is stored into the EDX and EAX registers; the value of the \r\nCPU id is stored into the ECX register (“On processors that support the Intel 64 \r\narchitecture, the high order 32 bits of each of RAX, RDX, and RCX are cleared”). \r\nWhat is interesting in this case is the “pseudo” serializing property of RDTSCP. The \r\nmanual states:\r\n“The RDTSCP instruction waits until all previous instructions have been executed \r\nbefore reading the counter. However, subsequent instructions may begin execution \r\nbefore the read operation is performed.”\r\nThis means that this instruction guarantees that everything that is above its call in \r\nthe source code is executed before the instruction itself is called. It cannot, \r\nhowever, guarantee that ¾ for optimization purposes ¾ the CPU will not execute, \r\nbefore the RDTSCP call, instructions that, in the source code, are placed after the \r\nRDTSCP function call itself. If this happens, a contamination caused by instructions \r\nin the source code that come after the RDTSCP will occur in the code under \r\nmeasurement. .\r\ngraph2\r\n0\r\n50\r\n100\r\n150\r\n200\r\n250\r\n1 51 101 151 201 251 301 351 401 451 501 551 601 651 701 751 801 851 901 951\r\nensembles\r\nclock cycles\r\nSeries1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/d15bbe2a-67dd-412b-a843-8e34f1f72032.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9071b53d25c04c9f9de9ec803518f039a69f10a159b599396953de3a4fff1a5d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 478
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8036647c-25bf-46f9-b7ec-88d32dfeb8fc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 16,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n16\r\nThe problem is graphically described as follows:\r\nasm volatile (\r\n\"CPUID\\n\\t\"/*serialize*/\r\n\"RDTSC\\n\\t\"/*read the clock*/\r\n\"mov %%edx, %0\\n\\t\"\r\n\"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" \r\n(cycles_low):: \"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\n/*\r\nCall the function to benchmark\r\n */\r\nasm volatile(\r\n\"RDTSCP\\n\\t\"/*read the clock*/\r\n\"mov %%edx, %0\\n\\t\"\r\n\"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high1), \"=r\" \r\n(cycles_low1):: \"%rax\", \"%rcx\", \"%rdx\");\r\n /*do other things*/\r\nIf we find a way to avoid the undesired behavior described above we can avoid \r\ncalling the serializing CPUID instruction between the two timestamp register reads. \r\n3.2.1 The Improved Benchmarking Method\r\nThe solution to the problem presented in Section 0 is to add a CPUID instruction \r\njust after the RDTPSCP and the two mov instructions (to store in memory the \r\nvalue of edx and eax). The implementation is as follows:\r\nasm volatile (\"CPUID\\n\\t\"\r\n \"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low):: \r\n\"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\n/***********************************/\r\n/*call the function to measure here*/\r\n/***********************************/\r\nasm volatile(\"RDTSCP\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\"\r\n \"CPUID\\n\\t\": \"=r\" (cycles_high1), \"=r\" (cycles_low1):: \r\n\"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\nIn the code above, the first CPUID call implements a barrier to avoid out-of-order \r\nexecution of the instructions above and below the RDTSC instruction. \r\nNevertheless, this call does not affect the measurement since it comes before the \r\nRDTSC (i.e., before the timestamp register is read).\r\nThe first RDTSC then reads the timestamp register and the value is stored in \r\nmemory.\r\nThen the code that we want to measure is executed. If the code is a call to a \r\nfunction, it is recommended to declare such function as “inline” so that from an \r\nassembly perspective there is no overhead in calling the function itself.\r\nThis out of order execution corrupts the***",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/8036647c-25bf-46f9-b7ec-88d32dfeb8fc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=daa474f42b22018a7ecbcf4fa617d58582d7217ebde5afe78d6028183a447978",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 294
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "17b500c7-db9a-478a-b75a-edd576a06ec0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 17,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n17\r\nThe RDTSCP instruction reads the timestamp register for the second time and \r\nguarantees that the execution of all the code we wanted to measure is completed.\r\nThe two “mov” instructions coming afterwards store the edx and eax registers \r\nvalues into memory. Both instructions are guaranteed to be executed after RDTSC \r\n(i.e., they don’t corrupt the measure) since there is a logical dependency between \r\nRDTSCP and the register edx and eax (RDTSCP is writing those registers and the \r\nCPU is obliged to wait for RDTSCP to be finished before executing the two “mov”).\r\nFinally a CPUID call guarantees that a barrier is implemented again so that it is \r\nimpossible that any instruction coming afterwards is executed before CPUID itself \r\n(and logically also before RDTSCP).\r\nWith this method we avoid to call a CPUID instruction in between the reads of the \r\nreal-time registers (avoiding all the problems described in Section 3.1).\r\n3.2.2 Evaluation of the Improved Benchmarking Method\r\nIn reference to the code presented in Section 3.1, we replace the previous \r\nbenchmarking method with the new one, i.e., we replace ln19 to ln54 in the \r\nAppendix with the following code:\r\nasm volatile (\"CPUID\\n\\t\"\r\n \"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low):: \r\n\"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\nasm volatile(\"RDTSCP\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\"\r\n\"CPUID\\n\\t\": \"=r\" (cycles_high1), \"=r\" (cycles_low1):: \"%rax\", \r\n\"%rbx\", \"%rcx\", \"%rdx\");\r\nasm volatile (\"CPUID\\n\\t\"\r\n \"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low):: \r\n\"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\nasm volatile(\"RDTSCP\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\"\r\n\"CPUID\\n\\t\": \"=r\" (cycles_high1), \"=r\" (cycles_low1):: \"%rax\", \r\n\"%rbx\", \"%rcx\", \"%rdx\");\r\nfor (j=0; j<BOUND_OF_LOOP; j++) {\r\nfor (i =0; i<SIZE_OF_STAT; i++) {\r\nvariable = 0;\r\npreempt_disable();\r\nraw_local_irq_save(flags);\r\nasm volatile (\"CPUID\\n\\t\"\r\n \"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/17b500c7-db9a-478a-b75a-edd576a06ec0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=abbdce34477deaf91ccd1ea93de8d43ce960b5d064df59a5d13b7a2b4a08ce67",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 296
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "af26d404-9cc4-4cd4-9fb6-4a4df4dea14d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 18,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n18\r\n \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" \r\n(cycles_low):: \"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\n/***********************************/\r\n/*call the function to measure here*/\r\n/***********************************/\r\nasm volatile(\"RDTSCP\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\"\r\n \"CPUID\\n\\t\": \"=r\" (cycles_high1), \"=r\" \r\n(cycles_low1):: \"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\nraw_local_irq_restore(flags);\r\npreempt_enable();\r\nIf we perform the same analysis as in Section 3.2.1, we obtain a kernel log as \r\nfollows:\r\nLoading hello module...\r\nloop_size:0 >>>> variance(cycles): 2; max_deviation: 4 ;min time: 44\r\nloop_size:1 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 44\r\nloop_size:2 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 44\r\n……………………………\r\n……………………………\r\nloop_size:997 >>>> variance(cycles): 2; max_deviation: 4 ;min time: 44\r\nloop_size:998 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 44\r\nloop_size:999 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 44 \r\n total number of spurious min values = 0 \r\n total variance = 2\r\n absolute max deviation = 104\r\n variance of variances = 0 \r\n variance of minimum values = 0\r\nIn this case, the minimum time does not change between different ensembles (it is \r\nalways the same along all the 1000 repetitions of each ensemble); this means that \r\nthe overhead of calling the benchmarking function itself can be exactly \r\ndetermined.\r\nThe total variance is 2 cycles, i.e., the standard error on the measure is 1,414 \r\ncycles (before it was 6,9 cycles).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/af26d404-9cc4-4cd4-9fb6-4a4df4dea14d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=84f3af474b786ee78f558549d246e03baca07f497abd6eaf99719af9d87b3b7b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9b92ed16-2990-480e-a590-915d38e3a9b1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 19,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n19\r\nBoth the variance of variances and the variance of the minimum values are zero. \r\nThis means that this improved benchmarking method is completely ergodic \r\n(between different ensembles the maximum fluctuation of the variance is 1 clock \r\ncycle and the minimum value is perfectly constant). This is the most important \r\ncharacteristic that we need for a method to be suitable for benchmarking \r\npurposes.\r\nFor completeness, Figure 3 and Figure 4 show the same graphic analysis as done \r\nabove in Section 3.2.1.\r\nFigure 3. Minimum Value Behavior Graph 3\r\ngraph3\r\n0\r\n5\r\n10\r\n15\r\n20\r\n25\r\n30\r\n35\r\n40\r\n45\r\n50\r\n1 54 107 160 213 266 319 372 425 478 531 584 637 690 743 796 849 902 955\r\nensembles\r\nclock cycles\r\nminimum value",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/9b92ed16-2990-480e-a590-915d38e3a9b1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e2bcd1d2241a61aea9867474dc5be05d767d205b5810659e3fa93df4484e1cb1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 356
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3d688439-c5e4-4b4b-8d70-08fde97a25f2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 20,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n20\r\nFigure 4. Variance Behavior Graph 4\r\nIn Figure 3 we can see that the minimum value is perfectly constant between \r\nensembles; in Figure 4 the variance is either equal to 2 or 3 clock cycles. \r\n3.2.3 An Alternative Method for Architecture Not Supporting \r\nRDTSCP\r\nThis section presents an alternative method to benchmark code execution cycles \r\nfor architectures that do not support the RDTSCP instruction. Such a method is not \r\nas good as the one presented in Section 3.2.1, but it is still much better than the \r\none using CPUID to serialize code execution. In this method between the two \r\ntimestamp register reads we serialize the code execution by writing the control \r\nregister CR0.\r\nRegarding the code in the Appendix, the developer should replace ln19 to ln54 with \r\nthe following:\r\nasm volatile( \"CPUID\\n\\t\"\r\n \"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low):: \r\n\"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\nasm volatile( \"mov %%cr0, %%rax\\n\\t\"\r\n\"mov %%rax, %%cr0\\n\\t\"\r\n\"RDTSC\\n\\t\"\r\n\"mov %%edx, %0\\n\\t\"\r\n\"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high1), \"=r\" (cycles_low1):: \r\n\"%rax\", \"%rdx\");\r\ngraph4\r\n0\r\n2\r\n4\r\n6\r\n8\r\n10\r\n12\r\n14\r\n16\r\n18\r\n20\r\n22\r\n24\r\n1 51 101 151 201 251 301 351 401 451 501 551 601 651 701 751 801 851 901 951\r\nensembles\r\nclock cycles\r\nVariance",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/3d688439-c5e4-4b4b-8d70-08fde97a25f2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e1e3bd8f0cd670a53932e9fef05ab1809a57d788c5cf365004bfe685db43996f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f78706cf-5774-4a9c-83fd-2c3d43043e88",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 21,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n21\r\nasm volatile( \"CPUID\\n\\t\"\r\n\"RDTSC\\n\\t\"\r\n\"mov %%edx, %0\\n\\t\"\r\n\"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low):: \r\n\"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\nasm volatile( \"mov %%cr0, %%rax\\n\\t\"\r\n \"mov %%rax, %%cr0\\n\\t\"\r\n \"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high1), \"=r\" (cycles_low1):: \r\n\"%rax\", \"%rdx\");\r\nasm volatile( \"CPUID\\n\\t\"\r\n\"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n\"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low):: \r\n\"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\nasm volatile( \"mov %%cr0, %%rax\\n\\t\"\r\n\"mov %%rax, %%cr0\\n\\t\"\r\n\"RDTSC\\n\\t\"\r\n\"mov %%edx, %0\\n\\t\"\r\n\"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high1), \"=r\" (cycles_low1):: \r\n\"%rax\", \"%rdx\");\r\nfor (j=0; j<BOUND_OF_LOOP; j++) {\r\nfor (i =0; i<SIZE_OF_STAT; i++) { \r\nvariable = 0;\r\npreempt_disable();\r\nraw_local_irq_save(flags);\r\nasm volatile (\"CPUID\\n\\t\"::: \"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\nasm volatile (\"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" \r\n(cycles_low):: \"%rax\", \"%rdx\");\r\n/*call the function to measure here*/\r\nasm volatile(\"mov %%cr0, %%rax\\n\\t\"\r\n \"mov %%rax, %%cr0\\n\\t\"\r\n \"RDTSC\\n\\t\"\r\n \"mov %%edx, %0\\n\\t\"\r\n \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high1), \"=r\" \r\n(cycles_low1):: \"%rax\", \"%rdx\");\r\nraw_local_irq_restore(flags);\r\npreempt_enable();\r\nIn the code above, first we have the repetition (three times) of the instructions \r\ncalled in the body of the following nested loops; this is just to warm up the \r\ninstructions cache. Then the body of the loop is executed. We:\r\n· First take the exclusive ownership of the CPU (preempt_disable(), \r\nraw_local_irq_save())\r\n· Call CPUID to serialize",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/f78706cf-5774-4a9c-83fd-2c3d43043e88.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f44b196c31589734f895d19068ff0a36d56540ed9118fc2e644415f8d93f9c28",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 437
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5f992e10-e7be-415c-8e03-e65625ef4fde",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 22,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n22\r\n· Read the timestamp register the first time by RDTSC and store the value in \r\nmemory\r\n· Read the value of the control register CR0 into RAX register\r\n· Write the value of RAX back to CR0 (this instruction serializes)\r\n· Read the timestamp register the second time by RDTSC and store the value in \r\nmemory\r\n· Release the CPU ownership (raw_local_irq_restore, preempt_enable)\r\n3.2.4 Evaluation of the Alternative Method\r\nAs done in Section 3.1.2 and Section 3.2.2, hereafter we present the statistical \r\nanalysis of the method. The resulting kernel log is as follows:\r\nloop_size:2 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 208\r\nloop_size:3 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 208\r\nloop_size:4 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 208\r\n…………………\r\n…………………\r\nloop_size:998 >>>> variance(cycles): 4; max_deviation: 4 ;min time: 208\r\nloop_size:999 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 208 \r\ntotal number of spurious min values = 0 \r\ntotal variance = 3\r\nabsolute max deviation = 176 \r\nvariance of variances = 0 \r\nvariance of minimum values = 0 \r\nIn the log we see that the total variance of this method is 3 cycles rather than 2 \r\nand the absolute max deviation is 176 cycles rather than 104 cycles. This means \r\nthat the standard error on the measure is 1,73 rather than 1,414 and the \r\nmaximum error is increased as well. Nevertheless, we still have met the ergodicity \r\nrequirements since the variance does not change between different ensembles (the \r\nmaximum fluctuation is 1 clock cycle) as well as the minimum value; both the \r\nvariance of the variances and the variance of the minimum values are zero. Such a \r\nmethod may be suitable for benchmarking whenever the RDTSCP instruction is not \r\navailable on the CPU.\r\nAs done previously, the following graphs show the behavior of the minimum values \r\nand of the variances between different ensembles.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/5f992e10-e7be-415c-8e03-e65625ef4fde.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=08d8c5a7ecc2f951ca8dca0c6eda67da92da192b58fba205c7455d38607bbd91",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1c35f337-4494-4d67-9f34-ded789831f8c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 23,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n23\r\nFigure 5. Minimum Value Behavior Graph 5\r\nFigure 6. Variance Behavior Graph 6\r\nIn Figure 5, we can see how the minimum value is perfectly constant between \r\nensembles. In Figure 6, we have the variance being either equal to 3 or 4 clock \r\ncycles.\r\ngraph5\r\n0\r\n50\r\n100\r\n150\r\n200\r\n250\r\n1 53 105 157 209 261 313 365 417 469 521 573 625 677 729 781 833 885 937 989\r\nensembles\r\nclock cycles\r\nminimum value\r\ngraph6\r\n0\r\n2\r\n4\r\n6\r\n8\r\n10\r\n12\r\n14\r\n16\r\n18\r\n20\r\n22\r\n24\r\n26\r\n28\r\n30\r\n32\r\n34\r\n1 59 117 175 233 291 349 407 465 523 581 639 697 755 813 871 929 987\r\nensembles\r\nclock cycles\r\nvariance",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/1c35f337-4494-4d67-9f34-ded789831f8c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a2170879b65cc44e19f1ec3e9ce971788d7f160cc69e70e10be3bc210735593b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 450
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b5c2440b-46d0-48f3-9a62-fedf5ea0d839",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 24,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n24\r\n3.3 Resolution of the Benchmarking Methodologies\r\nIn this section we analyze the resolution of our benchmarking methods, focusing \r\non an Intel Core™ i7 processor-based platform, which is representative of a high\u0002end server solution and supports the RDTSCP instruction and out of order \r\nexecution.\r\nFor resolution, we mean the minimum number of sequential assembly instructions \r\nthat a method is able to benchmark (appreciate). The purpose of this evaluation is \r\nmostly intended to define the methodology to calculate the resolution rather than \r\nto analyze the resolutions themselves. The resolution itself is, in fact, strictly \r\ndependant on the target machine and the developer is advised to run the following \r\ntest before starting to benchmark to evaluate the benchmarking limits of the \r\nplatform.\r\nWith reference to the code presented in the Appendix, the developer should make \r\nthe proper replacements according to the benchmarking method he intends to use \r\n(Section 3.1.2 if RDTSCP is supported, Section 3.2.2 otherwise). Also, the following \r\ncode should be added at ln11:\r\nvoid inline measured_loop(unsigned int n, volatile int *var)\r\n{\r\nint k;\r\nfor (k=0; k<n; k++)\r\n(*var)= 1;\r\n}\r\nand the following in place of “/*call the function to measure here*/”:\r\nmeasured_loop(j, &variable);\r\nBy doing so, the external loop of the two nested ones (j index) is intended to \r\nincrease step by step the complexity of the function to benchmark; more in details \r\nbetween two consecutive ensembles it increases the parameter that determines \r\nthe size of the measured loop, thus adding exactly one assembly instruction to the \r\ncode under benchmark.\r\n3.3.1 Resolution with RDTSCP\r\nAccording to the guidelines in Section 3.3, we effect the recommended \r\nreplacements in the code for the method using RDTSCP instruction, we build the \r\nkernel module, and we call insmod from the shell. The resulting kernel log is as \r\nfollows:\r\nloop_size:0 >>>> variance(cycles): 3; max_deviation: 16 ;min time: 44\r\nloop_size:1 >>>> variance(cycles): 3; max_deviation: 16 ;min time: 44\r\nloop_size:2 >>>> variance(cycles): 3; max_deviation: 48 ;min time: 44\r\nloop_size:3 >>>> variance(cycles): 4; max_deviation: 16 ;min time: 44",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/b5c2440b-46d0-48f3-9a62-fedf5ea0d839.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f8e2ba2901439ea2efd183a753dbb547260a43e2459607c9dc7c5d605ba54ca1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 346
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "25b3b83a-f015-4c5c-a1e6-cc66ab811f49",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 25,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n25\r\nloop_size:4 >>>> variance(cycles): 3; max_deviation: 32 ;min time: 44\r\nloop_size:5 >>>> variance(cycles): 0; max_deviation: 36 ;min time: 44\r\nloop_size:6 >>>> variance(cycles): 3; max_deviation: 28 ;min time: 48\r\nloop_size:7 >>>> variance(cycles): 4; max_deviation: 32 ;min time: 48\r\nloop_size:8 >>>> variance(cycles): 3; max_deviation: 16 ;min time: 48\r\nloop_size:9 >>>> variance(cycles): 2; max_deviation: 48 ;min time: 48\r\nloop_size:10 >>>> variance(cycles): 0; max_deviation: 28 ;min time: 48\r\nloop_size:11 >>>> variance(cycles): 3; max_deviation: 64 ;min time: 52\r\n……………\r\n……………\r\nloop_size:994 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 2036\r\nloop_size:995 >>>> variance(cycles): 0; max_deviation: 4 ;min time: 2036\r\nloop_size:996 >>>> variance(cycles): 3; max_deviation: 4 ;min time: 2040\r\nloop_size:997 >>>> variance(cycles): 21; max_deviation: 4 ;min time: 2044\r\nloop_size:998 >>>> variance(cycles): 22; max_deviation: 112 ;min time: 2048\r\nloop_size:999 >>>> variance(cycles): 23; max_deviation: 160 ;min time: 2048\r\ntotal number of spurious min values = 0\r\ntotal variance = 1\r\nabsolute max deviation = 176\r\nvariance of variances = 2\r\nvariance of minimum values = 335926\r\nAs seen, each row is an ensemble of measures for a specific size of \r\n“measured_loop”; going down row by row, the complexity of the “measured_loop” \r\nfunction is increased exactly by one assembly instruction. Accordingly we see that \r\n“min time” increases as we scroll down the rows. Now let’s look at the final part of \r\nthe log:\r\n· the total number of spurious min values is zero: this means that as we increase \r\nthe complexity of the measured loop, the minimum measured time \r\nmonotonically increases (if we perform enough measures we can exactly \r\ndetermine the minimum number of clock cycles that it takes to run a certain \r\nfunction)\r\n· the total variance is 1 cycle: that means that the overall standard error is 1 \r\ncycle (that is very good)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/25b3b83a-f015-4c5c-a1e6-cc66ab811f49.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fc731e27bbc4cd715dd9b805231612569e730efd29f726a3a6956c2e578c3b64",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 299
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5b10e118-701b-479e-9c75-7f1d11711dea",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 26,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n26\r\n· the absolute max deviation is 176 cycles: from a benchmarking perspective it \r\nis not very important; instead this parameter is fundamental to evaluate the \r\ncapabilities of the system to meet real-time constraints (we will not pursue this \r\nfurther since it is out of the scope of this paper).\r\n· The variance of the variances is 2 cycles: this index is very representative of \r\nhow reliable our benchmarking method is (i.e., the variance of the measures \r\ndoes not vary according to the complexity of the function under benchmark).\r\n· Finally the variance of the minimum values is completely meaningless and \r\nuseless in this context and can be neglected (this index was crucial for Section \r\n0)\r\nFrom a resolution perspective we can see that we have the min value that is \r\nconstant (44 cycles) between 0 and 5 measured assembly instructions and \r\nbetween 6 and 10 assembly instructions (48 clock cycles). Then it increases very \r\nregularly by four cycles every two assembly instructions. So unless the function \r\nunder benchmark is very small, in this case the resolution of this benchmarking \r\nmethod is two assembly instructions (that is the minimum variation in the code \r\ncomplexity that can be revealed).\r\nFor completeness, the following graph (Graph 7) shows the minimum values, and \r\nthe next graph (Graph 8) shows the variances.\r\nFigure 7. Minimum Value Behavior Graph 7\r\ngraph7\r\n0\r\n500\r\n1000\r\n1500\r\n2000\r\n2500\r\n1 52 103 154 205 256 307 358 409 460 511 562 613 664 715 766 817 868 919 970\r\nensembles\r\nclock cycles\r\nmin value",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/5b10e118-701b-479e-9c75-7f1d11711dea.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2cf6d5f7206ab5363f1a9e1a5f53cba7749ab49960a2a85f9813b26a223808f9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d94fc246-2501-4b56-96e1-816625606e6d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 27,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n27\r\nFigure 8. Variance Behavior Graph 8\r\n3.3.2 Resolution with the Alternative Method\r\nAccording to what we did in Section 3.3.1, we run the same test using the \r\nalternative benchmarking method presented in Section 3.2.3. The resulting kernel \r\nlog is as follows:\r\nloop_size:0 >>>> variance(cycles): 3; max_deviation: 88 ;min time: 208\r\nloop_size:1 >>>> variance(cycles): 0; max_deviation: 16 ;min time: 208\r\nloop_size:2 >>>> variance(cycles): 4; max_deviation: 56 ;min time: 208\r\nloop_size:3 >>>> variance(cycles): 0; max_deviation: 20 ;min time: 212\r\nloop_size:4 >>>> variance(cycles): 3; max_deviation: 36 ;min time: 212\r\nloop_size:5 >>>> variance(cycles): 3; max_deviation: 36 ;min time: 216\r\nloop_size:6 >>>> variance(cycles): 4; max_deviation: 36 ;min time: 216\r\nloop_size:7 >>>> variance(cycles): 0; max_deviation: 68 ;min time: 220\r\n…………………\r\n…………………\r\nloop_size:994 >>>> variance(cycles): 28; max_deviation: 112 ;min time: 2212\r\ngraph8\r\n0\r\n2\r\n4\r\n6\r\n8\r\n10\r\n12\r\n14\r\n16\r\n18\r\n20\r\n22\r\n24\r\n26\r\n28\r\n30\r\n32\r\n34\r\n0 100 200 300 400 500 600 700 800 900 1000\r\nensembles\r\nclock cycles\r\nvariance",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/d94fc246-2501-4b56-96e1-816625606e6d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8022138c43d43cc9e8dbd41984e11f924d2b63c08b55d184f418f1964ca9c702",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 444
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3ef858cb-b0a1-42c6-8536-04d9b0c98848",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 28,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n28\r\nloop_size:995 >>>> variance(cycles): 0; max_deviation: 0 ;min time: 2216\r\nloop_size:996 >>>> variance(cycles): 28; max_deviation: 4 ;min time: 2216\r\nloop_size:997 >>>> variance(cycles): 0; max_deviation: 112 ;min time: 2216\r\nloop_size:998 >>>> variance(cycles): 28; max_deviation: 116 ;min time: 2220\r\nloop_size:999 >>>> variance(cycles): 0; max_deviation: 0 ;min time: 2224\r\ntotal number of spurious min values = 0\r\ntotal variance = 1\r\nabsolute max deviation = 220\r\nvariance of variances = 2\r\nvariance of minimum values = 335757\r\nWith this method we achieved results as good as the previous ones. The only \r\ndifference is the absolute maximum deviation that here is slightly higher; this does \r\nnot affect the quality of the method from a benchmarking perspective. \r\nFor completeness, the following graphs present behaviors of the variance and the \r\nminimum value.\r\nFigure 9. Variance Behavior Graph 9\r\ngraph9\r\n0\r\n500\r\n1000\r\n1500\r\n2000\r\n2500\r\n1 52 103 154 205 256 307 358 409 460 511 562 613 664 715 766 817 868 919 970\r\nensembles\r\nclock cycles\r\nmin value",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/3ef858cb-b0a1-42c6-8536-04d9b0c98848.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=02c2c5e8f1e31e60616d8cf5430d9ed3874241d0455905e8a752b1ef914e250b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6338a9fa-e51f-4000-9f1d-51508af4d212",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 29,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n29\r\nFigure 10. Variance Behavior Graph 10\r\ngraph10\r\n0\r\n2\r\n4\r\n6\r\n8\r\n10\r\n12\r\n14\r\n16\r\n18\r\n20\r\n22\r\n24\r\n26\r\n28\r\n30\r\n32\r\n34\r\n0 100 200 300 400 500 600\r\nensembles\r\nclock cycles\r\nvariance",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/6338a9fa-e51f-4000-9f1d-51508af4d212.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=995a8a46818a3f06ece96090f21502335eb25383923fa6b5dfc2d5f50a44469e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 229
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "96eccf81-6cdd-4267-a768-aae16b661182",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 30,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n30\r\n4 5BSummary\r\nIn Section 3.2.1 and Section 3.2.3 we showed two suitable methods for \r\nbenchmarking the execution time of a generic C/C++ function running on an \r\nIA32/IA64 platform. The former should be chosen if the RDTSCP instruction is \r\navailable; if not, the other one can be used.\r\nWhenever taking a measurement, the developer should perform the following \r\nsteps:\r\n1. Run the tests in Section 3.2.2 or Section 3.2.4 (according to the platform).\r\n2. Analyze the variance of the variances and the variance of the minimum values \r\nto validate the method on his platform. If the values that the user obtains are \r\nnot satisfactory, he may have to change the BIOS settings or the BIOS itself.\r\n3. Calculate the resolution that the method is able to guarantee.\r\n4. Make the measurement and subtract the offset (additional cost of calling the \r\nmeasuring function itself) that the user will have calculated before (minimum \r\nvalue from Section 3.2.2 or Section 3.2.4).\r\nA couple final considerations should be made:\r\nCounter Overflow: The timestamp register is 64 bit. On a single overflow, we \r\nencounter no problems since we are making a difference between unsigned int and \r\nthe results would be still correct. The problem arises if the duration of the code \r\nunder measurement takes longer than 2^64 cycles. For a 1-GHz CPU, that would \r\nmean that your code should take longer than\r\n(2^64)/(10^9) = 18446744073 seconds ~ 585 years\r\nSo it shouldn’t be a problem or, if it is, the developer won’t still be alive to see it!\r\n32- vs. 64-Bit Architectures: Particular attention must be paid to the 64-bit \r\nregisters used in the code presented in this paper. Whenever working with a 32b\r\nplatform, the code presented is still valid, but whatever occurrence of rax, rbx, \r\nrcx, rdx has to be replaced respectively with eax, ebx, ecx, edx.\r\nThe Intel® Embedded Design Center provides qualified \r\ndevelopers with web-based access to technical resources. \r\nAccess Intel Confidential design materials, step-by-step \r\nguidance, application reference solutions, training, Intel’s \r\ntool loaner program, and connect with an e-help desk and \r\nthe embedded community. Design Fast. Design Smart. Get \r\nstarted today. 43Hhttp://intel.com/embedded/edc.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/96eccf81-6cdd-4267-a768-aae16b661182.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9aa4b944fc87d26717ae50553bf3478ca9b15286b35f20cc6480e3d00668fd04",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 365
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a8ee6e4a-2b9b-4eba-98a4-5bb3fdd57d0c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 31,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n31\r\n5 Appendix\r\n1 #include <linux/module.h>\r\n2 #include <linux/kernel.h>\r\n3 #include <linux/init.h>\r\n4 #include <linux/hardirq.h>\r\n5 #include <linux/preempt.h>\r\n6 #include <linux/sched.h>\r\n7 \r\n8 #define SIZE_OF_STAT 100000\r\n9 #define BOUND_OF_LOOP 1000\r\n10 #define UINT64_MAX (18446744073709551615ULL)\r\n11\r\n12 void inline Filltimes(uint64_t **times) {\r\n13 unsigned long flags;\r\n14 int i, j;\r\n15 uint64_t start, end;\r\n16 unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;\r\n17 volatile int variable = 0;\r\n18 \r\n19 asm volatile (\"CPUID\\n\\t\"\r\n20 \"RDTSC\\n\\t\"\r\n21 \"mov %%edx, %0\\n\\t\"\r\n22 \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low)::\r\n\"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\n23 asm volatile (\"CPUID\\n\\t\"\r\n24 \"RDTSC\\n\\t\"\r\n25 \"CPUID\\n\\t\"\r\n26 \"RDTSC\\n\\t\"\r\n27 \"mov %%edx, %0\\n\\t\"\r\n28 \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" (cycles_low):: \r\n\"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\n29 asm volatile (\"CPUID\\n\\t\"\r\n30 \"RDTSC\\n\\t\"::: \"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\n31\r\n32\r\n33 for (j=0; j<BOUND_OF_LOOP; j++) {\r\n34 for (i =0; i<SIZE_OF_STAT; i++) { \r\n35\r\n36 variable = 0;\r\n37\r\n38 preempt_disable();\r\n39 raw_local_irq_save(flags);\r\n40\r\n41 asm volatile (\r\n42 \"CPUID\\n\\t\"\r\n43 \"RDTSC\\n\\t\"\r\n44 \"mov %%edx, %0\\n\\t\"\r\n45 \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high), \"=r\" \r\n(cycles_low):: \"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\n46 /*call the function to measure here*/\r\n47 asm volatile(\r\n48 \"CPUID\\n\\t\"\r\n49 \"RDTSC\\n\\t\"\r\n50 \"mov %%edx, %0\\n\\t\"",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/a8ee6e4a-2b9b-4eba-98a4-5bb3fdd57d0c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=445726597937bdec925c81ec8c8a189253ceaad76437f5103af663b5a1e89879",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "213cd879-c8bd-44fc-8091-e11c6807c8a1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 32,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n32\r\n51 \"mov %%eax, %1\\n\\t\": \"=r\" (cycles_high1), \"=r\" \r\n(cycles_low1):: \"%rax\", \"%rbx\", \"%rcx\", \"%rdx\");\r\n52\r\n53 raw_local_irq_restore(flags);\r\n54 preempt_enable();\r\n55\r\n56\r\n57 start = ( ((uint64_t)cycles_high << 32) | cycles_low );\r\n58\r\n59 end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );\r\n60\r\n61 if ( (end - start) < 0) {\r\n62 printk(KERN_ERR \"\\n\\n>>>>>>>>>>>>>> CRITICAL ERROR IN TAKING \r\nTHE TIME!!!!!!\\n loop(%d) stat(%d) start = %llu, end = %llu, variable = \r\n%u\\n\", j, i, start, end, variable);\r\n63 times[j][i] = 0;\r\n64 }\r\n65 else\r\n66 {\r\n67 times[j][i] = end - start;\r\n68 }\r\n69 }\r\n70 } \r\n71 return;\r\n72}\r\n73uint64_t var_calc(uint64_t *inputs, int size)\r\n74{\r\n75 int i;\r\n76 uint64_t acc = 0, previous = 0, temp_var = 0;\r\n77 for (i=0; i< size; i++) {\r\n78 if (acc < previous) goto overflow;\r\n79 previous = acc;\r\n80 acc += inputs[i];\r\n81 }\r\n82 acc = acc * acc;\r\n83 if (acc < previous) goto overflow;\r\n84 previous = 0;\r\n85 for (i=0; i< size; i++){\r\n86 if (temp_var < previous) goto overflow;\r\n87 previous = temp_var;\r\n88 temp_var+= (inputs[i]*inputs[i]);\r\n89 }\r\n90 temp_var = temp_var * size;\r\n91 if (temp_var < previous) goto overflow;\r\n92 temp_var =(temp_var - acc)/(((uint64_t)(size))*((uint64_t)(size)));\r\n93 return (temp_var);\r\n94overflow:\r\n95 printk(KERN_ERR \"\\n\\n>>>>>>>>>>>>>> CRITICAL OVERFLOW ERROR \r\nIN var_calc!!!!!!\\n\\n\");\r\n96 return -EINVAL;\r\n97}\r\n98static int __init hello_start(void)\r\n99{\r\n100 int i = 0, j = 0, spurious = 0, k =0;\r\n101 uint64_t **times;\r\n102 uint64_t *variances;",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/213cd879-c8bd-44fc-8091-e11c6807c8a1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=69bdec718c81897dbfd4c1a7e2e2e11eb14549a9094c1390e2e01a8d0bf98786",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 462
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "83b60853-ebd0-45c9-a3ac-1d4af47da3c7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 33,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n33\r\n103 uint64_t *min_values;\r\n104 uint64_t max_dev = 0, min_time = 0, max_time = 0, prev_min =0, tot_var=0, \r\nmax_dev_all=0, var_of_vars=0, var_of_mins=0;\r\n105\r\n106 printk(KERN_INFO \"Loading hello module...\\n\");\r\n107\r\n108 times = kmalloc(BOUND_OF_LOOP*sizeof(uint64_t*), GFP_KERNEL);\r\n109 if (!times) {\r\n110 printk(KERN_ERR \"unable to allocate memory for times\\n\");\r\n111 return 0;\r\n112 }\r\n113\r\n114 for (j=0; j<BOUND_OF_LOOP; j++) {\r\n115 times[j] = kmalloc(SIZE_OF_STAT*sizeof(uint64_t), GFP_KERNEL);\r\n116 if (!times[j]) {\r\n117 printk(KERN_ERR \"unable to allocate memory for times[%d]\\n\", j);\r\n118 for (k=0; k<j; k++)\r\n119 kfree(times[k]);\r\n120 return 0;\r\n121 }\r\n122 }\r\n123\r\n124 variances = kmalloc(BOUND_OF_LOOP*sizeof(uint64_t), GFP_KERNEL);\r\n125 if (!variances) {\r\n126 printk(KERN_ERR \"unable to allocate memory for variances\\n\");\r\n127 return 0;\r\n128 }\r\n129\r\n130 min_values = kmalloc(BOUND_OF_LOOP*sizeof(uint64_t), GFP_KERNEL);\r\n131 if (!min_values) {\r\n132 printk(KERN_ERR \"unable to allocate memory for min_values\\n\");\r\n133 return 0;\r\n134 }\r\n135\r\n136\r\n137 Filltimes(times);\r\n138\r\n139 for (j=0; j<BOUND_OF_LOOP; j++) {\r\n140\r\n141 max_dev = 0;\r\n142 min_time = 0;\r\n143 max_time = 0;\r\n144\r\n145 for (i =0; i<SIZE_OF_STAT; i++) {\r\n146 if ((min_time == 0)||(min_time > times[j][i]))\r\n147 min_time = times[j][i];\r\n148 if (max_time < times[j][i])\r\n149 max_time = times[j][i];\r\n150 }\r\n151\r\n152 max_dev = max_time - min_time;\r\n153 min_values[j] = min_time;\r\n154\r\n155 if ((prev_min != 0) && (prev_min > min_time))\r\n156 spurious++;\r\n157 if (max_dev > max_dev_all)\r\n158 max_dev_all = max_dev;\r\n159\r\n160 variances[j] = var_calc(times[j], SIZE_OF_STAT);",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/83b60853-ebd0-45c9-a3ac-1d4af47da3c7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4da11357a6c7584538d53b2a6022260444c57d997a05ef55b992708f5ca56334",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "64b86d9a-9ed7-41f0-936a-87452a26d60a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 34,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n34\r\n161 tot_var += variances[j];\r\n162\r\n163 printk(KERN_ERR \"loop_size:%d >>>> variance(cycles): %llu; \r\nmax_deviation: %llu ;min time: %llu\", j, variances[j], max_dev, min_time);\r\n164\r\n165 prev_min = min_time;\r\n166 }\r\n167\r\n168 var_of_vars = var_calc(variances, BOUND_OF_LOOP);\r\n169 var_of_mins = var_calc(min_values, BOUND_OF_LOOP);\r\n170\r\n171 printk(KERN_ERR \"\\n total number of spurious min values = %d\", spurious);\r\n172 printk(KERN_ERR \"\\n total variance = %llu\", (tot_var/BOUND_OF_LOOP));\r\n173 printk(KERN_ERR \"\\n absolute max deviation = %llu\", max_dev_all);\r\n174 printk(KERN_ERR \"\\n variance of variances = %llu\", var_of_vars);\r\n175 printk(KERN_ERR \"\\n variance of minimum values = %llu\", var_of_mins);\r\n176\r\n177 for (j=0; j<BOUND_OF_LOOP; j++) {\r\n178 kfree(times[j]);\r\n179 }\r\n180 kfree(times);\r\n181 kfree(variances);\r\n182 kfree(min_values);\r\n183 return 0;\r\n184}\r\n185\r\n186static void __exit hello_end(void)\r\n187{\r\n188 printk(KERN_INFO \"Goodbye Mr.\\n\");\r\n189}\r\n190\r\n191module_init(hello_start);\r\n192module_exit(hello_end);",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/64b86d9a-9ed7-41f0-936a-87452a26d60a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e860f36e6eeda7615f26d9d785cf34219a8249f4cf58303db6487f28e2b01c29",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7f7b05a5-da55-4cc3-902a-36e2149df9c2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 35,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n35\r\n6 Reference List\r\n[1] Using the RDTSC Instruction for Performance Monitoring\r\nhttp://www.ccsl.carleton.ca/~jamuir/rdtscpm1.pdf\r\n[2] GCC Inline Assembly HowTo\r\nhttp://www.ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html#ss5.4\r\n[3] Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 2B\r\nhttp://www.intel.com/Assets/PDF/manual/253667.pdf\r\n[4] Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 2A\r\nhttp://www.intel.com/Assets/PDF/manual/253666.pdf\r\n[5] The Linux Kernel Module Programming Guide\r\nhttp://tldp.org/LDP/lkmpg/2.6/html/lkmpg.html",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/7f7b05a5-da55-4cc3-902a-36e2149df9c2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=937be0e873d6274cf385731cc088b13138f793af6397792813e6029fd816bb88",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4732d317-09ff-437d-9088-453f16a7c566",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 36,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n36\r\nAuthor\r\nGabriele Paoloni is an Embedded/Linux software engineer in the Intel Architecture Group.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/4732d317-09ff-437d-9088-453f16a7c566.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1082bb8769cdc9cf6fff3a3d2666f9963f59649881141cddedab744a49d2bf6a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 471
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3178c00f-c9e7-4a3f-8e33-0446eb53c943",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 37,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "How to Benchmark Code Execution Times on Intel® IA-32 \r\nand IA-64 Instruction Set Architectures\r\n37\r\nINFORMATION IN THIS DOCUMENT IS PROVIDED IN CONNECTION WITH INTEL PRODUCTS. NO \r\nLICENSE, EXPRESS OR IMPLIED, BY ESTOPPEL OR OTHERWISE, TO ANY INTELLECTUAL PROPERTY \r\nRIGHTS IS GRANTED BY THIS DOCUMENT. EXCEPT AS PROVIDED IN INTEL’S TERMS AND CONDITIONS \r\nOF SALE FOR SUCH PRODUCTS, INTEL ASSUMES NO LIABILITY WHATSOEVER, AND INTEL DISCLAIMS \r\nANY EXPRESS OR IMPLIED WARRANTY, RELATING TO SALE AND/OR USE OF INTEL PRODUCTS \r\nINCLUDING LIABILITY OR WARRANTIES RELATING TO FITNESS FOR A PARTICULAR PURPOSE, \r\nMERCHANTABILITY, OR INFRINGEMENT OF ANY PATENT, COPYRIGHT OR OTHER INTELLECTUAL \r\nPROPERTY RIGHT. UNLESS OTHERWISE AGREED IN WRITING BY INTEL, THE INTEL PRODUCTS ARE \r\nNOT DESIGNED NOR INTENDED FOR ANY APPLICATION IN WHICH THE FAILURE OF THE INTEL \r\nPRODUCT COULD CREATE A SITUATION WHERE PERSONAL INJURY OR DEATH MAY OCCUR.\r\nIntel may make changes to specifications and product descriptions at any time, without notice. \r\nThis paper is for informational purposes only. THIS DOCUMENT IS PROVIDED \"AS IS\" WITH NO \r\nWARRANTIES WHATSOEVER, INCLUDING ANY WARRANTY OF MERCHANTABILITY, NONINFRINGEMENT, \r\nFITNESS FOR ANY PARTICULAR PURPOSE, OR ANY WARRANTY OTHERWISE ARISING OUT OF ANY \r\nPROPOSAL, SPECIFICATION OR SAMPLE. Intel disclaims all liability, including liability for infringement of any \r\nproprietary rights, relating to use of information in this specification. No license, express or implied, by \r\nestoppel or otherwise, to any intellectual property rights is granted herein.\r\nPerformance tests and ratings are measured using specific computer systems and/or components and \r\nreflect the approximate performance of Intel products as measured by those tests. Any difference in system \r\nhardware or software design or configuration may affect actual performance. Buyers should consult other \r\nsources of information to evaluate the performance of systems or components they are considering \r\npurchasing. For more information on performance tests and on the performance of Intel products, Go to:\r\n4Hhttp://www.intel.com/performance/resources/benchmark_limitations.htm\r\nBunnyPeople, Celeron, Celeron Inside, Centrino, Centrino Inside, Core Inside, i960, Intel, the Intel logo, \r\nIntel AppUp, Intel Atom, Intel Atom Inside, Intel Core, Intel Inside, the Intel Inside logo, Intel NetBurst, \r\nIntel NetMerge, Intel NetStructure, Intel SingleDriver, Intel SpeedStep, Intel Sponsors of Tomorrow., the \r\nIntel Sponsors of Tomorrow. logo, Intel StrataFlash, Intel Viiv, Intel vPro, Intel XScale, InTru, the InTru \r\nlogo, InTru soundmark, Itanium, Itanium Inside, MCS, MMX, Moblin, Pentium, Pentium Inside, skoool, the \r\nskoool logo, Sound Mark, The Journey Inside, vPro Inside, VTune, Xeon, and Xeon Inside are trademarks of \r\nIntel Corporation in the U.S. and other countries.\r\n*Other names and brands may be claimed as the property of others.\r\nCopyright © 2010 Intel Corporation. All rights reserved.\r\n§",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/98f0362f-7bca-4f07-8dbb-f49638909960/images/3178c00f-c9e7-4a3f-8e33-0446eb53c943.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041416Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cc39a3aaf157d90979e44a0fc8ebf968cd00fec160c68c6bbce05dc8e73a6028",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 424
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "How to Benchmark Code Execution Times on Intel® IA-32 and IA-64 Instruction Set Architectures\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Gabriele Paoloni\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "September 2010\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```json\n{\"location\": null}\n```\n"
+        }
+      ]
+    }
+  }
+}

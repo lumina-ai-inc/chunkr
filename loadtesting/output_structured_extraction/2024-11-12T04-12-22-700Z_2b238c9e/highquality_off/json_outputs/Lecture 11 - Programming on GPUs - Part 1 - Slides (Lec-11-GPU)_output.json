@@ -1,0 +1,2374 @@
+{
+  "file_name": "Lecture 11 - Programming on GPUs - Part 1 - Slides (Lec-11-GPU).pdf",
+  "task_id": "9b03ba43-c97c-461e-a215-b9b0e3edc8f7",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "b1ab5f63-936b-4a1e-8ce9-fc5c9be5f72e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Lecture 11: Programming on GPUs \r\n(Part 1)\r\n1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/b1ab5f63-936b-4a1e-8ce9-fc5c9be5f72e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9d90487bda440c07a6230c06d338d1f88e54093cdf4c3832899ec03abce9adea",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "32d7cffc-c42d-48b6-9d20-8d53fc1e7d85",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 2,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Overview\r\n• GPGPU: General purpose computation using \r\ngraphics processing units (GPUs) and graphics API \r\n• GPU consists of multiprocessor element that run \r\nunder the shared-memory threads model. GPUs can \r\nrun hundreds or thousands of threads in parallel and \r\nhas its own DRAM. \r\n– GPU is a dedicated, multithread, data parallel processor.\r\n– GPU is good at \r\n• Data-parallel processing: the same computation executed on \r\nmany data elements in parallel\r\n• with high arithmetic intensity \r\n2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/32d7cffc-c42d-48b6-9d20-8d53fc1e7d85.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba9bd64a47df722d3e45961c20271bdf08e44d9b05edd1c1eec7fe40fb6a7df7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6ee8e7ea-037c-4a19-83d4-f3918b95b085",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 3,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Performance history: GPUs are much faster than CPUs\r\n3\r\nAMD FireStream 9250: 1Tflops",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/6ee8e7ea-037c-4a19-83d4-f3918b95b085.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c3c0fbca319a6cbf586aa58a518f735d09871135701dbcf5016e822ffb98458d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "de037bef-6b49-48e2-9cc3-ff1082c3abb3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 4,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/de037bef-6b49-48e2-9cc3-ff1082c3abb3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ff8beeef439d608889cd38f1bffce5d34fad130f5f2583b3380c0e8d193123a1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b69e7e1f-4fc0-478e-934b-1955031b87b8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 5,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• CUDA: Compute unified device architecture\r\n– A new hardware and software architecture for \r\nissuing and managing computations on the GPU\r\n• CUDA C is a programming language developed \r\nby NVIDIA for programming on their GPUs. It \r\nis an extension of C. \r\n5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/b69e7e1f-4fc0-478e-934b-1955031b87b8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4de4952d1fb8f019f59f5e7ed2136230cfff98e1b15abc8ec35dff605cbface6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0ac572e1-c676-432b-a76a-fb401167dea8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 6,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "nVidia GPU Architecture\r\n• Many processors are striped together\r\n• Small, fast shared memory 6",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/0ac572e1-c676-432b-a76a-fb401167dea8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6ddbb0da440fe5231e338ed68205a398eed85fc4b95365c8158d3ecd56ffc343",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "47998e43-8716-4735-b3db-6f698d3cd171",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 7,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/47998e43-8716-4735-b3db-6f698d3cd171.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f15ad2707a73277a5c05b2cdb7c66f50bb77a957b01ffc2d0f80dbcaf7c8bece",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b3c0af36-a03f-4910-905b-9bd81160c2dd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 8,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Hardware Overview\r\n• Basic building block is a “streaming \r\nmultiprocessor” (SM) with:\r\n– 32 cores, each with 1024 registers\r\n– up to 48 threads per core\r\n– 64KB of shared memory / L1 cache\r\n– 8KB cache for constants held in device memory\r\n• C2050: 14 SMs, 3/6 GB memory\r\n8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/b3c0af36-a03f-4910-905b-9bd81160c2dd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a7b13ead16c80c1f0bbd2e0f16bb2f79383dfb1233903fcd2a405b9cfbeef320",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c9bd5934-0d77-4555-ac09-206a1ac36794",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 9,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "GPU Computing at CRC\r\n• http://wiki.crc.nd.edu/wiki/index.php/Developmental_Systems\r\n• gpu1.crc.nd.edu\r\n• gpu2.crc.nd.edu\r\n• gpu3.crc.nd.edu\r\n• gpu4.crc.nd.edu\r\n• gpu5.crc.nd.edu\r\n• CUDA compiler is nvcc\r\n• To compile and run GPU code:\r\n– module load cuda\r\n– module show cuda\r\n– nvcc hello.cu \r\n9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/c9bd5934-0d77-4555-ac09-206a1ac36794.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=553b04846c89197888daed1176ae27bbce4b91f8d1ab8342bed5aa54af2d1848",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "014da860-b96f-40d8-9306-746054ed85ee",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 10,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Heterogeneous Computing\r\n• Host: The CPU and its memory (host memory)\r\n• Device: The GPU and its memory (device memory)\r\n10\r\nThings to learn:\r\n1. Write code for the host and code for the device\r\n2. Run device code from the host\r\n3. Use device memory (transfer data between host and device)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/014da860-b96f-40d8-9306-746054ed85ee.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eaf799358ac5d273dbd7d4c7397faeccdfdbdead289959d92ef4703653ab1be2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "73ee7fbd-5652-4323-88f5-c95ae5e9ab60",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 11,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "A First Program\r\n/* Cuda Hello, World, hello.cu”\r\n#include <stdio.h>\r\n__global__ void mykernel(void) {\r\n}\r\nint main(void){\r\n mykernel<<<1,1>>>();\r\n printf(“Hello, World\\n”);\r\n return 0;\r\n}\r\n11\r\n__global__ : \r\n1. A qualifier added to standard C. This alerts the compiler that a function should be \r\ncompiled to run on a device (GPU) instead of host (CPU).\r\n2. Function mykernel() is called from host code. \r\n \r\nCompile: nvcc hello.cu\r\nnvcc separates source code into host and device components\r\nDevice functions (e.g. mykernel()) processed by NVIDIA compiler\r\nHost functions (e.g. main()) processed by standard host compiler like gcc",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/73ee7fbd-5652-4323-88f5-c95ae5e9ab60.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6d162c68d9ca713ad46b5ad4e5f305a79c5528d875ec90186e0194bbee7a74a5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "81690167-b703-4fab-a49f-21777bc8d462",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 12,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "CUDA Concepts and Terminology\r\nmykernel<<<1,1>>>();\r\n• Kernel: a C function which is flagged to be run on a \r\nGPU (or a device).\r\n• Triple angle brackets mark a call from host code to \r\ndevice code\r\n– Also called a “kernel launch”\r\n– The parameters (1,1) will be explained in a moment\r\n12",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/81690167-b703-4fab-a49f-21777bc8d462.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=41d6ce138786acdbf189e7da1e3d4d17a0aef65557e298334e87a9f7c33b4629",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "02255cb8-a9bf-4754-b228-d956bf38cb5f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 13,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Processing Flow\r\n1. Copy input data from CPU memory to GPU \r\nmemory and allocate memory\r\n// cudaMalloc((void**)&device_c, sizeof(int));\r\n13",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/02255cb8-a9bf-4754-b228-d956bf38cb5f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f8efdeac01e7204e87314fb8159ff80d27ff73af3a9e7fa63ddc3a2317f37b47",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8052d360-be4d-403c-8c3c-bb4ca299440f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 14,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "14\r\n2. Load GPU program and execute, \r\nCaching data on chip for performance\r\n//add<<<1, 1>>>(2, 7, device_c);",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/8052d360-be4d-403c-8c3c-bb4ca299440f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c8f8441e7f9b9a9f3fddc048afcb8ad1d75228fd3e8181c326d43ea473a47e70",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f9a07236-37d5-47e2-806e-2b7334bf5b4f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 15,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "3. Copy results from GPU memory to CPU memory\r\n//cudaMemcpy(&c, device_c, sizeof(int), cudaMemcpyDeviceToHost);\r\n15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/f9a07236-37d5-47e2-806e-2b7334bf5b4f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e1b0eae597ed4b0146536efbd6a75348fd95e40272a17de3a91eea0c00fa8a5c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 494
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d7d3bf27-317d-4493-aacf-bafd3a30e9f0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 16,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Passing Parameters & Data Transfer\r\n// File name: add.cu\r\n#include <stdio.h>\r\n__global__ void add(int a, int b, int *c){\r\n *c = a+b;\r\n}\r\nint main(void){\r\n int c;\r\n int *device_c;\r\n cudaMalloc((void**)&device_c, sizeof(int));\r\n add<<<1, 1>>>(2, 7, device_c);\r\n cudaMemcpy(&c, device_c, sizeof(int), cudaMemcpyDeviceToHost);\r\n printf(“2+7 = %d\\n”, c);\r\n cudeFree(device_c);\r\n return 0;\r\n}\r\n16\r\n• Can pass parameters to a kernel as with C function\r\n• Need to allocate memory to do anything useful on a device, such as return values to the \r\nhost. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/d7d3bf27-317d-4493-aacf-bafd3a30e9f0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=70ad2fe40bffcef7928e869454337057f53dda3fe6c7e4f07e550eea12963053",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f79fbaed-5855-4a1c-8fd2-155139ac1c1b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 17,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• add() runs on the device, so device_c must point to \r\nthe device memory\r\n– This is why we call cudaMalloc() to allocate memory on \r\nthe device\r\n• Do not deference the pointer returned by \r\ncudaMalloc() from code that executes on the host. \r\nHost code may pass this pointer around, perform \r\narithmetic on it. But we can not use it to read or \r\nwrite from memory.\r\n– Its C equivalent is malloc().\r\n• We can access memory on a device through calls to \r\ncudaMemcpy() from host code. \r\n– Its C equivalent is memcpy(). \r\n17",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/f79fbaed-5855-4a1c-8fd2-155139ac1c1b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=123b2f3c2cfb150e6d10320969bbe7cc18722483e5488e90124e72abd21ae770",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bc55b6f8-360e-4913-b7ea-93ebf41a241c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 18,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Parallel Computing\r\n• How do we run code in parallel on the device? \r\nadd<<< 256, 1>>>(2, 7, device_c);\r\n– Instead of executing add() once, execute 256 times \r\nin parallel \r\n• <<<N,1>>>();\r\n– The number “N” represents the number of parallel \r\nblocks (of threads) in which we would like the GPU \r\nto execute our kernel. \r\n– add<<< 256, 1>>>() can be thought as that the \r\nruntime creates 256 copies of the kernel and runs \r\nthem in parallel. \r\n18",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/bc55b6f8-360e-4913-b7ea-93ebf41a241c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=85e2dbd5472754efa9f4642892eb266246fc73aa2d86c5c597db79567ceb26e6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ca2f7253-7c0c-4cf9-b52c-267d79dcd093",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 19,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Built-in variable “blockIdx”\r\n• How to tell within the code which block is currently running? \r\n• Suppose we add vectors a[] and b[].\r\n__global__ void add(int *a, int *b, int *c){\r\n c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x];\r\n}\r\n1. The set of blocks is referred to as a grid.\r\n2. Each invocation can refer to its block index using blockIdx.x\r\n3. By using blockIdx.x to index into the array, each block handles a different \r\nindex\r\n4. On the device, each block executes in parallel and looks like the following: \r\n19\r\nBlock 0\r\nc[0] = a[0] + b[0];\r\nBlock 1\r\nc[1] = a[1] + b[1];\r\nBlock 2\r\nc[2] = a[2] + b[2];",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/ca2f7253-7c0c-4cf9-b52c-267d79dcd093.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4be8c7cd6d14f0bbfcc9ab7a1a9f97499d22e149cef2d4d7477e31a65fc5802a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e289fa21-7079-43d3-ab1f-a9ca3ac4c0ac",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 20,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "GPU Vector Sums (Block Version)\r\n#include <stdio.h>\r\n#include <cuda.h>\r\n#include <cuda_runtime.h>\r\n#include <curand_kernel.h>\r\n#define N 512\r\n__global__ void add(int *a, int *b, int *c){\r\n int tid = blockIdx.x; // handle the data at this index\r\n if(tid < N)\r\n c[tid] = a[tid] + b[tid];\r\n}\r\nint main()\r\n{\r\n int a[N], b[N], c[N], i;\r\n int *dev_a, *dev_b, *dev_c;\r\n cudaMalloc((void**)&dev_c, N*sizeof(int));\r\n cudaMalloc((void**)&dev_b, N*sizeof(int));\r\n cudaMalloc((void**)&dev_a, N*sizeof(int));\r\n for(i=0; i < N; i++)\r\n {\r\n a[i] = -i;\r\n b[i] = i*i*i;\r\n }\r\n cudaMemcpy(dev_a, a, N*sizeof(int), cudaMemcpyHostToDevice);\r\n cudaMemcpy(dev_b, b, N*sizeof(int), cudaMemcpyHostToDevice);\r\n add <<<N, 1>>>(dev_a, dev_b, dev_c);\r\n cudaMemcpy(c, dev_c, N*sizeof(int), cudaMemcpyDeviceToHost);\r\n for(i=0; i < N; i++)\r\n printf(\"%d + %d = %d\\n\", a[i], b[i], c[i]);\r\n cudaFree(dev_c);\r\n cudaFree(dev_b);\r\n cudaFree(dev_a);\r\n return 0;\r\n} 20",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/e289fa21-7079-43d3-ab1f-a9ca3ac4c0ac.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b5fbd4c5db87683443bd0a2d1890d7739e639279b10893f44830ecccb53286f7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 471
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ba919fcb-58ec-405f-ac01-5bc3759bc541",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 21,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• CUDA built-in variable: blockIdx\r\n– CUDA runtime defines this variable.\r\n– It contains the value of the block index for whichever block is currently \r\nrunning the device code. \r\n– CUDA C allows to define a group of blocks in one-, two- or three\u0002dimensions (version 2.x above). \r\n• 𝑁 − specified as the number of parallel blocks per dimension\r\n– A collection of parallel blocks is called a grid.\r\n– This example specifies to the runtime system to allocate a one\u0002dimensional grid of 𝑁 blocks. \r\n– Threads will have different values for blockIdx.x, from 0 to 𝑁 − 1.\r\n– 𝑁 ≤ 65,535 − a hardware-imposed limit (𝑁 ≤ 2\r\n31\r\n-1 from version 3.x \r\nand above). \r\n• if(tid< 𝑁)\r\n– Avoid potential bugs – what if # threads requested is greater than 𝑁?\r\n21",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/ba919fcb-58ec-405f-ac01-5bc3759bc541.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a1a820d65ef93c6e3094fef2d76c94471cc228f23e6672dff8f27799cdd1187",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d798ff64-b161-4831-86c0-6e0e828fa4f7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 22,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "CUDA Threads\r\n• A block can be split into parallel threads\r\n• Using blocks:\r\n__global__ void add(int *a, int *b, int *c){\r\n c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x];\r\n}\r\n• Using threads all in one block: \r\n__global__ void add(int *a, int *b, int *c){\r\n c[threadIdx.x] = a[threadIdx.x] + b[threadIdx.x];\r\n}\r\nmain(){\r\n …\r\n add<<<1, 100>>>(dev_a, dev_b, dev_c);\r\n}\r\n22",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/d798ff64-b161-4831-86c0-6e0e828fa4f7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ade6538ea5293828d6910b99d28152857717839ffea58af05caae5796e9b5065",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fd638751-7a43-49ca-9063-9152dffa3028",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 23,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Combining Blocks and Threads\r\n• Hardwire limits the number of blocks in a single \r\nlaunch to 65,535. \r\n• Hardwire also limits the number of threads per \r\nblock with which we can launch a kernel. \r\n– For many GPUs, maxThreadsPerBlock = 512 (or 1024, \r\nversion 2.x above). \r\n• Blocks and threads are often combined. \r\n23",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/fd638751-7a43-49ca-9063-9152dffa3028.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f8bd8d293ba0a707e6baade92e208cdf950edcdcc53ac47a947a9179d57d07a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5d9f6607-9c87-4ee0-a841-b5e5f106b0cd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 24,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "To parallelize a for loop:\r\nfor(int i=0; i < 1000000; i++) {a[i]=x[i];}\r\n• In block/thread, we would like to have a single \r\nblock/1000000 thread (𝑖 = 0,𝑗 = 0, … , 999999) \r\nkernels containing: a[thread_index] = \r\nx[thread_index];\r\n• In real implementation, the exact same kernel is \r\ncalled blocks × threads times with the block and \r\nthread indices changing. \r\n– To use more than one multiprocessor, say 𝑖 = 0, . . , 19,𝑗\r\n= 0, … , 49 and kernel: \r\na[block_index+thread_index]=x[block_index+thread_index];\r\n24",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/5d9f6607-9c87-4ee0-a841-b5e5f106b0cd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=54334b6566944295a879077bd8b86049217d27f48740c8acc6b097dcb96a5107",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a5b2b408-9345-4843-aab0-d3f3f95695eb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 25,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Vector addition to use both blocks and threads\r\n– We no longer simply use either blockIdx.x or \r\nthreadIdx.x\r\n– Consider indexing an array with one element per \r\nthread \r\n– We also use 8 threads per block. \r\n25\r\n1. With “M” threads/block a unique index for each thread is given by:\r\nint index = threadIdx.x + blockIdx.x*M; \r\n2. Use the built-in variable blockDim.x for threads/block\r\nint index = threadIdx.x + blockIdx.x*blockDim.x; ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/a5b2b408-9345-4843-aab0-d3f3f95695eb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=317d137505ef419ed9f58c283164c1bae5b0a22d8b40b9eb469bf4e6091dc379",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b50d2177-6179-4718-9e5b-1f578a82f209",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 26,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• New version of add() to use both threads and \r\nblocks\r\n__global__ void add(int *a, int *b, int *c) { \r\nint index = threadIdx.x + blockIdx.x * blockDim.x; \r\nc[index] = a[index] + b[index]; \r\n}\r\n26\r\n#define N (2048*2048)\r\n#define THREADS_PER_BLOCK 512\r\nint main(void) {\r\n …\r\n // Launch add() kernel on GPU\r\nadd<<<N/THREADS_PER_BLOCK,THREADS_PER_BLOCK>>>(dev_a, dev_b, dev_c);\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/b50d2177-6179-4718-9e5b-1f578a82f209.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba6a4e5b20ca4422f494ce6a859fb04e81f3aaf549adf84d6fb693201e3fb140",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 454
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f745a7cc-93b8-4ca9-baf3-5e2441b9d84e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 27,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "For Vector with Arbitrary Sizes\r\n• Problems often are not multiples of blockDim.x\r\n• To avoid accessing beyond the end of the arrays:\r\n__global__ void add(int *a, int *b, int *c, int n) { \r\n int index = threadIdx.x + blockIdx.x * blockDim.x; \r\n if (index < n) \r\n c[index] = a[index] + b[index]; \r\n}\r\n• See code vec_add_ver2.cu\r\n• Update the kernel launch:\r\nAdd<<<(N+M-1)/M, M>>>(dev_a, dev_b, dev_c, N); \r\n• Remark:\r\n– Threads add a level of complexity, why we need them?\r\n– Unlike parallel blocks, threads have mechanisms to:\r\n• Communicate\r\n• Synchronize\r\n27",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/f745a7cc-93b8-4ca9-baf3-5e2441b9d84e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f1c4c462f1e3f93a1dd6c39bd5a15bb1e1d29a8adb65ef4777e38bae9193a0dd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ee3521b5-5c44-482e-b36c-a85a20c42d51",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 28,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "28\r\n• We can not assume threads will complete in the order they are indexed.\r\n• We can not assume blocks will complete in the order they are labeled. \r\n• To deal with data/task dependency:\r\n• Use synchronization: __syncthreads();\r\n• Split into kernels and call consecutively from C\r\n• Shared memory model: do not write to same memory location from different \r\nthreads",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/ee3521b5-5c44-482e-b36c-a85a20c42d51.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=401aa8aec32f5dd05d50e4232382cfd4d5262e490d5e0c9b6d44f0ecd9e481d6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "23ba2508-44f2-452d-b6e6-d2d7c928a7c7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 29,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Review: CUDA Programming Model\r\n• A CUDA program consists of code to be run on the \r\nhost, i.e. the CPU, and the code to be run on the \r\ndevice, i.e. the GPU.\r\n– Device has its own DRAM\r\n– Device runs many threads in parallel\r\n• A function that is called by the host to execute on the \r\ndevice is called a kernel.\r\n– Kernels run on many threads which realize data parallel \r\nportion of an application \r\n• Threads in an application are grouped into blocks. The \r\nentirety of blocks is called the grid of that application.\r\n29",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/23ba2508-44f2-452d-b6e6-d2d7c928a7c7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d7e279e190ebc4da443d30ed5fb4055108be662d31674f3c0eb07b3f1140ce3a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "47a385f2-93e6-4fc4-b9eb-dfbf0d1fcc42",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 30,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "30\r\n• Integrated host+device app C program\r\n– Serial or modestly parallel parts in host C code\r\n– Highly parallel parts in device SIMD kernel C code\r\nSerial Code (host)\r\n. . .\r\n. . .\r\nParallel Kernel (device)\r\nKernelA<<< nBlk, nTid >>>(args);\r\nSerial Code (host)\r\nParallel Kernel (device)\r\nKernelB<<< nBlk, nTid >>>(args);\r\n© David Kirk/NVIDIA and Wen-mei W. Hwu, 2007-2009\r\nECE 498AL Spring 2010, University of Illinois, Urbana-Champaign",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/47a385f2-93e6-4fc4-b9eb-dfbf0d1fcc42.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=57110232d53d08a006592c4a107126998cf0b7e68007e7409f78ef4eccd2a1d9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d89d00f3-ff30-4a7a-8a2d-39aea61a5d62",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 31,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "31\r\nExtended C\r\n• Type Qualifiers\r\n– global, device, shared, \r\nlocal, constant\r\n• Keywords\r\n– threadIdx, blockIdx\r\n• Intrinsics\r\n– __syncthreads\r\n• Runtime API\r\n– Memory, symbol, \r\nexecution management\r\n• Function(kernel) launch\r\n__device__ float filter[N]; \r\n__global__ void convolve (float *image) {\r\n __shared__ float region[M];\r\n ... \r\n region[threadIdx] = image[i]; \r\n __syncthreads() \r\n ... \r\n image[j] = result;\r\n}\r\n// Allocate GPU memory\r\nvoid *myimage = cudaMalloc(bytes)\r\n// 100 blocks, 10 threads per block\r\nconvolve<<<100, 10>>> (myimage);",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/d89d00f3-ff30-4a7a-8a2d-39aea61a5d62.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a4d77a1b096161d4e34b9469fb977d26a3a726827a82c5d82dd5c529b796130",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 393
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c061de78-c706-4eeb-9c7b-67db1803e57a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 32,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Host\r\nKernel 1\r\nKernel 2\r\nDevice\r\nGrid 1\r\nBlock\r\n(0, 0)\r\nBlock\r\n(1, 0)\r\nBlock\r\n(0, 1)\r\nBlock\r\n(1, 1)\r\nGrid 2\r\nCourtesy: NDVIA\r\nFigure 3.2. An Example of CUDA Thread Org\r\nBlock (1, 1)\r\nThread\r\n(0,1,0)\r\nThread\r\n(1,1,0)\r\nThread\r\n(2,1,0)\r\nThread\r\n(3,1,0)\r\nThread\r\n(0,0,0)\r\nThread\r\n(1,0,0)\r\nThread\r\n(2,0,0)\r\nThread\r\n(3,0,0)\r\n(0,0,1) (1,0,1) (2,0,1) (3,0,1)\r\nThread Batching\r\n• A kernel is executed as a grid of \r\nthread blocks\r\n• A thread block is a batch of \r\nthreads that can cooperate.\r\n• Each thread uses ID to decide \r\nwhat data to work on – Block ID: 1D or 2D (or \r\n3D from \r\nversion 2.x)\r\n– Thread ID: 1D, 2D or 3D\r\n• Threads within a block \r\ncoordinate by shared memory, \r\natomic operations and barrier \r\nsynchronization.\r\n• Threads in different blocks can \r\nnot cooperate.\r\n• Convenient for solving PDEs on \r\ngrid cells. \r\n32",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/c061de78-c706-4eeb-9c7b-67db1803e57a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a881b321018136d1dbafd9fadf31ede14e3e754aec398f551bc8af76ff4e8ce9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5f75a5ea-f9e7-4b0a-8eaa-424e051b402e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 33,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "CUDA Memory Model\r\n33\r\n• Global memory\r\n– Main means of \r\ncommunicating \r\nR/W Data \r\nbetween host and \r\ndevice\r\n– Contents visible to \r\nall threads\r\n– Long latency \r\naccess\r\nGrid\r\nGlobal Memory\r\nBlock (0, 0)\r\nShared Memory\r\nThread (0, 0)\r\nRegisters\r\nThread (1, 0)\r\nRegisters\r\nBlock (1, 0)\r\nShared Memory\r\nThread (0, 0)\r\nRegisters\r\nThread (1, 0)\r\nRegisters\r\nHost",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/5f75a5ea-f9e7-4b0a-8eaa-424e051b402e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aa8839c7a52ed485bb6ffd3c9e17617c2a3ea004fe4045c2037dae5209f83087",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "878286c9-33a6-405c-a23f-12a3e9235227",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 34,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Device Memory Allocation\r\n• cudaMalloc(void **devPtr, size_t size)\r\n– Allocate space in device Global Memory\r\n• cudaFree()\r\n– Free allocated space in device Global Memory\r\n• Example. Allocate 64 by 64 single precision float \r\narray. Attached the allocated storage to *Md. \r\n34\r\nTILE_WIDTH = 64;\r\nfloat* Md;\r\nint size = TILE_WIDTH * TILE_WIDTH * sizeof(float);\r\ncudaMalloc((void**)&Md, size);\r\ncudaFree(Md);",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/878286c9-33a6-405c-a23f-12a3e9235227.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6a0a0eee6ba08544ca435da93462dcd192026da1f4a88e89864f3b07a51ef1aa",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6cad8698-980f-4d69-a57d-73f9dd89368a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 35,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Host-Device Data Transfer\r\n35\r\n• cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind\r\nkind)\r\n– memory data transfer\r\n– Requires four parameters\r\n• Pointer to destination \r\n• Pointer to source\r\n• Number of bytes copied\r\n• Type of transfer \r\n– Host to Host\r\n– Host to Device\r\n– Device to Host\r\n– Device to Device\r\n• Asynchronous transfer\r\n• Example: \r\n– Transfer a 64 * 64 single precision float array\r\n– M is in host memory and Md is in device memory\r\n– cudaMemcpyHostToDevice and cudaMemcpyDeviceToHost are \r\nsymbolic constants\r\ncudaMemcpy(Md, M, size, cudaMemcpyHostToDevice);\r\ncudaMemcpy(M, Md, size, cudaMemcpyDeviceToHost);",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/6cad8698-980f-4d69-a57d-73f9dd89368a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e8711d484bf6b9cefbd8427616a43d9c2f392af1e9fc69bfdca119d0008df070",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "db525811-176f-4beb-82ce-d54382589f2d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 36,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Device Memory Allocation – MultiD Case\r\n• Linear memory can also be allocated through \r\ncudaMallocPitch() and cudaMalloc3D(). \r\n– Recommended for allocations of 2D or 3D arrays as it \r\nmakes sure that the allocation is appropriately padded \r\nto meet the alignment requirements imposed by the \r\ndevice. \r\n– It ensures best performance when accessing the row \r\naddresses or performing copies between 2D arrays \r\nand other regions of device memory (using the \r\ncudaMemcpy2D() and cudaMemcpy3D() functions)\r\n– The returned pitch (or stride) must be used to access \r\narray elements. \r\n36",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/db525811-176f-4beb-82ce-d54382589f2d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e2df83f0ff5a219eda57273978379bb6cbcf16c7e11ffd5f18a456c721073b57",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 442
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "361fa041-9c2a-4cb2-a238-7d6e6c33863c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 37,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t width, \r\nsize_t height)\r\n– Allocates at least width (in bytes) * height bytes of linear \r\nmemory on the device and returns in *devPtr a pointer to the \r\nallocated memory. The function may pad the allocation to ensure \r\nthat corresponding pointers in any given row will continue to \r\nmeet the alignment requirements for coalescing as the address is \r\nupdated from row to row. The pitch returned in *pitch by \r\ncudaMallocPitch() is the width in bytes of the allocation.\r\n– Parameters:\r\n devPtr - Pointer to allocated pitched device memory\r\n pitch - Pitch for allocation\r\n width - Requested pitched allocation width (in bytes)\r\n height - Requested pitched allocation height\r\n– Returns: cudaSuccess, cudaErrorMemoryAllocation\r\n– Given the row and column of an array element of type T, the \r\naddress is computed as: \r\n T* pElement = (T*)((char*)BaseAddress + Row * pitch) + Column;\r\n37",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/361fa041-9c2a-4cb2-a238-7d6e6c33863c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=959374bd89712edcac01711ed5f52a8cbf1ea0efd0eb680e3dd9abe45fc17178",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a1139788-d684-4c90-9550-383de7786b42",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 38,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "// Host code\r\nint width = 64, height = 64;\r\nfloat* devPtr;\r\nsize_t pitch;\r\ncudaMallocPitch(&devPtr, &pitch, width * sizeof(float), height);\r\nMyKernel<<<100, 512>>>(devPtr, pitch, width, height);\r\n// Device code\r\n__global__ void MyKernel(float* devPtr, size_t pitch, int width, int height)\r\n{\r\n for (int r = 0; r < height; ++r) {\r\n float* row = (float*)((char*)devPtr + r * pitch);\r\n for (int c = 0; c > width; ++c) {\r\n float element = row[c];\r\n }\r\n }\r\n}\r\nSee also pitch_sample.cu \r\n38",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/a1139788-d684-4c90-9550-383de7786b42.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a070192153edfde9afd4cd3be9250718878a8c412c077ad09a57bb24129056b7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d621f9e9-ab05-4710-91dd-e7552fb75bfc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 39,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "CUDA Function Declarations\r\n39\r\n• __global__ defines a kernel function\r\n– Must return void\r\n– Example: __global__ void KernelFunc()\r\n– Executed on the device, only callable from the \r\nhost\r\n• __device__ defines a function called by kernels. \r\n• Example: __device__ float DeviceFunc()\r\n• Executed on the device, only callable from the \r\ndevice\r\n• __host__ defines a function running on the host\r\n• Example: __host__ float HostFunc()\r\n• Executed on the host, only callable from \r\nthe host",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/d621f9e9-ab05-4710-91dd-e7552fb75bfc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2760da407bcfd21b89a1cdafb9448fbc0372a23a07894d1ec1b1748a758998ee",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "981318f8-887b-4f70-ba0c-25f4b2d75d6a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 40,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• __device__ functions cannot have their \r\naddress taken\r\n• For functions executed on the device:\r\n– No recursion\r\n– No static variable declarations inside the function\r\n– No variable number of arguments\r\n40",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/981318f8-887b-4f70-ba0c-25f4b2d75d6a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aee37fec41d809f9ea56c69a5195892eec2a0c73b4c833388fcaf3ca6fa03e73",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "263d9fc0-2804-4977-b66a-bdeee76decf5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 41,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Querying Device\r\n#include <stdio.h>\r\n#include <stdlib.h>\r\n#include <ctype.h>\r\n#include <unistd.h>\r\n#include <string.h>\r\n#include <cuda.h>\r\n#include <cuda_runtime.h>\r\n#include <curand_kernel.h>\r\nint main(int argc, char** argv)\r\n{\r\n int gpuDevice;\r\n int devNum = 0;\r\n int c, count;\r\n int cudareturn;\r\n cudaGetDeviceCount(&count);\r\n while ((c = getopt (argc, argv, \"d:\")) != -1)\r\n {\r\n switch (c)\r\n {\r\n case 'd':\r\n devNum = atoi(optarg);\r\n break;\r\n case '?':\r\n if (isprint (optopt))\r\n fprintf (stderr, \"Unknown option `-%c'.\\n\", optopt);\r\n else\r\n fprintf (stderr,\r\n \"Unknown option character `\\\\x%x'.\\n\",\r\n optopt);\r\n return 1;\r\n default:\r\n printf(\"GPU device not specified using device 0 \");\r\n }\r\n }\r\n cudareturn = cudaSetDevice( devNum );\r\n printf(\"device count = %d\\n\", count);\r\n if (cudareturn == 11)\r\n {\r\n printf(\"cudaSetDevice returned 11, invalid device number \");\r\n exit(-1);\r\n }\r\n cudaGetDevice(&gpuDevice);\r\n return 0;\r\n}\r\n41",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/263d9fc0-2804-4977-b66a-bdeee76decf5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ca911f1ce1a23580e4b84f96e00e778f98887f358826b8794dc2f1477daeb44b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "72a56937-bf80-42f2-af82-d88aaf77b027",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 42,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Lecture 11: Programming on GPUs \r\n(Part 2)\r\n42",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/72a56937-bf80-42f2-af82-d88aaf77b027.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=77e1d12600eebfe28b2f7cac51b7a96caf5db52e4df023737f36f5c4393efdc1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 456
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5b171eb3-dd1b-45d4-9ccc-47a9e477e2ac",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 43,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Thread Creation\r\n• Threads are created when program calls kernel \r\nfunctions.\r\n• A kernel function must be called with an execution \r\nconfiguration:\r\n__global__ void KernelFunc(...);\r\ndim3 DimGrid(100, 50); // 5000 thread blocks \r\ndim3 DimBlock(4, 8, 8); // 256 threads per block \r\nsize_t SharedMemBytes = 64; // 64 bytes of shared memory\r\nKernelFunc<<< DimGrid, DimBlock, SharedMemBytes\r\n>>>(...);\r\n• Any call to a kernel function is asynchronous from \r\nCUDA 1.0 on, explicit synch needed for blocking\r\n43\r\ndim3 is a special CUDA datatype with 3 components .x, .y, .z each initialized to 1. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/5b171eb3-dd1b-45d4-9ccc-47a9e477e2ac.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e2ccf92bd25db59365242ede8ba753e4a305710afb9d186c9563c8be971923a3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "44030e8c-cf61-4f33-972e-df55b3383503",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 44,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Host\r\nKernel \r\n1\r\nKernel \r\n2\r\nDevice\r\nGrid 1\r\nBlock\r\n(0, 0)\r\nBlock\r\n(1, 0)\r\nBlock\r\n(0, 1)\r\nBlock\r\n(1, 1)\r\nGrid 2\r\nCourtesy: NDVIA\r\nFigure 3.2. An Example of CUDA Thread Org\r\nBlock (1, 1)\r\nThread\r\n(0,1,0)\r\nThread\r\n(1,1,0)\r\nThread\r\n(2,1,0)\r\nThread\r\n(3,1,0)\r\nThread\r\n(0,0,0)\r\nThread\r\n(1,0,0)\r\nThread\r\n(2,0,0)\r\nThread\r\n(3,0,0)\r\n(0,0,1) (1,0,1) (2,0,1) (3,0,1)\r\n• A collection of blocks from a grid (1D, 2D \r\nor 3D)\r\n– Built-in variable gridDim specifies the size \r\n(or dimension) of the grid.\r\n– Each copy of the kernel can determine \r\nwhich block it is executing with the built-in \r\nvariable blockIdx. \r\n• Threads in a block are arranged in 1D, 2D, \r\nor 3D arrays. \r\n– Built-in variable blockDim specifies the \r\nsize (or dimensions) of block.\r\n– threadIdx index (or 2D/3D indices) thread \r\nwithin a block\r\n– maxThreadsPerBlock: The limit is 512 \r\nthreads per block\r\n44\r\nkernel_routine<<<gridDim, blockDim>>>(args);",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/44030e8c-cf61-4f33-972e-df55b3383503.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ea3fa1e2b08e171e15663d8f8cf075c101bad0a5db960ebc9334ac66651a9077",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "55fbd233-86f2-4702-899c-e29e299a7455",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 45,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Language Extensions: Built-in Variables\r\n• dim3 gridDim;\r\n– Dimensions of the grid in blocks (gridDim.z unused below version 2.x)\r\n• dim3 blockDim;\r\n– Dimensions of the block in threads\r\n• dim3 blockIdx;\r\n– Block index within the grid\r\n• dim3 threadIdx;\r\n– Thread index within the block\r\n45\r\ndim3 is a special CUDA datatype with 3 components .x, .y, .z each initialized to 1. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/55fbd233-86f2-4702-899c-e29e299a7455.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5432f82683f39f5ee1876ee866d1cc9480973dd53348db5da85825583d17cf86",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6d1fa1db-a59c-4a77-9fd2-b9dabf97b9e8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 46,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Specifying 1D Grid and 1D Block \r\n/// host code\r\nint main(int argc, char **argv) {\r\n float *h_x, *d_x; // h=host, d=device\r\n int nblocks=3, nthreads=4, nsize=3*4;\r\n h_x = (float *)malloc(nsize*sizeof(float));\r\n cudaMalloc((void **)&d_x,nsize*sizeof(float));\r\n my_first_kernel<<<nblocks,nthreads>>>(d_x);\r\n cudaMemcpy(h_x,d_x,nsize*sizeof(float),\r\n cudaMemcpyDeviceToHost);\r\n for (int n=0; n<nsize; n++)\r\n printf(\" n, x = %d %f \\n\",n,h_x[n]);\r\n cudaFree(d_x); free(h_x);\r\n}\r\n46\r\n/// Kernel code\r\n__global__ void my_first_kernel(float *x)\r\n{\r\nint tid = threadIdx.x + blockDim.x*blockIdx.x;\r\nx[tid] = (float) threadIdx.x;\r\n}\r\nWithin each block of threads, \r\nthreadIdx.x ranges from 0 to \r\nblockDim.x-1, so each thread \r\nhas a unique value for tid\r\nBlock 0 Thread 0 Thread 1 Thread 2 Thread 3\r\nBlock 1 Thread 0 Thread 1 Thread 2 Thread 3\r\nBlock 2 Thread 0 Thread 1 Thread 2 Thread 3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/6d1fa1db-a59c-4a77-9fd2-b9dabf97b9e8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8f5b46da452cf1fc34356f06566fc6fdbed6dbe2ca133f1012392ceb21eb6136",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 417
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f4c32bfd-abdd-4f2c-9c9e-7a73de220132",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 47,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "GPU SUMs of a Long Vector\r\n• Assume 65,535*512 >> N > 512, so we need to launch \r\nthreads across multiple blocks. \r\n• Let’s use 128 threads per block. We need N/128 blocks.\r\n– N/128 is integer division. If N were < 128, N/128 would be 0.\r\n– Actually compute (N+127)/128 blocks.\r\n• add <<<(N+127)/128, 128>>>(dev_a, dev_b, dev_c);\r\n47\r\n#define N 4000\r\n__global__ void add(int *a, int *b, int *c){\r\n int tid = threadIdx.x + blockDim.x*blockIdx.x; // handle the data at this index\r\n if(tid < N) c[tid] = a[tid] + b[tid]; // launch too many treads when N is not exact \r\n} // multiple of 128",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/f4c32bfd-abdd-4f2c-9c9e-7a73de220132.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3afb4b5aef4b82e8f68eeaa478ac6f91a1c9470287e0c331cc3978fcd0ac2a72",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0cf06de6-de35-4d45-86f8-2fbec7c16412",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 48,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "GPU Sums of Arbitrarily Long Vectors\r\n• Neither dimension of a grid of blocks may exceed 65,535.\r\n• Let’s use 1D grid and 1D block.\r\n48\r\n__global__ void add(int *a, int *b, int *c){\r\n int tid = threadIdx.x + blockIdx.x*blockDim.x; // handle the data at this index\r\n while(tid < N){\r\n c[tid] = a[tid] + b[tid];\r\n tid += blockDim.x*gridDim.x;\r\n }\r\n}\r\nPrinciple behind this implementation:\r\n• Initial index value for each parallel thread is:\r\nint tid = threadIdx.x + blockIdx.x*blockDim.x;\r\n• After each thread finishes its work at current index, increment each \r\nof them by the total number of threads running in the grid, which is \r\nblockDim.x*gridDim.x",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/0cf06de6-de35-4d45-86f8-2fbec7c16412.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=af587bd7f86e48e234416f63f2315686b160d2e4e3fbca086a22dd2375dd3da2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4bef74c0-20bc-4bf7-b00c-5efa20bfadf0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 49,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "#define N (55*1024)\r\n__global__ void add(int *a, int *b, int *c){\r\n int tid = threadIdx.x + blockIdx.x*blockDim.x; // handle the data at this index\r\n while(tid < N){\r\n c[tid] = a[tid] + b[tid];\r\n tid += blockDim.x*gridDim.x;\r\n }\r\n}\r\nint main()\r\n{\r\n…\r\n add <<<128, 128>>>(dev_a, dev_b, dev_c);\r\n…\r\n}\r\n//see vec_arb_len_add.cu\r\n49",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/4bef74c0-20bc-4bf7-b00c-5efa20bfadf0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=51501467417f97bb132f19120dece5384db898c1f34c976964c7c50ad2e0985a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0a760937-4165-4a09-bfb5-a15601501cdd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 50,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Specifying 1D Grid and 2D Block \r\nIf we want to use a 1D grid of blocks and 2D set of threads, then \r\nblockDim.x, blockDim.y give the block dimensions, and threadIdx.x, \r\nthreadIdx.y give the thread indices.\r\n50\r\nMain()\r\n{\r\n int nblocks = 2;\r\n dim3 nthreads(16, 4);\r\n my_second_kernel<<<nblocks, nthreads>>>(d_x);\r\n}\r\ndim3 is a special CUDA datatype with 3 components .x, .y, .z each initialized to 1. \r\n/// Kernel code\r\n__global__ void my_second_kernel(float *x)\r\n{\r\nint tid = threadIdx.x + blockDim.x* threadIdx.y +blockDim.x*blockDim.y*blockIdx.x;\r\nx[tid] = (float) threadIdx.x;\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/0a760937-4165-4a09-bfb5-a15601501cdd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=beb62f17d32aaa7178b052bf447d29b8ce6e6115681202b92ad2fe6500ce29bf",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7ba7ed34-1eae-4968-a955-fe5e0faedb74",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 51,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• In a 3D block of threads, thread ID is computed by:\r\nthreadIdx.x +threadIdx.y * blockDim.x + threadIdx.z * \r\nblockDim.x * blockDim.y\r\n51\r\n__global__ void KernelFunc(...);\r\nmain()\r\n{\r\n dim3 DimGrid(100, 50); // 5000 thread blocks \r\ndim3 DimBlock(4, 8, 8); // 256 threads per block \r\n KernelFunc<<< DimGrid, DimBlock>>>(...);\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/7ba7ed34-1eae-4968-a955-fe5e0faedb74.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8b10bb9c4a3410d9478a924a7db3ccbc9f0b278094566750a912a94fabf43e01",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "23ec56db-69cd-4595-9702-896a430f4ad1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 52,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Matrix Multiplication\r\n• Demonstrate basic features of memory and \r\nthread management in CUDA programs\r\n– Leave shared memory usage until later\r\n– Local, register usage\r\n– Thread ID usage\r\n– Memory data transfer API between host and device\r\n– Assume square matrix for simplicity\r\n52",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/23ec56db-69cd-4595-9702-896a430f4ad1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8a154b425418b2ed7a4d69f84582e15ba32ce76cbb5649aa151b4b84d113355a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0da93117-45ff-4f1a-8484-99ba8ff4bd1d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 53,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• 𝑃 = 𝑀 × 𝑁 of size WIDTH×WIDTH\r\n• Without blocking:\r\n– One thread handles one element of 𝑃\r\n– M and N are loaded WIDTH times from \r\nglobal memory\r\n53\r\nM\r\nN\r\nP",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/0da93117-45ff-4f1a-8484-99ba8ff4bd1d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=940da3d6bc71abd68de42471bd10e3e31ef9e21a11898f879962dc78d58c656c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 476
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b78aae20-f423-4f1b-9464-6cd1b4daa062",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 54,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "C Language Implementation\r\nvoid MatrixMulOnHost(float* M, float* N, float* P, int Width)\r\n{ \r\n for (int i = 0; i < Width; ++i)\r\n for (int j = 0; j < Width; ++j) {\r\n double sum = 0;\r\n for (int k = 0; k < Width; ++k) {\r\n double a = M[i * width + k];\r\n double b = N[k * width + j];\r\n sum += a * b;\r\n }\r\n P[i * Width + j] = sum;\r\n }\r\n}\r\n54\r\nM0,2\r\nM1,1\r\nM0,0 M0,1\r\nM1,0\r\nM0,3\r\nM1,2 M1,3\r\nM2,0 M2,1 M2,2 M2,3\r\nM3,0 M3,1 M3,2 M3,3\r\nM0,0 M0,1 M0,2 M0,3 M1,0 M1,1 M1,2 M1,3 M2,0 M2,1 M2,2 M2,3 M3,0 M3,1 M3,2 M3,3\r\nM",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/b78aae20-f423-4f1b-9464-6cd1b4daa062.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2e694c0c61dfbae23baca088894c8d0589dc34b60a2b1a4ea27c0207ef0761b9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "235dcaad-31c9-4f44-a413-5a7e76cf3cd0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 55,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Data Transfer (Host/Device)\r\n55\r\nvoid MatrixMulOnDevice(float* M, float* N, float* P, int Width)\r\n{\r\n int size = Width * Width * sizeof(float); \r\n float *Md, *Nd, *Pd;\r\n …\r\n //1. Allocate and Load M, N to device memory \r\n cudaMalloc(&Md, size);\r\n cudaMemcpy(Md, M, size, cudaMemcpyHostToDevice);\r\n cudaMalloc(&Nd, size);\r\n cudaMemcpy(Nd, N, size, cudaMemcpyHostToDevice);\r\n // Allocate P on the device\r\n cudaMalloc(&Pd, size);",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/235dcaad-31c9-4f44-a413-5a7e76cf3cd0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ce5aef5720707a5fb1df717c2da997d5b0f7900fb52b6042221c90eb2d295cae",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "50763385-ed59-4170-aabd-f334cbf31b76",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 56,
+            "page_width": 720,
+            "page_height": 540,
+            "content": " //2. Kernel invocation code –\r\n …\r\n // 3. Read P from the device\r\n cudaMemcpy(P, Pd, size, cudaMemcpyDeviceToHost);\r\n // Free device matrices\r\n cudaFree(Md); cudaFree(Nd); cudaFree (Pd);\r\n}\r\n56",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/50763385-ed59-4170-aabd-f334cbf31b76.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f0f6af0c43e6548502f4dc0bdb01f2d12594473ac26691921f4571da4d0a7960",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ff155e0b-6022-4ce2-bac5-2e38cc0b7778",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 57,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Kernel Function\r\n// Matrix multiplication kernel – per thread code\r\n__global__ void MatrixMulKernel(float* Md, float* Nd, float* Pd, int Width)\r\n{\r\n \r\n // Pvalue is used to store the element of the matrix\r\n // that is computed by the thread\r\n float Pvalue = 0;\r\n for (int k = 0; k < Width; ++k) {\r\n float Melement = Md[threadIdx.y*Width+k];\r\n float Nelement = Nd[k*Width+threadIdx.x];\r\n Pvalue += Melement * Nelement;\r\n }\r\n Pd[threadIdx.y*Width+threadIdx.x] = Pvalue;\r\n}\r\n57",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/ff155e0b-6022-4ce2-bac5-2e38cc0b7778.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=395bff974753b7a3985440096a9bd4f1032eb7f00efebc65c55d4d759f22fce5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "135187af-c930-4149-a55c-adab0bfed1df",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 58,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Kernel Invocation\r\nvoid MatrixMulOnDevice(float* M, float* N, float* P, int Width)\r\n{\r\n …\r\n //2. Kernel invocation code – to be shown later\r\n // Setup the execution configuration\r\n dim3 dimGrid(1, 1);\r\n dim3 dimBlock(Width, Width);\r\n // Launch the device computation threads\r\n MatrixMulKernel<<<dimGrid, dimBlock>>>(Md, Nd, Pd, \r\nWidth);\r\n …\r\n}\r\n58",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/135187af-c930-4149-a55c-adab0bfed1df.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=752741cdb04f77b0ebca83fd195d1aa6d54d560fd2baf087def531226b92ec04",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d5ceb240-7ef9-4e2a-8b93-bba86f1abefe",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 59,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "59\r\n• One Block of threads compute \r\nmatrix Pd\r\n– Each thread computes one \r\nelement of Pd\r\n• Each thread\r\n– Loads a row of matrix Md\r\n– Loads a column of matrix Nd\r\n– Perform one multiply and \r\naddition for each pair of Md and \r\nNd elements\r\n– Compute to off-chip memory \r\naccess ratio close to 1:1 (not very \r\nhigh)\r\n• Size of matrix limited by the \r\nnumber of threads allowed in a \r\nthread block\r\nGrid 1\r\nBlock 1\r\n3 2 5 4\r\n2\r\n4\r\n2\r\n6\r\n48\r\nThread\r\n(2, 2)\r\n WIDTH\r\nMd Pd\r\nNd",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/d5ceb240-7ef9-4e2a-8b93-bba86f1abefe.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9e316d316eda2f51089d685ffdf728b32ce080af6a6db1ae3ee7b4e0d908542e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c50627e5-5213-4c62-bddd-97ba165ec03b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 60,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• 𝑃 = 𝑀 × 𝑁 of size WIDTH×WIDTH\r\n• With blocking:\r\n– One thread block handles one \r\nBLOCK_SIZE × BLOCK_SIZE (or \r\nTILE_WIDTH × TILE_WIDTH) sub\u0002matrix (tile) 𝑃𝑑𝑠𝑢𝑏 of 𝑃\r\n• Block size equal tile size\r\n• Each thread calculates one element\r\n– Genrate a 2D grid of \r\n(WIDTH/TILE_WIDTH)2 blocks\r\n– Linear memory allocation for all \r\nmatrices is used\r\n60",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/c50627e5-5213-4c62-bddd-97ba165ec03b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=182123da0aafdcc9b7f95d86c762413bb513cb1606ab80c49a408fc2a9115af1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 469
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c023f71e-0915-495c-a46a-7954e86900c6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 61,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "61\r\nP0,0 P1,0\r\nP0,1\r\nP2,0 P3,0\r\nP1,1\r\nP0,2 P1,2 P2,2 P3,2\r\nP2,1 P3,1\r\nP0,3 P1,3 P2,3 P3,3\r\nBlock(0,0) Block(1,0)\r\nBlock(0,1) Block(1,1)\r\nTILE_WIDTH = 2\r\nMd2,0 Pd1,0\r\nMd1,1\r\nMd0,0 Md1,0\r\nMd0,1\r\nMd3,0\r\nMd2,1\r\nPd0,0\r\nMd3,1 Pd0,1\r\nPd2,0 Pd3,0\r\nNd0,3 Nd1,3\r\nNd1,2\r\nNd1,1\r\nNd0,0 Nd1,0\r\nNd0,1\r\nNd0,2\r\nPd1,1\r\nPd0,2 Pd1,2 Pd2,2 Pd3,2\r\nPd2,1 Pd3,1\r\nPd0,3 Pd1,3 Pd2,3 Pd3,3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/c023f71e-0915-495c-a46a-7954e86900c6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8659241a5476640b3c7734040be704e9407c251d247f24daded180b253ce8625",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ff3f3764-d595-46bb-8467-7d1666ed9905",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 62,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Revised Matrix Multiplication Kernel\r\n__global__ void MatrixMulKernel(float* Md, float* Nd, float* Pd, int\r\nWidth)\r\n{\r\n// Calculate the row index of the Pd element and M\r\nint Row = blockIdx.y*TILE_WIDTH + threadIdx.y;\r\n// Calculate the column index of Pd and N\r\nint Col = blockIdx.x*TILE_WIDTH + threadIdx.x;\r\nfloat Pvalue = 0;\r\n// each thread computes one element of the block sub-matrix\r\nfor (int k = 0; k < Width; ++k)\r\n Pvalue += Md[Row*Width+k] * Nd[k*Width+Col];\r\nPd[Row*Width+Col] = Pvalue;\r\n}\r\n62",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/ff3f3764-d595-46bb-8467-7d1666ed9905.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=37f8c26349e6ab43361d4a3d0218d5417dcd0f648003c55044b4f86fe3e247d9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "01220576-5038-4c61-8207-4e355ea0cd77",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 63,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Multithreading\r\n• Cores in a streaming multiprocessor (SM) are Single \r\nInstruction Multiple Threads (SIMT) cores:\r\n– Maximum number of threads in a block depends on the \r\ncompute capability (1024 on Fermi)\r\n• all cores execute the same instructions simultaneously, but with \r\ndifferent data.\r\n– GPU multiprocessor creates, manages, schedules and executes \r\nthreads in warps of 32*\r\n• minimum of 32 threads all doing the same thing at (almost) the same \r\ntime (Warp executes one common instruction at a time).\r\n• no “context switching”; each thread has its own registers, which limits \r\nthe number of active threads\r\n• Threads are allowed to branch, but branches are serialized\r\n– threads on each SM execute in groups of 32 called “warps”\r\n– execution alternates between “active” warps, with warps \r\nbecoming temporarily “inactive” when waiting for data\r\n63",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/01220576-5038-4c61-8207-4e355ea0cd77.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=178075894aa1de27cb5652e6a39d1e8f36f2151abe5716bedcfa35f67295cd1b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "51de1074-adeb-4f92-a853-3aebe7bc30f1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 64,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Thread Branching\r\n64\r\nProgram\r\nint tid = threadIdx.x;\r\nif (tid==0) {var1++}\r\nelse {var1 = var1+3;}\r\nvar2 = 3*5 + var1;",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/51de1074-adeb-4f92-a853-3aebe7bc30f1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1101d506f29919d574cf8123acd409be760d211d0a505f95a7b97f60fa26f406",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bacc08f3-d9e2-4086-94d3-6d55a7809a2a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 65,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Suppose we have 1000 blocks, and each one has 128 \r\nthreads – how does it get executed?\r\n• On current Fermi hardware, would probably get 8 blocks \r\nrunning at the same time on each SM, and each block has \r\n4 warps =) 32 warps running on each SM\r\n• Each clock tick, SM warp scheduler decides which warp to \r\nexecute next, choosing from those not waiting for\r\n– data coming from device memory (memory latency)\r\n– completion of earlier instructions (pipeline delay)\r\n• Programmer doesn’t have to worry about this level of \r\ndetail (can always do profiling later), just make sure there \r\nare lots of threads / warps\r\n65",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/bacc08f3-d9e2-4086-94d3-6d55a7809a2a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d21d95718213f8e7d6553f2c32d73f9f930b2f7344fa129b6ea6a81ab414de49",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5d42903a-f992-4b1c-aafe-6597202fe7e8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 66,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Spatial Locality\r\n__global__ void good_kernel(float *x)\r\n{\r\n int tid = threadIdx.x + blockDim.x*blockIdx.x;\r\n x[tid] = threadIdx.x;\r\n}\r\n• 32 threads in a warp address neighboring elements of array \r\nx.\r\n• If the data is correctly “aligned” so that x[0] is at the \r\nbeginning of a cache line, then x[0]-x[31] will be in the \r\nsame cache line.\r\n– Cache line is the basic unit of data transfer, 128 bytes cache line \r\n(32 floats or 16 doubles). \r\n• Good spatial locality.\r\n66",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/5d42903a-f992-4b1c-aafe-6597202fe7e8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d07445cf16dd35e49935390d2c0ca3c1f42facd6ce3bad03ff966c5558810524",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 481
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8e7571c1-62f3-409e-8745-2efcbe819b6f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 67,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "__global__ void bad_kernel(float *x)\r\n{\r\n int tid = threadIdx.x + blockDim.x*blockIdx.x;\r\n x[1000*tid] = threadIdx.x;\r\n}\r\n• Different threads within a warp access widely \r\nspaced elements of array x.\r\n• Each access involves a different cache line, so \r\nperformance is poor. \r\n67",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/8e7571c1-62f3-409e-8745-2efcbe819b6f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7786a676b9a5a886a69603c409d59b8d0e27cc25f1cf1ed0f1f5902ba6027fc4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "05e3a89a-fb01-44e4-bf70-0aad3d46bc92",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 68,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Software View\r\nAt the top level, we have a master process which runs on the \r\nCPU and performs the following steps:\r\n1. initializes card\r\n2. allocates memory in host and on device\r\n– cudaMalloc(),…\r\n3. copies data from host to device memory\r\n– cudaMemcpy(…, cudaMemcpyHostToDevice);\r\n4. launches multiple instances of execution “kernel” on device\r\n– kernel_routine<<<gridDim, blockDim>>>(args);\r\n5. copies data from device memory to host\r\n– cudaMemcpy(…, cudaMemcpyDeviceToHost);\r\n6. repeats 3-5 as needed\r\n7. de-allocates all memory and terminates\r\n– cudaFree()\r\n68",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/05e3a89a-fb01-44e4-bf70-0aad3d46bc92.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=93e1160653103dd055b1b212fa1e3176d4af9f3ca0ae5362ad9dcca02423165c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "63e9c210-5412-45b3-bbdf-1e0db09099b2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 69,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Software View\r\nAt a lower level, within the GPU:\r\n1. each instance of the execution kernel executes on an SM\r\n2. if the number of instances exceeds the number of SMs, then more than one \r\nwill run at a time on each SM if there are enough registers and shared \r\nmemory, and the others will wait in a queue and execute later\r\n3. all threads within one instance can access local shared memory but can’t \r\nsee what the other instances are doing (even if they are on the same SM)\r\n4. there are no guarantees on the order in which the instances execute\r\n69",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/63e9c210-5412-45b3-bbdf-1e0db09099b2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=67b2eae3fe7647ea49ee95ab42338b4dfc7b38f5ae7f7dc91e8457540cfb9a32",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "83a5dc3c-bcfc-4a8b-931f-b6e8780f8522",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 70,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "CUDA Memories\r\n• Each thread can:\r\n– Read/write per-thread registers \r\n– Read/write per-thread local \r\nmemory\r\n– Read/write per-block shared \r\nmemory\r\n– Read/write per-grid global \r\nmemory\r\n– Read/only per-grid constant \r\nmemory\r\n70\r\nGrid\r\nGlobal Memory\r\nBlock (0, 0)\r\nShared Memory\r\nThread (0, 0)\r\nRegisters\r\nThread (1, 0)\r\nRegisters\r\nBlock (1, 0)\r\nShared Memory\r\nThread (0, 0)\r\nRegisters\r\nThread (1, 0)\r\nRegisters\r\nHost\r\nConstant Memory\r\nLocal Memory\r\n• Usually used when one runs out of SM \r\nresources \r\n• “Local” because each thread has its own \r\nprivate area\r\n• Not really a “memory” – bytes are stored in \r\nglobal memory\r\n• Stores are cached in L1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/83a5dc3c-bcfc-4a8b-931f-b6e8780f8522.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c2942e402ebc0da96e8ae3a5b9ebb99a0c8fd491038d07d8e0aef35dd18b02e6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6fbeeb38-7cd4-46cc-a60d-9d24e9fec6ea",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 71,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Fermi Memory Hierarchy\r\nNVIDIA 2011 71",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/6fbeeb38-7cd4-46cc-a60d-9d24e9fec6ea.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6cbed972208562d6b7f5003ff036894fa8e9eb082fcb4f1154abb3e6df25935e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1beaea88-2972-42e5-816e-86d497e741f9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 72,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Access Times\r\n72\r\n• Register – dedicated HW – single cycle\r\n• Shared Memory – dedicated HW – single cycle\r\n• Local Memory – DRAM – slow \r\n• Global Memory – DRAM – slow\r\n• Constant Memory – DRAM, cached, \r\n1…10s … 100s of cycles, depending on cache locality\r\n• Texture Memory – DRAM, cached, \r\n1…10s … 100s of cycles, depending on cache locality\r\n• Instruction Memory (invisible) – DRAM, cached ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/1beaea88-2972-42e5-816e-86d497e741f9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=01c488b4a3f792abfa04fa5a2061d0fa0487801dd79b2feea69c3f878a54469c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b7adef7d-08b1-43db-b366-bd8e57254bd4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 73,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Variable Types\r\n• the __device__ indicates this is a global variable in the \r\nGPU\r\n– the variable can be read and modified by any kernel\r\n– its lifetime is the lifetime of the whole application\r\n– can also declare arrays of fixed size\r\n– can read/write by host code using standard cudaMemcpy\r\n• __device__ is optional when used with __local__, \r\n__shared__, or __constant__\r\n73\r\nVariable declaration Memory Scope Lifetime\r\n__device__ __local__ int LocalVar; local thread thread\r\n__device__ __shared__ int SharedVar; shared block block\r\n__device__ int GlobalVar; global grid application\r\n__device__ __constant__ int ConstantVar; constant grid application",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/b7adef7d-08b1-43db-b366-bd8e57254bd4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df38ab795ed760ef5751994cfa2d6653a78ba1a543d98bf3801d44b85d3e7e03",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 503
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a8ba8aa5-95c9-4cd1-aed9-d8b767c74aec",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 74,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Constant variables\r\n– Very similar to global variables, except that they can’t be modified by kernels\r\n– defined with global scope within the kernel file using the prefix __constant__\r\n– initialized by the host code using cudaMemcpyToSymbol, \r\ncudaMemcpyFromSymbol or cudaMemcpy in combination with \r\ncudaGetSymbolAddress\r\n– Only 64KB of constant memory\r\n• Pointers can only point to memory allocated or declared in global memory:\r\n– Allocated in the host and passed to the kernel: \r\n__global__ void KernelFunc(float* ptr)\r\n– Obtained as the address of a global variable: \r\nfloat* ptr = &GlobalVar;\r\n• Automatic variables without any qualifier reside in a register\r\n– Except arrays that reside in local memory\r\n74\r\n__global__ void lap(int I, int J,float *u1, float *u2) {\r\nint i = threadIdx.x + blockIdx.x*blockDim.x;\r\nint j = threadIdx.y + blockIdx.y*blockDim.y;\r\nint id = i + j*I;\r\nif (i==0 || i==I-1 || j==0 || j==J-1) {\r\n u2[id] = u1[id]; // Dirichlet b.c.’s }\r\nelse {\r\nu2[id] = 0.25f * ( u1[id-1] + u1[id+1]\r\n+ u1[id-I] + u1[id+I] );}\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/a8ba8aa5-95c9-4cd1-aed9-d8b767c74aec.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=286ab42d57a8488741e14bd54ab819c36065ac2483a53b516f6777a0a007f392",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8f0d8cc0-aa04-4043-a880-860b1d76df66",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 75,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Accessing Global Variables via the Runtime API\r\n__constant__ float constData[256];\r\nfloat data[256];\r\ncudaMemcpyToSymbol(constData, data, sizeof(data));\r\ncudaMemcpyFromSymbol(data, constData, sizeof(data));\r\n__device__ float devData;\r\nfloat value = 3.14f;\r\ncudaMemcpyToSymbol(devData, &value, sizeof(float));\r\n__device__ float* devPointer;\r\nfloat* ptr;\r\ncudaMalloc(&ptr, 256 * sizeof(float));\r\ncudaMemcpyToSymbol(devPointer, &ptr, sizeof(ptr));\r\n75",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/8f0d8cc0-aa04-4043-a880-860b1d76df66.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=89d9521a4b1d09ef24e663e469edad4363ad4ebe94c2327c2888f03ac0c1cd70",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fb3c5dfc-c6b8-4ddb-87fb-8802e2cb0461",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 76,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Shared Memory\r\n__shared__ int x_dim;\r\n__shared__ float x[128];\r\n• declares data to be shared between all of the \r\nthreads in the thread block – any thread can set its \r\nvalue, or read it.\r\n• Advantages of using shared memory\r\n– essential for operations requiring communication \r\nbetween threads \r\n– useful for data re-use\r\n– alternative to local arrays in device memory\r\n– reduces use of registers when a variable has same value \r\nfor all threads\r\n76",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/fb3c5dfc-c6b8-4ddb-87fb-8802e2cb0461.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2553b3d0f0bdef00a9c1d854c18f5e5f66eb1aebf045d5115a069968b75c3049",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9e0a9dd3-8cf3-43d7-b6bf-6f9b8e2aa4f6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 77,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Cooperating Threads\r\n77\r\n1D Stencil\r\n• Consider applying a 1D stencil to a 1D array of \r\nelements\r\n– Each output element is the sum of input elements \r\nwithin a radius\r\n– If radius = 3, then each output element is the sum of \r\n7 input elements\r\n– Assume we use 1D block grid and 1D block of \r\nthreads",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/9e0a9dd3-8cf3-43d7-b6bf-6f9b8e2aa4f6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ce94fbd292ea104945c6e3270c96a31fee7b7ce708b70f60d0d041927d24562b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4dd894da-953c-489a-8b48-1baf84e4d867",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 78,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Implementing within a Block\r\n• Each thread processes one output element\r\n– blockDim.x elements per block\r\n• Input elements are read several times\r\n– With radius 3, each input element is read 7 times\r\n78",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/4dd894da-953c-489a-8b48-1baf84e4d867.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9978cd76845502b09dc07c6d3970932c947e05a7bd5416777fbe0a60d501a8d7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "443ae6ee-83f7-4b1d-887c-55c41f12f019",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 79,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Sharing Data Between Threads\r\n• Within a block, threads share data by shared \r\nmemory\r\n• Extremely fast on-chip memory, user\u0002managed\r\n• Declare using __shared__, allocated per block\r\n• Data is not visible to threads in other blocks\r\n79",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/443ae6ee-83f7-4b1d-887c-55c41f12f019.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ddd811168cc170a3461f23a887b0f335d8b5cfabc9e17be11e7f2682eafdcc48",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8310e489-6ebd-4bce-ad3d-415ef7b6afa8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 80,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Implementation\r\n• Cache data in shared memory\r\n– Read (blockDim.x + 2*radius) input elements from \r\ndevice global memory to shared memory\r\n– Compute blockDim.x output elements\r\n– Write blockDim.x output elements to global \r\nmemory\r\n80",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/8310e489-6ebd-4bce-ad3d-415ef7b6afa8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2043c12ad61f40472c7e5879dfbf41e90cc99a0367298b9f8daeb6ecafddf1a3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 452
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ee0409ad-2386-432e-b2a7-8758d4873c69",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 81,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "__global__ void stencil_\r\n1d(int *in, int *out) \r\n{\r\n __shared__ int temp[BLOCK_SIZE + 2 * RADIUS];\r\n int gindex = threadIdx.x + blockIdx.x * blockDim.x;\r\n int lindex = threadIdx.x + RADIUS;\r\n // Read input elements into shared memory\r\n temp[lindex] = in[gindex];\r\n if (threadIdx.x < RADIUS) {\r\n temp[lindex- RADIUS] = in[gindex- RADIUS];\r\n temp[lindex + BLOCK_SIZE] = in[gindex + BLOCK_SIZE];\r\n }\r\n // Apply the stencil\r\n int result = 0;\r\n for (int offset = -RADIUS ; offset <= RADIUS ; offset++)\r\n result += temp[lindex + offset];\r\n // Store the result\r\n out[gindex] = result; }\r\n81",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/ee0409ad-2386-432e-b2a7-8758d4873c69.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8cde4819b1062be4aebebb1b606624727261f746f0f6f7bf2d763e674d580a70",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "103b1eae-b3d1-48ec-b55f-d6907cf68922",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 82,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Data Race\r\n• The stencil example will not work\r\n• Suppose thread 15 reads the halo before \r\nthread 0 has fetch it\r\n82",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/103b1eae-b3d1-48ec-b55f-d6907cf68922.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8c6da72d0353c47af7c83bf5be4c2c8141cf14a3b22c36c18f1ebcf914c04dd5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0ea4f490-94de-464b-8cef-1a2a42573499",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 83,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "void __syncthreads()\r\n• Synchronizes all threads within a block \r\n– Used to prevent data races\r\n• All threads must reach the barrier\r\n– In conditional code, the condition must be \r\nuniform across the block\r\n83",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/0ea4f490-94de-464b-8cef-1a2a42573499.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8c71cce593effb490f617ed3c0cebb92a4c05c6553585260fe1f323d9e9dcb0a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c799cc6f-10ea-49f8-b47e-b8d5da808c05",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 84,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "__global__ void stencil_\r\n1d(int *in, int *out) \r\n{\r\n __shared__ int temp[BLOCK_SIZE + 2 * RADIUS];\r\n int gindex = threadIdx.x + blockIdx.x * blockDim.x;\r\n int lindex = threadIdx.x + RADIUS;\r\n // Read input elements into shared memory\r\n temp[lindex] = in[gindex];\r\n if (threadIdx.x < RADIUS) {\r\n temp[lindex- RADIUS] = in[gindex- RADIUS];\r\n temp[lindex + BLOCK_SIZE] = in[gindex + BLOCK_SIZE];\r\n }\r\n __syncthreads();\r\n // Apply the stencil\r\n int result = 0;\r\n for (int offset = -RADIUS ; offset <= RADIUS ; offset++)\r\n result += temp[lindex + offset];\r\n // Store the result\r\n out[gindex] = result; }\r\n84",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/c799cc6f-10ea-49f8-b47e-b8d5da808c05.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fa685befb3d60d938cafabd0a503918e939cac069f35506033821ee42f480bf8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cdd5a89d-c330-4674-a759-fe3a957aa48d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 85,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• If a thread block has more than one warp, it’s not pre-determined \r\nwhen each warp will execute its instructions – warp 1 could be \r\nmany instructions ahead of warp 2, or well behind.\r\n• Consequently, almost always need thread synchronization to ensure \r\ncorrect use of shared memory.\r\n• Instruction\r\n– __syncthreads();\r\n• inserts a “barrier”; no thread/warp is allowed to proceed beyond \r\nthis point until the rest have reached it\r\n• Total size of shared memory is specified by an optional third \r\narguments when launching the kernel:\r\n– kernel<<<blocks,threads,shared_bytes>>>(...)\r\n85",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/cdd5a89d-c330-4674-a759-fe3a957aa48d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ce18bdf163216c2315e1987afde16fa10f459bab33df56f0a567d1bf67931ce7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b848cf90-38bc-40a9-936e-82e787cf02dc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 86,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Active Blocks per SM\r\n• Each block require certain resources:\r\n– threads\r\n– registers (registers per thread × number of threads)\r\n– shared memory (static + dynamic)\r\n• Together these decide how many blocks can be run \r\nsimultaneously on each SM – up to a maximum of 8 blocks\r\n• General advice:\r\n– number of active threads depends on number of registers each \r\nneeds\r\n– good to have at least 2-4 active blocks, each with at least 128 \r\nthreads\r\n– smaller number of blocks when each needs lots of shared \r\nmemory\r\n– larger number of blocks when they don’t need shared memory\r\n– On Fermi card:\r\n• maybe 2 big blocks (512 threads) if each needs a lot of shared \r\nmemory\r\n• maybe 6 smaller blocks (256 threads) if no shared memory needed\r\n• or 4 small blocks (128 threads) if each thread needs lots of registers 86",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/b848cf90-38bc-40a9-936e-82e787cf02dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c7dc0b4186d7e047a775c57051408270afbb2f8d7f6a353081025390c5d303b3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 478
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e46a48a5-4cd3-45d8-aaa1-8f89ce34e0e9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 87,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Global memory resides in device memory (DRAM) - much slower access than \r\nshared memory\r\n• So, a profitable way of performing computation on the device is to tile data to \r\ntake advantage of fast shared memory:\r\n– Partition data into subsets that fit into shared memory\r\n– Handle each data subset with one thread block by:\r\n• Loading the subset from global memory to shared memory, using multiple threads to exploit \r\nmemory-level parallelism\r\n• Performing the computation on the subset from shared memory; each thread can efficiently \r\nmulti-pass over any data element\r\n• Copying results from shared memory to global memory\r\n• Constant memory also resides in device memory (DRAM) - much slower access \r\nthan shared memory\r\n– But… cached!\r\n– Highly efficient access for read-only data\r\n• Carefully divide data according to access patterns\r\n– R/Only  constant memory (very fast if in cache)\r\n– R/W shared within Block  shared memory (very fast)\r\n– R/W within each thread  registers (very fast)\r\n– R/W inputs/results  global memory (very slow)\r\n87",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/e46a48a5-4cd3-45d8-aaa1-8f89ce34e0e9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=af7fef6c364cb299c1efff21d719e065db10ca2ff32f6b34845eace72481ec95",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "64d781bd-b2f3-4b8d-9cf9-8c39c4e4e584",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 88,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Shared Memory and Synchronization for Dot \r\nProduct\r\n#define imin(a,b) ((a)<(b)?(a):(b))\r\nconst int N = 33*1024;\r\nconst int threadsPerBlock = 256;\r\nconst int blocksPerGrid = imin(32, (N+threadsPerBlock-1)/threadsPerBlock);\r\nint main(){\r\n float *a, *b, c, *partial_c;\r\n float *dev_a, *dev_b, *dev_partial_c;\r\n a = (float*)malloc(N*sizeof(float)); b = (float*)malloc(N*sizeof(float));\r\n partial_c = (float*)malloc(blocksPerGrid*sizeof(float));\r\n cudaMalloc((void**)&dev_a,N*sizeof(float)); \r\n cudaMalloc((void**)&dev_b,N*sizeof(float));\r\n cudaMalloc((void**)&dev_partial_c,blocksPerGrid*sizeof(float));\r\n // initialize a[] and b[] …\r\n cudaMemcpy(dev_a,a,N*sizeof(float),cudaMemcpyHostToDevice);\r\n cudaMemcpy(dev_b,b,N*sizeof(float),cudaMemcpyHostToDevice);\r\n dot<<< blocksPerGrid, threadsPerBlock>>>(dev_a,dev_b,dev_partial_c);\r\n cudaMemcpy(partial_c,dev_partialc,blocksPerGrid*sizeof(float),cudaMemcpyDeviceToHost);\r\n c = 0;\r\n for(int i=0; i<blocksPerGrid;i++) c += partial_c[i];\r\n // cuda memory free, etc.\r\n}\r\n88",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/64d781bd-b2f3-4b8d-9cf9-8c39c4e4e584.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e5b76e3c75d4bda0967c60e18745801db94bd8f0f035e9adc6b7db79e623fa7c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6788e436-077a-495d-a086-894b7251dc00",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 89,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "__global__ void dot(float *a, float*b, float *c){\r\n __shared__ float cache[threadsPerBlock]; \r\n //this buffer will be used to store each thread’s running sum \r\n // the compiler will allocate a copy of shared variables for each block\r\n int tid = threadIdx.x + BlockIdx.x*blockDim.x;\r\n int cacheIndex = threadIdx.x;\r\n float temp = 0.0;\r\n while(tid < N){\r\n temp += a[tid]*b[tid];\r\n tid += blockDim.x*gridDim.x;\r\n }\r\n // set the cache values\r\n cache[cacheIndex]=temp;\r\n \r\n // we need to sum all the temporary values in the cache.\r\n // need to guarantee that all of these writes to the shared array\r\n // complete before anyone to read from this array.\r\n \r\n // synchronize threads in this block\r\n __syncthreads(); // This call guarantees that every thread in the block has \r\n // completed instructions prior to __syncthreads() before the \r\n // hardware will execute the next instruction on any thread.\r\n89",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/6788e436-077a-495d-a086-894b7251dc00.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a4bc9dc6ed24e56275801ce7c4a3b8c007c5b780729d6dc7677b0845933392aa",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "45b8e509-302e-445e-9f93-1538d8e8b00d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 90,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "// each thread will add two of values in cache[] and \r\n// store the result back to cache[]. \r\n// We continue in this fashion for log_2(threadsPerBlock) \r\n//steps till we have the sum of every entry in cache[].\r\n// For reductions, threadsPerBlock must be a power of 2\r\n int i=blockDim.x/2;\r\n while(i!=0){\r\n if(cacheIndex <i)\r\n cache[cacheIndex] += cache[cacheIndex+i];\r\n __syncthreads();\r\n i/=2; \r\n }\r\n if(cacheIndex==0)\r\n c[blockIdx.x]=cache[0];\r\n}\r\n90",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/45b8e509-302e-445e-9f93-1538d8e8b00d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0f296d40de3fa9c98769da897a1c023a4146217ce1caf20c76557990c8f41c2c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5b6faa48-419f-4624-9d7d-48f0b07404b3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 91,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "0 1 2 3 4 5 6 7\r\n91\r\n+\r\n+\r\n+\r\n+\r\n+\r\n+\r\n+",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/5b6faa48-419f-4624-9d7d-48f0b07404b3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7cbd9cf1addf7acb8f2d5b67f191cb108a8bbbdd1ee7d5840484ffbdcc2b2a46",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 464
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c4b9985c-e19b-4229-8473-e63695805ca0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 92,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Shared Memory to Reuse Global Memory Data\r\n92 92\r\n• Each input element is \r\nread by Width \r\nthreads.\r\n• Load each element \r\ninto Shared Memory \r\nand have several \r\nthreads use the local \r\nversion to reduce the \r\nmemory bandwidth\r\n– Tiled algorithms\r\nM\r\nN\r\nP\r\nWIDTH WIDTH\r\nWIDTH WIDTH\r\nty\r\ntx",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/c4b9985c-e19b-4229-8473-e63695805ca0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b22c9fd125c6b5523ded357cf6a53497150abbf750b2bf7794e412a613d2dd34",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9e1f9ebe-978a-4f81-97be-28d715c3468f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 93,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Tiled Multiplication\r\n93 93\r\nMd\r\nNd\r\nPd\r\nPdsub\r\nTILE_WIDTH\r\nWIDTH WIDTH\r\nTILE_WIDTH TILE_WIDTH\r\nbx\r\ntx\r\n012 TILE_WIDTH-1\r\n0 1 2\r\nby ty 2\r\n1\r\n0\r\nTILE_WIDTH-1\r\n2\r\n1\r\n0\r\nTILE_WIDTH TILE_WIDTH TILE_WIDTHE\r\nWIDTH WIDTH\r\n• Break up the execution of the kernel into \r\nphases so that the data accesses in each \r\nphase is focused on one subset (tile) of \r\nMd and Nd\r\n• Each block computes one square sub\u0002matrix Pdsub of size TILE_WIDTH\r\n• Each thread computes one element of \r\nPdsub",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/9e1f9ebe-978a-4f81-97be-28d715c3468f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e8c84f399e5964b20eb1cceeb1820d092e74d6507edf6a38cc70935165b5bb93",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9ba3b823-5367-4a86-bdb8-5a538ad8ca82",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 94,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "94\r\nEvery Md and Nd Element is used exactly twice in \r\ngenerating a 2X2 tile of P\r\nP0,0\r\nthread0,0\r\nP1,0\r\nthread1,0\r\nP0,1\r\nthread0,1\r\nP1,1\r\nthread1,1\r\nM0,0 * N0,0 M0,0 * N1,0 M0,1 * N0,0 M0,1 * N1,0\r\nM1,0 * N0,1 M1,0 * N1,1 M1,1 * N0,1 M1,1 * N1,1\r\nM2,0 * N0,2 M2,0 * N1,2 M2,1 * N0,2 M2,1 * N1,2\r\nM3,0 * N0,3 M3,0 * N1,3 M3,1 * N0,3 M3,1 * N1,3\r\nAccess\r\norder",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/9ba3b823-5367-4a86-bdb8-5a538ad8ca82.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fb2b3363f0349cb745e40875ac005ef10d842776eb69aeb261b31d028d151c21",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "60dcea63-ab62-43e9-8df3-71118ffb473e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 95,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Breaking Md and Nd into Tiles\r\n95\r\nMd2,0 Pd1,0\r\nMd1,1\r\nMd0,0Md1,0\r\nMd0,1\r\nMd3,0\r\nMd2,1\r\nPd0,0\r\nMd3,1 Pd0,1\r\nPd2,0Pd3,0\r\nNd0,3Nd1,3\r\nNd1,2\r\nNd1,1\r\nNd0,0Nd1,0\r\nNd0,1\r\nNd0,2\r\nPd1,1\r\nPd0,2 Pd1,2Pd2,2Pd3,2\r\nPd2,1Pd3,1\r\nPd0,3 Pd1,3Pd2,3Pd3,3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/60dcea63-ab62-43e9-8df3-71118ffb473e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8b7c1ff5ec23b65a65c4f8895efd1dddd2c652bef8a98f014021af587e9bcd24",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "201376fb-07e5-461e-945b-94e991a0b426",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 96,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "96\r\nEach Phase of a Thread Block Uses One Tile from \r\nMd and One from Nd\r\nStep 4 Step 5 Step 6\r\nT0,0 Md0,0\r\n‏↓\r\nMds0,0\r\nNd0,0\r\n‏↓\r\nNds0,0\r\nPValue0,0 += \r\nMds0,0*Nds0,0 + \r\nMds1,0*Nds0,1\r\nMd2,0\r\n‏↓\r\nMds0,0\r\nNd0,2\r\n‏↓\r\nNds0,0\r\nPValue0,0 += \r\nMds0,0*Nds0,0 + \r\nMds1,0*Nds0,1\r\nT1,0 Md1,0\r\n‏↓\r\nMds1,0\r\nNd1,0\r\n‏↓\r\nNds1,0\r\nPValue1,0 += \r\nMds0,0*Nds1,0 + \r\nMds1,0*Nds1,1\r\nMd3,0\r\n‏↓\r\nMds1,0\r\nNd1,2\r\n‏↓\r\nNds1,0\r\nPValue1,0 += \r\nMds0,0*Nds1,0 + \r\nMds1,0*Nds1,1\r\nT0,1 Md0,1\r\n‏↓\r\nMds0,1\r\nNd0,1\r\n‏↓\r\nNds0,1\r\nPdValue0,1 += \r\nMds0,1*Nds0,0 + \r\nMds1,1*Nds0,1\r\nMd2,1\r\n‏↓\r\nMds0,1\r\nNd0,3\r\n‏↓\r\nNds0,1\r\nPdValue0,1 += \r\nMds0,1*Nds0,0 + \r\nMds1,1*Nds0,1\r\nT1,1 Md1,1\r\n‏↓\r\nMds1,1\r\nNd1,1\r\n‏↓\r\nNds1,1\r\nPdValue1,1 += \r\nMds0,1*Nds1,0 + \r\nMds1,1*Nds1,1\r\nMd3,1\r\n‏↓\r\nMds1,1\r\nNd1,3\r\n‏↓\r\nNds1,1\r\nPdValue1,1 += \r\nMds0,1*Nds1,0 + \r\nMds1,1*Nds1,1\r\nPhase 1 Phase 2\r\ntime",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/201376fb-07e5-461e-945b-94e991a0b426.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a6543be09395cf4ff724a0893469b3572c2f43a62cd33fe0705a07acce69b3d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "69807e24-2baa-4806-a99d-80dce32eb807",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 97,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Each thread block should have many threads\r\n– TILE_WIDTH of 16 gives 16*16 = 256 threads\r\n• There should be many thread blocks\r\n– A 1024*1024 Pd gives 64*64 = 4096 Thread Blocks\r\n• Each thread block perform 2*256 = 512 float \r\nloads from global memory for 256 * (2*16) = \r\n8,192 mul/add operations. \r\n– Memory bandwidth no longer a limiting factor\r\n97",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/69807e24-2baa-4806-a99d-80dce32eb807.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=af377d53bd9fed59fa5550a60f479dd5ab91e570d71f5a1cfd1e7c225ac53a2d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "056aa978-1e52-4772-924f-6b8e7dedd208",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 98,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Kernel Execution Configuration \r\n// Setup the execution configuration\r\ndim3 dimBlock(TILE_WIDTH, TILE_WIDTH);\r\ndim3 dimGrid(Width/TILE_WIDTH, \r\n Width/TILE_WIDTH);\r\n98",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/056aa978-1e52-4772-924f-6b8e7dedd208.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=414d131519e95725172d0068b6287f96a0b797933bc3516fce7564c053b553c1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 434
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "361f3645-3a15-43cf-adac-74e6f25203e2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 99,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "99\r\n__global__ void MatrixMulKernel(float* Md, float* Nd, float* Pd, int Width)\r\n{\r\n __shared__float Mds[TILE_WIDTH][TILE_WIDTH];\r\n __shared__float Nds[TILE_WIDTH][TILE_WIDTH];\r\n int bx = blockIdx.x; int by = blockIdx.y;\r\n int tx = threadIdx.x; int ty = threadIdx.y;\r\n// Identify the row and column of the Pd element to work on\r\n int Row = by * TILE_WIDTH + ty;\r\n int Col = bx * TILE_WIDTH + tx;\r\n float Pvalue = 0;\r\n// Loop over the Md and Nd tiles required to compute the Pd element\r\n for (int m = 0; m < Width/TILE_WIDTH; ++m) {\r\n // Coolaborative loading of Md and Nd tiles into shared memory\r\n Mds[ty][tx] = Md[Row*Width + (m*TILE_WIDTH + tx)];\r\n Nds[ty][tx] = Nd[Col + (m*TILE_WIDTH + ty)*Width];\r\n __syncthreads();\r\n for (int k = 0; k < TILE_WIDTH; ++k)\r\n Pvalue += Mds[ty][k] * Nds[k][tx];\r\n Synchthreads();\r\n }\r\n Pd[Row*Width+Col] = Pvalue;\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/361f3645-3a15-43cf-adac-74e6f25203e2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8471591d68047de528aca69cb8c92d4dcf6deca1ec7fd53e5d0e82cadeed636c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0c12cb55-bbda-4a5a-b953-1fc2c1939631",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 100,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Performance on G80\r\n• Each SM in G80 has 16KB shared memory\r\n– SM size is implementation dependent!\r\n– For TILE_WIDTH = 16, each thread block uses 2*256*4B = 2KB of shared memory. \r\n– Can potentially have up to 8 Thread Blocks actively executing \r\n• This allows up to 8*512 = 4,096 pending loads. (2 per thread, 256 threads per block)\r\n– The next TILE_WIDTH 32 would lead to 2*32*32*4B= 8KB shared memory usage per \r\nthread block, allowing only up to two thread blocks active at the same time\r\n• Using 16x16 tiling, we reduce the accesses to the global memory by a factor \r\nof 16\r\n– The 86.4B/s bandwidth can now support (86.4/4)*16 = 347.6 GFLOPS\r\n100\r\nGFLOPS 0\r\n1 0\r\n2 0\r\n3 0\r\n4 0\r\n5 0\r\n6 0\r\n7 0\r\n8 0\r\n9 0\r\n100\r\ntile d\r\no n ly\r\ntile d &\r\nu n ro lle d\r\ntile d\r\no n ly\r\ntile d &\r\nu n ro lle d\r\ntile d\r\no n ly\r\ntile d &\r\nu n ro lle d\r\ntile d\r\no n ly\r\ntile d &\r\nu n ro lle d\r\nno t tile d 4 x4 tile s 8 x8 tile s 1 2 x1 2 tile s 1 6 x1 6 tile s",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/0c12cb55-bbda-4a5a-b953-1fc2c1939631.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2e12603237927c69dc2e486276f445862f34eb4bdb8e509b6ea349b9276d3509",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6171e238-8aa6-450a-9e46-f5ec388d0948",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 101,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "2D Laplace Solver\r\n• Jacobi iteration to solve discrete Laplace equation on a \r\nuniform grid\r\nfor (int j=0; j<J; j++) {\r\n for (int i=0; i<I; i++) {\r\n id = i + j*I; // 1D memory location\r\n if (i==0 || i==I-1 || j==0 || j==J-1)\r\n u2[id] = u1[id];\r\n else\r\n u2[id] = 0.25*( u1[id-1] + u1[id+1]\r\n + u1[id-I] + u1[id+I] );\r\n }\r\n}\r\n101",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/6171e238-8aa6-450a-9e46-f5ec388d0948.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=409e0bf248a281560ebe14de066926a537a69f425fb691e1c43fca12b3e8646e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3a6a844b-25f9-4796-9571-df3ee7396da1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 102,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "2D Laplace Solver Using CUDA\r\n• each thread responsible for one grid point\r\n• each block of threads responsible for a block \r\nof the grid\r\n• conceptually very similar to data partitioning \r\nin MPI distributed-memory implementations, \r\nbut much simpler\r\n102",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/3a6a844b-25f9-4796-9571-df3ee7396da1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=03026d1e22197d250965cb11c19499b754c23c52b9a96e30e82640a9d9324ef9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "92d0d6ef-6179-4346-b4ae-7df8fccbca9e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 103,
+            "page_width": 720,
+            "page_height": 540,
+            "content": " →\r\n103",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/92d0d6ef-6179-4346-b4ae-7df8fccbca9e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ca400fc0ce66e0cd77bd6f1feaa7b0762fa3ab81f4085cb7079fc5b0376a7b0e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "35063307-50d5-419b-97ea-dd71b6a3c253",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 104,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "104",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/35063307-50d5-419b-97ea-dd71b6a3c253.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1642e54e0601734577f5f3d93c27c7f135f4fb64f0a1e3fe5fef8c04e50f7c32",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "51c15639-2057-4564-a071-5cb30a51821d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 105,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Each block of threads processes one of these grid blocks, \r\nreading in old values and computing new values.\r\n105",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/51c15639-2057-4564-a071-5cb30a51821d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8cb608bc222d3c7c3086438ce8eea68924340eb163abee9bb19845c5a20da64e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 475
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "54369290-92d1-494b-bc7a-f97d8e62a4f1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 106,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "__global__ void lap(int I, int J, float *u1, float *u2) {\r\n int i = threadIdx.x + blockIdx.x*blockDim.x;\r\n int j = threadIdx.y + blockIdx.y*blockDim.y;\r\n int id = i + j*I;\r\n if (i==0 || i==I-1 || j==0 || j==J-1) {\r\n u2[id] = u1[id]; // Dirichlet b.c.’s\r\n }\r\n else {\r\n u2[id] = 0.25 * ( u1[id-1] + u1[id+1]\r\n + u1[id-I] + u1[id+I] );\r\n }\r\n}\r\n106",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/54369290-92d1-494b-bc7a-f97d8e62a4f1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d73d394e2a393178acf0904fbcf2255182521d13257b775f7f85fb6f4c76082e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cdfdf923-5132-4d1b-81b1-fdab53e18fdf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 107,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Assumptions:\r\n• I is a multiple of blockDim.x\r\n• J is a multiple of blockDim.y\r\ngrid breaks up perfectly into blocks\r\n• I is a multiple of 32\r\nCan remove these assumptions by\r\n• testing if i, j are within grid\r\n• padding the array in x to make it a multiple of 32, so \r\neach row starts at the beginning of a cache line – this \r\nuses a special routine cudaMallocPitch\r\n107",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/cdfdf923-5132-4d1b-81b1-fdab53e18fdf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7ce3d7bc8cf0a7293e18b12b434417b571d1666cb4ebae7794d076f166a8a6d5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1861edc6-8a46-41f8-bd70-f6be1dec5d05",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 108,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Lecture 11: Programming on GPUs \r\n(Part 3)\r\n108",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/1861edc6-8a46-41f8-bd70-f6be1dec5d05.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a89b41ad2f96749a60e29acb3ec7ba5ec36acbed3ee09762a4ba5b5560cb2309",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9f4e4164-f02a-45e1-9f00-69bce65c1d71",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 109,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Control Flow and Synchronization\r\n• Warp divergence – different threads in a warp need to do \r\ndifferent things\r\nif(x< 0.0)\r\n z = x – 2.0;\r\nElse \r\n z = sqrt(x);\r\n• CUDA has predicated instructions which are carried out only if a \r\nlogical flag is true.\r\n– All threads compute the logical predicate and two predicated \r\ninstructions\r\nP= (x < 0.0);\r\np: z = x-2.0; // single instruction\r\n!p: z = sqrt(x); \r\n• all threads execute both conditional branches, so execution cost \r\nis sum of both branches\r\n– potentially large loss of performance\r\n109",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/9f4e4164-f02a-45e1-9f00-69bce65c1d71.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5ba6444c831ce9d91daff1600e562e4c568c1d0f365ab614c0995e0c09a3e3f7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "115db02c-39ff-4a20-8f3a-44ec81ec821e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 110,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Synchronization\r\n_syncthreads()\r\n• forms a barrier – all threads wait until every \r\none has reached this point.\r\n• When writing conditional code, must be \r\ncareful to make sure that all threads do reach \r\nthe __syncthreads(). Otherwise, can end up in \r\ndeadlock\r\n110",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/115db02c-39ff-4a20-8f3a-44ec81ec821e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7fd43ac3142bdd18e9b0ff840b14130a3b453da602d86eb9a5cbc687423e06bb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f6b0b350-fec0-4723-a717-431d564233e9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 111,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Hybrid MPI/CUDA\r\n1. One MPI process per GPU\r\n– GPU handling is straight forward\r\n– Wastes the other cores of the processor\r\n2. Many MPI processes per GPU, only one uses it\r\n– Poses difficult load balancing problems\r\n3. Many MPI processes share a GPU\r\n– Two processes cannot share the same GPU context, \r\nper process memory on GPU\r\n– Sharing may not always be possible\r\n• Limited memory on GPU\r\n• If GPUs are in exclusive mode\r\n111",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/f6b0b350-fec0-4723-a717-431d564233e9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d0ceb437d26f09ded5ddc092e2abd28cc2fb35d568b9b50a9106f7525e5c8e2c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4f2b30ef-eac0-4164-98bc-bcc722020206",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 112,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• CUDA will be: \r\n– Doing the computational heavy lifting \r\n– Dictating your algorithm & parallel \r\nlayout (data parallel) \r\n• Therefore: \r\n– Design CUDA portions first \r\n– Use MPI to move work to each node\r\n112",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/4f2b30ef-eac0-4164-98bc-bcc722020206.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b838947a4ae240e48ee65961e20e8f2b92a4268061f2195be0e649c5cad4f32d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "144f42be-75c5-46cc-8344-59635cbdbe2d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 113,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Multi-GPU Programming \r\n• Selecting GPUs\r\nThe number of active GPUs visible to the rank is\r\ncudaGetDeviceCount(&deviceCount);\r\n• One GPU per process (strategy 1)\r\nif(processesPerNode==deviceCount){\r\n id= nodeRank%deviceCount;\r\n cudaSetDevice(id);\r\n}\r\nelse //ERROR\r\n113",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/144f42be-75c5-46cc-8344-59635cbdbe2d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e383c38d89b634f94080f204e394f679c290096c0c859ed6569b6ee1197ce4f3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "76bba830-6ae1-41fd-a869-9349bc298d1e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 114,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "114\r\nProcess #1\r\nProcess #2\r\ncudaSetDevice(0)\r\ncudaSetDevice(1)\r\nCUDA\r\nkernel\r\nCUDA\r\nkernel",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/76bba830-6ae1-41fd-a869-9349bc298d1e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ce50de0f673194f31c60b3d6c15f215abd714f2ff8843bcb77a060c5d7115962",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ccb2e4c1-feb3-4148-868c-2a0bc3a2042b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 115,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Compiling\r\n• Kernel, kernel invocation, cudaMalloc, are all best \r\noff in a .cu file somewhere \r\n• MPI calls should be in .c files \r\n• nvcc processes .cu files to generate objective files\r\n• mpicc/mpicxx processes .c/.cpp files to generate \r\nobjective files\r\n• If we need to call CUDA kernels from within an \r\nMPI task, we can wrap the appropriate CUDA\u0002compiled functions with the “extern” keyword.\r\n115",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/ccb2e4c1-feb3-4148-868c-2a0bc3a2042b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3ae8421df0007660d8670c57a6d5f340f9c2a772cd2c487b7de2518e29b638dc",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 502
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f16477f0-1d8f-4862-b994-9f35c254f076",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 116,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "CUDA RNG\r\n• RNG: random number generator\r\n• CURAND\r\n– NVIDIA's library for random number generation in \r\nCUDA\r\n– CURAND can be called from the host and the device\r\n– CURAND Host API provides functions callable on the \r\nhost to generate random data in GPU global memory\r\n– Can create multiple pseudorandom generators using \r\ndifferent algorithms\r\n116",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/f16477f0-1d8f-4862-b994-9f35c254f076.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ee7f3a3c1e821662b366a98d4fd49135f4e332ac7af1a487ababb74d4fcae9f0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f8f5e248-3a5f-4249-9676-ea77202680dc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 117,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Example:\r\ncurandGenerator_t r;\r\n// argument tells which algorithm to use\r\ncurandCreateGenerator(&r, CURAND_RNG_PSEUDO_DEFAULT);\r\ncurandSetStream(r, stream); // optional\r\ncurandSetPseudoRandomGeneratorSeed(r, seed);\r\ncurandGenerateUniform(r, data, numElems);\r\ncurandDestroyGenerator(r);\r\n117",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/f8f5e248-3a5f-4249-9676-ea77202680dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0d4c47c9ac4ab47e8b8c6a08d482f2930a3b4bc4e52cb91ce6064f1a7e49f8a1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fa361251-383a-409b-ba6e-e7cee1dd424a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 118,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Using CURAND in the Host\r\n#include <curand.h>\r\nint main()\r\n{\r\n. . .\r\ncurandGenerator_t gen;\r\nfloat *devNum, *hostNum;\r\nhostNum = new float[n];\r\ncudaMalloc((void **)&devNum, n*sizeof(float));\r\n. . .\r\ncurandCreateGenerator(&gen,CURAND_RNG_PSEUDO_DEFAULT);\r\ncurandSetPseudoRandomGeneratorSeed(gen, 12345);\r\ncurandGenerateUniform(gen, devNum, n);\r\ncudaMemcpy(hostNum, devNum, n*sizeof(float),cudaMemcpyDeviceToHost);\r\n. . .\r\ncurandDestroyGenerator(gen);\r\ncudaFree(devNum);\r\n. . .\r\n}\r\n118",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/fa361251-383a-409b-ba6e-e7cee1dd424a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e9292dc9a410ebfbddfea32ef291ba5c60318a35689d975f38e194fb8108e6d5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e7bc86c9-e14b-47bf-be1d-27fdb8261ea1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 119,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "PI Calculation\r\n• Disk: 𝑆1 = 𝜋𝑟\r\n2\r\n• Square: 𝑆2 = 4𝑟\r\n2\r\n• 𝜋 =\r\n4𝑆1\r\n𝑆2\r\n119",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/e7bc86c9-e14b-47bf-be1d-27fdb8261ea1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5ca46010875bacafc58836ee0758191ae2321b625abad6859dfcf3ca588af05f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b40d4edc-2d88-4f3a-a7ba-d47ee9ee1ee7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 120,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• To generate random numbers on the GPU \r\nmemory: \r\n1. Include curand_kernel.h\r\n2. Allocate a memory space on device to store \r\nCURAND state.\r\n3. Initialize the state with a “seed”\r\n4. Generate random number sequences\r\n120",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/b40d4edc-2d88-4f3a-a7ba-d47ee9ee1ee7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=665252ab6eeb6af22adfc323995977a1d963551bde036abbbfcad00bc0436c28",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a09a5423-3c7f-4e72-af0f-5e8fc06dd086",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 121,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "#include <stdio.h>\r\n#include <stdlib.h>\r\n#include <curand_kernel.h> // CURAND lib header file\r\n#define TRIALS_PER_THREAD 2048\r\n#define BLOCKS 256\r\n#define THREADS 256\r\nint main(int argc, char *argv[]) {\r\n float host[BLOCKS * THREADS];\r\n float *dev;\r\n curandState *devStates;\r\n cudaMalloc((void **) &dev, BLOCKS * THREADS * sizeof(float));\r\n cudaMalloc( (void **)&devStates, BLOCKS*THREADS*sizeof(curandState) );\r\n …\r\n}\r\n121",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/a09a5423-3c7f-4e72-af0f-5e8fc06dd086.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=809cda5dd38cff0768057904844c24c64a3500c0220854a7cb202c6356c03d22",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ea2df2bd-05d6-4945-ba6e-32564f31656a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 122,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "__global__ void pi_mc(float *estimate, curandState *states) {\r\n unsigned int tid = threadIdx.x + blockDim.x*blockIdx.x;\r\n int points_in_circle = 0;\r\n float x, y;\r\n // Initialize CURAND\r\n curand_init(tid, 0, 0, &states[tid]);\r\n for(int i = 0; i < TRIALS_PER_THREAD; i++) {\r\n x = curand_uniform(&states[tid]);\r\n y = curand_uniform(&states[tid]);\r\n // count if x & y is in the circule.\r\n points_in_circle += (x*x + y*y <= 1.0f);\r\n }\r\n estimate[tid] = 4.0f * points_in_circle / (float) TRIALS_PER_THREAD;\r\n}\r\n122",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/ea2df2bd-05d6-4945-ba6e-32564f31656a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c2261e189a13fe174fd119417268450520e58c5f0c40d7c3e176c70cf316fd85",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3e83241e-0f4d-4822-9613-7bbe048470b5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 123,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• __device__ void curand_init (unsigned long long seed, unsigned long long\r\nsequence, unsigned long long offset, curandState *state)\r\n– The curand_init() function sets up an initial state allocated by the caller. thread will use its own \r\ncurandState to generate its own random number sequence\r\n• __device__ float curand_uniform (curandState *state)\r\n– This function returns a sequence of pseudorandom floats uniformly distributed between 0.0 and \r\n1.0\r\n• __device__ float curand_normal (curandState *state)\r\n– This function returns a single normally distributed float with mean 0.0 and standard deviation \r\n1.0.\r\n123",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/3e83241e-0f4d-4822-9613-7bbe048470b5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=18f1aba4e64e669c90542a961a5c2f9c9cd4a674ce4fb4c391058d54bb6b3b3a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bc00d9f0-aa52-4f64-963b-f0fb3c98700e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 124,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "• Generate many randomly \r\ndistributed points within the \r\nsquare\r\n• The area of the circle can be \r\napproximately obtained from \r\nthe ratio of points inside of \r\nthe circle and the total \r\nnumber of points.\r\n124",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/bc00d9f0-aa52-4f64-963b-f0fb3c98700e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ac1783f0bf2931d44f7c5296d83d41060536d7b9f0f05a848d667c723deaaaae",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c179e7b7-ee17-467b-b611-c2afa661025e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 125,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "References\r\n• An Introduction to GPU Computing and CUDA \r\nArchitecture, S. Tariq, NVIDIA Corporation\r\n• CUDA C Programming Guide, NVIDIA Corporation\r\n• CUDA by Example, An Introduction to General\u0002Purpose GPU Programming, J. Sanders, E. Kandrot\r\n125",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/9b03ba43-c97c-461e-a215-b9b0e3edc8f7/images/c179e7b7-ee17-467b-b611-c2afa661025e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041908Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=226a86ebe01580532418205c6a01181479deaf35c08f6061784a130f4b7b59f3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 464
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Lecture 11: Programming on GPUs (Part 1)\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "David Kirk/NVIDIA and Wen-mei W. Hwu\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "```json\n{\n \"date_published\": null\n}\n```"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```string\nGPU\n```"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,379 @@
+{
+  "file_name": "Intel - Avoiding AVX-SSE Transition Penalties (11MC12_Avoiding_2BAVX-SSE_2BTransition_2BPenalties_2Brh_2Bfinal).pdf",
+  "task_id": "27a8508c-7afe-47ae-9e07-2dbbdf28c4f2",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "6ca26a62-7fe1-42c9-8c19-b1e086d7a24e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "1\r\nAvoiding AVX-SSE Transition Penalties \r\nTransitioning between 256-bit Intel® AVX instructions and legacy Intel® SSE instructions within a \r\nprogram may cause performance penalties because the hardware must save and restore the upper \r\n128 bits of the YMM registers. This paper discusses how and why these transition penalties occur, \r\nmethods to detect AVX-SSE transitions, and methods to remove transitions or avoid the transition \r\npenalties. It also discusses the implications that CPU dispatching can have on AVX-SSE transitions, \r\nand provides general recommendations to avoid issues when using Intel® AVX.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/6ca26a62-7fe1-42c9-8c19-b1e086d7a24e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=085c350c1d52330d54fae2565f59b0278b87f1780789d44db3b0321b9199d89c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 87
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8478a05d-d024-4431-b2be-2e81553286cd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "2\r\n1. Introduction to AVX-SSE Transition Penalties\r\nIntel® Advanced Vector Extensions (Intel® AVX) is a new SIMD instruction set extension available as \r\npart of the 2nd generation Intel® Core™ processor family. Intel® AVX features wider 256-bit vectors \r\nand new instructions, and uses the new Vector Extension (VEX) extensible instruction encoding \r\nformat, which adds supports for three (or more) operand instructions. Intel® AVX also includes 128-\r\nbit VEX encoded instructions equivalent to all legacy Intel® Streaming SIMD Extensions (Intel® SSE)\r\n128-bit instructions.\r\nWhen using Intel® AVX instructions, it is important to know that mixing 256-bit Intel® AVX \r\ninstructions with legacy (non VEX-encoded) Intel® SSE instructions may result in penalties that could \r\nimpact performance. 256-bit Intel® AVX instructions operate on the 256-bit YMM registers which \r\nare 256-bit extensions of the existing 128-bit XMM registers. 128-bit Intel® AVX instructions \r\noperate on the lower 128 bits of the YMM registers and zero the upper 128 bits. However, legacy \r\nIntel® SSE instructions operate on the XMM registers and have no knowledge of the upper 128 bits \r\nof the YMM registers. Because of this, the hardware saves the contents of the upper 128 bits of \r\nthe YMM registers when transitioning from 256-bit Intel® AVX to legacy Intel® SSE, and then \r\nrestores these values when transitioning back from Intel® SSE to Intel® AVX (256-bit or 128-bit). \r\nThe save and restore operations both cause a penalty that amounts to several tens of clock cycles \r\nfor each operation.\r\nThere are several different situations where AVX-SSE transitions might occur, such as when 256-bit \r\nIntel® AVX intrinsic instructions or inline assembly are mixed with any of the following:\r\na. 128-bit intrinsic instructions\r\nb. Intel® SSE inline assembly\r\nc. C/C++ floating point code that is compiled to Intel® SSE\r\nd. Calls to functions or libraries that include any of the above.\r\nAdditionally, AVX-SSE transitions may occur if code containing 256-bit Intel® AVX instructions is \r\nexecuting and an interrupt occurs where the interrupt’s service routine (ISR) contains legacy Intel® \r\nSSE instructions. In the case where ISRs cause AVX-SSE transition penalties, there is nothing the \r\napplication developer can do to avoid the penalties. ISR developers should be aware of this \r\npotential penalty when using XMM/YMM registers within their routines, and should use the same \r\nmethods discussed below to avoid AVX-SSE transition penalties, as well as ensuring they save and \r\nrestore the entire YMM state when necessary.\r\nIt is often possible to remove AVX-SSE transitions by converting legacy Intel® SSE instructions to \r\ntheir equivalent VEX encoded instructions. When it is not possible to remove the transitions, it is \r\noften possible to avoid the penalty by explicitly zeroing the upper 128-bits of the YMM registers, in \r\nwhich case the hardware does not save these values. Methods to avoid the AVX-SSE transition \r\npenalty are discussed in depth in section 3.\r\nConsider the following example where we use both 128-bit and 256-bit intrinsic instructions. The \r\nassembly that is generated (also shown below) contains mostly Intel® AVX instructions (prefixed \r\nwith “v”). However, it also contains a legacy Intel® SSE instruction (movaps). Immediately before the \r\nmovaps instruction the hardware will save the contents of the upper 128 bits of the YMM registers. \r\nThe hardware will restore these values when it sees the next Intel® AVX instruction, which will \r\ncome on the next iteration. The following code was compiled at the command line with the Intel®\r\nCompiler version 12.0.4 using –O3.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/8478a05d-d024-4431-b2be-2e81553286cd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fa311fde971bace38361db7347930f041e77eedc2a35ca8937e9f7a730dcd2a6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 560
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8478a05d-d024-4431-b2be-2e81553286cd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "2\r\n1. Introduction to AVX-SSE Transition Penalties\r\nIntel® Advanced Vector Extensions (Intel® AVX) is a new SIMD instruction set extension available as \r\npart of the 2nd generation Intel® Core™ processor family. Intel® AVX features wider 256-bit vectors \r\nand new instructions, and uses the new Vector Extension (VEX) extensible instruction encoding \r\nformat, which adds supports for three (or more) operand instructions. Intel® AVX also includes 128-\r\nbit VEX encoded instructions equivalent to all legacy Intel® Streaming SIMD Extensions (Intel® SSE)\r\n128-bit instructions.\r\nWhen using Intel® AVX instructions, it is important to know that mixing 256-bit Intel® AVX \r\ninstructions with legacy (non VEX-encoded) Intel® SSE instructions may result in penalties that could \r\nimpact performance. 256-bit Intel® AVX instructions operate on the 256-bit YMM registers which \r\nare 256-bit extensions of the existing 128-bit XMM registers. 128-bit Intel® AVX instructions \r\noperate on the lower 128 bits of the YMM registers and zero the upper 128 bits. However, legacy \r\nIntel® SSE instructions operate on the XMM registers and have no knowledge of the upper 128 bits \r\nof the YMM registers. Because of this, the hardware saves the contents of the upper 128 bits of \r\nthe YMM registers when transitioning from 256-bit Intel® AVX to legacy Intel® SSE, and then \r\nrestores these values when transitioning back from Intel® SSE to Intel® AVX (256-bit or 128-bit). \r\nThe save and restore operations both cause a penalty that amounts to several tens of clock cycles \r\nfor each operation.\r\nThere are several different situations where AVX-SSE transitions might occur, such as when 256-bit \r\nIntel® AVX intrinsic instructions or inline assembly are mixed with any of the following:\r\na. 128-bit intrinsic instructions\r\nb. Intel® SSE inline assembly\r\nc. C/C++ floating point code that is compiled to Intel® SSE\r\nd. Calls to functions or libraries that include any of the above.\r\nAdditionally, AVX-SSE transitions may occur if code containing 256-bit Intel® AVX instructions is \r\nexecuting and an interrupt occurs where the interrupt’s service routine (ISR) contains legacy Intel® \r\nSSE instructions. In the case where ISRs cause AVX-SSE transition penalties, there is nothing the \r\napplication developer can do to avoid the penalties. ISR developers should be aware of this \r\npotential penalty when using XMM/YMM registers within their routines, and should use the same \r\nmethods discussed below to avoid AVX-SSE transition penalties, as well as ensuring they save and \r\nrestore the entire YMM state when necessary.\r\nIt is often possible to remove AVX-SSE transitions by converting legacy Intel® SSE instructions to \r\ntheir equivalent VEX encoded instructions. When it is not possible to remove the transitions, it is \r\noften possible to avoid the penalty by explicitly zeroing the upper 128-bits of the YMM registers, in \r\nwhich case the hardware does not save these values. Methods to avoid the AVX-SSE transition \r\npenalty are discussed in depth in section 3.\r\nConsider the following example where we use both 128-bit and 256-bit intrinsic instructions. The \r\nassembly that is generated (also shown below) contains mostly Intel® AVX instructions (prefixed \r\nwith “v”). However, it also contains a legacy Intel® SSE instruction (movaps). Immediately before the \r\nmovaps instruction the hardware will save the contents of the upper 128 bits of the YMM registers. \r\nThe hardware will restore these values when it sees the next Intel® AVX instruction, which will \r\ncome on the next iteration. The following code was compiled at the command line with the Intel®\r\nCompiler version 12.0.4 using –O3.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/8478a05d-d024-4431-b2be-2e81553286cd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fa311fde971bace38361db7347930f041e77eedc2a35ca8937e9f7a730dcd2a6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 560
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "72bfed13-b1a8-49b2-bdd6-25f25bf0d4fe",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "3\r\nFigure 1. C source and disassembly for example, showing the location of AVX-SSE transitions.\r\n2. Detecting AVX-SSE Transitions\r\n2.1. Using Intel® Software Development Emulator\r\nIntel® Software Development Emulator (Intel® SDE) is a command line tool for Windows* and Linux* \r\nthat developers can use to detect dynamic AVX-SSE transitions in their programs, even on \r\nprocessors that do not support Intel® AVX. Intel® SDE will report the number of AVX-SSE and SSE\u0002AVX transitions for a specific block within a function. Command line usage and sample output \r\ndetailing information on AVX-SSE transitions can be found in the figure below. The advantages of \r\nusing Intel® SDE is that it is free, it is very simple and quick to use, and it can be used on processors \r\nthat do not support Intel® AVX; the disadvantage of using Intel® SDE is that it does not show the \r\nspecific instructions that cause transitions. For more information, see the Intel® Software \r\nDevelopment Emulator website.\r\nFigure 2. Command to use Intel® SDE to detect AVX-SSE transitions, and sample output from Intel® SDE.\r\nloop: vcvtps2pd (%rbx,%rax,4), %ymm0\r\nvcvtps2pd (%rcx,%rax,4), %ymm1\r\nvmulpd %ymm0, %ymm0, %ymm2\r\nvmulpd %ymm1, %ymm1, %ymm3\r\nvaddpd %ymm2, %ymm3, %ymm4\r\nvsqrtps %xmm4, %xmm5\r\nvcvtpd2ps %ymm5, %xmm6\r\nmovaps %xmm6, (%rdx,%rax,4)\r\naddq $4, %rax\r\ncmpq $1048576, %rax\r\njl loop\r\nfloat* a; float* b; float* c; // allocate and initialize memory\r\nfor (int i = 0; i < size; i += 4) {\r\n__m128 av_128 = _mm_load_ps(a + i);\r\n__m128 bv_128 = _mm_load_ps(b + i);\r\n__m256d av_256 = _mm256_cvtps_pd(av_128);\r\n__m256d bv_256 = _mm256_cvtps_pd(bv_128);\r\n__m256d cv_256 = _mm256_sqrt_pd(_mm256_add_pd(_mm256_mul_pd(av_256, av_256),\r\n_mm256_mul_pd(bv_256, bv_256)));\r\n__m128 cv_128 = _mm256_cvtpd_ps(cv_256);\r\n_mm_store_ps(c + i, cv_128);\r\n}\r\nAVX-SSE transition\r\nSSE-AVX transition (after first iteration)\r\nsde –oast avx-sse-transitions.out –- user-application [args]\r\n Penalty Dynamic Dynamic \r\n in AVX to SSE SSE to AVX Static Dynamic Previous\r\n Block Transition Transition Icount Executions Icount Block\r\n================ ============ ============ ======== ========== ======== ================\r\n 0x13ff510b5 1 0 18 1 18 N/A\r\n#Penalty detected in routine: main @ 0x13ff510b5\r\n 0x13ff510d1 262143 262143 11 262143 2883573 0x13ff510d1\r\n#Penalty detected in routine: main @ 0x13ff510d1\r\n# SUMMARY \r\n# AVX_to_SSE_transition_instances: 262144\r\n# SSE_to_AVX_transition_instances: 262143\r\n# Dynamic_insts: 155387299\r\n# AVX_to_SSE_instances/instruction: 0.0017\r\n# SSE_to_AVX_instances/instruction: 0.0017\r\n# AVX_to_SSE_instances/100instructions: 0.1687\r\n# SSE_to_AVX_instances/100instructions: 0.1687",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/72bfed13-b1a8-49b2-bdd6-25f25bf0d4fe.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=899f53b3c3d42bd5c791dd2c12893fec549746499c17aedfacd44c4925cd46f6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 360
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "418c341b-2422-4325-9b8d-271ab061256e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "4\r\n2.2. Using Intel® vTune™ Amplifier XE\r\nThe 2nd generation Intel® Core™ processor family has support for hardware events that correspond \r\nto the transitions from 256-bit Intel® AVX to Intel® SSE (OTHER_ASSISTS.AVX_TO_SSE) and from \r\nIntel® SSE to Intel® AVX (OTHER_ASSISTS.SSE_TO_AVX). Developers can use Intel® vTune™ Amplifier \r\nXE on a 2nd generation Intel® Core™ processor to utilize these hardware events to detect AVX-SSE \r\ntransitions. To utilize these events in Intel® vTune™ Amplifier XE, you will need to create a new \r\nhardware event-based custom analysis using the following steps, annotated in Microsoft* Visual \r\nStudio 2010 SP1 on the figure below (note: SP1 is required when using Intel® AVX in Microsoft \r\nVisual Studio* 2010):\r\n1. Create a New Analysis\r\n2. Click “New …” and select “New Hardware Event-based Sampling Analysis”\r\n3. Click “Add Event”, select the OTHER_ASSISTS.AVX_TO_SSE and \r\nOTHER_ASSISTS.SSE_TO_AVX events, and click “OK”\r\n4. Click “Start” to start the analysis\r\nWhen the analysis has completed you will see the event counts by function, which you can use to \r\ndetermine which functions have AVX-SSE transitions. You can also click on any function to view \r\nhotspots for these specific events in the source or disassembly, which can tell you exactly which \r\ninstructions are causing transitions.\r\nThe advantage of using Intel® vTune™ Amplifier XE to detect AVX-SSE transitions is that it can show \r\nyou the precise location in your source code and disassembly that is causing transitions. The \r\ndisadvantage of Intel® vTune™ Amplifier XE is that it must be used on a processor that supports \r\nIntel® AVX in order to detect AVX-SSE transition events.\r\nFigure 3. Steps to create a custom analysis to detect AVX-SSE transitions using Intel® vTune™ Amplifier XE.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/418c341b-2422-4325-9b8d-271ab061256e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e00f20db10d5e7796d4234173f2f2107c5bf08e3b3da3c98d0ee5567e0ccff77",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 275
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5a19ac92-cfcb-4d4c-bff8-9e65673b164c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "5\r\n3. Methods to Avoid AVX-SSE Transition Penalties\r\n3.1. Method 1: Automatically Converting to VEX with Compiler Flags\r\nThere are several methods to either remove AVX-SSE transitions or to remove the penalty from \r\ntransitions. The easiest method to avoid the AVX-SSE transition penalty is to compile the relevant \r\nsource files with the Intel® Compiler using either the –xavx (/Qxavx on Windows*) or –mavx\r\n(/arch:avx on Windows*) flag. These flags tell the Intel® Compiler to generate instructions that are \r\nspecialized for processors that support Intel® AVX; the –xavx flag tells the Intel® Compiler to also \r\nattempt to optimize the code for processors that support Intel®AVX.\r\nWhen these flags are used the compiler will automatically generate VEX-encoded instructions rather \r\nthan legacy Intel® SSE instructions where appropriate, which removes the transition between Intel®\r\nAVX and Intel® SSE within those files. They also tell the compiler to automatically insert vzeroupper\r\ninstructions, which zero out the upper 128 bits of the YMM registers (see next section). When\r\nthese flags are used, the compiler will insert a vzeroupper instruction at the beginning of a function \r\ncontaining Intel® AVX code if none of the arguments are a YMM register or \r\n__m256/__m256d/__m256i datatype; the compiler will also insert a vzeroupper instruction at the \r\nend of functions if the returned value is not a YMM register or __m256/__m256d/__m256i \r\ndatatype. Inserting vzeroupper instructions prevents AVX-SSE transitions from occurring when \r\ncalling the functions in those files from routines that may have legacy Intel® SSE instructions. For \r\nmore information on Intel® Compiler flags for processor-specific optimizations, see the Intel®\r\nCompiler documentation. \r\nThe advantage to this method is that the compiler does it automatically. Additionally, this is the only \r\nmethod that can force 128-bit intrinsic instructions to generate VEX encoded instructions (when \r\nnot using –xavx or –mavx, 128-bit intrinsic instructions are not guaranteed to generate VEX \r\nencoded instructions). In some situations compilers will compile C/C++ floating point code to Intel®\r\nSSE instructions as opposed to x87 instructions. If C/C++ floating point code would be compiled to \r\nIntel® SSE instructions, then using the –xavx or –mavx flag is the only method that can force the \r\ncompiler to produce VEX encoded instructions. C/C++ floating point code compiled to x87 \r\ninstructions will not cause transition penalties.\r\nA disadvantage of this method is that it requires access to the relevant source files, so it cannot\r\navoid AVX-SSE transitions resulting from calls to functions that are not compiled with the –xavx or \r\n–mavx flag. Another possible disadvantage is that all Intel® SSE code within a file compiled with the \r\n–xavx or –mavx flag will be converted to VEX format and will only run on Intel® AVX supported \r\nprocessors. If a file contains code intended to run on multiple different generation processors then \r\nyou should consider separating the functionality into separate files and compiling each file with the \r\nrelevant compiler flag; also, see section 4 on CPU dispatching.\r\nReturning to our example, by compiling the file with the –xavx flag, the compiler will now generate\r\nthe vmovaps instruction rather than the movaps instruction, which removes the AVX-SSE transition. \r\nPrior to removing the transition this code took more than 230 cycles per iteration. After compiling \r\nwith –xavx the code now takes approximately 70 cycles per iteration1.\r\n 1 On a 2.3 GHz Intel® Core™ i7 running Mac OS X 10.6.8, compiled using Intel® Compiler 12.0.4 with –O3. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/5a19ac92-cfcb-4d4c-bff8-9e65673b164c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b41b6242ad3f9c9e16dd3eaa63012ab8ec644db5f8d1deca5ce08191a8378d0c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 556
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5a19ac92-cfcb-4d4c-bff8-9e65673b164c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "5\r\n3. Methods to Avoid AVX-SSE Transition Penalties\r\n3.1. Method 1: Automatically Converting to VEX with Compiler Flags\r\nThere are several methods to either remove AVX-SSE transitions or to remove the penalty from \r\ntransitions. The easiest method to avoid the AVX-SSE transition penalty is to compile the relevant \r\nsource files with the Intel® Compiler using either the –xavx (/Qxavx on Windows*) or –mavx\r\n(/arch:avx on Windows*) flag. These flags tell the Intel® Compiler to generate instructions that are \r\nspecialized for processors that support Intel® AVX; the –xavx flag tells the Intel® Compiler to also \r\nattempt to optimize the code for processors that support Intel®AVX.\r\nWhen these flags are used the compiler will automatically generate VEX-encoded instructions rather \r\nthan legacy Intel® SSE instructions where appropriate, which removes the transition between Intel®\r\nAVX and Intel® SSE within those files. They also tell the compiler to automatically insert vzeroupper\r\ninstructions, which zero out the upper 128 bits of the YMM registers (see next section). When\r\nthese flags are used, the compiler will insert a vzeroupper instruction at the beginning of a function \r\ncontaining Intel® AVX code if none of the arguments are a YMM register or \r\n__m256/__m256d/__m256i datatype; the compiler will also insert a vzeroupper instruction at the \r\nend of functions if the returned value is not a YMM register or __m256/__m256d/__m256i \r\ndatatype. Inserting vzeroupper instructions prevents AVX-SSE transitions from occurring when \r\ncalling the functions in those files from routines that may have legacy Intel® SSE instructions. For \r\nmore information on Intel® Compiler flags for processor-specific optimizations, see the Intel®\r\nCompiler documentation. \r\nThe advantage to this method is that the compiler does it automatically. Additionally, this is the only \r\nmethod that can force 128-bit intrinsic instructions to generate VEX encoded instructions (when \r\nnot using –xavx or –mavx, 128-bit intrinsic instructions are not guaranteed to generate VEX \r\nencoded instructions). In some situations compilers will compile C/C++ floating point code to Intel®\r\nSSE instructions as opposed to x87 instructions. If C/C++ floating point code would be compiled to \r\nIntel® SSE instructions, then using the –xavx or –mavx flag is the only method that can force the \r\ncompiler to produce VEX encoded instructions. C/C++ floating point code compiled to x87 \r\ninstructions will not cause transition penalties.\r\nA disadvantage of this method is that it requires access to the relevant source files, so it cannot\r\navoid AVX-SSE transitions resulting from calls to functions that are not compiled with the –xavx or \r\n–mavx flag. Another possible disadvantage is that all Intel® SSE code within a file compiled with the \r\n–xavx or –mavx flag will be converted to VEX format and will only run on Intel® AVX supported \r\nprocessors. If a file contains code intended to run on multiple different generation processors then \r\nyou should consider separating the functionality into separate files and compiling each file with the \r\nrelevant compiler flag; also, see section 4 on CPU dispatching.\r\nReturning to our example, by compiling the file with the –xavx flag, the compiler will now generate\r\nthe vmovaps instruction rather than the movaps instruction, which removes the AVX-SSE transition. \r\nPrior to removing the transition this code took more than 230 cycles per iteration. After compiling \r\nwith –xavx the code now takes approximately 70 cycles per iteration1.\r\n 1 On a 2.3 GHz Intel® Core™ i7 running Mac OS X 10.6.8, compiled using Intel® Compiler 12.0.4 with –O3. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/5a19ac92-cfcb-4d4c-bff8-9e65673b164c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b41b6242ad3f9c9e16dd3eaa63012ab8ec644db5f8d1deca5ce08191a8378d0c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 556
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2372244a-87dd-4572-9387-836c6ee07b52",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "6\r\nFigure 4. When using –xavx, the compiler will use the VEX encoded version of 128-bit instructions.\r\n3.2. Method 2: Automatically Converting to VEX with Pragmas\r\nAnother method of automatically converting to VEX with the Intel® Compiler is to use the Intel®\r\nspecific pragma: #pragma intel optimization_parameter target_arch=avx; this pragma is new to \r\nIntel® Compiler 12.1. When placed at the head of a function, this pragma has the effect of applying \r\n–mavx to that function only. This will cause VEX encoded instructions to be automatically \r\ngenerated where appropriate within this function, and a vzeroupper instruction to be automatically \r\ninserted at the beginning and end of the function.\r\nThe advantage of this method is that it can be applied at the function level as opposed to the file \r\nlevel, as is the case with –xavx and –mavx. As a result, it is not necessary to separate functionality \r\nintended to run on multiple different generation processors into multiple different files. A \r\ndisadvantage of this method is that, like –xavx and –mavx, this method requires access to the \r\nrelevant source files, so it cannot avoid AVX-SSE transitions resulting from calls to functions that \r\nare not accessible. Another disadvantage of this method is that if a function marked with this \r\npragma is chosen for inlining by the Intel® Compiler, at present the Intel® Compiler will not apply \r\n–mavx to that code. This can be avoided by explicitly preventing the Intel® Compiler from inlining \r\nthe function by using the __declspec(noinline) keyword.\r\nFigure 5. Example of using the optimization_parameter pragma and __declspec(noinline)\r\n3.3. Method 3: Zeroing Registers\r\nIn many cases it may not be possible to remove the transition from Intel® AVX to Intel® SSE, such as \r\nwhen it is necessary to call to a library that uses legacy Intel® SSE. In those cases, intrinsic\r\ninstructions or inline assembly can be used to call the vzeroupper instruction, which zeros out the \r\nupper 128 bits of the YMM registers (similarly, the vzeroall instruction can be used, which zeros out \r\nall 256 bits of the YMM registers). When the upper 128 bits of the YMM registers are set to zero by \r\nthe vzeroupper instruction, the hardware does not need to save those values, so the hardware \r\nassists do not occur. The vzeroupper instruction must be used after 256-bit Intel® AVX code and \r\nbefore Intel® SSE code, which will remove both the save and the restore operations. Zeroing out the \r\nYMM registers with other methods, such as with XORs, will not prevent AVX-SSE transition \r\npenalties.\r\nAn advantage of this method is that it is the only way to avoid the AVX-SSE transition penalty when \r\nusing functions or libraries that contain legacy Intel® SSE and that are not under your control. \r\nloop: vcvtps2pd (%rbx,%rax,4), %ymm0\r\nvcvtps2pd (%rcx,%rax,4), %ymm1\r\nvmulpd %ymm0, %ymm0, %ymm2\r\nvmulpd %ymm1, %ymm1, %ymm3\r\nvaddpd %ymm2, %ymm3, %ymm4\r\nvsqrtps %xmm4, %xmm5\r\nvcvtpd2ps %ymm5, %xmm6\r\nvmovaps %xmm6, (%rdx,%rax,4)\r\naddq $4, %rax\r\ncmpq $1048576, %rax\r\njl loop\r\n#pragma intel optimization_parameter target_arch=avx\r\n__declspec(noinline) void function_with_avx() { ... }",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/2372244a-87dd-4572-9387-836c6ee07b52.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aef5de652d49a307b65bd370e151e27fdb09c1d0e221c1f720aa7155056cf0df",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 497
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6ac9bb39-8c1b-4a5f-a9b9-a087c9ac2eb3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "7\r\nAnother advantage is that this method can be implemented without writing assembly by using the \r\nintrinsic instructions _mm256_zeroupper() and _mm256_zeroall(). The disadvantage of this method \r\nis that the vzeroupper instructions must be correctly placed to avoid all transition penalties. \r\nTo resolve the issue in our example code we must add a call to vzeroupper (using the \r\n_mm256_zeroupper() intrinsic instruction) immediately after our last 256-bit Intel® AVX intrinsic\r\ninstruction and before our 128-bit intrinsic instruction. After adding the code to zero the upper 128 \r\nbits of the YMM registers this code takes approximately 70 cycles per iteration.\r\nFigure 6. Zeroing registers to avoid the AVX-SSE transition penalty.\r\n3.4. Method 4: Manually Converting Assembly to VEX\r\nThe final method to avoid the AVX-SSE transition penalty is to manually convert any legacy Intel®\r\nSSE assembly instructions to their VEX encoded equivalent, which removes the AVX-SSE transition. \r\nInformation on VEX encoded instructions can be found in the Intel® Architectures Software \r\nDeveloper’s Manuals.\r\nAn advantage to manually converting to VEX is that it allows you to selectively convert the \r\nassembly within a file, as opposed to having all converted with –xavx. Additionally, if for some \r\nreason using –xavx or the pragma is not possible or ideal, then manually converting assembly to VEX \r\nis the only option. Another advantage to manually converting to VEX is that it allows you to take \r\nadvantage of the non-destructive three-operand forms in your assembly. The disadvantages of this \r\nmethod are that it must be done manually, it can only be done in assembly code, and that the code \r\nwill only run on processors that support Intel® AVX.\r\nfloat* a; float* b; float* c; // allocate and initialize memory\r\nfor (int i = 0; i < size; i += 4) {\r\n__m128 av_128 = _mm_load_ps(a + i);\r\n__m128 bv_128 = _mm_load_ps(b + i);\r\n__m256d av_256 = _mm256_cvtps_pd(av_128);\r\n__m256d bv_256 = _mm256_cvtps_pd(bv_128);\r\n__m256d cv_256 = _mm256_sqrt_pd(_mm256_add_pd(_mm256_mul_pd(av_256, av_256),\r\n_mm256_mul_pd(bv_256, bv_256)));\r\n__m128 cv_128 = _mm256_cvtpd_ps(cv_256);\r\n_mm256_zeroupper();\r\n_mm_store_ps(c + i, cv_128);\r\n}\r\nloop: vcvtps2pd (%rbx,%rax,4), %ymm0\r\nvcvtps2pd (%rcx,%rax,4), %ymm1\r\nvmulpd %ymm0, %ymm0, %ymm2\r\nvmulpd %ymm1, %ymm1, %ymm3\r\nvaddpd %ymm2, %ymm3, %ymm4\r\nvsqrtps %xmm4, %xmm5\r\nvcvtpd2ps %ymm5, %xmm6\r\nvzeroupper\r\nmovaps %xmm6, (%rdx,%rax,4)\r\naddq $4, %rax\r\ncmpq $1048576, %rax\r\njl loop",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/6ac9bb39-8c1b-4a5f-a9b9-a087c9ac2eb3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=315984aac9388ad2794e1a8d5a1a0c7df112c41579c293bb89567129495c2115",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 365
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e1136e44-f2c4-4090-a52c-0ccbdb702de1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "8\r\n4. AVX-SSE Transitions and CPU Dispatching\r\nIn many cases it is ideal to have multiple versions of a given function, where each is optimized for \r\ncertain CPU features (e.g. Intel® SSE2, Intel® AVX, etc.). For instance, this might be useful when you \r\nwould like to have an Intel® AVX and non-AVX version of a function, so that you can take advantage \r\nof Intel® AVX but still support non-AVX processors. In such cases, CPU dispatching is used to \r\n“dispatch” execution to the most appropriate version of the function based on which CPU the \r\nprogram is running on. There are three methods of implementing CPU dispatching: automatically \r\nwith the Intel® Compiler, manually using the Intel® Compiler’s manual-dispatching feature, or manually \r\nwith a custom mechanism provided by the developer. We will discuss the automatic and manual CPU \r\ndispatching using the Intel® Compiler and the implications these have on AVX-SSE transitions; these \r\nmethods are not guaranteed to work with other compilers, and developers should understand that \r\nCPU dispatching may be their own responsibility on other compilers.\r\n4.1. Intel® Compiler’s Auto-Dispatching Feature\r\nTo take advantage of the Intel® Compiler auto-dispatching feature, use the –axavx flag (/Qaxavx on \r\nWindows*). This flag directs the Intel® Compiler to look for opportunities to optimize the existing \r\ncode using any of the Intel® SIMD extensions, up to and including Intel® AVX. The Intel® Compiler will \r\ngenerate optimized processor-specific versions of existing functions when it finds sufficient \r\nperformance benefit, and will also generate functionality to auto-dispatch to the appropriate \r\nfunction at execution. The Intel® Compiler will always generate a generic function containing the \r\noriginal code, but may or may not generate any particular processor-specific version. For more \r\ninformation on the Intel® Compiler’s auto-dispatching feature, see Intel® compiler options for SSE \r\ngeneration and processor-specific optimizations.\r\nWhen using the Intel® Compiler’s auto-dispatching feature, the compiler will decide on a function-by\u0002function basis whether it will produce auto-dispatched processor-specific versions. If the compiler \r\ntargets a function for auto-dispatch and generates a code path optimized for Intel® AVX, then Intel®\r\nAVX instructions will be generated as appropriate, all relevant instructions within that function will \r\nautomatically be VEX encoded, and vzeroupper instructions will automatically be inserted at the \r\nbeginning and end of the function. However, if a function is not targeted for auto-dispatch and the \r\ndeveloper has manually added Intel® AVX intrinsic instructions, then it is not guaranteed that all \r\nrelevant instructions within that function will be VEX encoded, and vzeroupper instructions will not \r\nautomatically be inserted. It is important to understand that just using –axavx does not guarantee \r\nthat the Intel® Compiler will optimize your code for Intel®AVX, and your program may still have the \r\nsame AVX-SSE transitions it would if you did not use –axavx (using –axavx is not the same as using \r\n–xavx). \r\n4.2. Intel® Compiler’s Manual-Dispatching Feature\r\nThe Intel® Compiler’s manual-dispatching feature allows the developer to explicitly define processor\u0002specific versions of a function. The Intel® Compiler will then automatically generate functionality to \r\ndispatch to the appropriate version during execution. Manual dispatching can be helpful when you \r\nwant to explicitly define an Intel® AVX version of a function, but also want to explicitly support \r\nother processors that do not support Intel® AVX (for instance, an Intel® AVX version, an Intel® SSE \r\nversion, and a generic version).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/e1136e44-f2c4-4090-a52c-0ccbdb702de1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=635f3ddf6416d86e671afdf2c6078ad46bc2c413fffb595a1bfb5e87638c0b70",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 543
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e1136e44-f2c4-4090-a52c-0ccbdb702de1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "8\r\n4. AVX-SSE Transitions and CPU Dispatching\r\nIn many cases it is ideal to have multiple versions of a given function, where each is optimized for \r\ncertain CPU features (e.g. Intel® SSE2, Intel® AVX, etc.). For instance, this might be useful when you \r\nwould like to have an Intel® AVX and non-AVX version of a function, so that you can take advantage \r\nof Intel® AVX but still support non-AVX processors. In such cases, CPU dispatching is used to \r\n“dispatch” execution to the most appropriate version of the function based on which CPU the \r\nprogram is running on. There are three methods of implementing CPU dispatching: automatically \r\nwith the Intel® Compiler, manually using the Intel® Compiler’s manual-dispatching feature, or manually \r\nwith a custom mechanism provided by the developer. We will discuss the automatic and manual CPU \r\ndispatching using the Intel® Compiler and the implications these have on AVX-SSE transitions; these \r\nmethods are not guaranteed to work with other compilers, and developers should understand that \r\nCPU dispatching may be their own responsibility on other compilers.\r\n4.1. Intel® Compiler’s Auto-Dispatching Feature\r\nTo take advantage of the Intel® Compiler auto-dispatching feature, use the –axavx flag (/Qaxavx on \r\nWindows*). This flag directs the Intel® Compiler to look for opportunities to optimize the existing \r\ncode using any of the Intel® SIMD extensions, up to and including Intel® AVX. The Intel® Compiler will \r\ngenerate optimized processor-specific versions of existing functions when it finds sufficient \r\nperformance benefit, and will also generate functionality to auto-dispatch to the appropriate \r\nfunction at execution. The Intel® Compiler will always generate a generic function containing the \r\noriginal code, but may or may not generate any particular processor-specific version. For more \r\ninformation on the Intel® Compiler’s auto-dispatching feature, see Intel® compiler options for SSE \r\ngeneration and processor-specific optimizations.\r\nWhen using the Intel® Compiler’s auto-dispatching feature, the compiler will decide on a function-by\u0002function basis whether it will produce auto-dispatched processor-specific versions. If the compiler \r\ntargets a function for auto-dispatch and generates a code path optimized for Intel® AVX, then Intel®\r\nAVX instructions will be generated as appropriate, all relevant instructions within that function will \r\nautomatically be VEX encoded, and vzeroupper instructions will automatically be inserted at the \r\nbeginning and end of the function. However, if a function is not targeted for auto-dispatch and the \r\ndeveloper has manually added Intel® AVX intrinsic instructions, then it is not guaranteed that all \r\nrelevant instructions within that function will be VEX encoded, and vzeroupper instructions will not \r\nautomatically be inserted. It is important to understand that just using –axavx does not guarantee \r\nthat the Intel® Compiler will optimize your code for Intel®AVX, and your program may still have the \r\nsame AVX-SSE transitions it would if you did not use –axavx (using –axavx is not the same as using \r\n–xavx). \r\n4.2. Intel® Compiler’s Manual-Dispatching Feature\r\nThe Intel® Compiler’s manual-dispatching feature allows the developer to explicitly define processor\u0002specific versions of a function. The Intel® Compiler will then automatically generate functionality to \r\ndispatch to the appropriate version during execution. Manual dispatching can be helpful when you \r\nwant to explicitly define an Intel® AVX version of a function, but also want to explicitly support \r\nother processors that do not support Intel® AVX (for instance, an Intel® AVX version, an Intel® SSE \r\nversion, and a generic version).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/e1136e44-f2c4-4090-a52c-0ccbdb702de1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=635f3ddf6416d86e671afdf2c6078ad46bc2c413fffb595a1bfb5e87638c0b70",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 543
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a5a3b544-d693-4400-ad32-ac1580c7f96f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "9\r\nManual dispatching is implemented using the __declspec(cpu_dispatch()) and \r\n__declspec(cpu_specific()) keywords. The __declspec(cpu_dispatch(cpuid,…)) keyword should be \r\nplaced above a stub of the function to be dispatched; the cpuid parameters should specify all the \r\nspecific processors that are being explicitly targeted. The __declspec(cpu_specific(cpuid, …)) \r\nkeyword should be placed above processor-specific implementations of the function; the cpuid of \r\none or more specific targeted processors must be supplied. The core_2nd_gen_avx cpuid is used to \r\ntarget processors that support Intel® AVX. For more information and an example on the Intel®\r\nCompiler’s manual dispatching feature, see How to manually target 2nd generation Intel® Core™ \r\nprocessors with support for Intel® AVX.\r\nWithin function versions that specify the core_2nd_gen_avx cpuid, all relevant intrinsic instructions\r\nand inline assembly2 will automatically be VEX encoded and vzeroupper instructions will \r\nautomatically be inserted at the beginning and end of the function. Any functions that do not \r\nspecify the core_2nd_gen_avx cpuid but do contain Intel® AVX intrinsic instructions would be \r\ntargeted for processors that do not support Intel® AVX and would generate an exception at runtime. \r\nTable 1. Effects that different compiler flags and dispatching scenarios have on code generation.\r\nsituation 128-bit intrinsics \r\n& FP code\r\nIntel® SSE inline \r\nassembly\r\nvzeroupper in \r\nfunction1\r\ndefault non-VEX non-VEX no\r\n-xavx and -mavx VEX VEX yes\r\npragma with\r\ntarget_arch=avx VEX VEX2 yes\r\nICC auto-dispatching\r\n(targeted) VEX VEX2 yes\r\nICC auto-dispatching\r\n(not targeted) non-VEX non-VEX no\r\nICC manual dispatching\r\n(core_2nd_gen_avx) VEX VEX2 yes\r\nICC manual dispatching\r\n(not core_2nd_gen_avx) non-VEX non-VEX no\r\n5. Summary & Recommendations\r\nThere is a performance penalty when switching between 256-bit Intel® AVX instructions and Intel®\r\nSSE instructions because the hardware saves and restores the upper 128 bits of the YMM registers. \r\nTo remove this penalty you can convert all legacy Intel® SSE instructions to their VEX encoded \r\nequivalents using the –xavx or -mavx flag with the Intel® Compiler, the new Intel® specific pragma, or \r\nby manually converting assembly. In cases where you cannot avoid the transition, you can remove \r\n 1 At the beginning if none of the functions arguments are a YMM register or a __m256/__m256d/__m256i \r\ndatatype; at the end if the returned value is not a YMM register or __m256/__m256d/__m256i datatype.\r\n2 In these scenarios the Intel® Compiler does not currently convert Intel® SSE inline assembly to VEX-encoded \r\ninstructions. The intended behavior is that Intel® SSE inline assembly be VEX-encoded. This issue is under \r\ninvestigation and will be resolved shortly.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/a5a3b544-d693-4400-ad32-ac1580c7f96f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4fd460d5c393425e48c6878805891c0ad879bbc6942d6417c1bf643395728a31",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 399
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ee9a9eca-04d0-4290-927d-f8c2871c37e0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "10\r\nthe penalty by zeroing the YMM registers after 256-bit Intel® AVX instructions and before Intel®SSE \r\ninstructions using the vzeroupper instruction.\r\nTo minimize issues when using Intel® AVX, it is recommended that you compile any source files \r\nintended to run on processors that support Intel® AVX with the –xavx flag. If your code contains \r\nfunctions intended to be run on multiple different generation processors, then it is recommended \r\nthat you use the new Intel® specific pragma as opposed to compiling with -xavx. Additionally, you \r\nshould use the VEX encoded form of 128-bit instructions to avoid AVX-SSE transitions. Even if your \r\ncode does not contain legacy Intel® SSE code, when you have completed your use of 256-bit Intel®\r\nAVX within your code you should zero the registers as soon as possible using the vzeroupper\r\ninstruction or their intrinsic instructions; this can help you avoid introducing transitions in the future \r\nor causing transitions in programs that may use your code. Finally, when developing a program that \r\nincludes Intel® AVX, it is recommended that you always check for AVX-SSE transitions with Intel® \r\nSoftware Development Emulator or Intel® vTune™ Amplifier XE. \r\n \r\n6. About the Author\r\nPatrick Konsor is an Application Engineer on the Apple Enabling Team at \r\nIntel in Santa Clara, and specializes in software optimization. Patrick \r\nreceived his BS in computer science from the University of Wisconsin-Eau \r\nClaire. He enjoys reading and cycling in his free time (go Schlecks!).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/ee9a9eca-04d0-4290-927d-f8c2871c37e0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=56775ac9185011174d0c6b0a706b7499273db204f577421d4c3fe9628bb397ee",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 236
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a82a2bb8-5fef-4058-b19c-bb8c6b2b2c77",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "11\r\n7. Notices\r\nINFORMATION IN THIS DOCUMENT IS PROVIDED IN CONNECTION WITH INTEL PRODUCTS. NO \r\nLICENSE, EXPRESS OR IMPLIED, BY ESTOPPEL OR OTHERWISE, TO ANY INTELLECTUAL \r\nPROPERTY RIGHTS IS GRANTED BY THIS DOCUMENT. EXCEPT AS PROVIDED IN INTEL'S \r\nTERMS AND CONDITIONS OF SALE FOR SUCH PRODUCTS, INTEL ASSUMES NO LIABILITY \r\nWHATSOEVER AND INTEL DISCLAIMS ANY EXPRESS OR IMPLIED WARRANTY, RELATING TO \r\nSALE AND/OR USE OF INTEL PRODUCTS INCLUDING LIABILITY OR WARRANTIES RELATING TO \r\nFITNESS FOR A PARTICULAR PURPOSE, MERCHANTABILITY, OR INFRINGEMENT OF ANY \r\nPATENT, COPYRIGHT OR OTHER INTELLECTUAL PROPERTY RIGHT.\r\nUNLESS OTHERWISE AGREED IN WRITING BY INTEL, THE INTEL PRODUCTS ARE NOT \r\nDESIGNED NOR INTENDED FOR ANY APPLICATION IN WHICH THE FAILURE OF THE INTEL \r\nPRODUCT COULD CREATE A SITUATION WHERE PERSONAL INJURY OR DEATH MAY OCCUR.\r\nIntel may make changes to specifications and product descriptions at any time, without notice. Designers \r\nmust not rely on the absence or characteristics of any features or instructions marked \"reserved\" or \r\n\"undefined.\" Intel reserves these for future definition and shall have no responsibility whatsoever for \r\nconflicts or incompatibilities arising from future changes to them. The information here is subject to \r\nchange without notice. Do not finalize a design with this information. \r\nThe products described in this document may contain design defects or errors known as errata which \r\nmay cause the product to deviate from published specifications. Current characterized errata are \r\navailable on request. \r\nContact your local Intel sales office or your distributor to obtain the latest specifications and before placing \r\nyour product order. \r\nCopies of documents which have an order number and are referenced in this document, or other Intel \r\nliterature, may be obtained by calling 1-800-548-4725, or go \r\nto: http://www.intel.com/design/literature.htm\r\nIntel, the Intel logo, VTune, Cilk and Xeon are trademarks of Intel Corporation in the U.S. and other countries.\r\n*Other names and brands may be claimed as the property of others\r\nCopyright© 2011 Intel Corporation. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/a82a2bb8-5fef-4058-b19c-bb8c6b2b2c77.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3a646abdba3fb9922bcb663b9244f5ecd90e972b0cd788b7833b7a88a3e5977c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 316
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3321dae2-9cf8-4cb8-b686-0f62d82453e2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12\r\nOptimization Notice \r\nNOTE: additional notices and disclaimers may be needed, depending on the content of the collateral. Generally, they can \r\nbe found in the following areas, and must be appended to the Notices section of the paper.\r\nGeneral Notices: Notices placed in all materials distributed or released by Intel\r\nBenchmarking and Performance Disclaimers: Disclaimers for Intel materials that use benchmarks or make performance \r\nclaims.\r\nTechnical Collateral Disclaimers: Disclaimers that should be included in Intel technical materials that describe the form, fit \r\nor function of Intel products.\r\nTechnology Notices: Notices for Intel materials when the benefits or features of a technology or program are described. Note \r\nfor technology disclaimers - if every product being discussed (e.g., ACER ULV) has the particular technology/feature, then you \r\ncan remove the requirements statement in the disclaimer. If you have multiple technical disclaimers, you can consolidate the \r\n\"your performance may vary\" statements and only put in a single \"your mileage may vary\".\r\nOptimization Notice\r\nIntel’s compilers may or may not optimize to the same degree for non-Intel microprocessors \r\nfor optimizations that are not unique to Intel microprocessors. These optimizations include \r\nSSE2®, SSE3, and SSSE3 instruction sets and other optimizations. Intel does not guarantee \r\nthe availability, functionality, or effectiveness of any optimization on microprocessors not \r\nmanufactured by Intel. Microprocessor-dependent optimizations in this product are intended \r\nfor use with Intel microprocessors. Certain optimizations not specific to Intel microarchitecture \r\nare reserved for Intel microprocessors. Please refer to the applicable product User and \r\nReference Guides for more information regarding the specific instruction sets covered by this \r\nnotice.\r\nNotice revision #20110804",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/27a8508c-7afe-47ae-9e07-2dbbdf28c4f2/images/3321dae2-9cf8-4cb8-b686-0f62d82453e2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041252Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=52a3796281349c8f599f224ee3c4342d8191438458d7e334308fe34c714ca7c2",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 261
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Avoiding AVX-SSE Transition Penalties\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Patrick Konsor\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2011\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Santa Clara\n"
+        }
+      ]
+    }
+  }
+}

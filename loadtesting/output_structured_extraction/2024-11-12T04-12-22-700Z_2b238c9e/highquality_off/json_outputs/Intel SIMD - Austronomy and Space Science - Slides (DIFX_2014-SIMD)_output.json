@@ -1,0 +1,612 @@
+{
+  "file_name": "Intel SIMD - Austronomy and Space Science - Slides (DIFX_2014-SIMD).pdf",
+  "task_id": "e6a174a3-606b-4d0f-8d74-e1f1ce81a909",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "30630612-cb0f-4832-82a5-aae2e9590c39",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Intel\tSIMD\t\r\nASTRONOMY\tAND\tSPACE\tSCIENCE\t\r\nChris\tPhillips|\t\tLBA\tLead\tScien-st\r\nNovember\t2014",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/30630612-cb0f-4832-82a5-aae2e9590c39.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d73bbf217337485823e92c0953a9c9988f8626b4e7425d6f758020a5f08b2889",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7106b0b1-639b-4a5b-a090-ec7d4b030c08",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 2,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\r\n• Single\tInstruc-on\tMul-ple\tData\t\r\n• Vector\textensions\tfor\tx86\tprocessors\t\r\n• Parallel\topera-ons\t\r\n• More\tregisters\tthan\tregular\tX86\t\r\n• MXX,\tSSE,\tSSE2..4,\tAVX,\tAVX2….\t\r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/7106b0b1-639b-4a5b-a090-ec7d4b030c08.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3e3dcf655ab47a9496c30b5e2ff9b7c514588f4c9d31c525198e39bd31aa3101",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b5cf98ce-5d96-4dd9-abcc-bd1f74979a74",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 3,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "© Markus Püschel, ETH Zürich, 2011\r\nX86-64 / em64t\r\nX86-32\r\nX86-16\r\nMMX\r\nSSE\r\nSSE2\r\nSSE3\r\nSSE4\r\n8086\r\n286\r\n386\r\n486\r\nPentium\r\nPentium MMX\r\nPentium III\r\nPentium 4\r\nPentium 4E\r\nPentium 4F\r\nCore 2 Duo\r\nPenryn\r\nCore i7 (Nehalem)\r\nSandybridge\r\ntime\r\nIntel x86 Processors\r\nAVX\r\n128 bit\r\n256 bit\r\n64 bit\r\n(only int)\r\nMMX: \r\nMultimedia extension\r\nSSE:\r\nStreaming SIMD extension\r\nAVX:\r\nAdvanced vector extensions\r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/b5cf98ce-5d96-4dd9-abcc-bd1f74979a74.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4196e9602cf3b44b3550ee9b8fb6c00b357a38ec47ddd27b38a77c848f79a494",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7fea8441-beab-427b-a72f-389313b1af51",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 4,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nCore 2\r\n Has SSE3\r\n 16 SSE registers\r\n%xmm0\r\n%xmm1\r\n%xmm2\r\n%xmm3\r\n%xmm4\r\n%xmm5\r\n%xmm6\r\n%xmm7\r\n%xmm8\r\n%xmm9\r\n%xmm10\r\n%xmm11\r\n%xmm12\r\n%xmm13\r\n%xmm14\r\n%xmm15\r\n128 bit = 2 doubles = 4 singles",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/7fea8441-beab-427b-a72f-389313b1af51.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=785b2edd7ec63a0c5f774d75324101ac5cca8e74b1248318c25c190675b7548b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0b3306cf-9bbd-4a02-844e-832043066d90",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 5,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nSSE3 Registers\r\n Different data types and associated instructions\r\n Integer vectors:\r\n 16-way byte\r\n 8-way 2 bytes\r\n 4-way 4 bytes\r\n Floating point vectors:\r\n 4-way single (since SSE)\r\n 2-way double (since SSE2)\r\n Floating point scalars:\r\n single (since SSE)\r\n double (since SSE2)\r\n128 bit LSB",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/0b3306cf-9bbd-4a02-844e-832043066d90.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=14735ab820a5cafe912057b9ed2dcb1a26b6f524ad9608af4a107a01baa9286b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2634f331-f535-44fd-99b3-32d522ad5459",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 6,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "AVX\t\r\n• Extends\tregisters\tto\t256bits\t\r\n• AVX2\tneeded\tfor\tinteger\topera-ons\t\r\nSIMD\t\t|\t\tChris\tPhillips\t\r\nIntel® Advanced Vector Extensions 3\r\nFigure 2 illustrates the data types used in the Intel® SSE and Intel® AVX instructions. Roughly, for \r\nIntel AVX, any multiple of 32-bit or 64-bit floating-point type that adds to 128 or 256 bits is \r\nallowed as well as multiples of any integer type that adds to 128 bits.\r\nFigure 2. Intel® AVX and Intel® SSE data types\r\nInstructions often come in scalar and vector versions, as illustrated in Figure 3. Vector versions \r\noperate by treating data in the registers in parallel “SIMD” mode; the scalar version only operates \r\non one entry in each register. This distinction allows less data movement for some algorithms,\r\nproviding better overall throughput",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/2634f331-f535-44fd-99b3-32d522ad5459.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=36058f3c95505dfcf76ee9430a13dfe1165fc34992c99b511f3dabec48a0465d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "aef612ab-2c0a-4d6e-8b50-de26e4b33ad3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 7,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\n© Markus Püschel, ETH Zürich, 2011\r\nSSE3 Instructions: Examples\r\n Single precision 4-way vector add: addps %xmm0 %xmm1\r\n Single precision scalar add: addss %xmm0 %xmm1\r\n+\r\n%xmm0\r\n%xmm1\r\n+\r\n%xmm0\r\n%xmm1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/aef612ab-2c0a-4d6e-8b50-de26e4b33ad3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dc360a220da669612e39b4d97c8d6c66cf00ab3877ad677da2fde0b858cc3eb1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "75d058ec-5ce1-4d84-a35c-4444bf04eb40",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 8,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\n© Markus Püschel, ETH Zürich, 2011\r\nSSE Intrinsics (Focus Floating Point)\r\n Data types\r\n__m128 f; // = {float f0, f1, f2, f3}\r\n__m128d d; // = {double d0, d1}\r\n__m128i i; // 16 8-bit, 8 16-bit, 4 32-bit, or 2 64-bit ints\r\nints\r\nints\r\nints or floats\r\nints or doubles",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/75d058ec-5ce1-4d84-a35c-4444bf04eb40.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a0078d50bf0df12a77c45d788e55c06834bde6930a29e131b42b65ec139f7357",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4dc71e25-2307-4581-b036-7518990992f9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 9,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "AVX\tIntrinsics\r\n§Data\ttypes\t\r\n\t\t__m256\t\t\t\t8\tx\tfloat32\t\r\n\t\t__m256d\t\t4\tx\tfloat64\t\r\n• No\tinteger\tsupport!\t\r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/4dc71e25-2307-4581-b036-7518990992f9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=57ed48b8e1a1cae6e85e2c023197a1e12a426e39a45a79b97182112f7f1d6883",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a58a3560-4d27-4750-956d-f33e11e5dad3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 10,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\n© Markus Püschel, ETH Zürich, 2011\r\nSSE Intrinsics (Focus Floating Point)\r\n Instructions\r\n Naming convention: _mm_<intrin_op>_<suffix>\r\n Example:\r\n Same result as\r\n// a is 16-byte aligned\r\nfloat a[4] = {1.0, 2.0, 3.0, 4.0}; \r\n__m128 t = _mm_load_ps(a);\r\n__m128 t = _mm_set_ps(4.0, 3.0, 2.0, 1.0)\r\nLSB 1.0 2.0 3.0 4.0\r\np: packed\r\ns: single",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/a58a3560-4d27-4750-956d-f33e11e5dad3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=503144e5f39b4d9231ff9ada20c8d75a0f8d4a893d697628f2aece0e271e0e12",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 503
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "090b926f-7eea-4aae-879e-c8146f7f85b8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 11,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\n© Markus Püschel, ETH Zürich, 2011\r\nSSE Intrinsics\r\n Native instructions (one-to-one with assembly)\r\n_mm_load_ps()\r\n_mm_add_ps()\r\n_mm_mul_ps()\r\n…\r\n Multi instructions (map to several assembly instructions)\r\n_mm_set_ps()\r\n_mm_set1_ps()\r\n…\r\n Macros and helpers\r\n_MM_TRANSPOSE4_PS()\r\n_MM_SHUFFLE()\r\n…",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/090b926f-7eea-4aae-879e-c8146f7f85b8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3bb84c1d188f48b11316d396e96e0a9a70eecdea5d1a7d8e79dc0ac6ff903ba3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8a0fb0ad-82f3-48d8-b047-68617c0bf30d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 12,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\n© Markus Püschel, ETH Zürich, 2011\r\nWhat Are the Main Issues?\r\n Alignment is important (128 bit = 16 byte)\r\n You need to code explicit loads and stores \r\n(what does that remind you of?)\r\n Overhead through shuffles\r\n§ Don’t mix SSE (128bit) with AVX (256bit) ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/8a0fb0ad-82f3-48d8-b047-68617c0bf30d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4c53b55baf0aaceb85c6a00439cb8e8a90e9c607a2e4185e0627acb9e8327202",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "04343048-40d0-443c-b697-f6236b6c5851",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 13,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nLoads and Stores\r\nLSB 1.0 2.0 3.0 4.0\r\n1.0 2.0 3.0 4.0\r\np\r\na\r\na = _mm_load_ps(p); // p 16-byte aligned \r\na = _mm_loadu_ps(p); // p not aligned avoid (expensive)\r\nmemory\r\n→ blackboard",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/04343048-40d0-443c-b697-f6236b6c5851.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1629b5689258c82dbf4123708b49a06e1b137140f4048d74830aceb6a44e182d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f5e4fd2e-363f-4a15-a94f-847bda0e1352",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 14,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nArithmetic\r\nIntrinsic Name Operation Corresponding\r\nSSE Instruction\r\n_mm_add_ss Addition ADDSS\r\n_mm_add_ps Addition ADDPS\r\n_mm_sub_ss Subtraction SUBSS\r\n_mm_sub_ps Subtraction SUBPS\r\n_mm_mul_ss Multiplication MULSS\r\n_mm_mul_ps Multiplication MULPS\r\n_mm_div_ss Division DIVSS\r\n_mm_div_ps Division DIVPS\r\n_mm_sqrt_ss Squared Root SQRTSS\r\n_mm_sqrt_ps Squared Root SQRTPS\r\n_mm_rcp_ss Reciprocal RCPSS\r\n_mm_rcp_ps Reciprocal RCPPS\r\n_mm_rsqrt_ss Reciprocal Squared Root RSQRTSS\r\n_mm_rsqrt_ps Reciprocal Squared Root RSQRTPS\r\n_mm_min_ss Computes Minimum MINSS\r\n_mm_min_ps Computes Minimum MINPS\r\n_mm_max_ss Computes Maximum MAXSS\r\n_mm_max_ps Computes Maximum MAXPS\r\nSSE\r\nIntrinsic Name Operation Corresponding \r\nSSE3 Instruction\r\n_mm_addsub_ps Subtract and add ADDSUBPS\r\n_mm_hadd_ps Add HADDPS\r\n_mm_hsub_ps Subtracts HSUBPS\r\nSSE3\r\nIntrinsic Operation Corresponding\r\nSSE4 Instruction\r\n_mm_dp_ps Single precision dot product DPPS\r\nSSE4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/f5e4fd2e-363f-4a15-a94f-847bda0e1352.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2f9f8e05de427ba041865322adce6bba67281ed30224c1bc92d8774967062c18",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "758b9a25-7439-4f53-8809-0936a306cfa2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 15,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nArithmetic\r\nLSB 1.0 2.0 3.0 4.0 a LSB 0.5 1.5 2.5 3.5 b\r\nLSB 1.5 3.5 5.5 7.5 c\r\nc = _mm_add_ps(a, b); \r\nanalogous:\r\nc = _mm_sub_ps(a, b); \r\nc = _mm_mul_ps(a, b); \r\n→ blackboard",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/758b9a25-7439-4f53-8809-0936a306cfa2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=10736a5909384307ed0b1d37c12b06bfbd32d79d8b055d6ce211c3b0b0140351",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6be76a3e-e353-4398-8ff5-ec9a5bf3ad5f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 16,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nExample: Better Solution\r\n#include <ia32intrin.h>\r\n// n a multiple of 4, x is 16-byte aligned\r\nvoid addindex_vec(float *x, int n) {\r\n__m128 index, incr, x_vec;\r\nindex = _mm_set_ps(0, 1, 2, 3);\r\nincr = _mm_set1_ps(4);\r\n for (int i = 0; i < n/4; i++) {\r\n x_vec = _mm_load_ps(x+i*4); // load 4 floats \r\n x_vec = _mm_add_ps(x_vec, index); // add index\r\n _mm_store_ps(x+i*4, x_vec); // store back\r\n index = _mm_add_ps(index, incr); // increment index\r\n}\r\n}\r\nvoid addindex(float *x, int n) {\r\n for (int i = 0; i < n; i++) \r\n x[i] = x[i] + i;\r\n}\r\nNote how using intrinsics implicitly forces scalar replacement! ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/6be76a3e-e353-4398-8ff5-ec9a5bf3ad5f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=004fa748debee833d6d2618b90b7802143e1da470b35f5604011bf8ede6656f5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "46b26728-f8a8-4556-a017-ec852946636a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 17,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nArithmetic\r\nLSB 1.0 2.0 3.0 4.0 a LSB 0.5 1.5 2.5 3.5 b\r\nLSB 0.5 3.5 0.5 7.5 c\r\nc = _mm_addsub_ps(a, b); ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/46b26728-f8a8-4556-a017-ec852946636a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ef1bc12bb471c1910c0f66b1996cade897c844b53ae4ca84158bbbab4c029c89",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4f116bad-d17c-4ffe-b242-b3e6e6127cd0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 18,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nArithmetic\r\nLSB 1.0 2.0 3.0 4.0 a LSB 0.5 1.5 2.5 3.5 b\r\nLSB 3.0 7.0 2.0 6.0 c\r\nc = _mm_hadd_ps(a, b); \r\nanalogous:\r\nc = _mm_hsub_ps(a, b); \r\n→ blackboard",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/4f116bad-d17c-4ffe-b242-b3e6e6127cd0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=004853e2622a178cfcbe86dc1d8cbef0593299cef56c3669ad02fc3c518a6d0f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 438
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6f06ef79-f443-4378-9bc9-0962375dfe70",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 19,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nShuffles\r\nIntrinsic Name Operation Corresponding\r\nSSE Instruction\r\n_mm_shuffle_ps Shuffle SHUFPS\r\n_mm_unpackhi_ps Unpack High UNPCKHPS\r\n_mm_unpacklo_ps Unpack Low UNPCKLPS\r\n_mm_move_ss Set low word, pass in \r\nthree high values\r\nMOVSS\r\n_mm_movehl_ps Move High to Low MOVHLPS\r\n_mm_movelh_ps Move Low to High MOVLHPS\r\n_mm_movemask_ps Create four-bit mask MOVMSKPS\r\nIntrinsic Name Operation Corresponding \r\nSSE3 Instruction\r\n_mm_movehdup_ps Duplicates MOVSHDUP\r\n_mm_moveldup_ps Duplicates MOVSLDUP\r\nSSE SSE3\r\nIntrinsic Syntax Operation Corresponding \r\nSSE4 Instruction\r\n__m128 _mm_blend_ps(__m128 v1, __m128 v2, const int mask) Selects float single precision data from 2 \r\nsources using constant mask\r\nBLENDPS\r\n__m128 _mm_blendv_ps(__m128 v1, __m128 v2, __m128 v3) Selects float single precision data from 2 \r\nsources using variable mask\r\nBLENDVPS\r\n__m128 _mm_insert_ps(__m128 dst, __m128 src, const int ndx) Insert single precision float into packed \r\nsingle precision array element selected by \r\nindex.\r\nINSERTPS\r\nint _mm_extract_ps(__m128 src, const int ndx) Extract single precision float from packed \r\nsingle precision array selected by index.\r\nEXTRACTPS\r\nSSE4\r\nIntrinsic Name Operation Corresponding \r\nSSSE3 Instruction\r\n_mm_shuffle_epi8 Shuffle PSHUFB\r\n_mm_alignr_epi8 Shift PALIGNR\r\nSSSE3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/6f06ef79-f443-4378-9bc9-0962375dfe70.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9440f1c3c093a26e615a433d1c05bff15b54cb7ab1aff52742c1a1ff94d4c8d9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4b60a179-b6c6-4242-a966-bff42f430fec",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 20,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nShuffles\r\nLSB 1.0 2.0 3.0 4.0 a LSB 0.5 1.5 2.5 3.5 b\r\nLSB 1.0 0.5 2.0 1.5 c\r\nc = _mm_unpacklo_ps(a, b); \r\nLSB 1.0 2.0 3.0 4.0 a LSB 0.5 1.5 2.5 3.5 b\r\nLSB 3.0 2.5 4.0 3.5 c\r\nc = _mm_unpackhi_ps(a, b); \r\n→ blackboard\r\nAVX\tcannot\tunpack\tbetween\t\r\nhi\tand\tlow\t128\tbits\t\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/4b60a179-b6c6-4242-a966-bff42f430fec.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dd9c08000a3940e58f56c7799140c00b9b5e291e2809a53165d6f8c57bce62c6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4ade6080-4d9a-474c-a64c-f550b7c5d86e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 21,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\t\t|\t\tChris\tPhillips\t\r\nShuffles\r\nLSB 1.0 2.0 3.0 4.0 a LSB 0.5 1.5 2.5 3.5 b\r\nLSB c0 c1 c2 c3 c\r\nc = _mm_shuffle_ps(a, b, _MM_SHUFFLE(l, k, j, i)); \r\nany element \r\nof a\r\nany element \r\nof b\r\nc0 = ai\r\nc1 = aj\r\nc2 = bk\r\nc3 = bl\r\ni,j,k,l in {0,1,2,3}\r\nhelper macro to create mask\r\n→ blackboard\r\nAVX\tcannot\tshuffle\tbetween\t\r\nhi\tand\tlow\t128\tbits\t\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/4ade6080-4d9a-474c-a64c-f550b7c5d86e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=554adb47c270fcc0fb280ee0c9667bd692f08d3d0790f5a65bb3868af22ad6be",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "67692bb3-15bb-426f-b292-7a7bea5a838e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 22,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\tEssen;als\t\r\n• Include\t\r\n#include <immintrin.h> \r\n• Compile\twith\t\r\n-msse2 -msse3 -mavx -mavx2 \r\n• Allocate\tmemory\taligned\t16/32\tbytes\t\r\nint posix_memalign(void **memptr, size_t align, size_t size); \r\nvoid* _mm_malloc (size_t size, size_t align ); \r\nvoid _mm_free (void *p) \r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/67692bb3-15bb-426f-b292-7a7bea5a838e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=77feffb0bda47dedf58948210087f21f29adb85178bcae5a3edb8326d39f00e0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b6439d25-de0a-4a65-9d4f-5f340073275a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 23,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "DIFX:\t32bit\tfloa;ng\tpoint\tvector\tadd\t\r\nint avxAdd_f32(f32 *src1, f32 *src2, f32 *dest, int length) { \r\n int i; \r\n float* ptrA = (float*)src1; \r\n float* ptrB = (float*)src2; \r\n float* ptrD = (float*)dest; \r\n for (i=0; i<length; i+= 8) { \r\n __m256 a = _mm256_load_ps(ptrA); \r\n __m256 b = _mm256_load_ps(ptrB); \r\n __m256 d = _mm256_add_ps(a, b); \r\n _mm256_store_ps(ptrD, d); \r\n ptrA+=8; \r\n ptrB+=8; \r\n ptrD+=8; \r\n } \r\n return(0); \r\n}\r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/b6439d25-de0a-4a65-9d4f-5f340073275a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cffd75f09d54ab8980b57bdb13e8246c46ab9500e91d09e3db5279c666018e2b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d4269249-c274-4341-b841-a835ccebabbb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 24,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "DIFX:\tSta;s;cs\t\r\nvecStatus avxMeanStdDev_f32(f32 *src, int length, f32 *mean, f32 *StdDev) { \r\n int i; \r\n float sum8[8], s, ss; \r\n float *ptrA = src; \r\n __m256 sum = _mm256_set1_ps(0.0); \r\n __m256 sumsqr = _mm256_set1_ps(0.0); \r\n __m256 a; \r\n for (i=0; i<length; i+= 8) { \r\n a = _mm256_load_ps(ptrA); \r\n sum = _mm256_add_ps(sum, a); \r\n a = _mm256_mul_ps(a,a); \r\n sumsqr = _mm256_add_ps(sumsqr, a); \r\n ptrA+=8; \r\n } \r\n \r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/d4269249-c274-4341-b841-a835ccebabbb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e3bca9e024fbf2bcadf72ce408a3e0c627f485af3ca1269b413eca0d010c187a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 453
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "97833f49-7268-4dbf-8daf-f7646d57c996",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 25,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "DIFX:\tSta;s;cs\t(cont)\t\r\n // sum now contains the final 8 values which need to be averaged \r\n sum = _mm256_hadd_ps(sum,sum); \r\n __m256 sumshuffle = _mm256_permute2f128_ps(sum, sum, 0x1); \r\n sum = _mm256_add_ps(sum,sumshuffle); \r\n _mm256_store_ps(sum8, sum); \r\n s = sum8[0]+sum8[1]; \r\n sumsqr = _mm256_hadd_ps(sumsqr,sumsqr); \r\n // Shuffle upper and lower 128bits \r\n sumshuffle = _mm256_permute2f128_ps(sumsqr, sumsqr, 0x1); \r\nsumsqr = _mm256_add_ps(sumsqr,sumshuffle); \r\n _mm256_store_ps(sum8, sumsqr); \r\n ss = sum8[0]+sum8[1]; \r\n *mean = s/length; \r\n *StdDev = sqrt((ss-(s*s/length))/(length-1)); \r\n return(0); \r\n} \r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/97833f49-7268-4dbf-8daf-f7646d57c996.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=84a102187a667bd630a4888cf432a6ca7f829fa952980a54438577dd59b34144",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f401cec0-b01a-43ff-8018-fe25ce8a7d69",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 26,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "DIFX:\tMul;plex\t\r\nint avxRealToCplx_32f(f32 *src1, f32 *src2, cf32 *dest, int length) { \r\n int i; \r\n float* ptrA = (float*)src1; \r\n float* ptrB = (float*)src2; \r\n float* ptrD = (float*)dest; \r\n for (i=0; i<length; i+= 8) { \r\n __m256 a = _mm256_load_ps(ptrA); \r\n __m256 b = _mm256_load_ps(ptrB); \r\n __m256 i1 = _mm256_unpacklo_ps(a, b); // 3rd and 4th entries wrong order \r\n __m256 i2 = _mm256_unpackhi_ps (a, b); // 1st and second entries, wrong order \r\n __m256 d = _mm256_permute2f128_ps(i1, i2, 0x20); // Shuffle upper and lower 128bits \r\n _mm256_store_ps(ptrD, d); \r\n ptrD+=8; \r\n d = _mm256_permute2f128_ps(i1, i2, 0x31); // Shuffle upper and lower 128bits \r\n _mm256_store_ps(ptrD, d); \r\n ptrA+=8; \r\n ptrB+=8; \r\n ptrD+=8; \r\n } \r\n return(0); \r\n} \r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/f401cec0-b01a-43ff-8018-fe25ce8a7d69.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=af518e7ef71b2f7eeab684e4dc0cf8633abe6e70f7d645278c41ff3efeff2411",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e06be7f9-d5a8-4f97-9fd3-0df3529b4e57",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 27,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "DIFX:\tComplex\tAddProduct\r\nint avxAddProduct_cf32(cf32 *src1, cf32 *src2, cf32 *dest, int length) { \r\n int i; \r\n float* ptrA = (float*)src1; \r\n float* ptrB = (float*)src2; \r\n float* ptrD = (float*)dest; \r\n for (i=0; i<length; i+= 4) { \r\n __m256 a = _mm256_load_ps(ptrA); // (a.re, a.im) x4 \r\n __m256 b = _mm256_load_ps(ptrB); // (b.re, b.im) x4 \r\n __m256 c = _mm256_load_ps(ptrD); \r\n __m256 b_flip = _mm256_shuffle_ps(b,b,0xB1); // (b.im, b.re) x4 \r\n __m256 a_im = _mm256_shuffle_ps(a,a,0xF5); // (a.im, a.im) x4 \r\n __m256 a_re = _mm256_shuffle_ps(a,a,0xA0); // (a.re, a.re) x4 \r\n __m256 aib = _mm256_mul_ps(a_im, b_flip); // (a.im*b.im, a.im*b.re) x4 \r\n __m256 arb = _mm256_mul_ps(a_re, b); // (a.re*b.re, a.re*b.im) x4 \r\n __m256 prod = _mm256_addsub_ps(arb, aib); // Actual product \r\n __m256 D = _mm256_add_ps(prod, c); // Accumulate \r\n _mm256_store_ps(ptrD, D); \r\n ptrA+=8; \r\n ptrB+=8; \r\n ptrD+=8; \r\n } \r\n return(0); \r\n} \r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/e06be7f9-d5a8-4f97-9fd3-0df3529b4e57.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8b93dc65f096882254c560a2ea79fa7e23f9659f88cdc7d9220e13decae1a120",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "71eaf4bf-54e2-485d-8a04-e46853c6652f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 28,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Benchmarks\t(2.3\tGHz\tCore\ti7)\t\r\nGeneric\t IPP\t SSE\t AVX\t\r\nFloat\tAdd\t 1.9\tsec\t 1.9\tsec\t 1.8\tsec\t 1.9\tsec\t\r\nComplex\tAddProduct 3.2\tsec\t 1.8\tsec\t 1.8\tsec\t 1.8\tsec\t\r\nFloat\tMeanStdDev 2.7\tsec\t 1.0\tsec\t 0.7\tsec\t 0.7\tsec\t\r\nFloat->Complex\t 1.6\tsec\t 1.1\tsec\t 1.1\tsec\t 1.1\tsec\t\r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/71eaf4bf-54e2-485d-8a04-e46853c6652f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d7f06983d5145c674d7f2068b29ecc321f36d129bc5aa299db7f722e6fe1e37b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5b2d8932-cf5c-4315-96ee-f7b9e80dfac9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 29,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Suggested\tDIFX\tRoute\t\r\n• Can\treplace\tall\tIPP\tvector\tcode\twith\thand\tcoded\t\r\nintrinsics\twith\ta\tcouple\tof\tdays\twork\t\r\n• Can\talso\thave\thybrid\tgeneric/SIMD\t\r\n• Suggest\t3\tor\t4\tflavors\t\r\n•Generic\t\r\n• IPP\t\r\n• SSE3\t\t(SSE4?)\t\r\n• AVX?\t\r\n• No\tspeed\timprovement\tfor\tsimpleSIMD\treplacement\t\r\n• Consider\tif\tcombined\tfunc-ons\tmake\tsense\t\r\n• Possible\tsignificant\tspeed\timprovements\t\t\r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/5b2d8932-cf5c-4315-96ee-f7b9e80dfac9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2f8ba9cc49a599ed85d93eccb3733f5800990a93effd0c8fb06c1fc9a645307e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "40fd0a3f-96c8-4abc-85f1-bed0236e9fad",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 30,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Resources\t\r\n• Intel\tintrinsics\treference\t\r\nh`ps://sobware.intel.com/en-us/node/513410\r\n• Intel\tDevelopers\tManual\t\r\nh`p://www.intel.com.au/content/www/au/en/processors/\r\narchitectures-sobware-developer-manuals.html\r\n• Memory\tManagement\t\r\nh`ps://sobware.intel.com/en-us/ar-cles/memory-management-for-op-mal\u0002performance-on-intel-xeon-phi-coprocessor-alignment-and\r\nSIMD\t\t|\t\tChris\tPhillips\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/40fd0a3f-96c8-4abc-85f1-bed0236e9fad.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2d384827c7ac7ef9eccdaabd8bb6acc97d4abe84e9fb1acc4a7e98a7bbbba9c7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6cd4bc07-c0a8-4f0e-a24e-e9a6c285dd4a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 31,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Astronomy\tand\tSpace\tScience\t\r\nChris\tPhillips\r\nLBA\tLead\tScien-st\t\r\nt +61\t2\t9372\t4608\t\r\ne Chris.Phillips@csiro.au\r\nw www.atnf.csiro.au\r\nASTRONOMY\tAND\tSPACE\tSCIENCE\t\r\nThank\tyou\t",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/e6a174a3-606b-4d0f-8d74-e1f1ce81a909/images/6cd4bc07-c0a8-4f0e-a24e-e9a6c285dd4a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041548Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5a4f4ab0bc0a9c416e753eac0bc0b1f5288accd327974a78b877fb239a35dfc1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 451
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "SIMD\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Chris Phillips\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "November 2014\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Zürich\n"
+        }
+      ]
+    }
+  }
+}

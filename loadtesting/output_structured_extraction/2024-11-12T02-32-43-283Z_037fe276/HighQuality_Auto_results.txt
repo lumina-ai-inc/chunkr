@@ -1,0 +1,5 @@
+Total pages processed: 0
+Failed to start task: 1
+Failed to poll task: 0
+Tasks completed with failure status: 0
+Total failed files: 1

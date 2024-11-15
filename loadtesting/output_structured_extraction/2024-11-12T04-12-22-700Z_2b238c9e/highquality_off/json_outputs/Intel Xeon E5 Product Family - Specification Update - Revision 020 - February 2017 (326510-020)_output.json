@@ -1,0 +1,33 @@
+{
+  "file_name": "Intel Xeon E5 Product Family - Specification Update - Revision 020 - February 2017 (326510-020).pdf",
+  "task_id": "35b3d903-8f1d-4046-971b-d2fffdbba988",
+  "output": {
+    "chunks": [],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\n  \"title\": \"Unknown\"\n}\n```\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "I cannot find any information about the author(s) of the document in the provided context.\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I cannot provide a value for `date_published` as there is no date or date-related information in the provided context.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Unfortunately, there is no context provided to extract a location from.  Therefore, I cannot provide a value for the \"location\" field.\n"
+        }
+      ]
+    }
+  }
+}

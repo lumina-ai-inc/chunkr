@@ -1,0 +1,236 @@
+{
+  "file_name": "Intel - Advanced Vector Extensions 10 (AVX10) - (356368-intel-avx10-tech-paper).pdf",
+  "task_id": "43ab03c7-1a02-4a1d-ae13-ad95f4538993",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "71238a2e-972d-45b1-b1f6-ba16f8f7f40e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "The Converged Vector ISA: \r\nIntel® Advanced Vector \r\nExtensions 10\r\nTechnical Paper\r\nJuly 2023\r\nRevision 1.0\r\nOrder Number: 356368-001US",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/43ab03c7-1a02-4a1d-ae13-ad95f4538993/images/71238a2e-972d-45b1-b1f6-ba16f8f7f40e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035502Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=373dbb3b4f96a2f0e0ddb7dbefb5fb149bc24e2ae2f1f70b85296e0e83ce122d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "58836abf-191b-4478-832d-ad4724c92f1b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "ii Document Number: 356368-001US, Revision: 1.0\r\nNotices & Disclaimers\r\nIntel technologies may require enabled hardware, software or service activation.\r\nNo product or component can be absolutely secure. \r\nResults have been estimated or simulated.\r\nYour costs and results may vary. \r\nYou may not use or facilitate the use of this document in connection with any infringement or other legal analysis concerning \r\nIntel products described herein. You agree to grant Intel a non-exclusive, royalty-free license to any patent claim thereafter \r\ndrafted which includes subject matter disclosed herein.\r\nAll product plans and roadmaps are subject to change without notice. \r\nThe products described may contain design defects or errors known as errata which may cause the product to deviate from \r\npublished specifications. Current characterized errata are available on request.\r\nIntel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability, \r\nfitness for a particular purpose, and non-infringement, as well as any warranty arising from course of performance, course of \r\ndealing, or usage in trade.\r\nCode names are used by Intel to identify products, technologies, or services that are in development and not publicly \r\navailable. These are not “commercial” names and not intended to function as trademarks.\r\nNo license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document, with\r\nthe sole exception that a) you may publish an unmodified copy and b) code included in this document is licensed subject to \r\nthe Zero-Clause BSD open source license (0BSD), https://opensource.org/licenses/0BSD. You may create software \r\nimplementations based on this document and in compliance with the foregoing that are intended to execute on the Intel \r\nproduct(s) referenced in this document. No rights are granted to create modifications or derivatives of this document.\r\n© Intel Corporation. Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries. Other \r\nnames and brands may be claimed as the property of others.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/43ab03c7-1a02-4a1d-ae13-ad95f4538993/images/58836abf-191b-4478-832d-ad4724c92f1b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035502Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df2b7343d9cf96cc1cf56a2333b333965606083acd80174bbe7fb207f6db3efd",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 335
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b25f4494-7257-49ca-a7a7-d466ef113bb9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Document Number: 356368-001US, Revision: 1.0 iii\r\nCONTENTS\r\nPAGE\r\nCHAPTER 1 \r\nCONVERGED VECTOR ISA: INTEL® ADVANCED VECTOR EXTENSIONS 10\r\n1.1 BACKGROUND . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-1\r\n1.2 INTRODUCTION TO INTEL® AVX10 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-1\r\n1.3 ENUMERATION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-2\r\n1.4 PERFORMANCE BENEFITS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-2\r\n1.5 AVAILABILITY . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-3\r\n1.6 CONCLUSION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/43ab03c7-1a02-4a1d-ae13-ad95f4538993/images/b25f4494-7257-49ca-a7a7-d466ef113bb9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035502Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0bfb63f9516137b35669c9b5d92ce1a9fe9138ad0d265291fcf18d8dfb1d2878",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 616
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b25f4494-7257-49ca-a7a7-d466ef113bb9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Document Number: 356368-001US, Revision: 1.0 iii\r\nCONTENTS\r\nPAGE\r\nCHAPTER 1 \r\nCONVERGED VECTOR ISA: INTEL® ADVANCED VECTOR EXTENSIONS 10\r\n1.1 BACKGROUND . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-1\r\n1.2 INTRODUCTION TO INTEL® AVX10 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-1\r\n1.3 ENUMERATION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-2\r\n1.4 PERFORMANCE BENEFITS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-2\r\n1.5 AVAILABILITY . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-3\r\n1.6 CONCLUSION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/43ab03c7-1a02-4a1d-ae13-ad95f4538993/images/b25f4494-7257-49ca-a7a7-d466ef113bb9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035502Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0bfb63f9516137b35669c9b5d92ce1a9fe9138ad0d265291fcf18d8dfb1d2878",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 616
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "420a912e-6db8-4784-b476-56dacd7d3566",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "CONTENTS\r\niv Document Number: 356368-001US, Revision: 1.0\r\nPAGE\r\nFIGURES\r\nFigure 1-1. Intel® AVX-512 Feature Flags Across Intel® Xeon® Processor Generations vs. Intel® AVX10 . . . . . . . . . . . . . . . . . . . . . . 1-2\r\nFigure 1-2. Intel® ISA Families and Features . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1-3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/43ab03c7-1a02-4a1d-ae13-ad95f4538993/images/420a912e-6db8-4784-b476-56dacd7d3566.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035502Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=805b8b09d8f97de994ddf9465cb640e98ca074c4107d8870ffd4cbbdea6a8741",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 132
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d4f126cd-2159-47b1-8640-56074291d526",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Document Number: 356368-001US, Revision 1.0 1-1\r\nCHAPTER 1\r\nCONVERGED VECTOR ISA: INTEL® ADVANCED VECTOR EXTENSIONS 10\r\nIntel® Advanced Vector Extensions 10 (Intel® AVX10) introduces a modern vector Instruction Set Architecture \r\n(ISA) that will be supported across future Intel® processors. This new ISA includes all the richness of the Intel®\r\nAdvanced Vector Extensions 512 (Intel® AVX-512) with additional features and capabilities enabling it to seam\u0002lessly run across Performance-cores and Efficient-cores, delivering performance and consistency across all plat\u0002forms. It also introduces a new enumeration approach based on version and supported vector lengths, reducing the \r\nburden on the developer to check multiple feature bits for the platform. Intel AVX10 extends and enhances the \r\ncapabilities of Intel AVX-512 to benefit all Intel® products and will be the vector ISA of choice moving into the \r\nfuture.\r\n1.1 BACKGROUND\r\nIn 2016, Intel launched a major update to its vector instruction set with the launch of a high-performance vector \r\nISA named Intel Advanced Vector Extensions 512 (Intel AVX-512). The Intel AVX-512 ISA included several new \r\nfeatures and capabilities over the Intel® Advanced Vector Extensions 2 (Intel® AVX2) ISA including 512-bit vector \r\nregisters, a discrete feature enumeration methodology, 16 additional vector registers, 8 mask registers, 512-bit \r\nvector length embedded rounding, and a large suite of new instructions. Over time, Intel AVX-512 evolved to \r\ninclude support for shorter vector length versions of instructions (128 and 256 bits) along with many additional \r\ninstructions, each with its own CPUID feature flag, driving performance and capabilities for Performance-core (P\u0002core) targeted vector workloads.\r\nThe Intel® AVX family of instruction sets (Intel AVX, Intel AVX2, and Intel AVX-512) have successfully gained wide \r\nindustry adoption for a variety of applications including video processing, cryptography, HPC, AI, gaming, and \r\nothers. Building on this momentum, Intel is announcing the next generation Intel AVX10 as the standard for ISA, \r\nsupported by our future Efficient-cores (E-cores) and Performance-cores (P-cores). Intel AVX10 will enable the \r\necosystem to seamlessly integrate solutions across products and platforms and innovate for future generations of \r\nour products for years to come.\r\n1.2 INTRODUCTION TO INTEL® AVX10\r\nToday we are announcing the most impactful vector ISA evolution since the introduction of Intel AVX-512: Intel \r\nAdvanced Vector Extensions 10 (Intel AVX10). Intel AVX10 includes all the capabilities and features of the Intel \r\nAVX-512 ISA, both for processors that feature 256-bit maximum vector register sizes, as well as for processors that \r\nfeature 512-bit vector registers. In addition, this ISA includes several new capabilities and supports a new enumer\u0002ation scheme that reduces the number of CPUID feature flags needing to be checked for feature support. Intel \r\nAVX10 is designed to run on future Intel P-core and E-core-based processors, allowing applications to seamlessly \r\nmove across platforms.\r\nThere are three motivating factors for Intel AVX10:\r\n1. To continue to support a high performance, vector ISA with all the richness of features of the existing Intel AVX\u0002512 ISA.\r\n2. To create a converged vector ISA based on Intel AVX-512 that will be supported on all future Intel processors.\r\n3. To ease the developer task of verifying CPUID feature support.\r\nThe converged version of the Intel AVX10 vector ISA will include Intel AVX-512 vector instructions with an \r\nAVX512VL feature flag, a maximum vector register length of 256 bits, as well as eight 32-bit mask registers and \r\nnew versions of 256-bit instructions supporting embedded rounding. This converged version will be supported on \r\nboth P-cores and E-cores. While the converged version is limited to a maximum 256-bit vector length, Intel AVX10 \r\nitself is not limited to 256 bits, and optional 512-bit vector use is possible on supporting P-cores. Thus, Intel AVX10 \r\ncarries forward all the benefits of Intel AVX-512 from the Intel® Xeon® with P-core product lines, supporting the \r\nkey instructions, vector and mask register lengths, and capabilities that have comprised the ISA to date. Future P-",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/43ab03c7-1a02-4a1d-ae13-ad95f4538993/images/d4f126cd-2159-47b1-8640-56074291d526.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035502Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5c74ff4cc727722e391ebcc787a693d2a4cfb3b86c79ea8b2dcba09684173a4a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 632
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d4f126cd-2159-47b1-8640-56074291d526",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Document Number: 356368-001US, Revision 1.0 1-1\r\nCHAPTER 1\r\nCONVERGED VECTOR ISA: INTEL® ADVANCED VECTOR EXTENSIONS 10\r\nIntel® Advanced Vector Extensions 10 (Intel® AVX10) introduces a modern vector Instruction Set Architecture \r\n(ISA) that will be supported across future Intel® processors. This new ISA includes all the richness of the Intel®\r\nAdvanced Vector Extensions 512 (Intel® AVX-512) with additional features and capabilities enabling it to seam\u0002lessly run across Performance-cores and Efficient-cores, delivering performance and consistency across all plat\u0002forms. It also introduces a new enumeration approach based on version and supported vector lengths, reducing the \r\nburden on the developer to check multiple feature bits for the platform. Intel AVX10 extends and enhances the \r\ncapabilities of Intel AVX-512 to benefit all Intel® products and will be the vector ISA of choice moving into the \r\nfuture.\r\n1.1 BACKGROUND\r\nIn 2016, Intel launched a major update to its vector instruction set with the launch of a high-performance vector \r\nISA named Intel Advanced Vector Extensions 512 (Intel AVX-512). The Intel AVX-512 ISA included several new \r\nfeatures and capabilities over the Intel® Advanced Vector Extensions 2 (Intel® AVX2) ISA including 512-bit vector \r\nregisters, a discrete feature enumeration methodology, 16 additional vector registers, 8 mask registers, 512-bit \r\nvector length embedded rounding, and a large suite of new instructions. Over time, Intel AVX-512 evolved to \r\ninclude support for shorter vector length versions of instructions (128 and 256 bits) along with many additional \r\ninstructions, each with its own CPUID feature flag, driving performance and capabilities for Performance-core (P\u0002core) targeted vector workloads.\r\nThe Intel® AVX family of instruction sets (Intel AVX, Intel AVX2, and Intel AVX-512) have successfully gained wide \r\nindustry adoption for a variety of applications including video processing, cryptography, HPC, AI, gaming, and \r\nothers. Building on this momentum, Intel is announcing the next generation Intel AVX10 as the standard for ISA, \r\nsupported by our future Efficient-cores (E-cores) and Performance-cores (P-cores). Intel AVX10 will enable the \r\necosystem to seamlessly integrate solutions across products and platforms and innovate for future generations of \r\nour products for years to come.\r\n1.2 INTRODUCTION TO INTEL® AVX10\r\nToday we are announcing the most impactful vector ISA evolution since the introduction of Intel AVX-512: Intel \r\nAdvanced Vector Extensions 10 (Intel AVX10). Intel AVX10 includes all the capabilities and features of the Intel \r\nAVX-512 ISA, both for processors that feature 256-bit maximum vector register sizes, as well as for processors that \r\nfeature 512-bit vector registers. In addition, this ISA includes several new capabilities and supports a new enumer\u0002ation scheme that reduces the number of CPUID feature flags needing to be checked for feature support. Intel \r\nAVX10 is designed to run on future Intel P-core and E-core-based processors, allowing applications to seamlessly \r\nmove across platforms.\r\nThere are three motivating factors for Intel AVX10:\r\n1. To continue to support a high performance, vector ISA with all the richness of features of the existing Intel AVX\u0002512 ISA.\r\n2. To create a converged vector ISA based on Intel AVX-512 that will be supported on all future Intel processors.\r\n3. To ease the developer task of verifying CPUID feature support.\r\nThe converged version of the Intel AVX10 vector ISA will include Intel AVX-512 vector instructions with an \r\nAVX512VL feature flag, a maximum vector register length of 256 bits, as well as eight 32-bit mask registers and \r\nnew versions of 256-bit instructions supporting embedded rounding. This converged version will be supported on \r\nboth P-cores and E-cores. While the converged version is limited to a maximum 256-bit vector length, Intel AVX10 \r\nitself is not limited to 256 bits, and optional 512-bit vector use is possible on supporting P-cores. Thus, Intel AVX10 \r\ncarries forward all the benefits of Intel AVX-512 from the Intel® Xeon® with P-core product lines, supporting the \r\nkey instructions, vector and mask register lengths, and capabilities that have comprised the ISA to date. Future P-",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/43ab03c7-1a02-4a1d-ae13-ad95f4538993/images/d4f126cd-2159-47b1-8640-56074291d526.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035502Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5c74ff4cc727722e391ebcc787a693d2a4cfb3b86c79ea8b2dcba09684173a4a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 632
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "74a61f2c-5f62-4255-b789-48f5ae36968c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "1-2 Document Number: 356368-001US, Revision 1.0\r\nCONVERGED VECTOR ISA: INTEL® ADVANCED VECTOR EXTENSIONS 10\r\ncore based Xeon processors will continue to support all Intel AVX-512 instructions ensuring that legacy applications \r\ncontinue to run without impact.\r\n1.3 ENUMERATION\r\nThe developer community has provided feedback that the current Intel AVX-512 enumeration method has become \r\nincreasingly unwieldy over time. As new instructions were introduced, they were assigned a new CPUID feature flag \r\nthat would need to be checked to determine processor support. As of future Intel Xeon processors with P-cores, \r\ncodenamed Granite Rapids, there are expected to be more than 20 discrete Intel AVX-512 feature flags. To address \r\nthis, Intel AVX10 introduces a new versioning approach to enumeration: a Vector ISA feature bit specifying Intel \r\nAVX10 support, an Intel AVX10 ISA Version Number, and three bits enumerating 128-, 256-, and 512-bit vector \r\nlength support in the product.\r\nThe Intel AVX10 ISA Version Number will be inclusive and monotonically increasing. A developer can expect that \r\nIntel AVX10 Version N+1 will include all the features and capabilities included in Version N. With the stated goal of \r\nminimizing developer impact, a new version of the Intel AVX10 ISA can be expected to include a significant suite of \r\nnew instructions and capabilities, delivering sufficient additional value to justify the associated software enable\u0002ment effort. In rare cases, a discrete CPUID feature flag may be allocated for a segment-specific feature or in the \r\ncase of an interim launch in between new Intel AVX10 versions.\r\nThe Intel AVX-512 ISA will be frozen as of the introduction of Intel AVX10 and all CPUID feature flags will continue \r\nto be enabled on future P-core processors for legacy support. All new subsequent vector instructions will be \r\nenumerated only as part of Intel AVX10. Apart from a few special cases, those instructions will be supported at all \r\nvector lengths, with 128-bit and 256-bit vector lengths being supported across all processors, and 512-bit vector \r\nlengths additionally supported on P-core processors.\r\n1.4 PERFORMANCE BENEFITS\r\nIn addition to the previously stated usability benefits, several additional performance-based benefits of Intel AVX10 \r\ninclude:\r\n• Intel AVX2-compiled applications, re-compiled to Intel AVX10, should realize performance gains without the \r\nneed for additional software tuning.\r\n• Intel AVX2 applications sensitive to vector register pressure will gain the most performance due to the 16 \r\nadditional vector registers and new instructions. \r\n• Highly-threaded vectorizable applications are likely to achieve higher aggregate throughput when running on \r\nE-core-based Intel Xeon processors or on Intel® products with performance hybrid architecture.\r\nExisting Intel AVX-512 applications, many of them already using maximum 256-bit vectors, should see the same \r\nperformance when compiled to Intel AVX10/256 at iso-vector length. For applications that can leverage greater \r\nFigure 1-1. Intel® AVX-512 Feature Flags Across Intel® Xeon® Processor Generations vs. Intel® AVX10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/43ab03c7-1a02-4a1d-ae13-ad95f4538993/images/74a61f2c-5f62-4255-b789-48f5ae36968c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035502Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f59d4832a8ebee476e82c33b4907f613d624fe823f0aba41606ca19412d0433a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 458
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4adce121-1ebc-4164-a906-49537befe819",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Document Number: 356368-001US, Revision 1.0 1-3\r\nCONVERGED VECTOR ISA: INTEL® ADVANCED VECTOR EXTENSIONS 10\r\nvector lengths, Intel AVX10/512 will be supported on Intel P-cores, continuing to deliver the best-in-class perfor\u0002mance for AI, scientific, and other high-performance codes. New Intel® AVX10 libraries, compilers, and tool \r\nsupport will also be provided to help application developers realize the best achievable performance for all vector \r\nlengths and processor targets.\r\n1.5 AVAILABILITY\r\nIntel AVX10 Version 1 will be introduced for early software enablement and supports the subset of all the Intel AVX\u0002512 instruction set available as of future Intel Xeon processors with P-cores, codenamed Granite Rapids, that is \r\nforward compatible to Intel AVX10. This version will not include the new 256-bit vector instructions supporting \r\nembedded rounding or any of the new instructions and will serve as the transition base version from Intel AVX-512 \r\nto Intel AVX10.\r\nIntel AVX10 Version 2 will include the 256-bit instruction forms supporting embedded rounding as well as a suite of \r\nnew Intel AVX10 instructions covering new AI data types and conversions, data movement optimizations, and \r\nstandards support. All new instructions will be supported at 128-, 256-, and 512-bit vector lengths with limited \r\nvariances. All Intel AVX10 versions will implement the new versioning enumeration scheme.\r\n1.6 CONCLUSION\r\nIntel AVX10 represents a major shift to supporting a high-performance vector ISA across future Intel processors. \r\nIt allows the developer to maintain a single code-path that achieves high performance across all Intel platforms \r\nwith the minimum of overhead checking for feature support. Future development of the Intel AVX10 ISA will \r\ncontinue to provide a rich, flexible, and consistent environment that optimally supports both Server and Client \r\nproducts.\r\nFigure 1-2. Intel® ISA Families and Features",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/43ab03c7-1a02-4a1d-ae13-ad95f4538993/images/4adce121-1ebc-4164-a906-49537befe819.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035502Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=36afbbf9d9e5c8e80a51f6093ef2a36d945badc19a6c218a4e4b6c71d86a40c8",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 280
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\n  \"title\": \"\"\n}\n```\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "I cannot find any information about the author of a document in the provided context.\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I cannot provide a value for `date_published` as there is no date or date-related information in the provided context.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Unfortunately, there is no context provided to extract a location from.  Therefore, I cannot provide a value for the \"location\" field.\n"
+        }
+      ]
+    }
+  }
+}

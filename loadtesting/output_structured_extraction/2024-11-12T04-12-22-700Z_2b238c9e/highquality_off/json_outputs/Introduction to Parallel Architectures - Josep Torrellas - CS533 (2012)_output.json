@@ -1,0 +1,296 @@
+{
+  "file_name": "Introduction to Parallel Architectures - Josep Torrellas - CS533 (2012).pdf",
+  "task_id": "b88ef688-36c4-4769-b37f-3196b0ddec95",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "5dc6a822-f33d-4a9b-847b-27957cd0c5d0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nIntroduction to Parallel Architec\r\nInstructor: Josep Torrellas\r\nCS533",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/5dc6a822-f33d-4a9b-847b-27957cd0c5d0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=331275bf93e2fd305adb5a939c6292e84270fe8fb001f140edc294f04bac0aac",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "12ef7130-dc31-42e7-914e-c40d2664014e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nIntroduction\r\n• Why parallel architectures:\r\n– Absolute performance– Power and energy– Complexity– Cost-performance\r\n• Key enabling factors:\r\n– Advances in semiconductor and interconnect technol– Advances in software technology",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/12ef7130-dc31-42e7-914e-c40d2664014e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7cd66191fb1d11f0b7a2ce2f295116a95b9daef5ae84d232b3de5570a27f7588",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fbb297cb-332e-4a6d-a0e7-2f9a4a5997af",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nClassification of Parallel Mach\r\n• Michael Flynn’s classification• Model-based classification",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/fbb297cb-332e-4a6d-a0e7-2f9a4a5997af.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9549424e33dfd28b3dd70b61ae12b8ce388da8e3279a3c24e796f22f9c326de7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6374279f-63b1-45ef-9789-e6bf53580df9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nFlynn’s Classification\r\n• Based on the notions of:\r\n– Instruction streams and data streams\r\n• The parallel organizations are characterized by the mult\r\nhardware provided to service I and D streams: \r\n– SISD: Single Instruction and Single Data Stream (un– SIMD: Single I and Multiple D Streams (GPUs)– MISD: Multiple I and Single D Streams– MIMD: Multiple I and Multiple D Streams (multico",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/6374279f-63b1-45ef-9789-e6bf53580df9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c8f56e4346c5939d24c57ecb8bd62f67771cb4fb2ad4e7a6d5e463b3336ffced",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "eb26117e-5f3e-48f8-b3b6-9bbf6c6ca534",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nModel-Based Classification\r\n• Shared-memory• Message-passing• Dataflow • Systolic• Data parallel",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/eb26117e-5f3e-48f8-b3b6-9bbf6c6ca534.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=162932605cb740e95611db756ea86f3014f693300281ce11aa37a4d5899d8ccd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1cbc2f12-c27a-43bc-8e04-4d127e19d6c4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nShared-Memory Architecture\r\n• Key feature: all processors in the system can directly ac\r\nmemory locations in the system, thus providing a conveand cheap mechanism for multiple processors to share d\r\n– Convenient: (i) location transparency, (ii) abstractio\r\nsupported is same as that of uniprocessors\r\n– Cheap: as compared to other models (more later)\r\n• Memory can be centrally placed or distributed• Better name is Single address space machines",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/1cbc2f12-c27a-43bc-8e04-4d127e19d6c4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d3cdad37a532f37363d2f603feaac37ccc7a665f45227d176633854ca79c6a3c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fba5a158-8a8b-4c33-a440-95f1973fc39d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\n• Programming model:\r\n– Variety of parallel models can be easily supported: f\r\nmodel, task queue model, data parallel model.\r\n– Parallel threads use shared-memory for communicat\r\nsynchronization\r\n• A problem traditionally cited with such machines is sca• However, the programming model is very general and c\r\nemulate the other models",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/fba5a158-8a8b-4c33-a440-95f1973fc39d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b54645a915a257d281824a84f2361d6c511e47613ee3c5c0db3782380530dc1e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8aa81822-f4dd-4b6d-9bc4-cb99c06d35ab",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nMessage Passing Architectures\r\n• Processors can directly access only local memory, and a\r\ncomm. and synch happens via messages\r\n• Sending a message often incurs many overheads: \r\n– Building a header, copying data into network buffer\r\nsending data, receiving data into buffers, copying dakernel to user process address space\r\n– Many of these steps may require OS intervention\r\n• Synchronization using messages is typically based on v\r\nhandshake protocols\r\n• One of the main advantages is easy scalability",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/8aa81822-f4dd-4b6d-9bc4-cb99c06d35ab.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6521f06a8fbb21ec520190d3b8db7ec512bc827e1bf9635ad80f501c04580308",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "27c13e1b-e370-4348-975b-2c23044c0de8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nMessage Passing Architectures\r\n• A variety of programming models can be supported:\r\n– Actor model, Concurrent-object oriented programm\r\n• Very popular:\r\n– Clusters– Cloud computing– Supercomputing",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/27c13e1b-e370-4348-975b-2c23044c0de8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=057f28a832cb0986ab7836d2a509da336f761f7a9b5d2f7456c7775c6fc49ad8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ceb2b85f-10ba-4d39-b9e8-3fbd329658b3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nDataflow\r\n• In the dataflow model, instructions are activated by the \r\nof data operands for instructions\r\nA = (B+1)* (B-C)D = C * EF = A * D\r\n• In control flow models, computation is a series of instru\r\nimplicit or explicit sequencing between them\r\n• One of the advantages is that all dependences are explic\r\nin the dataflow graph, so parallelism is not hidden from ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/ceb2b85f-10ba-4d39-b9e8-3fbd329658b3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d43e7bddd7bc3453622490ed86b4a202d76c8dd21115e1de7de07f03c6585ebe",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "566af713-e83c-4106-bc75-828fbb42150f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nDataflow\r\n• Many variations exist• Some issues:\r\n– Granularity of operations (locality issues)– Efficient handling of complex data structures like ar– Complexity of the matching store– Problems due to excess of parallelism",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/566af713-e83c-4106-bc75-828fbb42150f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3955d00c8f3d3ad3b8775501bae19fd7a909ecca06142ce9e274cd9a2a4d2452",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 484
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6d8676a6-60cc-4bcf-85a8-09802531642b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nSystolic Architectures\r\n• Basic principle: \r\n– Replace a single PE by a regular array of PEs and ca\r\norchestrate the flow of data between Pes\r\n– Result: high throughput without increasing memory \r\nbandwidth requirements\r\n• Distinguishing features from regular pipelined compute\r\n– Array structure can be non-linear (e.g. hexagonal)– Pathways between the PEs may be multidirectional– PEs may have local instruction and data memory, an\r\nmore complex than the stage of a pipelined compute",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/6d8676a6-60cc-4bcf-85a8-09802531642b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6a661be7a4a2b250d0a473e823d589bb30d42e92dba65484e9087a7901ec4c0c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d3646cee-3f75-4733-853d-641414c05cbd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nSystolic Architectures\r\n• Issues: \r\n– System integration: Shipping data from host array and b– Cell architecture and communication architecture– Software for automatically mapping computations to sys– General purpose systolic arrays\r\n• Popular in signal processing",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/d3646cee-3f75-4733-853d-641414c05cbd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c728875b8403a1d0a081145931badffdbe0c86a462190d939207aaf96e9afd8b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bc693003-d9bc-40e7-b8ea-87326386d0e8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Copyright Josep Torrellas 2012 \r\nData Parallel Architectures\r\n• Programming model assumes that there is a processor asso\r\neach member of a collection of data\r\n• All processors execute similar operations on different data\r\nlockstep\r\n• Useful for highly parallel codes• Used by graphics processors",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b88ef688-36c4-4769-b37f-3196b0ddec95/images/bc693003-d9bc-40e7-b8ea-87326386d0e8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041900Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=551d2f3adef4b14b0117fd49e419ca43978d68f3e8788abbda415b42ca64d354",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 161
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Introduction to Parallel Architectures\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Josep Torrellas"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2012\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Page\nPage\nPage\nPage\nPage\nPage\nPage\nPage\nPage\nPage\nPage\nPage\nPage\nPage\nPage\nPage"
+        }
+      ]
+    }
+  }
+}

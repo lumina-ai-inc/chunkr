@@ -1,0 +1,33 @@
+{
+  "file_name": "Join-Idle-Queue- A Novel Load Balancing Algorithm for Dynamically Scalable Web Services - October 1, 2011 (idleq).pdf",
+  "task_id": "2901aae9-06ce-401a-a39f-99cff1d60d55",
+  "output": {
+    "chunks": [],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\n  \"title\": \"\"\n}\n```\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "I cannot find any information about the author(s) of a document in the provided context.\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I cannot provide a value for `date_published` as there is no date or date-related information in the provided context.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Unfortunately, there is no context provided to extract a location from.  Therefore, I cannot provide a value for the \"location\" field.\n"
+        }
+      ]
+    }
+  }
+}

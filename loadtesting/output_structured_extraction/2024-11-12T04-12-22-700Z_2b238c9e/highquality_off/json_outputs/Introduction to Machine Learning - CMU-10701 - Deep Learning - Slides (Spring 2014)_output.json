@@ -1,0 +1,1211 @@
+{
+  "file_name": "Introduction to Machine Learning - CMU-10701 - Deep Learning - Slides (Spring 2014).pdf",
+  "task_id": "67567b90-f501-4ccc-b64c-ebe4ff6f70e1",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "6a8e8485-cfb5-45f0-9299-8872446f51a5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Introduction to Machine Learning\r\nCMU-10701\r\nDeep Learning\r\nBarnabás Póczos & Aarti Singh ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/6a8e8485-cfb5-45f0-9299-8872446f51a5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8015b8ffaa772f7bfb28f05584823c30827cfc451d3d5e055d06908b5d469582",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "36c09032-ec0c-410c-a912-9433c924c510",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 2,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "2\r\nCredits\r\nMany of the pictures, results, and other materials are taken from:\r\nRuslan Salakhutdinov\r\nJoshua Bengio\r\nGeoffrey Hinton\r\nYann LeCun",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/36c09032-ec0c-410c-a912-9433c924c510.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cae272cfb6c3f94fd631494bdf391fd754087866f32f0a1dcc46ddf420d474dd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6acb6e68-19d5-431a-8e5b-b221dc079e81",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 3,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "3\r\nContents\r\n Definition and Motivation\r\n History of Deep architectures\r\n Deep architectures\r\n Convolutional networks\r\n Deep Belief networks\r\n Applications",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/6acb6e68-19d5-431a-8e5b-b221dc079e81.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2939f6592835a4f95d79e91ef1d6c5dee6f21026af03237b0a00697009f88c2d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dcff7156-5fce-4ba4-b178-4db7b7e0196d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 4,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "4\r\nDefintion: Deep architectures are composed of multiple levels of non-linear \r\noperations, such as neural nets with many hidden layers. \r\nDeep architectures\r\nInput layer\r\nOutput layer\r\nHidden layers",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/dcff7156-5fce-4ba4-b178-4db7b7e0196d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fefef01c4b90655c149a4eb381239839dfadd7081181e19c2b7dd6a2efbe714a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "86080494-9d48-49f4-be35-f7e279e68754",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 5,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "5\r\nGoal of Deep architectures\r\nGoal: Deep learning methods aim at \r\n learning feature hierarchies\r\n where features from higher levels of the \r\nhierarchy are formed by lower level features. \r\nedges, local shapes, object parts\r\nFigure is from Yoshua Bengio\r\nLow level representation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/86080494-9d48-49f4-be35-f7e279e68754.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e2c96e2c270870958489c79906cee6ec122af4fdbc0a34dd5cd488f16a799be9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b4d4d0f1-dc29-495e-827b-00794c94304f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 6,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "6\r\n Most current learning algorithms are shallow architectures (1-3 levels) \r\n(SVM, kNN, MoG, KDE, Parzen Kernel regression, PCA, Perceptron,…)\r\n The mammal brain is organized in a deep architecture (Serre, Kreiman, \r\nKouh, Cadieu, Knoblich, & Poggio, 2007)\r\n(E.g. visual system has 5 to 10 levels)\r\n \r\nNeurobiological Motivation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/b4d4d0f1-dc29-495e-827b-00794c94304f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=32a5b924a9a2f13782d47faa38f0ac9e0b92a95e3261f36d55ed97d64cf3ec07",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "60f0ea6a-1dc1-460e-8c74-7870934a98a3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 7,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "7\r\n Inspired by the architectural depth of the brain, researchers wanted \r\nfor decades to train deep multi-layer neural networks.\r\n No successful attempts were reported before 2006 …\r\nResearchers reported positive experimental results with typically \r\ntwo or three levels (i.e. one or two hidden layers), but training \r\ndeeper networks consistently yielded poorer results.\r\n Exception: convolutional neural networks, LeCun 1998\r\n SVM: Vapnik and his co-workers developed the Support Vector \r\nMachine (1993). It is a shallow architecture. \r\n Digression: In the 1990’s, many researchers abandoned neural \r\nnetworks with multiple adaptive hidden layers because SVMs worked \r\nbetter, and there was no successful attempts to train deep networks.\r\n Breakthrough in 2006\r\nDeep Learning History",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/60f0ea6a-1dc1-460e-8c74-7870934a98a3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5f3bf3440583a928cb60eabe14550e3547261fc7d0d00b4257bbd8dc75c01951",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "be0a3df0-7580-46c9-a17f-b62ed8d91072",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 8,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "8\r\nBreakthrough\r\nDeep Belief Networks (DBN)\r\nHinton, G. E, Osindero, S., and Teh, Y. W. (2006). \r\nA fast learning algorithm for deep belief nets. \r\nNeural Computation, 18:1527-1554.\r\nAutoencoders\r\nBengio, Y., Lamblin, P., Popovici, P., Larochelle, H. (2007). \r\nGreedy Layer-Wise Training of Deep Networks, \r\nAdvances in Neural Information Processing Systems 19",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/be0a3df0-7580-46c9-a17f-b62ed8d91072.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c64ff133a593e4468bb9224543315b91e0ee1b491a245bdc5263954b2f20006e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4df90cb2-0c93-4b79-979f-aaa507cc111d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 9,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "9\r\n Some functions cannot be efficiently represented (in terms of number \r\nof tunable elements) by architectures that are too shallow.\r\n Deep architectures might be able to represent some functions \r\notherwise not efficiently representable.\r\n More formally:\r\nFunctions that can be compactly represented by a depth k \r\narchitecture might require an exponential number of \r\ncomputational elements to be represented by a depth k − 1 \r\narchitecture\r\n The consequences are \r\n Computational: We don’t need exponentially many elements in \r\nthe layers\r\n Statistical: poor generalization may be expected when using an \r\ninsufficiently deep architecture for representing some functions.\r\nTheoretical Advantages of Deep \r\nArchitectures",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/4df90cb2-0c93-4b79-979f-aaa507cc111d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6970995e1e27c7fb1d338f9c57e92929ce5b931c23b50d057af2736859770e36",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "90efa84d-2711-42c6-8ec2-c2fa9b68d8b2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 10,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "10\r\nThe Polynoimal circuit:\r\nTheoretical Advantages of Deep \r\nArchitectures",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/90efa84d-2711-42c6-8ec2-c2fa9b68d8b2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e369026ef4aa8aaaf846cceea1ead006e83173338f239acb978de0f6aa44af03",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "79e5eace-0029-41d4-8291-cf89da1c93a0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 11,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "11\r\nDeep Convolutional Networks",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/79e5eace-0029-41d4-8291-cf89da1c93a0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4e9cae445dcde68eac124d72315ab1758e66211ecdbf22325f7c3dc9dbc95a84",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 456
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4d292cf0-cd8c-4579-83d2-3e7f29d590e4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 12,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "12\r\nDeep Convolutional Networks\r\n Deep supervised neural networks are generally too difficult to train. \r\n One notable exception: convolutional neural networks (CNN)\r\n Convolutional nets were inspired by the visual system’s structure\r\n They typically have five, six or seven layers, a number of layers which \r\nmakes fully-connected neural networks almost impossible to train \r\nproperly when initialized randomly.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/4d292cf0-cd8c-4579-83d2-3e7f29d590e4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a4277b234e84263cd60757b102336a0067de56653ad86c7ec73902e4bf5fa538",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "13896fab-db21-4f38-a497-7b7ed2f0ede6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 13,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "13\r\nDeep Convolutional Networks\r\nLeNet 5\r\nY. LeCun, L. Bottou, Y. Bengio and P. Haffner: Gradient-Based Learning \r\nApplied to Document Recognition, Proceedings of the IEEE, \r\n86(11):2278-2324, November 1998\r\nCompared to standard feedforward neural networks with similarly-sized layers, \r\n CNNs have much fewer connections and parameters \r\n and so they are easier to train, \r\n while their theoretically-best performance is likely to be only slightly \r\nworse.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/13896fab-db21-4f38-a497-7b7ed2f0ede6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=59e02102e6b8978b33b8038bd3d70ccded81998a40a0eb410b46991861e731cf",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1c05c994-6c2f-4efb-a4cd-009f998a6bcb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 14,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "14\r\nLeNet 5, LeCun 1998 \r\n Input: 32x32 pixel image. Largest character is 20x20\r\n(All important info should be in the center of the receptive field of the \r\nhighest level feature detectors)\r\n Cx: Convolutional layer\r\n Sx: Subsample layer\r\n Fx: Fully connected layer\r\n Black and White pixel values are normalized: \r\n E.g. White = -0.1, Black =1.175 (Mean of pixels = 0, Std of pixels =1)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/1c05c994-6c2f-4efb-a4cd-009f998a6bcb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3002e5a9e9099d0e3e201ad3bb0ce18ec4940b3433d16ed0d2e363e3d37ec0f3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "42e7510f-7bf0-49ee-994e-ab8a23783297",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 15,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "15\r\nLeNet 5, Layer C1\r\nC1: Convolutional layer with 6 feature maps of size 28x28. C1k(k=1…6)\r\nEach unit of C1 has a 5x5 receptive field in the input layer.\r\n Topological structure\r\n Sparse connections\r\n Shared weights\r\n(5*5+1)*6=156 parameters to learn\r\nConnections: 28*28*(5*5+1)*6=122304\r\nIf it was fully connected we had (32*32+1)*(28*28)*6 parameters",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/42e7510f-7bf0-49ee-994e-ab8a23783297.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6d24ffa12a84481c1673fb5ffe5875693934bdc84cc50826e4e822b997eb9642",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dd8ae04f-4916-4dee-974e-dc8d53f7cab0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 16,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "16\r\nS2: Subsampling layer with 6 feature maps of size 14x14\r\n2x2 nonoverlapping receptive fields in C1\r\nLayer S2: 6*2=12 trainable parameters. \r\nConnections: 14*14*(2*2+1)*6=5880\r\nLeNet 5, Layer S2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/dd8ae04f-4916-4dee-974e-dc8d53f7cab0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=83e2f0f7d20ba09c26e6f1d9b4b2421367be0e85be1e2b26bc2a860d100899a7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "492eeb8f-a6f7-4343-b669-a4aec8cebf54",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 17,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "17\r\nLeNet 5, Layer C3\r\n C3: Convolutional layer with 16 feature maps of size 10x10\r\n Each unit in C3 is connected to several! 5x5 receptive fields at identical \r\nlocations in S2\r\nLayer C3: \r\n1516 trainable parameters. \r\nConnections: 151600",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/492eeb8f-a6f7-4343-b669-a4aec8cebf54.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=345cbc0297a43672318b326e567f906f5c348677e9ac44e46c6138ee302729bf",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2cb8fb8f-d0e6-474e-9df8-6ca0d0599e70",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 18,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "18\r\nLeNet 5, Layer S4\r\n S4: Subsampling layer with 16 feature maps of size 5x5\r\n Each unit in S4 is connected to the corresponding 2x2 receptive field at \r\nC3\r\nLayer S4: 16*2=32 trainable parameters. \r\nConnections: 5*5*(2*2+1)*16=2000",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/2cb8fb8f-d0e6-474e-9df8-6ca0d0599e70.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5b35fda148d66b61e6fbe89f6a1e05193658afc23128cbc7789c123a40eb55c6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6ee563e2-756a-4f08-9ccd-11091ad4d33b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 19,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "19\r\nLeNet 5, Layer C5\r\n C5: Convolutional layer with 120 feature maps of size 1x1\r\n Each unit in C5 is connected to all 16 5x5 receptive fields in S4\r\nLayer C5: 120*(16*25+1) = 48120 trainable parameters and connections \r\n(Fully connected)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/6ee563e2-756a-4f08-9ccd-11091ad4d33b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cf8da0be0b25487a8f2aa9b45a5e4fe46a815c7b9b7921952a5770148c1a3a1e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9b6dc80b-dce7-4301-93d4-1868e708bcad",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 20,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "20\r\nLeNet 5, Layer C5\r\nLayer F6: 84 fully connected units. 84*(120+1)=10164 trainable \r\nparameters and connections.\r\nOutput layer: 10RBF (One for each digit)\r\n84=7x12, stylized image\r\nWeight update: Backpropagation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/9b6dc80b-dce7-4301-93d4-1868e708bcad.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8cdc27802fb1b4dc8609dd31e6bc823e549efcea7e604f6c288503e967395dfc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "29fecf2c-dc10-499f-91f5-a58e2b501bbe",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 21,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "21\r\nMINIST Dataset\r\n60,000 original datasets\r\nTest error: 0.95%\r\n540,000 artificial distortions\r\n+ 60,000 original \r\nTest error: 0.8%",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/29fecf2c-dc10-499f-91f5-a58e2b501bbe.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ea63bc7e76a5ba1ae64eb8bb1e318c94488f06d3665d749ef075d0cb8e508495",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ef92313a-40a1-46d6-8f8b-e5c1a1fb396e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 22,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "22\r\nMisclassified examples",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/ef92313a-40a1-46d6-8f8b-e5c1a1fb396e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d6044d58065526248ce15288a74457e8823754b54d5041b4d2f5942328ade2a8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "eb8db3b3-1fa1-410b-959e-9436af7bbaaf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 23,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "23\r\nLeNet 5 in Action\r\nC1 C3 S4\r\nInput",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/eb8db3b3-1fa1-410b-959e-9436af7bbaaf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bc22770654a5e088918516e92ffc03fad3bfa5582bd82a39ad1d57be40ed8967",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e429597e-a211-4355-84d8-2395cfbee9b3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 24,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "24\r\nLeNet 5, Shift invariance",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/e429597e-a211-4355-84d8-2395cfbee9b3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=83a8202b3120bc1d986c7e0f22fd46a7a7b7e504c030c2002984643546eba2df",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "55080bf4-589b-4c48-9e5a-69903910e388",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 25,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "25\r\nLeNet 5, Rotation invariance",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/55080bf4-589b-4c48-9e5a-69903910e388.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=963cd5a0fc9b1a3bbbbc21509528ee46b48c5e498234e44492d1ddcb3d1fab8a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5c81470f-203d-4900-aefa-2905c7dd0548",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 26,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "26\r\nLeNet 5, Nosie resistance",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/5c81470f-203d-4900-aefa-2905c7dd0548.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=385ba5fab39b5e56839f2d75c4f20623834e62fb221a850a36fbad5835daaf24",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "71fdcc40-82b4-4043-8a20-b4d008de0f40",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 27,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "27\r\nLeNet 5, Unusual Patterns",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/71fdcc40-82b4-4043-8a20-b4d008de0f40.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3f4123dac376bb9a801311ed7c44cf45a4cd8b507f9c073ef43901951a057dd4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "327faad4-5ee2-4348-a380-ab64cb4b34cf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 28,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "28\r\nAlex Krizhevsky, Ilya Sutskever, Geoffrey Hinton, \r\nAdvances in Neural Information Processing Systems 2012\r\nImageNet Classification with Deep \r\nConvolutional Neural Networks",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/327faad4-5ee2-4348-a380-ab64cb4b34cf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f884d3ab887557068572dbbdc927b4e9c85ad4112ecba9ed76bccda097aa0941",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 493
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "16e56326-228b-429b-8f89-ae909bcb3cc1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 29,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "29\r\n 15M images \r\n 22K categories\r\n Images collected from Web\r\n Human labelers (Amazon’s Mechanical Turk crowd-sourcing)\r\n ImageNet Large Scale Visual Recognition Challenge (ILSVRC-2010) \r\no 1K categories\r\no 1.2M training images (~1000 per category)\r\no 50,000 validation images\r\no 150,000 testing images\r\n RGB images \r\n Variable-resolution, but this architecture scales them to 256x256 size \r\nImageNet",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/16e56326-228b-429b-8f89-ae909bcb3cc1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2f22dc56d4dc477228208f546e43caeb0ec114d892712c4ddafee9809e9c20f2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9b74ad49-a745-486b-bb73-44c36b3c6081",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 30,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "30\r\nClassification goals: \r\n Make 1 guess about the label (Top-1 error)\r\n make 5 guesses about the label (Top-5 error)\r\nImageNet",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/9b74ad49-a745-486b-bb73-44c36b3c6081.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b5609b630b9d6ca4d71593ce644cf625920a0afa6ea6bac4d585f1a9ddf02cfa",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "95857b6d-941a-4981-b726-732b4b0ae9db",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 31,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "31\r\nThe Architecture\r\nTypical nonlinearities:\r\nHere, however, Rectified Linear Units (ReLU) are used:\r\nEmpirical observation: Deep convolutional neural networks with \r\nReLUs train several times faster than their equivalents with tanh units\r\nA four-layer convolutional neural \r\nnetwork with ReLUs (solid line) \r\nreaches a 25% training error rate on \r\nCIFAR-10 six times faster than an \r\nequivalent network with tanh neurons\r\n(dashed line)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/95857b6d-941a-4981-b726-732b4b0ae9db.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bf19de3d03bf4c2f534ce6ddc0bb9e95370dc0f0f5a821c213e90d203120ab06",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "db12a3cc-d1c3-4949-9713-980601f5e407",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 32,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "32\r\nThe Architecture\r\nThe first convolutional layer filters the 224×224×3 input image with \r\n96 kernels of size 11×11×3 with a stride of 4 pixels (this is the distance \r\nbetween the receptive field centers of neighboring neurons in the kernel \r\nmap. 224/4=56\r\nThe pooling layer: form of non-linear down-sampling. Max-pooling \r\npartitions the input image into a set of rectangles and, for each such sub\u0002region, outputs the maximum value",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/db12a3cc-d1c3-4949-9713-980601f5e407.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a5d30955a4b4fe9d19c8e1a1708ac027ebe7ffd8fbe97ecda5365ce032ff7588",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f2e07edd-77cf-4bc2-88df-505e45cb923b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 33,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "33\r\nThe Architecture\r\n Trained with stochastic gradient descent\r\n on two NVIDIA GTX 580 3GB GPUs \r\n for about a week\r\n 650,000 neurons\r\n 60,000,000 parameters\r\n 630,000,000 connections\r\n 5 convolutional layer, 3 fully connected layer\r\n Final feature layer: 4096-dimensional",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/f2e07edd-77cf-4bc2-88df-505e45cb923b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=909a2fa7bd027db07ae20f72177a58765082143343341cc67a9617ca7c7ad78b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9aefa54c-aa02-46af-ae6c-382778ad75fb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 34,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "34\r\nData Augmentation\r\nThe easiest and most common method to reduce overfitting on image \r\ndata is to artificially enlarge the dataset using label-preserving \r\ntransformations. \r\nWe employ two distinct forms of data augmentation: \r\n image translation\r\n horizontal reflections\r\n changing RGB intensities",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/9aefa54c-aa02-46af-ae6c-382778ad75fb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=70639ad9aa3bf8c2074ba332d0072978e1e6965ec6f55aa26d4a55a873f5611c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ac266644-4cbc-476f-af65-62c774a6dea8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 35,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "35\r\nDropout\r\n We know that combining different models can be very useful\r\n(Mixture of experts, majority voting, boosting, etc) \r\n Training many different models, however, is very time consuming.\r\nThe solution: \r\nDropout: set the output of each hidden neuron to zero w.p. 0.5.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/ac266644-4cbc-476f-af65-62c774a6dea8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5c24b0e0ac17c5f6d7695c95fed791c30166edff3dcd4f0cd6cbc49322cf456e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9cf63fb9-955b-417d-9187-a211225142d0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 36,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "36\r\nDropout: set the output of each hidden neuron to zero w.p. 0.5.\r\n The neurons which are “dropped out” in this way do not contribute to \r\nthe forward pass and do not participate in backpropagation. \r\n So every time an input is presented, the neural network samples a \r\ndifferent architecture, but all these architectures share weights. \r\n This technique reduces complex co-adaptations of neurons, since a \r\nneuron cannot rely on the presence of particular other neurons. \r\n It is, therefore, forced to learn more robust features that are useful in \r\nconjunction with many different random subsets of the other neurons.\r\n Without dropout, our network exhibits substantial overfitting. \r\n Dropout roughly doubles the number of iterations required to converge.\r\nDropout",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/9cf63fb9-955b-417d-9187-a211225142d0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bfaed5aabb3e50df42cefc3a03cac503a84ab24dc7246089b1212e1c455ad658",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f5994dd9-9a5d-4a79-85b0-7916b6010871",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 37,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "37\r\n96 convolutional kernels of size 11×11×3 learned by the first \r\nconvolutional layer on the 224×224×3 input images. \r\nThe top 48 kernels were learned on GPU1 while the bottom 48 kernels \r\nwere learned on GPU2\r\nLooks like Gabor wavelets, ICA filters…\r\nThe first convolutional layer",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/f5994dd9-9a5d-4a79-85b0-7916b6010871.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=31cad81e5b5f029d402d0f2311269377e9ac21c2b0c0c5a99077a08989e59046",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 504
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "211018f7-942d-4385-83ed-f018ee6f3c35",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 38,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "38\r\nResults\r\nResults on the test data:\r\ntop-1 error rate: 37.5%\r\ntop-5 error rate: 17.0%\r\nILSVRC-2012 competition: \r\n15.3% accuracy\r\n2\r\nnd best team: 26.2% accuracy ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/211018f7-942d-4385-83ed-f018ee6f3c35.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5227d6c19dd8d83b3478ca16aeaf23165534f22383be2a73f23650c22b410776",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "02aee0d9-5d08-4d41-8e09-18886ee8de3d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 39,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "39\r\nResults",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/02aee0d9-5d08-4d41-8e09-18886ee8de3d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c776fdaa73ef80480c83a951e7575e8150eab17f9f86ccf1508c9a71e556c09c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "22fd4d3d-e14d-4207-bec8-152b7c85fda3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 40,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "40\r\nResults: Image similarity\r\nTest column\r\nsix training images that produce feature vectors in \r\nthe last hidden layer with the smallest Euclidean distance \r\nfrom the feature vector for the test image.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/22fd4d3d-e14d-4207-bec8-152b7c85fda3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bf545fa1d7c85f8b16a21da27e0c9c510b52289eb05350decee11aec1a976903",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "417dd4b0-5520-4355-96b0-d658453d2ff0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 41,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "41\r\nDeep Belief Networks",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/417dd4b0-5520-4355-96b0-d658453d2ff0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3c23c78d4eb863ada3eb64727d604f787a776c8dafa0c4b7b4b321f0e963251d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4c3b6b7a-d513-432f-9267-6ee24f31777f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 42,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "42\r\n It requires labeled training data.\r\n Almost all data is unlabeled.\r\n The learning time does not scale well.\r\n It is very slow in networks with multiple hidden layers.\r\n It can get stuck in poor local optima.\r\n Usually in deep nets they are far from optimal.\r\n MLP is not a generative model, it only focuses on P(Y|X). \r\nWe would like a generative approach that could learn P(X) as well.\r\n Solution: Deep Belief Networks, a generative graphical model\r\nWhat is wrong with back \r\npropagation?",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/4c3b6b7a-d513-432f-9267-6ee24f31777f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ad402c87bbbaf572834215630f23e2d55df9ec3c178ba2d6c77d915138691ee8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ae6344a8-ace2-4dcc-a469-6264f979442f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 43,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "43\r\nDeep Belief Network\r\nDeep Belief Networks (DBN’s)\r\n are probabilistic generative models \r\n contain many layers of hidden variables \r\n each layer captures high-order correlations between\r\n the activities of hidden features in the layer below \r\n the top two layers of the DBN form an undirected bipartite graph \r\ncalled Restricted Boltzmann Machine\r\n the lower layers forming a directed sigmoid belief network",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/ae6344a8-ace2-4dcc-a469-6264f979442f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f2197b99dd95dd7c7e818968f27c167c74b787d3a1b7c218610f85af050c2b71",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c2b5ae53-7bb2-40b5-87ca-8731f3a7bfe7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 44,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "44\r\nDeep Belief Network\r\nRestricted \r\nBoltzmann \r\nMachine\r\nsigmoid belief network\r\nsigmoid belief network\r\nData vector",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/c2b5ae53-7bb2-40b5-87ca-8731f3a7bfe7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=22faf878adca216f40bfeffc111f45c572a4bed54c2eda10294633daa673a74a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0a3b43c7-cae8-4fbe-8350-2cdd995cee31",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 45,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "45\r\nDeep Belief Network\r\nJoint likelihood:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/0a3b43c7-cae8-4fbe-8350-2cdd995cee31.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9d50ac0d0a79f54825b92fcb90cd78d9202425904f74a48a5477dbbcb8d3b852",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "01b33344-c577-4876-89c8-73cea76d059d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 46,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "46\r\nBoltzmann Machines",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/01b33344-c577-4876-89c8-73cea76d059d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8bb5f25aba8893f19fe3936b7013f01064724ed743eaf6d748701394aa8152c2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2a858754-2724-4988-89b9-01234d87bc29",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 47,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "47\r\nBoltzmann machine: a network of symmetrically coupled stochastic \r\nbinary units {0,1}\r\nBoltzmann Machines\r\nVisible layer\r\nHidden layer\r\nParameters:\r\nEnergy of the Boltzmann machine:\r\nW: visible-to-hidden\r\nL: visible-to-visible, diag(L)=0\r\nJ: hidden-to-hidden, diag(J)=0",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/2a858754-2724-4988-89b9-01234d87bc29.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=74d9586145258bcce20fce936e4cdaecf944e0f7007f4fbe9005acf9c9980283",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "be686d33-ac42-4aea-bf0a-4282b89068f8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 48,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "48\r\nEnergy of the Boltzmann machine:\r\nBoltzmann Machines\r\nGenerative model:\r\nProbability of a visible vector v:\r\nJoint likelihood:\r\nExponentially large set ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/be686d33-ac42-4aea-bf0a-4282b89068f8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=898bf0171cc389c5c72c72997c1dc484be83c0ef7c47a75da0bcdbd4cc26163f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d66e05ba-b83d-4245-aa27-517434c2344e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 49,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "49\r\nRestricted Boltzmann Machines\r\nVisible layer\r\nHidden layer\r\nNo hidden-to-hidden and no visible-to-visible connections.\r\nW: visible-to-hidden\r\nL = 0: visible-to-visible\r\nJ = 0: hidden-to-hidden\r\nEnergy of RBM:\r\nJoint likelihood:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/d66e05ba-b83d-4245-aa27-517434c2344e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=76cc42d6f82d0d79b2054a14b7d6ac18f447010a464456f625e34edf663ee824",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3d3ada19-7ccf-4209-930d-cb887bbcb9d9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 50,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Figure is taken from R. Salakhutdinov 50\r\nRestricted Boltzmann Machines\r\nTop layer: vector of stochastic binary hidden units h\r\nBottom layer: a vector of stochastic binary visible variables v.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/3d3ada19-7ccf-4209-930d-cb887bbcb9d9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=986f4809a634a50d3ba80da1df97b5f04f6a99ea573dccd9ca4398e9362492fc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0e39e273-ff0c-4b28-ab52-81921887f86b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 51,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "51\r\nDue to the special bipartite structure of RBM’s, the hidden units can be \r\nexplicitly marginalized out:\r\nTraining RBM",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/0e39e273-ff0c-4b28-ab52-81921887f86b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b8e71070ec387911146439e85641d48302b3088f027fd8ba63954808a27a9bf2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0bb52252-d5c8-43d0-a821-a24f650553fc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 52,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "52\r\nTraining RBM\r\nGradient descent:\r\nThe exact calculations are intractable because the expectation operator\r\nin E_P_Model takes exponential time in min(D,F)\r\nEfficient Gibbs sampling based approximation exists (Contrastive divergence)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/0bb52252-d5c8-43d0-a821-a24f650553fc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a6e60d301d1a2e00782837386f9efac5a638f4f23c75eb33fd546e4bc2f00bb0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b60e0f82-f159-4498-aaf1-7ca84a1ccd2f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 53,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "53\r\nInference in RBM\r\nInference is simple in RBM:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/b60e0f82-f159-4498-aaf1-7ca84a1ccd2f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7a7eca3df94fea6d3b9e5a97c572f05a5664c71c9a9e17b9623499b96d3fca39",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "304873db-a20b-4250-9a55-b7870ead0f9a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 54,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "54\r\nTraining Deep Belief Networks",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/304873db-a20b-4250-9a55-b7870ead0f9a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ecc4a8a2272af54c42d80230febb749f5f77fead9b0450eb21cac08b08de28d8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ae57d8c1-ed57-48bd-95d8-8f2a71293fae",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 55,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "55\r\nTraining Deep Belief Networks\r\nGreedy layer-wise unsupervised learning: \r\nMuch better results could be achieved when pre-training each \r\nlayer with an unsupervised learning algorithm, one layer after the \r\nother, starting with the first layer (that directly takes in the \r\nobserved x as input). \r\n The initial experiments used the RBM generative model for each layer.\r\n Later variants: auto-encoders for training each layer (Bengio et al., \r\n2007; Ranzato et al., 2007; Vincent et al., 2008\r\n After having initialized a number of layers, the whole neural network \r\ncan be fine-tuned with respect to a supervised training criterion as \r\nusual",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/ae57d8c1-ed57-48bd-95d8-8f2a71293fae.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5f46e93f78a6075a0d611df7ad49f2af523419ab2e036fb6ad535e7d6e954534",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 511
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "346530bf-7194-4f07-bc36-0a4260b57b3c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 56,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "56\r\nThe unsupervised greedy layer-wise training serves as initialization, \r\nreplacing the traditional random initialization of multi-layer \r\nnetworks.\r\nTraining Deep Belief Networks\r\nData",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/346530bf-7194-4f07-bc36-0a4260b57b3c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba6884c5b91fb0de3e45c60d55d72603267cf97898099a323a6b0103eee5f653",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4bc48685-09e0-40db-9384-d7a3d17d339b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 57,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "57\r\nTraining Deep Belief Networks",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/4bc48685-09e0-40db-9384-d7a3d17d339b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=80114bc48553df1d1ed03bdb6ded481f3bd8eef97eb1e5304d307d1a4ed67a5e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7306da22-fe17-4067-aa9d-4bad0b67e42a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 58,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "58\r\n Deep architecture trained online with 10 million examples of digit \r\nimages, either with pre-training (triangles) or without (circles). \r\n The first 2.5 million examples are used for unsupervised pre-training. \r\n One can see that without pre-training, training converges to a poorer \r\napparent local minimum: unsupervised pre-training helps to find a \r\nbetter minimum of the online error. Experiments performed by Dumitru Erhan.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/7306da22-fe17-4067-aa9d-4bad0b67e42a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4b59da88984c18cf043c52b0a457e3aebe9db08f70429ae59dc8b2c0a5ee81f8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "71fff502-ec52-4104-a562-dc836d35fc5d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 59,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "59\r\nResults",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/71fff502-ec52-4104-a562-dc836d35fc5d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7ac425379cda2bcc26799a94055d2f9dbdbf9c5e747c33c1924d326ac624d765",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "68422c4f-85ad-412f-ba67-fb79a6fc2e49",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 60,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "60\r\nDeep Boltzmann Machines Results",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/68422c4f-85ad-412f-ba67-fb79a6fc2e49.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a3f08f7a169094f25432117566f60f13b4ae7b3315c8009998d67097650b83dd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fd4c4fe5-db16-4b1c-8849-811247474981",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 61,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "61\r\nDeep Boltzmann Machines Results",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/fd4c4fe5-db16-4b1c-8849-811247474981.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a12e70e3b64ac40aed93ead59a0c682fb6bbfbf02b57e9ccf5209566f3cf29ce",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f5f77e9c-2d53-48e1-bbb7-dd923f0b0b3b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 62,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "62\r\nDeep Boltzmann Machines Results",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/f5f77e9c-2d53-48e1-bbb7-dd923f0b0b3b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f256acbf68dc0ab2771c6ea13954b7d63517c53d0b0d57a99161a7be6a62aeb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "57346a29-f5bc-464b-8540-41f589ab6d68",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 63,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "63\r\nDeep Boltzmann Machines Results",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/57346a29-f5bc-464b-8540-41f589ab6d68.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2e8b3a62f60bdb6d135c3cc1436345964c64b51c6359a36c24ac55031eb4881e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "82854c22-536f-4be9-83b4-47bdbac6b593",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 64,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "64\r\nThanks for your Attention! ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/67567b90-f501-4ccc-b64c-ebe4ff6f70e1/images/82854c22-536f-4be9-83b4-47bdbac6b593.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041847Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6f962e45903368f7af6edc510f08da8e7358f516b86d62b1fef4b290891a9196",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 118
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Deep Learning"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Barnabás Póczos & Aarti Singh\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I am unable to extract the date published as it is not mentioned in the provided text."
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "CMU-10701"
+        }
+      ]
+    }
+  }
+}

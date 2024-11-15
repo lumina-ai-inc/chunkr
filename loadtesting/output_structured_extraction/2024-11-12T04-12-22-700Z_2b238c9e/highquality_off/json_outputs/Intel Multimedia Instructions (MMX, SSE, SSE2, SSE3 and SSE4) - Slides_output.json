@@ -1,0 +1,540 @@
+{
+  "file_name": "Intel Multimedia Instructions (MMX, SSE, SSE2, SSE3 and SSE4) - Slides.pdf",
+  "task_id": "a3108a4e-2b4e-4ebb-825e-65586d391ff5",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "07310ce8-6f48-480d-996e-3429b4f25618",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel Multimedia Instructio\r\n(MMX, SSE, SSE2, SSE3, SSSE3 \r\nSSE4)\r\nPriya PeriaswamyComputer Architecture (CSE5302)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/07310ce8-6f48-480d-996e-3429b4f25618.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0bf3eb658a8d77fc0e6efabaa12a029c7a48b2f9227da547193cac32e6d7f6a7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "883bf1f1-3338-4941-b8a2-752e69ac5a5e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Overview\r\n• MMX (MultiMedia eXtention) Archite• MMX I t ti ns ructions\r\n• SSE (Streaming SIMD Extensions)\r\n• SSE2• SSE3• SSSE3(Suppl tl emen al St i ream ng SIMD\r\nExtensions 3)\r\n• SSE4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/883bf1f1-3338-4941-b8a2-752e69ac5a5e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c6282d7b07f7fd1baabbb23ed315568dbf6f383075676bc34ac2b308cd205ea4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ddbc4b09-412d-41a5-ba86-285a7f312057",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX Architecture\r\nWhy did Intel go for MMX?To make the common case fastA wide range of multimedia applications shows many common, funda\r\ncharacteristics :• small integer data types (for example: 8‐bit pixels, 16‐bit audio sam\r\n• small, highly repetitive repetitive loops• frequent multiplies and accumulates\r\n• compute‐intensive algorithms\r\n• highly parallel operations\r\nso..The MMX technology focuses¾ to accelerate multimedia, communications and numeric intensive\r\napplications\r\n¾ To exploit the parallelism inherent in many multimedia and comm\r\nal ith gor ms, yet maiti n a ns f ll u compatibilit tibility with exi ti s ng operating \r\nand applications.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/ddbc4b09-412d-41a5-ba86-285a7f312057.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8eb63b22edaaed7b3d748adeaf0ba9c1ae5f3cd2013b1df20880b881c20d74cc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8ba66310-0a60-44e9-908a-7f1fb1de8342",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX technology\r\nMMX technology allowed later Pentium processors to handle multimedia \r\nwithout expensive DSPs\r\n‐> lowered the cost of multimedia systems\r\nThe highlights of the technology are:\r\n• Packed Data types ‐ small data elements elements packed together together into one \r\n• Enhanced instruction set ‐ 57 new instructions that operate on all \r\nelements in a register in parallel, in a SIMD fashion\r\n• 8 64‐bit wide MMX registers, named MM0 to MM7, that are mapp\r\nIA floating point registers\r\n• Full IA compatibility",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/8ba66310-0a60-44e9-908a-7f1fb1de8342.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d978e74551b691b8894908287e7e90cad6296ac9841c1d8d580cb5ebb958aa2a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "666289ad-9044-4cd6-9a8a-53514d5abbc9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX data types\r\nSupports 4 data‐types\r\n‐ Packed byte ‐> 8 bytes packed into one 64‐bit quantity\r\n‐ Packed word ‐> 4 16‐bit words packed into one 64‐bit quantity quantity‐ Packed Double word ‐> 2 32‐bit double words packed into one 64‐\r\n‐ Packed Quad word ‐> one 64‐bit quantity\r\nEach MMX register processes one of these four data types• Why such data types?Typical elements are small, 8 bits for pixels, 16 bits for audio, 32 bits f\r\nand general computing",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/666289ad-9044-4cd6-9a8a-53514d5abbc9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4a0c17e2b55b75409340b793807e96dd56d530c8e1698dabafc8bb2b58261cad",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9aed57e6-d0dd-48ea-bcce-79cf5f367367",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Compatibility\r\n• No new exceptions or states are added.\r\n• Aliases to existing FP registers:\r\nThe exponent field of the corresponding floating‐point register (bits 6\r\nthe sign bit (bit 79) are set to ones (1's), making the value in the regis\r\n(Not a Number) or infinity when viewed as a floating‐point value.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/9aed57e6-d0dd-48ea-bcce-79cf5f367367.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e9a2baaf0b2d054b8717c93ff71c1995c7ca9fd93bb816844278044fdefeab33",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c7685c26-4480-4fd7-ba80-78d1275c0f7e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Saturation and wrap‐around modes\r\nWrap‐around mode: Result is truncated and only the lower (least significa\r\nthe result are returned\r\nPADD[W]: Wrap‐around AddSaturation mode: Results that overflow (from addition) or underflow (fromsubtraction) are clamped to the largest or the smallest value representableThis is important for pixel calculations where this would prevent a wrap‐arfrom causing a black pixel to suddenly turn white while, for example, doing \r\ngraphics Gouraud shading loop.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/c7685c26-4480-4fd7-ba80-78d1275c0f7e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4115b19085099e9020735ee6da8b505ab3440e2fa0e3f658693bde424ef5601b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 428
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a2c99b6b-375b-430a-b7d6-bd09460e0011",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX instruction syntax\r\n• All instructions operate on 2 operands : source and destination (except \r\ninstruction)\r\n• First operand is destination and second is source\r\n• Instruction overwrites the destination operand\r\nFor example, example, a two‐operand operand instruction instruction OPERATION OPERATION DEST, SRCwould be decoded as:\r\nDEST = DEST OPERATION SRC\r\nA typical MMX instruction has this syntax:\r\nP fi re x: P for P kd ac eInstruction operation: for example ‐ ADD, CMP, or XOR\r\nSuffix:\r\nUS for Unsigned Saturation\r\nS for Signed saturationB, W, D, Q for the data type: packed byte, packed word, packed\r\ndoubleword, or quadword.\r\nAs an example example, PADDSB is a MMX instruction instruction (P) that sums (ADD) the 8 by\r\nthe source and destination operands and saturates the result (S).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/a2c99b6b-375b-430a-b7d6-bd09460e0011.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3212aa3c4d7f82b4266a1846f10d8740e4551aa367c9b52531a352eb91b70b13",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "91c7bf47-816b-4d1d-89d3-23adbccb2ec8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX instruction set",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/91c7bf47-816b-4d1d-89d3-23adbccb2ec8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1325ddf65f8fe6d72a3cfd0ff72ba0149f50f4b9d18db39100d7d627973da598",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "87aad92c-e44d-446f-aa6b-dcea3e026476",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX instruction set (contd..)\r\nEMMS : To switch back to FP mode safely, the EMMS instruction mus• mandatory 53 cycle stall\r\n• Empties the MMX state before calling FP routines",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/87aad92c-e44d-446f-aa6b-dcea3e026476.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=01e6b377acb801cadfd2c408c37d407d373fea94d37dd5a7521d631a20a2088a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a19d132a-fc3b-407e-9fda-f50e7ad14230",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX instruction examples\r\nPMADD (Packed multiply add)The PMADD instruction instruction starts from a 16‐bit, packed data type and generat\r\ngenerat\r\npacked, data type result\r\nMultiply‐accumulate operations used in many signal processing algorithms \r\ndot‐products, matrix multiplies, FIR and IIR Filters, FFTs, DCTs etc.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/a19d132a-fc3b-407e-9fda-f50e7ad14230.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c9b192b6357b0d44ad6f48a855c786eb398ed417d9257e8033f3937f8500d841",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "06f51a0c-d83f-428a-8230-5aa628c5a8c0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX instruction examples\r\nPCMPGT[W ]: Parallel Compares• no new condi it on code flags• No existing IA condition code flags affected\r\n• EQ/GT, no LT\r\n• Result can be used as a mask to select elements from different inputs u\r\noperation, eliminating branch instructions",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/06f51a0c-d83f-428a-8230-5aa628c5a8c0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5969eed69067d9e0d91ba5d868d8bc3802445e23f1f0895445db9e2aed765c00",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "df661742-d0b3-4138-a62f-ada85e9b439e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX instruction examples\r\nPack• I tt mpor ant when an al ith gor m needs hi hg er preci is on in its i t di t ntermediate \r\nin image filtering.\r\n• convert UNICODE to ASCII (ANSI), to translate a 16‐bit audio stream to an \r\nstream",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/df661742-d0b3-4138-a62f-ada85e9b439e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6aaff012a2a46f55c18abb162020fe1ce932afabfc7026dd9e8c8964bcbedc8c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8e71ff22-a589-40e8-97e4-fa98085297ef",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX instruction examples\r\nUnpack• sequence sequence of smaller smaller, packed, values and translate translate them into larger valu\r\n• produces a 64‐bit result from a single 32‐bit result\r\n• two sets of unpack instructions: one set unpacks the data from the L.O\r\nof a 64‐bit object, the other set of instructions unpacks the H.O. double \r\nbit object.\r\nUnpack from lower order bytes",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/8e71ff22-a589-40e8-97e4-fa98085297ef.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ebcf227f075560241d95c227dde0df21aaf0a75a5b89aed3574d43ec7e54e04c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "58dae12f-982f-422e-921f-a7446595a0f0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX instruction examples\r\nUnpack (from higher order bytes)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/58dae12f-982f-422e-921f-a7446595a0f0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=385aa1e12b94f2b8e2da61a3bb6ae60cc827e8de46fc09e0ff30625f461162f7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "69d6df74-02a4-480b-8627-fe4d58740621",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 16,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX Application examples\r\nChroma Keying :\r\n‐> conditional conditional selection selection using the MMX instruction instruction set removes removes brancpredictions, in addition to performing multiple selection operations in MMX code sequence for performing a conditional selectMovq mm3,mem1 //Load eight pixels from woman’s iMovq mm4 2 ,mem //L d oa ei hg t pi l xe s from the map im\r\nPcmpeqb mm1,mm3 //generating the selection bit mask\r\nPand mm4,mm1 //Pandn mm1,mm3\r\nPor mm4,mm1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/69d6df74-02a4-480b-8627-fe4d58740621.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df5253b303e6cd7221fe6aec5d4061937fa34c10dfb31ee591a5ca96f5f45933",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 435
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ab308f5a-f01c-4c6c-82db-283d52afeb44",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 17,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Chroma Keying (cont..)\r\nPCMPEQ (packed compare for equality) is performed on the weathercaste\r\nscreen images, yielding a bitmask that traces the outline of the weatherca\r\nThis bitmask image is PANDNed (packed and not) with the weathercaster iyielding yielding the first intermediate intermediate image: now the weathercaster weathercaster has no backg\r\nbackg\r\nbehind her.\r\nThe same bitmask image is PANDed (packed and) with the weather map im\r\nyielding the second intermediate image.\r\nThe two intermediate images are PORed (packed or) together, resulting in \r\ncomposite of the weathercaster over weather map",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/ab308f5a-f01c-4c6c-82db-283d52afeb44.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f32155c247361d9ce9a3a78f5849a0de5341aed46bc342e7f27450924219a1b1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5d6d1e12-f3d9-4376-9847-0bae38b5fc20",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 18,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Chroma Keying (cont..)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/5d6d1e12-f3d9-4376-9847-0bae38b5fc20.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b52115411259368cecb23704508b5135cd7d1b77b31732b526cd9a0dcfbdd89c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "64a6a2f6-d330-408a-b462-0f705835d1d3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 19,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX technology\r\nMerits:• According to Intel, an MMX microprocessor runs a multimedia app\r\nto 60% faster. In addition, it runs other applications about 10% fas\r\n• In a Pentium processor architecture, the MMX code processes eigh\r\n3 cycles, ie., 3/8 cycles per pixel. Regular IA integer instruction req\r\ncycles per pixel.\r\n• Advantage in instruction count resulting from the multiple paralle\r\nperformed in each SIMD MMX instruction\r\n• Exploiting parallelism between instructions via the advanced micro\r\narchi l tectural il i mp ementations of I l nte processors\r\nDemerits:In MMX\r\n• An application cannot perform MMX and floating‐point operationssimultaneously.• AN expensive EMMS instruction need to be executed to change the MMX to FP operations operations",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/64a6a2f6-d330-408a-b462-0f705835d1d3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba950b5d172b8b818f96f514448e2317aeec3b7de4a5b741332617abf5ecc60a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "42e854e8-7fcf-4c72-aeda-afc8d107ad40",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 20,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "SSE (Streaming SIMD Extensions ) techno\r\n• Introduced in Pentium III processor• 8 new 128‐bit SIMD floating‐point registers (XMM0 ‐ XMM7)• 50 new instructions that work on packed floating‐point data\r\n• 12 new instructions that extend the MMX instruction set. Eg., PAVG\r\n• Most SSE instructions require 16‐aligned addresses\r\nSince media apps are‐> inherently parallel\r\n‐> wide dynamic range, hence floating‐point based\r\n‐> regular memory access patterns\r\n‐> data independent control flow\r\nProgrammers Programmers can mix and match data types",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/42e854e8-7fcf-4c72-aeda-afc8d107ad40.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e2e0a02eb6ede7d74332d355ec05c2d54f8dedfd55bd1ac600fba05b5ae975da",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "40e87787-30f1-4bda-8609-6f8f51a34c26",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 21,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "SSE (Streaming SIMD Extensions ) instruc\r\nDefines 2 types of instructions• Scalar ‐> operates operates on the least‐significant significant data element element (bit 0 31) ~• Packed ‐> operates on all four elements in parallelSSE instructions have a suffix ‐ss for scalar operations (Single Scalar) and ‐ppack de operations ( ll l Parallel Sl) ca ar .Note that upper 3 elements in xmm0 for scalar operation remain unchang",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/40e87787-30f1-4bda-8609-6f8f51a34c26.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0b8109d55f0c4d5a7640d7aa4c3550f75ce5f3a6fa60ea5ae25c890f629495a9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2dd625ea-2c52-4d40-ab77-efa7d3d9fb06",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 22,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "SSE Instruction ‐ shuffle\r\n• Requires 2 operands and 1 mask\r\n• Selects Selects 2 elements elements from each operand operand (register) (register) base\r\nmask.\r\n• Frequent usages of shufps are broadcast, swap and r\r\nApplication in Broadcasting:\r\nIt copies all 4 fields with a single data element. The p\r\nmasks are 00h (copies LS element), 55h (copies 2nd elem\r\nAAh (copies 3rd element), FFh (copies 4th element)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/2dd625ea-2c52-4d40-ab77-efa7d3d9fb06.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=310b9567ceaba3a717e7163083e358af1ff02f17c7e63524aa299b7bc6fdaffe",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 423
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "94869abb-622b-4c0a-94a9-7c88b5735b83",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 23,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "SSE2\r\n• First introduced on the Intel Pentium 4 and Intel Xeon processors\r\n• Work with double precision floating‐point values (64 bit) as well as sing\r\n(32 bits)\r\n• Means to accelerate accelerate operations operations typical typical of 3D graphics graphics, real‐time physic\r\nphysic\r\n(3D) audio, video encoding/decoding, encryption, and scientific applica\r\n‐> SSE instruction set worked on 32‐bit floating‐point data elements, proce\r\nthem in parallel parallel (4x32 = 128 bit)SSE2 Instruction set:• Can only be executed on Intel 64 and IA‐32 processors• 144 new instructions\r\n• MMX instructions can work on 128‐bit data blocks ‐> doubling paralleli\r\n• Support for these instructions can be detected with the CPUID instructi\r\nThe instructions are divided into four subgroups (note that the first subgro\r\nfurther divided into subordinate subgroups):\r\n• Packed and scalar double‐precision floating‐point instructions\r\n• Packed single‐precision floating‐point conversion instructions\r\n• 128‐bit SIMD integer instructions\r\n• Cacheability‐control and instruction ordering instructions",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/94869abb-622b-4c0a-94a9-7c88b5735b83.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ced8d4d82a9ee9a3b227c538ad66170b2ae1791fe4cea4159dd94f040019ab5b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "51d76fd4-c127-495c-a8e2-e2c7b9283fc0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 24,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "SSE3\r\nSSE3: Streaming SIMD Extensions 3• 13 new instructions• Some instructions does horizontal operations (operating across a single \r\ninstead of down through multiple registers) and asymmetric processing\r\n• Unaligned access instructions are new type of instructions.\r\n• Process control i i nstructions to boost performance wi ht I l' nte s hyper‐th \r\n• feature.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/51d76fd4-c127-495c-a8e2-e2c7b9283fc0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f2fc18e173af72db21ed20c8d13e401744c16e47a56a388a248d4a531ffad49",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d84f335f-5a1d-4007-bb31-d3eacc91e800",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 25,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "SSE3\r\n• Asymmetric processing\r\n• Horizontal data movement\r\nADDSUBPD HADDPD",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/d84f335f-5a1d-4007-bb31-d3eacc91e800.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3c76c9dfc0faeb7fe36d18c91f967c6c106677cca5fa4c37c791844dd9c8bbf9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "aadc3447-5f8b-4855-ad9f-d6e945d90be1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 26,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "SSSE3 and SSE4\r\nSSE3: Supplemental Streaming SIMD Extensions 3• SIMD instructions instructions added with the Pentium Pentium Xeon and Core 2 processors processors• 32 new instructions designed to accelerate a variety of multimedia and \r\nprocessing applications\r\nSSE4:• SSE4 comprises of two sets of extensions\r\n‐ SSE4.1: targeted to improve the performance of media,imaging and \r\ngraphics. It also adds instructions for improving compiler vectorizatio\r\nsignificantlyincrease support for packed dword computation. It has 47 new instru\r\n‐ SSE4.2: improves performance in string and text processing. It has 7 \r\ninstructions.\r\n• SSE4 instructions do not use MMX registers. Two of the SSE4.2 instructio\r\non general‐purpose registers; the rest of SSE4.2 instruction and SSE4.1 inst\r\noperate on XMM registers",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/aadc3447-5f8b-4855-ad9f-d6e945d90be1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0dfde4386612ef6c83f207c3627445156c00b77936a3a03858cea3e75840daa0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "67d2fd2a-93ac-4e6e-8202-d4f9451bd2aa",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 27,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "MMX technology\r\n• http://www.engr.uconn.edu/~zshi/course/cse5302/ref/peleg96mm• Intel Developer Service’s ‐ MMX Technology Technical Overview• Chapter Eleven The MMX Instruction Set, The Art of Assembly\r\n• About MMX/SSE/SSE2 by S Tommesani• Intel® 64 and IA‐32 Architectures Software Developer’s Manual Vo",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a3108a4e-2b4e-4ebb-825e-65586d391ff5/images/67d2fd2a-93ac-4e6e-8202-d4f9451bd2aa.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041530Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=64e6a98e3f7ea476a7c5edf4ad829128397e1f0ffe7f0b91f7d900fa5c1bcd70",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 367
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Intel Multimedia Instructio\n(MMX, SSE, SSE2, SSE3, SSSE3 \nSSE4)\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Priya Periaswamy\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "Several dates are mentioned in the provided text, but none of them refer to the publication date of the document itself.  Therefore, an answer cannot be provided.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "CSE5302"
+        }
+      ]
+    }
+  }
+}

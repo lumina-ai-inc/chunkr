@@ -1,0 +1,925 @@
+{
+  "file_name": "Linux Kernel Architecture for Device Drivers (Thomas Petazzoni).pdf",
+  "task_id": "0c0428b0-ad1c-4a54-ae97-1e04e3a5499e",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "33ef43a2-19b6-4b59-aba4-020551a89a8d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 1,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Linux Kernel architecture for device drivers\r\nLinux Kernel\r\narchitecture for\r\ndevice drivers\r\nThomas Petazzoni\r\nFree Electrons\r\nthomas.petazzoni@free\u0002electrons.com\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/33ef43a2-19b6-4b59-aba4-020551a89a8d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=32d88dc9730f18077e44adc0d64638ce2f465ca91987c72205802cb97aa70509",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "39a83091-436b-4dff-85f1-a91be4a9c7b6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 2,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Thomas Petazzoni, Free-Electrons\r\nI Free Electrons is a company specialized in Embedded Linux.\r\nIt offers\r\nI development services and consulting: board support\r\npackage development, kernel and driver development,\r\nembedded Linux system integration\r\nI training: device driver development in the Linux kernel,\r\nembedded Linux system development\r\nI Thomas Petazzoni\r\nI Embedded Linux engineer and trainer at Free Electrons since\r\nJanuary 2008\r\nI Currently works on OMAP Power Management for TI\r\nI Major contributor to Buildroot, a simple and fast embedded\r\nLinux build system\r\nI Also developer of MapOSMatic (talk on Friday!)\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/39a83091-436b-4dff-85f1-a91be4a9c7b6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c2103b9a954f02034450676f4dfa8c7f40faae82c21fdd0a61e9e5a74e9ad0dc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2b0f3e90-4d0d-4abd-ad86-e1d37a709d9c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 3,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Agenda\r\nI Userspace vision: different types of devices\r\nI Implementation of basic character drivers\r\nI Kernel “frameworks” for device drivers\r\nI General concept\r\nI Example of the framebuffer and serial ports frameworks\r\nI The device model\r\nI General concept\r\nI Focus on an USB network driver\r\nI Platform drivers\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/2b0f3e90-4d0d-4abd-ad86-e1d37a709d9c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bca0f160b4a68630aab2ba34d261307d328dac74c4095d9a346aba83e0a410e4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "95fcf963-9f35-45a0-bd25-50b1ead9cc12",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 4,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Different types of devices\r\nUserspace sees three main types of devices:\r\n1. Character devices is the most common type of devices.\r\nInitially for devices implementing streams of bytes, it is now\r\nused for a wide range of devices: serial ports, framebuffers,\r\nvideo capture devices, sound devices, input devices, I2C and\r\nSPI gateways, etc.\r\n2. Block devices for storage devices like hard disks, CD-ROM\r\ndrives, USB keys, SD/MMC cards, etc.\r\n3. Network devices for wired or wireless interfaces, PPP\r\nconnections and others\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/95fcf963-9f35-45a0-bd25-50b1ead9cc12.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e93ea3ef7d7e5a23d044cedbbd3cd80b5baaaed0d45094700a89e27e5d9cec2d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "04ba12c8-13f3-4917-b36e-ab6b78636a24",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 5,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Accessing the devices\r\nI Network devices are accessed through network-specific APIs\r\nand tools (socket API of the standard C library, tools such as\r\nifconfig, route, etc.)\r\nI Block and character devices are represented for userspace\r\napplications as files than can be manipulated using the\r\ntraditional file API (open(), read(), write(), close(),\r\netc.)\r\nI Special file types for block and character devices, associating a\r\nname with a couple (major, minor)\r\nI The kernel only cares about the (type, major, minor), which is\r\nthe unique identifier of the device\r\nI Special files traditionaly located in /dev, created by mknod,\r\neither manually or automatically by udev\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/04ba12c8-13f3-4917-b36e-ab6b78636a24.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eb36a630c281e213724a7db05ce797e42038256813a9fe936cb72c4c59741f56",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 410
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f59c5466-6196-4459-9716-4c48df14fe31",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 6,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Inside the kernel\r\nDevice drivers must register themselves to the core kernel and\r\nimplement a set of operations specific to their type:\r\nI Character drivers must instantiate and register a cdev\r\nstructure and implement file operations\r\nI Block drivers must instantiate and register a gendisk\r\nstructure and implement block device operations and a\r\nspecial make request function\r\nI Network drivers must instantiate and register a net device\r\nstructure and implement net device ops\r\nIn this presentation, we will first focus on character devices as an\r\nexample of device drivers.\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 6",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/f59c5466-6196-4459-9716-4c48df14fe31.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=217fbe076cbf552775945e7f43b8bc2e9c519a50dd2047862a7c52ffbaef7774",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ad8d4f2c-f5bb-4451-a2ec-ae06a5642117",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 7,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "General architecture\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/ad8d4f2c-f5bb-4451-a2ec-ae06a5642117.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f97b188f843427d4041d6c414c690f25f3a215a2717dfd3c91944816c9eaf29f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "41af2aab-1cf3-473d-ab8a-fa0feb7052c4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 8,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "File operations\r\nThe file operations are generic to all types of files: regular files,\r\ndirectories, character devices, block devices, etc.\r\nstruct file_operations {\r\nstruct module *owner;\r\nloff_t (*llseek) (struct file *, loff_t, int);\r\nssize_t (*read) (struct file *, char __user *, size_t, loff_t *);\r\nssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);\r\nssize_t (*aio_read) (struct kiocb *, const struct iovec *, unsigned long, loff_t);\r\nssize_t (*aio_write) (struct kiocb *, const struct iovec *, unsigned long, loff_t);\r\nint (*readdir) (struct file *, void *, filldir_t);\r\nunsigned int (*poll) (struct file *, struct poll_table_struct *);\r\nint (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);\r\nint (*mmap) (struct file *, struct vm_area_struct *);\r\nint (*open) (struct inode *, struct file *);\r\nint (*flush) (struct file *, fl_owner_t id);\r\nint (*release) (struct inode *, struct file *);\r\nint (*fsync) (struct file *, struct dentry *, int datasync);\r\nint (*fasync) (int, struct file *, int);\r\nint (*flock) (struct file *, int, struct file_lock *);\r\n[...]\r\n};\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/41af2aab-1cf3-473d-ab8a-fa0feb7052c4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6265ff3abd6e36ddf6b8dc44ba6c04d75ca16744623355a1bb2878b610b54300",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3ecda0f8-431f-4bb6-9569-f8188d39b334",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 9,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Character driver skeleton\r\nImplement the read() and write() operations, and instantiate\r\nthe file operations structure.\r\nstatic ssize_t demo_write(struct file *f, const char __user *buf,\r\nsize_t len, loff_t *off)\r\n{\r\n[...]\r\n}\r\nstatic ssize_t demo_read(struct file *f, char __user *buf,\r\nsize_t len, loff_t *off)\r\n{\r\n[...]\r\n}\r\nstatic struct file_operations demo_fops =\r\n{\r\n.owner = THIS_MODULE,\r\n.read = acme_read,\r\n.write = acme_write\r\n};\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/3ecda0f8-431f-4bb6-9569-f8188d39b334.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=19eb43db5d5e7ed16c715d3d8db19c855d6bd8371f98e036621e55edd434dda0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c792500a-de55-4b9c-b480-9e0cb625f530",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 10,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Character driver skeleton\r\nRegister and unregister the driver to the kernel using\r\nregister chrdev region/unregister chrdev region and\r\ncdev add/cdev del.\r\nstatic dev_t demo_dev = MKDEV(202,128);\r\nstatic struct cdev demo_cdev;\r\nstatic int __init demo_init(void)\r\n{\r\nregister_chrdev_region(demo_dev, 1, \\demo\");\r\ncdev_init(&demo_cdev, &demo_fops);\r\ncdev_add(&demo_cdev, demo_dev, demo_count);\r\n}\r\nstatic void __exit demo_exit(void)\r\n{\r\ncdev_del(&demo_cdev);\r\nunregister_chrdev_region(demo_dev, 1);\r\niounmap(demo_buf);\r\n}\r\nmodule_init(demo_init);\r\nmodule_exit(demo_exit);\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/c792500a-de55-4b9c-b480-9e0cb625f530.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=77ee17a79cbf761fc7524a9349882a198b3668377b9510dc10e7ab81e5bf4526",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2ddf458d-e20c-401d-b7ab-488029944556",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 11,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Driver usage in userspace\r\n1. Making it accessible to userspace application by creating a\r\ndevice node: mknod /dev/demo c 202 128\r\n2. Using normal the normal file API :\r\nfd = open(\"/dev/demo\", O_RDWR);\r\nret = read(fd, buf, bufsize);\r\nret = write(fd, buf, bufsize);\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 11",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/2ddf458d-e20c-401d-b7ab-488029944556.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=da97c49e5f7271f92bb8fafe924bbe4c3c5d7825a04a8fd02364a15ac038d42a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 504
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b45c15f5-4a56-4366-a9d0-ae4f71bf57c3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 12,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "From the syscall to your driver\r\nIn fs/read write.c\r\nSYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)\r\n{\r\nstruct file *file;\r\nssize_t ret = -EBADF;\r\nint fput_needed;\r\nfile = fget_light(fd, &fput_needed);\r\nif (file) {\r\nloff_t pos = file_pos_read(file);\r\nret = vfs_read(file, buf, count, &pos);\r\nfile_pos_write(file, pos);\r\nfput_light(file, fput_needed);\r\n}\r\nreturn ret;\r\n}\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 12",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/b45c15f5-4a56-4366-a9d0-ae4f71bf57c3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=966280d5b547e35e2af717862f59710e4bfd15af909d4ac917de162f67efdb0f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "38e6e931-2b75-4398-be3d-214a7a627ff8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 13,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "From the syscall to your driver\r\nIn fs/read write.c\r\nssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)\r\n{\r\nssize_t ret;\r\nif (!(file->f_mode & FMODE_READ))\r\nreturn -EBADF;\r\nif (!file->f_op || (!file->f_op->read && !file->f_op->aio_read))\r\nreturn -EINVAL;\r\nif (unlikely(!access_ok(VERIFY_WRITE, buf, count)))\r\nreturn -EFAULT;\r\nret = rw_verify_area(READ, file, pos, count);\r\nif (ret >= 0) {\r\ncount = ret;\r\nif (file->f_op->read)\r\nret = file->f_op->read(file, buf, count, pos);\r\nelse\r\nret = do_sync_read(file, buf, count, pos);\r\nif (ret > 0) {\r\nfsnotify_access(file->f_path.dentry);\r\nadd_rchar(current, ret);\r\n}\r\ninc_syscr(current);\r\n}\r\nreturn ret;\r\n}\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 13",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/38e6e931-2b75-4398-be3d-214a7a627ff8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b76196bc6f113839bc8172d84e85990ea22f47e8c53f2ba9331be99e711e433d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c7fdae90-87b1-484a-92d9-9c4c085a9317",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 14,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "ioctl mechanism\r\nI The file operations set of operations, while being\r\nsufficient for regular files, isn’t sufficient as an API to the wide\r\nrange of character and block devices\r\nI Device-specific operations such as changing the speed of a\r\nserial port, setting the volume on a soundcard, configuring\r\nvideo-related parameters on a framebuffer are not handled by\r\nthe file operations\r\nI One of the operations, ioctl() allows to extend the\r\ncapabilities of a driver with driver-specific operations\r\nI In userspace: int ioctl(int d, int request, ...);\r\nI d, the file descriptor\r\nI request, a driver-specific integer identifying the operation\r\nI ..., zero or one argument.\r\nI In kernel space: int (*ioctl) (struct inode *, struct\r\nfile *, unsigned int, unsigned long);\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 14",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/c7fdae90-87b1-484a-92d9-9c4c085a9317.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e5d2a7ce1d3cf469c3ebccee9c8f7cc448e96059a5da1749fd54c1adfd0413d4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f62baefc-e04a-4c12-83bd-a732c0b77502",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 15,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "ioctl example, kernel side\r\nImplement the demo ioctl() operation and reference it in the\r\nfile operations structure:\r\nstatic int demo_ioctl(struct inode *inode,\r\nstruct file *file,\r\nunsigned int cmd,\r\nunsigned long arg)\r\n{\r\nchar __user *argp = (char __user *)arg;\r\nswitch (cmd) {\r\ncase DEMO_CMD1:\r\n/* Something */\r\nreturn 0;\r\ndefault:\r\nreturn -ENOTTY;\r\n}\r\n}\r\nstatic const struct file_operations demo_fops =\r\n{\r\n[...]\r\n.ioctl = demo_ioctl,\r\n[...]\r\n};\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/f62baefc-e04a-4c12-83bd-a732c0b77502.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=407908d34b0b02ef7e433d95f53bf8c365d20b3bfa3c2e589650eb1479b15ff4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b4c0fb1a-4093-4fb1-b7be-33675d9c61e8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 16,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "ioctl example, userspace side\r\nUse the ioctl() system call.\r\nint fd, val;\r\nfd = open(\"/dev/demo\", O_RDWR);\r\nioctl(fd, DEMO_CMD1, & val);\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 16",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/b4c0fb1a-4093-4fb1-b7be-33675d9c61e8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aeee11c0e708f75b5cec9f3ecb0e54b8d46931e798121df9cc9bf229e80d6f35",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 418
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "32707d81-2772-4507-9951-f0352cad9f3f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 17,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Kernel framework\r\nI Most device drivers are not directly implemented as character\r\ndevices or block devices\r\nI They are implemented under a framework, specific to a device\r\ntype (framebuffer, V4L, serial, etc.)\r\nI The framework allows to factorize the common parts of drivers\r\nfor the same type of devices\r\nI From userspace, they are still seen as normal character devices\r\nI The framework allows to provide a coherent userspace\r\ninterface (ioctl numbering and semantic, etc.) for every type\r\nof device, regardless of the driver\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 17",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/32707d81-2772-4507-9951-f0352cad9f3f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=402da861776d5692f8f9494fa8f5ee8fee40340d276b614dc94244f6b583b1f0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e5444242-65b1-4b68-880d-615bb299ddae",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 18,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Example of frameworks\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 18",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/e5444242-65b1-4b68-880d-615bb299ddae.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=feaef8fe2d8555e0bc685806cb930b0fcbc05a0fdd621b3639ac2c97dd4a6752",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "356754d1-9c3f-4951-8da1-e20d70b37a2c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 19,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Example of the framebuffer framework\r\nI Kernel option CONFIG FB\r\nI Implemented in drivers/video/\r\nI fb.c, fbmem.c, fbmon.c, fbcmap.c, fbsysfs.c, modedb.c, fbcvt.c\r\nI Implements a single character driver (through\r\nfile operations), registers the major number and allocates\r\nminors, defines and implements the user/kernel API\r\nI First part of include/linux/fb.h\r\nI Defines the set of operations a framebuffer driver must\r\nimplement and helper functions for the drivers\r\nI struct fb ops\r\nI Second part of include/linux/fb.h\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 19",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/356754d1-9c3f-4951-8da1-e20d70b37a2c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ef88159a6653b33d481ac82ae082ae89f75f1bdf39bce444c6c684ee8f11748b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3a0e3618-c250-408c-acc9-2b31807bc615",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 20,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "The framebuffer driver\r\nI Must implement some or all operations defined in struct\r\nfb ops. Those operations are framebuffer-specific.\r\nI xxx open(), xxx read(), xxx write(), xxx release(),\r\nxxx checkvar(), xxx setpar(), xxx setcolreg(),\r\nxxx blank(), xxx pan display(), xxx fillrect(),\r\nxxx copyarea(), xxx imageblit(), xxx cursor(),\r\nxxx rotate(), xxx sync(), xxx get caps(), etc.\r\nI Must allocate a fb info structure with\r\nframebuffer alloc(), set the ->fbops field to the\r\noperation structure, and register the framebuffer device with\r\nregister framebuffer()\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 20",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/3a0e3618-c250-408c-acc9-2b31807bc615.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=38dd036ff33bd814c58413d858d6225c4012f0afa540c0bd6c2e48bfd2a2e260",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0e297791-9b52-43c9-8139-c153307b3740",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 21,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Skeleton example\r\nstatic int xxx_open(struct fb_info *info, int user) {}\r\nstatic int xxx_release(struct fb_info *info, int user) {}\r\nstatic int xxx_check_var(struct fb_var_screeninfo *var, struct fb_info *info) {}\r\nstatic int xxx_set_par(struct fb_info *info) {}\r\nstatic struct fb_ops xxx_ops = {\r\n.owner = THIS_MODULE,\r\n.fb_open = xxxfb_open,\r\n.fb_release = xxxfb_release,\r\n.fb_check_var = xxxfb_check_var,\r\n.fb_set_par = xxxfb_set_par,\r\n[...]\r\n};\r\ninit()\r\n{\r\nstruct fb_info *info;\r\ninfo = framebuffer_alloc(sizeof(struct xxx_par), device);\r\ninfo->fbops = &xxxfb_ops;\r\n[...]\r\nregister_framebuffer(info);\r\n}\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 21",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/0e297791-9b52-43c9-8139-c153307b3740.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dd25b03a25cf0af9b2b995547e6362fe67fdd85c28ce5ac2291d363d14cf12ba",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 385
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "576772a9-c8fe-4029-8702-caaedc0b7c81",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 22,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Other example of framework: serial driver\r\n1. The driver registers a single uart driver structure, that\r\ncontains a few informations such as major, starting minor,\r\nnumber of supported serial ports, etc.\r\nI Functions uart register driver() and\r\nuart unregister driver()\r\n2. For each serial port detected, the driver registers a uart port\r\nstructure, which points to a uart ops structure and contains\r\nother informations about the serial port\r\nI Functions uart add one port() and\r\nuart remove one port()\r\n3. The driver implements some or all of the methods in the\r\nuart ops structure\r\nI tx empty(), set mctrl(), get mctrl(), stop tx(),\r\nstart tx(), send xchar(), stop rx(), enable ms(),\r\nbreak ctl(), startup(), shutdown(), flush buffer(),\r\nset termios(), etc.\r\nI All these methods receive as argument at least a uart port\r\nstructure, the device on which the method applies. It is similar\r\nto the this pointer in object-oriented languages\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 22",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/576772a9-c8fe-4029-8702-caaedc0b7c81.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df65b494812d8cf5da04f07f0bc252fd763ed1d76dab12ddfb4e4e2ee27706e8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2b774b04-a551-4b65-9a3a-8857b834159a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 23,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Device and driver model\r\nI One of the features that came with the 2.6 kernel is a unified\r\ndevice and driver model\r\nI Instead of different ad-hoc mechanisms in each subsystem, the\r\ndevice model unifies the vision of the devices, drivers, their\r\norganization and relationships\r\nI Allows to minimize code duplication, provide common\r\nfacilities, more coherency in the code organization\r\nI Defines base structure types: struct device, struct\r\ndriver, struct bus type\r\nI Is visible in userspace through the sysfs filesystem,\r\ntraditionnaly mounted under /sys\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 23",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/2b774b04-a551-4b65-9a3a-8857b834159a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cbb6f92a98fc2b0505d82beed56fd69bd1389c32ef1e211d26189deda03c7f57",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "61cc0114-78b8-4ed9-b415-7a6ef877947e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 24,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Bus driver\r\nI Core element of the device model\r\nI A single bus driver for each type of bus: USB, PCI, SPI,\r\nMMC, I2C, etc.\r\nI This driver is responsibles for\r\nI Registering the bus type (bus type structure)\r\nI Allow the registration of adapter/interface drivers (USB\r\ncontrollers, I2C controllers, SPI controllers). These are the\r\nhardware devices capable of detecting and providing access to\r\nthe devices connected to the bus\r\nI Allow the registration of device drivers (USB devices, I2C\r\ndevices, SPI devices). These are the hardware devices\r\nconnected to the different buses.\r\nI Matching the device drivers against the detected devices\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 24",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/61cc0114-78b8-4ed9-b415-7a6ef877947e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c60e22003baaa3dae5e4c8b5cfbc2b9c79e9991a30ca56241b2979ab93ac6eb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6e041d04-cace-49d1-909a-391ff83a8c5c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 25,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Adapter, bus and device drivers\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 25",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/6e041d04-cace-49d1-909a-391ff83a8c5c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ac5a1bad1f48f144ea7b27ad27489972281e2e54177a2aa4426cd4c45c07ca30",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e3f33652-42f9-4d20-88df-179a875dbac8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 26,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Example of device driver\r\nTo illustrate how drivers are implemented to work with the device\r\nmodel, we will use an USB network adapter driver. We will\r\ntherefore limit ourselves to device drivers and won’t cover adapter\r\ndrivers.\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 26",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/e3f33652-42f9-4d20-88df-179a875dbac8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ae24d43140e7fa37689b3e57621c1e325a45e0bc298319b9b2470850edc8c636",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 449
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "16b238f5-4b51-4ff3-969c-64c448156a04",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 27,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Device identifiers\r\nI Defines the set of devices that this driver can manage, so that\r\nthe USB core knows which devices this driver can handle.\r\nI The MODULE DEVICE TABLE macro allows depmod to extract\r\nat compile the relation between device identifiers and drivers,\r\nso that drivers can be loaded automatically by udev. See\r\n/lib/modules/$(uname -r)/modules.{alias,usbmap}.\r\nstatic struct usb_device_id rtl8150_table[] = {\r\n{USB_DEVICE(VENDOR_ID_REALTEK, PRODUCT_ID_RTL8150)},\r\n{USB_DEVICE(VENDOR_ID_MELCO, PRODUCT_ID_LUAKTX)},\r\n{USB_DEVICE(VENDOR_ID_MICRONET, PRODUCT_ID_SP128AR)},\r\n{USB_DEVICE(VENDOR_ID_LONGSHINE, PRODUCT_ID_LCS8138TX)},\r\n{USB_DEVICE(VENDOR_ID_OQO, PRODUCT_ID_RTL8150)},\r\n{USB_DEVICE(VENDOR_ID_ZYXEL, PRODUCT_ID_PRESTIGE)},\r\n{}\r\n};\r\nMODULE_DEVICE_TABLE(usb, rtl8150_table);\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 27",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/16b238f5-4b51-4ff3-969c-64c448156a04.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3f68aa10c2c67fa3c66c659716cc03684a5011f5de64d41d25f949518f2bbae8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "998e4c11-f18c-4a40-aeb7-b6c9514ad73f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 28,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Instantation of usb driver\r\nI Instantiates the usb driver structure. This structure is a\r\nspecialization of struct driver defined by the driver model.\r\nWe have an example of inheritance here.\r\nstatic struct usb_driver rtl8150_driver = {\r\n.name = \"rtl8150\",\r\n.probe = rtl8150_probe,\r\n.disconnect = rtl8150_disconnect,\r\n.id_table = rtl8150_table,\r\n.suspend = rtl8150_suspend,\r\n.resume = rtl8150_resume\r\n};\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 28",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/998e4c11-f18c-4a40-aeb7-b6c9514ad73f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=58dca611b25bae1f124d30a962f424b8b281779549bc7e506df240911d217e90",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1c484b2c-1601-4ff8-a4ae-5589fc3282da",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 29,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Registration of the driver\r\nWhen the driver is loaded and unloaded, it simply registers and\r\nunregisters itself as an USB device driver.\r\nstatic int __init usb_rtl8150_init(void)\r\n{\r\nreturn usb_register(&rtl8150_driver);\r\n}\r\nstatic void __exit usb_rtl8150_exit(void)\r\n{\r\nusb_deregister(&rtl8150_driver);\r\n}\r\nmodule_init(usb_rtl8150_init);\r\nmodule_exit(usb_rtl8150_exit);\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 29",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/1c484b2c-1601-4ff8-a4ae-5589fc3282da.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a2e01a35c2ae74b8d91248a9559df83dda5beecc10bd6f41ac6dfa2f2554ba5e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d11038f0-836e-4e3d-ade7-8b5ecb87c525",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 30,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Probe call sequence (1/3)\r\nAt boot time, the USB device driver registers itself to the generic\r\nBUS infrastructure\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 30",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/d11038f0-836e-4e3d-ade7-8b5ecb87c525.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4c811ddb2fd116493578251ffd65d91894113d80704989bb88040e5a7ce92599",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c698d383-ccb0-460b-9670-ea967d3d2fb9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 31,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Probe call sequence (2/3)\r\nWhen a bus adapter driver detects a device, it notifies the generic\r\nUSB bus infrastructure\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 31",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/c698d383-ccb0-460b-9670-ea967d3d2fb9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ce86e046dc9f711886568efa62a7ebc35b106ee186adb976b41de34c3475ce8b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "897ea229-db83-40e4-a54b-56d2c3ad23ec",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 32,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Probe call sequence (3/3)\r\nThe generic USB bus infrastructure knows which driver is capable\r\nof handling the detected device. It calls the probe() method of\r\nthat driver\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 32",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/897ea229-db83-40e4-a54b-56d2c3ad23ec.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8329d85abf16084fd8d6c719f575fb8bdfc348f92b9e6c3cecf99fe34aa6d5e5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "38540a6a-60ae-49ac-b6a6-645722be139b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 33,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Probe method\r\nI The probe() method receives as argument a structure\r\ndescribing the device, usually specialized by the bus\r\ninfrastructure (pci dev, usb interface, etc.)\r\nI This function is responsible for\r\nI Initializing the device, mapping I/O memory, registering the\r\ninterrupt handlers. The bus infrastructure provides methods to\r\nget the addresses, interrupts numbers and other device-specific\r\ninformation.\r\nI Registering the device to the proper kernel framework, for\r\nexample the network infrastructure.\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 33",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/38540a6a-60ae-49ac-b6a6-645722be139b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1bffa0f6bed8defdfc86ea2f7922a85c1d61c21d13ac51aaacf83c9e06c197fb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b8513fd6-63ac-43a1-ab3a-e4caf716fc3e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 34,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "rtl8150 probe\r\nstatic int rtl8150_probe(struct usb_interface *intf,\r\nconst struct usb_device_id *id)\r\n{\r\nrtl8150_t *dev;\r\nstruct net_device *netdev;\r\nnetdev = alloc_etherdev(sizeof(rtl8150_t));\r\ndev = netdev_priv(netdev);\r\ntasklet_init(&dev->tl, rx_fixup, (unsigned long)dev);\r\nspin_lock_init(&dev->rx_pool_lock);\r\nnetdev->netdev_ops = &rtl8150_netdev_ops;\r\nalloc_all_urbs(dev);\r\nusb_set_intfdata(intf, dev);\r\nSET_NETDEV_DEV(netdev, &intf->dev);\r\nregister_netdev(netdev);\r\nreturn 0;\r\n}\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 34",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/b8513fd6-63ac-43a1-ab3a-e4caf716fc3e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0c4d335aae39b03bd2632dbdb18288a724e9d1c3765fe81f090224edf2689241",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "72b3d156-1ddf-4ea0-87a2-f0fae2560ce9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 35,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "The model is recursive\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 35",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/72b3d156-1ddf-4ea0-87a2-f0fae2560ce9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a7a5ca78d128baeff04e0e3db4d163a2c8522559d119832efb07f012961a1e74",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 477
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "13d1337d-e74c-48ce-9e4a-ca7382760aa8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 36,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Platform drivers\r\nI On embedded systems, devices are often not connected\r\nthrough a bus allowing enumeration, hotplugging, and\r\nproviding unique identifiers for devices.\r\nI However, we still want the devices to be part of the device\r\nmodel.\r\nI The solution to this is the platform driver / platform device\r\ninfrastructure.\r\nI The platform devices are the devices that are directly\r\nconnected to the CPU, without any kind of bus.\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 36",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/13d1337d-e74c-48ce-9e4a-ca7382760aa8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e9dcb668d77217f0c849fa32245bcd3569b700d6c3112cac1bc0f0372daf5d5f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5cc0a216-d6fe-40b6-9719-3560004618e4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 37,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Initialization of a platform driver\r\nExample of the iMX serial port driver, in drivers/serial/imx.c.\r\nThe driver instantiates a platform driver structure:\r\nstatic struct platform_driver serial_imx_driver = {\r\n.probe = serial_imx_probe,\r\n.remove = serial_imx_remove,\r\n.driver = {\r\n.name = \"imx-uart\",\r\n.owner = THIS_MODULE,\r\n},\r\n};\r\nAnd registers/unregisters it at init/cleanup:\r\nstatic int __init imx_serial_init(void)\r\n{\r\nplatform_driver_register(&serial_imx_driver);\r\n}\r\nstatic void __ext imx_serial_cleanup(void)\r\n{\r\nplatform_driver_unregister(&serial_imx_driver);\r\n}\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 37",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/5cc0a216-d6fe-40b6-9719-3560004618e4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=644e9725d8b465df1de449a76426a6ee50d4f3515eab5c2af01223a81a17907e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0530aefd-467e-4982-b05a-d8c72bed37ec",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 38,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Instantiation of a platform device\r\nAs platform devices cannot be detected dynamically, they are\r\nstatically defined:\r\nI by direct instantiation of platform device structures, as\r\ndone on ARM\r\nI by using a device tree, as done on PowerPC\r\nExample on ARM, where the instantiation is done in the board\r\nspecific code (arch/arm/mach-imx/mx1ads.c)\r\nstatic struct platform_device imx_uart1_device = {\r\n.name = \"imx-uart\",\r\n.id = 0,\r\n.num_resources = ARRAY_SIZE(imx_uart1_resources),\r\n.resource = imx_uart1_resources,\r\n.dev = {\r\n.platform_data = &uart_pdata,\r\n}\r\n};\r\nThe matching between a device and the driver is simply done using\r\nthe name.\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 38",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/0530aefd-467e-4982-b05a-d8c72bed37ec.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c930c5dd04e283d52f5f240f43da29c49ebeeeb3bfe8cd10b644eccfe179549c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7de1c15e-5101-4701-9b06-3ea1e282d917",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 39,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Registration of platform devices\r\nThe device is part of a list:\r\nstatic struct platform_device *devices[] __initdata = {\r\n&cs89x0_device,\r\n&imx_uart1_device,\r\n&imx_uart2_device,\r\n};\r\nAnd the list of devices is added to the system during the board\r\ninitialization\r\nstatic void __init mx1ads_init(void)\r\n{\r\n[...]\r\nplatform_add_devices(devices, ARRAY_SIZE(devices));\r\n[...]\r\n}\r\nMACHINE_START(MX1ADS, \"Freescale MX1ADS\")\r\n[...]\r\n.init_machine = mx1ads_init,\r\nMACHINE_END\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 39",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/7de1c15e-5101-4701-9b06-3ea1e282d917.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=21e401b753500d46cc11243cab56bdea2ac49baa28b68a234b8724549ccb1314",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "47f96c10-0e9f-4424-ab14-1ff22bbe0bcb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 40,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "The resource mechanism\r\nI Each device managed by a particular driver typically uses\r\ndifferent hardware resources: different addresses for the I/O\r\nregisters, different DMA channel, different IRQ line, etc.\r\nI These informations can be represented using the kernel\r\nstruct resource, and an array of resources is associated to\r\na platform device definition.\r\nstatic struct resource imx_uart1_resources[] = {\r\n[0] = {\r\n.start = 0x00206000,\r\n.end = 0x002060FF,\r\n.flags = IORESOURCE_MEM,\r\n},\r\n[1] = {\r\n.start = (UART1_MINT_RX),\r\n.end = (UART1_MINT_RX),\r\n.flags = IORESOURCE_IRQ,\r\n},\r\n};\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 40",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/47f96c10-0e9f-4424-ab14-1ff22bbe0bcb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a6a7e1ebc4036e25945c237d512a77d2f8c24da7b206ef49f86dc6de43a9051f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 433
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "0d650035-834f-4bfa-b64c-a6c5b6df4c5d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 41,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "The platform data mechanism\r\nI In addition to the well-defined resources, some driver require\r\ndriver-specific configuration for each platform device\r\nI These can be specified using the platform data field of the\r\nstruct device\r\nI As it is a void * pointer, it can be used to pass any type of\r\ndata to the driver\r\nI In the case of the iMX driver, the platform data is a struct\r\nimxuart platform data structure, referenced from the\r\nplatform device structure\r\nstatic struct imxuart_platform_data uart_pdata = {\r\n.flags = IMXUART_HAVE_RTSCTS,\r\n};\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 41",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/0d650035-834f-4bfa-b64c-a6c5b6df4c5d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=361a77a9b2654451bf1880ad929337724370f68f38e36a33a86fc57dc7f20e8a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6282b7e6-b35f-4da1-9aaf-2ceb8845c498",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 42,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Driver-specific data structure\r\nI Typically, device drivers subclass the type-specific data\r\nstructure that they must instantiate to register their device to\r\nthe upper layer framework\r\nI For example, serial drivers subclass uart port, network\r\ndrivers subclass netdev, framebuffer drivers subclass fb info\r\nI This inheritance is done by aggregation or by reference\r\nstruct imx_port {\r\nstruct uart_port port;\r\nstruct timer_list timer;\r\nunsigned int old_status;\r\nint txirq,rxirq,rtsirq;\r\nunsigned int have_rtscts:1;\r\nunsigned int use_irda:1;\r\nunsigned int irda_inv_rx:1;\r\nunsigned int irda_inv_tx:1;\r\nunsigned short trcv_delay; /* transceiver delay */\r\nstruct clk *clk;\r\n};\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 42",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/6282b7e6-b35f-4da1-9aaf-2ceb8845c498.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=487469f605a19358271929c4dfc1cca9966685a7e18f8403bdb836b8a5a9c0d0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a30399cd-eca5-4645-9b53-5084a97df6cc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 43,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "probe() method for platform devices\r\nI Just like the usual probe() methods, it receives the\r\nplatform device pointer, uses different utility functions to\r\nfind the corresponding resources, and registers the device to\r\nthe corresponding upper layer.\r\nstatic int serial_imx_probe(struct platform_device *pdev)\r\n{\r\nstruct imx_port *sport;\r\nstruct imxuart_platform_data *pdata;\r\nvoid __iomem *base;\r\nstruct resource *res;\r\nsport = kzalloc(sizeof(*sport), GFP_KERNEL);\r\nres = platform_get_resource(pdev, IORESOURCE_MEM, 0);\r\nbase = ioremap(res->start, PAGE_SIZE);\r\nsport->port.dev = &pdev->dev;\r\nsport->port.mapbase = res->start;\r\nsport->port.membase = base;\r\nsport->port.type = PORT_IMX,\r\nsport->port.iotype = UPIO_MEM;\r\nsport->port.irq = platform_get_irq(pdev, 0);\r\nsport->rxirq = platform_get_irq(pdev, 0);\r\nsport->txirq = platform_get_irq(pdev, 1);\r\nsport->rtsirq = platform_get_irq(pdev, 2);\r\n[...]\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 43",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/a30399cd-eca5-4645-9b53-5084a97df6cc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a6982803f341d4cb10765a5f845e69756fcbe169bc992924b1b675e6cc154e17",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d601472c-42e3-48df-aeb2-a58e8dd7fd2d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 44,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "probe() method for platform devices\r\nsport->port.fifosize = 32;\r\nsport->port.ops = &imx_pops;\r\nsport->clk = clk_get(&pdev->dev, \"uart\");\r\nclk_enable(sport->clk);\r\nsport->port.uartclk = clk_get_rate(sport->clk);\r\nimx_ports[pdev->id] = sport;\r\npdata = pdev->dev.platform_data;\r\nif (pdata && (pdata->flags & IMXUART_HAVE_RTSCTS))\r\nsport->have_rtscts = 1;\r\nret = uart_add_one_port(&imx_reg, &sport->port);\r\nif (ret)\r\ngoto deinit;\r\nplatform_set_drvdata(pdev, &sport->port);\r\nreturn 0;\r\n}\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 44",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/d601472c-42e3-48df-aeb2-a58e8dd7fd2d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b2ae24978d31de0567b4ca2fd5dfba9ded518c572dc20c8cfc7595e16db14765",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e0d446aa-36c1-44cb-89a0-ee62ceb04a0c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 45,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Other non-dynamic busses\r\nI In addition to the special platform bus, there are some other\r\nbusses that do not support dynamic enumeration and\r\nidentification of devices. For example: I2C and SPI.\r\nI For these busses, a list of devices connected to the bus is\r\nhardcoded into the board-specific informations and is\r\nregistered using i2c register board info() or\r\nspi register board info(). The binding between the\r\ndevice is also done using a string identifier.\r\nstatic struct i2c_board_info pcm038_i2c_devices[] = {\r\n{ I2C_BOARD_INFO(\"at24\", 0x52),\r\n.platform_data = &board_eeprom, },\r\n{ I2C_BOARD_INFO(\"pcf8563\", 0x51), },\r\n{ I2C_BOARD_INFO(\"lm75\", 0x4a), }\r\n};\r\nstatic void __init pcm038_init(void) {\r\n[...]\r\ni2c_register_board_info(0, pcm038_i2c_devices,\r\nARRAY_SIZE(pcm038_i2c_devices));\r\n[...]\r\n}\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 45",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/e0d446aa-36c1-44cb-89a0-ee62ceb04a0c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6a334b53f6481b5c219abc7e6ccb6a3daa3a40849c8ded9f1f7ff35c3db9c02a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 501
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2ba5b4b6-c7a3-480f-9cc6-7416d2e0264a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 46,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Typical organization of a driver\r\nA driver typically\r\nI Defines a driver-specific data structure to keep track of per-device\r\nstate, this structure often subclass the type-specific structure for this type\r\nof device\r\nI Implements a set of helper functions, interrupt handlers, etc.\r\nI Implements some or all of the operations, as specified by the framework\r\nin which the device will be subscribed\r\nI Instantiate the operation table\r\nI Defines a probe() method that allocates the “state” structure, initializes\r\nthe device and registers it to the upper layer framework. Similarly defines\r\na corresponding remove() method\r\nI Instantiate a SOMEBUS driver structure that references the probe() and\r\nremove() methods and give the bus infrastructure some way of binding a\r\ndevice to this driver (by name, by identifier, etc.)\r\nI In the driver initialization function, register as a device driver to the\r\nbus-specific infrastructure. In the driver cleanup function, unregister\r\nfrom the bus-specific infrastructure.\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 46",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/2ba5b4b6-c7a3-480f-9cc6-7416d2e0264a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=13a125f4d819852cbc9e71061c02b958bd35cde1484f5cf164765ac6f6ae016f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f333986d-e547-4f50-b0d1-67f8b34cc799",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 362.835,
+              "height": 272.126
+            },
+            "page_number": 47,
+            "page_width": 362.835,
+            "page_height": 272.126,
+            "content": "Conclusion\r\nI The Linux kernel now has a coherent and uniform model to\r\norganize busses, drivers and devices. This model, and the\r\nLinux kernel in general, uses some concept of object-oriented\r\nprogramming to structure the code.\r\nI The organization of device drivers has been greatly simplified\r\nand unified by using this model. Functionalities such as udev\r\nhave been made possible using this unified model.\r\nQuestions ?\r\nSlides available under Creative Commons CC-BY-SA on\r\nhttp://www.free-electrons.com\r\nFree Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com 47",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/0c0428b0-ad1c-4a54-ae97-1e04e3a5499e/images/f333986d-e547-4f50-b0d1-67f8b34cc799.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041236Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f14bb1910b1f89a02f964ee6868a6909157556787bc1d253bdc9d53e68c06b59",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 253
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "\"Linux Kernel architecture for device drivers\"\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Free Electrons. Kernel, drivers and embedded Linux development, consulting, training and support. http://free-electrons.com\nThomas Petazzoni\nthomas.petazzoni@free-electrons.com\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "```json\n{\"date_published\": null}\n```"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "http://free-electrons.com\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,249 @@
+{
+  "file_name": "Intel - A Novel Hashing Method Suitable for Lookup Functions  (February 2012).pdf",
+  "task_id": "4dd27bd8-2a88-4814-b8bf-d06ab5916fdd",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "ff439660-9de9-479b-82f6-00871b81b409",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "326841-001\r\nA Novel Hashing \r\nMethod Suitable \r\nfor Lookup \r\nFunctions\r\nFebruary 2012\r\nWhite Paper\r\nVinodh Gopal\r\nJim Guilford\r\nIA Architects\r\nIntel Corporation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/ff439660-9de9-479b-82f6-00871b81b409.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b04d6b51c8f0628eeb996449398306f510e407f0e13ab0e797d31d7cf3ec9b1b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8b413904-5fd4-479c-95de-270cc2fa745d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "A Novel Hashing Method suitable for Lookup Functions\r\n2\r\nExecutive Summary\r\nThe paper describes a novel hashing method suitable for lookup functions. \r\nTraditional methods are either of lower hash quality or inferior \r\nperformance. In this paper, we show how to compute a high-quality hash \r\ndigest at extremely high performance on Intel® processors using the \r\ncrc32 instruction. Our method also generates multiple 32-bit hashes of an \r\ninput data buffer, which have low correlation.\r\nThis paper describes a novel hashing method suitable for lookup \r\nfunctions, based on the crc32 instruction. We show how to compute a \r\nhigh-quality 64-bit hash digest at extremely high performance on \r\nIntel® processors. For large data buffers, the performance of our hash \r\nfunction tends to ~ 0.44 cycles/byte on a single thread of an Intel®\r\nCore™ i5 650 processor. Even for small buffers (~24 bytes), the \r\nperformance is better than 1 cycle/byte.\r\nThe Intel® Embedded Design Center provides qualified developers with \r\nweb-based access to technical resources. Access Intel Confidential design \r\nmaterials, step-by step guidance, application reference solutions, training, \r\nIntel’s tool loaner program, and connect with an e-help desk and the \r\nembedded community. Design Fast. Design Smart. Get started today. \r\nwww.intel.com/embedded/edc. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/8b413904-5fd4-479c-95de-270cc2fa745d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=99626c3ae2eec53efafd47a59e7706a76bb2ea39c2785f3f8d785f8770641d44",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0f5c61bb-4986-4c5d-b1c1-e0fc87477db3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": " A Novel Hashing Method suitable for Lookup Functions\r\n3\r\nContents\r\nOverview ................................................................................................................4\r\nBackground of Hashing for Lookups............................................................................4\r\nDescription of the crc32-Based Hash method...............................................................5\r\nPerformance............................................................................................................6\r\nMethodology..........................................................................................6\r\nResults .................................................................................................7\r\nTesting for Quality....................................................................................................8\r\nConclusion ..............................................................................................................8\r\nContributors ............................................................................................................9\r\nReferences ..............................................................................................................9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/0f5c61bb-4986-4c5d-b1c1-e0fc87477db3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2fc28560cddb5eb4a3be9bdfd28925a5c23d259ad764d5cceabc1239d0b8e08f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 249
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d6dbf6f6-352b-4587-a485-0f47adb98ccf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "326841-001\r\nOverview\r\nThis paper describes a novel hashing method suitable for lookup functions. \r\nTraditional methods are either of lower hash quality or inferior performance. \r\nIn this paper, we show how to compute a high-quality hash digest at \r\nextremely high performance on Intel® processors using the crc32 instruction\r\n[3]. Our method also generates multiple 32-bit hashes of an input data \r\nbuffer, which have low correlation and is useful in contexts such as network \r\nprocessing applications.\r\nBackground of Hashing for Lookups\r\nSome of the best methods to perform hashing for lookups such as lookup, \r\nlookup2 and lookup3 have been developed by Bob Jenkins [1]. The \r\nrequirements vary based on applications, but for the most critical usages in \r\nnetwork processing, we need to generate a hash digest of an input data \r\nbuffer of typically small size. In some instances, the data buffers are all fixed \r\nlength, however in others they vary. Performance of the hash function and \r\nthe hash quality are both critical. The hash function does not require \r\ncryptographic strength. \r\nThe digest size can be larger than 32 bits, such as 64 bits. In some usages, \r\nwe need to generate a pair of 32-bit hash digests that have low correlation in \r\naddition to being individually strong. The general requirement is that we need \r\na hash digest whose size is N*32 bits or a set of N 32-bit digests of low \r\ncorrelation. For the special case of 32-bit hashes, we can use the crc32 \r\ninstruction, but the question is how to extend the power/speed of the crc32 \r\ninstruction to the general case. \r\nWe describe a framework to achieve this and show the details of one such \r\nfunction that generates 64-bit digests (or pairs of 32-bit digests) called \r\nintel_hash64. Further details can be found in the patent application [2] on \r\nwhich the methods are based. We measured performance as the average \r\ncycles and the average rate in cycles / byte to hash a large number of unique \r\ndata buffers.\r\nIn addition to checking the strength of our proposed hash function, we also \r\nchecked the quality of a hash function derived from a cryptographic hash for \r\nreference (SHA1 based). One of the best known tests, the frog test [1], \r\ntoggles bits in an attempt to generate digest collisions. We tested the hash \r\nfunctions for collisions with each individual 32-bit digest, and with a 64-bit \r\ndigest created by concatenating the two 32-bit digests. The SHA1 algorithm \r\ngenerates a 160-bit digest, from which we had to form a 64-bit digest of the \r\nhighest quality as measured by the frog test (for 32-bit digests). The SHA1 \r\ndigest can be viewed as comprising five 32-bit digests, and we picked the \r\nbest performing one (bits 127:96) as our first 32-bit digest. We constructed ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/d6dbf6f6-352b-4587-a485-0f47adb98ccf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=27516065296a8a1fb3bb432045477973a5354e3e1321c995ba8c49ed022fa0f8",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 453
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "08f47a1b-6ca6-41b6-91da-55183a788b9a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": " A Novel Hashing Method suitable for Lookup Functions\r\n5\r\nour 2nd 32-bit digest from the entire SHA1 digest with the function: \r\nSHA[31:0]  SHA[64:32]  SHA[127:96] – (SHA[95:64]  SHA[159:128]). \r\nWe found this function yielded the best quality, on par with the 1st digest.\r\nDescription of the crc32-Based Hash \r\nmethod\r\nFigure 1: Overall crc32-Based Method for Hash Functions\r\nIn Figure 1, we show the generalized flow for computing multiple 32-bit \r\ndigests:\r\n An intermediate digest computed as the CRC of the data\r\n Some number of intermediate digests computed as the CRC of a \r\nmodified form of the input data (using functions F1, F2, …)\r\n Some number of intermediate digests computed by non-CRC\r\noperations (e.g., xor, add) on a modified form of the input data (using \r\nfunctions such as G1, G2, etc.)\r\n A combination step that takes these intermediate digests and \r\ncombines them with each other and possibly other data such as the \r\ninput length to produce multiple final digests or a single larger digest",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/08f47a1b-6ca6-41b6-91da-55183a788b9a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eff9d1dc98939cc988b12e132335c44cf0c9f6cc1b0327c6ac64852a3537ccfa",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 167
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "04112422-dc48-4df8-b902-159e75469b13",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "A Novel Hashing Method suitable for Lookup Functions\r\n6\r\nThis generalized method is mainly intended for usages where we need at \r\nleast two 32-bit digests. If we needed just one digest, the crc32 of the input \r\ndata is a good digest.\r\nFigure 2: Example of a crc32-Based Hash Function Returning two Digests\r\nC = length of data <<< 19\r\nwhile (more than 8 bytes of data left){\r\ndata_chunk = next 8 bytes of data\r\nA = CRC (A, data_chunk)\r\nB = CRC (B, data_chunk <<< 31)\r\nC = C  data_chunk\r\n}\r\nReturn A, CRC(B,C)\r\nThe proposed intel_hash64 function is based on the pseudo-code shown in \r\nFigure 2. In the terminology of Figure 1, we can see that the F1 function is \r\nrotate-left-by-31 (<<< 31) and the G1 function is the trivial identity function \r\n(i.e., output is the same as the input). The non-crc accumulating function is a \r\nbit-wise XOR operation (). The combiner block returns a computed crc (A) \r\ndirectly as the 1\r\nst digest, but performs another final crc operation using the \r\ntwo intermediate digests B, C, and returns CRC(B,C) as the 2\r\nnd digest.\r\nPerformance\r\nThe performance results provided in this section were measured on an Intel®\r\nCore™ i5 650 processor at a frequency of 3.20 GHz, supporting Intel® crc32\r\ninstruction. The tests were run with Intel® Turbo Boost Technology off, on a \r\nsingle thread.\r\nMethodology\r\nWe measured the performance of the hash function on data buffers of \r\ndifferent sizes. We called the function to hash the same buffer a large number \r\nof times, collecting many timing measurements. For each data buffer, we \r\nthen sorted the timings, discarded the top and bottom quartiles and averaged\r\nthe rest. \r\nThe timing was measured using the rdtsc() function which returns the \r\nprocessor time stamp counter (TSC). The TSC is the number of clock cycles \r\nsince the last reset. The ‘TSC_initial’ is the TSC recorded before the function\r\nis called. After the function is complete, the rdtsc() was called again to \r\nrecord the new cycle count ’TSC_final’. The effective cycle count for the called \r\nroutine is computed using \r\n# of cycles = (TSC_final-TSC_initial).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/04112422-dc48-4df8-b902-159e75469b13.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=87fd03bb88964636b8fd5953f115291a1f95041bc1a228e69c723f7019476fd0",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 352
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d3c41a52-e9da-49f7-af19-faed1759eecc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": " A Novel Hashing Method suitable for Lookup Functions\r\n7\r\nA large number of such measurements were made for each data buffer and \r\nthen averaged as described above.\r\nNote: Performance tests and ratings are measured using specific computer \r\nsystems and/or components and reflect the approximate performance of Intel \r\nproducts as measured by those tests. Any difference in system hardware or \r\nsoftware design or configuration may affect actual performance. Buyers \r\nshould consult other sources of information to evaluate the performance of \r\nsystems or components they are considering purchasing. For more \r\ninformation on performance tests and on the performance of Intel products, \r\nGo to: \r\nhttp://www.intel.com/performance/resources/benchmark_limitations.htm\r\nResults\r\nWe show performance with a single thread in cycles for varying sizes of input \r\ndata buffers with a single thread, for small buffer sizes.\r\nFigure 3: Cycles vs. Data Buffer Size in Bytes with Single Thread\r\nFor large buffers, the performance tends to ~ 0.44 cycles/byte. As can \r\nbeen seen from the graph, even for small buffers (~24 bytes), the \r\nperformance is better than 1 cycle/byte. As the crc32 instruction has a \r\nlatency of 3 cycles, and a throughput of 1 cycle, we anticipate that Intel® HT \r\nTechnology will bring a substantial additional performance gain on \r\napplications using this hash function.\r\n0\r\n5\r\n10\r\n15\r\n20\r\n25\r\n0 8 16 24 32\r\nintel_hash64",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/d3c41a52-e9da-49f7-af19-faed1759eecc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f306b374d2e69c332ac6bc82852f59c8e8f2d013e92f22457a4296757beecd8a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 216
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a873fe61-cfb0-405f-80b9-e7a2d0b352af",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "A Novel Hashing Method suitable for Lookup Functions\r\n8\r\nTesting for Quality\r\nUsing the frog test, we tested our hash function and the reference one \r\nderived from SHA1 for quality. The test sets bits in the input data in an \r\nattempt to generate digest collisions through the careful, similar construction \r\nof input. All the inputs to the hash function are the same fixed length, and \r\nconsist of zero bytes with very few bits set. The original program tested 64-\r\nbit digests. We modified this to also test 32-bit digests. Results for this test \r\nare reported as the logarithm of the highest number of data pairs tested \r\nbefore the first collision is found. The higher the score, the better is the hash \r\nquality. The tests are exponential in nature, running for weeks if a collision \r\ncannot be found within 267 pairs.\r\nFigure 4: Results of the hash quality tests\r\nfrog_64\r\nfrog_32\r\nDigest1 Digest2\r\nsha1 >=68 33 33\r\nintel_hash64 >=67 39 39\r\nDue to run-time of the tests, the frog_64 test results are incomplete, and the \r\n“>=” implies that no collisions were found at that point, but the test was still \r\nrunning. Note that the frog_32 tests are much faster and intel_hash64 is \r\nmuch better than SHA1 for 32-bit digests.\r\nFor the 64-bit collision tests, both functions show extremely strong quality \r\nsince a completely random mapping to 64-bit values is expected to result in a \r\ncollision by 263 pairs. It is also noted in Bob’s article that both lookup.c and \r\nlookup2.c start seeing collisions after 253 key-pairs, whereas lookup3.c gets \r\nits first collision shortly after 263 pairs.\r\nConclusion\r\nIn this paper, we show how to compute a high-quality hash digest at \r\nextremely high performance on an Intel® Core™ i5 650 processor using the \r\ncrc32 instruction. We describe a general method using CRC calculations and \r\nshow how that can be used to generate larger digests than the degree of the \r\nCRC Polynomial. The functions can generate larger digests or multiple \r\nuncorrelated digests.\r\nIt is possible to develop higher-performance functions for specific usages that \r\ntarget very large data buffers or work only on fixed sized buffers, but such ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/a873fe61-cfb0-405f-80b9-e7a2d0b352af.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ac8f48cfc3fc2f056d7c83f88ae661b05be2d3d8242f21d111c8a61544c0f682",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7c2ef8b1-b95a-417c-979b-c7d53e900a7d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": " A Novel Hashing Method suitable for Lookup Functions\r\n9\r\noptimizations have not been attempted in the current versions of our \r\nfunctions.\r\nContributors\r\nWe thank Schuyler Eldridge, Gil Wolrich, Erdinc Ozturk and Wajdi Feghali of \r\nIntel Corporation for their substantial contributions to this work.\r\nReferences\r\n[1] Bob Jenkins’ Hash functions http://burtleburtle.net/bob/\r\n[2] US Patent Application: “A Novel Hashing Method suitable for Lookups” \r\nVinodh Gopal, Jim Guilford, Schuyler Eldridge, Gil Wolrich, Erdinc Ozturk, \r\nWajdi Feghali\r\n[3] Intel® 64 and IA-32 Architectures Software Developer's Manual Volume \r\n2A: Instruction Set Reference, A-M\r\nhttp://www.intel.com/products/processor/manuals/\r\nThe Intel® Embedded Design Center provides qualified developers with web\u0002based access to technical resources. Access Intel Confidential design \r\nmaterials, step-by step guidance, application reference solutions, training, \r\nIntel’s tool loaner program, and connect with an e-help desk and the \r\nembedded community. Design Fast. Design Smart. Get started today. \r\nhttp://intel.com/embedded/edc.\r\nAuthors\r\nVinodh Gopal and Jim Guilford are IA Architects with the IAG \r\nGroup at Intel Corporation.\r\nAcronyms\r\nIA Intel® Architecture",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/7c2ef8b1-b95a-417c-979b-c7d53e900a7d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=52c76ad79bdd5f513b691f5ee8c23f96653018d35728136768a03c2a1c7618d3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 511
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b7cfcae1-429c-4115-8848-4d98f2fa4417",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "A Novel Hashing Method suitable for Lookup Functions\r\n10\r\nINFORMATION IN THIS DOCUMENT IS PROVIDED IN CONNECTION WITH INTEL PRODUCTS. NO \r\nLICENSE, EXPRESS OR IMPLIED, BY ESTOPPEL OR OTHERWISE, TO ANY INTELLECTUAL PROPERTY \r\nRIGHTS IS GRANTED BY THIS DOCUMENT. EXCEPT AS PROVIDED IN INTEL'S TERMS AND \r\nCONDITIONS OF SALE FOR SUCH PRODUCTS, INTEL ASSUMES NO LIABILITY WHATSOEVER AND \r\nINTEL DISCLAIMS ANY EXPRESS OR IMPLIED WARRANTY, RELATING TO SALE AND/OR USE OF INTEL \r\nPRODUCTS INCLUDING LIABILITY OR WARRANTIES RELATING TO FITNESS FOR A PARTICULAR \r\nPURPOSE, MERCHANTABILITY, OR INFRINGEMENT OF ANY PATENT, COPYRIGHT OR OTHER \r\nINTELLECTUAL PROPERTY RIGHT.\r\nA \"Mission Critical Application\" is any application in which failure of the Intel Product could result, \r\ndirectly or indirectly, in personal injury or death. SHOULD YOU PURCHASE OR USE INTEL'S \r\nPRODUCTS FOR ANY SUCH MISSION CRITICAL APPLICATION, YOU SHALL INDEMNIFY AND HOLD \r\nINTEL AND ITS SUBSIDIARIES, SUBCONTRACTORS AND AFFILIATES, AND THE DIRECTORS, \r\nOFFICERS, AND EMPLOYEES OF EACH, HARMLESS AGAINST ALL CLAIMS COSTS, DAMAGES, AND \r\nEXPENSES AND REASONABLE ATTORNEYS' FEES ARISING OUT OF, DIRECTLY OR INDIRECTLY, ANY \r\nCLAIM OF PRODUCT LIABILITY, PERSONAL INJURY, OR DEATH ARISING IN ANY WAY OUT OF SUCH \r\nMISSION CRITICAL APPLICATION, WHETHER OR NOT INTEL OR ITS SUBCONTRACTOR WAS \r\nNEGLIGENT IN THE DESIGN, MANUFACTURE, OR WARNING OF THE INTEL PRODUCT OR ANY OF ITS \r\nPARTS.\r\nIntel may make changes to specifications and product descriptions at any time, without notice. \r\nDesigners must not rely on the absence or characteristics of any features or instructions marked \r\n\"reserved\" or \"undefined\". Intel reserves these for future definition and shall have no responsibility \r\nwhatsoever for conflicts or incompatibilities arising from future changes to them. The information \r\nhere is subject to change without notice. Do not finalize a design with this information.\r\nThe products described in this document may contain design defects or errors known as errata which \r\nmay cause the product to deviate from published specifications. Current characterized errata are \r\navailable on request.\r\nContact your local Intel sales office or your distributor to obtain the latest specifications and before \r\nplacing your product order.\r\nCopies of documents which have an order number and are referenced in this document, or other Intel \r\nliterature, may be obtained by calling 1-800-548-4725, or go to: \r\nhttp://www.intel.com/design/literature.htm\r\nThis paper is for informational purposes only. THIS DOCUMENT IS PROVIDED \"AS IS\" WITH NO \r\nWARRANTIES WHATSOEVER, INCLUDING ANY WARRANTY OF MERCHANTABILITY, \r\nNONINFRINGEMENT, FITNESS FOR ANY PARTICULAR PURPOSE, OR ANY WARRANTY OTHERWISE \r\nARISING OUT OF ANY PROPOSAL, SPECIFICATION OR SAMPLE. Intel disclaims all liability, including \r\nliability for infringement of any proprietary rights, relating to use of information in this specification. \r\nNo license, express or implied, by estoppel or otherwise, to any intellectual property rights is granted \r\nherein.\r\nIntel is a trademark of Intel Corporation in the U.S. and other countries.\r\n*Other names and brands may be claimed as the property of others.\r\nCopyright © 2012 Intel Corporation. All rights reserved.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/4dd27bd8-2a88-4814-b8bf-d06ab5916fdd/images/b7cfcae1-429c-4115-8848-4d98f2fa4417.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T040037Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4240acac21145a5192831a081c3fdc6997354e027a18bc4c2f800a1b21eea270",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 475
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "A Novel Hashing Method Suitable for Lookup Functions\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Vinodh Gopal, Jim Guilford\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "February 2012\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "U.S."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "file_name": "Learning with Hypergraphs - Clustering, Classification, and Embedding (2017).pdf",
+  "task_id": "6bc9cab4-0648-4109-9bf1-cb8d7717f6a2",
+  "output": {
+    "chunks": [],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\n  \"title\": \"\"\n}\n```\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "I cannot find any information about the author of a document in the provided context.\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I cannot provide a value for `date_published` as there is no date or date-related information in the provided context.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Unfortunately, there is no context provided to extract a location from.  Therefore, I cannot provide a value for the \"location\" field.\n"
+        }
+      ]
+    }
+  }
+}
