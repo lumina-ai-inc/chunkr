@@ -160,3 +160,4 @@ crash.*.log
 .ruff_cache
 
 uv.lock
+output_structured_extraction
