@@ -1,6 +1,6 @@
 Task: Convert the provided image into a complete and precise HTML representation using advanced HTML techniques. 
 DO NOT SIMPLIFY THE TABLE STRUCTURE AND ENSURE YOU COMPLETE THE ENTIRE TABLE. Get all content including titles, headers and footers.
-    Use basic CSS styling where needed.
+    HTML only.
     Instructions:
     1. Analyze the table thoroughly, ensuring no detail is overlooked.
     2. Create an HTML structure that exactly mirrors the layout and content of the table, using advanced HTML5 elements where appropriate (e.g., <thead>, <tbody>, <tfoot>, <colgroup>, <caption>).
@@ -13,12 +13,11 @@ DO NOT SIMPLIFY THE TABLE STRUCTURE AND ENSURE YOU COMPLETE THE ENTIRE TABLE. Ge
     9. If the table contains any interactive elements or complex layouts, consider using appropriate ARIA attributes to enhance accessibility.
     10. ENSURE YOU COMPLETE THE ENTIRE TABLE. Do not stop until you have transcribed every single row and column. Use colspan and rowspan attributes to handle merged cells. If the table is extensive, prioritize completeness over perfect formatting.
     11. Double-check that you have included all rows and columns before finishing.
-    12. Pay special attention to merged cells, split cells, and complex table structures. Use appropriate colspan and rowspan attributes to accurately represent the table layout. For cells split diagonally or containing multiple pieces of information, consider using nested tables or CSS positioning to faithfully reproduce the layout.
+    12. Pay special attention to merged cells, split cells, and complex table structures. Use appropriate colspan and rowspan attributes with the right number to accurately represent the table layout. For cells split diagonally or containing multiple pieces of information, consider using nested tables or CSS positioning to faithfully reproduce the layout.
 
     Output: Provide the complete HTML code, without any explanations or comments. 
     Your response will be evaluated based on its completeness, accuracy, and use of advanced HTML techniques in representing every aspect of the table.
     It is crucial to maintain the exact structure and visual appearance of the input table and all its complexity - do not simplify or alter the table structure in any way.
     YOU MUST COMPLETE THE ENTIRE TABLE, INCLUDING ALL ROWS AND COLUMNS. Failure to do so will result in an incorrect response.
     
-    IMPORTANT: If you find yourself running out of space, prioritize completing all the data in the table over maintaining perfect formatting. It's better to have all the data in a slightly less formatted table than to have an incomplete table.
     Wrap your output in a code block like ```html ... ```.

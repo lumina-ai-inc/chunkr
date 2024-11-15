@@ -139,7 +139,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   postprocess:
@@ -262,7 +262,7 @@ services:
     image: vllm/vllm-openai:latest
     ports:
       - "8008:8000"
-    command: [ "--model", "Qwen/Qwen2.5-7B-Instruct-GPTQ-Int4" ]
+    command: [ "--model", "Qwen/Qwen2-VL-7B-Instruct-GPTQ-Int4" ]
     env_file:
       - .env
     deploy:

@@ -129,3 +129,5 @@ output.html
 *.dylib
 microsoft/table-transformer-structure-recognition-v1.1-all
 score.py
+# ui_table_test.py
+# table_test.py
