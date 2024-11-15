@@ -1,0 +1,448 @@
+{
+  "file_name": "KASLR is Dead - Long Live KASLR (2017).pdf",
+  "task_id": "a1be9790-f340-400a-b073-c2f0984e193b",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "00b55e6f-36df-44b7-8c29-ff2cade30d5b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "KASLR is Dead: Long Live KASLR\r\nDaniel Gruss, Moritz Lipp, Michael Schwarz, Richard Fellner, Cl´ementine\r\nMaurice, and Stefan Mangard\r\nGraz University of Technology, Austria\r\nAbstract. Modern operating system kernels employ address space lay\u0002out randomization (ASLR) to prevent control-flow hijacking attacks and\r\ncode-injection attacks. While kernel security relies fundamentally on pre\u0002venting access to address information, recent attacks have shown that the\r\nhardware directly leaks this information. Strictly splitting kernel space\r\nand user space has recently been proposed as a theoretical concept to\r\nclose these side channels. However, this is not trivially possible due to\r\narchitectural restrictions of the x86 platform.\r\nIn this paper we present KAISER, a system that overcomes limitations\r\nof x86 and provides practical kernel address isolation. We implemented\r\nour proof-of-concept on top of the Linux kernel, closing all hardware\r\nside channels on kernel address information. KAISER enforces a strict\r\nkernel and user space isolation such that the hardware does not hold\r\nany information about kernel addresses while running in user mode. We\r\nshow that KAISER protects against double page fault attacks, prefetch\r\nside-channel attacks, and TSX-based side-channel attacks. Finally, we\r\ndemonstrate that KAISER has a runtime overhead of only 0.28%.\r\n1 Introduction\r\nLike user programs, kernel code contains software bugs which can be exploited\r\nto undermine the system security. Modern operating systems use hardware fea\u0002tures to make the exploitation of kernel bugs more difficult. These protection\r\nmechanisms include making code non-writable and data non-executable. More\u0002over, accesses from kernel space to user space require additional indirection and\r\ncannot be performed through user space pointers directly anymore (SMAP/S\u0002MEP). However, kernel bugs can be exploited within the kernel boundaries. To\r\nmake these attacks harder, address space layout randomization (ASLR) can be\r\nused to make some kernel addresses or even all kernel addresses unpredictable for\r\nan attacker. Consequently, powerful attacks relying on the knowledge of virtual\r\naddresses, such as return-oriented-programming (ROP) attacks, become infeasi\u0002ble [14,17,19]. It is crucial for kernel ASLR to withhold any address information\r\nfrom user space programs. In order to eliminate address information leakage,\r\nthe virtual-to-physical address information has been made unavailable to user\r\nprograms [13].\r\nKnowledge of virtual or physical address information can be exploited to\r\nbypass KASLR [7, 22], bypass SMEP and SMAP [11], perform side-channel at\u0002tacks [6,15,18], Rowhammer attacks [5,12,20], and to attack system memory en\u0002cryption [2]. To prevent attacks, system interfaces leaking the virtual-to-physical",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/00b55e6f-36df-44b7-8c29-ff2cade30d5b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c2f78fa759635e57d0ef2fb56cdbd1de72165dbc5be29e3e94a762b365d97b3c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 389
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2fb9a4a1-d464-44ac-862a-f192eb7fc035",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "2 D. Gruss, M. Lipp, M. Schwarz, R. Fellner, C. Maurice, S. Mangard\r\nmapping have recently been fixed [13]. However, hardware side channels might\r\nnot easily be fixed without changing the hardware. Specifically side-channel at\u0002tacks targeting the page translation caches provide information about virtual\r\nand physical addresses to the user space. Hund et al. [7] described an attack\r\nexploiting double page faults, Gruss et al. [6] described an attack exploiting\r\nsoftware prefetch instructions,1 and Jang et al. [10] described an attack exploit\u0002ing Intel TSX (hardware transactional memory). These attacks show that cur\u0002rent KASLR implementations have fatal flaws, subsequently KASLR has been\r\nproclaimed dead by many researchers [3, 6, 10].\r\nGruss et al. [6] and Jang et al. [10] proposed to unmap the kernel address\r\nspace in the user space and vice versa. However, this is non-trivial on modern\r\nx86 hardware. First, modifying page table structures on context switches is not\r\npossible due to the highly parallelized nature of today’s multi-core systems, e.g.,\r\nsimply unmapping the kernel would inhibit parallel execution of multiple sys\u0002tem calls. Second, x86 requires several locations to be valid for both user space\r\nand kernel space during context switches, which are hard to identify in large\r\noperating systems. Third, switching or modifying address spaces incurs transla\u0002tion lookaside buffer (TLB) flushes [8]. Jang et al. [10] suspected that switching\r\naddress spaces may have a severe performance impact, making it impractical.\r\nIn this paper, we present KAISER, a highly-efficient practical system for ker\u0002nel address isolation, implemented on top of a regular Ubuntu Linux. KAISER\r\nuses a shadow address space paging structure to separate kernel space and user\r\nspace. The lower half of the shadow address space is synchronized between both\r\npaging structures. Thus, multiple threads work in parallel on the two address\r\nspaces if they are in user space or kernel space respectively. KAISER eliminates\r\nthe usage of global bits in order to avoid explicit TLB flushes upon context\r\nswitches. Furthermore, it exploits optimizations in current hardware that al\u0002low switching address spaces without performing a full TLB flush. Hence, the\r\nperformance impact of KAISER is only 0.28%.\r\nKAISER reduces the number of overlapping pages between user and kernel\r\naddress space to the absolute minimum required to run on modern x86 systems.\r\nWe evaluate all microarchitectural side-channel attacks on kernel address infor\u0002mation that are applicable to recent Intel architectures. We show that KAISER\r\nsuccessfully eliminates the leakage in all cases.\r\nContributions. The contributions of this work are:\r\n1. KAISER is the first practical system for kernel address isolation. It in\u0002troduces shadow address spaces to utilize modern CPU features efficiently\r\navoiding frequent TLB flushes. We show how all challenges to make kernel\r\naddress isolation practical can be overcome.\r\n1 The list of authors for “Prefetch Side-Channel Attacks” by Gruss et al. [6] and this\r\npaper overlaps.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/2fb9a4a1-d464-44ac-862a-f192eb7fc035.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=671c3f15bb5582b9d0414c59249cba0348fe1387a7507cb10acd2c5203ff841d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 465
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d8da9368-32b5-4b66-8320-2f5d96316d14",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "KASLR is Dead: Long Live KASLR 3\r\n2. Our open-source proof-of-concept implementation in the Linux kernel shows\r\nthat KAISER can easily be deployed on commodity systems, i.e., a full\u0002fledged Ubuntu Linux system.2\r\n3. After KASLR has already been considered dead by many researchers, KAISER\r\nfully restores the former efficacy of KASLR with a runtime overhead of only\r\n0.28%.\r\nOutline. The remainder of the paper is organized as follows. In Section 2, we\r\nprovide background on kernel protection mechanisms and side-channel attacks.\r\nIn Section 3, we describe the design and implementation of KAISER. In Sec\u0002tion 4, we evaluate the efficacy of KAISER and its performance impact. In\r\nSection 5, we discuss future work. We conclude in Section 6.\r\n2 Background\r\n2.1 Virtual Address Space\r\nVirtual addressing is the foundation of memory isolation between different pro\u0002cesses as well as processes and the kernel. Virtual addresses are translated to\r\nphysical addresses through a multi-level translation table stored in physical mem\u0002ory. A CPU register holds the physical address of the active top-level translation\r\ntable. Upon a context switch, the register is updated to the physical address\r\nof the top-level translation table of the next process. Consequently, processes\r\ncannot access all physical memory but only the memory that is mapped to vir\u0002tual addresses. Furthermore, the translation tables entries define properties of\r\nthe corresponding virtual memory region, e.g., read-only, user-accessible, non\u0002executable.\r\nOn modern Intel x86-64 processors, the top-level translation table is the page\r\nmap level 4 (PML4). Its physical address is stored in the CR3 register of the CPU.\r\nThe PML4 divides the 48-bit virtual address space into 512 PML4 entries, each\r\ncovering a memory region of 512 GB. Each subsequent level sub-divides one block\r\nof the upper layer into 512 smaller regions until 4 kB pages are mapped using\r\npage tables (PTs) on the last level. The CPU has multiple levels of caches for\r\naddress translation table entries, the so-called TLBs. They speed up address\r\ntranslation and privilege checks. The kernel address space is typically a defined\r\nregion in the virtual address space, e.g., the upper half of the address space.\r\nSimilar translation tables exist on modern ARM (Cortex-A) processors too,\r\nwith small differences in size and property bits. One significant difference to\r\nx86-64 is that ARM CPUs have two registers to store physical addresses of\r\ntranslation tables (TTBR0 and TTBR1). Typically, one is used to map the user\r\naddress space (lower half) whereas the other is used to map the kernel address\r\nspace (upper half). Gruss et al. [6] speculated that this might be one of the\r\nreasons why the attack does not work on ARM processors. As x86-64 has only\r\n2 We are preparing a submission of our patches into the Linux kernel upstream. The\r\nsource code and the Debian package compatible with Ubuntu 16.10 can be found at\r\nhttps://github.com/IAIK/KAISER.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/d8da9368-32b5-4b66-8320-2f5d96316d14.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7f3586c7196ef50163a9a6bcd5586f3750586bb490b5704fbe4fa4c9d28557ce",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 467
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "94a4480e-4136-4f64-8f61-e117053b9c96",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "4 D. Gruss, M. Lipp, M. Schwarz, R. Fellner, C. Maurice, S. Mangard\r\nCore 0 TLB Paging\r\nStructure Cache\r\nCore 1 TLB Paging\r\nStructure Cache\r\nLLC DRAM\r\nFig. 1: Address translation caches are used to speed up address translation table\r\nlookups.\r\none translation-table register (CR3), it is used for both user and kernel address\r\nspace. Consequently, to perform privilege checks upon a memory access, the\r\nactual page translation tables have to be checked.\r\nControl-Flow Attacks. Modern Intel processors protect against code injec\u0002tion attacks through non-executable bits. Furthermore, code execution and data\r\naccesses on user space memory are prevented in kernel mode by the CPU fea\u0002tures supervisor-mode access prevention (SMAP) and supervisor-mode execution\r\nprevention (SMEP). However, it is still possible to exploit bugs by redirecting\r\nthe code execution to existing code. Solar Designer [23] showed that a non\u0002executable stack in user programs can be circumvented by jumping to existing\r\nfunctions within libc. Kemerlis et al. [11] presented the ret2dir attack which\r\nredirects a hijacked control flow in the kernel to arbitrary locations using the\r\nkernel physical direct mapping. Return-oriented programming (ROP) [21] is a\r\ngeneralization of such attacks. In ROP attacks, multiple code fragments—so\u0002called gadgets—are chained together to build an exploit. Gadgets are not entire\r\nfunctions, but typically consist of one or more useful instructions followed by a\r\nreturn instruction.\r\nTo mitigate control-flow-hijacking attacks, modern operating systems ran\u0002domize the virtual address space. Address space layout randomization (ASLR)\r\nensures that every process has a new randomized virtual address space, prevent\u0002ing an attacker from knowing or guessing addresses. Similarly, the kernel has\r\na randomized virtual address space every time it is booted. As Kernel ASLR\r\nmakes addresses unpredictable, it protects against ROP attacks.\r\n2.2 CPU Caches\r\nCaches are small memory buffers inside the CPU, storing frequently used data.\r\nModern Intel CPUs have multiple levels of set-associative caches. The last-level\r\ncache (LLC) is shared among all cores. Executing code or accessing data on one\r\ncore has immediate consequences for all other cores.\r\nAddress translation tables are stored in physical memory. They are cached\r\nin regular data caches [8] but also in special caches such as the translation\r\nlookaside buffers. Figure 1 illustrates how the address translation caches are\r\nused for address resolution.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/94a4480e-4136-4f64-8f61-e117053b9c96.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7e2db9f8fe1a86f18318c014497ebb1666d1b7d116310d1a6604fa0720f04250",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 368
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e9683b2f-7e30-4e0f-9c85-4961d147e566",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "KASLR is Dead: Long Live KASLR 5\r\n2.3 Microarchitectural Attacks on Kernel Address Information\r\nUntil recently, Linux provided information on virtual and physical addresses\r\nto any unprivileged user program through operating system interfaces. As this\r\ninformation facilitates mounting microarchitectural attacks, the interfaces are\r\nnow restricted [13]. However, due to the way the processor works, side channels\r\nthrough address translation caches [4, 6, 7, 10] and the branch-target buffer [3]\r\nleak parts of this information.\r\nAddress Translation Caches. Hund et al. [7] described a double page fault\r\nattack, where an unprivileged attacker tries to access an inaccessible kernel mem\u0002ory location, triggering a page fault. After the page fault interrupt is handled\r\nby the operating system, the control is handed back to an error handler in the\r\nuser program. The attacker measures the execution time of the page fault inter\u0002rupt. If the memory location is valid, regardless of whether it is accessible or not,\r\naddress translation table entries are copied into the corresponding address trans\u0002lation caches. The attacker then tries to access the same inaccessible memory\r\nlocation again. If the memory location is valid, the address translation is already\r\ncached and the page fault interrupt will take less time. Thus, the attacker learns\r\nwhether a memory location is valid or not, even if it is not accessible from the\r\nuser space.\r\nJang et al. [10] exploited the same effect in combination with Intel TSX. Intel\r\nTSX is an extension to the x86 instruction set providing a hardware transactional\r\nmemory implementation via so-called TSX transactions. If a page fault occurs\r\nwithin a TSX transaction, the transaction is aborted without any operating\r\nsystem interaction. Thus, the entire page fault handling of the operation system\r\nis skipped, and the timing differences are significantly less noisy. In this attack,\r\nthe attacker again learns whether a memory location is valid, even if it is not\r\naccessible from the user space.\r\nGruss et al. [6] exploited software prefetch instructions to trigger address\r\ntranslation. The execution time of the prefetch instruction depends on which\r\naddress translation caches hold the right translation entries. Thus, in addition\r\nto learning whether an inaccessible address is valid or not, an attacker learns its\r\ncorresponding page size as well. Furthermore, software prefetches can succeed\r\neven on inaccessible memory. Linux has a kernel physical direct map, providing\r\ndirect access to all physical memory. If the attacker prefetches an inaccessible\r\naddress in this kernel physical direct map corresponding to a user-accessible\r\naddress, it will also be cached when accessed through the user address. Thus,\r\nthe attacker can retrieve the exact physical address for any virtual address.\r\nAll three attacks have in common that they exploit that the kernel address\r\nspace is mapped in user space as well, and that accesses are only prevented\r\nthrough the permission bits in the address translation tables. Thus, they use\r\nthe same entries in the paging structure caches. On ARM architectures, the user\r\nand kernel addresses are already distinguished based on registers, and thus no\r\ncache access and no timing difference occurs. Gruss et al. [6] and Jang et al. [10]\r\nproposed to unmap the entire kernel space to emulate the same behavior as on\r\nthe ARM architecture.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/e9683b2f-7e30-4e0f-9c85-4961d147e566.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df74a3c382e577ada4a0458a33ae3a2e20770120c12baafb2018dc51aa22e98a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 527
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e9683b2f-7e30-4e0f-9c85-4961d147e566",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "KASLR is Dead: Long Live KASLR 5\r\n2.3 Microarchitectural Attacks on Kernel Address Information\r\nUntil recently, Linux provided information on virtual and physical addresses\r\nto any unprivileged user program through operating system interfaces. As this\r\ninformation facilitates mounting microarchitectural attacks, the interfaces are\r\nnow restricted [13]. However, due to the way the processor works, side channels\r\nthrough address translation caches [4, 6, 7, 10] and the branch-target buffer [3]\r\nleak parts of this information.\r\nAddress Translation Caches. Hund et al. [7] described a double page fault\r\nattack, where an unprivileged attacker tries to access an inaccessible kernel mem\u0002ory location, triggering a page fault. After the page fault interrupt is handled\r\nby the operating system, the control is handed back to an error handler in the\r\nuser program. The attacker measures the execution time of the page fault inter\u0002rupt. If the memory location is valid, regardless of whether it is accessible or not,\r\naddress translation table entries are copied into the corresponding address trans\u0002lation caches. The attacker then tries to access the same inaccessible memory\r\nlocation again. If the memory location is valid, the address translation is already\r\ncached and the page fault interrupt will take less time. Thus, the attacker learns\r\nwhether a memory location is valid or not, even if it is not accessible from the\r\nuser space.\r\nJang et al. [10] exploited the same effect in combination with Intel TSX. Intel\r\nTSX is an extension to the x86 instruction set providing a hardware transactional\r\nmemory implementation via so-called TSX transactions. If a page fault occurs\r\nwithin a TSX transaction, the transaction is aborted without any operating\r\nsystem interaction. Thus, the entire page fault handling of the operation system\r\nis skipped, and the timing differences are significantly less noisy. In this attack,\r\nthe attacker again learns whether a memory location is valid, even if it is not\r\naccessible from the user space.\r\nGruss et al. [6] exploited software prefetch instructions to trigger address\r\ntranslation. The execution time of the prefetch instruction depends on which\r\naddress translation caches hold the right translation entries. Thus, in addition\r\nto learning whether an inaccessible address is valid or not, an attacker learns its\r\ncorresponding page size as well. Furthermore, software prefetches can succeed\r\neven on inaccessible memory. Linux has a kernel physical direct map, providing\r\ndirect access to all physical memory. If the attacker prefetches an inaccessible\r\naddress in this kernel physical direct map corresponding to a user-accessible\r\naddress, it will also be cached when accessed through the user address. Thus,\r\nthe attacker can retrieve the exact physical address for any virtual address.\r\nAll three attacks have in common that they exploit that the kernel address\r\nspace is mapped in user space as well, and that accesses are only prevented\r\nthrough the permission bits in the address translation tables. Thus, they use\r\nthe same entries in the paging structure caches. On ARM architectures, the user\r\nand kernel addresses are already distinguished based on registers, and thus no\r\ncache access and no timing difference occurs. Gruss et al. [6] and Jang et al. [10]\r\nproposed to unmap the entire kernel space to emulate the same behavior as on\r\nthe ARM architecture.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/e9683b2f-7e30-4e0f-9c85-4961d147e566.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df74a3c382e577ada4a0458a33ae3a2e20770120c12baafb2018dc51aa22e98a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 527
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "98bd9d10-9ce0-482f-914c-6139bdf32626",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "6 D. Gruss, M. Lipp, M. Schwarz, R. Fellner, C. Maurice, S. Mangard\r\nBranch-Target Buffer. Evtyushkin et al. [3] presented an attack on the branch\u0002target buffer (BTB) to recover the lowest 30 bits of a randomized kernel address.\r\nThe BTB is indexed based on the lowest 30 bits of the virtual address. Similar\r\nas in a regular cache attack, the adversary occupies parts of the BTB by execut\u0002ing a sequence of branch instructions. If the kernel uses virtual addresses with\r\nthe same value for the lowest 30 bits as the attacker, the sequence of branch\r\ninstructions requires more time. Through targeted execution of system calls,\r\nthe adversary can obtain information about virtual addresses of code that is\r\nexecuted during a system call. Consequently, the BTB attack defeats KASLR.\r\nWe consider the BTB attack out of scope for our countermeasure (KAISER),\r\nwhich we present in the next section, for two reasons. First, Evtyushkin et al. [3]\r\nproposed to use virtual address bits > 30 to randomize memory locations for\r\nKASLR as a zero-overhead countermeasure against their BTB attack. Indeed,\r\nan adaption of the corresponding range definitions in modern operating system\r\nkernels would effectively mitigate the attack. Second, the BTB attack relies on\r\na profound knowledge of the behavior of the BTB. The BTB attack currently\r\ndoes not work on recent architectures like Intel Skylake, as the BTB has not\r\nbeen reverse-engineered yet. Consequently, we also were not able to reproduce\r\nthe attack in our test environment (Intel Skylake i7-6700K).\r\n3 Design and Implementation of KAISER\r\nIn this section, we describe the design and implementation of KAISER3. We\r\ndiscuss the challenges of implementing kernel address isolation. We show how\r\nshadow address space paging structures can be used to separate kernel space\r\nand user space. We describe how modern CPU features and optimizations can\r\nbe used to reduce the amount of regular TLB flushes to a minimum. Finally,\r\nto show the feasibility of the approach, we implemented KAISER on top of the\r\nlatest Ubuntu Linux kernel.\r\n3.1 Challenges of Kernel Address Isolation\r\nAs recommended by Intel [8], today’s operating systems map the kernel into the\r\naddress space of every user process. Kernel pages are protected from unwanted\r\naccess by user space applications using different access permissions, set in the\r\npage table entries (PTE). Thus, the address space is shared between the kernel\r\nand the user and only the privilege level is escalated to execute system calls and\r\ninterrupt routines.\r\nThe idea of Stronger Kernel Isolation proposed by Gruss et al. [6] (cf. Fig\u0002ure 2) is to unmap kernel pages while the user process is in user space and\r\nswitch to a separated kernel address space when entering the kernel. Conse\u0002quently, user pages are not mapped in kernel space and only a minimal numbers\r\nof pages is mapped both in user space and kernel space. While this would prevent\r\n3 Kernel Address Isolation to have Side channels Efficiently Removed.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/98bd9d10-9ce0-482f-914c-6139bdf32626.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bf7d8201bb1603b9c519742b4f448f2fdf26c715130a76f64a8a63dc4cfc927a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 485
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1db39d99-1160-4214-8b74-65e5ca9179ae",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "KASLR is Dead: Long Live KASLR 7\r\nUser memory Kernel memory\r\n0 −1\r\ncontext switch\r\n(a) Regular OS\r\ncontext switch\r\nUser memory not mapped\r\n0 −1\r\ncontext switch\r\nnot mapped Kernel memory\r\n0 −1\r\nswitch address space\r\n(b) Stronger kernel isolation\r\ncontext switch\r\nUser memory not mapped\r\n0 −1\r\ncontext switch\r\nSMAP + SMEP Kernel memory\r\n0 −1\r\nswitch address space\r\n(c) KAISER\r\nFig. 2: (a) The kernel is mapped into the address space of every user process.\r\n(b) Theoretical concept of stronger kernel isolation. It splits the address spaces\r\nand only interrupt handling code is mapped in both address spaces. (c) For\r\ncompatibility with x86 Linux, KAISER relies on SMAP to prevent invalid user\r\nmemory references and SMEP to prevent execution of user code in kernel mode.\r\nall microarchitectural attacks on kernel address space information on recent sys\u0002tems [6, 7, 10], it is not possible to implement Stronger Kernel Isolation without\r\nrewriting large parts of today’s kernels. There is no previous work investigating\r\nthe requirements real hardware poses to implement kernel address isolation in\r\npractice. We identified the following three challenges that make kernel address\r\nisolation non-trivial to implement.\r\nChallenge 1. Threads cannot use the same page table structures in user space\r\nand kernel space without a huge synchronization overhead. The reason for this\r\nis the highly parallelized nature of today’s systems. If a thread modifies page\r\ntable structures upon a context switch, it influences all concurrent threads of the\r\nsame process. Furthermore, the mapping changes for all threads, even if they are\r\ncurrently in the user space.\r\nChallenge 2. Current x86 processors require several locations to be valid for\r\nboth user space and kernel space during context switches. These locations are\r\nhard to identify in large operating system kernels due to implicit assumptions\r\nabout the omnipresence of the entire kernel address space. Furthermore, seg\u0002mented memory accesses like core-local storage are required during context\r\nswitches. Thus, it must be possible to locate and restore the segmented areas\r\nwithout re-mapping the unmapped parts of the kernel space. Especially, unmap\u0002ping the user space in the Linux kernel space, as proposed by Gruss et al. [6],\r\nwould require rewriting large parts of the Linux kernel.\r\nChallenge 3. Switching the address space incurs an implicit full TLB flush and\r\nmodifying the address space causes a partial TLB flush [8]. As current operating\r\nsystems are highly optimized to reduce the amount of implicit TLB flushes,",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/1db39d99-1160-4214-8b74-65e5ca9179ae.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=25bd29ef55ba4710b9886161477ae2ff2c750cb1b6052e35af4992f07d77f2db",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 401
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f9430c64-0e50-4749-9da9-d1e74d17a4dc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "8 D. Gruss, M. Lipp, M. Schwarz, R. Fellner, C. Maurice, S. Mangard\r\na countermeasure would need to explicitly flush the TLB upon every context\r\nswitch. Jang et al. [10] suspected that this may have a severe performance impact.\r\n3.2 Practical Kernel Address Isolation\r\nIn this section we show how KAISER overcomes these challenges and thus fully\r\nrevives KASLR.\r\nShadow Address Spaces. To solve challenge 1, we introduce the idea of shadow\r\naddress spaces to provide kernel address isolation. Figure 3 illustrates the princi\u0002ple of the shadow address space technique. Every process has two address spaces.\r\nOne address space which has the user space mapped but not the kernel (i.e., the\r\nshadow address space), and a second address space which has the kernel mapped\r\nbut the user space protected with SMAP and SMEP.\r\nThe switch between the user address space and the kernel address space now\r\nrequires updating the CR3 register with the value of the corresponding PML4.\r\nUpon a context switch, the CR3 register initially remains at the old value, map\u0002ping the user address space. At this point KAISER can only perform a very\r\nlimited amount of computations, operating on a minimal set of registers and\r\naccessing only parts of the kernel that are mapped both in kernel and user\r\nspace. As interrupts can be triggered from both user and kernel space, interrupt\r\nsources can be both environments and it is not generally possible to determine\r\nthe interrupt source within the limited amount of computations we can perform\r\nat this point. Consequently, switching the CR3 register must be a short static\r\ncomputation oblivious to the interrupt source.\r\nWith shadow address spaces we provide a solution to this problem. Shadow\r\naddress spaces are required to have a globally fixed power-of-two offset between\r\nthe kernel PML4 and the shadow PML4. This allows switching to the kernel\r\nPML4 or the shadow PML4 respectively, regardless of the interrupt source. For\r\ninstance, setting the corresponding address bit to zero switches to the kernel\r\nPML4 and setting it to one switches to the shadow PML4. The easiest offset\r\nto implement is to use bit 12 of the physical address. That is, the PML4 for\r\nthe kernel space and shadow PML4 are allocated as an 8 kB-aligned physical\r\nmemory block. The shadow PML4 is always located at the offset +4 kB. With\r\nthis trick, we do not need to perform any memory lookups and only need a single\r\nscratch register to switch address spaces.\r\nThe memory overhead introduced through shadow address spaces is very\r\nsmall. We have an overhead of 8 kB of physical memory per user thread for\r\nkernel page directorys (PDs) and PTs and 12 kB of physical memory per user\r\nprocess for the shadow PML4. The 12 kB are due to a restriction in the Linux\r\nkernel that only allows to allocate blocks containing 2n pages. Additionally,\r\nKAISER has a system-wide total overhead of 1 MB to allocate 256 global kernel\r\npage directory pointer tables (PDPTs) that are mapped in the kernel region of\r\nthe shadow address spaces.\r\nMinimizing the Kernel Address Space Mapping. To solve challenge 2,\r\nwe identified the memory regions that need to be mapped for both user space",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/f9430c64-0e50-4749-9da9-d1e74d17a4dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba08b8e04f528667127526180aa52f50a4f2e36b8618444601aee2642a940c99",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 529
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f9430c64-0e50-4749-9da9-d1e74d17a4dc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "8 D. Gruss, M. Lipp, M. Schwarz, R. Fellner, C. Maurice, S. Mangard\r\na countermeasure would need to explicitly flush the TLB upon every context\r\nswitch. Jang et al. [10] suspected that this may have a severe performance impact.\r\n3.2 Practical Kernel Address Isolation\r\nIn this section we show how KAISER overcomes these challenges and thus fully\r\nrevives KASLR.\r\nShadow Address Spaces. To solve challenge 1, we introduce the idea of shadow\r\naddress spaces to provide kernel address isolation. Figure 3 illustrates the princi\u0002ple of the shadow address space technique. Every process has two address spaces.\r\nOne address space which has the user space mapped but not the kernel (i.e., the\r\nshadow address space), and a second address space which has the kernel mapped\r\nbut the user space protected with SMAP and SMEP.\r\nThe switch between the user address space and the kernel address space now\r\nrequires updating the CR3 register with the value of the corresponding PML4.\r\nUpon a context switch, the CR3 register initially remains at the old value, map\u0002ping the user address space. At this point KAISER can only perform a very\r\nlimited amount of computations, operating on a minimal set of registers and\r\naccessing only parts of the kernel that are mapped both in kernel and user\r\nspace. As interrupts can be triggered from both user and kernel space, interrupt\r\nsources can be both environments and it is not generally possible to determine\r\nthe interrupt source within the limited amount of computations we can perform\r\nat this point. Consequently, switching the CR3 register must be a short static\r\ncomputation oblivious to the interrupt source.\r\nWith shadow address spaces we provide a solution to this problem. Shadow\r\naddress spaces are required to have a globally fixed power-of-two offset between\r\nthe kernel PML4 and the shadow PML4. This allows switching to the kernel\r\nPML4 or the shadow PML4 respectively, regardless of the interrupt source. For\r\ninstance, setting the corresponding address bit to zero switches to the kernel\r\nPML4 and setting it to one switches to the shadow PML4. The easiest offset\r\nto implement is to use bit 12 of the physical address. That is, the PML4 for\r\nthe kernel space and shadow PML4 are allocated as an 8 kB-aligned physical\r\nmemory block. The shadow PML4 is always located at the offset +4 kB. With\r\nthis trick, we do not need to perform any memory lookups and only need a single\r\nscratch register to switch address spaces.\r\nThe memory overhead introduced through shadow address spaces is very\r\nsmall. We have an overhead of 8 kB of physical memory per user thread for\r\nkernel page directorys (PDs) and PTs and 12 kB of physical memory per user\r\nprocess for the shadow PML4. The 12 kB are due to a restriction in the Linux\r\nkernel that only allows to allocate blocks containing 2n pages. Additionally,\r\nKAISER has a system-wide total overhead of 1 MB to allocate 256 global kernel\r\npage directory pointer tables (PDPTs) that are mapped in the kernel region of\r\nthe shadow address spaces.\r\nMinimizing the Kernel Address Space Mapping. To solve challenge 2,\r\nwe identified the memory regions that need to be mapped for both user space",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/f9430c64-0e50-4749-9da9-d1e74d17a4dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba08b8e04f528667127526180aa52f50a4f2e36b8618444601aee2642a940c99",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 529
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5a06f1c5-cfd2-4e67-ac23-81367fc58562",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "KASLR is Dead: Long Live KASLR 9\r\nCR3 Pair\r\nCR3 + 0x1000\r\nCR3\r\nUser\r\nKernel\r\nPGD User\r\nPGD Kernel\r\nCR3[12] = 1CR3[12] = 0\r\nFig. 3: Shadow address space: PML4 of user address space and kernel address\r\nspace are placed next to each other in physical memory. This allows to switch\r\nbetween both mappings by applying a bit mask to the CR3 register.\r\nand kernel space, i.e., the absolute minimum number of pages to be compatible\r\nwith x86 and its features used in the Linux kernel. While previous work [6]\r\nsuggested that only a negligible portion of the interrupt dispatcher code needs\r\nto be mapped in both address spaces, in practice more locations are required.\r\nAs x86 and Linux are built around using interrupts for context switches, it is\r\nnecessary to map the interrupt descriptor table (IDT), as well as the interrupt\r\nentry and exit .text section. To enable multi-threaded applications to run on\r\ndifferent cores, it is necessary to identify per-CPU memory regions and map\r\nthem into the shadow address space. KAISER maps the entire per-CPU section\r\nincluding the interrupt request (IRQ) stack and vector, the global descriptor\r\ntable (GDT), and the task state segment (TSS). Furthermore, while switching\r\nto privileged mode, the CPU implicitly pushes some registers onto the current\r\nkernel stack. This can be one of the per-CPU stacks that we already mapped or\r\na thread stack. Consequently, thread stacks need to be mapped too.\r\nWe found that the idea to unmap the user space entirely in kernel space\r\nis not practical. The design of modern operating system kernels is based upon\r\nthe capability of accessing user space addresses from kernel mode. Furthermore,\r\nSMEP protects against executing user space code in kernel mode. Any memory\r\nlocation that is user-accessible cannot be executed by the kernel. SMAP pro\u0002tects against invalid user memory references in kernel mode. Consequently, the\r\neffective user memory mapping is non-executable and not directly accessible in\r\nkernel mode.\r\nEfficient and Secure TLB Management. The Linux kernel generally tries\r\nto minimize the number of implicit TLB flushes. For instance when switching\r\nbetween kernel and user mode, the CR3 register is not updated. Furthermore,\r\nthe Linux kernel uses PTE global bits to preserve mappings that exist in every\r\nprocess to improve the performance of context switches. The global bit of a PTE\r\nmarks pages to be excluded from implicit TLB flushes. Thus, they reduce the\r\nimpact of implicit TLB flushes when modifying the CR3 register.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/5a06f1c5-cfd2-4e67-ac23-81367fc58562.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=14886d158c84cff43b4fdd697a96ecf1127b149627d9b99fb2bf52476f53b5a4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 408
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "77382654-9c46-4c79-bbdc-ec8fee5b0f21",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "10 D. Gruss, M. Lipp, M. Schwarz, R. Fellner, C. Maurice, S. Mangard\r\nTo solve challenge 3, we investigate the effects of these global bits. We found\r\nthat it is necessary to either perform an explicit full TLB flush, or disable the\r\nglobal bits to eliminate the leakage completely. Surprisingly, we found the per\u0002formance impact of disabling global bits to be entirely negligible.\r\nDisabling global bits alone does not eliminate any leakage, but it is a neces\u0002sary building block. The main side-channel defense in KAISER is based on the\r\nseparate shadow address spaces we described above. As the two address spaces\r\nhave different CR3 register values, KAISER requires a CR3 update upon every\r\ncontext switch. The defined behavior of current Intel x86 processors is to perform\r\nimplicit TLB flushes upon every CR3 update. Venkatasubramanian et al. [25]\r\ndescribed that beyond this architecturally defined behavior, the CPU may im\u0002plement further optimizations as long as the observed effect does not change.\r\nThey discussed an optimized implementation which tags the TLB entries with\r\nthe CR3 register to avoid frequent TLB flushes due to switches between processes\r\nor between user mode and kernel mode. As we show in the following section, our\r\nevaluation suggests that current Intel x86 processors have such optimizations\r\nalready implemented. KAISER benefits from these optimizations implicitly and\r\nconsequently, its TLB management is efficient.\r\n4 Evaluation\r\nWe evaluate and discuss the efficacy and performance of KAISER on a desk\u0002top computer with an Intel Core i7-6700K Skylake CPU and 16GB RAM. To\r\nevaluate the effectiveness of KAISER, we perform all three microarchitectural\r\nattacks applicable to Skylake CPUs (cf. Section 2). We perform each attack with\r\nand without KAISER enabled and show that KAISER can mitigate all of them.\r\nFor the performance evaluation, we compare various benchmark suites with and\r\nwithout KAISER and observe a negligible performance overhead of only 0.08 %\r\nto 0.68 %.\r\n4.1 Evaluation of Microarchitectural Attacks\r\nDouble Page Fault Attack. As described in Section 2, the double page fault\r\nattack by Hund et al. [7] exploits the fact that the page translation caches store\r\ninformation to valid kernel addresses, resulting in timing differences. As KAISER\r\ndoes not map the kernel address space, kernel addresses are never valid in user\r\nspace and thus, are never cached in user mode. Figure 4 shows the average\r\nexecution time of the second page fault. For the default kernel, the execution\r\ntime of the second page fault is 12 282 cycles for a mapped address and 12 307\r\ncycles for an unmapped address. When running the kernel with KAISER, the\r\naccess time is 14 621 in both cases. Thus, the leakage is successfully eliminated.\r\nNote that the observed overhead for the page fault execution does not reflect\r\nthe actual performance penalty of KAISER. The page faults triggered for this\r\nattack are never valid and thus can never result in a valid page mapping. They",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/77382654-9c46-4c79-bbdc-ec8fee5b0f21.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a39656cf553060fbec6c4bf0b0091223ff27a1cd19baf88147cebcda1ae2fae1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 480
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "df26693c-7b06-40c5-ae90-25f331631383",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "KASLR is Dead: Long Live KASLR 11\r\n0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8\r\n·104\r\nunmapped\r\nmapped\r\n12,307\r\n12,282\r\n14,621\r\n14,621\r\nExecution time in cycles\r\nKAISER\r\nKAISER\r\nFig. 4: Double page fault attack with and without KAISER: mapped and un\u0002mapped pages cannot be distinguished if KAISER is in place.\r\nare commonly referred to as segmentation faults, typically terminating the user\r\nprogram.\r\nIntel TSX-based Attack. The Intel TSX-based attack presented by Jang et al.\r\n[10] (cf. Section 2) exploits the same timing difference as the double page fault\r\nattack. However, with Intel TSX the page fault handler is not invoked, resulting\r\nin a significantly faster and more stable attack. As the basic underlying principle\r\nis equivalent to the double page fault attack, KAISER successfully prevents\r\nthis attack as well. Figure 5 shows the execution time of a TSX transaction\r\nfor unmapped pages, non-executable mapped pages, and executable mapped\r\npages. With the default kernel, the transaction execution time is 299 cycles for\r\nunmapped pages, 270 cycles for non-executable mapped pages, and 226 cycles\r\nfor executable mapped pages. With KAISER, we measure a constant timing of\r\n300 cycles. As in the double page fault attack, KAISER successfully eliminates\r\nthe timing side channel.\r\nWe also verified this result by running the attack demo by Jang et al. [9].\r\nOn the default kernel, the attack recovers page mappings with a 100 % accu\u0002racy. With KAISER, the attack does not even detect a single mapped page and\r\nconsequently no modules.\r\nPrefetch Side-Channel Attack. As described in Section 2, prefetch side\u0002channel attacks exploit timing differences in software prefetch instructions to\r\nobtain address information. We evaluate the efficacy of KAISER against the\r\ntwo prefetch side-channel attacks presented by Gruss et al. [6].\r\nFigure 6 shows the median execution time of the prefetch instruction in\r\ncycles compared to the actual address translation level. We observed an execution\r\ntime of 241 cycles on our test system for page translations terminating at PDPT\r\nlevel and PD level respectively. We observed an execution time of 237 cycles\r\nwhen the page translation terminates at the PT level. Finally, we observed a\r\ndistinct execution times of 212 when the page is present and cached, and 515\r\nwhen the page is present but not cached. As in the previous attack, KAISER\r\nsuccessfully eliminates any timing differences. The measured execution time is\r\n241 cycles in all cases.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/df26693c-7b06-40c5-ae90-25f331631383.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b97b4cccdaf780ca279dc21c9527ce953129726e52aef232e0ead7f203355c3a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 394
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "641c694e-f643-4517-a200-e7fc206705b2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12 D. Gruss, M. Lipp, M. Schwarz, R. Fellner, C. Maurice, S. Mangard\r\n0 50 100 150 200 250 300\r\nunmapped\r\nmapped\r\nexecutable\r\nmapped\r\nnon-executable\r\n299\r\n226\r\n270\r\n300\r\n300\r\n300\r\nExecution time in cycles\r\nKAISER\r\nKAISER\r\nKAISER\r\nFig. 5: Intel TSX-based attack: On the default kernel, the status of a page can\r\nbe determined using the TSX-based timing side channel. KAISER completely\r\neliminates the timing side channel, resulting in an identical execution time in\u0002dependent of the status.\r\nPDPTE PDE PTE Page\r\n(cached)\r\nPage\r\n(uncached)\r\n200\r\n300\r\n400\r\n500\r\n241 241 237 212\r\n515\r\n241 241 241 241 241\r\nMapping level\r\nExecution time\r\nin cycles\r\ndefault\r\nKAISER\r\nFig. 6: Median prefetch execution time in cycles depending on the level where\r\nthe address translation terminates. With the default kernel, the execution time\r\nleaks information on the translation level. With KAISER, the execution time is\r\nidentical and thus does not leak any information.\r\nFigure 7 shows the address-translation attack. While the correct guess can\r\nclearly be detected without the countermeasure (dotted line), KAISER elim\u0002inates the timing difference. Thus, the attacker is not able to determine the\r\ncorrect virtual-to-physical translation anymore.\r\n4.2 Performance Evaluation\r\nAs described in Section 3.2, KAISER has a low memory overhead of 8 kB per\r\nuser thread, 12 kB per user process, and a system-wide total overhead of 1 MB. A\r\nfull-blown Ubuntu Linux already consumes several hundred megabytes of mem\u0002ory. Hence, in our evaluation the memory overhead introduced by KAISER was\r\nhardly observable.\r\nIn order to evaluate the runtime performance impact of KAISER, we execute\r\ndifferent benchmarks with and without the countermeasure. We use the PARSEC",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/641c694e-f643-4517-a200-e7fc206705b2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b20feb50b335718f0071151b3363a9bf5ac3cdda02ac34d981447267abfbbe8a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 268
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e90947bc-bb14-4758-a5f1-7337121ea3eb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "KASLR is Dead: Long Live KASLR 13\r\n0 20 40 60 80 100 120\r\n0\r\n100\r\n200\r\n300\r\nPage offset in kernel direct map\r\nMinimum latency\r\nin cycles\r\ndefault\r\nKAISER\r\nFig. 7: Minimum access time after prefetching physical direct-map addresses. The\r\nlow peak in the dotted line reveals to which physical address a virtual address\r\nmaps (running the default kernel). The solid line shows the same attack on a\r\nkernel with KAISER active. KAISER successfully eliminates the leakage.\r\n1 2 3 4 5 6 7 8\r\n0\r\n0.5\r\n1\r\n1.5\r\n2\r\nCPU threads\r\nRuntime overhead [%]\r\npgbench\r\nPARSEC 3.0\r\nsplash2x\r\nFig. 8: Comparison of the runtime of different benchmarks when running on the\r\nKAISER-protected kernel. The default kernel serves as baseline (=100%). We\r\nsee that the average overhead is 0.28% and the maximum overhead is 0.68%.\r\n3.0 [1] (input set “native”), the pgbench [24] and the SPLASH-2x [16] (input set\r\n“native”) benchmark suites to exhaustively measure the performance overhead\r\nof KAISER in various different scenarios.\r\nThe results of the different benchmarks are summarized in Figure 8 and\r\nTable 1. We observed a very small average overhead of 0.28% for all benchmark\r\nsuites and a maximum overhead of 0.68% for single tests. This surprisingly low\r\nperformance overhead underlines that KAISER should be deployed in practice.\r\n4.3 Reproducibility of Results\r\nIn order to make our evaluation of efficacy and performance of KAISER eas\u0002ily reproducible, we provide the source code and precompiled Debian pack\u0002ages compatible with Ubuntu 16.10 on GitHub. The repository can be found\r\nat https://github.com/IAIK/KAISER. We fully document how to build the\r\nUbuntu Linux kernel with KAISER protections from the source code and how\r\nto obtain the benchmark suites we used in this evaluation.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/e90947bc-bb14-4758-a5f1-7337121ea3eb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=28d783100e4f908c6d1438351d2a2b90e3f0f9e8e282f254e856082842db9d38",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 283
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "94db5898-042b-4086-89ff-65a44dfa21b1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "14 D. Gruss, M. Lipp, M. Schwarz, R. Fellner, C. Maurice, S. Mangard\r\nTable 1: Average performance overhead of KAISER.\r\nBenchmark Kernel Runtime\r\nAverage\r\nOverhead\r\n1 core 2 cores 4 cores 8 cores\r\nPARSEC 3.0\r\ndefault 27:56,0 s 14:56,3 s 8:35,6 s 7:05,1 s\r\n0.37 %\r\nKAISER 28:00,2 s 14:58,9 s 8:36,9 s 7:08,0 s\r\npgbench\r\ndefault 3:22,3 s 3:21,9 s 3:21,7 s 3:53,5 s\r\n0.39 %\r\nKAISER 3:23,4 s 3:22,5 s 3:22,3 s 3:54,7 s\r\nSPLASH-2X\r\ndefault 17:38,4 s 10:47,7 s 7:10,4 s 6:05,3 s\r\n0.09 %\r\nKAISER 17:42,6 s 10:48,5 s 7:10,8 s 6:05,7 s\r\n5 Future Work\r\nKAISER does not consider BTB attacks, as they require knowledge of the BTB\r\nbehavior. The BTB behavior has not yet been reverse-engineered for recent Intel\r\nprocessors, such as the Skylake microarchitecture (cf. Section 2.3). However,\r\nif the BTB is reverse-engineered in future work, attacks on systems protected\r\nby KAISER would be possible. Evtyushkin et al. [3] proposed to use virtual\r\naddress bits > 30 to randomize memory locations for KASLR as a zero-overhead\r\ncountermeasure against BTB attacks. KAISER could incorporate this adaption\r\nto effectively mitigate BTB attacks as well.\r\nIntel x86-64 processors implement multiple features to improve the perfor\u0002mance of address space switches. Linux currently does not make use of all fea\u0002tures, e.g., Linux could use process-context identifiers to avoid some TLB flushes.\r\nThe performance of KAISER would also benefit from these features, as KAISER\r\nincreases the number of address space switches. Consequently, utilizing these op\u0002timization features could lower the runtime overhead below 0.28%.\r\nKAISER exploits very recent processor features which are not present on\r\nolder machines. Hence, we expect higher overheads on older machines if KAISER\r\nis employed for security reasons. The current proof-of-concept implementation of\r\nKAISER shows that defending against the attack is possible. However, it does\r\nnot eliminate all KASLR information leaks, especially information leaks that\r\nare not caused by the same hardware effects. A full implementation of KAISER\r\nmust map any randomized memory locations that are used during the context\r\nswitch at fixed offsets. This is straightforward, as we have already introduced\r\nnew mappings which can easily be extended. During the context switch, kernel\r\nmemory locations are only accessed through these fixed mappings. Hence, the\r\noffsets of the randomized parts of the kernel can not be leaked in this case.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/94db5898-042b-4086-89ff-65a44dfa21b1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=71a4828a99682f45acc44d4d79d247032e5334f6529fe983e303c0b8aa6156e6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 384
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b102abb4-4034-4a0d-be24-bd7519989557",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "KASLR is Dead: Long Live KASLR 15\r\n6 Conclusion\r\nIn this paper we discussed limitations of x86 impeding practical kernel address\r\nisolation. We show that our countermeasure (KAISER) overcomes these limi\u0002tations and eliminates all microarchitectural side-channel attacks on kernel ad\u0002dress information on recent Intel Skylake systems. More specifically, we show\r\nthat KAISER protects the kernel against double page fault attacks, prefetch\r\nside-channel attacks, and TSX-based side-channel attacks. KAISER enforces a\r\nstrict kernel and user space isolation such that the hardware does not hold any\r\ninformation about kernel addresses while running user processes. Our proof-of\u0002concept is implemented on top of a full-fledged Ubuntu Linux kernel. KAISER\r\nhas a low memory overhead of approximately 8 kB per user thread and a low\r\nruntime overhead of only 0.28%.\r\nAcknowledgments\r\nWe would like to thank our anonymous reviewers, Anders Fogh, Rodrigo Branco,\r\nRichard Weinbeger, Thomas Garnier, David Gens and Mark Rutland for their\r\nvaluable feedback. This project has received funding from the European Re\u0002search Council (ERC) under the European Union’s Horizon 2020 research and\r\ninnovation programme (grant agreement No 681402).\r\nThis work was partially supported by the TU Graz\r\nLEAD project ”Dependable Internet of Things in Ad\u0002verse Environments”.\r\nReferences\r\n1. Bienia, C.: Benchmarking Modern Multiprocessors. Ph.D. thesis, Princeton Uni\u0002versity (Jan 2011)\r\n2. Branco, R., Gueron, S.: Blinded random corruption attacks. In: IEEE International\r\nSymposium on Hardware Oriented Security and Trust (HOST’16) (2016)\r\n3. Evtyushkin, D., Ponomarev, D., Abu-Ghazaleh, N.: Jump over aslr: Attacking\r\nbranch predictors to bypass aslr. In: International Symposium on Microarchitecture\r\n(MICRO’16) (2016)\r\n4. Gras, B., Razavi, K., Bosman, E., Bos, H., Giuffrida, C.: ASLR on the Line: Prac\u0002tical Cache Attacks on the MMU. In: NDSS’17 (2017)\r\n5. Gruss, D., Maurice, C., Mangard, S.: Rowhammer.js: A Remote Software-Induced\r\nFault Attack in JavaScript. In: DIMVA’16 (2016)\r\n6. Gruss, D., Maurice, C., Fogh, A., Lipp, M., Mangard, S.: Prefetch Side-Channel\r\nAttacks: Bypassing SMAP and Kernel ASLR. In: CCS’16 (2016)\r\n7. Hund, R., Willems, C., Holz, T.: Practical Timing Side Channel Attacks against\r\nKernel Space ASLR. In: S&P’13 (2013)\r\n8. Intel: Intel\rR 64 and IA-32 Architectures Software Developer’s Manual, Volume 3\r\n(3A, 3B & 3C): System Programming Guide 253665 (2014)\r\n9. Jang, Y.: The DrK Attack - Proof of concept. https://github.com/sslab\u0002gatech/DrK (2016), retrieved on February 24, 2017",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/b102abb4-4034-4a0d-be24-bd7519989557.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=19b1f32bbf912fdd08fd080fea7c8c4e9e930be2da31b1ab1cc9d8143032970d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 373
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b96bc249-9b34-445e-a149-fce49bfe620b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 16,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "16 D. Gruss, M. Lipp, M. Schwarz, R. Fellner, C. Maurice, S. Mangard\r\n10. Jang, Y., Lee, S., Kim, T.: Breaking Kernel Address Space Layout Randomization\r\nwith Intel TSX. In: CCS’16 (2016)\r\n11. Kemerlis, V.P., Polychronakis, M., Keromytis, A.D.: ret2dir: Rethinking kernel\r\nisolation. In: USENIX Security Symposium. pp. 957–972 (2014)\r\n12. Kim, Y., Daly, R., Kim, J., Fallin, C., Lee, J.H., Lee, D., Wilkerson, C., Lai, K.,\r\nMutlu, O.: Flipping bits in memory without accessing them: An experimental study\r\nof DRAM disturbance errors. In: ISCA’14 (2014)\r\n13. Kirill A. Shutemov: Pagemap: Do Not Leak Physical Addresses to Non-Privileged\r\nUserspace. https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.\r\ngit/commit/?id=ab676b7d6fbf4b294bf198fb27ade5b0e865c7ce (Mar 2015), re\u0002trieved on November 10, 2015\r\n14. Levin, J.: Mac OS X and IOS Internals: To the Apple’s Core. John Wiley & Sons\r\n(2012)\r\n15. Maurice, C., Weber, M., Schwarz, M., Giner, L., Gruss, D., Boano, C.A., Mangard,\r\nS., R¨omer, K.: Hello from the Other Side: SSH over Robust Cache Covert Channels\r\nin the Cloud. In: NDSS’17 (2017), to appear\r\n16. PARSEC Group: A Memo on Exploration of SPLASH-2 Input Sets. http://\r\nparsec.cs.princeton.edu (2011)\r\n17. PaX Team: Address space layout randomization (aslr). http://pax.grsecurity.\r\nnet/docs/aslr.txt (2003)\r\n18. Pessl, P., Gruss, D., Maurice, C., Schwarz, M., Mangard, S.: DRAMA: Exploit\u0002ing DRAM Addressing for Cross-CPU Attacks. In: USENIX Security Symposium\r\n(2016)\r\n19. Russinovich, M.E., Solomon, D.A., Ionescu, A.: Windows internals. Pearson Edu\u0002cation (2012)\r\n20. Seaborn, M., Dullien, T.: Exploiting the DRAM rowhammer bug to gain kernel\r\nprivileges. In: Black Hat 2015 Briefings (2015)\r\n21. Shacham, H.: The geometry of innocent flesh on the bone: Return-into-libc without\r\nfunction calls (on the x86). In: 14th ACM CCS (2007)\r\n22. Shacham, H., Page, M., Pfaff, B., Goh, E., Modadugu, N., Boneh, D.: On the\r\neffectiveness of address-space randomization. In: CCS’04 (2004)\r\n23. Solar Designer: Getting around non-executable stack (and fix). http://seclists.\r\norg/bugtraq/1997/Aug/63 (Aug 1997)\r\n24. The PostgreSQL Global Development Group: pgbench. https://www.postgresql.\r\norg/docs/9.6/static/pgbench.html (2016)\r\n25. Venkatasubramanian, G., Figueiredo, R.J., Illikkal, R., Newell, D.: TMT: A TLB\r\ntag management framework for virtualized platforms. International Journal of Par\u0002allel Programming 40(3) (2012)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a1be9790-f340-400a-b073-c2f0984e193b/images/b96bc249-9b34-445e-a149-fce49bfe620b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041406Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a6270a4f6365b638c8937ab863bfaa3c51e6e8f0bbac5c73140dffd9fbc7740",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 335
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "KASLR is Dead: Long Live KASLR\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Daniel Gruss, Moritz Lipp, Michael Schwarz, Richard Fellner, Clémentine Maurice, and Stefan Mangard\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2017\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Austria\n"
+        }
+      ]
+    }
+  }
+}

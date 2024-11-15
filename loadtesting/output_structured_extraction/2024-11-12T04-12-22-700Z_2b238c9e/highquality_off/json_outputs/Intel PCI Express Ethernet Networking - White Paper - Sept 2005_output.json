@@ -1,0 +1,264 @@
+{
+  "file_name": "Intel PCI Express Ethernet Networking - White Paper - Sept 2005.pdf",
+  "task_id": "840683c3-16d4-44d2-b4cf-ab9d8431148f",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "d54f8390-15b6-4551-9fe1-e0364c053af5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "Intel® PRO Network Adapters\r\nNetwork Performance\r\nNetwork Connectivity\r\nWhite Paper\r\nPCI Express* Ethernet Networking\r\nPCI Express*, a new third-generation input/output (I/O) standard, allows\r\nenhanced Ethernet network performance beyond that of the older Peripheral\r\nComponent Interconnect (PCI) and PCI Extended (PCI-X) desktop and server\r\nslots. The higher performance of PCI Express derives from its faster, serial-bus\r\narchitecture, which provides a dedicated, bi-directional I/O with 2.5-GHz clocking,\r\nversus the slower 133-MHz parallel bus of PCI-X. This white paper provides an\r\noverview of the new PCI Express bus architecture and the benefits it brings to\r\nEthernet network connectivity for desktops, workstations and servers.\r\nSeptember 2005",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/d54f8390-15b6-4551-9fe1-e0364c053af5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cbaaa4a9e595e73f9c24f940ef9de2d2b58d7bafb805742e14cb45f5f76d4ba8",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 102
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1173144e-c3ba-40e0-89fc-ff8ba546c7fb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "2\r\nContents\r\nAbstract ..............................................................................2\r\nIntroduction .........................................................................2\r\nPCI, PCI-X, PCI Express*—A Natural Evolution.....................2\r\nThe Basics of PCI Express ...................................................3\r\nEthernet to Desktops with PCI Express ................................4\r\nEthernet to Servers and Workstations with PCI Express .......5\r\nFurther Performance and \r\nManageability Enhancements by Intel...................................5\r\nConclusion ..........................................................................6\r\nAbstract\r\nWith ever-increasing network traffic, bottlenecks are inevitable in\r\nthe existing parallel, multi-drop architecture of the Peripheral\r\nComponent Interconnect (PCI) bus and its second-generation\r\nversion, the PCI Extended (PCI-X) bus. Today, those bottlenecks\r\ncan be alleviated with the much higher performance of the third\u0002generation PCI Express* architecture, which uses a 2.5-GHz\r\nclocked serial Input/Output (I/O) structure to provide higher\r\nbandwidth and far better scalability than its predecessor I/O\r\narchitectures. This white paper provides an overview of the new\r\nPCI Express bus architecture and the benefits it brings to Ethernet\r\nnetwork connectivity for desktops, workstations and servers.\r\nIntroduction\r\nThe venerable first-generation PCI standard and its second\u0002generation relative, the PCI-X bus, have served well over the\r\nyears as Input/Output (I/O) architectures for PCs and network\r\nservers. While PCI and PCI-X will continue to provide service\r\nfor some years to come, their usefulness will continue to\r\ndiminish. The reasons are quite simple—PCI and PCI-X are \r\ntoo bandwidth and scalability limited for much of today’s\r\ncomputing and networking needs.\r\nGraphics cards are a good example of PCI limitations. As\r\ncomputing graphic demands moved from 640x480\r\nmonochrome to true-color 1024x768 and beyond, the\r\nbandwidth pinch became increasingly severe. As a result,\r\ngraphics cards today invariably have a dedicated I/O bus that\r\nmeets the bandwidth and latency requirements for high\u0002resolution animated graphics, including full-screen video.\r\nSimilarly, the PCI bandwidth pinch and latency bottlenecks are\r\nnow being felt in enterprise networks, especially those that\r\nhave migrated to Gigabit Ethernet. The advent of multi\u0002processor servers amplifies the need for higher bandwidth I/O\r\neven more. Fortunately, this need is being answered by a third\u0002generation PCI I/O architecture, formerly known as 3GIO and\r\nnow referred to as PCI Express* or PCIe*.\r\nPCI Express provides scalable high-bandwidth, dedicated I/O\r\nfor use in a variety of applications, including network\r\nconnectivity. Intel is actively supporting the move to PCI\r\nExpress with a family of Intel® PRO Network Adapters. These\r\nnew PCI Express adapters from Intel are built on Intel Lead\r\nFree Technology1 for RoHS2 compliance and provide copper\r\nand fiber optic Gigabit Ethernet connectivity for desktops and\r\nservers built with PCI Express slots. This white paper\r\ndiscusses the advantages of using PCI Express over PCI and\r\nPCI-X for network connectivity and describes some special\r\nadvantages offered by Intel® PRO Network Adapters.\r\nPCI, PCI-X, PCI Express—\r\nA Natural Evolution\r\nThe evolution from PCI to PCI-X to PCI Express is a natural\r\nevolution driven by bandwidth needs. Figure 1 illustrates the\r\nresults of this evolution in terms of bandwidth per pin (BW/pin)\r\nexpressed as megabytes per second (MB/s). As this figure\r\nshows, PCI Express has the advantage, both in terms of\r\nincreased bandwidth and reduced device pin count, resulting\r\nin a faster device with a smaller footprint.\r\nPCI PCI-X PCI Express*\r\n1.58\r\n7.09\r\n100\r\n100\r\n80\r\n60\r\n40\r\n20\r\n0\r\nBW/Pin in MB/s\r\nPCI: 32 bits x 33 MHz and 84 pins = 1.58 MB/s\r\nPCI-X: 64 bits x 133 MHz and 150 pins = 7.09 MB/s\r\nPCIe: 8 bits/direction x 2.5 Gb/s direction and 40 pins = 100 MB/s\r\nFigure 1. Bandwidth-per-pin comparison between\r\nPCI, PCI-X and PCI Express*.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/1173144e-c3ba-40e0-89fc-ff8ba546c7fb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=29fc35f33c64102297f1306b2295481a62570a23ab31eb7b535f920c202256f5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 558
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1173144e-c3ba-40e0-89fc-ff8ba546c7fb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "2\r\nContents\r\nAbstract ..............................................................................2\r\nIntroduction .........................................................................2\r\nPCI, PCI-X, PCI Express*—A Natural Evolution.....................2\r\nThe Basics of PCI Express ...................................................3\r\nEthernet to Desktops with PCI Express ................................4\r\nEthernet to Servers and Workstations with PCI Express .......5\r\nFurther Performance and \r\nManageability Enhancements by Intel...................................5\r\nConclusion ..........................................................................6\r\nAbstract\r\nWith ever-increasing network traffic, bottlenecks are inevitable in\r\nthe existing parallel, multi-drop architecture of the Peripheral\r\nComponent Interconnect (PCI) bus and its second-generation\r\nversion, the PCI Extended (PCI-X) bus. Today, those bottlenecks\r\ncan be alleviated with the much higher performance of the third\u0002generation PCI Express* architecture, which uses a 2.5-GHz\r\nclocked serial Input/Output (I/O) structure to provide higher\r\nbandwidth and far better scalability than its predecessor I/O\r\narchitectures. This white paper provides an overview of the new\r\nPCI Express bus architecture and the benefits it brings to Ethernet\r\nnetwork connectivity for desktops, workstations and servers.\r\nIntroduction\r\nThe venerable first-generation PCI standard and its second\u0002generation relative, the PCI-X bus, have served well over the\r\nyears as Input/Output (I/O) architectures for PCs and network\r\nservers. While PCI and PCI-X will continue to provide service\r\nfor some years to come, their usefulness will continue to\r\ndiminish. The reasons are quite simple—PCI and PCI-X are \r\ntoo bandwidth and scalability limited for much of today’s\r\ncomputing and networking needs.\r\nGraphics cards are a good example of PCI limitations. As\r\ncomputing graphic demands moved from 640x480\r\nmonochrome to true-color 1024x768 and beyond, the\r\nbandwidth pinch became increasingly severe. As a result,\r\ngraphics cards today invariably have a dedicated I/O bus that\r\nmeets the bandwidth and latency requirements for high\u0002resolution animated graphics, including full-screen video.\r\nSimilarly, the PCI bandwidth pinch and latency bottlenecks are\r\nnow being felt in enterprise networks, especially those that\r\nhave migrated to Gigabit Ethernet. The advent of multi\u0002processor servers amplifies the need for higher bandwidth I/O\r\neven more. Fortunately, this need is being answered by a third\u0002generation PCI I/O architecture, formerly known as 3GIO and\r\nnow referred to as PCI Express* or PCIe*.\r\nPCI Express provides scalable high-bandwidth, dedicated I/O\r\nfor use in a variety of applications, including network\r\nconnectivity. Intel is actively supporting the move to PCI\r\nExpress with a family of Intel® PRO Network Adapters. These\r\nnew PCI Express adapters from Intel are built on Intel Lead\r\nFree Technology1 for RoHS2 compliance and provide copper\r\nand fiber optic Gigabit Ethernet connectivity for desktops and\r\nservers built with PCI Express slots. This white paper\r\ndiscusses the advantages of using PCI Express over PCI and\r\nPCI-X for network connectivity and describes some special\r\nadvantages offered by Intel® PRO Network Adapters.\r\nPCI, PCI-X, PCI Express—\r\nA Natural Evolution\r\nThe evolution from PCI to PCI-X to PCI Express is a natural\r\nevolution driven by bandwidth needs. Figure 1 illustrates the\r\nresults of this evolution in terms of bandwidth per pin (BW/pin)\r\nexpressed as megabytes per second (MB/s). As this figure\r\nshows, PCI Express has the advantage, both in terms of\r\nincreased bandwidth and reduced device pin count, resulting\r\nin a faster device with a smaller footprint.\r\nPCI PCI-X PCI Express*\r\n1.58\r\n7.09\r\n100\r\n100\r\n80\r\n60\r\n40\r\n20\r\n0\r\nBW/Pin in MB/s\r\nPCI: 32 bits x 33 MHz and 84 pins = 1.58 MB/s\r\nPCI-X: 64 bits x 133 MHz and 150 pins = 7.09 MB/s\r\nPCIe: 8 bits/direction x 2.5 Gb/s direction and 40 pins = 100 MB/s\r\nFigure 1. Bandwidth-per-pin comparison between\r\nPCI, PCI-X and PCI Express*.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/1173144e-c3ba-40e0-89fc-ff8ba546c7fb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=29fc35f33c64102297f1306b2295481a62570a23ab31eb7b535f920c202256f5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 558
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c386330f-4610-45c1-847f-52efffe180d4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "3\r\nIncreased bandwidth is very important from a networking\r\nperspective. PCI Express provides dedicated I/O bandwidth\r\nover a high-speed serial bus, and a network adapter using \r\nPCI Express I/O gets the full benefit of the higher bandwidth. \r\nThis means that packets can travel at full wire speed and that\r\nservers will spend far less time waiting for client responses to\r\ncomplete transactions. Thus, more clients can be served faster\r\nwith shorter connect times.\r\nIn contrast, PCI and PCI-X are shared multi-drop parallel bus\r\nstructures. The more devices that share the bus, the less bus\r\nbandwidth there is available for each device. This is illustrated\r\nfurther in Figure 2, which shows the PCI-X multi-drop structure.\r\nAlso, with multiple devices on the bus, PCI-X “clocks-down” to\r\naccommodate the speed of the slowest device on the bus.\r\nPCI-X bus speeds and bus sharing may not have been a big\r\nissue during the Fast Ethernet era (100 Mbps networks).\r\nHowever, the migration to Gigabit Ethernet (1000 Mbps) has\r\nstrained the capacity of PCI-X by essentially consuming most\r\nof the bandwidth resources of a server’s PCI-X bus. The same\r\nis also true for migrating Gigabit Ethernet to the desktop,\r\nwhere PCI slots have even less bandwidth for supporting\r\nGigabit Ethernet performance.\r\nWith a PCI bus, which is common for desktops, raw bandwidth\r\nfor a single, unshared PCI bus connection is 1 Gbps (32 bits x\r\n33 MHz). This is inadequate for supporting full Gigabit Ethernet\r\ncapacity to the desktop (data and transfer overhead), even when\r\nno other PCI devices are sharing the bus. For PCI-X, commonly\r\nused for servers, the bandwidth for one slot (no bus sharing) is 8\r\nGbps; however, this scales down as more slots and devices are\r\nadded to the bus, as indicated in Figure 2, where multiple\r\ndevices must share the fixed amount of bus resources.\r\nPCI Express, on the other hand, scales upward in bandwidth\r\nwith the addition of lanes. The minimum bidirectional un\u0002encoded bandwidth is 4 Gbps; however, it can scale up to as\r\nhigh as 64 Gbps of dedicated I/O bandwidth for a 16-lane\r\nPCI Express link.\r\nThe Basics of PCI Express\r\nA basic PCI Express link consists of two, low-voltage, differentially\r\ndriven pairs of signals. This basic link structure is shown in\r\nFigure 3, where one differential signal pair is a transmit pair (Tx)\r\nand the other is a receive pair (Rx).\r\nThe two signal pairs form a dual-simplex PCI Express channel\r\nthat is referred to as a x1 (“by 1”) lane. Because the signals are\r\ndifferentially driven, PCI Express has high noise immunity due \r\nto line-to-ground noise cancellation in the differential signals. PCI-X 66 MHz PCI-X 66 MHz PCI-X 66 MHz PCI-X 66 MHz\r\nRAM\r\nPCI-X\r\n133 MHz\r\nPCI-X\r\nHub\r\nMemory\r\nControl\r\nHub\r\nPCI-X\r\n100 MHz\r\nPCI-X\r\nHub\r\nPCI-X\r\n100 MHz\r\nMemory\r\nRAM\r\nControl\r\nHub\r\nPCI-X\r\nHub\r\nMemory\r\nRAM\r\nControl\r\nHub\r\nOROR\r\nDevice B\r\nDevice A\r\n2.5 GHz Clock\r\n2.5 GHz Clock\r\nx1 Lane\r\nTx\r\nRx\r\nComputer Network\r\nAdapter\r\nFigure 2. Examples of parallel multi-drop PCI-X bus design. Bandwidth diminishes as the number of slots and devices increases.\r\nFigure 3. PCI Express* x1 lane. A lane consists of two \r\ndifferentially driven signal pairs between two PCI Express devices\r\n(Device A and Device B).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/c386330f-4610-45c1-847f-52efffe180d4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4ebaac59d24942b554da171317d7fce7a13fba21b0fd63377225f3c6671560fe",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 537
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c386330f-4610-45c1-847f-52efffe180d4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "3\r\nIncreased bandwidth is very important from a networking\r\nperspective. PCI Express provides dedicated I/O bandwidth\r\nover a high-speed serial bus, and a network adapter using \r\nPCI Express I/O gets the full benefit of the higher bandwidth. \r\nThis means that packets can travel at full wire speed and that\r\nservers will spend far less time waiting for client responses to\r\ncomplete transactions. Thus, more clients can be served faster\r\nwith shorter connect times.\r\nIn contrast, PCI and PCI-X are shared multi-drop parallel bus\r\nstructures. The more devices that share the bus, the less bus\r\nbandwidth there is available for each device. This is illustrated\r\nfurther in Figure 2, which shows the PCI-X multi-drop structure.\r\nAlso, with multiple devices on the bus, PCI-X “clocks-down” to\r\naccommodate the speed of the slowest device on the bus.\r\nPCI-X bus speeds and bus sharing may not have been a big\r\nissue during the Fast Ethernet era (100 Mbps networks).\r\nHowever, the migration to Gigabit Ethernet (1000 Mbps) has\r\nstrained the capacity of PCI-X by essentially consuming most\r\nof the bandwidth resources of a server’s PCI-X bus. The same\r\nis also true for migrating Gigabit Ethernet to the desktop,\r\nwhere PCI slots have even less bandwidth for supporting\r\nGigabit Ethernet performance.\r\nWith a PCI bus, which is common for desktops, raw bandwidth\r\nfor a single, unshared PCI bus connection is 1 Gbps (32 bits x\r\n33 MHz). This is inadequate for supporting full Gigabit Ethernet\r\ncapacity to the desktop (data and transfer overhead), even when\r\nno other PCI devices are sharing the bus. For PCI-X, commonly\r\nused for servers, the bandwidth for one slot (no bus sharing) is 8\r\nGbps; however, this scales down as more slots and devices are\r\nadded to the bus, as indicated in Figure 2, where multiple\r\ndevices must share the fixed amount of bus resources.\r\nPCI Express, on the other hand, scales upward in bandwidth\r\nwith the addition of lanes. The minimum bidirectional un\u0002encoded bandwidth is 4 Gbps; however, it can scale up to as\r\nhigh as 64 Gbps of dedicated I/O bandwidth for a 16-lane\r\nPCI Express link.\r\nThe Basics of PCI Express\r\nA basic PCI Express link consists of two, low-voltage, differentially\r\ndriven pairs of signals. This basic link structure is shown in\r\nFigure 3, where one differential signal pair is a transmit pair (Tx)\r\nand the other is a receive pair (Rx).\r\nThe two signal pairs form a dual-simplex PCI Express channel\r\nthat is referred to as a x1 (“by 1”) lane. Because the signals are\r\ndifferentially driven, PCI Express has high noise immunity due \r\nto line-to-ground noise cancellation in the differential signals. PCI-X 66 MHz PCI-X 66 MHz PCI-X 66 MHz PCI-X 66 MHz\r\nRAM\r\nPCI-X\r\n133 MHz\r\nPCI-X\r\nHub\r\nMemory\r\nControl\r\nHub\r\nPCI-X\r\n100 MHz\r\nPCI-X\r\nHub\r\nPCI-X\r\n100 MHz\r\nMemory\r\nRAM\r\nControl\r\nHub\r\nPCI-X\r\nHub\r\nMemory\r\nRAM\r\nControl\r\nHub\r\nOROR\r\nDevice B\r\nDevice A\r\n2.5 GHz Clock\r\n2.5 GHz Clock\r\nx1 Lane\r\nTx\r\nRx\r\nComputer Network\r\nAdapter\r\nFigure 2. Examples of parallel multi-drop PCI-X bus design. Bandwidth diminishes as the number of slots and devices increases.\r\nFigure 3. PCI Express* x1 lane. A lane consists of two \r\ndifferentially driven signal pairs between two PCI Express devices\r\n(Device A and Device B).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/c386330f-4610-45c1-847f-52efffe180d4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4ebaac59d24942b554da171317d7fce7a13fba21b0fd63377225f3c6671560fe",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 537
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "dc3ea8f3-73e1-4739-8874-644b6ce3a77e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "4\r\nAlso, because a PCI Express lane is dual-simplex, it can\r\ntransmit in one direction while simultaneously receiving from the\r\nother direction. This bidirectionality provides the potential for\r\ndoubling the overall effective bandwidth or throughput.\r\nThe peak raw bandwidth of a x1 lane is 2.5 Gbps (2.5 GHz\r\nclock rate), but, because the lane is bidirectional, the effective\r\nraw data rate is 5 Gbps bidirectionally. These rates are for the\r\nstripped data bytes sent with 8b/10b encoding, and the 2.5\r\nGbps rate is referred to as an encoded rate. Bandwidths may\r\nalso be referred to as an un-encoded or effective data rate,\r\nin which case the rate is eighty percent of the encoded rate\r\n(for example, 2 Gbps un-encoded unidirectionally and 4\r\nGbps bidirectionally for a x1 lane). Table 1 lists the\r\nbandwidths for various PCI Express lane implementations.\r\nAs per the PCI Express specification, lanes via add-in slots\r\ncan be implemented as x1, x4, x8 or x16 lanes. This allows\r\ndesigners to scale up the PCI Express serial bus I/O\r\nfrequency to as high as 64 Gbps (see Table 1) by adding\r\nlanes to PCI Express cards and computer slots. For example,\r\na x1 lane provides adequate bus bandwidth for the PCI\r\nExpress I/O of the Intel® PRO/1000 PT Server Adapter.\r\nHowever, to provide additional I/O bandwidth for a dual-port\r\nGigabit Ethernet adapter, a x4 lane is used in the Intel®\r\nPRO/1000 PT Dual Port Server Adapter.\r\nFor network designers, PCI Express lane specifications are\r\nparticularly important in selecting both servers and network\r\nadapter cards for servers. As pointed out above, a multi-port\r\nadapter should have additional lanes to support the additional\r\ntraffic and bandwidth needs of the multiple Gigabit Ethernet\r\nports. At the same time, however, servers must be selected\r\nwith PCI Express slots having lanes equal to or exceeding the\r\nhighest lane-count card anticipated. For example, a x1\r\nadapter will function in any PCIe slot while a x4 adapter\r\nrequires a x4 or larger slot.\r\nEthernet to Desktops \r\nwith PCI Express\r\nFigure 4 shows Gigabit Ethernet to the desktop implemented\r\nthrough a PCI Express serial bus I/O architecture. The topology\r\ncontains a host bridge, the I/O bridge in this case, and a switch\r\nthat provides fan-out for the PCI Express serial I/O bus to the\r\nvarious endpoint devices, including a Gigabit Ethernet desktop\r\nadapter. The switch is shown here as a separate logical\r\nelement, but is actually integrated into either the I/O bridge or\r\nthe memory bridge, depending on the chipset implementation.\r\nThe desktop implementation in Figure 4 also includes a 66-MHz\r\nPCI parallel-bus structure connected to the I/O bridge. PCI will\r\ncoexist with PCI Express for sometime and will still be a useful\r\ninterface for slower applications.\r\nPCI Express Lanes Un-encoded Data Rates (effective data rates) Encoded Data Rates\r\nUnidirectional Bidirectional Unidirectional Bidirectional\r\nx1 2 Gbps 4 Gbps 2.5 Gbps 5 Gbps\r\nx4 8 Gbps 16 Gbps 10 Gbps 20 Gbps\r\nx8 16 Gbps 32 Gbps 20 Gbps 40 Gbps\r\nx16 32 Gbps 64 Gbps 40 Gbps 80 Gbps\r\nI/O\r\nBridge\r\nMemory\r\nBridge\r\nCPU\r\nMobile\r\nDocking\r\nHDD\r\nGraphics\r\nGb\r\nEthernet\r\nAdd Ins\r\nMemory\r\nLocal I/O\r\nUSB 2.0\r\nPCI\r\nPCI\r\nExpress\r\nPCI Express\r\nATA\r\nSerial\r\nPCI\r\nExpress*\r\nSwitch\r\nPCI Express\r\nFigure 4. Gigabit Ethernet to the desktop implemented\r\nthrough the high-speed serial I/O bus of PCI Express*.\r\nTable 1. Bandwidths for various PCI Express* lane implementations.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/dc3ea8f3-73e1-4739-8874-644b6ce3a77e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7ac546317d17eb3429fcd98133f8b9cb1beedf70ecd3da65c31f9a05b77607b6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 559
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "dc3ea8f3-73e1-4739-8874-644b6ce3a77e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "4\r\nAlso, because a PCI Express lane is dual-simplex, it can\r\ntransmit in one direction while simultaneously receiving from the\r\nother direction. This bidirectionality provides the potential for\r\ndoubling the overall effective bandwidth or throughput.\r\nThe peak raw bandwidth of a x1 lane is 2.5 Gbps (2.5 GHz\r\nclock rate), but, because the lane is bidirectional, the effective\r\nraw data rate is 5 Gbps bidirectionally. These rates are for the\r\nstripped data bytes sent with 8b/10b encoding, and the 2.5\r\nGbps rate is referred to as an encoded rate. Bandwidths may\r\nalso be referred to as an un-encoded or effective data rate,\r\nin which case the rate is eighty percent of the encoded rate\r\n(for example, 2 Gbps un-encoded unidirectionally and 4\r\nGbps bidirectionally for a x1 lane). Table 1 lists the\r\nbandwidths for various PCI Express lane implementations.\r\nAs per the PCI Express specification, lanes via add-in slots\r\ncan be implemented as x1, x4, x8 or x16 lanes. This allows\r\ndesigners to scale up the PCI Express serial bus I/O\r\nfrequency to as high as 64 Gbps (see Table 1) by adding\r\nlanes to PCI Express cards and computer slots. For example,\r\na x1 lane provides adequate bus bandwidth for the PCI\r\nExpress I/O of the Intel® PRO/1000 PT Server Adapter.\r\nHowever, to provide additional I/O bandwidth for a dual-port\r\nGigabit Ethernet adapter, a x4 lane is used in the Intel®\r\nPRO/1000 PT Dual Port Server Adapter.\r\nFor network designers, PCI Express lane specifications are\r\nparticularly important in selecting both servers and network\r\nadapter cards for servers. As pointed out above, a multi-port\r\nadapter should have additional lanes to support the additional\r\ntraffic and bandwidth needs of the multiple Gigabit Ethernet\r\nports. At the same time, however, servers must be selected\r\nwith PCI Express slots having lanes equal to or exceeding the\r\nhighest lane-count card anticipated. For example, a x1\r\nadapter will function in any PCIe slot while a x4 adapter\r\nrequires a x4 or larger slot.\r\nEthernet to Desktops \r\nwith PCI Express\r\nFigure 4 shows Gigabit Ethernet to the desktop implemented\r\nthrough a PCI Express serial bus I/O architecture. The topology\r\ncontains a host bridge, the I/O bridge in this case, and a switch\r\nthat provides fan-out for the PCI Express serial I/O bus to the\r\nvarious endpoint devices, including a Gigabit Ethernet desktop\r\nadapter. The switch is shown here as a separate logical\r\nelement, but is actually integrated into either the I/O bridge or\r\nthe memory bridge, depending on the chipset implementation.\r\nThe desktop implementation in Figure 4 also includes a 66-MHz\r\nPCI parallel-bus structure connected to the I/O bridge. PCI will\r\ncoexist with PCI Express for sometime and will still be a useful\r\ninterface for slower applications.\r\nPCI Express Lanes Un-encoded Data Rates (effective data rates) Encoded Data Rates\r\nUnidirectional Bidirectional Unidirectional Bidirectional\r\nx1 2 Gbps 4 Gbps 2.5 Gbps 5 Gbps\r\nx4 8 Gbps 16 Gbps 10 Gbps 20 Gbps\r\nx8 16 Gbps 32 Gbps 20 Gbps 40 Gbps\r\nx16 32 Gbps 64 Gbps 40 Gbps 80 Gbps\r\nI/O\r\nBridge\r\nMemory\r\nBridge\r\nCPU\r\nMobile\r\nDocking\r\nHDD\r\nGraphics\r\nGb\r\nEthernet\r\nAdd Ins\r\nMemory\r\nLocal I/O\r\nUSB 2.0\r\nPCI\r\nPCI\r\nExpress\r\nPCI Express\r\nATA\r\nSerial\r\nPCI\r\nExpress*\r\nSwitch\r\nPCI Express\r\nFigure 4. Gigabit Ethernet to the desktop implemented\r\nthrough the high-speed serial I/O bus of PCI Express*.\r\nTable 1. Bandwidths for various PCI Express* lane implementations.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/dc3ea8f3-73e1-4739-8874-644b6ce3a77e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7ac546317d17eb3429fcd98133f8b9cb1beedf70ecd3da65c31f9a05b77607b6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 559
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "0c1b08b8-ddf5-47a5-8a87-0183c707ef0a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "5\r\nWhen migrating a desktop PC to Gigabit Ethernet, it is best to\r\nuse a PCI Express-compatible desktop adapter such as the\r\nIntel® PRO/1000 PT Desktop Adapter. By using PCI Express\r\n(instead of PCI), the full bandwidth for Gigabit Ethernet will be\r\navailable for peak performance. More importantly, the\r\ndedicated 4-Gbps bidirectional I/O of PCI Express allows the\r\nGigabit Ethernet desktop adapter to perform at full speed\r\nwithout bus contention or bus sharing with other devices. This\r\nallows faster completion of network transactions between\r\ndesktops and servers, resulting in both higher server availability\r\nfor additional transactions and greater network efficiency.\r\nEthernet to Servers and\r\nWorkstations with PCI Express\r\nPCI Express implementations in servers and workstations are\r\nsimilar to that of desktops, except that servers and workstations\r\nrequire more and faster I/O connections. Figure 5 shows such\r\nan implementation on a multi-processor server. In this example,\r\nthe legacy PCI bus is replaced by a PCI Express bridge to\r\nprovide higher performance links to the PCI or PCI-X slots, and\r\nPCI Express Gigabit Ethernet (GbE) connectivity has a\r\ndedicated, direct connection to the chipset.\r\nFor network connectivity, new workstations will likely have at\r\nleast one PCI Express slot to accommodate a Gigabit Ethernet\r\nadapter. This slot, or slots, can have x1, x4 or higher lane-counts\r\nand will still accommodate a single-port x1 PCI Express\r\nnetwork adapter, such as the Intel PRO/1000 PT Server\r\nAdapter for Category 5 UTP copper cabling.\r\nNew servers, on the other hand, will likely have multiple PCI\r\nExpress slots to accommodate multiple Gigabit Ethernet\r\nadapters for network performance-enhancing techniques such\r\nas network segmentation and network adapter teaming. When\r\nPCI Express server slots are x4 links, slots can be conserved\r\nby using dual-port Gigabit Ethernet adapters such as the Intel\r\nPRO/1000 PT Dual Port Server Adapter for Category 5 UTP\r\ncopper cabling or the Intel® PRO/1000 PF Dual Port Server\r\nAdapter for multi-mode fiber cabling.\r\nThe importance of x4 PCI Express server slots is that they\r\nprovide the higher I/O bandwidth needed to support multi-port\r\nadapter performance. For cases where multi-port connectivity\r\nis not immediately required, x4 slots can still accommodate\r\nsingle-port x1 network adapters, leaving the x4 capability\r\navailable for future network expansion with multi-port adapters.\r\nFurther Performance and\r\nManageability Enhancements \r\nby Intel\r\nIn addition to full compliance with Gigabit Ethernet and PCI\r\nExpress standards, the Intel® PRO/1000 PT and PF Network\r\nAdapters include a variety of additional features to enhance\r\nnetwork performance and manageability. For example, all Intel\r\nPRO multi-port adapters use multiple dedicated Ethernet\r\ncontrollers, one for each port, rather than just adding multiple\r\nconnectors to a single controller. All Intel PRO adapters are\r\nprovided with drivers and management tools for simple and\r\neasy installation, and all adapters are compatibility tested for\r\ninteroperability with other network infrastructure elements (such\r\nas switches and routers from major suppliers).\r\nPCI\r\nBridge\r\nPCI-X\r\nBridge\r\nPCI\r\nMemory\r\nExpress*\r\nGbE\r\nPCI Express\r\nCPU\r\nCPU\r\nChipset\r\nSATA\r\nLFC\r\nUSB2\r\nFigure 5. Example of PCI Express* in server/workstation\r\nsystems. The PCIe* switch is integrated into the chipset.\r\nFigure 6. Intel® PROSet for Microsoft* Device Manager.\r\nThis utility provides point-and-click access to all network adapter \r\nfeatures, including teaming and VLAN configuration.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/0c1b08b8-ddf5-47a5-8a87-0183c707ef0a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=924a4745ac2358b37510f9f3db40b049d21b1a7e4765f7b14263afe49e71a734",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 526
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "0c1b08b8-ddf5-47a5-8a87-0183c707ef0a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "5\r\nWhen migrating a desktop PC to Gigabit Ethernet, it is best to\r\nuse a PCI Express-compatible desktop adapter such as the\r\nIntel® PRO/1000 PT Desktop Adapter. By using PCI Express\r\n(instead of PCI), the full bandwidth for Gigabit Ethernet will be\r\navailable for peak performance. More importantly, the\r\ndedicated 4-Gbps bidirectional I/O of PCI Express allows the\r\nGigabit Ethernet desktop adapter to perform at full speed\r\nwithout bus contention or bus sharing with other devices. This\r\nallows faster completion of network transactions between\r\ndesktops and servers, resulting in both higher server availability\r\nfor additional transactions and greater network efficiency.\r\nEthernet to Servers and\r\nWorkstations with PCI Express\r\nPCI Express implementations in servers and workstations are\r\nsimilar to that of desktops, except that servers and workstations\r\nrequire more and faster I/O connections. Figure 5 shows such\r\nan implementation on a multi-processor server. In this example,\r\nthe legacy PCI bus is replaced by a PCI Express bridge to\r\nprovide higher performance links to the PCI or PCI-X slots, and\r\nPCI Express Gigabit Ethernet (GbE) connectivity has a\r\ndedicated, direct connection to the chipset.\r\nFor network connectivity, new workstations will likely have at\r\nleast one PCI Express slot to accommodate a Gigabit Ethernet\r\nadapter. This slot, or slots, can have x1, x4 or higher lane-counts\r\nand will still accommodate a single-port x1 PCI Express\r\nnetwork adapter, such as the Intel PRO/1000 PT Server\r\nAdapter for Category 5 UTP copper cabling.\r\nNew servers, on the other hand, will likely have multiple PCI\r\nExpress slots to accommodate multiple Gigabit Ethernet\r\nadapters for network performance-enhancing techniques such\r\nas network segmentation and network adapter teaming. When\r\nPCI Express server slots are x4 links, slots can be conserved\r\nby using dual-port Gigabit Ethernet adapters such as the Intel\r\nPRO/1000 PT Dual Port Server Adapter for Category 5 UTP\r\ncopper cabling or the Intel® PRO/1000 PF Dual Port Server\r\nAdapter for multi-mode fiber cabling.\r\nThe importance of x4 PCI Express server slots is that they\r\nprovide the higher I/O bandwidth needed to support multi-port\r\nadapter performance. For cases where multi-port connectivity\r\nis not immediately required, x4 slots can still accommodate\r\nsingle-port x1 network adapters, leaving the x4 capability\r\navailable for future network expansion with multi-port adapters.\r\nFurther Performance and\r\nManageability Enhancements \r\nby Intel\r\nIn addition to full compliance with Gigabit Ethernet and PCI\r\nExpress standards, the Intel® PRO/1000 PT and PF Network\r\nAdapters include a variety of additional features to enhance\r\nnetwork performance and manageability. For example, all Intel\r\nPRO multi-port adapters use multiple dedicated Ethernet\r\ncontrollers, one for each port, rather than just adding multiple\r\nconnectors to a single controller. All Intel PRO adapters are\r\nprovided with drivers and management tools for simple and\r\neasy installation, and all adapters are compatibility tested for\r\ninteroperability with other network infrastructure elements (such\r\nas switches and routers from major suppliers).\r\nPCI\r\nBridge\r\nPCI-X\r\nBridge\r\nPCI\r\nMemory\r\nExpress*\r\nGbE\r\nPCI Express\r\nCPU\r\nCPU\r\nChipset\r\nSATA\r\nLFC\r\nUSB2\r\nFigure 5. Example of PCI Express* in server/workstation\r\nsystems. The PCIe* switch is integrated into the chipset.\r\nFigure 6. Intel® PROSet for Microsoft* Device Manager.\r\nThis utility provides point-and-click access to all network adapter \r\nfeatures, including teaming and VLAN configuration.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/0c1b08b8-ddf5-47a5-8a87-0183c707ef0a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=924a4745ac2358b37510f9f3db40b049d21b1a7e4765f7b14263afe49e71a734",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 526
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d621dc4a-9dea-4bf0-b37c-68ed68e08005",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 594,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 594,
+            "page_height": 792,
+            "content": "1 Lead has not been intentionally added, but lead may still exist as an impurity below 1000 ppm.\r\n2 Lead and other materials banned in the Restrictions on the use of Hazardous Substances (RoHS) Directive are either (1) below all applicable substance \r\nthresholds as proposed by the European Union or (2) an approved/pending exemption applies.\r\nThis document and related materials and information are provided “as is” with no warranties, express or implied, including but not limited to any implied\r\nwarranty of merchantability, fitness for a particular purpose, non-infringement of intellectual property rights, or any warranty otherwise arising out of any\r\nproposal, specification, or sample. Intel assumes no responsibility for any errors contained in this document and has no liabilities or obligations for any \r\ndamages arising from or in connection with the use of this document.\r\nIntel and Intel PRO are trademarks or registered trademarks of Intel Corporation or its subsidiaries in the United States and other countries.\r\nIntel and the Intel logo are trademarks or registered trademarks of the Intel Corporation or its subsidiaries in the United Sates and other countries.\r\n*Other names and brands may be claimed as the property of others. \r\nCopyright © 2005 Intel Corporation. All rights reserved. Please Recycle 0805/TS/MESH/PP/5K 308781-001US\r\nTo find out more about Intel network connectivity, visit: \r\nwww.intel.com/network/connectivity\r\nTo see the full line of Intel® PRO/1000 Network Adapters\r\nfor PCI Express, visit: www.intel.com/go/pcie\r\nThe Intel® PRO/1000 Network Adapters for PCI Express slot\r\ninterfaces are designed to provide high performance in multi\u0002processor systems by efficiently balancing network loads\r\nacross multiple CPUs when used with Receive-Side Scaling\r\nfrom Microsoft or Scalable I/O on Linux*. Additionally, Intel is\r\nintroducing new adapters with Intel® I/O Acceleration\r\nTechnology for further improving application response\r\nthrough higher network and storage I/O performance,\r\nreliability and efficiency.†\r\nNetwork adapter management, including advanced teaming\r\nmethods, is also much easier with Intel® PROSet for\r\nMicrosoft* Device Manager. The Intel PROSet utility, shown\r\nin Figure 6, uses a Windows* look and feel to provide easy\r\npoint-and-click access to adapter drivers and configuration\r\nfeatures, including adapter teaming for port aggregation and\r\nfault tolerance failover.\r\nConclusion\r\nPCI Express is the new third-generation I/O serial-bus\r\nstandard that advances the previous PCI standards known\r\nas PCI and PCI-X. While PCI, PCI-X and PCI Express will\r\ncoexist for sometime, PCI Express provides a dedicated,\r\nhigh-performance, bandwidth-scalable bus that can enhance\r\nEthernet performance beyond that achieved with the shared,\r\nmulti-drop structures of PCI and PCI-X.\r\nTo support migration of Gigabit Ethernet to the PCI Express\r\nbus architecture, Intel has created the Intel PRO/1000 PT\r\nand PF family of network adapters for both copper and fiber\r\nconnectivity. The Intel family of PCI Express adapters is built\r\non Intel Lead Free Technology1 for RoHS2 compliance and\r\njoins the broad line of Intel PRO Network Adapters for PCI\r\nand PCI-X, including 10 Gigabit Ethernet adapters for both\r\nfiber and Cx4 copper.\r\n† Available in the first half of 2006. To find out more about this technology, visit: www.intel.com/technology/ioacceleration/index.htm",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/840683c3-16d4-44d2-b4cf-ab9d8431148f/images/d621dc4a-9dea-4bf0-b37c-68ed68e08005.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041531Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a3421880f870b0e53788949d6b45a6f7d60476058e274cbe3804e495e419e723",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 494
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "PCI Express* Ethernet Networking\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Intel Corporation\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "September 2005\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "United States\nEuropean Union"
+        }
+      ]
+    }
+  }
+}

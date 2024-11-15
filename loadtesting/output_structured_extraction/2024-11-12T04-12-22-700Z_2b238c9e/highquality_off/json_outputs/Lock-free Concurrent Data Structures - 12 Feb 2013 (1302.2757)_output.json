@@ -1,0 +1,609 @@
+{
+  "file_name": "Lock-free Concurrent Data Structures - 12 Feb 2013 (1302.2757).pdf",
+  "task_id": "90ac339f-a579-4d41-9d56-88d8024ab818",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "19bde2d2-7836-40c8-b1d6-221090145228",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "arXiv:1302.2757v1 [cs.DC] 12 Feb 2013\r\nLock-free Concurrent Data Structures∗\r\nDaniel Cederman1 Anders Gidenstam2 Phuong Ha3\r\nH˚akan Sundell2 Marina Papatriantafilou1\r\nPhilippas Tsigas1\r\n1Chalmers University of Technology, Sweden\r\n2University of Bor˚as, Sweden\r\n3University of Tromsø, Norway\r\n∗To appear in “Programming Multi-core and Many-core Computing Systems”, eds. S.\r\nPllana and F. Xhafa, Wiley Series on Parallel and Distributed Computing.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/19bde2d2-7836-40c8-b1d6-221090145228.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f1fa7313b782adfc7766c32486eebf5b2f94903b83583270c4b33a39c8ddc7c3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 56
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "57045a91-eb3f-4356-8c5e-e8a0c4150d42",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "1 Introduction\r\nConcurrent data structures are the data sharing side of parallel programming.\r\nData structures give the means to the program to store data but also provide op\u0002erations to the program to access and manipulate these data. These operations\r\nare implemented through algorithms that have to be efficient. In the sequen\u0002tial setting, data structures are crucially important for the performance of the\r\nrespective computation. In the parallel programming setting, their importance\r\nbecomes more crucial because of the increased use of data and resource shar\u0002ing for utilizing parallelism. In parallel programming, computations are split\r\ninto subtasks in order to introduce parallelization at the control/computation\r\nlevel. To utilize this opportunity of concurrency, subtasks share data and var\u0002ious resources (dictionaries, buffers, and so forth). This makes it possible for\r\nlogically independent programs to share various resources and data structures.\r\nA subtask that wants to update a data structure, say add an element into a\r\ndictionary, that operation may be logically independent of other subtasks that\r\nuse the same dictionary.\r\nConcurrent data structure designers are striving to maintain consistency\r\nof data structures while keeping the use of mutual exclusion and expensive\r\nsynchronization to a minimum, in order to prevent the data structure from\r\nbecoming a sequential bottleneck. Maintaining consistency in the presence of\r\nmany simultaneous updates is a complex task. Standard implementations of\r\ndata structures are based on locks in order to avoid inconsistency of the shared\r\ndata due to concurrent modifications. In simple terms, a single lock around the\r\nwhole data structure may create a bottleneck in the program where all of the\r\ntasks serialize, resulting in a loss of parallelism because too few data locations\r\nare concurrently in use. Deadlocks, priority inversion, and convoying are also\r\nside-effects of locking. The risk for deadlocks makes it hard to compose different\r\nblocking data structures since it is not always possible to know how closed\r\nsource libraries do their locking. It is worth noting that in graphics processors\r\n(GPUs) locks are not recommended for designing concurrent data structures.\r\nGPUs prior to the NVIDIA Fermi architecture do not have writable caches,\r\nso for those GPUs, repeated checks to see if a lock is available or not require\r\nexpensive repeated accesses to the GPU’s main memory. While Fermi GPUs do\r\nsupport writable caches, there is no guarantee that the thread scheduler will be\r\nfair, which can make it difficult to write deadlock-free locking code. OpenCL\r\nexplicitly disallows locks for these and other reasons.\r\nLock-free implementations of data structures support concurrent access.\r\nThey do not involve mutual exclusion and make sure that all steps of the sup\u0002ported operations can be executed concurrently. Lock-free implementations\r\nemploy an optimistic conflict control approach, allowing several processes to\r\naccess the shared data object at the same time. They suffer delays only when\r\nthere is an actual conflict between operations that causes some operations to\r\nretry. This feature allows lock-free algorithms to scale much better when the\r\nnumber of processes increases.\r\nAn implementation of a data structure is called lock-free if it allows multiple\r\n1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/57045a91-eb3f-4356-8c5e-e8a0c4150d42.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8289cdc9c90b2e55dee65e602596457ba8b956226175aa3ba9cd3577f20a99ad",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 502
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d4dcb751-ebe7-4e15-a653-257b7b388268",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "processes/threads to access the data structure concurrently and also guarantees\r\nthat at least one operation among those finishes in a finite number of its own\r\nsteps regardless of the state of the other operations. A consistency (safety) re\u0002quirement for lock-free data structures is linearizability [44], which ensures that\r\neach operation on the data appears to take effect instantaneously during its\r\nactual duration and the effect of all operations are consistent with the object’s\r\nsequential specification. Lock-free data structures offer several advantages over\r\ntheir blocking counterparts, such as being immune to deadlocks, priority inver\u0002sion, and convoying, and have been shown to work well in practice in many\r\ndifferent settings [92, 84]. They have been included in Intel’s Threading Build\u0002ing Blocks Framework [75], the NOBLE library [84] and the Java concurrency\r\npackage [56], and will be included in the forthcoming parallel extensions to the\r\nMicrosoft .NET Framework [69]. They have also been of interest to designers\r\nof languages such as C++ [12] and Java [56].\r\nThis chapter has two goals. The first and main goal is to provide a sufficient\r\nbackground and intuition to help the interested reader to navigate in the com\u0002plex research area of lock-free data structures. The second goal is to offer the\r\nprogrammer familiarity to the subject that will allow her to use truly concurrent\r\nmethods.\r\nThe chapter is structured as follows. First we discuss the fundamental and\r\ncommonly-supported synchronization primitives on which efficient lock-free data\r\nstructures rely. Then we give an overview of the research results on lock-free\r\ndata structures that appeared in the literature with a short summary for each of\r\nthem. The problem of managing dynamically-allocated memory in lock-free con\u0002current data structures and general concurrent environments is discussed sepa\u0002rately. Following this is a discussion on the idiosyncratic architectural features\r\nof graphics processors that are important to consider when designing efficient\r\nlock-free concurrent data structures for this emerging area.\r\n2 Synchronization Primitives\r\nTo synchronize processes efficiently, multi-/many-core systems usually support\r\ncertain synchronization primitives. This section discusses the fundamental syn\u0002chronization primitives, which typically read the value of a single memory word,\r\nmodify the value and write the new value back to the word atomically.\r\n2.1 Fundamental synchronization primitives\r\nThe definitions of the primitives are described in Figure 1, where x is a memory\r\nword, v, old, new are values and op can be operators add, sub, or, and and xor.\r\nOperations between angle brackets hi are executed atomically.\r\nNote that there is a problem called the ABA problem that may occur with\r\nthe CAS primitive. The reason is that the CAS operation can not detect if a\r\nvariable was read to be A and then later changed to B and then back to A by\r\nsome concurrent processes. The CAS primitive will perform the update even\r\n2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/d4dcb751-ebe7-4e15-a653-257b7b388268.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e1fb7c199e79e7b2a4eafad95c270eb59bbcfe569b84f5d78ed978cf9f7b0d35",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 460
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4ec30ad2-ab07-4c49-b028-76b0bafc8524",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "TAS(x) /* test-and-set, init: x ← 0 */\r\nholdx ← x; x ← 1; return oldx;i\r\nFAO(x, v) /* fetch-and-op */\r\nholdx ← x; x ← op(x, v); return oldx;i\r\nCAS(x, old, new) /* compare-and-swap */\r\nh if(x = old) {x ← new; return(true); }\r\nelse return(false); i\r\nLL(x) /* load-linked */\r\nhreturn the value of x so that\r\nit may be subsequently used\r\nwith SC i\r\nSC(x, v) /* store-conditional */\r\nh if (no process has written to x\r\nsince the last LL(x)) {x ← v;\r\nreturn(true)};\r\nelse return(false); i\r\nFigure 1: Synchronization primitives\r\nthough this might not be intended by the algorithm’s designer. The LL/SC\r\nprimitives can instead detect any concurrent update on the variable between\r\nthe time interval of a LL/SC pair, independent of the value of the update.\r\n2.2 Synchronization power\r\nThe primitives are classified according to their synchronization power or consen\u0002sus number [57], which is, roughly speaking, the maximum number of processes\r\nfor which the primitives can be used to solve a consensus problem in a fault\r\ntolerant manner. In the consensus problem, a set of n asynchronous processes,\r\neach with a given input, communicate to achieve an agreement on one of the\r\ninputs. A primitive with a consensus number n can achieve consensus among n\r\nprocesses even if up to n − 1 processes stop [93].\r\nAccording to the consensus classification, read/write registers have consensus\r\nnumber 1, i.e. they cannot tolerate any faulty processes in the consensus setting.\r\nThere are some primitives with consensus number 2 (e.g. test-and-set (TAS) and\r\nfetch-and-op (FAO)) and some with infinite consensus number (e.g. compare\u0002and-swap (CAS) and load-linked/store-conditional (LL/SC)). It has been proven\r\nthat a primitive with consensus number n cannot implement a primitive with a\r\nhigher consensus number in a system of more than n processes [57]. For example,\r\nthe test-and-set primitive, whose consensus number is two, cannot implement\r\nthe compare-and-swap primitive, whose consensus number is unbounded, in a\r\nsystem of more than two processes.\r\n2.3 Scalability and Combinability\r\nAs many-core architectures with thousands of cores are expected to be our\r\nfuture chip architectures [5], synchronization primitives that can support scal\u0002able thread synchronization for such large-scale architectures are desired. In\r\naddition to synchronization power criterion, synchronization primitives can be\r\nclassified by their scalability or combinability [54]. Primitives are combinable\r\nif their memory requests to the same memory location (arriving at a switch of\r\n3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/4ec30ad2-ab07-4c49-b028-76b0bafc8524.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=607b87912716f45cef13e6a38a79b2059fcae4e49ee658e43c5d15e3cf3dbabf",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 396
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f6f66055-add3-444e-9525-3778a015e917",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "the processor-to-memory interconnection network) can be combined into only\r\none memory request. Separate replies to the original requests are later created\r\nfrom the reply to the combined request (at the switch). The combining tech\u0002nique has been implemented in the NYU Ultracomputer [30] and the IBM RP3\r\nmachine [73], and has been shown to be a scalable technique for large-scale mul\u0002tiprocessors to alleviate the performance degradation due to a synchronization\r\n“hot spot”. The set of combinable primitives includes test-and-set, fetch-and-op\r\n(where op is an associative operation or boolean operation), blocking full-empty\r\nbits [54] and non-blocking full-empty bits [36]. For example, two consecutive re\u0002quests fetch-and-add(x, a) and fetch-and-add(x, b) can be combined into a single\r\nrequest fetch-and-add(x, a + b). When receiving a reply oldx to the combined\r\nrequest fetch-and-add(x, a+b), the switch at which the requests were combined,\r\ncreates a reply oldx to the first request fetch-and-add(x, a) and a reply (oldx+a)\r\nto the successive request fetch-and-add(x, b).\r\nThe CAS primitives are not combinable since the success of a CAS(x, a, b)\r\nprimitive depends on the current value of the memory location x. For m-bit\r\nlocations (e.g. 64-bit words), there are 2m possible values and therefore, a\r\ncombined request that represents k CAS(x, a, b) requests, k < 2\r\nm, must carry as\r\nmany as k different checking-values a and k new values b. The LL/SC primitives\r\nare not combinable either since the success of a SC primitive depends on the\r\nstate of its reservation bit at the memory location that has been set previously by\r\nthe corresponding LL primitive. Therefore, a combined request that represents\r\nk SC requests (from different processes/processors) must carry as many as k\r\nstore values.\r\n2.4 Multi-word Primitives\r\nAlthough the single-word hardware primitives are conceptually powerful enough\r\nto support higher-level synchronization, from the programmer’s point of view\r\nthey are not as convenient as multi-word primitives. The multi-word primitives\r\ncan be built in hardware [52, 16, 11], or in software (in a lock-free manner)\r\nusing single-word hardware primitives [3, 19, 34, 50, 71, 79]. Sun’s third gen\u0002eration chip-multithreaded (CMT) processor called Rock is the first processor\r\nsupporting transactional memory in hardware [11]. The transactional memory\r\nis supported by two new instructions checkpoint and commit, in which check\u0002point denotes the beginning of a transaction and commit denotes the end of\r\nthe transaction. If the transaction succeeds, the memory accesses within the\r\ntransaction take effect atomically. If the transaction fails, the memory accesses\r\nhave no effect.\r\nAnother emerging construct is the Advanced Synchronization Facility (ASF),\r\nan experimental AMD64 extension that AMD’s Operating System Research\r\nCenter develops to support lock-free data structures and software transactional\r\nmemory [16]. ASF is a simplified hardware transactional memory in which all\r\nmemory objects to be protected should be statically specified before transaction\r\nexecution. Processors can protect and speculatively modify up to 8 memory ob\u0002jects of cache-line size. There is also research on new primitives aiming at iden\u00024",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/f6f66055-add3-444e-9525-3778a015e917.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7016bdb6a1e8b107498e52a36b777761bbe065d6d22c75531dd7ba54b4093f6d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 483
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6a8d7d18-bda8-4848-8778-3ab360da388d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "tifying new efficient and powerful primitives, with the non-blocking full/empty\r\nbit (NB-FEB) being an example that was shown to be as powerful as CAS or\r\nLL/SC [36].\r\n3 Lock-Free Data Structures\r\nThe main characterization on which one can classify the various implementations\r\nof lock-free data structures available in the literature, is what abstract data type\r\nthat it intends to implement. For each abstract data type there are usually\r\nnumerous implementations, each motivated by some specific targeted purposes,\r\nwhere each implementation is characterized by the various properties that it\r\nfulfills to different amounts. As many of these properties are orthogonal, for\r\neach specific implementation, one or more properties are often strengthened at\r\nthe cost of some others. Some of the most important properties that differentiate\r\nthe various lock-free data structure implementations in the literature are:\r\nSemantic fulfillments Due to the complexity of designing lock-free data struc\u0002tures it might not be possible to support all operations normally associated with\r\na certain abstract data type. Hence, some algorithms omit a subset of the nor\u0002mally required operations and/or support operations with a modified semantics.\r\nTime complexity Whether an operation can terminate in a time (without\r\nconsidering concurrency) that is linearly or logarithmically related to e.g. the\r\nsize of the data structure, can have significant impact on performance. More\u0002over, whether the maximum execution time can be determined at all or if it\r\ncan be expected in relation to the number of concurrent threads is of significant\r\nimportance to time-critical systems (e.g. real-time systems).\r\nScalability Scalability means showing some performance gain with increas\u0002ing number of threads. Synchronization primitives are normally not scalable\r\nin themselves; therefore it is important to avoid unnecessary synchronization.\r\nIsraeli and Rappoport [50] have defined the term disjoint-access-parallelism to\r\nidentify algorithms that do not synchronize on data that is not logically involved\r\nsimultaneously in two or more concurrent operations.\r\nDynamic capacity In situations where it can be difficult to determine the\r\nmaximum number of items that will be stored in a data structure, it is necessary\r\nthat the data structure can dynamically allocate more memory when the current\r\ncapacity is about to be exceeded. If the data structure is based on statically\r\nallocated storage, capacity is fixed throughout the lifetime of the data structure.\r\nSpace complexity Some algorithms can guarantee an upper bound of memory\r\nrequired, while some others can transiently need an indefinite amount depending\r\non the concurrent operations’ invocation order, and can thus not be determin\u0002istically determined.\r\nConcurrency limitations Due to the limitations (e.g. consensus number) of\r\nthe chosen synchronization primitives, some or all operations might not allow\r\nmore than a certain number of concurrent invocations.\r\nSynchronization primitives Contemporary multi-core and many-core sys\u0002tems typically only support single-word CAS or weak and non-nestable variants\r\n5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/6a8d7d18-bda8-4848-8778-3ab360da388d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f25c64781c85e1a5b3470f67f720dae9905bb944a3969cdb68cd629b233eb336",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 453
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "28f64a8e-eef6-4c3d-a6d4-1928de314604",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "of LL/SC (cf. section 2). However, many algorithms for lock-free data struc\u0002ture depend on more advanced primitives as e.g. double-word CAS (called e.g.\r\nDCAS or CAS2), ideal LL/SC or even more complex primitives. These algorithms\r\nthen need (at least) one additional abstraction layer for actual implementation,\r\nwhere these more advanced primitives are implemented in software using an\u0002other specific algorithm. The LL/SC primitives can be implemented e.g. by\r\nCAS [50, 3, 70, 51, 65]. Multi-word CAS (called e.g. MWCAS or CASN) can be\r\nimplemented e.g. by CAS [38, 82] or by LL/SC [50, 3, 79, 71, 34].\r\nReliability Some algorithms try to avoid the ABA problem by the means of\r\ne.g. version counters. As these counters are bounded and can overflow, there is a\r\npotential risk of the algorithm to actually perform incorrectly and possibly cause\r\ninconsistencies. Normally, by design this risk can be kept low enough that it fits\r\nfor practical purposes, although the risk increases as the computational speed\r\nincreases. Often, version counters can be removed altogether by the means of\r\nproper memory management.\r\nCompatibility and Dependencies Some algorithms only work together with\r\ncertain memory allocators and reclamation schemes, specific types (e.g. real\u0002time) of system-level process scheduler, or require software layers or semantic\r\nconstructions only found in certain programming languages (e.g. Java).\r\n3.1 Overview\r\nThe following sections include a systematic overview of the research result in\r\nthe literature. For a more in-depth look and a case-study in the design of a\r\nlock-free data structure and how it can be used in practice, we would like to\r\nrefer the reader to our chapter in “GPU Computing Gems” [10], which describes\r\nin detail how to implement a lock-free work-stealing deque and the reasoning\r\nbehind the design decisions.\r\n3.2 Producer-Consumer Collections\r\nA common approach to parallelizing applications is to divide the problem into\r\nseparate threads that act as either producers or consumers. The problem of\r\nsynchronizing these threads and streaming of data items between them, can be\r\nalleviated by utilizing a shared collection data structure.\r\nBag\r\nThe Bag abstract data type is a collection of items in which items can be\r\nstored and retrieved in any order. Basic operations are Add (add an item) and\r\nTryRemoveAny (remove an arbitrary chosen item). TryRemoveAny returns the\r\nitem removed. Data structures with similar semantics are also called buffer,\r\nunordered collection, unordered queue, pool, and pile in the literature.\r\nAll lock-free stacks, queues and deques implicitly implements the selected\r\nbag semantics. Afek et al. [1] presented an explicit pool data structure. It is\r\n6",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/28f64a8e-eef6-4c3d-a6d4-1928de314604.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c857f3faa71ccacd29dd85da93656f84d738c77a260b3e66d7b77c5481d70a4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 418
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "9e51d8c7-5ee8-49e5-991a-789c8620c5e6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "lock-free, although not linearizable, utilizes distributed storage and is based on\r\nrandomization to establish a probabilistic level of disjoint-access-parallelism.\r\nIn [26, 27] a data structure called flat-sets, was introduced and used as a\r\nbuilding block in the concurrent memory allocation service. This is a bag-like\r\nstructure that supports lock-free insertion and removal of items as well as an\r\n“inter-object” operation, for moving an item from one flat-set to another in a\r\nlock-free and linearizable manner, thus offering the possibility of combining data\r\nstructures.\r\nIn [83] a lock-free bag implementation is presented; the algorithm supports\r\nmultiple producers and multiple consumers, as well as dynamic collection sizes.\r\nTo handle concurrency efficiently, the algorithm was designed to optimize for\r\ndisjoint-access-parallelism for the supported semantics.\r\nStack\r\nThe Stack abstract data type is a collection of items in which only the most\r\nrecently added item may be removed. The latest added item is at the top. Basic\r\noperations are Push (add to the top) and Pop (remove from the top). Pop returns\r\nthe item removed. The data structure is also known as a “last-in, first-out” or\r\nLIFO buffer.\r\nTreiber presented a lock-free stack (a.k.a. IBM Freelist) based on linked\r\nlists, which was later efficiently fixed from the ABA problem by Michael [64].\r\nAlso Valois [95] presented a lock-free implementation that uses the CAS atomic\r\nprimitive. Hendler et al. [41] presented an extension where randomization and\r\nelimination are used for increasing scalability when contention is detected on\r\nthe CAS attempts.\r\nQueue\r\nThe Queue abstract data type is a collection of items in which only the earliest\r\nadded item may be accessed. Basic operations are Enqueue (add to the tail) and\r\nDequeue (remove from the head). Dequeue returns the item removed. The data\r\nstructure is also known as a “first-in, first-out” or FIFO buffer.\r\nLamport [55] presented a lock-free (actually wait-free) implementation of a\r\nqueue based on a static array, with a limited concurrency supporting only one\r\nproducer and one consumer. Giacomoni et al. [23] presented a cache-aware\r\nmodification which, instead of using shared head and tail indices, synchronize\r\ndirectly on the array elements. Herman and Damian-Iordache [46] outlined a\r\nwait-free implementation of a shared queue for any number of threads, although\r\nnon-practical due to its high time complexity and limited capacity.\r\nGong and Wing [29] and later Shann et al. [78] presented a lock-free shared\r\nqueue based on a cyclic array and the CAS primitive, though with the drawback\r\nof using version counters, thus requiring double-width CAS for storing actual\r\nitems. Tsigas and Zhang [90] presented a lock-free extension of [55] for any\r\nnumber of threads where synchronization is done both on the array elements\r\n7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/9e51d8c7-5ee8-49e5-991a-789c8620c5e6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a210b103128a78580b820dc1a6e5dc9302964a645dea04e026769f1a8313a114",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 440
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "756f1928-a9cf-48dd-a209-e956815912c2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "and the shared head and tail indices using CAS, and the ABA problem is avoided\r\nby exploiting two (or more) null values.\r\nValois [94, 95] makes use of linked lists in his lock-free implementation which\r\nis based on the CAS primitive. Prakash et al. [74] also presented an implemen\u0002tation using linked lists and the CAS primitive, although with the drawback of\r\nusing version counters and having low scalability. Michael and Scott [68] pre\u0002sented a lock-free queue that is more efficient, synchronizing via the shared head\r\nand tail pointers as well via the next pointer of the last node. Moir et al. [72]\r\npresented an extension where elimination is used as a back-off strategy when\r\ncontention on CAS is noticed, although elimination is only possible when the\r\nqueue contains very few items. Hoffman et al. [47] takes another approach for\r\na back-off strategy by allowing concurrent Enqueue operations to insert the new\r\nnode at adjacent positions in the linked list if contention is noticed. Gidenstam\r\net al. [28] combines the efficiency of using arrays and the dynamic capacity of\r\nusing linked lists, by providing a lock-free queue based on linked lists of arrays,\r\nall updated using CAS in a cache-aware manner.\r\nDeque\r\nThe Deque (or doubly-ended queue) abstract data type is a combination of the\r\nstack and the queue abstract data types. The data structure is a collection of\r\nitems in which the earliest as well as the latest added item may be accessed.\r\nBasic operations are PushLeft (add to the head), PopLeft (remove from the head),\r\nPushRight (add to the tail), and PopRight (remove from the tail). PopLeft and\r\nPopRight return the item removed.\r\nLarge efforts have been put on the work on so called work-stealing deques.\r\nThese data structures only support three operations and with a limited level\r\nof concurrency, and are specifically aimed for scheduling purposes. Arora et al.\r\n[4] presented a lock-free work-stealing deque implementation based on the CAS\r\natomic primitive. Hendler et al. [40] improved this algorithm to also handle\r\ndynamic sizes.\r\nSeveral lock-free implementations of the deque abstract data type for general\r\npurposes, although based on the non-available CAS2 atomic primitive, have been\r\npublished in the literature [31, 2, 13, 58, 6]. Michael [63] presented a lock-free\r\ndeque implementation based on the CAS primitive, although not supporting any\r\nlevel of disjoint-access-parallelism. Sundell and Tsigas [88] presented a lock-free\r\nimplementation that allows both disjoint-access-parallelism as well as dynamic\r\nsizes using the standard CAS atomic primitive.\r\nPriority Queue\r\nThe Priority Queue abstract data type is a collection of items which can effi\u0002ciently support finding the item with the highest priority. Basic operations are\r\nInsert (add an item), FindMin (finds the item with minimum (or maximum) pri\u0002ority), and DeleteMin (removes the item with minimum (or maximum) priority).\r\nDeleteMin returns the item removed.\r\n8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/756f1928-a9cf-48dd-a209-e956815912c2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a5a530dd93b8beee347f801d09469fc6011c342ec05ea95601490dc43b3420e4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 465
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4b5efcad-dab4-486a-8c7c-bbaa9e69e154",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Israeli and Rappoport [49] have presented a wait-free algorithm for a shared\r\npriority queue, that requires the non-available multi-word LL/SC atomic prim\u0002itives. Greenwald [31] has presented an outline for a lock-free priority queue\r\nbased on the non-available CAS2 atomic primitive. Barnes [7] presented an in\u0002complete attempt for a lock-free implementation that uses atomic primitives\r\navailable on contemporary systems. Sundell and Tsigas [87] presented the first\r\nlock-free implementation of a priority queue based on skip lists and the CAS\r\natomic primitive.\r\n3.3 Lists\r\nThe List abstract data type is a collection of items where two items are related\r\nonly with respect to their relative position to each other. The data structure\r\nshould efficiently support traversals among the items. Depending on what type\r\nof the underlying data structure, e.g. arrays or linked lists, different strengths\r\nof traversal functionality are supported.\r\nArray\r\nList implementations based on the fundamental array data structure can sup\u0002port traversals to absolute index positions. Higher level abstractions as extend\u0002able arrays are in addition supporting stack semantics. Consequently, the Array\r\nabstract data type would support the operations ReadAt (read the element at in\u0002dex), WriteAt (write the element at index), Push (add to the top) and Pop (remove\r\nfrom the top). Pop returns the item removed.\r\nA lock-free extendable array for practical purposes has been presented by\r\nDechev et al. [12].\r\nLinked List\r\nIn a concurrent environment with List implementations based on linked lists,\r\ntraversals to absolute index positions are not feasible. Consequently, traversals\r\nare only supported relatively to a current position. The current position is\r\nmaintained by the cursor concept, where each handle (i.e. thread or process)\r\nmaintains one independent cursor position. The first and last cursor positions\r\ndo not refer to real items, but are instead used as end markers, i.e. before the\r\nfirst item or after the last item. Basic operations are InsertAfter (add a new item\r\nafter the current), Delete (remove the current item), Read (inspect the current\r\nitem), Next (traverse to the item after the current), First (traverse to the position\r\nbefore the first item). Additional operations are InsertBefore (add a new item\r\nbefore the current), Previous (traverse to the item before the current), and Last\r\n(traverse to the position after the last item).\r\nLock-free implementations of the singly-linked list based on the CAS atomic\r\nprimitive and with semantics suitable for the Dictionary abstract type rather\r\nthan the List has been presented by Harris [39], Michael [61], and Fomitchev and\r\nRuppert [18]. Greenwald [32] presented a doubly-linked list implementation of a\r\n9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/4b5efcad-dab4-486a-8c7c-bbaa9e69e154.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=90f551aabb04806c25248818793957a7d8e0ac5d5d10ff45dbc280735ccaa012",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 416
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fe5335d6-a460-48ba-9d5e-b3993b4617d8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "dictionary based on the non-available CAS2 atomic primitive. Attiya and Hillel\r\n[6] presented a CAS2-based implementation that also supports disjoint-access\u0002parallelism. Valois [95] outlined a lock-free doubly-linked list implementation\r\nwith all list semantics except delete operations. A more general doubly-linked\r\nlist implementation supporting general list semantics was presented by Sundell\r\nand Tsigas [88].\r\n3.4 Sets and Dictionaries\r\nThe Set abstract data type is a collection of special items called keys, where each\r\nkey is unique and can have at most one occurrence in the set. Basic operations\r\nare Add (adds the key), ElementOf (checks if key is present), and Delete (removes\r\nthe key).\r\nThe Dictionary abstract data type is a collection of items where each item\r\nis associated with a unique key. The data structure should efficiently support\r\nfinding the item associated with the specific key. Basic operations are Insert (add\r\nan item associated with a key), Find (finds the item associated with a certain\r\nkey), and Delete (removes the item associated with a certain key). Delete returns\r\nthe item removed. In concurrent environments, an additional basic operation is\r\nthe Update (re-assign the association of a key with another item) operation.\r\nImplementations of Sets and Dictionaries are often closely related in a way\r\nthat most implementations of a set can be extended to also support dictionary\r\nsemantics in a straight forward manner. However, the Update operation mostly\r\nneeds specific care in the fundamental part of the algorithmic design to be\r\nlinearizable. Non-blocking implementations of sets and dictionaries are mostly\r\nbased on hash-tables or linked lists as done by Valois [95]. The path using\r\nconcurrent linked lists was improved by Harris [39]. Other means to implement\r\nsets and dictionaries are the skip-list and tree data structures.\r\nSkip-List\r\nValois [95] outlined an incomplete idea of how to design a concurrent skip list.\r\nSundell and Tsigas presented a lock-free implementation of a skip list in the\r\nscope of priority queues [85, 87] as well as dictionaries [86, 81] using the CAS\r\nprimitive. Similar constructions have appeared in the literature by Fraser [20],\r\nand Fomitchev and Ruppert [18].\r\nHash-Table\r\nMichael [61] presented a lock-free implementation of the set abstract data type\r\nbased on a hash-table with its chaining handled by an improved linked list\r\ncompared to [39]. To a large part, its high efficiency is thanks to the mem\u0002ory management scheme applied. The algorithm was improved by Shalev and\r\nShavit [77] to also handle dynamic sizes of the hash-table’s underlying array data\r\nstructure. Greenwald [32] have presented a dictionary implementation based on\r\nchained hash-tables and the non-available CAS2 atomic primitive.\r\n10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/fe5335d6-a460-48ba-9d5e-b3993b4617d8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1ac055339ab850b6fa6ddbf164f216f93dcf167d2ea7974fa21f630131c7177f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 426
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "89cd9739-468d-47b5-bc4c-c06143b891c4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Gao et al. [21] presented a lock-free implementation of the dictionary ab\u0002stract data type based on a hash-table data structure using open addressing.\r\nThe hash-table is fully dynamic in size, although its efficiency is limited by its\r\nrelatively complex memory management.\r\nTree\r\nTsay and Li [89] presents an approach for designing lock-free implementations of\r\na tree data structure using the LL/SC atomic primitives and extensive copying\r\nof data. However, the algorithm is not provided with sufficient evidence for\r\nshowing linearizability. Ellen et al. [17] presented a lock-free implementation of\r\nthe set abstract data type based on a binary tree data structure using the CAS\r\natomic primitive. Spiegel and Reynolds [80] presents a lock-free implementation\r\nof the set abstract data type based on a skip-tree and the CAS atomic primitive.\r\n4 Memory Management for Concurrent Data\u0002Structures\r\nThe problem of managing dynamically allocated memory in a concurrent envi\u0002ronment has two parts, keeping track of the free memory available for allocation\r\nand safely reclaim allocated memory when it is no longer in use, i.e. memory\r\nallocation and memory reclamation.\r\n4.1 Memory Allocation\r\nA memory allocator manages a pool of memory (heap), e.g. a contiguous range\r\nof addresses or a set of such ranges, keeping track of which parts of that memory\r\nare currently given to the application and which parts are unused and can be\r\nused to meet future allocation requests from the application. A traditional (such\r\nas the “libc” malloc) general purpose memory allocator is not allowed to move\r\nor otherwise disturb memory blocks that are currently owned by the application.\r\nSome of the most important properties that distinguish memory allocators\r\nfor concurrent applications in the literature are:\r\nFragmentation To minimize fragmentation is to minimize the amount of free\r\nmemory that cannot be used (allocated) by the application due to the size of\r\nthe memory blocks.\r\nFalse-sharing False sharing is when different parts of the same cache-line are\r\nallocated to separate objects that end up being used by threads running on\r\ndifferent processors.\r\nEfficiency and scalability The concurrent memory allocator should be as fast\r\nas a good sequential one when executed on a single processor and its performance\r\nshould scale with the load in the system.\r\nHere we focus on lock-free memory allocators but there is also a considerable\r\nnumber of lock-based concurrent memory allocators in the literature.\r\n11",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/89cd9739-468d-47b5-bc4c-c06143b891c4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cfb2a0f72827d5a446920d9cd2c82737601ae50a08f19dbbccf574bfcc9f1571",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 387
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e662597b-5f92-4106-a4cf-9915539340d3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Early work on lock-free memory allocation is the work on non-blocking oper\u0002ating systems by Massalin and Pu [60, 59] and Greenwald and Cheriton [33, 31].\r\nDice and Garthwaite [15] presented LFMalloc, a memory allocator based on\r\nthe architecture of the Hoard lock-based concurrent memory allocator [8] but\r\nwith reduced use of locks. Michael [66] presented a fully lock-free allocator, also\r\nloosely based on the Hoard architecture. Gidenstam et al. [26] presented NBmal\u0002loc, another lock-free memory allocator loosely based on the Hoard architecture.\r\nNBmalloc is designed from the requirement that the first-remove-then-insert ap\u0002proach to moving references to large internal blocks of memory (superblocks)\r\naround should be avoided and therefore introduces and uses a move operation\r\nthat can move a reference between different internal data-structures atomically.\r\nSchneider et al. [76] presented Streamflow, a lock-free memory allocator that\r\nhas improved performance over previous solutions due to allowing thread local\r\nallocations and deallocations without synchronization.\r\n4.2 Memory Reclamation\r\nTo manage dynamically allocated memory in non-blocking algorithms is difficult\r\ndue to overlapping operations that might read, change or dereference (i.e. fol\u0002low) references to dynamically allocated blocks of memory concurrently. One of\r\nthe most problematic cases is when a slow process dereferences a pointer value\r\nthat it previously read from a shared variable. This dereference of the pointer\r\nvalue could occur an arbitrarily long time after the shared pointer holding that\r\nvalue was overwritten and the memory designated by the pointer removed from\r\nthe shared data structure. Consequently it is impossible to safely free or reuse\r\nthe block of memory designated by this pointer value until we are sure that\r\nthere are no such slow processes with pointers to that block.\r\nThere are several reclamation schemes in the literature with a wide and\r\nvarying range of properties:\r\nI. Safety of local references For local references, which are stored in private\r\nvariables accessible only by one thread, to be safe the memory reclamation\r\nscheme must guarantee that a dynamically allocated node is never reclaimed\r\nwhile there still are local references pointing to it.\r\nII. Safety of shared references Additionally, a memory reclamation scheme\r\ncould also guarantee that it is always safe for a thread to dereference any shared\r\nreferences located within a dynamic node the thread has a local reference to.\r\nProperty I alone does not guarantee this, since for a node that has been deleted\r\nbut cannot be reclaimed yet any shared references within it could reference\r\nnodes that have been deleted and reclaimed since the node was removed from\r\nthe data structure.\r\nIII. Automatic or explicit deletion A dynamically allocated node could\r\neither be reclaimed automatically when it is no longer accessible through any\r\nlocal or shared reference, that is, the scheme provides automatic garbage col\u0002lection, or the user algorithm or data structure could be required to explicitly\r\ntell the memory reclamation scheme when a node is removed from the active\r\ndata structure and should be reclaimed as soon as it has become safe. While\r\n12",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/e662597b-5f92-4106-a4cf-9915539340d3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0cef590db799480729d5b57bfba2dc7079eabbee244257e2488f4865c6a83d6c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 491
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5dda8125-80a9-46f8-b0a4-fc7a111a276e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Property II Property III Property IV Property V\r\nMichael [62, 64] No Explicit Yes Yes\r\nHerlihy et al. [43] No Explicit Yes No\r\nValois et al. [95, 67] Yes Automatic No Yes\r\nDetlefs et al. [14] Yes Automatic Yes No\r\nHerlihy et al. [42] Yes Automatic Yes No\r\nGidenstam et al. [24, 25] Yes Explicit Yes Yes\r\nFraser [20] Yes Explicit Yes Yes\r\nHerlihy et al. [45] Yes Automatic Integrated Yes\r\nGao et al. [22] Yes Automatic Integrated Yes\r\nTable 1: Properties of different approaches to non-blocking memory reclamation.\r\nautomatic garbage collection is convenient for the user, explicit deletion by the\r\nuser gives the reclamation scheme more information to work with and can help\r\nto provide stronger guarantees, e.g. bounds on the amount of deleted but yet\r\nunreclaimed memory.\r\nIV. Requirements on the memory allocator Some memory reclamation\r\nschemes require special properties from the memory allocator, like, for example,\r\nthat each allocable node has a permanent (i.e. for the rest of the system’s\r\nlifetime) reference counter associated with it. Other schemes are compatible\r\nwith the well-known and simple allocate/free allocator interface where the node\r\nhas ceased to exist after the call to free.\r\nV. Required synchronization primitives Some memory reclamation schemes\r\nare defined using synchronization primitives that few if any current processor\r\narchitectures provide in hardware, such as for example double word CAS, which\r\nthen have to be implemented in software often adding considerable overhead.\r\nOther schemes make do with single word CAS, single word LL/SC or even just\r\nreads and writes alone.\r\nThe properties of the memory reclamation schemes discussed here are sum\u0002marized in Table 1. One of the most important is Property II, which many\r\nlock-free algorithms and data structures need. Among the memory reclamation\r\nschemes that guarantee Property II we have the following ones, all based on\r\nreference counting: Valois et al. [95, 67], Detlefs et al. [14], Herlihy et al. [42]\r\nand Gidenstam et al. [24, 25] and the potentially blocking epoch-based scheme\r\nby Fraser [20].\r\nOn the other hand, for data structures that do not need Property II, for\r\nexample stacks, the use of a reclamation scheme that does not provide this\r\nproperty has significant potential to offer reduced overhead compared to the\r\nstronger schemes. Among these memory reclamation schemes we have the non\u0002blocking ones by Michael [62, 64] and Herlihy et al. [43].\r\nFully Automatic Garbage Collection A fully automatic garbage collector\r\nprovides property I, II and III with automatic deletion.\r\nThere are some lock-free garbage collectors in the literature. Herlihy and\r\n13",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/5dda8125-80a9-46f8-b0a4-fc7a111a276e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e907ad9d27148410ee5eb3201e3aa49e62d8d614122a549a59cb6de150626ab2",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 419
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b51b2d23-feef-4a73-9fbf-1e4da639d58a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Moss presented a lock-free copying garbage collector in [45]. Gao et al. [22] pre\u0002sented a lock-free Mark & Sweep garbage collector and Kliot at al. [53] presented\r\na lock-free stack scanning mechanism for concurrent garbage collectors.\r\n5 Graphics Processors\r\nCurrently the two most popular programming environments for general purpose\r\ncomputing for graphics processors are CUDA and OpenCL. Neither provides any\r\ndirect support for locks, and it is unlikely that this will change in the future.\r\nConcurrent data structures that are used on graphics processors will therefore\r\nhave to be lock-free.\r\nWhile graphics processors share many features with conventional processors,\r\nand many lock-free algorithms can be ported directly, there are some differences\r\nthat are important to consider, if one also wants to maintain or improve the\r\nscalability and throughput of the algorithms.\r\n5.1 Data Parallel Model\r\nA graphics processor consists of a number of multiprocessors that can execute\r\nthe same instruction on multiple data, known as SIMD computing. Concur\u0002rent data structures are, as the name implies, designed to support multiple\r\nconcurrent operations, but when used on a multiprocessor they also need to\r\nsupport concurrent instructions within an operation. This is not straightfor\u0002ward, as most have been designed for scalar processors. Considering that SIMD\r\ninstructions play an instrumental role in the parallel performance offered by the\r\ngraphics processor, it is imperative that this issue be addressed.\r\nGraphics processor have a wide memory bus and a high memory bandwidth,\r\nwhich makes it possible to quickly transfer data from the memory to the pro\u0002cessor and back. The hardware is also capable of coalescing multiple small\r\nmemory operations into a single, large, atomic memory operation. As a single\r\nlarge memory operation can be performed faster than many small, this should\r\nbe taken advantage of in the algorithmic design of the data structure.\r\nThe cache in graphics processors is smaller than on conventional SMP pro\u0002cessors and in many cases non-existent. The memory latency is instead masked\r\nby utilizing thousands of threads and by storing data temporally in a high-speed\r\nmultiprocessor local memory area. The high number of threads reinforces the\r\nimportance of the data structure being highly scalable.\r\nThe scheduling of threads on a graphics processor is commonly being per\u0002formed by the hardware. Unfortunately, the scheme used is often undocu\u0002mented, thus there is no guarantee that it will be fair. This makes the use\r\nof algorithms with blocking behavior risky. For example, a thread holding a\r\nlock could be indefinitely swapped out in favor of another thread waiting for\r\nthe same lock, resulting in a livelock situation. Lock-freeness is thus a must.\r\nOf a more practical concern is the fact that a graphics processor often lacks\r\nstacks, making recursive operations more difficult. The lack of a joint address\r\n14",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/b51b2d23-feef-4a73-9fbf-1e4da639d58a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7eaca461b7e24f9c36e2392c80165e41b67c012fe4b6760222c4699f086d316b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 453
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "50543333-f6ff-45e8-bbd9-8b3e56d70c2b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 16,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "space between the GPU and the CPU also complicates the move of data from\r\nthe CPU to the graphics processor, as all pointers in the data structure have to\r\nbe rebased when moved to a new address.\r\n5.2 New Algorithmic Design\r\nThe use of SIMD instructions means that if multiple threads write to the same\r\nmemory location, only one (arbitrary) thread can succeed. Thus, allowing\r\nthreads that will be combined to a SIMD unit by the hardware to concurrently\r\ntry to enqueue an item to the same position in a queue, will with all likeli\u0002hood be unnecessarily expensive, as only one thread can succeed in enqueing\r\nits item. Instead, by first combining the operations locally, and then trying to\r\ninsert all elements in one step, this problem can be avoided. This is a technique\r\nused by XMalloc, a lock-free memory allocator for graphics processors [48]. On\r\ndata structures with more disjoint memory access than a queue, the problem is\r\nless pronounced, as multiple operations can succeed concurrently if they access\r\ndifferent parts of the memory.\r\nAn example of a way to take advantage of the SIMD instructions and memory\r\ncoalescing, is to allow each node in a tree to have more children. Allowing a node\r\nin a tree to have more children will have the effect of making the tree shallower\r\nand lower the number of nodes that needs to checked when searching for an\r\nitem. As a consequence, the time spent in each node will increase, but with\r\ncoalesced memory access and SIMD instructions, this increase in time spent\r\ncan be limited by selecting the number of children to suit the SIMD instruction\r\nsize. The node can then be read in a single memory operation and the correct\r\nchild can be found using just two SIMD compare instructions.\r\nAnother suggestion is to use memory coalescing to implement lazy opera\u0002tions, where larger read and write operations replace a percentage of expensive\r\nCAS operations. An array-based queue for example does not need to update\r\nits tail pointer using CAS every time an item is inserted. Instead it could be\r\nupdated every x:th operation, and the correct tail could be found by quickly\r\ntraversing the array using large memory reads and SIMD instructions, reducing\r\nthe traversal time to a low static cost. This type of lazy updating was used in\r\nthe queue by Tsigas and Zhang [91].\r\nThe coalescing memory access mechanism also directly influences the syn\u0002chronization capabilities of the graphics processor. It has for example been\r\nshown that it can be used to facilitate wait-free synchronization between threads,\r\nwithout the need of synchronization primitives other than reads and writes\r\n[35, 37].\r\nWhen it comes to software-controlled load balancing, there have been experi\u0002ments made comparing the built-in hardware scheduler with a software managed\r\nwork-stealing approach [9]. It was shown that lock-free implementations of data\r\nstructures worked better than lock-based, and that lock-free work-stealing could\r\noutperform the built-in scheduler.\r\nThe lack of a stack can be a significant problem for data structures that\r\nrequire recursive helping for lock-freeness. While it is often possible to rewrite\r\n15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/50543333-f6ff-45e8-bbd9-8b3e56d70c2b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c64fb5285019d5eef8c1c95bbb241eb3b5389d4e202112ee4664e0f391a0d63",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 513
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "50543333-f6ff-45e8-bbd9-8b3e56d70c2b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 16,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "space between the GPU and the CPU also complicates the move of data from\r\nthe CPU to the graphics processor, as all pointers in the data structure have to\r\nbe rebased when moved to a new address.\r\n5.2 New Algorithmic Design\r\nThe use of SIMD instructions means that if multiple threads write to the same\r\nmemory location, only one (arbitrary) thread can succeed. Thus, allowing\r\nthreads that will be combined to a SIMD unit by the hardware to concurrently\r\ntry to enqueue an item to the same position in a queue, will with all likeli\u0002hood be unnecessarily expensive, as only one thread can succeed in enqueing\r\nits item. Instead, by first combining the operations locally, and then trying to\r\ninsert all elements in one step, this problem can be avoided. This is a technique\r\nused by XMalloc, a lock-free memory allocator for graphics processors [48]. On\r\ndata structures with more disjoint memory access than a queue, the problem is\r\nless pronounced, as multiple operations can succeed concurrently if they access\r\ndifferent parts of the memory.\r\nAn example of a way to take advantage of the SIMD instructions and memory\r\ncoalescing, is to allow each node in a tree to have more children. Allowing a node\r\nin a tree to have more children will have the effect of making the tree shallower\r\nand lower the number of nodes that needs to checked when searching for an\r\nitem. As a consequence, the time spent in each node will increase, but with\r\ncoalesced memory access and SIMD instructions, this increase in time spent\r\ncan be limited by selecting the number of children to suit the SIMD instruction\r\nsize. The node can then be read in a single memory operation and the correct\r\nchild can be found using just two SIMD compare instructions.\r\nAnother suggestion is to use memory coalescing to implement lazy opera\u0002tions, where larger read and write operations replace a percentage of expensive\r\nCAS operations. An array-based queue for example does not need to update\r\nits tail pointer using CAS every time an item is inserted. Instead it could be\r\nupdated every x:th operation, and the correct tail could be found by quickly\r\ntraversing the array using large memory reads and SIMD instructions, reducing\r\nthe traversal time to a low static cost. This type of lazy updating was used in\r\nthe queue by Tsigas and Zhang [91].\r\nThe coalescing memory access mechanism also directly influences the syn\u0002chronization capabilities of the graphics processor. It has for example been\r\nshown that it can be used to facilitate wait-free synchronization between threads,\r\nwithout the need of synchronization primitives other than reads and writes\r\n[35, 37].\r\nWhen it comes to software-controlled load balancing, there have been experi\u0002ments made comparing the built-in hardware scheduler with a software managed\r\nwork-stealing approach [9]. It was shown that lock-free implementations of data\r\nstructures worked better than lock-based, and that lock-free work-stealing could\r\noutperform the built-in scheduler.\r\nThe lack of a stack can be a significant problem for data structures that\r\nrequire recursive helping for lock-freeness. While it is often possible to rewrite\r\n15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/50543333-f6ff-45e8-bbd9-8b3e56d70c2b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c64fb5285019d5eef8c1c95bbb241eb3b5389d4e202112ee4664e0f391a0d63",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 513
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2b3a162b-63f2-407c-980d-c591a8ebba09",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 17,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "recursive code to work iteratively instead, it requires that recursive depth can\r\nbe bounded to lower the amount of memory that needs to be allocated.\r\nReferences\r\n[1] Y. Afek, G. Korland, M. Natanzon, and N. Shavit. Scalable Producer\u0002Consumer Pools Based on Elimination-Diffraction Trees. In Euro-Par\r\n2010, volume 6272 of Lecture Notes in Computer Science, pages 151–162.\r\nSpringer, 2010.\r\n[2] O. Agesen, D. Detlefs, C. H. Flood, A. Garthwaite, P. Martin, N. Shavit,\r\nand G. L. Steele Jr. DCAS-based concurrent deques. In ACM Symposium\r\non Parallel Algorithms and Architectures, pages 137–146, 2000.\r\n[3] J. H. Anderson and M. Moir. Universal Constructions for Multi-Object\r\nOperations. In Proceedings of the 14th Annual ACM Symposium on the\r\nPrinciples of Distributed Computing, August 1995.\r\n[4] N. S. Arora, R. D. Blumofe, and C. G. Plaxton. Thread Scheduling for\r\nMultiprogrammed Multiprocessors. In ACM Symposium on Parallel Algo\u0002rithms and Architectures, pages 119–129, 1998.\r\n[5] K. Asanovic, R. Bodik, B. C. Catanzaro, J. J. Gebis, P. Husbands,\r\nK. Keutzer, D. A. Patterson, W. L. Plishker, J. Shalf, S. W. Williams,\r\nand K. A. Yelick. The Landscape of Parallel Computing Research: A View\r\nfrom Berkeley. TR No. UCB/EECS-2006-183, University of California,\r\nBerkeley, 2006.\r\n[6] H. Attiya and E. Hillel. Built-In Coloring for Highly-Concurrent Doubly\u0002Linked Lists. In Proceedings of the 20th International Symposium of Dis\u0002tributed Computing, pages 31–45, 2006.\r\n[7] G. Barnes. Wait-Free Algorithms for Heaps. Technical report, Computer\r\nScience and Engineering, University of Washington, February 1992.\r\n[8] E. Berger, K. McKinley, R. Blumofe, and P. Wilson. Hoard: A Scalable\r\nMemory Allocator for Multithreaded Applications. In 9th International\r\nConference on Architectural Support for Programming Languages and Op\u0002erating Systems, pages 117–128, November 2000.\r\n[9] D. Cederman and P. Tsigas. On Dynamic Load Balancing on Graphics Pro\u0002cessors. In Proceedings of the 23rd ACM SIGGRAPH/EUROGRAPHICS\r\nsymposium on Graphics hardware, pages 57–64, 2008.\r\n[10] D. Cederman and P. Tsigas. Dynamic Load Balancing Using Work-Stealing.\r\nIn Wen-Mei Hwu, editor, GPU Computing Gems Jade Edition. Morgan\r\nKaufmann, 2011.\r\n16",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/2b3a162b-63f2-407c-980d-c591a8ebba09.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0ddef6e5bcd7c6bcd2deea82bd53b0b5644038e64ee3a052c2381dd67bd2265d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 323
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "69ce56b8-0828-4980-92c2-af1d681c7ab8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 18,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[11] S. Chaudhry, R. Cypher, M. Ekman, M. Karlsson, A. Landin, S. Yip,\r\nH. Zeffer, and M. Tremblay. Rock: A High-Performance Sparc CMT Pro\u0002cessor. Micro, IEEE, 29(2):6 –16, 2009.\r\n[12] D. Dechev, P. Pirkelbauer, and B. Stroustrup. Lock-Free Dynamically Re\u0002sizable Arrays. In Proceedings of the 10th International Conference on Prin\u0002ciples of Distributed Systems, Lecture Notes in Computer Science, pages\r\n142–156. Springer Verlag, 2006.\r\n[13] D. Detlefs, C. H. Flood, A. Garthwaite, P. Martin, N. Shavit, and G. L.\r\nSteele Jr. Even Better DCAS-Based Concurrent Deques. In International\r\nSymposium on Distributed Computing, pages 59–73, 2000.\r\n[14] D. L. Detlefs, P. A. Martin, M. Moir, and G. L. Steele, Jr. Lock-free\r\nReference Counting. In Proceedings of the 20th annual ACM symposium\r\non Principles of Distributed Computing, pages 190–199. ACM, 2001.\r\n[15] D. Dice and A. Garthwaite. Mostly Lokck-Free Malloc. In Proceedings of\r\nthe 3rd International Symposium on Memory Management, pages 163–174.\r\nACM Press, 2002.\r\n[16] S. Diestelhorst and M. Hohmuth. Hardware Acceleration for Lock-Free\r\nData Structures and Software Transactional Memory. In Proceedings of\r\nthe Workshop on Exploiting Parallelism with Transactional Memory and\r\nother Hardware Assisted Methods, pages 1–8, 2008.\r\n[17] F. Ellen, P. Fatourou, E. Ruppert, and F. van Breugel. Non-Blocking\r\nBinary Search Trees. In Proceeding of the 29th ACM SIGACT-SIGOPS\r\nsymposium on Principles of Distributed Computing, pages 131–140. ACM,\r\n2010.\r\n[18] M. Fomitchev and E. Ruppert. Lock-Free Linked Lists and Skip Lists.\r\nIn Proceedings of the 23rd annual symposium on Principles of Distributed\r\nComputing, pages 50–59, 2004.\r\n[19] K. Fraser and T. Harris. Concurrent Programming Without Locks. ACM\r\nTransactions on Computer Systems, 25, May 2007.\r\n[20] K. A. Fraser. Practical Lock-Freedom. PhD thesis, University of Cambridge,\r\n2003.\r\n[21] H. Gao, J. F. Groote, and W. H. Hesselink. Lock-free dynamic hash tables\r\nwith open addressing. Distributed Computing, 18(1):21–42, 2005.\r\n[22] H. Gao, J. F. Groote, and W. H. Hesselink. Lock-free Parallel and Concur\u0002rent Garbage Collection by Mark&Sweep. Science of Computer Program\u0002ming, 64(3):341–374, 2007.\r\n17",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/69ce56b8-0828-4980-92c2-af1d681c7ab8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0db86905a5c9245d2f6aee6a1ff9d093092bf550481da392bac444f1a8815372",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 322
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "378d9532-bbd1-40b4-8496-fde18f8c1237",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 19,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[23] J. Giacomoni, T. Moseley, and M. Vachharajani. FastForward for Efficient\r\nPipeline Parallelism: a Cache-Optimized Concurrent Lock-Free Queue. In\r\nProceedings of the 13th ACM SIGPLAN Symposium on Principles and\r\npractice of parallel programming, pages 43–52. ACM, 2008.\r\n[24] A. Gidenstam, M. Papatriantafilou, H. Sundell, and P. Tsigas. Efficient and\r\nReliable Lock-Free Memory Reclamation Based on Reference Counting. In\r\nProceedings of the 8th International Symposium on Parallel Architectures,\r\nAlgorithms and Networks, pages 202–207. IEEE, 2005.\r\n[25] A. Gidenstam, M. Papatriantafilou, H. Sundell, and P. Tsigas. Efficient and\r\nReliable Lock-Free Memory Reclamation Based on Reference Counting.\r\nIEEE Transactions on Parallel and Distributed Systems, 20(8):1173–1187,\r\n2009.\r\n[26] A. Gidenstam, M. Papatriantafilou, and P. Tsigas. Allocating Memory in a\r\nLock-Free Manner. In Proceedings of the 13th Annual European Symposium\r\non Algorithms, pages 329–242. LNCS vol. 3669, Springer Verlag, 2005.\r\n[27] A. Gidenstam, M. Papatriantafilou, and P. Tsigas. NBmalloc: Allocating\r\nMemory in a Lock-Free Manner. Algorithmica, 58:304–338, 2010.\r\n[28] A. Gidenstam, H. Sundell, and P. Tsigas. Cache-Aware Lock-Free Queues\r\nfor Multiple Producers/Consumers and Weak Memory Consistency. In Pro\u0002ceedings of the 14th International Conference on Principles Of Distributed\r\nSystems, pages 302–317, 2010.\r\n[29] C. Gong and J.M. Wing. A Library of Concurrent Objects and Their Proofs\r\nof Correctness. Technical Report CMU-CS-90-151, Computer Science De\u0002partment, Carnegie Mellon University, 1990.\r\n[30] A. Gottlieb, R. Grishman, C. P. Kruskal, K. P. McAuliffe, L. Rudolph, and\r\nM. Snir. The NYU Ultracomputer–designing a MIMD, shared-memory\r\nparallel machine (Extended Abstract). In Proceedings of the 9th annual\r\nsymposium on Computer Architecture, ISCA ’82, pages 27–42. IEEE Com\u0002puter Society Press, 1982.\r\n[31] M. Greenwald. Non-Blocking Synchronization and System Design. PhD\r\nthesis, Stanford University, 1999.\r\n[32] M. Greenwald. Two-handed Emulation: How to Build Non-blocking Im\u0002plementations of Complex Data-structures using DCAS. In Proceedings of\r\nthe 21st annual symposium on Principles of Distributed Computing, pages\r\n260–269. ACM Press, 2002.\r\n[33] M. Greenwald and D. Cheriton. The Synergy Between Non-Blocking Syn\u0002chronization and Operating System Structure. In Proceedings of the 2nd\r\nSymposium on Operating System Design and Implementation, pages 123–\r\n136, 1996.\r\n18",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/378d9532-bbd1-40b4-8496-fde18f8c1237.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2d1c573beadaae36ae370fe552e49c193b9fbaf2f376070abf0092024967ae1c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 334
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "7b617722-106c-44df-bff5-b87b2c237bf9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 20,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[34] P. H. Ha and P. Tsigas. Reactive Multi-word Synchronization for Multi\u0002processors. Journal of Instruction-Level Parallelism, 6, April 2004.\r\n[35] P. H. Ha, P. Tsigas, and O. J. Anshus. Wait-free Programming for General\r\nPurpose Computations on Graphics Processors. In Proceedings of the IEEE\r\nInternational Parallel and Distributed Processing Symposium, pages 1–12,\r\n2008.\r\n[36] P. H. Ha, P. Tsigas, and O. J. Anshus. NB-FEB: A Universal Scalable Easy\u0002to-Use Synchronization Primitive for Manycore Architectures. In Proceed\u0002ings of the International Conference on Principles of Distributed Systems,\r\npages 189–203, 2009.\r\n[37] P. H. Ha, P. Tsigas, and O. J. Anshus. The Synchronization Power of Co\u0002alesced Memory Accesses. IEEE Transactions on Parallel and Distributed\r\nSystems, 21(7):939–953, 2010.\r\n[38] T. Harris, K. Fraser, and I. Pratt. A Practical Multi-Word Compare-and\u0002Swap Operation. In Proceedings of the 16th International Symposium on\r\nDistributed Computing, 2002.\r\n[39] T. L. Harris. A Pragmatic Implementation of Non-Blocking Linked Lists. In\r\nProceedings of the 15th International Symposium of Distributed Computing,\r\npages 300–314, 2001.\r\n[40] D. Hendler, Y. Lev, M. Moir, and N. Shavit. A Dynamic-Sized Nonblocking\r\nWork Stealing Deque. Distributed Computing, 18(3):189–207, 2006.\r\n[41] D. Hendler, N. Shavit, and L. Yerushalmi. A Scalable Lock-Free Stack\r\nAlgorithm. Journal of Parallel and Distributed Computing, 70(1):1–12,\r\n2010.\r\n[42] M. Herlihy, V. Luchangco, P. Martin, and M. Moir. Nonblocking Memory\r\nManagement Support for Dynamic-sized Data Structures. ACM Transac\u0002tions on Computer Systems, 23:146–196, May 2005.\r\n[43] M. Herlihy, V. Luchangco, and M. Moir. The Repeat Offender Problem: A\r\nMechanism for Supporting Dynamic-Sized, Lock-Free Data Structure. In\r\nProceedings of 16th International Symposium on Distributed Computing,\r\nOctober 2002.\r\n[44] M. Herlihy and J. Wing. Linearizability: a Correctness Condition for Con\u0002current Objects. ACM Transactions on Programming Languages and Sys\u0002tems, 12(3):463–492, 1990.\r\n[45] M. P. Herlihy and J. E. B. Moss. Lock-Free Garbage Collection for Multi\u0002processors. IEEE Transactions on Parallel and Distributed Systems, 3:304–\r\n311, May 1992.\r\n19",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/7b617722-106c-44df-bff5-b87b2c237bf9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0b532cf9a235ed0718c1d55c73dc80fb5ea5789531c2aca07667c75c02e9e7b7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 306
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4f6247bb-5810-4e81-a5d8-b36ef5472c5a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 21,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[46] T. Herman and V. Damian-Iordache. Space-Optimal Wait-Free Queues.\r\nIn Proceedings of the 16th annual ACM symposium on Principles of Dis\u0002tributed Computing, page 280. ACM Press, 1997.\r\n[47] M. Hoffman, O. Shalev, and N. Shavit. The Baskets Queue. In Proceedings\r\nof the 11th International Conference on Principles of Distributed Systems,\r\npages 401–414, 2007.\r\n[48] X. Huang, C. I. Rodrigues, S. Jones, I. Buck, and W. Hwu. XMalloc: A\r\nScalable Lock-free Dynamic Memory Allocator for Many-core Machines. In\u0002ternational Conference on Computer and Information Technology, 0:1134–\r\n1139, 2010.\r\n[49] A. Israeli and L. Rappoport. Efficient Wait-Free Implementation of a Con\u0002current Priority Queue. In Proceedings of the 7th International Workshop\r\non Distributed Algorithms, volume 725 of Lecture Notes in Computer Sci\u0002ence, pages 1–17. Springer Verlag, September 1993.\r\n[50] A. Israeli and L. Rappoport. Disjoint-access-parallel Implementations of\r\nStrong Shared Memory Primitives. In Proceedings of the 13th annual ACM\r\nsymposium on Principles of Distributed Computing, 1994.\r\n[51] P. Jayanti and S. Petrovic. Efficient and Practical Constructions of LL/SC\r\nVariables. In Proceedings of the 22nd Annual Symposium on Principles of\r\nDistributed Computing, pages 285–294. ACM Press, 2003.\r\n[52] S. Kelly-Bootle and B. Fowler. 68000, 68010, 68020 Primer. Howard W.\r\nSams & Co., 1985.\r\n[53] G. Kliot, E. Petrank, and B. Steensgaard. A Lock-Free, Concurrent, and\r\nIncremental Stack Scanning for Garbage Collectors. In Proceedings of the\r\n2009 ACM SIGPLAN/SIGOPS international conference on Virtual Exe\u0002cution Environments, pages 11–20. ACM, 2009.\r\n[54] C. P. Kruskal, L. Rudolph, and M. Snir. Efficient Synchronization of Mul\u0002tiprocessors with Shared Memory. ACM Transactions on Programming\r\nLanguages and Systems, 10:579–601, October 1988.\r\n[55] L. Lamport. Specifying Concurrent Program Modules. ACM Transactions\r\non Programming Languages and Systems, 5(2):190–222, 1983.\r\n[56] Doug Lea. The Java Concurrency Package (JSR-166), 2009.\r\n[57] M-Herlihy. Wait-Free Synchronization. ACM Transactions on Program\u0002ming Languages and Systems, 11(1):124–149, January 1991.\r\n[58] P. Martin, M. Moir, and G. Steele. DCAS-based Concurrent Deques Sup\u0002porting Bulk Allocation. Technical Report TR-2002-111, Sun Microsys\u0002tems, 2002.\r\n20",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/4f6247bb-5810-4e81-a5d8-b36ef5472c5a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=16a021597ef707ba13b51a6a519e14d9efd4632ab71fc3aaa98a1965b0374225",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 318
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "01acf889-020c-49aa-ab2e-f35598fa6a21",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 22,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[59] H. Massalin. Synthesis: An Efficient Implementation of Fundamental Op\u0002erating System Services. PhD thesis, Columbia University, 1992.\r\n[60] H. Massalin and C. Pu. A Lock-Free Multiprocessor OS Kernel. Technical\r\nReport CUCS-005-91, Computer Science Department, Columbia Univer\u0002sity, June 1991.\r\n[61] M. M. Michael. High Performance Dynamic Lock-Free Hash Tables and\r\nList-Based Sets. In Proceedings of the 14th ACM Symposium on Parallel\r\nAlgorithms and Architectures, pages 73–82, 2002.\r\n[62] M. M. Michael. Safe Memory Reclamation for Dynamic Lock-Free Ob\u0002jects Using Atomic Reads and Writes. In Proceedings of the 21st ACM\r\nSymposium on Principles of Distributed Computing, pages 21–30, 2002.\r\n[63] M. M. Michael. CAS-based lock-free algorithm for shared deques. In Pro\u0002ceedings of the 9th International Euro-Par Conference, LNCS. Springer\r\nVerlag, August 2003.\r\n[64] M. M. Michael. Hazard Pointers: Safe Memory Reclamation for Lock-Free\r\nObjects. IEEE Transactions on Parallel and Distributed Systems, 15(8),\r\nAugust 2004.\r\n[65] M. M. Michael. Practical Lock-Free and Wait-Free LL/SC/VL Implemen\u0002tations Using 64-Bit CAS. In Proceedings of the 18th International Con\u0002ference on Distributed Computing, pages 144–158, 2004.\r\n[66] M. M. Michael. Scalable Lock-Free Dynamic Memory Allocation. In Pro\u0002ceedings of the 2004 ACM SIGPLAN Conference on Programming Lan\u0002guage Design and Implementation, pages 35–46, June 2004.\r\n[67] M. M. Michael and M. L. Scott. Correction of a Memory Management\r\nMethod for Lock-Free Data Structures. Technical report, Computer Science\r\nDepartment, University of Rochester, 1995.\r\n[68] M. M. Michael and M. L. Scott. Simple, fast, and practical non-blocking\r\nand blocking concurrent queue algorithms. In Proceedings of the 15th an\u0002nual ACM Symposium on Principles of Distributed Computing, pages 267–\r\n275, 1996.\r\n[69] Microsoft. Parallel Computing Developer Center, 2009.\r\n[70] M. Moir. Practical Implementations of Non-Blocking Synchronization\r\nPrimitives. In Proceedings of the 15th Annual ACM Symposium on the\r\nPrinciples of Distributed Computing, August 1997.\r\n[71] M. Moir. Transparent Support for Wait-Free Transactions. In Proceed\u0002ings of the 11th International Workshop on Distributed Algorithms, volume\r\n1320, pages 305–319, September 1997.\r\n21",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/01acf889-020c-49aa-ab2e-f35598fa6a21.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=87b135a1d3d06c95ff3948274e9ba38048387b31dfd44bc8f4a8c6a50277e864",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 314
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ffa2492a-be80-43da-82d0-ec6acc042680",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 23,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[72] M. Moir, D. Nussbaum, O. Shalev, and N. Shavit. Using Elimination to\r\nImplement Scalable and Lock-Free FIFO Queues. In Proceedings of the 17th\r\nannual ACM Symposium on Parallelism in Algorithms and Architectures,\r\npages 253–262. ACM, 2005.\r\n[73] G. F. Pfister, W. C. Brantley, D. A. George, S. L. Harvey, W. J. Kleinfelder,\r\nK. P. McAuliffe, E. S. Melton, V. A. Norton, and J. Weiss. The IBM Re\u0002search Parallel Processor Prototype (RP3): Introduction and Architecture.\r\nIn ICPP, pages 764–771, 1985.\r\n[74] S. Prakash, Y. H. Lee, and T. Johnson. A Nonblocking Algorithm for\r\nShared Queues Using Compare-and-Swap. IEEE Transactions on Comput\u0002ers, 43(5):548–559, 1994.\r\n[75] J. Reinders. Intel Threading Building Blocks: Outfitting C++ for Multi\u0002core Processor Parallelism. O’Reilly Media, 2007.\r\n[76] S. Schneider, C. D. Antonopoulos, and D. S. Nikolopoulos. Scalable\r\nLocality-Conscious Multithreaded Memory Allocation. In Proceedings of\r\nthe 5th International Symposium on Memory Management, pages 84–94.\r\nACM, 2006.\r\n[77] O. Shalev and N. Shavit. Split-ordered Lists: Lock-Free Extensible Hash\r\nTables. In Proceedings of the 22nd Annual Symposium on Principles of\r\nDistributed Computing, pages 102–111. ACM Press, 2003.\r\n[78] C. Shann, T. Huang, and C. Chen. A Practical Nonblocking Queue Al\u0002gorithm using Compare-and-Swap. In Proceedings of the Seventh Inter\u0002national Conference on Parallel and Distributed Systems, pages 470–475,\r\n2000.\r\n[79] N. Shavit and D. Touitou. Software Transactional Memory. In Proceed\u0002ings of the fourteenth annual ACM symposium on Principles of distributed\r\ncomputing, pages 204–213. ACM Press, 1995.\r\n[80] M. Spiegel and P. F. Reynolds Jr. Lock-Free Multiway Search Trees. In\r\nProceedings of the 39th International Conference on Parallel Processing,\r\npages 604–613, 2010.\r\n[81] H. Sundell. Efficient and Practical Non-Blocking Data Structures. PhD\r\nthesis, Chalmers University of Technology, 2004.\r\n[82] H. Sundell. Wait-Free Multi-Word Compare-And-Swap using Greedy Help\u0002ing and Grabbing. In Proceedings of the International Conference on Paral\u0002lel and Distributed Processing Techniques and Applications, pages 494–500,\r\n2009.\r\n[83] H. Sundell, A. Gidenstam, M. Papatriantafilou, and P. Tsigas. A Lock\u0002Free Algorithm for Concurrent Bags. In Proceedings of the 23rd ACM\r\nSymposium on Parallelism in Algorithms and Architectures. ACM, 2011.\r\n22",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/ffa2492a-be80-43da-82d0-ec6acc042680.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=78e84be2b23a1c02628ebdcb952d7701c6365714a4560382f7c3fb5a8ed72313",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 335
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "9db2122c-1762-4eb0-abd3-021a1641e2e5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 24,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[84] H. Sundell and P. Tsigas. NOBLE: A Non-Blocking Inter-Process Com\u0002munication Library. In Proceedings of the 6th Workshop on Languages,\r\nCompilers and Run-time Systems for Scalable Computers, 2002.\r\n[85] H. Sundell and P. Tsigas. Fast and Lock-Free Concurrent Priority Queues\r\nfor Multi-Thread Systems. In Proceedings of the 17th International Parallel\r\nand Distributed Processing Symposium, page 11. IEEE press, 2003.\r\n[86] H. Sundell and P. Tsigas. Scalable and Lock-Free Concurrent Dictionaries.\r\nIn Proceedings of the 19th ACM Symposium on Applied Computing, pages\r\n1438–1445. ACM press, 2004.\r\n[87] H. Sundell and P. Tsigas. Fast and Lock-Free Concurrent Priority Queues\r\nfor Multi-Thread Systems. Journal of Parallel and Distributed Computing,\r\n65(5):609–627, May 2005.\r\n[88] H. Sundell and P. Tsigas. Lock-Free Deques and Doubly Linked Lists.\r\nJournal of Parallel and Distributed Computing, 68(7):1008–1020, July 2008.\r\n[89] J. Tsay and H.-C. Li. Lock-Free Concurrent Tree Structures for Multipro\u0002cessor Systems. In Proceedings of the International Conference on Parallel\r\nand Distributed Systems , pages 544–549, 1994.\r\n[90] P. Tsigas and Y. Zhang. A Simple, Fast and Scalable Non-Blocking Con\u0002current FIFO queue for Shared Memory Multiprocessor Systems. In Pro\u0002ceedings of the 13th annual ACM Symposium on Parallel Algorithms and\r\nArchitectures, pages 134–143, 2001.\r\n[91] P. Tsigas and Y. Zhang. Evaluating the Performance of Non-Blocking\r\nSynchronization on Shared-Memory Multiprocessors. In Proceedings of the\r\nInternational Conference on Measurement and Modeling of Computer Sys\u0002tems, pages 320–321. ACM Press, 2001.\r\n[92] P. Tsigas and Y. Zhang. Integrating Non-blocking Synchronisation in Par\u0002allel Applications: Performance Advantages and Methodologies. In Pro\u0002ceedings of the 3rd ACM Workshop on Software and Performance, pages\r\n55–67. ACM Press, 2002.\r\n[93] J. Turek and D. Shasha. The many faces of consensus in distributed sys\u0002tems. IEEE Computer, 25(2):8–17, 1992.\r\n[94] J. D. Valois. Implementing Lock-Free Queues. In Proceedings of the 7th\r\nInternational Conference on Parallel and Distributed Computing Systems,\r\npages 64–69, 1994.\r\n[95] J. D. Valois. Lock-Free Data Structures. PhD thesis, Rensselaer Polytechnic\r\nInstitute, Troy, New York, 1995.\r\n23",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/90ac339f-a579-4d41-9d56-88d8024ab818/images/9db2122c-1762-4eb0-abd3-021a1641e2e5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041255Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0c371e8d2298a6f8215fdb9086800087c720e4de88862c53e747d1beca9b9a0d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 317
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Lock-free Concurrent Data Structures\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Daniel Cederman, Anders Gidenstam, Phuong Ha, H˚akan Sundell, Marina Papatriantafilou, Philippas Tsigas\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "12 Feb 2013\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Sweden\nNorway\nUSA\n"
+        }
+      ]
+    }
+  }
+}

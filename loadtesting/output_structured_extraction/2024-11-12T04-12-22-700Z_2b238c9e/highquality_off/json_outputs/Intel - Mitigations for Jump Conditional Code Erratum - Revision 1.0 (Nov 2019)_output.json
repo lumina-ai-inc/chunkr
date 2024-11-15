@@ -1,0 +1,344 @@
+{
+  "file_name": "Intel - Mitigations for Jump Conditional Code Erratum - Revision 1.0 (Nov 2019).pdf",
+  "task_id": "b7ebeb42-87de-41db-a686-2d1384f1bca1",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "3de907a8-b604-4035-bea5-a0f4172b6c5c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Document Number: 341810-001\r\nMitigations for Jump Conditional Code \r\nErratum\r\nWhite Paper\r\nRevision 1.0\r\nNovember 2019",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/3de907a8-b604-4035-bea5-a0f4172b6c5c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=da97d4020e6012871c5d2d4f802836d62cc237be558a88857d222d4e163a0440",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ecf684e6-c7aa-49fa-80d3-2754009ab96f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Mitigations for Jump Conditional Code Erratum\r\nWhite Paper November 2019\r\n2 Document Number: 341810-001\r\nIntel provides these materials as-is, with no express or implied warranties.\r\nAll products, dates, and figures specified are preliminary, based on current expectations, and are subject to change without notice.\r\nIntel, processors, chipsets, and desktop boards may contain design defects or errors known as errata, which may cause the product \r\nto deviate from published specifications. Current characterized errata are available on request.\r\nIntel technologies' features and benefits depend on system configuration and may require enabled hardware, software or service \r\nactivation. Performance varies depending on system configuration. No product or component can be absolutely secure. Check with \r\nyour system manufacturer or retailer or learn more at http://intel.com.\r\nSoftware and workloads used in performance tests may have been optimized for performance only on Intel microprocessors.\r\nPerformance tests, such as SYSmark and MobileMark, are measured using specific computer systems, components, software, \r\noperations and functions. Any change to any of those factors may cause the results to vary. You should consult other information \r\nand performance tests to assist you in fully evaluating your contemplated purchases, including the performance of that product \r\nwhen combined with other products. For more complete information visit www.intel.com/benchmarks.\r\nSome results have been estimated or simulated using internal Intel analysis or architecture simulation or modeling and provided to \r\nyou for informational purposes. Any differences in your system hardware, software or configuration may affect your actual \r\nperformance. \r\nIntel and the Intel logo are trademarks of Intel Corporation in the United States and other countries.\r\n*Other names and brands may be claimed as the property of others.\r\n© Intel Corporation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/ecf684e6-c7aa-49fa-80d3-2754009ab96f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c73e943b8ded98c8c25945a338f4e50e91cadfeadff3ab01ab5aff6266acb50b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "670249fc-b71e-4d59-a524-3f2f2490d7c3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Mitigations for Jump Conditional Code Erratum\r\nNovember 2019 White Paper\r\nDocument Number: 341810-001 3\r\nContents\r\n1.0 Introduction............................................................................................................................................5\r\n1.1 Description of Jump Conditional Code (JCC) Erratum.......................................................5\r\n1.2 Impact.................................................................................................................................................................5\r\n2.0 Mitigation Strategy.............................................................................................................................6\r\n2.1 Microcode Update (MCU) to Mitigate JCC Erratum ..............................................................6\r\n2.2 Potential Performance Effects of the MCU .................................................................................6\r\n2.3 Detecting Performance Effects of the MCU ...............................................................................7\r\n2.4 Software Guidance and Optimization Methods.......................................................................8\r\n2.4.1 Code Without JCC Mitigation ............................................................................................8\r\n2.4.2 Code With JCC Mitigation....................................................................................................9\r\n3.0 Software Tools to Improve Performance ............................................................................11\r\n3.1 Options for GNU Assembler ..............................................................................................................11\r\n3.1.1 -mbranches-within-32B-boundaries.........................................................................11\r\n3.1.2 -malign-branch-boundary=NUM.................................................................................11\r\n3.1.3 -malign-branch=TYPE[+TYPE...] ................................................................................11\r\n3.1.4 -malign-branch-prefix-size=NUM...............................................................................12\r\n4.0 Affected Processors..........................................................................................................................13",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/670249fc-b71e-4d59-a524-3f2f2490d7c3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a867f82dccf84a47f348de3b1c26cf70e5580be07dce0c8470f4015de23a8399",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "14865c4e-36ea-4984-b4c1-74cb7a604ecc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Mitigations for Jump Conditional Code Erratum\r\nWhite Paper November 2019\r\n4 Document Number: 341810-001\r\nRevision History\r\nDate Revision Description\r\nNov 11, 2019 1.0 Initial release. \r\n§",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/14865c4e-36ea-4984-b4c1-74cb7a604ecc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b911a590e6436cec5b877a69d0c6e00456266e07a4e702f0c474a6fe786adf57",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 409
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d592fea2-3553-42e5-9508-2d2b8d4bccd5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Introduction\r\nMitigations for Jump Conditional Code Erratum\r\nNovember 2019 White Paper\r\nDocument Number: 341810-001 5\r\n1.0 Introduction\r\nStarting with second generation Intel® Core™ Processors and Intel® Xeon E3-1200 \r\nSeries Processors (formerly codenamed Sandy Bridge) and later processor families, \r\nthe Intel® microarchitecture introduces a microarchitectural structure called the\r\nDecoded ICache (also called the Decoded Streaming Buffer or DSB). The Decoded \r\nICache caches decoded instructions, called micro-ops (μops), coming out of the \r\nlegacy decode pipeline. The next time the processor accesses the same code, the \r\nDecoded ICache provides the μops directly, speeding up program execution.\r\n1.1 Description of Jump Conditional Code (JCC) Erratum\r\nIn some Intel processors there is an erratum (SKX102 in\r\nhttps://www.intel.com/content/www/us/en/processors/xeon/scalable/xeon\u0002scalable-spec-update.html), which may occur under complex microarchitectural \r\nconditions involving jump instructions that span 64-byte boundaries (cross cache \r\nlines).\r\n1.2 Impact\r\nThe erratum may result in unpredictable behavior when certain multiple dynamic \r\nmicroarchitectural conditions are met. Refer to the Affected Processors section for a \r\nfull list of processors affected by this erratum. Future processors may include a fix \r\nfor this erratum in the hardware.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/d592fea2-3553-42e5-9508-2d2b8d4bccd5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d2a6258fb0914c71873c90783a91ef7e36b13fc1593105b1d01194d11af9e6a5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "59fbe8e1-6c9c-4ac5-a6e5-6da46dcb7fe5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Mitigation Strategy\r\nMitigations for Jump Conditional Code Erratum\r\nWhite Paper November 2019\r\n6 Document Number: 341810-001\r\n2.0 Mitigation Strategy\r\n2.1 Microcode Update (MCU) to Mitigate JCC Erratum\r\nThis erratum can be prevented by a microcode update (MCU). The MCU prevents \r\njump instructions from being cached in the Decoded ICache when the jump \r\ninstructions cross a 32-byte boundary or when they end on a 32-byte boundary. In \r\nthis context, Jump Instructions include all jump types: conditional jump (Jcc), macro\u0002fused op-Jcc (where op is one of cmp, test, add, sub, and, inc, or dec), direct \r\nunconditional jump, indirect jump, direct/indirect call, and return.\r\nFigure 1: Jumps and 32-byte boundary\r\nYou can find the MCU that fixes this erratum on GitHub*.\r\n2.2 Potential Performance Effects of the MCU\r\nThe JCC erratum MCU workaround will cause a greater number of misses out of the \r\nDecoded ICache and subsequent switches to the legacy decode pipeline. This occurs \r\nsince branches that overlay or end on a 32-byte boundary are unable to fill into the \r\nDecoded ICache.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/59fbe8e1-6c9c-4ac5-a6e5-6da46dcb7fe5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6dc1e5d90aae02a1a6049f80135e12efa113a38bc2f88a76a25db875c5f865be",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 344
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "9af0538a-2573-45f1-9e9e-01e23a0a15e0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Mitigation Strategy\r\nMitigations for Jump Conditional Code Erratum\r\nNovember 2019 White Paper\r\nDocument Number: 341810-001 7\r\nIntel has observed performance effects associated with the workaround ranging from \r\n0-4% on many industry-standard benchmarks.1In subcomponents of these \r\nbenchmarks, Intel has observed outliers higher than the 0-4% range. Other workloads \r\nnot observed by Intel may behave differently. Intel has in turn developed software\u0002based tools to minimize the impact on potentially affected applications and workloads.\r\nThe potential performance impact of the JCC erratum mitigation arises from two \r\ndifferent sources:\r\n1. A switch penalty that occurs when executing in the Decoded ICache and \r\nswitching over to the legacy decode pipeline.\r\n2. Inefficiencies that occur when executing from the legacy decode pipeline that \r\nare potentially hidden by the Decoded ICache. \r\n2.3 Detecting Performance Effects of the MCU\r\nCollect the following events to detect the performance effects of the MCU:\r\n1. CPU_CLK_UNHALTED.THREAD = Core clock cycles in C0.\r\n2. IDQ.DSB_UOPS = μops coming from the Decoded ICache.\r\n3. DSB2MITE_SWITCHES.PENALTY_CYCLES = Penalty cycles introduced into the \r\npipeline from switching from the Decoded ICache.\r\n4. FRONTEND_RETIRED.DSB_MISS_PS = Precise frontend retired DSB miss will \r\ntag where modules, functions, and branches cause the DSB to miss.\r\n5. IDQ.MS_UOPS = μops coming from the microcode sequencer.\r\n6. IDQ.MITE_UOPS = μops coming from the legacy decode pipeline (also called \r\nthe Micro Instruction Translation Engine)\r\n7. LSD.UOPS = μops coming from the Loop Stream Detector (LSD)\r\nNote: The LSD is only available on some cores. The LSD.UOPS event can be \r\nexcluded from calculations if not present as an event.\r\nThe ratios of interest are the following:\r\n \r\n1 Data measured on Intel internal reference platform for research/educational purposes. Server benchmarks include \r\nSPECrate2017_int_base compiler with Intel Compiler Version 19 update 4, SPECrate2017_fp_base compiler with Intel Compiler \r\nVersion 19 update 4, Linpack, Stream Triad, FIO (rand7030_4K_04_workers_Q32/seq7030_64K_04_workers_Q32), HammerDB\u0002Postgres, SPECjbb2015, SPECvirt. Client benchmarks include: SPECrate2017_int_base compiler with Intel Compiler Version 19 update \r\n4, SPECrate2017_fp_base compiler with Intel Compiler Version 19 update 4, SYSmark 2018, PCmark 10, 3Dmark Sky Diver, WebXPRT \r\nv3, Cinebench R20.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/9af0538a-2573-45f1-9e9e-01e23a0a15e0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4d0a7fdb612145af813174588c7ac64c90a0691b3285657069acf6a8f7aceb81",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 334
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6742b0ce-0af8-459b-a7f1-2d4b507af55e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Mitigation Strategy\r\nMitigations for Jump Conditional Code Erratum\r\nWhite Paper November 2019\r\n8 Document Number: 341810-001\r\n1. Determining the penalty of the switch from the Decoded ICache to the legacy \r\ndecode pipeline as a percentage of core clocks:\r\no IFU_SWITCH_PENALTY% = \r\n100*DSB2MITE_SWITCHES.PENALTY_CYCLES/CPU_CLK_UNHALTED\r\n.THREAD\r\n2. Determining the percentage of μops coming from the Decoded ICache:\r\nNote: Applications with >40% of μops coming from the Decoded ICache will be \r\nmore susceptible to performance degradation. The JCC erratum mitigation can \r\ncause the percentage of μops coming from the Decoded ICache to decrease.\r\no DECODED_ICACHE_UOPS% = \r\n100*(IDQ.DSB_UOPS/(IDQ.MS_UOPS+IDQ.MITE_UOPS+IDQ.DSB_\r\nUOPS+LSD.UOPS))\r\nThe FRONTEND_RETIRED.DSB_MISS_PS event tags Decoded ICache misses to the \r\nmodule, function, and source lines including misses caused by the branches that \r\noverlay or end on a 32-byte boundary. This precise event is guaranteed to tag in the \r\nvicinity of decoded instruction cache misses and usually to the beginning of \r\nexecution entry to an aligned 64-byte chunk.\r\nFigure 2: Identification of the branch which overlays the 32-byte 0x80 boundary with \r\na macro-fused test->conditional jump\r\n2.4 Software Guidance and Optimization Methods\r\nSoftware can compensate for the performance effects of the workaround for this \r\nerratum with optimizations that align the code such that jump instructions (and macro\u0002fused jump instructions) do not cross 32-byte boundaries or end on a 32-byte \r\nboundary. Such aligning can reduce or eliminate the performance penalty caused by \r\nthe transition of execution from Decoded ICache to the legacy decode pipeline.\r\nIn the following code example, the two-byte jump instruction jae starting at offset\r\n1f spans a 32-byte boundary and can cause a transition from the Decoded ICache to \r\nthe legacy decode pipeline.\r\n2.4.1 Code Without JCC Mitigation\r\n0000000000000000 <fn1>:\r\n 0: 55 push %rbp",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/6742b0ce-0af8-459b-a7f1-2d4b507af55e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a2a1d67c18f2b7a5ce12557b54e49e1f0e2d00d277dc79868f0f543f5f01ea90",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 277
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2d4ef3fa-7e64-424b-bf2e-23261c5ff27f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Mitigation Strategy\r\nMitigations for Jump Conditional Code Erratum\r\nNovember 2019 White Paper\r\nDocument Number: 341810-001 9\r\n 1: 41 54 push %r12\r\n 3: 48 89 e5 mov %rsp,%rbp\r\n 6: c5 f8 10 04 0f vmovups (%rdi,%rcx,1),%xmm0\r\n b: c5 f8 11 04 0a vmovups %xmm0,(%rdx,%rcx,1)\r\n 10: c5 f8 10 44 0f 10 vmovups 0x10(%rdi,%rcx,1),%xmm0\r\n 16: c5 f8 11 44 0a 10 vmovups %xmm0,0x10(%rdx,%rcx,1)\r\n 1c: 48 39 fe cmp %rdi,%rsi\r\n 1f: 73 09 jae 2a <fn1+0x2a>\r\n 21: e8 00 00 00 00 callq 26 <fn1+0x26>\r\n 26: 41 5c pop %r12\r\n 28: c9 leaveq\r\n 29: c3 retq\r\n 2a: e8 00 00 00 00 callq 2f <fn1+0x2f>\r\n 2f: 41 5c pop %r12\r\n 31: c9 leaveq\r\n 32: c3 retq\r\nThe advice to software developers is to align the jae instruction so that it does not \r\ncross a 32-byte boundary. In the example, this is done by adding the benign prefix \r\n0x2e four times before the first push %rbp instruction so that the cmp instruction, \r\nwhich started at offset 1c, will instead start at offset 20. Hence the macro-fused cmp \r\n+ jae instruction will not cross a 32-byte boundary.\r\n2.4.2 Code With JCC Mitigation\r\n0000000000000000 <fn1>:\r\n 0: 2e 2e 2e 2e 55 cs cs cs cs push %rbp\r\n 5: 41 54 push %r12\r\n 7: 48 89 e5 mov %rsp,%rbp\r\n a: c5 f8 10 04 0f vmovups (%rdi,%rcx,1),%xmm0\r\n f: c5 f8 11 04 0a vmovups %xmm0,(%rdx,%rcx,1)\r\n 14: c5 f8 10 44 0f 10 vmovups 0x10(%rdi,%rcx,1),%xmm0",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/2d4ef3fa-7e64-424b-bf2e-23261c5ff27f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a000d89a615692e9a5a36344443d9e644fec267a23f023b480974c624b3d13e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3543cdb1-ada4-4a81-93b5-df4fd6109b4e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Mitigation Strategy\r\nMitigations for Jump Conditional Code Erratum\r\nWhite Paper November 2019\r\n10 Document Number: 341810-001\r\n 1a: c5 f8 11 44 0a 10 vmovups %xmm0,0x10(%rdx,%rcx,1)\r\n 20: 48 39 fe cmp %rdi,%rsi\r\n 23: 73 09 jae 2e <fn1+0x2e>\r\n 25: e8 00 00 00 00 callq 2a <fn1+0x2a>\r\n 2a: 41 5c pop %r12\r\n 2c: c9 leaveq\r\n 2d: c3 retq \r\n 2e: e8 00 00 00 00 callq 33 <fn1+0x33>\r\n 33: 41 5c pop %r12\r\n 35: c9 leaveq\r\n 36: c3 retq ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/3543cdb1-ada4-4a81-93b5-df4fd6109b4e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b8b21d543694276447ee3f1e345b9bc3b255a30786ea47dacee33af97850c229",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 314
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "027b283a-8d10-40f1-9c39-7d88b83509dd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Software Tools to Improve Performance\r\nMitigations for Jump Conditional Code Erratum\r\nNovember 2019 White Paper\r\nDocument Number: 341810-001 11\r\n3.0 Software Tools to Improve Performance\r\nIntel is working with the community on tools that will help developers align the \r\nbranches and has observed that recompilation with the updated tools can help recover \r\nmost of the performance loss that might be otherwise observed in selected \r\napplications.\r\nThe release schedule of individual tools can vary, but Intel expects the updated tools to \r\nbe released in the next few months.\r\n3.1 Options for GNU Assembler\r\n3.1.1 -mbranches-within-32B-boundaries\r\nThis is the recommended option for affected processors.\r\n2 This option aligns \r\nconditional jumps, fused conditional jumps, and unconditional jumps within a 32-byte \r\nboundary with up to 5 segment prefixes on an instruction. It is equivalent to the \r\nfollowing:\r\n• -malign-branch-boundary=32\r\n• -malign-branch=jcc+fused+jmp\r\n• -malign-branch-prefix-size=5\r\nThe default doesn't align branches.\r\n3.1.2 -malign-branch-boundary=NUM\r\nThis option controls how the assembler should align branches with segment prefixes or\r\nNOP. NUM must be a power of 2. It should be 0 or at least 32. Branches will be aligned \r\nwithin the NUM byte boundary. The default -malign-branch-boundary=0 doesn't \r\nalign branches.\r\n3.1.3 -malign-branch=TYPE[+TYPE...]\r\nThis option specifies types of branches to align. TYPE is combination of the following:\r\n• jcc, which aligns conditional jumps\r\n• fused, which aligns fused conditional jumps\r\n• jmp, which aligns unconditional jumps\r\n• call, which aligns calls\r\n• ret, which aligns returns\r\n \r\n2 Note that some processors which are not affected may take longer to decode instructions with more than 3 or 4 prefixes (for \r\nexample Silvermont and Goldmont processors as noted in the Intel® 64 and IA-32 Architectures Optimization Reference Manual).",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/027b283a-8d10-40f1-9c39-7d88b83509dd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4cbe9aae5dfe85986eaaeb384c5124c46aec46a77aad13979924053380b931c5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4ba786d5-0d8c-4534-8f70-c7c367713605",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Software Tools to Improve Performance\r\nMitigations for Jump Conditional Code Erratum\r\nWhite Paper November 2019\r\n12 Document Number: 341810-001\r\n• indirect, which aligns indirect jumps and calls\r\nThe default is -malign-branch-boundary=jcc+fused+jmp.\r\n3.1.4 -malign-branch-prefix-size=NUM\r\nThis option specifies the maximum number of prefixes on an instruction to align \r\nbranches. NUM should be between 0 and 5. The default NUM is 5.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/4ba786d5-0d8c-4534-8f70-c7c367713605.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a5baa4e66392262e4b44998a4f16974a54e93df3e7e6e089fd78eebb859dffb2",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 334
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6b4334ea-464a-474c-8b4b-f28e56d28171",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Affected Processors\r\nMitigations for Jump Conditional Code Erratum\r\nNovember 2019 White Paper\r\nDocument Number: 341810-001 13\r\n4.0 Affected Processors\r\nTo find the mapping between a processor's CPUID and its Family/Model number, \r\nrefer to the Intel® Software Developer's Manual, Vol 2A, table 3-8 and the INPUT EAX \r\n= 01H: Returns Model, Family, Stepping Information section.\r\nFamily_Model Stepping Processor Families/Processor Number series\r\n06_8EH 9 8th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Amber Lake Y\r\n06_8EH C 8th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Amber Lake Y\r\n06_55 7 2nd Generation Intel® Xeon® Scalable Processors based \r\non microarchitecture code name Cascade Lake (server)\r\n06_9EH A 8th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Coffee Lake H\r\n06_9EH A 8th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Coffee Lake S\r\n06_8EH A 8th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Coffee Lake U43e\r\n06_9EH B 8th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Coffee Lake S (4+2)\r\n06_9EH B Intel® Celeron® Processor G Series based on \r\nmicroarchitecture code name Coffee Lake S (4+2)\r\n06_9EH A 8th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Coffee Lake S (6+2) x/KBP\r\n06_9EH A Intel® Xeon® Processor E Family based on \r\nmicroarchitecture code name Coffee Lake S (6+2)\r\n06_9EH A Intel® Xeon® Processor E Family based on \r\nmicroarchitecture code name Coffee Lake S (6+2)\r\n06_9EH A Intel® Xeon® Processor E Family based on \r\nmicroarchitecture code name Coffee Lake S (6+2)\r\n06_9EH A Intel® Xeon® Processor E Family based on \r\nmicroarchitecture code name Coffee Lake S (4+2)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/6b4334ea-464a-474c-8b4b-f28e56d28171.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2f98d16c21fde023d04b9f768be4dc231ed68145ad68ae87bbb46ed8e027863f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 271
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "dd45a561-93ff-4ff8-9bdc-221f68314694",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Affected Processors\r\nMitigations for Jump Conditional Code Erratum\r\nWhite Paper November 2019\r\n14 Document Number: 341810-001\r\nFamily_Model Stepping Processor Families/Processor Number series\r\n06_9EH A Intel® Xeon® Processor E Family based on \r\nmicroarchitecture code name Coffee Lake S (4+2)\r\n06_9EH A Intel® Xeon® Processor E Family based on \r\nmicroarchitecture code name Coffee Lake S (4+2)\r\n06_9EH D 9th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Coffee Lake H (8+2)\r\n06_9EH D 9th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Coffee Lake S (8+2)\r\n06_8EH C 10th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Comet Lake U42\r\n06_A6H 0 10th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Comet Lake U62\r\n06_9EH 9 8th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Kaby Lake G\r\n06_9EH 9 7th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Kaby Lake H\r\n06_AEH A 8th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Kaby Lake Refresh U (4+2)\r\n06_9EH 9 7th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Kaby Lake S\r\n06_8EH 9 7th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Kaby Lake U\r\n06_8EH 9 7th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Kaby Lake U23e\r\n06_9EH 9 Intel® Core™ X-series Processors based on \r\nmicroarchitecture code name Kaby Lake X\r\n06_9EH 9 Intel® Xeon® Processor E3 v6 Family Kaby Lake Xeon E3\r\n06_8EH 9 7th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Kaby Lake Y\r\n06_55H 4 Intel® Xeon® Processor D Family based on \r\nmicroarchitecture code name Skylake D, Bakerville",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/dd45a561-93ff-4ff8-9bdc-221f68314694.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=080670107da99f9cb085ffd9238112af78691baf97b981d7b48b6b522c8e75b5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b061ea0c-4e64-406b-877a-6b29234f4ab7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Affected Processors\r\nMitigations for Jump Conditional Code Erratum\r\nNovember 2019 White Paper\r\nDocument Number: 341810-001 15\r\nFamily_Model Stepping Processor Families/Processor Number series\r\n06_5E 3 6th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Skylake H\r\n06_5E 3 6th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Skylake S\r\n06_55H 4 Intel® Xeon® Scalable Processors based on \r\nmicroarchitecture code name Skylake Server\r\n06_4E 3 6th Generation Intel® Core™ Processors based on \r\nmicroarchitecture code name Skylake U\r\n06_4E 3 6th Generation Intel® Core™ Processor Family based on \r\nmicroarchitecture code name Skylake U23e\r\n06_55H 4 Intel® Xeon® Processor W Family based on \r\nmicroarchitecture code name Skylake W\r\n06_55H 4 Intel® Core™ X-series Processors based on \r\nmicroarchitecture code name Skylake X\r\n06_55H 4 Intel® Xeon® Processor E3 v5 Family based on \r\nmicroarchitecture code name Skylake Xeon E3\r\n06_4E 3 6th Generation Intel® Core™ Processors based on \r\nmicroarchitecture code name Skylake Y\r\n06_8EH B 8th Generation Intel® Core™ Processors based on \r\nmicroarchitecture code name Whiskey Lake U\r\n06_8EH C 8th Generation Intel® Core™ Processors based on \r\nmicroarchitecture code name Whiskey Lake U",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/b7ebeb42-87de-41db-a686-2d1384f1bca1/images/b061ea0c-4e64-406b-877a-6b29234f4ab7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041432Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d57ca2899e57ae12d875651a542a04577cc7ba9776d79fdfb94b8044a2589ae3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 456
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Mitigations for Jump Conditional Code Erratum\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Intel Corporation\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "November 2019\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```string\nfn1\n```"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1361 @@
+{
+  "file_name": "Kernel Debugging with Windbg.pdf",
+  "task_id": "31eb0118-02cc-4517-b792-eaa68c91f100",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "1c5e08c6-e72c-4965-9fa1-03e0ebb3b91b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 1\r\nKernel Debugging with WinDbg\r\nGetting Set Up\r\nFundamentals\r\nSelected Techniques\r\nGetting More Information\r\nThe debuggers in Debugging Tools for Windows are powerful, but they have a steep \r\nlearning curve. This is particularly true for WinDbg and KD, the kernel debuggers used by \r\ndriver developers (CDB and NTSD are user-space debuggers). The aim of this tutorial is to \r\ngive a developer experienced with other debuggers enough information to get launched into \r\nkernel debugging and to use the Debugging Tools for Windows help file as a reference. The \r\ndeveloper is assumed to be familiar with the general concepts of the Windows operating \r\nsystem and the build process.\r\nThe focus will be mainly on WinDbg, a kernel-mode and user-mode debugger with a \r\ngraphical interface. KD is more useful for scripts and automated debugging and enjoys the \r\nreputation of being the tool of choice of the most serious programmers, but this tutorial will \r\nfocus on WinDbg and will merely allude to KD from time to time.\r\nThe target operating system is Windows 2000 or later. Much of what is described here \r\nworks for Windows NT 4.0, too. Furthermore, the target computer's processor uses x86 \r\narchitecture. While much here will work for 64-bit targets, no specific attention will be given \r\nthem.\r\nIn overview, the tutorial begins with a brief description of setting up for debugging. The bulk \r\nof the tutorial is two sections, fundamentals and selected techniques. Fundamentals are the \r\nbasic and most-often used debugger commands. Selected techniques are those other \r\ncommands and investigative approaches that will be useful in many situations. This latter \r\nsection is not, however, an exploration of substantive techniques that might be used to \r\ninvestigate things like deadlocks, memory corruption or resource leaks. On first reading of \r\nthe tutorial, you may want to skip the selected techniques. The tutorial concludes by\r\npointing to the Microsoft debugger discussion group and the debugger feedback e-mail \r\naddress for further questions.\r\nGetting set up\r\nGet the latest!\r\nObtain the latest debugger, and update it regularly. The value of having the latest release \r\ncan hardly be overstated, because the debugger enjoys frequent improvements and fixes. \r\nThe debugger can be downloaded at \r\nhttp://www.microsoft.com/whdc/devtools/debugging/default.mspx.\r\nHost and target connection",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/1c5e08c6-e72c-4965-9fa1-03e0ebb3b91b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=45a9617ec866b1154e98384773602856677a6d265227b26aaa1a726540b60c21",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 368
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "45805f59-c64f-41b1-b004-2807ecd5f8c8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "2 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nThe debugging setup will be a two computer arrangement, connected by a null-modem \r\ncable or by a 1394 cable. This tutorial does not examine “local” debugging on a single \r\nsystem (where the debugger examines the computer it is running on). Three computer \r\ndebugging (target, debugging server and debugging client) will be briefly discussed.\r\nA debugging session is a cooperative process between the host-side debugging application \r\n(WinDbg or KD) and the target operating system; each party must do something. More \r\nspecifically, WinDbg is not a “hypervisor operating system” that runs the target as a guest \r\nand is a real operating system in its own right. WinDbg is a debugging application in \r\npartnership with a target operating system that is aware of its role in the debugging process. \r\nIn that partnership, the target sends information to and receives information from WinDbg. \r\nThe communication mechanism must be good, and it must be efficient.\r\nA serial protocol is the tried-and-true mechanism for communication between the debugger \r\napplication and the target system. You connect the host and target machines with a null\u0002modem cable at a COM port at each end. An alternative communication mechanism is 1394. \r\nThe Debugging Tools for Windows help file describes each of these and how to configure the \r\ntarget system in the topic “Configuring Software on the Target Computer.”\r\nYour first session\r\nYour host computer is assumed to be running Windows 2000 or later. The host operating \r\nsystem can be a different version of Windows than the target operating system. The host \r\ncomputer may be where you do your usual development, maintenance or troubleshooting. \r\nIt should be connected to the network if you want access to symbol and source servers (see \r\nsymbols and source).\r\nFrom a Command Prompt window, change the current directory to the installation directory \r\nof Debugging Tools for Windows. This is the directory in which windbg.exe and kd.exe are ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/45805f59-c64f-41b1-b004-2807ecd5f8c8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6df076c2f29c07dea794f4074850b68463f371b8bdeaddd34e92b54236db06b9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "309c66cb-f4c6-4ee5-b179-7f892e140ae7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 3\r\nlocated. Type windbg and press Enter. You should see this:\r\nWindowing\r\nAt this point you can arrange your windows. The following example involves floating \r\nwindows. Start with the combined window that is the first above. Click on the bar labeled \r\n“Command” and drag that bar and its window away from the main frame. Then shrink the \r\nmain frame, since you can use keystrokes instead of directly using the menu or the buttons.\r\nThen use FileKernel Debug to get the protocol popup, and choose 1394 with channel 1. \r\nAt this point, your desktop looks like this:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/309c66cb-f4c6-4ee5-b179-7f892e140ae7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=08af968bf6ece56ada4802ec01e0a00dc541ff83c8e4bdc2fe2d6fdb213c902d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 422
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a4361c25-89de-46c7-8710-457327d2a140",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "4 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nThen click OK in the Kernel Debugging window.\r\nMaking the connection active\r\nNow you are ready to make a connection between host and target. Go to the target \r\nmachine and boot Windows from one of the debugging entries. Immediately go back to the \r\nhost system, touch the WinDbg command window with the cursor to make it active, and \r\npress CTRL+BREAK. In a few seconds you should see this:\r\nDon't worry for now about the messages concerning symbols. You have a WinDbg \r\nconnection to a Windows Server 2003 system. You're in business!",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/a4361c25-89de-46c7-8710-457327d2a140.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a4766eed7ccb284efc3128a384e99b786508794986121c0c9b80f0b9a1cf4da4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 99
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f902283f-b0dd-45b1-834b-586e163b4044",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 5\r\nA small but crucial thing to understand: The area at the very bottom of the command \r\nwindow shows the “kd>” prompt. That means that WinDbg is ready to accept commands \r\nthere. If no prompt is displayed, WinDbg cannot process commands at this moment, \r\nalthough any commands you type will be stored in a buffer and executed as soon as \r\npossible. You must wait for “kd>” to appear to be sure WinDbg is ready to respond. It is a \r\nfact of WinDbg‟s life that sometimes it is busy doing something you cannot see (such as \r\ngetting information from the target, and the information can be voluminous). The absence \r\nof “kd>” is your only clue that WinDbg is busy. One possibility is that WinDbg is working to \r\nresolve a symbol and taking longer than you might expect. Unfortunately, there is also the \r\noccasional situation where WinDbg is waiting for something such as connection with a target \r\nthat will never respond (maybe boot.ini was configured badly, or the wrong option was \r\nchosen). You will have to decide when enough time has passed to resort to drastic \r\nmeasures like pressing CTRL+BREAK or, conceivably, stopping WinDbg and starting a new \r\ninstance.\r\nFinding symbols and source\r\nBy now you are probably eager to start debugging, but there are a few more things you \r\nshould do, since they will improve your debugging experience enormously.\r\nThe first thing is to ensure that WinDbg can find the symbols for a module of interest. \r\nSymbols indicate to what statement a binary instruction corresponds and what are the \r\nvariables in force. Symbols map, in other words. You have available the symbols and the \r\nsource files for your own modules, if they are in the same place as they were at build time. \r\nBut what if you need to step through some other code that may have been built long before \r\nnow? Or, for that matter, what if your code isn‟t in the same location where it was built?\r\nTo explicitly set a location for symbols, use the .sympath command. Break (CTRL-BREAK) \r\nin the command window and type\r\n.sympath \r\nSRV*<DownstreamStore>*http://msdl.microsoft.com/download/symbols\r\nto tell WinDbg to look for symbols on the Microsoft public symbols server. To get WinDbg to \r\nuse that server and to keep a copy of downloaded symbols in a local store, for example, in \r\nD:\\DebugSymbols, you would do:\r\n.sympath SRV*d:\\DebugSymbols*http://msdl.microsoft.com/download/symbols\r\nOccasionally you may have trouble in getting symbols from the symbols server. In such a \r\ncase, begin with the !sym noisy command to get more information about what WinDbg is \r\ntrying to do to obtain symbols. Next, use !lmi to see what WinDbg knows about the one \r\nessential Windows module, ntoskrnl. Then try to get symbols for ntoskrnl, using .reload /f. \r\nThus:\r\nkd> !sym noisy",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/f902283f-b0dd-45b1-834b-586e163b4044.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=82b7b2dabaada45eefc302c49afccd457312f15001c1a93788ac5a061abb1f7c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 462
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fdda3ec0-d876-4a5e-9ee9-751b5d76e750",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "6 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nnoisy mode - symbol prompts on\r\nkd> !lmi nt\r\nLoaded Module Info: [nt] \r\n Module: ntoskrnl\r\n Base Address: 80a02000\r\n Image Name: ntoskrnl.exe\r\n Machine Type: 332 (I386)\r\n Time Stamp: 3e80048b Mon Mar 24 23:26:03 2003\r\n Size: 4d8000\r\n CheckSum: 3f6f03\r\nCharacteristics: 10e \r\nDebug Data Dirs: Type Size VA Pointer\r\n CODEVIEW 25, ee00, e600 RSDS - GUID: (0xec9b7590, \r\n0xd1bb, 0x47a6, 0xa6, 0xd5, 0x38, 0x35, 0x38, 0xc2, 0xb3, 0x1a)\r\n Age: 1, Pdb: ntoskrnl.pdb\r\n Image Type: MEMORY - Image read successfully from loaded memory.\r\n Symbol Type: EXPORT - PDB not found\r\n Load Report: export symbols\r\nThe syntax of the commands used here is described in the Debugging Tools for Windows \r\nhelp file.\r\nExported symbols are usually pretty meager. Debugging Tools for Windows includes a \r\nsymbol server that can connect to a public symbol store on Microsoft's internet site. Add \r\nthis to your symbol path, and then load symbols:\r\nkd> .sympath \r\nSRV*d:\\DebugSymbols*http://msdl.microsoft.com/download/symbols\r\nSymbol search path is: SRV*d:\\ DebugSymbols\r\n*http://msdl.microsoft.com/download/symbols\r\nkd> .reload /f nt",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/fdda3ec0-d876-4a5e-9ee9-751b5d76e750.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ade691fe4b7c4784f0752259b9b3df83fe2b8091be68cabaf586d5c7625696f1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "74707e6e-8195-45d9-8c1c-f78f73da4d7f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 7\r\nSYMSRV: \r\n\\\\symbols\\symbols\\ntoskrnl.pdb\\EC9B7590D1BB47A6A6D5383538C2B31A1\\file.p\r\ntr\r\nSYMSRV: ntoskrnl.pdb from \\\\symbols\\symbols: 9620480 bytes copied \r\nDBGHELP: nt - public symbols \r\n \r\nd:\\DebugSymbols\\ntoskrnl.pdb\\EC9B7590D1BB47A6A6D5383538C2B31A1\\ntoskrnl\r\n.pdb\r\nkd> !lmi nt\r\nLoaded Module Info: [nt] \r\n Module: ntoskrnl\r\n Base Address: 80a02000\r\n Image Name: ntoskrnl.exe\r\n Machine Type: 332 (I386)\r\n Time Stamp: 3e80048b Mon Mar 24 23:26:03 2003\r\n Size: 4d8000\r\n CheckSum: 3f6f03\r\nCharacteristics: 10e \r\nDebug Data Dirs: Type Size VA Pointer\r\n CODEVIEW 25, ee00, e600 RSDS - GUID: (0xec9b7590, \r\n0xd1bb, 0x47a6, 0xa6, 0xd5, 0x38, 0x35, 0x38, 0xc2, 0xb3, 0x1a)\r\n Age: 1, Pdb: ntoskrnl.pdb\r\n Image Type: MEMORY - Image read successfully from loaded memory.\r\n Symbol Type: PDB - Symbols loaded successfully from symbol \r\nserver.\r\n \r\nd:\\DebugSymbols\\ntoskrnl.pdb\\EC9B7590D1BB47A6A6D5383538C2B31A1\\ntoskrnl\r\n.pdb\r\n Compiler: C - front end [13.10 bld 2179] - back end [13.10 bld \r\n2190]\r\n Load Report: public symbols",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/74707e6e-8195-45d9-8c1c-f78f73da4d7f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=80ef745afddbd2a12624472ab98f80a4f66e51d17363b243e6162d1a8481423b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 291
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fcf2068c-f527-4a07-ae4d-ddeeceb8c014",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "8 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n \r\nd:\\DebugSymbols\\ntoskrnl.pdb\\EC9B7590D1BB47A6A6D5383538C2B31A1\\ntoskrnl\r\n.pdb\r\nWhile symbols will give you some information, they do not provide source code. In the \r\nsimplest case, source files will be found in the same place they were at build time (the \r\nlocation will be in the binary and symbol files). But in many cases, they cannot be found \r\nthere (they may have been moved), and you must specify where to look. For that you need \r\na source path, for example,\r\n.srcpath e:\\Win2003SP1\r\nThat means: For source files, look in the e:\\Win2003SP1 directory.\r\nAnother solution is to name a source server, if you have one:\r\n.srcpath \\\\MySrcServer\r\nIf you experience trouble in getting source files, you should do .srcnoisy 1 to get more \r\ninformation about what the debugger is doing to find them.\r\nWorkspaces\r\nYou‟ve not begun actual debugging, yet you have done a good deal of typing already. A lot \r\nof the settings can be kept in a workspace. So you might use FileSave to save the \r\nsettings in a workspace, perhaps one you name kernel1394Win2003. After that, you could \r\nstart WinDbg with that workspace:\r\nwindbg -W kernel1394Win2003 -k 1394:channel=1\r\nwhere –W specifies a workspace and –k gives the communication protocol (refer to the \r\nDebugging Tools for Windows help file under “WinDbg Command-Line Options”). Note: You \r\nshould be careful to preserve lower and upper case in the command-line options you give to \r\nWinDbg or KD.\r\nTo make things easier, you can put a shortcut on your desktop to start WinDbg with the \r\ndesired workspace, for example, with a 1394 connection:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/fcf2068c-f527-4a07-ae4d-ddeeceb8c014.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=598f4c18a5188a2e6411ff27b17bca43f3a8cc21e01c2a6d8d7a18b41edb465b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7b3ec1a3-12f2-479a-a7fd-b6b556fc78de",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 9\r\nThe contents of the file above are:\r\ncd /d \"d:\\Program Files\\Debugging Tools for Windows\"\r\nstart windbg.exe -y \r\nSRV*d:\\DebugSymbols*http://msdl.microsoft.com/download/symbols -W \r\nkernel1394Win2003\r\nThe first line makes the Debugging Tools for Windows installation directory the current \r\ndirectory, to ensure that debugger modules will be found. The second line starts WinDbg, \r\nspecifying a symbol path (-y) and workspace (-W).\r\nA sample driver\r\nIt will be helpful to exercise WinDbg with the sample driver IoCtl. This can be found in the \r\nWindows Device Driver Kit (DDK) and its successor, the Windows Driver Kit (WDK). Install \r\nthis kit and look in the src\\general\\Ioctl subdirectory. The advantages of IoCtl are that it is \r\nsimple and that it is a “legacy” driver, that is, one loaded by the Service Control Manager \r\n(SCM) and not a part of Plug-and-Play (the in‟s and out‟s of PnP are not of interest here). ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/7b3ec1a3-12f2-479a-a7fd-b6b556fc78de.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e54faeb29d1f081027826795a6b58dd399d8f470cad6a7c04b0e30dc2c70ff23",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 410
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "560d46d5-b913-4a5d-b646-9c524e2a9413",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "10 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nYou should build both the user-space executable (ioctlapp.exe) and the kernel-space driver \r\n(sioctl.sys), since the former will load the latter.\r\nHere is something fairly important to understand. The build process is quite smart about \r\noptimizing code, and optimization can result in code movement (logic is of course preserved) \r\nand in keeping variable values solely in registers. To ensure a straightforward debugging \r\nexperience, you should produce a checked build with this compiler directive given in the \r\nbuild window or in the appropriate sources file:\r\nMSC_OPTIMIZATION=/Od\r\n(That is “Oh d” and not “zero d.”)\r\nSometimes the above will result in a build problem with intrinsic functions like memcmp. If \r\nyou run into that problem, try:\r\nMSC_OPTIMIZATION=/Odi\r\nPlease understand that preventing optimization is not a good choice for a production build. \r\nWith the above directive, you would not be creating and would not be testing a production\u0002type build. It is nonetheless a good practice to start testing with non-optimized builds and, \r\nonce you are familiar with the code and have eliminated the simpler errors, to advance to \r\nproduction builds. When you have to deal with optimized code, you will find some assistance \r\nin dealing with optimized code.\r\nStarting to debug the sample driver\r\nSet a breakpoint in IoCtl at DriverEntry. Before starting the driver, break into the WinDbg \r\ncommand window and type this:\r\nbu sioctl!DriverEntry\r\nThe bu (“Breakpoint Unresolved”) command defers the actual setting of the breakpoint until \r\nthe module is loaded; at that point, WinDbg will look in it for “DriverEntry.” Since there is \r\nnothing more to do now, hit F5 (or you could type g, “Go”).\r\nNext, copy ioctlapp.exe and sioctl.sys to a place on the target system such as \r\nC:\\Temp\\IOCTL, log in with Administrator privileges on that system, and make \r\nC:\\Temp\\IOCTL the current directory in a command window there. (You need not put this ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/560d46d5-b913-4a5d-b646-9c524e2a9413.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5ac8d888e06bd229fca5edc239cad00f550046f3d74dc1948f6252c512bc2924",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bda8d6c4-b308-42ca-befb-8d2fc61853b8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 11\r\npath into a symbol path or source path in WinDbg.) In that same command window, type \r\nioctlapp and press Enter; in WinDbg you will see:\r\nIn the above, after execution stopped at the breakpoint, the !lmi command showed that \r\nWinDbg did pick up the symbols from a DDK build. The timestamp is about what you would \r\nexpect, and the location of the symbol file is exactly that expected.\r\nDepending on your docking arrangement, it may not be obvious, since windows can be \r\nhidden by other windows, but you will have a source code window somewhere (the key \r\nsequence „alt-Keypad *‟ ― without single quotation marks ― will bring that window to the \r\nfront):",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/bda8d6c4-b308-42ca-befb-8d2fc61853b8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0dc1147a2964f930c8f7cd0632dac0c659930f3f6b1bdefecba93799287f8b4c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "61c34691-225d-450a-8c13-6450f78630cc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nThe line marked in pink (the Debugging Tools for Windows help file calls it purple) is where \r\nthe breakpoint was set and is where execution stopped. Have execution proceed down to \r\nIoCreateDevice (controlling execution says how this might be accomplished):",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/61c34691-225d-450a-8c13-6450f78630cc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=90bcea82cc1907ee65900c4ab171710c0bc51e0295e9690d4ab0d2e20ecfac71",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 481
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fcc99220-090a-4477-b8dc-535eb167ce42",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 13\r\nHere you see again the original breakpoint (highlighted in red, since now control is stopped \r\nthere), and you see the current statement marked in dark blue.\r\nFundamentals\r\nThat was a “test drive” in a debugging session. Here are the debugger‟s basic operations.\r\nCommands, extensions, etc.\r\nCommands come in several families: Plain (unadorned), ones beginning with a period (“.”) \r\nand ones beginning with an exclamation point (“!”). The Debugging Tools for Windows help \r\nfile describes these families as commands, meta-commands and extension commands, \r\nrespectively. For present purposes, the families are pretty much the same.\r\nBreakpoints\r\nCausing an interruption in execution is one of the basic capabilities of the debugger. Here \r\nare some ways that can be done.\r\n Breakin at operating system startup.\r\nTo get a break at the earliest point in operating system startup, be sure WinDbg is \r\nproperly connected, and do the key sequence CTRL-ALT-K repeatedly until you see:\r\nAt the next boot, the operating system will halt very shortly after ntoskrnl has \r\nstarted but before any drivers have been loaded, and WinDbg will get control. This is \r\nwhen you may wish to define breakpoints for drivers to be started at boot time. \r\n Ordinary breakpoints",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/fcc99220-090a-4477-b8dc-535eb167ce42.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a7e48abf3907c422d025843f550920b509c1a1b1b5c16a21f38e2cb729022f07",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 205
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f3333366-1fb6-408d-a137-a05ce8fa6d53",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "14 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nThe simplest breakpoints are those set via the bp (“Breakpoint”) command. For \r\nexample:\r\nbp MyDriver!xyz\r\nbp f89adeaa\r\nIn the first, the breakpoint is at a name in a module (<module>!<name>); in the \r\nsecond, it is at the given address. When execution reaches one of those points, the \r\noperating system halts and gives control to WinDbg. (You will see how to get the \r\naddress for the second command in finding a name.)\r\nNote: The syntax of the first command assumes that the operating system has \r\nloaded the module and that enough information is available through a symbol file or \r\nthrough external names to identify xyz. If xyz cannot be found in the module, the \r\ndebugger will say so.\r\n Deferred breakpoints.\r\nSpeaking of drivers that haven‟t loaded, your very first breakpoint, set by bu (see \r\nstarting to debug the sample driver above), was a “deferred” breakpoint. The bu\r\ncommand takes as a parameter the module and a name in it, for example:\r\nbu sioctl!SioctlDeviceControl\r\nwhere SioctlDeviceControl is an entry point or other name in the module sioctl.sys. \r\nThis form assumes that when the module is loaded, enough information will be \r\navailable to identify SioctlDeviceControl so that the breakpoint can be set. (If the \r\nmodule is already loaded and the name is found, the breakpoint is set immediately.) \r\nIf the operating system cannot find SioctlDeviceControl, the debugger will say so, \r\nand there will be no halt at SioctlDeviceControl.\r\nA useful characteristic of deferred breakpoints is that they operate on \r\nmodules!names, whilst ordinary breakpoints operate on addresses or on \r\nmodules!names immediately resolved into addresses. Another feature of deferred \r\nbreakpoints is that they are remembered across boots (that wouldn‟t make sense for \r\naddress-expressed breakpoints). Yet another characteristic is that a deferred \r\nbreakpoint is remembered if the associated module is unloaded, whilst an ordinary \r\nbreakpoint is removed when the module is unloaded.\r\n Another way to set an ordinary breakpoint is via a source window. Return to \r\nsioctl.sys. When you broke at DriverEntry, you could have scrolled the window down \r\nto some place where you wished to stop, placed the cursor on the desired line and \r\nhit F9:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/f3333366-1fb6-408d-a137-a05ce8fa6d53.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a9ca97a82b54f0788efc644844c416329155de5c9bee344054e4708d1c9a95fb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "70354770-5942-4227-a460-1cfe5071e977",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 15\r\nThe line in red is the breakpoint set via F9.\r\n To see all the breakpoints you‟ve defined, use the bl (“Breakpoint List”) command:\r\nkd> bl\r\n0 e [d:\\winddk\\3790\\src\\general\\ioctl\\sys\\sioctl.c @ 123] \r\n0001 (0001) SIoctl!DriverEntry \r\n1 e [d:\\winddk\\3790\\src\\general\\ioctl\\sys\\sioctl.c @ 338] \r\n0001 (0001) Sioctl!SioctlDeviceControl+0x103 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/70354770-5942-4227-a460-1cfe5071e977.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d18ef173faa26165f9fc2b605071ff5e838f0e706f523529d928fdc322e6e5bc",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 411
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6d752343-c41d-4ac7-a48d-cb1ea9ec6fd4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 16,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "16 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nNotice a couple of things: Each breakpoint has a number, and breakpoint status is \r\nshown, “e” for “enabled” or “d” for “disabled.”\r\n Now suppose you wish to take a breakpoint temporarily out of operation. bd \r\n(“Disable Breakpoint”) would do the trick. You have to specify just the breakpoint \r\nnumber:\r\nkd> bd 1\r\nkd> bl\r\n0 e [d:\\winddk\\3790\\src\\general\\ioctl\\sys\\sioctl.c @ 123] \r\n0001 (0001) SIoctl!DriverEntry \r\n1 d [d:\\winddk\\3790\\src\\general\\ioctl\\sys\\sioctl.c @ 338] \r\n0001 (0001) SIoctl!SioctlDeviceControl+0x103\r\n In a similar way, to remove breakpoint number 1 permanently, use bc 1 (“Clear \r\nBreakpoint”). Now that breakpoint will be gone from the breakpoint list.\r\n Well and good. Sometimes, however, a breakpoint is set at a very busy place in the \r\noperating system or a driver, and you may want to apply some conditions or \r\nconditional actions so that the breakpoint stops only under those circumstances. \r\nHere is the basic form:\r\nbp SIoctl!SioctlDeviceControl+0x103 \"j (@@(Irp)=0xffb5c4f8) ''; \r\n'g'\"\r\nThe meaning of this is: Break only if the pointer Irp equals the address 0xFFB5C4F8; \r\nif that condition is not met, proceed.\r\nTo go deeper into the above, the breakpoint is not itself conditional. Rather, the \r\nbreakpoint has an action clause (in double quotation marks); in that clause, the \r\ncommand j (“Execute IF/ELSE”) is a conditional action. j's function is to execute its \r\nTRUE|FALSE clauses (in single quotation marks). In the above, the TRUE clause (first) \r\nis empty, so that when the breakpoint fires and the TRUE condition is met, WinDbg \r\nwould do nothing more than the default of halting. If the FALSE clause (second) is \r\nmet, execution would proceed, by executing g. One action or the other would be \r\ndone, depending on the condition in force.\r\nConsider next this slightly more elaborate form of the above:\r\nbp SIoctl!SioctlDeviceControl+0x103 \"j (@@(Irp)=0xffb5c4f8) \r\n'.echo Found the interesting IRP' ; '.echo Skipping an IRP of no \r\ninterest; g' \"",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/6d752343-c41d-4ac7-a48d-cb1ea9ec6fd4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b77b3bdb222b5ab80cfb3e86bc93a2f87e3092f6a560ffcdc650c45be29a1294",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 314
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4244119a-993e-4abf-96c1-16c3740c6ea5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 17,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 17\r\nHere the TRUE clause puts out a message and stops. The FALSE clause puts out a \r\nmessage and continues (a message is helpful because WinDbg would evaluate the \r\ncondition to FALSE and would otherwise go on silently).\r\nSomething to note: The following breakpoint, where register Eax is tested (you will \r\nfind registers treated more thoroughly in registers), won‟t work as you might expect:\r\nbp SIoctl!SioctlDeviceControl+0x103 \"j (@eax=0xffb5c4f8) '.echo \r\nHere!' ; '.echo Skipping; g' \"\r\nThe reason is that evaluation may “sign-extend” the register‟s value to 64 bits, i.e., \r\nto 0xFFFFFFFF`FFB5C4F8, and that would not match 0x00000000`FFB5C4F8. This \r\nwill be a issue only if the highest bit of the 32-bit value is 1 and if some other \r\nconditions (for example, a 32-bit register) apply. “Sign Extension” in the Debugging \r\nTools for Windows help file gives details (see also “Setting a Conditional Breakpoint” \r\nthere).\r\nA breakpoint may have conditions, with or without conditional actions. One condition \r\nis “one-shot” firing: The breakpoint is to fire only once (it is cleared after being hit). \r\nThis is handy for a very high-traffic piece of code where you are interested in the \r\nfirst hit only.\r\nbp /1 SIoctl!SioctlDeviceControl+0x103\r\nAnother useful condition is a test for a process or thread:\r\nbp /p 0x81234000 SIoctl!SioctlDeviceControl+0x103\r\nbp /t 0xff234000 SIoctl!SioctlDeviceControl+0x103\r\nwhich mean, respectively, Stop at the indicated point only if the process block \r\n(EPROCESS) is at 0x81234000, and Stop at the indicated point only if the thread \r\nblock (ETHREAD) is at 0xFF234000.\r\nConditions can be combined:\r\nbp /1 /C 4 /p 0x81234000 SIoctl!SioctlDeviceControl+0x103\r\nThe meaning here is, Break once but only when the call stack depth is greater than \r\nfour (here capitalization of “C” is significant, because “c” means “less than”) and the \r\nprocess block is at 0x81234000.\r\n A different kind of breakpoint is one that is specified for access. For example,\r\nba w4 0xffb5c4f8+0x18+0x4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/4244119a-993e-4abf-96c1-16c3740c6ea5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a8cc239b453580eeeb1250907c0419479ecf47734f311b6fae4b5fb511464c8e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 315
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "cdcc68bd-9add-4c37-ae39-692db2873b8d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 18,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "18 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nThe address was taken from the IRP whose address you saw above, and at the offset \r\n0x18+0x4 into the IRP is the IoStatus.Information member. So the breakpoint will \r\nfire when something attempts an update of the four bytes constituting \r\nIoStatus.Information in that IRP. Such breakpoints are called data breakpoints\r\n(because they are triggered by data access) or processor breakpoints (because they \r\nare implemented by the processor, not the debugger itself).\r\nExpressions: MASM versus C++\r\nYou will probably agree that it is handy to use a variable in a driver program to provide a \r\nparameter value like process address. Doing that, however, demands that you understand \r\nsomething of debugger expressions.\r\nThe debugger has two ways of evaluating expressions, referred to “MASM” (Microsoft Macro \r\nAssembler) and “C++.” To quote the Debugging Tools for Windows help file under “MASM \r\nExpressions vs. C++ Expressions”:\r\nIn a MASM expression, the numerical value of any symbol is its memory address. In \r\na C++ expression, the numerical value of a variable is its actual value, not its \r\naddress.\r\nReading and re-reading that section will repay your time well.\r\nAn expression will be evaluated by MASM rules, C++ rules or a combination. In brief,\r\n1. The default expression type is MASM.\r\n2. The default type can be changed by .expr (see the Debugging Tools for Windows \r\nhelp file).\r\n3. Certain commands always use C++ evaluation.\r\n4. Evaluation of a specific expression (or part of an expression) can be changed to \r\nthe form opposite to the usual expression type by prefixing the expression with \r\n“@@.”\r\nEven this summary is fairly involved, and you should refer to “Evaluating Expressions” in \r\nthe Debugging Tools for Windows help file for the details. For now, here are a few examples \r\nto give a sense of how evaluation works.\r\nEarlier you were stopped at Sioctl!SioctlDeviceControl+0x103, so use dv to look at a \r\nvariable known there (see the dv command for more information):\r\nkd> dv Irp\r\n Irp = 0xff70fbc0\r\nThe response means, The variable Irp contains 0xFF70FBC0. Further, dv is interpreting its \r\nparameter in C++ terms, in that the response is based on the variable‟s content and not on \r\nits address. You can confirm that so:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/cdcc68bd-9add-4c37-ae39-692db2873b8d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bc9a64b79eefd69d5a2fe7482994a452ba5fb8ab5c235f77f4912497146424d5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 369
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "0c26a052-80f5-4da1-9162-8d5a7cb0a450",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 19,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 19\r\nkd> ?? Irp\r\nstruct _IRP * 0xff70fbc0\r\nsince ?? always functions on the basis of C++ (see the ?? command). For the MASM type of \r\nevaluation, try ? (see the ? command):\r\nkd> ? Irp\r\nEvaluate expression: -141181880 = f795bc48\r\nwhich means, The variable Irp is located at 0XF795BC48. You can confirm that the variable \r\nat that location truly does contain the value 0xFF70FBC0 by displaying memory via dd (see \r\nthe dd command):\r\nkd> dd f795bc48 l1\r\nf795bc48 ff70fbc0\r\nAnd the storage pointed to is:\r\nkd> dd 0xff70fbc0\r\nff70fbc0 00940006 00000000 00000070 ff660c30\r\nff70fbd0 ff70fbd0 ff70fbd0 00000000 00000000\r\nff70fbe0 01010001 04000000 0006fdc0 00000000\r\nff70fbf0 00000000 00000000 00000000 04008f20\r\nff70fc00 00000000 00000000 00000000 00000000\r\nff70fc10 ff73f4d8 00000000 00000000 00000000\r\nff70fc20 ff70fc30 ffb05b90 00000000 00000000\r\nff70fc30 0005000e 00000064 0000003c 9c402408\r\nThis indeed looks like an IRP, as dt shows (see the dt command), since the Type and Size \r\nmembers have plausible values:\r\nkd> dt Irp\r\nLocal var @ 0xf795bc48 Type _IRP*\r\n0xff70fbc0 \r\n +0x000 Type : 6\r\n +0x002 Size : 0x94\r\n +0x004 MdlAddress : (null) ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/0c26a052-80f5-4da1-9162-8d5a7cb0a450.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7c8980275f4395cc912671a623d30bdd54287343dabb13079a407a080ce493de",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1355e78a-d3f9-43b2-9bdd-29168e8c533d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 20,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "20 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n +0x008 Flags : 0x70\r\n +0x00c AssociatedIrp : __unnamed\r\n +0x010 ThreadListEntry : _LIST_ENTRY [ 0xff70fbd0 - 0xff70fbd0 ]\r\n +0x018 IoStatus : _IO_STATUS_BLOCK\r\n +0x020 RequestorMode : 1 ''\r\n +0x021 PendingReturned : 0 ''\r\n +0x022 StackCount : 1 ''\r\n +0x023 CurrentLocation : 1 ''\r\n +0x024 Cancel : 0 ''\r\n +0x025 CancelIrql : 0 ''\r\n +0x026 ApcEnvironment : 0 ''\r\n +0x027 AllocationFlags : 0x4 ''\r\n +0x028 UserIosb : 0x0006fdc0 \r\n +0x02c UserEvent : (null) \r\n +0x030 Overlay : __unnamed\r\n +0x038 CancelRoutine : (null) \r\n +0x03c UserBuffer : 0x04008f20 \r\n +0x040 Tail : __unnamed\r\nSometimes you will want to employ C++ evaluation inside a MASM expression. The “@@” \r\nprefix achieves that. Since extensions always use parameters as MASM expressions, you \r\ncan see the effect of @@ when it is employed with the extension!irp (see IRPs):\r\nkd> !irp @@(Irp)\r\nIrp is active with 1 stacks 1 is current (= 0xff70fc30)\r\nNo Mdl System buffer = ff660c30 Thread ff73f4d8: Irp stack trace. \r\n cmd flg cl Device File Completion-Context\r\n>[ e, 0] 5 0 82361348 ffb05b90 00000000-00000000 \r\n \\Driver\\SIoctl\r\nArgs: 00000064 0000003c 9c402408 00000000",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/1355e78a-d3f9-43b2-9bdd-29168e8c533d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7c383556d95c00d139dc456ec92b1533f2f0889ae91dd78566d48d74ce73dc5b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 359
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "0fdcd471-2287-4c6b-9952-da851068c66c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 21,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 21\r\nTo repeat, without the @@ prefix to the variable Irp above, !irp would have used the \r\naddress of the variable rather than the value of the variable. To make the point concrete, if \r\nthe variable were located at 0xF795BC48 and contained the value 0xFF70FBC0, doing !irp Irp\r\ninstead of !irp @@(Irp) would ask WinDbg to format the IRP stack for an IRP supposedly \r\nlocated at 0xF795BC48.\r\nA further thing to understand: The @@ prefix is rather versatile, for its true meaning is, Use \r\nthe evaluation method other than that currently being used in the surrounding expression. \r\nIf the overall evaluation is MASM, @@ means C++, and if it is C++, @@ means MASM.\r\nA final bit of advice: If you cannot get an expression to work as you expect, consider \r\nwhether you‟re asking the debugger to understand it in MASM or C++ terms.\r\nDisplaying and setting memory, variables, registers and so forth\r\nThere are quite a few ways to display and change things.\r\n To display the variables in the current routine (the current “scope”), use dv (“Display \r\nVariables”). For example, if stopped at Sioctl!SioctlDeviceControl+0x103:\r\nkd> dv \r\n DeviceObject = 0x82361348\r\n Irp = 0xff70fbc0\r\n outBufLength = 0x64\r\n buffer = 0x00000000 \"\"\r\n irpSp = 0xff70fc30\r\n data = 0xf886b0c0 \"This String is from Device \r\nDriver !!!\"\r\n ntStatus = 0\r\n mdl = 0x00000000\r\n inBufLength = 0x3c\r\n datalen = 0x26\r\n outBuf = 0x00000030 \"\"\r\n inBuf = 0xff660c30 \"This String is from User \r\nApplication; using METHOD_BUFFERED\"\r\nThis is a list of parameter variables and local variables known at the breakpoint. \r\n“Known” is an important qualifier. For example, if a variable is optimized into a ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/0fdcd471-2287-4c6b-9952-da851068c66c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5d9d421b5e81e9d469ee99830eef1dc54aabe41ac730f5cb45792232fcea6883",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1fc85d15-927a-42b2-85a2-e818c6e082c9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 22,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "22 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nregister, it will not be displayed, although one can dip into disassembly \r\n(View(Disassembly brings up the disassembly window) and examine registers.\r\nIf only a single variable is of interest, you can do:\r\nkd> dv outBufLength\r\n outBufLength = 0x64 \r\n Another useful command is dt (“Display Type”). For example, continuing to use the \r\nbreakpoint at Sioctl!SioctlDeviceControl+0x103:\r\nkd> dt Irp\r\nLocal var @ 0xf795bc48 Type _IRP*\r\n0xff70fbc0 \r\n +0x000 Type : 6\r\n +0x002 Size : 0x94\r\n +0x004 MdlAddress : (null) \r\n +0x008 Flags : 0x70\r\n +0x00c AssociatedIrp : __unnamed\r\n +0x010 ThreadListEntry : _LIST_ENTRY [ 0xff70fbd0 -\r\n0xff70fbd0 ]\r\n +0x018 IoStatus : _IO_STATUS_BLOCK\r\n +0x020 RequestorMode : 1 ''\r\n +0x021 PendingReturned : 0 ''\r\n +0x022 StackCount : 1 ''\r\n +0x023 CurrentLocation : 1 ''\r\n +0x024 Cancel : 0 ''\r\n +0x025 CancelIrql : 0 ''\r\n +0x026 ApcEnvironment : 0 ''\r\n +0x027 AllocationFlags : 0x4 ''\r\n +0x028 UserIosb : 0x0006fdc0 \r\n +0x02c UserEvent : (null) \r\n +0x030 Overlay : __unnamed",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/1fc85d15-927a-42b2-85a2-e818c6e082c9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5d8849874a5abd5b34846644fe5a527ec96c7e2f658abef1b6c6163d4d90069f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 434
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "beb52e85-fe08-4a17-9bb3-18f44ba9429d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 23,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 23\r\n +0x038 CancelRoutine : (null) \r\n +0x03c UserBuffer : 0x04008f20 \r\n +0x040 Tail : __unnamed \r\nThe above says that the variable Irp is at 0xF795BC48 and that it contains \r\n0xFF70FBC0; since dt knows the variable to be an IRP pointer (“Type _IRP*”), the \r\narea at 0xFF70FBC0 is formatted as an IRP.\r\nTo expand the structure one level:\r\nkd> dt -r1 Irp\r\nLocal var @ 0xf795bc48 Type _IRP*\r\n0xff70fbc0 \r\n +0x000 Type : 6\r\n +0x002 Size : 0x94\r\n +0x004 MdlAddress : (null) \r\n +0x008 Flags : 0x70\r\n +0x00c AssociatedIrp : __unnamed\r\n +0x000 MasterIrp : 0xff660c30 \r\n +0x000 IrpCount : -10089424\r\n +0x000 SystemBuffer : 0xff660c30 \r\n +0x010 ThreadListEntry : _LIST_ENTRY [ 0xff70fbd0 -\r\n0xff70fbd0 ]\r\n +0x000 Flink : 0xff70fbd0 [ 0xff70fbd0 -\r\n0xff70fbd0 ]\r\n +0x004 Blink : 0xff70fbd0 [ 0xff70fbd0 -\r\n0xff70fbd0 ]\r\n +0x018 IoStatus : _IO_STATUS_BLOCK\r\n +0x000 Status : 0\r\n +0x000 Pointer : (null) \r\n +0x004 Information : 0\r\n +0x020 RequestorMode : 1 ''\r\n +0x021 PendingReturned : 0 ''",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/beb52e85-fe08-4a17-9bb3-18f44ba9429d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d5dacebd7bae8b987f64e6156534d91b6404e32e504c5f2f5d2ac67e360091fe",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a8bcadbe-ce14-4574-82f0-40401e8d32f2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 24,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "24 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n +0x022 StackCount : 1 ''\r\n +0x023 CurrentLocation : 1 ''\r\n +0x024 Cancel : 0 ''\r\n +0x025 CancelIrql : 0 ''\r\n +0x026 ApcEnvironment : 0 ''\r\n +0x027 AllocationFlags : 0x4 ''\r\n +0x028 UserIosb : 0x0006fdc0 \r\n +0x000 Status : 67142040\r\n +0x000 Pointer : 0x04008198 \r\n +0x004 Information : 0x2a\r\n +0x02c UserEvent : (null) \r\n +0x030 Overlay : __unnamed\r\n +0x000 AsynchronousParameters : __unnamed\r\n +0x000 AllocationSize : _LARGE_INTEGER 0x0\r\n +0x038 CancelRoutine : (null) \r\n +0x03c UserBuffer : 0x04008f20 \r\n +0x040 Tail : __unnamed\r\n +0x000 Overlay : __unnamed\r\n +0x000 Apc : _KAPC\r\n +0x000 CompletionKey : (null) \r\nIt is possible to display some structures even when they aren‟t in scope (assuming, \r\nthat is, that the memory in question has not been reused for some other purpose):\r\nkd> dt nt!_IRP 0xff70fbc0\r\n +0x000 Type : 6\r\n +0x002 Size : 0x94\r\n +0x004 MdlAddress : (null) \r\n +0x008 Flags : 0x70\r\n +0x00c AssociatedIrp : __unnamed",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/a8bcadbe-ce14-4574-82f0-40401e8d32f2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=03154423e0704964b24dba08229010e4c6e8754054cf933db54f654d15dd04e8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c8917f83-3f5e-4177-93f6-3ff2db4052a4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 25,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 25\r\n +0x010 ThreadListEntry : _LIST_ENTRY [ 0xff70fbd0 -\r\n0xff70fbd0 ]\r\n +0x018 IoStatus : _IO_STATUS_BLOCK\r\n +0x020 RequestorMode : 1 ''\r\n +0x021 PendingReturned : 0 ''\r\n +0x022 StackCount : 1 ''\r\n +0x023 CurrentLocation : 1 ''\r\n +0x024 Cancel : 0 ''\r\n +0x025 CancelIrql : 0 ''\r\n +0x026 ApcEnvironment : 0 ''\r\n +0x027 AllocationFlags : 0x4 ''\r\n +0x028 UserIosb : 0x0006fdc0 \r\n +0x02c UserEvent : (null) \r\n +0x030 Overlay : __unnamed\r\n +0x038 CancelRoutine : (null) \r\n +0x03c UserBuffer : 0x04008f20 \r\n +0x040 Tail : __unnamed \r\nThe command above exploits your knowledge that there is an IRP at 0xFF70FBC0 \r\nand the fact that there is a mapping of the IRP structure in ntoskrnl.\r\n What if you‟re interested in a single field of a structure with many member fields? \r\nTake the member Size, for example:\r\nkd> dt nt!_IRP Size 0xff70fbc0\r\nunsigned short 0x94 \r\nA rather more intuitive way is the ?? (“Evaluate C++ Expression”) command:\r\nkd> ?? Irp->Size\r\nunsigned short 0x94\r\nThat is, ?? understands that its parameter is a pointer to a member of the \r\nappropriate structure.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/c8917f83-3f5e-4177-93f6-3ff2db4052a4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6c95af2d33f9e044f5a2aae887cd6d64aa15122453228e36de63737ee6841cd7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 483
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "25106c48-6f73-48d6-aae4-31c0e77b1f32",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 26,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "26 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n To display memory without the formatting above, commands like dd, dw and db\r\n(“Display Memory”) are available:\r\nkd> dd 0xff70fbc0 l0x10\r\nff70fbc0 00940006 00000000 00000070 ff660c30\r\nff70fbd0 ff70fbd0 ff70fbd0 00000000 00000000\r\nff70fbe0 01010001 04000000 0006fdc0 00000000\r\nff70fbf0 00000000 00000000 00000000 04008f20\r\nkd> dw 0xff70fbc0 l0x20\r\nff70fbc0 0006 0094 0000 0000 0070 0000 0c30 ff66\r\nff70fbd0 fbd0 ff70 fbd0 ff70 0000 0000 0000 0000\r\nff70fbe0 0001 0101 0000 0400 fdc0 0006 0000 0000\r\nff70fbf0 0000 0000 0000 0000 0000 0000 8f20 0400\r\nkd> db 0xff70fbc0 l0x40\r\nff70fbc0 06 00 94 00 00 00 00 00-70 00 00 00 30 0c 66 ff ........p...0.f.\r\nff70fbd0 d0 fb 70 ff d0 fb 70 ff-00 00 00 00 00 00 00 00 ..p...p.........\r\nff70fbe0 01 00 01 01 00 00 00 04-c0 fd 06 00 00 00 00 00 ................\r\nff70fbf0 00 00 00 00 00 00 00 00-00 00 00 00 20 8f 00 04 ............ ...\r\n(Note: The second parameter in each of the three commands above is a length, \r\ngiven by l (the letter “l”) immediately followed by a value such as 0x10.)\r\nThe first displays 16 doublewords (four bytes each, or 64 bytes total) as double \r\nwords. The second displays the same as words. The third, the same as bytes.\r\n What about changing a variable? Continuing at Sioctl!SioctlDeviceControl+0x103, \r\nyou would see that the intuitive form\r\nkd> outBufLength = 00\r\n ^ Syntax error in 'outBufLength = 00' \r\ndoesn't work. But ?? does the job:\r\nkd> ?? outBufLength = 0",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/25106c48-6f73-48d6-aae4-31c0e77b1f32.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dfcb3a26e45f684ad092788310317db0ba98ae91ebdd97c8b923ac0e36cdcf35",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7650f5cf-277b-4a0d-a927-935c9bd20014",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 27,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 27\r\nunsigned long 0 \r\nNow go back to the IRP you used with dt above:\r\nkd> dt Irp\r\nLocal var @ 0xf795bc48 Type _IRP*\r\n0xff70fbc0 \r\n +0x000 Type : 6\r\n +0x002 Size : 0x94\r\n +0x004 MdlAddress : (null) \r\n +0x008 Flags : 0x70\r\n +0x00c AssociatedIrp : __unnamed\r\n +0x010 ThreadListEntry : _LIST_ENTRY [ 0xff70fbd0 -\r\n0xff70fbd0 ]\r\n +0x018 IoStatus : _IO_STATUS_BLOCK\r\n +0x020 RequestorMode : 1 ''\r\n +0x021 PendingReturned : 0 ''\r\n +0x022 StackCount : 1 ''\r\n +0x023 CurrentLocation : 1 ''\r\n +0x024 Cancel : 0 ''\r\n +0x025 CancelIrql : 0 ''\r\n +0x026 ApcEnvironment : 0 ''\r\n +0x027 AllocationFlags : 0x4 ''\r\n +0x028 UserIosb : 0x0006fdc0 \r\n +0x02c UserEvent : (null) \r\n +0x030 Overlay : __unnamed\r\n +0x038 CancelRoutine : (null) \r\n +0x03c UserBuffer : 0x04008f20 \r\n +0x040 Tail : __unnamed\r\nTo change the first word (two bytes, that is) via ew (“Enter Values”):",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/7650f5cf-277b-4a0d-a927-935c9bd20014.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fc8382f76f26f6fb731dffaba6296f1c1172cfe4c5eabd9f50be3d81c81d4a25",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 400
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fe7536f0-70a7-460c-a9bf-577ddbe97eae",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 28,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "28 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nkd> ew 0xff70fbc0 3\r\nkd> dt Irp\r\nLocal var @ 0xf795bc48 Type _IRP*\r\n0xff70fbc0 \r\n +0x000 Type : 3\r\n +0x002 Size : 0x94\r\n +0x004 MdlAddress : (null) \r\n +0x008 Flags : 0x70\r\n +0x00c AssociatedIrp : __unnamed\r\n +0x010 ThreadListEntry : _LIST_ENTRY [ 0xff70fbd0 -\r\n0xff70fbd0 ]\r\n +0x018 IoStatus : _IO_STATUS_BLOCK\r\n +0x020 RequestorMode : 1 ''\r\n +0x021 PendingReturned : 0 ''\r\n +0x022 StackCount : 1 ''\r\n +0x023 CurrentLocation : 1 ''\r\n +0x024 Cancel : 0 ''\r\n +0x025 CancelIrql : 0 ''\r\n +0x026 ApcEnvironment : 0 ''\r\n +0x027 AllocationFlags : 0x4 ''\r\n +0x028 UserIosb : 0x0006fdc0 \r\n +0x02c UserEvent : (null) \r\n +0x030 Overlay : __unnamed\r\n +0x038 CancelRoutine : (null) \r\n +0x03c UserBuffer : 0x04008f20 \r\n +0x040 Tail : __unnamed \r\nOf course, the following is probably more natural than ew:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/fe7536f0-70a7-460c-a9bf-577ddbe97eae.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=00b7357ccd34cbb73b1fb130aec1c749f5610058d0ecfb72ce2348d7c5c284f7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8989a91c-0247-431f-94bf-2f4372d4a616",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 29,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 29\r\nkd> ?? irp->type = 3\r\nType does not have given member error at 'type = 3'\r\nkd> ?? irp->Type = 3\r\nshort 3\r\nkd> dt irp\r\nioctlapp!Irp\r\nLocal var @ 0xf795bc48 Type _IRP*\r\n0xff70fbc0 \r\n +0x000 Type : 3\r\n +0x002 Size : 0x94\r\n +0x004 MdlAddress : (null) \r\n +0x008 Flags : 0x70\r\n +0x00c AssociatedIrp : __unnamed\r\n +0x010 ThreadListEntry : _LIST_ENTRY [ 0xff70fbd0 -\r\n0xff70fbd0 ]\r\n +0x018 IoStatus : _IO_STATUS_BLOCK\r\n +0x020 RequestorMode : 1 ''\r\n +0x021 PendingReturned : 0 ''\r\n +0x022 StackCount : 1 ''\r\n +0x023 CurrentLocation : 1 ''\r\n +0x024 Cancel : 0 ''\r\n +0x025 CancelIrql : 0 ''\r\n +0x026 ApcEnvironment : 0 ''\r\n +0x027 AllocationFlags : 0x4 ''\r\n +0x028 UserIosb : 0x0006fdc0 \r\n +0x02c UserEvent : (null) \r\n +0x030 Overlay : __unnamed",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/8989a91c-0247-431f-94bf-2f4372d4a616.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=846c43d59ce8955c419ffa0f3e6a3c85b6bfe645138f5db65451e68ab9ff02b8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "15015b6d-ca30-476e-aba0-7a2007531757",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 30,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "30 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n +0x038 CancelRoutine : (null) \r\n +0x03c UserBuffer : 0x04008f20 \r\n +0x040 Tail : __unnamed\r\nThere are a couple of things to notice in the above. First, the case of a member of a \r\nstructure is significant, as shown by WinDbg‟s claim that there was no “type” \r\nmember of Irp. Second, dt irp was ambiguous, but WinDbg helpfully displayed the \r\ninstances it thought were likely fits, one in ioctlapp.exe and one in sioctl.sys. Since \r\ncase can be significant, you should employ it whenever you know it.\r\nIn addition to ew, there are other “Enter Values” commands: eb for a byte, ed for a \r\ndoubleword, eq for quadword (8 bytes) and so forth. Refer to the Debugging Tools \r\nfor Windows help file under “Enter Values.”\r\n The Locals window may be easier to use for things like a structure with imbedded \r\npointers to structures:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/15015b6d-ca30-476e-aba0-7a2007531757.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=15c0ef4fa6771684f709764e284bd4d6419ef6e2d4d6a84d48ddf5a9c5b0e6cf",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 404
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a04c6941-03eb-4b53-9859-a425462484ac",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 31,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 31\r\nYou can, not so incidentally, overtype values in the Locals window to change values.\r\n Registers (as well as segment pointers and flags) can be displayed and altered. For \r\nexample:\r\nkd> r\r\neax=81478f68 ebx=00000000 ecx=814243a8 edx=0000003c esi=81778ea0 \r\nedi=81478f68\r\neip=f8803553 esp=f7813bb4 ebp=f7813c3c iopl=0 nv up ei ng \r\nnz ac pe nc\r\ncs=0008 ss=0010 ds=0023 es=0023 fs=0030 gs=0000 \r\nefl=00000292\r\nOr just:\r\nkd> r eax\r\neax=81478f68 \r\nSometimes you will want to alter a register. Eax, for instance, is often used at exit \r\nfrom a routine to carry the return value, so, just before exit from a routine:\r\nr eax = 0xc0000001\r\nwhich happens to denote the status value STATUS_UNSUCCESSFUL.\r\nHere are some other examples:\r\nr eip = poi(@esp)\r\nr esp = @esp + 0xc\r\nwhich mean, respectively, Set Eip (the instruction pointer) to the value found at \r\noffset 0x0 from the stack pointer, and Add 0xC to Esp (the stack pointer), effectively \r\nunwinding the stack pointer. The Debugging Tools for Windows help file, under \r\n“Register Syntax,” explains poi and why register names have to be prefixed with a \r\nsingle “@” in some places.\r\nYou may be asking yourself how the above register-setting commands could be \r\nuseful. Consider the case where there is a “bad” driver whose DriverEntry will cause \r\na bug check (\"blue screen\") — due to an access violation, perhaps. You could deal \r\nwith the problem by setting a deferred breakpoint when ntoskrnl loads. The following \r\ncommand must be typed on a single line:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/a04c6941-03eb-4b53-9859-a425462484ac.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0adad8bdd312cec886f33adfa747c60243269edaf15ff65e50b4b878e231be60",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4abcf389-7ae6-495d-afdc-53a52220a7b8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 32,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "32 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nbu sioctl!DriverEntry \"r eip = poi(@esp); r eax = 0xc0000001; r \r\nesp = @esp + 0xc; .echo sioctl!DriverEntry entered; g\"\r\nThe meaning is: At sioctl.sys‟s DriverEntry, 1) set the instruction pointer (Eip) thus; \r\n2) set the return code (Eax) thus; 3) set the stack pointer (Esp) thus; 4) announce \r\nthat DriverEntry has been entered; and 5) proceed. (Of course, this technique \r\nmerely removes the possibility of DriverEntry causing a blowup such as an access \r\nviolation. If the operating system expects the driver to be supplying function, that \r\nfunction is not going to be available, and down the road there may be other \r\nproblems.)\r\nIn case you‟re wondering whether it is possible to use a register to set a variable, it \r\nis. For example, returning yet again to the IoCtl dispatch routine:\r\nkd> r\r\neax=00000000 ebx=00000000 ecx=81a88f18 edx=81a88ef4 esi=ff9e18a8 \r\nedi=ff981e7e\r\neip=f87a40fe esp=f88fac78 ebp=f88fac90 iopl=0 nv up ei pl \r\nzr na po nc\r\ncs=0008 ss=0010 ds=0023 es=0023 fs=0030 gs=0000 \r\nefl=00000246\r\nkd> ?? ntStatus = @ecx\r\nlong -2119659752\r\nkd> dd &ntStatus l1\r\nf88fac78 81a88f18\r\nIn this case, the form @ecx should be employed, to ensure WinDbg knows you‟re \r\nreferring to a register.\r\nThere are more registers than those shown by default. To see the full complement, \r\nuse the rM command (“M” must be uppercase; this is actually the r command with \r\nthe parameter M, with no space allowed between command and parameter):\r\nkd> rM 0xff\r\neax=00000001 ebx=0050e2a3 ecx=80571780 edx=000003f8 esi=000000c0 \r\nedi=d87a75a8\r\neip=804df1c0 esp=8056f564 ebp=8056f574 iopl=0 nv up ei pl \r\nnz na pe nc",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/4abcf389-7ae6-495d-afdc-53a52220a7b8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=91228343a8b22b0ed2aae31557b178d0e374b4a48f7c9c01c4e27f1cf342edb6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 508
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1e9ac361-83fe-4e0d-aa53-cbe9c41f367f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 33,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 33\r\ncs=0008 ss=0010 ds=0023 es=0023 fs=0030 gs=0000 \r\nefl=00000202\r\nfpcw=0000: rn 24 ------ fpsw=0000: top=0 cc=0000 -------- \r\nfptw=0000\r\nfopcode=6745 fpip=2301:a0020000 fpdp=dcfe:efcdab89\r\nst0= 5.143591243081972142170e-4932 st1= \r\n0.001025530551233493990e-4933\r\nst2= 0.000000002357022271740e-4932 st3= \r\n2.471625214254630491460e-4906\r\nst4= 3.370207406893238285120e-4932 st5=-\r\n7.461339669368745455450e+4855\r\nst6= 6.698191557136036873700e-4932 st7=-\r\n2.455410815115332972380e-4906\r\nmm0=c3d2e1f010325476 mm1=0000ffdff1200000\r\nmm2=000000018168d902 mm3=f33cffdff1200000\r\nmm4=804efc868056f170 mm5=7430804efb880000\r\nmm6=ff02740200000000 mm7=f1a48056f1020000\r\nxmm0=0 9.11671e-041 3.10647e+035 -1.154e-034\r\nxmm1=-7.98492e-039 -2.83455e+038 -2.91106e+038 5.85182e-042\r\nxmm2=1.77965e-043 -1.17906e-010 -4.44585e-038 -7.98511e-039\r\nxmm3=-7.98511e-039 0 0 -7.98504e-039\r\nxmm4=-7.98503e-039 1.20545e-040 -1.47202e-037 -1.47202e-037\r\nxmm5=-2.05476e+018 -452.247 -1.42468e-037 -8.60834e+033\r\nxmm6=2.8026e-044 -1.47202e-037 -452.247 0\r\nxmm7=8.40779e-045 -7.98503e-039 0 -7.98511e-039\r\ncr0=8001003b cr2=d93db000 cr3=00039000\r\ndr0=00000000 dr1=00000000 dr2=00000000\r\ndr3=00000000 dr6=ffff0ff0 dr7=00000400 cr4=000006d9\r\n If you don‟t like to use commands to change things, you can bring up a memory \r\nwindow (ViewMemory), variable window (ViewLocals) or register window \r\n(ViewRegisters) and overtype values as you like. For example,",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/1e9ac361-83fe-4e0d-aa53-cbe9c41f367f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a51921fc52253bf790ba477ce94dfe7fb809bbf8c6e1504459e4492b1a24720a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "abed1367-0ecf-42c4-bf69-9b0cd758f9d7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 34,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "34 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nIn the above, you could overtype the hexadecimal values.\r\nControlling execution\r\nEarlier (see IoCreateDevice) you were asked to let execution proceed from one point to the \r\nnext, without being told how. There are several ways to control execution. All the below, \r\nexcept the first, assume that execution is currently halted.\r\n Break in (CTRL-BREAK ) — This sequence will always interrupt a system, so long as \r\nthat system is running and is in communication with WinDbg (the sequence in KD is \r\nCTRL-C).\r\n Step over (F10) — This causes execution to proceed one statement (if C or C++ and \r\nWinDbg is in “source mode,” toggled by DebugSource Mode) or one instruction \r\nat a time, with the provision that if a call is encountered, execution passes over the \r\ncall without entering the called routine.\r\n Step in (F11) — This is like step-over, except that execution of a call does go into \r\nthe called routine.\r\n Step out (SHIFT-F11) — This causes execution to run to an exit from the current \r\nroutine (current place in the call stack). Useful if you‟ve seen enough of the routine.\r\n Run to cursor (F7 or CRTL-F10) — Place the cursor in a source or disassembly \r\nwindow where you want execution to break, then hit F7; execution will run to that \r\npoint. A word of caution, however: If the flow of execution were not to reach that \r\npoint (e.g., an IF statement isn‟t executed), WinDbg would not break, because \r\nexecution did not come to the indicated point!",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/abed1367-0ecf-42c4-bf69-9b0cd758f9d7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2cb30ac3de837388540d811cac3c6dfd7d2b97de249b1dcb5dcf0f020328ee74",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 387
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e39a4a20-6ba7-48b4-8f01-e84a355d1c67",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 35,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 35\r\n Run (F5) — Run until a breakpoint is encountered or an event like a bug check\r\noccurs. You may think of Run as normal execution mode.\r\n Set instruction to current line (CTRL-SHIFT-I) — In a source window, you can put the \r\ncursor on a line, do that keystroke sequence, and execution will start from that point \r\nas soon as you let it proceed (e.g., F5 or F10). This is handy if you want to retry a \r\nsequence. But it requires some care. For example, registers and variables are not set \r\nto what they would be if execution had reached that line naturally.\r\n Direct setting of Eip — You can put a value into the Eip register, and as soon as you \r\nhit F5 (or F10 or whatever), execution commences from that address. As should be \r\nobvious, this is like setting instruction to the cursor-designated current line, except \r\nthat you specify the address of an Assembly instruction.\r\nThe call stack\r\nAt almost any point in execution, there is an area of storage that is used as the stack; the \r\nstack is where local state, including parameters and return addresses, is saved. There is a \r\nkernel stack, if execution is in kernel space, and a user stack for execution in user space. \r\nWhen you hit a breakpoint, it is likely there will be several routines on the current stack, \r\nand there can be quite a few. For example, if instruction has stopped because of a \r\nbreakpoint in the routine PrintIrpInfo in sioctl.sys, use k (“Stack Backtrace”):\r\nkd> k\r\nChildEBP RetAddr \r\nf7428ba8 f889b54a SIoctl!PrintIrpInfo+0x6 \r\n[d:\\winddk\\3790.1824\\src\\general\\ioctl\\sys\\sioctl.c @ 708]\r\nf7428c3c 804e0e0d SIoctl!SioctlDeviceControl+0xfa \r\n[d:\\winddk\\3790.1824\\src\\general\\ioctl\\sys\\sioctl.c @ 337]\r\nWARNING: Stack unwind information not available. Following frames may \r\nbe wrong.\r\nf7428c60 80580e2a nt!IofCallDriver+0x33\r\nf7428d00 805876c2 nt!CcFastCopyRead+0x3c3\r\nf7428d34 804e7a8c nt!NtDeviceIoControlFile+0x28\r\nf7428d64 00000000 nt!ZwYieldExecution+0xaa9\r\nThe topmost line (newest) is the stack frame where control stopped. You can see earlier \r\ncallers, too, but if you don‟t have symbols, they may not be represented correctly. Since \r\nyou enjoy access to the symbols for sioctl.sys, you are presented with file and line number \r\ninformation for each frame involving the driver.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/e39a4a20-6ba7-48b4-8f01-e84a355d1c67.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=49d8e613b1e79c9f2a8eebdd97f6e8fb79b5e5c48bcb0a231b9b5fff559e21c8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "78b31df0-d1c6-464a-931f-6e35da8be629",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 36,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "36 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nYou can readily switch to the source window for IoCtl‟s IRP handler, but suppose you want \r\nto see an earlier routine? You bring up the calls window (ViewCall stack), so:\r\nYou can double-click on an entry and be taken to the source file, if that source file can be \r\nlocated.\r\nIf you are interested only in variables pertaining to a routine on the stack, you can make \r\nthe routine current by double-clicking on its line above, or you can do kn (a sibling of k) \r\nand then .frame. For example, to get information about the dispatch routine that called \r\nPrintIrpInfo:\r\nkd> kn\r\n# ChildEBP RetAddr \r\n00 f7428ba8 f889b54a SIoctl!PrintIrpInfo+0x6 \r\n[d:\\winddk\\3790.1824\\src\\general\\ioctl\\sys\\sioctl.c @ 708]\r\n01 f7428c3c 804e0e0d SIoctl!SioctlDeviceControl+0xfa \r\n[d:\\winddk\\3790.1824\\src\\general\\ioctl\\sys\\sioctl.c @ 337]\r\nWARNING: Stack unwind information not available. Following frames may \r\nbe wrong.\r\n02 f7428c60 80580e2a nt!IofCallDriver+0x33\r\n03 f7428d00 805876c2 nt!CcFastCopyRead+0x3c3\r\n04 f7428d34 804e7a8c nt!NtDeviceIoControlFile+0x28\r\n05 f7428d64 00000000 nt!ZwYieldExecution+0xaa9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/78b31df0-d1c6-464a-931f-6e35da8be629.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f0a9b849c04d2a9fa3b94888707b59a3d9e26b3164e0aa34789943ef17830480",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 511
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fdd967eb-2845-482c-ad5d-747a664d8830",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 37,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 37\r\nkd> .frame 1\r\n01 f7428c3c 804e0e0d SIoctl!SioctlDeviceControl+0xfa \r\n[d:\\winddk\\3790.1824\\src\\general\\ioctl\\sys\\sioctl.c @ 337]\r\nHaving set the frame number, you‟re able to display (or change, if you wish) variables \r\nknown in that frame and registers belonging to that frame:\r\nkd> dv\r\n DeviceObject = 0x80f895e8\r\n Irp = 0x820572a8\r\n outBufLength = 0x64\r\n buffer = 0x00000000 \"\"\r\n irpSp = 0x82057318\r\n data = 0xf889b0c0 \"This String is from Device Driver !!!\"\r\n ntStatus = 0\r\n mdl = 0x00000000\r\n inBufLength = 0x3c\r\n datalen = 0x26\r\n outBuf = 0x82096b20 \"This String is from User Application; \r\nusing METHOD_BUFFERED\"\r\n inBuf = 0x82096b20 \"This String is from User Application; \r\nusing METHOD_BUFFERED\"\r\nkd> r\r\neax=00000000 ebx=00000000 ecx=80506be8 edx=820572a8 esi=81fabda0 \r\nedi=820572a8\r\neip=f889bcf6 esp=f7428ba4 ebp=f7428ba8 iopl=0 nv up ei ng nz ac \r\npe nc\r\ncs=0008 ss=0010 ds=0023 es=0023 fs=0030 gs=0000 \r\nefl=00000292\r\nSIoctl!PrintIrpInfo+0x6:\r\nf889bcf6 8b4508 mov eax,[ebp+0x8] \r\nss:0010:f7428bb0=820572a8\r\nFinding a name in a module",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/fdd967eb-2845-482c-ad5d-747a664d8830.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=45502016562738869d2a8aa28104524bcc7ef8e995e4700d04d7d69a517f2312",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "697053b7-da76-4ecb-9d63-eed0e480f97f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 38,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "38 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nThe x (“Examine Symbols”) command locates symbols in modules. For example, if you want \r\nto put a breakpoint at the Ioctl routine to handle DeviceIoControl IRPs but don‟t quite \r\nremember the routine‟s name, you might do:\r\nkd> x sioctl!*ioctl*\r\nf8883080 SIoctl!SioctlUnloadDriver (struct _DRIVER_OBJECT *)\r\nf8883010 SIoctl!SioctlCreateClose (struct _DEVICE_OBJECT *, struct _IRP \r\n*)\r\nf8883450 SIoctl!SioctlDeviceControl (struct _DEVICE_OBJECT *, struct \r\n_IRP *)\r\nThis means, Tell me all the symbols in the module sioctl that contain “ioctl.”\r\nThat may seem trivial. Consider, however, this message seen in the debugger in an actual \r\nsupport case:\r\nPopPolicyWorkerAction: action request 2 failed c000009a\r\nOn a guess that the routine PopPolicyWorkerAction is in ntoskrnl, you might look there:\r\nkd> x nt!PopPolicy*\r\n805146c0 nt!PopPolicyWorkerThread = <no type information>\r\n8064e389 nt!PopPolicySystemIdle = <no type information>\r\n805b328d nt!PopPolicyWorkerNotify = <no type information>\r\n8056e620 nt!PopPolicyLock = <no type information>\r\n8064d5f8 nt!PopPolicyWorkerActionPromote = <no type information>\r\n805c7d10 nt!PopPolicyWorkerMain = <no type information>\r\n8064d51b nt!PopPolicyWorkerAction = <no type information>\r\n80561c70 nt!PopPolicy = <no type information>\r\n8056e878 nt!PopPolicyIrpQueue = <no type information>\r\n80561a98 nt!PopPolicyLockThread = <no type information>\r\n8064e74a nt!PopPolicyTimeChange = <no type information>\r\n8056e8b0 nt!PopPolicyWorker = <no type information>\r\nWith that information, you might put a breakpoint in the routine shown in red.\r\nDealing with optimized code",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/697053b7-da76-4ecb-9d63-eed0e480f97f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=278bc3357be0348a9552f1e2e5c3383f5544e1ca8f2afc9c7b96c7188f6984cc",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 356
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "34d41e5c-c235-4dc7-8e5a-e54d94de5039",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 39,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 39\r\nIf an executable was built in a free build and/or with some optimization, it may be difficult \r\nto follow execution in a source window, and local variables may not be available or may be \r\nshown with incorrect values. With x86 code you might try following execution in the source \r\nwindow and also in the disassembly window (it helps to place those windows side by side). \r\nYou don‟t have to understand very much about x86 Assembly to follow the flow of control; \r\nlook primarily for test (e.g., test or cmp ) and branch (e.g., jnz) instructions in order to \r\nfollow flow.\r\nSelected techniques\r\nThat covers fundamental operations. Although the overarching focus here is not on how to \r\ninvestigate particular areas, there are nonetheless a number of substantive debugger \r\ncommands — technically, they are extensions and are written as DLLs — as well as \r\ntechniques that deserve mention because they are used over and over in many areas.\r\nProcesses and threads\r\nTo see the current process (at a stopped point):\r\nkd> !process\r\nPROCESS 816fc3c0 SessionId: 1 Cid: 08f8 Peb: 7ffdf000 ParentCid: \r\n0d8c\r\n DirBase: 10503000 ObjectTable: e1afeaa8 HandleCount: 19.\r\n Image: ioctlapp.exe\r\n VadRoot 825145e0 Vads 22 Clone 0 Private 38. Modified 0. Locked 0.\r\n DeviceMap e10d0198\r\n Token e1c8e030\r\n ElapsedTime 00:00:00.518\r\n UserTime 00:00:00.000\r\n KernelTime 00:00:00.109\r\n QuotaPoolUsage[PagedPool] 9096\r\n QuotaPoolUsage[NonPagedPool] 992\r\n Working Set Sizes (now,min,max) (263, 50, 345) (1052KB, 200KB, \r\n1380KB)\r\n PeakWorkingSetSize 263\r\n VirtualSize 6 Mb",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/34d41e5c-c235-4dc7-8e5a-e54d94de5039.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2ca66b5a8a01c4c7748a66c5a418a340a95d3c2c5ebbad2a4d845b5c40736f00",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "65466573-ea34-4683-ad13-4255d43adc2f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 40,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "40 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n PeakVirtualSize 6 Mb\r\n PageFaultCount 259\r\n MemoryPriority BACKGROUND\r\n BasePriority 8\r\n CommitCharge 48\r\n THREAD 825d2020 Cid 08f8.0708 Teb: 7ffde000 Win32Thread: \r\n00000000 RUNNING on processor 0\r\nThe addresses of the process block (EPROCESS) and thread block (ETHREAD) have been \r\nmarked in red. You could use these in a conditional breakpoint.\r\nTo see all the processes in summary form:\r\nkd> !process 0 0\r\n**** NT ACTIVE PROCESS DUMP ****\r\nPROCESS 826af478 SessionId: none Cid: 0004 Peb: 00000000 \r\nParentCid: 0000\r\n DirBase: 02c20000 ObjectTable: e1001e60 HandleCount: 363.\r\n Image: System\r\nPROCESS 82407d88 SessionId: none Cid: 0158 Peb: 7ffdf000 \r\nParentCid: 0004\r\n DirBase: 1fbe8000 ObjectTable: e13ff740 HandleCount: 24.\r\n Image: smss.exe\r\nPROCESS 82461d88 SessionId: 0 Cid: 0188 Peb: 7ffdf000 ParentCid: \r\n0158\r\n DirBase: 1f14d000 ObjectTable: e15e8958 HandleCount: 408.\r\n Image: csrss.exe\r\n...",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/65466573-ea34-4683-ad13-4255d43adc2f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f9d238e8d506387e677fe5a4dad634deeffcd86559120a61989fdeee266cc2bf",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b80ae77c-87a7-41ef-9f8c-c972c283d80a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 41,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 41\r\nTo see a particular process with a thread summary, give the process block‟s address and \r\nask for detail via the second parameter (see the Debugging Tools for Windows help file for \r\ninformation about the detail parameter):\r\nkd> !process 826af478 3\r\nPROCESS 826af478 SessionId: none Cid: 0004 Peb: 00000000 \r\nParentCid: 0000\r\n DirBase: 02c20000 ObjectTable: e1001e60 HandleCount: 362.\r\n Image: System\r\n VadRoot 81a43840 Vads 4 Clone 0 Private 3. Modified 18884. Locked 0.\r\n DeviceMap e1002868\r\n Token e1002ae0\r\n ElapsedTime 07:19:11.250\r\n UserTime 00:00:00.000\r\n KernelTime 00:00:11.328\r\n QuotaPoolUsage[PagedPool] 0\r\n QuotaPoolUsage[NonPagedPool] 0\r\n Working Set Sizes (now,min,max) (54, 0, 345) (216KB, 0KB, 1380KB)\r\n PeakWorkingSetSize 497\r\n VirtualSize 1 Mb\r\n PeakVirtualSize 2 Mb\r\n PageFaultCount 4179\r\n MemoryPriority BACKGROUND\r\n BasePriority 8\r\n CommitCharge 7\r\n THREAD 826af1f8 Cid 0004.0008 Teb: 00000000 Win32Thread: \r\n00000000 WAIT: (WrFreePage) KernelMode Non-Alertable\r\n 80580040 SynchronizationEvent\r\n 80581140 NotificationTimer",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/b80ae77c-87a7-41ef-9f8c-c972c283d80a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ade29d5658e3d77b45f7f14713505d7aedee5e5cd79480e3fe9426d03fa08464",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 499
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "495dfcd6-fb4c-4d31-b453-1c93c09b8248",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 42,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "42 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n THREAD 826aea98 Cid 0004.0010 Teb: 00000000 Win32Thread: \r\n00000000 WAIT: (WrQueue) KernelMode Non-Alertable\r\n 80582d80 QueueObject\r\n THREAD 826ae818 Cid 0004.0014 Teb: 00000000 Win32Thread: \r\n00000000 WAIT: (WrQueue) KernelMode Non-Alertable\r\n 80582d80 QueueObject\r\n...\r\nTo see a particular thread in maximum detail, use !thread with 0xFF as the detail \r\nparameter:\r\nkd> !thread 826af1f8 0xff\r\nTHREAD 826af1f8 Cid 0004.0008 Teb: 00000000 Win32Thread: 00000000 \r\nWAIT: (WrFreePage) KernelMode Non-Alertable\r\n 80580040 SynchronizationEvent\r\n 80581140 NotificationTimer\r\nNot impersonating\r\nDeviceMap e1002868\r\nOwning Process 826af478 Image: System\r\nWait Start TickCount 1688197 Ticks: 153 (0:00:00:02.390)\r\nContext Switch Count 9133 \r\nUserTime 00:00:00.0000\r\nKernelTime 00:00:03.0406\r\nStart Address nt!Phase1Initialization (0x806fb790)\r\nStack Init f88b3000 Current f88b2780 Base f88b3000 Limit f88b0000 Call \r\n0\r\nPriority 0 BasePriority 0 PriorityDecrement 0\r\nChildEBP RetAddr \r\nf88b2798 804edb2b nt!KiSwapContext+0x26 (FPO: [EBP 0xf88b27c0] [0,0,4])",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/495dfcd6-fb4c-4d31-b453-1c93c09b8248.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5f6dda7db7ad542c7ec8b9588d1446ce3dae0715bd0ff70e49461aa79d6e45bc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "285c3413-734e-48fd-a507-bcb7144dcae3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 43,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 43\r\nf88b27c0 804f0e7a nt!KiSwapThread+0x280 (FPO: [Non-Fpo]) (CONV: \r\nfastcall)\r\nf88b27f4 80502fc2 nt!KeWaitForMultipleObjects+0x324 (FPO: [Non-Fpo]) \r\n(CONV: stdcall)\r\nDriver and device objects\r\nIf you are writing a driver, you will often be looking at device stacks. You might begin by \r\nfinding devices belonging to a certain driver and then examine the stack a device is in. \r\nSuppose you are interested in the ScsiPort miniport driver aic78xx.sys. Start with !drvobj:\r\nkd> !drvobj aic78xx\r\nDriver object (82627250) is for:\r\n\\Driver\\aic78xx\r\nDriver Extension List: (id , addr)\r\n(f8386480 8267da38) \r\nDevice Object list:\r\n82666030 8267b030 8263c030 8267ca40\r\nThere are four device objects here. Use To look at the first, use !devobj to get some \r\ninformation about the device and !devstack to show the device-object stack to which the \r\ndevice object belongs:\r\nkd> !devobj 82666030 \r\nDevice object (82666030) is for:\r\naic78xx1Port2Path0Target1Lun0 \\Driver\\aic78xx DriverObject 82627250\r\nCurrent Irp 00000000 RefCount 0 Type 00000007 Flags 00001050\r\nDacl e13bb39c DevExt 826660e8 DevObjExt 82666d10 Dope 8267a9d8 DevNode \r\n8263cdc8 \r\nExtensionFlags (0000000000) \r\nAttachedDevice (Upper) 826bb030 \\Driver\\Disk\r\nDevice queue is not busy.\r\nkd> !devstack 82666030 \r\n !DevObj !DrvObj !DevExt ObjectName\r\n 826bbe00 \\Driver\\PartMgr 826bbeb8 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/285c3413-734e-48fd-a507-bcb7144dcae3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4f0ea905e5a292c757b8fd6bb9e3ed4fb070438c8a5db00bae66a72e0dd6febd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f7b41028-1669-439a-b220-436bcb7e2bc0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 44,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "44 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n 826bb030 \\Driver\\Disk 826bb0e8 DR2\r\n> 82666030 \\Driver\\aic78xx 826660e8 aic78xx1Port2Path0Target1Lun0\r\n!DevNode 8263cdc8 :\r\n DeviceInst is \r\n\"SCSI\\Disk&Ven_QUANTUM&Prod_VIKING_II_4.5WLS&Rev_5520\\5&375eb691&1&010\"\r\n ServiceName is \"disk\"\r\nIRPs\r\nThe most common method of communication amongst drivers is the I/O Request Packet, or \r\nIRP. To see an IRP‟s I/O completion stack, as for example at \r\nSioctl!SioctlDeviceControl+0x103:\r\nkd> !irp @@(Irp)\r\nIrp is active with 1 stacks 1 is current (= 0xff70fc30)\r\nNo Mdl System buffer = ff660c30 Thread ff73f4d8: Irp stack trace. \r\n cmd flg cl Device File Completion-Context\r\n>[ e, 0] 5 0 82361348 ffb05b90 00000000-00000000 \r\n \\Driver\\SIoctl\r\nArgs: 00000064 0000003c 9c402408 00000000\r\nTo get the full IRP plus its stack, ask for detail:\r\nkd> !irp @@(Irp) 1\r\nIrp is active with 1 stacks 1 is current (= 0xff70fc30)\r\nNo Mdl System buffer = ff660c30 Thread ff73f4d8: Irp stack trace. \r\nFlags = 00000070\r\nThreadListEntry.Flink = ff70fbd0\r\nThreadListEntry.Blink = ff70fbd0\r\nIoStatus.Status = 00000000\r\nIoStatus.Information = 00000000\r\nRequestorMode = 00000001\r\nCancel = 00\r\nCancelIrql = 0",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/f7b41028-1669-439a-b220-436bcb7e2bc0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=98af89f12f595ff83c32f32fcd59b158e20eb56b0a46b6d90a2b90e022055d1a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 470
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c18e0ee3-93f6-4225-95f2-b445d49cda17",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 45,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 45\r\nApcEnvironment = 00\r\nUserIosb = 0006fdc0\r\nUserEvent = 00000000\r\nOverlay.AsynchronousParameters.UserApcRoutine = 00000000\r\nOverlay.AsynchronousParameters.UserApcContext = 00000000\r\nOverlay.AllocationSize = 00000000 - 00000000\r\nCancelRoutine = 00000000\r\nUserBuffer = 04008f20\r\n&Tail.Overlay.DeviceQueueEntry = ff70fc00\r\nTail.Overlay.Thread = ff73f4d8\r\nTail.Overlay.AuxiliaryBuffer = 00000000\r\nTail.Overlay.ListEntry.Flink = 00000000\r\nTail.Overlay.ListEntry.Blink = 00000000\r\nTail.Overlay.CurrentStackLocation = ff70fc30\r\nTail.Overlay.OriginalFileObject = ffb05b90\r\nTail.Apc = 00000000\r\nTail.CompletionKey = 00000000\r\n cmd flg cl Device File Completion-Context\r\n>[ e, 0] 5 0 82361348 ffb05b90 00000000-00000000 \r\n \\Driver\\SIoctl\r\nArgs: 00000064 0000003c 9c402408 00000000\r\nTo get only the IRP proper, with its first-level members:\r\nkd> dt nt!_IRP @@(Irp)\r\n +0x000 Type : 6\r\n +0x002 Size : 0x94\r\n +0x004 MdlAddress : (null) \r\n +0x008 Flags : 0x70\r\n +0x00c AssociatedIrp : __unnamed",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/c18e0ee3-93f6-4225-95f2-b445d49cda17.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d980452d413d5fff6ac4b7e5bca46b6b376191de96fda1ff05fbb3fa904bc304",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "52696bc8-7265-4848-9291-c4f96aa9d9dc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 46,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "46 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n +0x010 ThreadListEntry : _LIST_ENTRY [ 0xff70fbd0 - 0xff70fbd0 ]\r\n +0x018 IoStatus : _IO_STATUS_BLOCK\r\n +0x020 RequestorMode : 1 ''\r\n +0x021 PendingReturned : 0 ''\r\n +0x022 StackCount : 1 ''\r\n +0x023 CurrentLocation : 1 ''\r\n +0x024 Cancel : 0 ''\r\n +0x025 CancelIrql : 0 ''\r\n +0x026 ApcEnvironment : 0 ''\r\n +0x027 AllocationFlags : 0x4 ''\r\n +0x028 UserIosb : 0x0006fdc0 \r\n +0x02c UserEvent : (null) \r\n +0x030 Overlay : __unnamed\r\n +0x038 CancelRoutine : (null) \r\n +0x03c UserBuffer : 0x04008f20 \r\n +0x040 Tail : __unnamed\r\nIRQL\r\nA command (available for targets that are Windows Server 2003 or later) for occasional use \r\nis !irql, because it shows the current IRQL on the concerned processor. Breaking at \r\nSioctl!SioctlDeviceControl+0x0:\r\nkd> !irql\r\nDebugger saved IRQL for processor 0x0 -- 0 (LOW_LEVEL)\r\nFor an example of a higher IRQL, suppose you added the following code (in curly braces) to \r\nSioctl!SioctlDeviceControl just before the break statement at the end of the \r\nIOCTL_SIOCTL_METHOD_BUFFERED clause:\r\nIrp->IoStatus.Information = (outBufLength<datalen?outBufLength:datalen); \r\n{ /* Begin added code */ \r\nKIRQL saveIrql; \r\nULONG i = 0; ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/52696bc8-7265-4848-9291-c4f96aa9d9dc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a36d4ef5c3c3a7d0b42b5179465f046828c4f05ac29f64be7478d1209cc607df",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 287
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1a082969-566c-46cb-ad31-ad3ead0cb348",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 47,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 47\r\n \r\nKeRaiseIrql(DISPATCH_LEVEL, &saveIrql); \r\ni++; \r\nKeLowerIrql(saveIrql); \r\n} /* End added code */\r\nbreak; \r\nNow, if you set a breakpoint at the statement after KeRaiseIrql and hit that breakpoint:\r\nkd> !irql\r\nDebugger saved IRQL for processor 0x0 -- 2 (DISPATCH_LEVEL)\r\nNote, by the way, that the !pcr command will not ordinarily show the IRQL you‟re interested \r\nin, namely, the IRQL in force at the point a breakpoint caused a halt.\r\nDump Files\r\nThere is little to say about dump files that is peculiar to them. A few things are worth \r\nmentioning.\r\n There are three kinds of kernel dump files. A full-memory dump is best, but the \r\nsomewhat less voluminous kernel dump suffices for most purposes. There is also the \r\nsmall-memory dump, which is 64KB in size (and so will be generated more quickly \r\nthan the two other types). Since a small-memory dump does not have full \r\ninformation about executables, it may be necessary to employ the .exepath\r\ncommand to point to executable images if investigating them is required. Windows \r\ncan be configured to create one of these dump files if a crash (bug check) occurs.\r\n To investigate a dump file, start WinDbg but do not specify a protocol for a target \r\nsystem. When in WinDbg, open the dump file with FileOpen Crash Dump. It will \r\nhelp if the symbol path and possibly the source path are already set.\r\n Now, in the WinDbg command window, do !analyze –v, to get a summary. The \r\ncommand will probably suggest an execution context (.cxr); setting that context will \r\ngive you access to the call stack at the time the bug check was issued (which, \r\nhopefully, will be close to the actual error). You may need to proceed to processes \r\nand threads (!process and !thread), to look at the list of kernel modules (lmnt), \r\nfrom that list to look at selected driver objects (!drvobj) and possibly to look at \r\ndevice nodes (!devnode), device objects (!devobj) and device stacks (!devstack). \r\nBut beyond !analyze –v, there are no simple prescriptions in working with a dump\r\nfile.\r\nIf a kernel-mode dump file has been created after a bug check has occurred, debugging this \r\nfile is similar to debugging a bug check that occurs when a debugger is attached. The ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/1a082969-566c-46cb-ad31-ad3ead0cb348.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e184acbed7ddce2e2e2b70ac14db5f221d6f10e959cae8a2a99f8dfc722325ef",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 379
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e65184f0-601f-4dc3-bd79-d90e1e511f60",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 48,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "48 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nfollowing section shows an example of live debugging, but it is similar to the analysis of a \r\ndump file.\r\nDebugging a Bug Check\r\nHere is how to begin analyzing a bug check. In this example, the kernel debugger is \r\nattached when the crash occurs, but the procedure when analyzing a kernel-mode dump file \r\nis similar.\r\nIn this example, the sample driver Sioctl.sys is loaded, and a breakpoint is set at \r\nSioctl!DriverEntry. When the debugger stops at this breakpoint, set Eip to 0. This is never \r\na valid value, since the instruction pointer cannot be zero. Then let execution proceed via \r\nF5. A kernel error will occur, and a bug check will be issued. You can then use \r\nthe !analyze extension command to investigate:\r\nkd> !analyze -v\r\n***********************************************************************\r\n********\r\n* \r\n*\r\n* Bugcheck Analysis \r\n*\r\n* \r\n*\r\n***********************************************************************\r\n********\r\nSYSTEM_THREAD_EXCEPTION_NOT_HANDLED (7e)\r\nThis is a very common bugcheck. Usually the exception address \r\npinpoints\r\nthe driver/function that caused the problem. Always note this address\r\nas well as the link date of the driver/image that contains this address.\r\nArguments:\r\nArg1: c0000005, The exception code that was not handled\r\nArg2: 00000000, The address that the exception occurred at\r\nArg3: f88f2bd8, Exception Record Address\r\nArg4: f88f2828, Context Record Address",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/e65184f0-601f-4dc3-bd79-d90e1e511f60.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7daef5bb10d7360617efc51f6bc656122705d8ab2d3b2e43814e3f4e7911db75",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c717c23d-386e-4f1c-916c-d65fb3e7eb06",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 49,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 49\r\nDebugging Details:\r\n------------------\r\nEXCEPTION_CODE: (NTSTATUS) 0xc0000005 - The instruction at \"0x%08lx\" \r\nreferenced memory at \"0x%08lx\". The memory could not be \"%s\".\r\nFAULTING_IP: \r\n+0\r\n00000000 ?? ???\r\nEXCEPTION_RECORD: f88f2bd8 -- (.exr fffffffff88f2bd8)\r\nExceptionAddress: 00000000\r\n ExceptionCode: c0000005 (Access violation)\r\n ExceptionFlags: 00000000\r\nNumberParameters: 2\r\n Parameter[0]: 00000000\r\n Parameter[1]: 00000000\r\nAttempt to read from address 00000000\r\nCONTEXT: f88f2828 -- (.cxr fffffffff88f2828)\r\neax=ffff99ea ebx=00000000 ecx=0000bb40 edx=8055f7a4 esi=e190049e \r\nedi=81e826e8\r\neip=00000000 esp=f88f2ca0 ebp=f88f2cf0 iopl=0 nv up ei pl nz na \r\npe nc\r\ncs=0008 ss=0010 ds=0023 es=0023 fs=0030 gs=0000 \r\nefl=00010202\r\n00000000 ?? ???\r\nResetting default scope",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/c717c23d-386e-4f1c-916c-d65fb3e7eb06.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=26f9a4e41d79d70b39fb870536ae1e63cbf16fa74859731caaf7cec9c9adc271",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e9b11dc1-110d-4380-8995-9df902bc336b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 50,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "50 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nDEFAULT_BUCKET_ID: DRIVER_FAULT\r\nCURRENT_IRQL: 0\r\nERROR_CODE: (NTSTATUS) 0xc0000005 - The instruction at \"0x%08lx\" \r\nreferenced memory at \"0x%08lx\". The memory could not be \"%s\".\r\nREAD_ADDRESS: 00000000 \r\nBUGCHECK_STR: 0x7E\r\nLAST_CONTROL_TRANSFER: from 805b9cbb to 00000000\r\nSTACK_TEXT: \r\nWARNING: Frame IP not in any known module. Following frames may be \r\nwrong.\r\nf88f2c9c 805b9cbb 81e826e8 8123a000 00000000 0x0\r\nf88f2d58 805b9ee5 80000234 8123a000 81e826e8 nt!IopLoadDriver+0x5e1\r\nf88f2d80 804ec5c8 80000234 00000000 822aeda0 \r\nnt!IopLoadUnloadDriver+0x43\r\nf88f2dac 805f1828 f7718cf4 00000000 00000000 nt!ExpWorkerThread+0xe9\r\nf88f2ddc 8050058e 804ec50d 00000001 00000000 \r\nnt!PspSystemThreadStartup+0x2e\r\n00000000 00000000 00000000 00000000 00000000 nt!KiThreadStartup+0x16\r\nFAILED_INSTRUCTION_ADDRESS: \r\n+0\r\n00000000 ?? ???",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/e9b11dc1-110d-4380-8995-9df902bc336b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=68a86ebda9aace4b3fa79f227bbac2fbb499640801da70d80690c09ba0d035ca",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b8116a96-cd09-4ef2-a961-c9f69575119a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 51,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 51\r\nFOLLOWUP_IP: \r\nnt!IopLoadDriver+5e1\r\n805b9cbb 3bc3 cmp eax,ebx\r\nSYMBOL_STACK_INDEX: 1\r\nSYMBOL_NAME: nt!IopLoadDriver+5e1\r\nMODULE_NAME: nt\r\nIMAGE_NAME: ntoskrnl.exe\r\nDEBUG_FLR_IMAGE_TIMESTAMP: 3e800a79\r\nSTACK_COMMAND: .cxr fffffffff88f2828 ; kb\r\nFAILURE_BUCKET_ID: 0x7E_NULL_IP_nt!IopLoadDriver+5e1\r\nBUCKET_ID: 0x7E_NULL_IP_nt!IopLoadDriver+5e1\r\nkd> .cxr fffffffff88f2828\r\neax=ffff99ea ebx=00000000 ecx=0000bb40 edx=8055f7a4 esi=e190049e \r\nedi=81e826e8\r\neip=00000000 esp=f88f2ca0 ebp=f88f2cf0 iopl=0 nv up ei pl nz na \r\npe nc\r\ncs=0008 ss=0010 ds=0023 es=0023 fs=0030 gs=0000 \r\nefl=00010202\r\n00000000 ?? ???\r\nkd> kb\r\n *** Stack trace for last set context - .thread/.cxr resets it",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/b8116a96-cd09-4ef2-a961-c9f69575119a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3176266b34bc0456fb72e30406e3b2c221894bd70493cd2ccd87bf2cf10d71eb",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 477
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "15f409a3-d352-4109-8d50-aa9b6d067dbd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 52,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "52 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nChildEBP RetAddr Args to Child \r\nWARNING: Frame IP not in any known module. Following frames may be \r\nwrong.\r\nf88f2c9c 805b9cbb 81e826e8 8123a000 00000000 0x0\r\nf88f2d58 805b9ee5 80000234 8123a000 81e826e8 nt!IopLoadDriver+0x5e1\r\nf88f2d80 804ec5c8 80000234 00000000 822aeda0 \r\nnt!IopLoadUnloadDriver+0x43\r\nf88f2dac 805f1828 f7718cf4 00000000 00000000 nt!ExpWorkerThread+0xe9\r\nf88f2ddc 8050058e 804ec50d 00000001 00000000 \r\nnt!PspSystemThreadStartup+0x2e\r\n00000000 00000000 00000000 00000000 00000000 nt!KiThreadStartup+0x16\r\nThe topmost entry in the above stack looks wrong. That is something you might encounter \r\nin a dump file. How would you work with that if you didn‟t know how the bug check had \r\nbeen produced?\r\n1. Do .frame 1, to get to the frame for the caller of the mystery routine, \r\nnt!IopLoadDriver.\r\n2. Go to the disassembly window, where the call by nt!IopLoadDriver is conveniently \r\ndisplayed, in instructions:\r\n8062da9e ff572c call dword ptr [edi+0x2c]\r\n8062daa1 3bc3 cmp eax,ebx\r\n3. The call was to the address in a doubleword pointed to by the Edi register‟s value \r\nplus 0x2C. That is the address you need. So, display the Edi register:\r\nkd> r edi\r\nLast set context:\r\nedi=81a2bb18\r\n4. A little arithmetic:\r\nkd> ? 81a2bb18+0x2c\r\nEvaluate expression: -2120041660 = 81a2bb44\r\n5. So the address is in storage at 0x81A2BB44:\r\nkd> dd 81a2bb44 l1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/15f409a3-d352-4109-8d50-aa9b6d067dbd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0b7b5069e52d5f5270b0afc8ad4c470f79f3e07a57b279c3bbd6deb773a5e531",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 203
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c206f08f-c891-4755-b78b-daa09e7cbde9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 53,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 53\r\n81a2bb44 f87941a3\r\n6. What‟s at that address?\r\nkd> dt f87941a3\r\nGsDriverEntry\r\nSIoctl!GsDriverEntry+0(\r\n_DRIVER_OBJECT*, \r\n_UNICODE_STRING*)\r\nThus you would have determined the real routine at the top of the stack.\r\nPseudo-registers\r\nPseudo-registers are variables that you can employ for various purposes. A number of \r\npseudo-registers are predefined in meaning: $ra for the return point in the current entry on \r\nthe call stack, $ip for the instruction pointer, $scopeip for the address of the current scope \r\n(local context, which makes available local variables in the current routine), $proc that \r\npoints to the current EPROCESS, and so forth. These might be useful in conditional \r\nstatements.\r\nThere are also pseudo-registers with operator-defined meaning, $t0 through $t19. These \r\ncan be turned to various purposes, like counting breakpoints. A pseudo-register was put to \r\nthat use in a real-life case where there were many updates to a piece of storage:\r\nba w4 81b404d8-18 \"r$t0=@$t0+1;as /x ${/v:$$t0} @$t0;.block {.echo hit \r\n# $$t0};ad ${/v:$$t0};dd 81b404d8-18 l1;k;!thread -1 0;!process -1 0\"\r\nThe approximate meaning of the above is, When the doubleword at 0x81B404D8 is updated, \r\nupdate the pseudo-register $t0 as a hit counter, say what is the number of the hit and show \r\nthe value at 0x81B404D8, the call stack, the current process and the current thread. (To \r\nunderstand details in the above, refer to aliasing below.)\r\nAnother illustrative use is from a support case where it was necessary to track the activity \r\nof Atapi.sys‟s DPC routine (Atapi.sys is a standard operating system driver). This routine \r\nwas entered extremely often, but the investigating engineer knew that at a specific point \r\nthere would be an interesting IRP about to be completed, and the variable irp pointed to \r\nthat IRP. In another routine in Tape.sys (another standard operating system driver), there \r\nwas a variable named Irp that pointed to the same IRP. The engineer wanted to stop in \r\nTape.sys at just the right time, so he started by setting a one-time breakpoint in the \r\nAtapi.sys DPC:\r\nbp /1 Atapi!IdeProcessCompletedRequest+0x3bd \"dv irp; r$t0=@@(irp)\"",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/c206f08f-c891-4755-b78b-daa09e7cbde9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ae6bebade8eb4a7e5e7daf4fc5e015eb788037305aa183ef3c46845ad4631b03",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 337
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8c307cc0-05f7-441d-aebf-eec206a712d9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 54,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "54 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nThat breakpoint‟s action was to set the pseudo-register $t0 to the value of the variable irp, \r\nwhich was the address of the IRP of interest. (It also displayed the value of irp.)\r\nWhen that one-time breakpoint was hit, the engineer did this:\r\nbp Tape!TapeIoCompleteAssociated+0x1c6 \"j (@@(Irp)=$t0) '.echo stopped \r\nat TAPE!TapeIoCompleteAssociated+0x1c6; dv Irp' ; 'g'\"\r\nThis means: When this second breakpoint in Tape.sys is hit, if the local variable Irp matches \r\n$t0, put out some eye-catching information and display the value of Irp. If, on the other \r\nhand, Irp does not match $t0, just go. When this second breakpoint caused execution to \r\nstop, control had halted where the engineer desired.\r\nAliasing\r\nIt may be convenient to replace a set of characters with another set in a command string. \r\nOne use is to define a short string for a long set of commands. For example,\r\nkd> as Demo r; !process -1 0; k; !thread -1 0\r\nkd> al\r\n Alias Value \r\n------- -------\r\nDemo r; !process -1 0; k; !thread -1 0 \r\nkd> demo\r\nCouldn't resolve error at 'emo'\r\nkd> Demo\r\neax=00000001 ebx=001a6987 ecx=80571780 edx=ffd11118 esi=0000003e \r\nedi=f8bcc776\r\neip=804df1c0 esp=8056f564 ebp=8056f574 iopl=0 nv up ei pl nz na \r\npe nc\r\ncs=0008 ss=0010 ds=0023 es=0023 fs=0030 gs=0000 \r\nefl=00000202\r\nnt!RtlpBreakWithStatusInstruction:\r\n804df1c0 cc int 3\r\nPROCESS 80579f60 SessionId: none Cid: 0000 Peb: 00000000 \r\nParentCid: 0000\r\n DirBase: 00039000 ObjectTable: e1000e78 HandleCount: 234.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/8c307cc0-05f7-441d-aebf-eec206a712d9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6c9fa1514da2db73e25e83ecaa41173c35e055edcc1d3d8eb2428a27b8109c73",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "94ce0c04-02ae-4f33-9963-10eee965d699",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 55,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 55\r\n Image: Idle\r\nChildEBP RetAddr \r\n8056f560 804e8682 nt!RtlpBreakWithStatusInstruction \r\n8056f560 804e61ce nt!KeUpdateSystemTime+0x132 \r\n80579f60 00000000 nt!KiIdleLoop+0xe \r\nTHREAD 80579d00 Cid 0000.0000 Teb: 00000000 Win32Thread: 00000000 \r\nRUNNING on processor 0\r\nNote that the alias and what replaces it are case-sensitive.\r\nIf you look back at pseudo-registers, you will now recognize that alias commands were used \r\nin the first example there. To begin, suppose that this was the actual command:\r\nbp SioctlDeviceControl \"r$t0=@$t0+1;as /x ${/v:$$t0} @$t0;.block {.echo \r\nhit # $$t0};ad ${/v:$$t0};k ;!thread -1 0;!process -1 0;g\"\r\n \r\nHere‟s what would be put out in the WinDbg command window, with the effect of aliasing \r\nshown in red:\r\nhit # 0x1\r\nChildEBP RetAddr \r\nf747dc20 80a2675c SIoctl!SioctlDeviceControl \r\nf747dc3c 80c70bed nt!IofCallDriver+0x62 \r\nf747dc54 80c71b0d nt!IopSynchronousServiceTail+0x159 \r\nf747dcf4 80c673aa nt!IopXxxControlFile+0x665 \r\nf747dd28 80afbbf2 nt!NtDeviceIoControlFile+0x28 \r\nf747dd28 7ffe0304 nt!_KiSystemService+0x13f \r\n0006fdc8 04003bcb SharedUserData!SystemCallStub+0x4\r\n0006fde8 04002314 ioctlapp!_ftbuf+0x1b \r\n0006ff78 04002e02 ioctlapp!main+0x1e4 \r\n0006ffc0 77e4f38c ioctlapp!mainCRTStartup+0x14d \r\nWARNING: Frame IP not in any known module. Following frames may be \r\nwrong.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/94ce0c04-02ae-4f33-9963-10eee965d699.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=417eee618b3c3347fe1fcbb72e42ee73a85086e3e29782ed6fcb973b9d36f855",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 387
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "e97225fd-6e9c-4ba6-9546-d24cf4f05560",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 56,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "56 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n0006fff0 00000000 0x77e4f38c\r\nTHREAD feca2b88 Cid 0714.0e2c Teb: 7ffde000 Win32Thread: 00000000 \r\nRUNNING on processor 0\r\nPROCESS ff877b50 SessionId: 1 Cid: 0714 Peb: 7ffdf000 ParentCid: \r\n0d04\r\n DirBase: 048f0000 ObjectTable: e2342440 HandleCount: 19.\r\n Image: ioctlapp.exe\r\n...\r\nhit # 0x2\r\n...\r\nhit # 0x3\r\n...\r\nThe basic trick above is to define the command block associated with hitting the breakpoint \r\nin such a way that the imbedded alias definition isn‟t evaluated immediately but only when \r\na breakpoint is hit. That is achieved by using the ${} (“Alias Interpreter”) token with the /v\r\noption to specify an alias not evaluated at specification (in the bp command, that is) and \r\nthe .block (“Block”) token to cause alias evaluation at the time of hitting the breakpoint \r\nand executing the associated commands. Finally, the /x option of the as command ensures \r\n64-bit values are used, and the ad ensures the latest alias is cleaned up.\r\nScript files and other ways to reduce work\r\nIt is possible to run a script file to execute a number of WinDbg commands. Consider as an \r\nexample a dump file from an x64 system. Here the focus is on SCSI Request Blocks (SRBs) \r\nfrom a device driver called xStor.sys:\r\n1. Use !irpfind (see the Debugging Tools for Windows help file) to find IRPs in the non\u0002paged pool. You will get lines like this:\r\nfffffadfe5df1010 [fffffadfe5ee6760] irpStack: ( 4, 0) \r\nfffffadfe78cc060 [ \\Driver\\dmio] 0xfffffadfe6919470\r\nThe value in red is the address of that specific IRP.\r\n2. Copy those lines into a file.\r\n3. In the file, select all lines containing xStor and put those lines into another file, \r\ndebugtst1.txt. That yields lines like this one:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/e97225fd-6e9c-4ba6-9546-d24cf4f05560.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c503d9a3d65fff5a4a71c6b80900e2ef6951b23abb709b8800cf44d790c336d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8560edb1-cf91-4385-a8fd-8f89f9fddb2c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 57,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 57\r\nfffffadfe5e4c9d0 [00000000] irpStack: ( f, 0) fffffadfe783d050 \r\n[ \\Driver\\xStor] 0xfffffadfe6919470\r\n4. Editing debugtst1.txt, change each line:\r\n!irp fffffadfe5e4c9d0 1\r\nThe !irp extension displays the IRP at the given address, including the IRP‟s major \r\nfields and its stack. Save debugtst1.txt.\r\n5. Now, in WinDbg, give the command $$<c:\\temp\\debugtst1.txt. You will get a lot \r\nof output, starting with:\r\n1: kd> $$<c:\\temp\\debugtst1.txt\r\n1: kd> !irp fffffadfe5e4c9d0 1\r\nIrp is active with 2 stacks 2 is current (= 0xfffffadfe5e4cae8)\r\nMdl = fffffadfe600f5e0 Thread 00000000: Irp stack trace.\r\nFlags = 00000000\r\nThreadListEntry.Flink = fffffadfe5e4c9f0\r\nThreadListEntry.Blink = fffffadfe5e4c9f0\r\nIoStatus.Status = c00000bb\r\nIoStatus.Information = 00000000\r\n...\r\nTail.Apc = 0326cc00\r\nTail.CompletionKey = 0326cc00\r\n cmd flg cl Device File Completion-Context\r\n[ 0, 0] 0 0 00000000 00000000 00000000-00000000\r\n Args: 00000000 00000000 00000000 00000000\r\n>[ f, 0] 0 e1 fffffadfe783d050 00000000 fffffadfe3ee46d0-\r\nfffffadfe6869010 Success Error Cancel pending\r\n \\Driver\\xStor CLASSPNP!TransferPktComplete",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/8560edb1-cf91-4385-a8fd-8f89f9fddb2c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9a76f240c2bba9d407a8a6e7effaa870cfa772e2b4fcd3beab78b08f4d0ee026",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 427
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "41700f05-010e-4ab7-aa95-4d5d85595210",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 58,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "58 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n Args: fffffadfe6869130 00000000 00000000 \r\n00000000\r\nThe value in red is, under these conditions, the SRB address for that IRP.\r\n6. To get the SRBs formatted, create debugtst2.txt by finding and copying all lines in \r\nthe above output that contain „Args: ffff‟. Then change each line to be like this:\r\ndt nt!SCSI_REQUEST_BLOCK fffffadfe6869130\r\nNote: Since the Microsoft symbol store contains only \"public symbols\", so \r\nnt!SCSI_REQUEST_BLOCK may not be available. For present purposes, think of it \r\nsimply as a structure defined in a driver for which you have complete symbols.\r\n7. You would save debugtst2.txt. Then in WinDbg you would do \r\n$$<c:\\temp\\debugtst2.txt. The output would be like this:\r\n1: kd> dt nt!SCSI_REQUEST_BLOCK fffffadfe6869130\r\n +0x000 Length : 0x58\r\n +0x002 Function : 0 ''\r\n +0x003 SrbStatus : 0 ''\r\n +0x004 ScsiStatus : 0 ''\r\n +0x005 PathId : 0 ''\r\n +0x006 TargetId : 0xff ''\r\n +0x007 Lun : 0 ''\r\n...\r\n +0x038 SrbExtension : (null) \r\n +0x040 InternalStatus : 0x21044d0\r\n +0x040 QueueSortKey : 0x21044d0\r\n +0x044 Reserved : 0\r\n +0x048 Cdb : [16] \"*\" \r\nThus, with a few minutes‟ work, you would have found and displayed all the SRBs of interest. \r\nIt is possible to write a debugger extension to do the same thing, but for a one-off \r\ninvestigation, a simple script may be the better approach. You can take a script a step \r\nfurther by packaging commands with control logic to form a command program. The control ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/41700f05-010e-4ab7-aa95-4d5d85595210.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a23a67a4cd35f7589e595f58bfba877de11914903656802b5cfb3b83ff795014",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 239
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ec3816f5-57f1-4af1-b76b-ba2b5427a052",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 59,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 59\r\nis exercised through flow-operation tokens like .if and .for. For details about scripts and \r\ncommand programs, see “Run Script File” and “Using Debugger Command Programs” in the \r\nDebugging Tools for Windows help file.\r\nA debugger extension is even more powerful, but it takes more time to write. An extension, \r\nwritten in C or C++ and built as a DLL, has available the full power of the debugger and its \r\n“engine.” Many of commonly used commands such as !process are in fact extensions. The \r\nspecifics of writing an extension are beyond the present scope. Refer to “Debugger \r\nExtensions” in the Debugging Tools for Windows help file.\r\nRemote debugging\r\nWinDbg (and KD) can be connected to a target to act as a server for a debugger instance \r\nacting as client, via TCP/IP or other protocol. A test system is connected via COMx or 1394 \r\nto a debugger, and the debugger is made into a server; then a developer can investigate \r\nproblems or exercise function at a distance. This setup is very valuable in automated testing, \r\nallowing a person to investigate lab problems from his or her desk.\r\nTo get this capability, you can start the debugger with a command-line option to indicate its \r\nrole:\r\nwindbg -server tcp:port=5555\r\nor you can issue a command in WinDbg after it has started:\r\n.server tcp:port=5005\r\nEither method causes WinDbg to act as a debugging server, listening at TCP/IP port 5005.\r\nIn a different instance of WinDbg, do this to connect as a client:\r\n.tcp:server=myserver,port=5005\r\nTo start a WinDbg client from scratch:\r\nwindbg -remote tcp:server=myserver,port=5005\r\nCOMx, named-pipe and SSL are other available protocols.\r\nA few things to realize about remote debugging:\r\n If there is a firewall between the host system in one local or corporate network and \r\nthe target system in another network, remote debugging is more complicated. See\r\nthe Debugging Tools for Windows help file for details.\r\n Access to symbols and to source are based on the permissions of the person logged \r\nin at the remote server, not the permissions of the person that is running the client.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/ec3816f5-57f1-4af1-b76b-ba2b5427a052.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9ea685550c8f12726444564a9c4dc2bd0b4c4f84159ba38a83dd44b83da81de3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 352
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ca90c3bb-16b0-4504-ba90-8766faf776c2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 60,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "60 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\n The client sets source file locations by the .lsrcpath (“local source path”) command, \r\nnot .srcpath.\r\n“Short” call stacks\r\nWinDbg does its best to figure out the call stack, but sometimes it is defeated. Retrieving \r\nsuch a situation is one of the most difficult tasks facing the person who is debugging, since \r\nshe or he must use her/his own knowledge to supplement WinDbg‟s expert knowledge. Be \r\nwarned, then! Tough slogging ahead.\r\nConsider this example from a dump file where there was a double-fault bug check\r\n(unexpected kernel-mode trap with first argument 0x00000008):\r\nkd> k\r\nChildEBP RetAddr \r\nbe80cff8 00000000 hal!HalpClockInterruptPn+0x84 \r\nIt would seem there was only one routine on the stack, an operating system clock-interrupt \r\nroutine. It is a bit suspicious that that should have failed. So, begin by looking at the \r\ncurrent thread:\r\nkd> !thread\r\nTHREAD 88f108a0 Cid 8.54c Teb: 00000000 Win32Thread: 00000000 \r\nRUNNING\r\n...\r\nStart Address rpcxdr!SunRpcGetRxStats (0xf7352702)\r\nStack Init be810000 Current be80fd34 Base be810000 Limit be80d000 Call \r\n0\r\nThe stack starts at 0xBE810000 and goes down to 0xBE80D000 (three pages, which is \r\nnormal). The stack base (ChildEBP) for the apparently failing clock routine is 0xBE80CFF8, \r\nwhich is beyond (below) the stack‟s end. Is it likely that a clock routine would have used \r\nmore than the standard stack?\r\nThe detective work begins with looking for addresses in the stack that may indicate other \r\nroutines. For this the usual tool is dds (“Display Words and Symbols”), to look for stored \r\naddresses (dqs and dps can be used, too; note that all three of these commands are case\u0002sensitive). For present purposes ignore the clock-interrupt routine and instead focus on the \r\nstack up to but not including the routine interrupted by the clock routine. But don‟t ignore ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/ca90c3bb-16b0-4504-ba90-8766faf776c2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c0d5c849eaafa9965d8dd974a4c18d65ba6badd4192369244c49074dc5d2d48f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ce364ddb-e45c-4ba0-b795-a90902b7d12a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 61,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 61\r\nthe clock routine entirely: You start with the fact that its base stack pointer (ChildEBP above) \r\nis 0xBE80CFF8.\r\nNext look at 0xBE80CFF8 and see if anything interesting shows up (annotations below are \r\nshown with C-style comment delimiters):\r\n2: kd> dds be80cff8 be80cff8+0x100\r\nbe80cff8 ???????? /* Invalid storage address. */\r\nbe80cffc ???????? /* Invalid storage address. */\r\nbe80d000 00000000\r\n...\r\nbe80d034 00000000\r\nbe80d038 00000020\r\n...\r\nbe80d058 be80d084\r\nbe80d05c 00000000\r\nbe80d060 bfee03e0 zzznds+0x103e0\r\nbe80d064 00000008\r\nbe80d068 00000246\r\nbe80d06c 8a61c004\r\nbe80d070 bfbb7858\r\nbe80d074 88c1da28\r\nbe80d078 00000000\r\nbe80d07c 00000000\r\nbe80d080 00000000\r\nbe80d084 be80d0d8 /* Saved Ebp of zzznds+0xBED7, as \r\nexplained below. */",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/ce364ddb-e45c-4ba0-b795-a90902b7d12a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6ec7c4b4381bef3c907122406cdc0a6b0b8fefa20c20e8689f0f0182fb5b69d1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 399
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f5193e05-d9cf-4596-bbf0-ca2e8054ea6c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 62,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "62 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nbe80d088 bfedbed7 zzznds+0xbed7\r\n...\r\nAssume that the line with the identification “zzzndx+0x103E0” is the driver routine \r\ninterrupted by the clock routine. You will notice the earlier line (higher stack address) with \r\nthe identification “zzznds+0xBED7.”\r\nNow look at disassembled instructions a little before zzznds+0xBED7 (the point of call):\r\nzzznds+0xbed0:\r\nbfedbed0 53 push ebx\r\nbfedbed1 57 push edi\r\nbfedbed2 e8e7420000 call zzznds+0x101be (bfee01be)\r\nNote that the call is to zzznds+0x101BE, which is fairly close to the first identified line. Thus, \r\nthe disassembly could well be the call to that.\r\nNow disassemble zzznds+0x101BE to see how that call worked:\r\nbfee01be 55 push ebp /* Save the caller's EBP. \r\n*/\r\nbfee01bf 8bec mov ebp,esp /* Make the current ESP \r\nour EBP. */\r\nbfee01c1 83ec0c sub esp,0xc /* Adjust ESP by \r\nsubtracting 0xC. */\r\nbfee01c4 53 push ebx\r\nLooking back to the output from dds above, you can see at 0xBE80D088 the caller‟s saved \r\nEbp. But the operations of pushing down that Ebp (push ebp at 0xBFEE01BE) and of saving \r\nit at 0xBE80D088 mean that Esp after the pushing is 0xBE80D084, and since Esp becomes \r\nthe current Ebp (instruction at 0xBFEE01BF), and since 0xC is subtracted from Esp at \r\n0xBFEE01C1, the resulting Esp value at the instruction at 0XBFEE01C4 has to be \r\n0xBE80D078.\r\nNow you have determined the Ebp, Esp and Eip values for what was called by \r\nzzznds+0xBED7, namely, 0xBE80D084, 0xBE80D078 and 0xBFEE01C4, so you supply them \r\nto the k command for it to use them rather than try to discover values:\r\n2: kd> k = 0xBE80D084 0xBE80D078 0xBFEE01C4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/f5193e05-d9cf-4596-bbf0-ca2e8054ea6c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e1d274f23632bcbbeea3bdac27af982c75ad6ec29e77cdf48352768889730ca1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ad29c60a-5804-4213-9e01-3b678183bfaf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 63,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Kernel Debugging Tutorial © 2005 Microsoft Corporation 63\r\nChildEBP RetAddr \r\nWARNING: Stack unwind information not available. Following frames may \r\nbe wrong.\r\nbe80d084 bfedbed7 zzznds+0x101c4\r\nbe80d0d8 bff6030f zzznds+0xbed7\r\nbe80d0fc 8046d778 SCSIPORT!SpStartIoSynchronized+0x139 \r\nbe80d114 bff60e4f nt!KeSynchronizeExecution+0x28 \r\nbe80d148 8006627b SCSIPORT!SpBuildScatterGather+0x249 \r\nbe80d174 8041d30e hal!HalAllocateAdapterChannel+0x11b \r\nbe80d18c bff5f8c8 nt!IoAllocateAdapterChannel+0x28 \r\nbe80d1bc 8041f73f SCSIPORT!ScsiPortStartIo+0x2ea \r\nbe80d1e0 bff5f4ec nt!IoStartPacket+0x6f \r\nbe80d214 bff601d0 SCSIPORT!ScsiPortFdoDispatch+0x26c \r\nbe80d22c bff622f7 SCSIPORT!SpDispatchRequest+0x70 \r\nbe80d248 bff5e390 SCSIPORT!ScsiPortPdoScsi+0xef \r\nbe80d258 8041deb1 SCSIPORT!ScsiPortGlobalDispatch+0x1a \r\n...\r\nThat is only part, the latest part, of the stack (there was more). But you should have the \r\ngeneral idea.\r\nTo arrive at the parameters given to k immediately above, a good deal of detective work \r\nwas necessary, involving a search of the stack and looking at code to see how the stack is \r\nbuilt at a certain point. The work will vary from case to case. The lesson here is that if \r\nWinDbg‟s stack backtrace looks short, see if the kernel stack allotted to the failing thread is \r\nplausibly accounted for. If not, begin to dig in.\r\nUnexpected change of thread context during stepping \r\nIf you spend an extended period of time in stepping through kernel code (with F10 or F11, \r\nfor example), you may notice that control suddenly jumps to a point you didn‟t expect. This \r\nis the more likely if the code is running at an IRQL less than DISPATCH_LEVEL and you \r\nemploy step-over (F10). If you knew that you were following control running under a ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/ad29c60a-5804-4213-9e01-3b678183bfaf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=07af92247ff56629a2946e8a6c76647b271660607148311d817e4b4d26eddde3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 493
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6b0b4ba1-4f06-4fe1-9413-7697e0364191",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 64,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "64 Kernel Debugging Tutorial © 2005 Microsoft Corporation\r\nspecific thread and now checked the running thread, you would know for certain that the \r\nthread changed.\r\nThis behavior is normal, if disconcerting. The debugger accomplishes stepping by putting a \r\ndebugging instruction (e.g., int 3 on x86) at the next instruction or the next statement (the \r\ndebugging instruction isn‟t ordinarily visible to the person debugging). If the thread‟s \r\nquantum expires in moving from the current instruction/statement to the next, the \r\noperating system may dispatch a different thread, and that thread might encounter the \r\ndebugging instruction, whereupon the debugger would get control. The debugger does not \r\ncheck that the thread is the same as that for the last stepping point but simply stops \r\nexecution. In such a situation you may observe a jump. This scenario becomes more likely if \r\nthe stepped-over code involves a great deal of processing, as might happen in stepping over \r\nan API that calls an API that calls an API and so forth.\r\nThere is no simple way of dealing with this behavior, which, to repeat, is expected. What \r\ncan work for you is to be on the watch for unexpected jumps in stepping, and to check the \r\ncurrent thread if you are suspicious. If you find the thread has switched, you should look \r\nback to find the last good point, restart the testing from square 1, set a one-time thread\u0002qualified breakpoint at that last good point, and let things run until that breakpoint is \r\nreached. Then you can proceed: You are still exposed to switches, but you are that much \r\nfurther along the path of interest.\r\nGetting more information\r\nThis brief essay did not plumb all the debugger‟s possibilities. For more information, consult \r\nthe Debugging Tools for Windows help file. If you still have unanswered questions, bring \r\nthem up in the public newsgroup microsoft.public.windbg (hosted by \r\nmsnews.microsoft.com), or send email to windbgfb@microsoft.com.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/31eb0118-02cc-4517-b792-eaa68c91f100/images/6b0b4ba1-4f06-4fe1-9413-7697e0364191.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041604Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=939f264453d194305d84661c840eb260c706a7dcb266127b2b643ebb944f937e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 314
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Kernel Debugging Tutorial"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Microsoft Corporation\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "Field Name: date_published\nField Type: string\nField Description: 2005"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```json\n{\"location\": \"d:\\\\winddk\\\\3790\\\\src\\\\general\\\\ioctl\\\\sys\\\\sioctl.c @ 123\", \"location\": \"d:\\\\winddk\\\\3790\\\\src\\\\general\\\\ioctl\\\\sys\\\\sioctl.c @ 338\", \"location\": \"d:\\\\winddk\\\\3790.1824\\\\src\\\\general\\\\ioctl\\\\sys\\\\sioctl.c @ 708\", \"location\": \"d:\\\\winddk\\\\3790.1824\\\\src\\\\general\\\\ioctl\\\\sys\\\\sioctl.c @ 337\"}\n```"
+        }
+      ]
+    }
+  }
+}

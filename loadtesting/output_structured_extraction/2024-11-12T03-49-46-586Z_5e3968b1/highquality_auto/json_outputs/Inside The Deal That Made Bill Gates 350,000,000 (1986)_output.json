@@ -1,0 +1,1400 @@
+{
+  "file_name": "Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",
+  "task_id": "d098c23f-750d-431f-b4d5-134c0fa69015",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "3f69fbd2-74de-4398-bed1-8712c959c705",
+            "bbox": {
+              "left": 149,
+              "top": 140.66666,
+              "width": 133.25,
+              "height": 22.833332
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "by Bro Uttal",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/3f69fbd2-74de-4398-bed1-8712c959c705.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bb183501692f52be38dc4b2be304526e6e5afdbed3e186ff1cd840d945c4ab83",
+            "html": "<p>by Bro Uttal</p>",
+            "markdown": "by Bro Uttal\n\n"
+          }
+        ],
+        "chunk_length": 3
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8b3ade33-900f-41e8-96c4-38b1e316c984",
+            "bbox": {
+              "left": 74,
+              "top": 203.16666,
+              "width": 291.5833,
+              "height": 20.75
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "© COPYRIGHT 1986 Time, Inc.",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/8b3ade33-900f-41e8-96c4-38b1e316c984.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6ed2d1b0b558076eae4a579d8d66cb7fcca11d62e373ce81bd4ad0105649f5db",
+            "html": "<h2>© COPYRIGHT 1986 Time, Inc.</h2>",
+            "markdown": "## © COPYRIGHT 1986 Time, Inc.\n\n"
+          },
+          {
+            "segment_id": "bcab8065-a184-43f6-9292-49445a0d69b0",
+            "bbox": {
+              "left": 94.83333,
+              "top": 251.08333,
+              "width": 545.75,
+              "height": 395.75
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Going public is one of capitalism’s major sacraments, conferring instant superwealth on a few talented and lucky entrepreneurs. Of the more than 1,500 companies that have undergone this rite of passage in the past five years, few have enjoyed a more fren-L zied welcome from investors than Microsoft, the Seattle-based maker of software for personal computers. Its shares, offered at $21 on March 13, zoomed to $35.50 on the over-the-counter market before settling back to a recent $31.25. Microsoft and its shareholders raised $61 million. The biggest winner was William H. Gates III, the company’s co-founder and chairman. He got only $1.6 million for the shares he sold, but going public put a market value of $350 million on the 45% stake he retains. A software prodigy who helped start Micro soft while still in his teens, Gates, at 30, is probably one of the 100 richest Americans.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/bcab8065-a184-43f6-9292-49445a0d69b0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5e57764b97a12cd72cca6e2a2b2897efb7464c9d397bed4e6f3ee7dae5cdac0b",
+            "html": "<p>Going public is one of capitalism’s major sacraments, conferring instant superwealth on a few talented and lucky entrepreneurs. Of the more than 1,500 companies that have undergone this rite of passage in the past five years, few have enjoyed a more fren-L zied welcome from investors than Microsoft, the Seattle-based maker of software for personal computers. Its shares, offered at $21 on March 13, zoomed to $35.50 on the over-the-counter market before settling back to a recent $31.25. Microsoft and its shareholders raised $61 million. The biggest winner was William H. Gates III, the company’s co-founder and chairman. He got only $1.6 million for the shares he sold, but going public put a market value of $350 million on the 45% stake he retains. A software prodigy who helped start Micro soft while still in his teens, Gates, at 30, is probably one of the 100 richest Americans.</p>",
+            "markdown": "Going public is one of capitalism’s major sacraments, conferring instant superwealth on a few talented and lucky entrepreneurs. Of the more than 1,500 companies that have undergone this rite of passage in the past five years, few have enjoyed a more fren-L zied welcome from investors than Microsoft, the Seattle-based maker of software for personal computers. Its shares, offered at $21 on March 13, zoomed to $35.50 on the over-the-counter market before settling back to a recent $31.25. Microsoft and its shareholders raised $61 million. The biggest winner was William H. Gates III, the company’s co-founder and chairman. He got only $1.6 million for the shares he sold, but going public put a market value of $350 million on the 45% stake he retains. A software prodigy who helped start Micro soft while still in his teens, Gates, at 30, is probably one of the 100 richest Americans.\n\n"
+          },
+          {
+            "segment_id": "13dfa656-38ec-42ad-91ac-47aa72b9fc3c",
+            "bbox": {
+              "left": 92.75,
+              "top": 674,
+              "width": 549.9166,
+              "height": 324.91666
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gates thinks other entrepreneurs might learn from Microsoft’s experience in crafting what some analysts called ’’the deal of the year,’’ so he invited FORTUNE along for a rare inside view of the arduous five- month process. Companies hardly ever allow such a close look at an offering because they fear that the Securities and Exchange Commission might charge them with touting their stock. Answers emerged to a host of fascinating questions, from how a company picks investment bankers to how the offering price is set. One surprising fact stands out from Micro soft’s revelations: Instead of deferring to the priesthood of Wall Street underwriters, it took charge of the process from the start.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/13dfa656-38ec-42ad-91ac-47aa72b9fc3c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=24355c22a934cfd624b6e1f41cfd14125877b1b4dc73f15bf3c63e55eaa5a1f6",
+            "html": "<p>Gates thinks other entrepreneurs might learn from Microsoft’s experience in crafting what some analysts called ’’the deal of the year,’’ so he invited FORTUNE along for a rare inside view of the arduous five- month process. Companies hardly ever allow such a close look at an offering because they fear that the Securities and Exchange Commission might charge them with touting their stock. Answers emerged to a host of fascinating questions, from how a company picks investment bankers to how the offering price is set. One surprising fact stands out from Micro soft’s revelations: Instead of deferring to the priesthood of Wall Street underwriters, it took charge of the process from the start.</p>",
+            "markdown": "Gates thinks other entrepreneurs might learn from Microsoft’s experience in crafting what some analysts called ’’the deal of the year,’’ so he invited FORTUNE along for a rare inside view of the arduous five- month process. Companies hardly ever allow such a close look at an offering because they fear that the Securities and Exchange Commission might charge them with touting their stock. Answers emerged to a host of fascinating questions, from how a company picks investment bankers to how the offering price is set. One surprising fact stands out from Micro soft’s revelations: Instead of deferring to the priesthood of Wall Street underwriters, it took charge of the process from the start.\n\n"
+          },
+          {
+            "segment_id": "ef5c99f4-25d0-4fbe-ab60-fc8f48f44f36",
+            "bbox": {
+              "left": 94.83333,
+              "top": 1024,
+              "width": 529.0833,
+              "height": 299.91666
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "THE WONDER is that Microsoft waited so long. Founded in 1975, it is the oldest major producer of software for personal computers and, with $172.5 million in revenues over the last four quarters, the second largest after Lotus Development. Microsoft’s biggest hits are the PC- DOS and MS-DOS operating systems, the basic software that runs millions of IBM personal computers and clones. The company has also struck it rich with myriad versions of computer languages and a slew of fast-sell- ing applications programs such as spread sheets and word-processing packages for IBM, Apple, and other personal computers.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/ef5c99f4-25d0-4fbe-ab60-fc8f48f44f36.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=68dab4e233542bad8499b4bb40e46c2165c427903a78e3311dbfcbdb76e48dd5",
+            "html": "<p>THE WONDER is that Microsoft waited so long. Founded in 1975, it is the oldest major producer of software for personal computers and, with $172.5 million in revenues over the last four quarters, the second largest after Lotus Development. Microsoft’s biggest hits are the PC- DOS and MS-DOS operating systems, the basic software that runs millions of IBM personal computers and clones. The company has also struck it rich with myriad versions of computer languages and a slew of fast-sell- ing applications programs such as spread sheets and word-processing packages for IBM, Apple, and other personal computers.</p>",
+            "markdown": "THE WONDER is that Microsoft waited so long. Founded in 1975, it is the oldest major producer of software for personal computers and, with $172.5 million in revenues over the last four quarters, the second largest after Lotus Development. Microsoft’s biggest hits are the PC- DOS and MS-DOS operating systems, the basic software that runs millions of IBM personal computers and clones. The company has also struck it rich with myriad versions of computer languages and a slew of fast-sell- ing applications programs such as spread sheets and word-processing packages for IBM, Apple, and other personal computers.\n\n"
+          },
+          {
+            "segment_id": "82837fb7-6884-4818-96f5-14464be15a65",
+            "bbox": {
+              "left": 94.83333,
+              "top": 1351.0833,
+              "width": 531.1666,
+              "height": 172.83333
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Yet Microsoft stood pat when two of its archcompetitors, Lotus and Ashton-Tate, floated stock worth a total of $74 million in 1983. Nor did it budge in 1984 and 1985, when three other microcomputer software companies managed to sell $54 million of stock. The reasons were simple. Unlike its competitors, Microsoft was not dominated by venture capital investors hungry to har- vest some of their",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/82837fb7-6884-4818-96f5-14464be15a65.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6e7a748b4c70fc3d0ff09a2c5ce93e75e6f81c1e0fbb9fa820ca4094cb4f4243",
+            "html": "<p>Yet Microsoft stood pat when two of its archcompetitors, Lotus and Ashton-Tate, floated stock worth a total of $74 million in 1983. Nor did it budge in 1984 and 1985, when three other microcomputer software companies managed to sell $54 million of stock. The reasons were simple. Unlike its competitors, Microsoft was not dominated by venture capital investors hungry to har- vest some of their</p>",
+            "markdown": "Yet Microsoft stood pat when two of its archcompetitors, Lotus and Ashton-Tate, floated stock worth a total of $74 million in 1983. Nor did it budge in 1984 and 1985, when three other microcomputer software companies managed to sell $54 million of stock. The reasons were simple. Unlike its competitors, Microsoft was not dominated by venture capital investors hungry to har- vest some of their\n\n"
+          },
+          {
+            "segment_id": "5e5b3c3b-efb3-4ebe-86d2-d820c213398b",
+            "bbox": {
+              "left": 653.1666,
+              "top": 199,
+              "width": 537.4166,
+              "height": 124.916664
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "gains. The business gushed cash. With pretax profits running as high as 34% of revenues, Microsoft needed no outside money to expand. Most important, Gates values control of his time and his company more than personal wealth.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/5e5b3c3b-efb3-4ebe-86d2-d820c213398b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=14744d5afdb481a98a99ebc19571e2e0570c0f1db186ce5d4e40cb612be69156",
+            "html": "<p>gains. The business gushed cash. With pretax profits running as high as 34% of revenues, Microsoft needed no outside money to expand. Most important, Gates values control of his time and his company more than personal wealth.</p>",
+            "markdown": "gains. The business gushed cash. With pretax profits running as high as 34% of revenues, Microsoft needed no outside money to expand. Most important, Gates values control of his time and his company more than personal wealth.\n\n"
+          },
+          {
+            "segment_id": "dc71e310-1c8c-4fd5-b895-cfbbf5a9f02e",
+            "bbox": {
+              "left": 655.25,
+              "top": 349,
+              "width": 537.4166,
+              "height": 122.83333
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Money has never been paramount to this unmarried scion of a leading Seattle family, whose father is a partner in a top Seattle law firm and whose mother is a regent of the University of Washington and a director of Pacific Northwest",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/dc71e310-1c8c-4fd5-b895-cfbbf5a9f02e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=293fa26ca4f58a1bb09d7602f74d270b6eb590b1f40725a484dc6dcad3278479",
+            "html": "<p>Money has never been paramount to this unmarried scion of a leading Seattle family, whose father is a partner in a top Seattle law firm and whose mother is a regent of the University of Washington and a director of Pacific Northwest</p>",
+            "markdown": "Money has never been paramount to this unmarried scion of a leading Seattle family, whose father is a partner in a top Seattle law firm and whose mother is a regent of the University of Washington and a director of Pacific Northwest\n\n"
+          }
+        ],
+        "chunk_length": 507
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "16d4c8d1-39a8-4ad6-9ce1-2d269f6740b2",
+            "bbox": {
+              "left": 653.1666,
+              "top": 501.0833,
+              "width": 547.8333,
+              "height": 347.8333
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Bell. Gates, a gawky, washed-out blond, confesses to being a ’’wonk,’’ a bookish nerd, who focuses single mindedly on the computer business though he masters all sorts of knowledge with astounding facility. Oddly, Gates is something of a ladies’ man and a fiendishly fast driver who has racked up speeding tickets even in the sluggish Mercedes diesel he bought to restrain himself. Gates left Harvard after his sophomore year to sell personal computer makers on using a version of the Basic computer language that he had written with Paul Allen, the co-founder of Microsoft. Intensely competitive and often aloof and sarcastic, Gates threw himself into building a company dedicated to technical excellence. ’’All Bill’s ego goes into Microsoft,’’ says a friend. ’’It’s his firstborn child.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/16d4c8d1-39a8-4ad6-9ce1-2d269f6740b2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0eb384becf41ecde786ec9c3dd9e571e8186f5aa5e8ea77753f8ba73313e7c0f",
+            "html": "<p>Bell. Gates, a gawky, washed-out blond, confesses to being a ’’wonk,’’ a bookish nerd, who focuses single mindedly on the computer business though he masters all sorts of knowledge with astounding facility. Oddly, Gates is something of a ladies’ man and a fiendishly fast driver who has racked up speeding tickets even in the sluggish Mercedes diesel he bought to restrain himself. Gates left Harvard after his sophomore year to sell personal computer makers on using a version of the Basic computer language that he had written with Paul Allen, the co-founder of Microsoft. Intensely competitive and often aloof and sarcastic, Gates threw himself into building a company dedicated to technical excellence. ’’All Bill’s ego goes into Microsoft,’’ says a friend. ’’It’s his firstborn child.’’</p>",
+            "markdown": "Bell. Gates, a gawky, washed-out blond, confesses to being a ’’wonk,’’ a bookish nerd, who focuses single mindedly on the computer business though he masters all sorts of knowledge with astounding facility. Oddly, Gates is something of a ladies’ man and a fiendishly fast driver who has racked up speeding tickets even in the sluggish Mercedes diesel he bought to restrain himself. Gates left Harvard after his sophomore year to sell personal computer makers on using a version of the Basic computer language that he had written with Paul Allen, the co-founder of Microsoft. Intensely competitive and often aloof and sarcastic, Gates threw himself into building a company dedicated to technical excellence. ’’All Bill’s ego goes into Microsoft,’’ says a friend. ’’It’s his firstborn child.’’\n\n"
+          },
+          {
+            "segment_id": "76d511ce-6e9e-4cec-977e-f4b0aaaa3a74",
+            "bbox": {
+              "left": 653.1666,
+              "top": 873.99994,
+              "width": 545.75,
+              "height": 199.91666
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gates feared that a public offering would distract him and his employees. ’’The whole process looked like a pain,’’ he recalls, ’’and an ongoing pain once you’re public. People get confused because the stock price doesn’t reflect your financial performance. And to have a stock trader call up the chief executive and ask him questions is uneconomic -- the ball bearings shouldn’t be asking the driver about the grease.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/76d511ce-6e9e-4cec-977e-f4b0aaaa3a74.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3c5043588badd95e02f6ef8a35dab0904bb7cb7e57c4aaf21f82af8e70a0336f",
+            "html": "<p>Gates feared that a public offering would distract him and his employees. ’’The whole process looked like a pain,’’ he recalls, ’’and an ongoing pain once you’re public. People get confused because the stock price doesn’t reflect your financial performance. And to have a stock trader call up the chief executive and ask him questions is uneconomic -- the ball bearings shouldn’t be asking the driver about the grease.’’</p>",
+            "markdown": "Gates feared that a public offering would distract him and his employees. ’’The whole process looked like a pain,’’ he recalls, ’’and an ongoing pain once you’re public. People get confused because the stock price doesn’t reflect your financial performance. And to have a stock trader call up the chief executive and ask him questions is uneconomic -- the ball bearings shouldn’t be asking the driver about the grease.’’\n\n"
+          },
+          {
+            "segment_id": "d8db2014-9f18-49e2-ba27-bbbf4650605d",
+            "bbox": {
+              "left": 653.1666,
+              "top": 1101.0833,
+              "width": 543.6666,
+              "height": 372.8333
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "But a public offering was just a question of time. To attract managers and virtuoso pro- grammers, Gates had been selling them shares and granting stock options. By 1987, Microsoft estimated, over 500 people would own shares, enough to force the company to register with the SEC. Once registered, the stock in effect would have a public market, but one so narrow that trading would be difficult. Since it would have to register anyway, Microsoft might as well sell enough shares to enough investors to create a liquid market, and Gates had said that 1986 might be the year. ’’A projection of stock ownership showed we’d have to make a public offering at some point,’’ says Jon A. Shirley, 48, Mi crosoft’s pipe-smoking president and chief operating officer. ’’We decided to do it when we wanted to, not when we had to.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/d8db2014-9f18-49e2-ba27-bbbf4650605d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e7dfff4d9c13c7ec2f4e34b941cf6e65fc377b6a3548e06ed1afae61913dc938",
+            "html": "<p>But a public offering was just a question of time. To attract managers and virtuoso pro- grammers, Gates had been selling them shares and granting stock options. By 1987, Microsoft estimated, over 500 people would own shares, enough to force the company to register with the SEC. Once registered, the stock in effect would have a public market, but one so narrow that trading would be difficult. Since it would have to register anyway, Microsoft might as well sell enough shares to enough investors to create a liquid market, and Gates had said that 1986 might be the year. ’’A projection of stock ownership showed we’d have to make a public offering at some point,’’ says Jon A. Shirley, 48, Mi crosoft’s pipe-smoking president and chief operating officer. ’’We decided to do it when we wanted to, not when we had to.’’</p>",
+            "markdown": "But a public offering was just a question of time. To attract managers and virtuoso pro- grammers, Gates had been selling them shares and granting stock options. By 1987, Microsoft estimated, over 500 people would own shares, enough to force the company to register with the SEC. Once registered, the stock in effect would have a public market, but one so narrow that trading would be difficult. Since it would have to register anyway, Microsoft might as well sell enough shares to enough investors to create a liquid market, and Gates had said that 1986 might be the year. ’’A projection of stock ownership showed we’d have to make a public offering at some point,’’ says Jon A. Shirley, 48, Mi crosoft’s pipe-smoking president and chief operating officer. ’’We decided to do it when we wanted to, not when we had to.’’\n\n"
+          },
+          {
+            "segment_id": "9ee631a7-a613-477f-9b6c-22396ea6dfe2",
+            "bbox": {
+              "left": 655.25,
+              "top": 1501.0833,
+              "width": 529.0833,
+              "height": 20.75
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "In April 1985 Gates, Shirley, and David F. Marquardt, 37,",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/9ee631a7-a613-477f-9b6c-22396ea6dfe2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e5073116483d7078a82980a3303d9ac94caf330bac87b8d5312ebc780c3b14c9",
+            "html": "<p>In April 1985 Gates, Shirley, and David F. Marquardt, 37,</p>",
+            "markdown": "In April 1985 Gates, Shirley, and David F. Marquardt, 37,\n\n"
+          },
+          {
+            "segment_id": "29ec7ffc-aab6-4a66-93f8-bb5d80bcb3fb",
+            "bbox": {
+              "left": 971.9166,
+              "top": 1542.75,
+              "width": 216.58333,
+              "height": 29.083332
+            },
+            "page_number": 1,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "G A L E   G R O U P",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/29ec7ffc-aab6-4a66-93f8-bb5d80bcb3fb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fd6463ac8f30502e29f4a5f20ad0c94a1386d68aba74e7878c80fdde1583ed11",
+            "html": "<p>G A L E   G R O U P</p>",
+            "markdown": "G A L E   G R O U P\n\n"
+          },
+          {
+            "segment_id": "979b2b23-12d7-42fc-9114-715efabb241f",
+            "bbox": {
+              "left": 71.916664,
+              "top": 140.66666,
+              "width": 547.8333,
+              "height": 274.91666
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "the sole venture capitalist in Microsoft (he and his firm had 6.2% of the stock), resolved to look into an offering. But Gates fretted. To forestall sticky questions from potential investors, he first wanted to launch two important products, one of them delayed over a year, and to sign a pending agreement with IBM for developing programs. He also wanted time to sound out key employees who owned stock or options and might leave once their holdings became salable on the public market. ’’I’m reserving the right to say no until October,’’ Gates warned. ’’Don’t be surprised if I call it off.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/979b2b23-12d7-42fc-9114-715efabb241f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=067c42c2952e2ef5f625f017a7934c14868419e03c083403afd8e80021089689",
+            "html": "<p>the sole venture capitalist in Microsoft (he and his firm had 6.2% of the stock), resolved to look into an offering. But Gates fretted. To forestall sticky questions from potential investors, he first wanted to launch two important products, one of them delayed over a year, and to sign a pending agreement with IBM for developing programs. He also wanted time to sound out key employees who owned stock or options and might leave once their holdings became salable on the public market. ’’I’m reserving the right to say no until October,’’ Gates warned. ’’Don’t be surprised if I call it off.’’</p>",
+            "markdown": "the sole venture capitalist in Microsoft (he and his firm had 6.2% of the stock), resolved to look into an offering. But Gates fretted. To forestall sticky questions from potential investors, he first wanted to launch two important products, one of them delayed over a year, and to sign a pending agreement with IBM for developing programs. He also wanted time to sound out key employees who owned stock or options and might leave once their holdings became salable on the public market. ’’I’m reserving the right to say no until October,’’ Gates warned. ’’Don’t be surprised if I call it off.’’\n\n"
+          }
+        ],
+        "chunk_length": 457
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c581c124-4749-4dee-a19e-02730921a448",
+            "bbox": {
+              "left": 71.916664,
+              "top": 440.66666,
+              "width": 541.5833,
+              "height": 295.75
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "BY THE board meeting of October 28, held the day after a roller-skating party for Gates’s 30th birthday, the chairman had done his soundings and felt more at ease. The board decided it was time to select underwriters and gave the task to Frank Gaudette, 50, the chief financial officer, who had come aboard a year before. Gaudette was just the man to shepherd Mi crosoft through Wall Street. He speaks in the pungent tones of New York City, where his late father was a mailman, and prides himself on street smarts. He had alread helped manage offerings for three companies, all suppliers of computer software and services.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/c581c124-4749-4dee-a19e-02730921a448.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=76fdd2b3f7e752160493fcc8b59d2c5c643c1bb68891aaed7e70aed6e15c4aa1",
+            "html": "<p>BY THE board meeting of October 28, held the day after a roller-skating party for Gates’s 30th birthday, the chairman had done his soundings and felt more at ease. The board decided it was time to select underwriters and gave the task to Frank Gaudette, 50, the chief financial officer, who had come aboard a year before. Gaudette was just the man to shepherd Mi crosoft through Wall Street. He speaks in the pungent tones of New York City, where his late father was a mailman, and prides himself on street smarts. He had alread helped manage offerings for three companies, all suppliers of computer software and services.</p>",
+            "markdown": "BY THE board meeting of October 28, held the day after a roller-skating party for Gates’s 30th birthday, the chairman had done his soundings and felt more at ease. The board decided it was time to select underwriters and gave the task to Frank Gaudette, 50, the chief financial officer, who had come aboard a year before. Gaudette was just the man to shepherd Mi crosoft through Wall Street. He speaks in the pungent tones of New York City, where his late father was a mailman, and prides himself on street smarts. He had alread helped manage offerings for three companies, all suppliers of computer software and services.\n\n"
+          },
+          {
+            "segment_id": "5b9db231-7435-4d16-a080-4d4e3bed9a68",
+            "bbox": {
+              "left": 71.916664,
+              "top": 765.6666,
+              "width": 541.5833,
+              "height": 199.91666
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Aspiring underwriters, sniffing millions in fees, had been stroking Microsoft for years. They had enticed the company’s officers to so-called technology conferences -- bazaars where entrepreneurs, investors, and bankers look each other over. They had called regularly at Microsoft, trying to get close to Gates and Shirley. Gaudette had been sitting through an average of three sales pitches or get-acquainted dinners a month.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/5b9db231-7435-4d16-a080-4d4e3bed9a68.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f010fe844150bc0d147d256e21d506d44975244bc3f39a31fcc3cbd115f680ef",
+            "html": "<p>Aspiring underwriters, sniffing millions in fees, had been stroking Microsoft for years. They had enticed the company’s officers to so-called technology conferences -- bazaars where entrepreneurs, investors, and bankers look each other over. They had called regularly at Microsoft, trying to get close to Gates and Shirley. Gaudette had been sitting through an average of three sales pitches or get-acquainted dinners a month.</p>",
+            "markdown": "Aspiring underwriters, sniffing millions in fees, had been stroking Microsoft for years. They had enticed the company’s officers to so-called technology conferences -- bazaars where entrepreneurs, investors, and bankers look each other over. They had called regularly at Microsoft, trying to get close to Gates and Shirley. Gaudette had been sitting through an average of three sales pitches or get-acquainted dinners a month.\n\n"
+          },
+          {
+            "segment_id": "7f33e84b-84c4-4203-b4a6-7f13b1554aa6",
+            "bbox": {
+              "left": 71.916664,
+              "top": 992.74994,
+              "width": 541.5833,
+              "height": 222.83333
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gaudette proposed that since Microsoft was well established, it deserved to have a ’’class Wall Street name’’ as the lead underwriter. This investment firm would put together the syndicate of underwriters, which eventually was to number 114. It would also allocate the stock among underwriters and investors and pocket giant fees for its trouble. Gaudette suggested a ’’technology boutique’’ co-manage the offering to enhance Microsoft’s appeal to investors who specialize in technology stocks.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/7f33e84b-84c4-4203-b4a6-7f13b1554aa6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b6b8d06885475815d46eba06750e858d7b3b597ea6eb451ffb682de65e7d999b",
+            "html": "<p>Gaudette proposed that since Microsoft was well established, it deserved to have a ’’class Wall Street name’’ as the lead underwriter. This investment firm would put together the syndicate of underwriters, which eventually was to number 114. It would also allocate the stock among underwriters and investors and pocket giant fees for its trouble. Gaudette suggested a ’’technology boutique’’ co-manage the offering to enhance Microsoft’s appeal to investors who specialize in technology stocks.</p>",
+            "markdown": "Gaudette proposed that since Microsoft was well established, it deserved to have a ’’class Wall Street name’’ as the lead underwriter. This investment firm would put together the syndicate of underwriters, which eventually was to number 114. It would also allocate the stock among underwriters and investors and pocket giant fees for its trouble. Gaudette suggested a ’’technology boutique’’ co-manage the offering to enhance Microsoft’s appeal to investors who specialize in technology stocks.\n\n"
+          },
+          {
+            "segment_id": "08e3aa6d-d59b-479a-bf6f-a10a3d9cbb76",
+            "bbox": {
+              "left": 74,
+              "top": 1242.75,
+              "width": 543.6666,
+              "height": 272.8333
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Narrowing the field of boutiques was easy. Only four firms were widely known as specialists in financing technology companies: Alex. Brown & Sons of Baltimore, L.F. Rothschild Unterberg Towbin of New York, and two San Francisco outfits, Hambrecht & Quist and Robertson Colman & Stephens. Culling the list of Wall Street names took longer. Microsoft’s managers concluded that some big firms, including Merrill Lynch and Shearson Lehman, had not done enough homework in high tech. The board pared the contenders to Goldman Sachs, Morgan Stanley, and Smith Barney. It also included Cable Howse & Ragen,",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/08e3aa6d-d59b-479a-bf6f-a10a3d9cbb76.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=76177afbd4acb8bb793d1257eaa2eecde3708b31a8f07e92777a5b2bb3629fb6",
+            "html": "<p>Narrowing the field of boutiques was easy. Only four firms were widely known as specialists in financing technology companies: Alex. Brown & Sons of Baltimore, L.F. Rothschild Unterberg Towbin of New York, and two San Francisco outfits, Hambrecht & Quist and Robertson Colman & Stephens. Culling the list of Wall Street names took longer. Microsoft’s managers concluded that some big firms, including Merrill Lynch and Shearson Lehman, had not done enough homework in high tech. The board pared the contenders to Goldman Sachs, Morgan Stanley, and Smith Barney. It also included Cable Howse & Ragen,</p>",
+            "markdown": "Narrowing the field of boutiques was easy. Only four firms were widely known as specialists in financing technology companies: Alex. Brown & Sons of Baltimore, L.F. Rothschild Unterberg Towbin of New York, and two San Francisco outfits, Hambrecht & Quist and Robertson Colman & Stephens. Culling the list of Wall Street names took longer. Microsoft’s managers concluded that some big firms, including Merrill Lynch and Shearson Lehman, had not done enough homework in high tech. The board pared the contenders to Goldman Sachs, Morgan Stanley, and Smith Barney. It also included Cable Howse & Ragen,\n\n"
+          },
+          {
+            "segment_id": "8b344eb7-8d78-40d9-a8bb-6d89208dee5f",
+            "bbox": {
+              "left": 655.25,
+              "top": 140.66666,
+              "width": 543.6666,
+              "height": 122.83333
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "a Seattle firm that could be a third co-manager if Gates and Shirley decided that pleasing local investors was worth the bother. ’’Get on the stick,’’ Shirley told Gaudette. ’’Keep Bill and me out of it -- we can’t spend the time. Give us a recommendation in two or three weeks.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/8b344eb7-8d78-40d9-a8bb-6d89208dee5f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e167585a3d567146c3aa47d538e9425b616c5c93d5e71e3244625f3dfad17977",
+            "html": "<p>a Seattle firm that could be a third co-manager if Gates and Shirley decided that pleasing local investors was worth the bother. ’’Get on the stick,’’ Shirley told Gaudette. ’’Keep Bill and me out of it -- we can’t spend the time. Give us a recommendation in two or three weeks.’’</p>",
+            "markdown": "a Seattle firm that could be a third co-manager if Gates and Shirley decided that pleasing local investors was worth the bother. ’’Get on the stick,’’ Shirley told Gaudette. ’’Keep Bill and me out of it -- we can’t spend the time. Give us a recommendation in two or three weeks.’’\n\n"
+          },
+          {
+            "segment_id": "e31ef129-c4ff-4336-acb5-eac82f650136",
+            "bbox": {
+              "left": 653.1666,
+              "top": 290.66666,
+              "width": 543.6666,
+              "height": 247.83333
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Early in November, Gaudette called the eight investment bankers who had survived the first cut. ’’I need half a day with you,’’ he said. ’’Take your best shot, then wait for me to call back. I’ll have a decision before Thanksgiving. But remember, it’s my decision -- don’t try going around me to Bill or Jon.’’ Gaudette made up a list of questions, ranging from the baldly general -- ’’Why should your firm be on the front cover of a Microsoft prospectus?’’ -- to the probingly particular, such as, ’’How would you distribute the stock, to whom, and why?’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/e31ef129-c4ff-4336-acb5-eac82f650136.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3215d38a26521c967cbc503d8a5eb00089c9ad859b63965c7959d37f831163f0",
+            "html": "<p>Early in November, Gaudette called the eight investment bankers who had survived the first cut. ’’I need half a day with you,’’ he said. ’’Take your best shot, then wait for me to call back. I’ll have a decision before Thanksgiving. But remember, it’s my decision -- don’t try going around me to Bill or Jon.’’ Gaudette made up a list of questions, ranging from the baldly general -- ’’Why should your firm be on the front cover of a Microsoft prospectus?’’ -- to the probingly particular, such as, ’’How would you distribute the stock, to whom, and why?’’</p>",
+            "markdown": "Early in November, Gaudette called the eight investment bankers who had survived the first cut. ’’I need half a day with you,’’ he said. ’’Take your best shot, then wait for me to call back. I’ll have a decision before Thanksgiving. But remember, it’s my decision -- don’t try going around me to Bill or Jon.’’ Gaudette made up a list of questions, ranging from the baldly general -- ’’Why should your firm be on the front cover of a Microsoft prospectus?’’ -- to the probingly particular, such as, ’’How would you distribute the stock, to whom, and why?’’\n\n"
+          }
+        ],
+        "chunk_length": 489
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6f1cdb37-1552-4998-a2f3-949b65cdfbd4",
+            "bbox": {
+              "left": 653.1666,
+              "top": 567.75,
+              "width": 543.6666,
+              "height": 222.83333
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "After a whirlwind tour of New York, Baltimore, and San Francisco, Gaudette made his recommendations to Gates and Shirley on November 21. Then he took off for a ten-day vacation in Hawaii, a belated celebration of his 50th birthday in the 50th state. No decision would be announced until his return. The investment bankers turned frantic. Theirs is a who-do-you-know business, and they mobilized their clients, many of them Microsoft customers or suppliers, to besiege Gates and Shirley.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/6f1cdb37-1552-4998-a2f3-949b65cdfbd4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=85344d2425d2c1d620fd4b1b37bf118219fbe5e16014ff85725b5cb79961a4f8",
+            "html": "<p>After a whirlwind tour of New York, Baltimore, and San Francisco, Gaudette made his recommendations to Gates and Shirley on November 21. Then he took off for a ten-day vacation in Hawaii, a belated celebration of his 50th birthday in the 50th state. No decision would be announced until his return. The investment bankers turned frantic. Theirs is a who-do-you-know business, and they mobilized their clients, many of them Microsoft customers or suppliers, to besiege Gates and Shirley.</p>",
+            "markdown": "After a whirlwind tour of New York, Baltimore, and San Francisco, Gaudette made his recommendations to Gates and Shirley on November 21. Then he took off for a ten-day vacation in Hawaii, a belated celebration of his 50th birthday in the 50th state. No decision would be announced until his return. The investment bankers turned frantic. Theirs is a who-do-you-know business, and they mobilized their clients, many of them Microsoft customers or suppliers, to besiege Gates and Shirley.\n\n"
+          },
+          {
+            "segment_id": "cf539e7b-7382-47c9-bc0e-a2eaa1633cbd",
+            "bbox": {
+              "left": 653.1666,
+              "top": 815.6666,
+              "width": 549.9166,
+              "height": 299.91666
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gaudette had methodically ranked the investment houses on a scale of 1 to 5 in 19 different categories. But he also stressed that any candidate could do the deal and that the chemistry between Microsoft and the firms would finally determine the winners. Among the major houses, Gaudette had been most impressed by Goldman Sachs, which tightly links its underwriting group with its stock traders and keeps close tabs on the identity of big institutional buyers. For those reasons, Gaudette thought Goldman would be especially good at maintaining an orderly market as Microsoft employees gradually cashed in their shares.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/cf539e7b-7382-47c9-bc0e-a2eaa1633cbd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dd7e4b8679ab67e0e17fc8c0e5580d3eb943bbcb54ae9b488d6d03c3ca1c3f4b",
+            "html": "<p>Gaudette had methodically ranked the investment houses on a scale of 1 to 5 in 19 different categories. But he also stressed that any candidate could do the deal and that the chemistry between Microsoft and the firms would finally determine the winners. Among the major houses, Gaudette had been most impressed by Goldman Sachs, which tightly links its underwriting group with its stock traders and keeps close tabs on the identity of big institutional buyers. For those reasons, Gaudette thought Goldman would be especially good at maintaining an orderly market as Microsoft employees gradually cashed in their shares.</p>",
+            "markdown": "Gaudette had methodically ranked the investment houses on a scale of 1 to 5 in 19 different categories. But he also stressed that any candidate could do the deal and that the chemistry between Microsoft and the firms would finally determine the winners. Among the major houses, Gaudette had been most impressed by Goldman Sachs, which tightly links its underwriting group with its stock traders and keeps close tabs on the identity of big institutional buyers. For those reasons, Gaudette thought Goldman would be especially good at maintaining an orderly market as Microsoft employees gradually cashed in their shares.\n\n"
+          },
+          {
+            "segment_id": "4d3ee266-8628-46e6-bcb4-2a4ea3ae48e2",
+            "bbox": {
+              "left": 653.1666,
+              "top": 1142.75,
+              "width": 541.5833,
+              "height": 172.83333
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "ON DECEMBER 4, after conferring with Gates and Shirley, Gaudette phoned Eff W. Martin, 37, a vice president in Goldman’s San Fran cisco office who had been calling on Micro soft for two years. ’’I like you guys,’’ Gaudette said, ’’and Microsoft wants to give you dinner on December 11 in Seattle. Do you think you can find time to come?’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/4d3ee266-8628-46e6-bcb4-2a4ea3ae48e2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7dc7ae0ebe09f304d619023fb5a9a2a285a3abb7f432fc96a24ae766173dfdb3",
+            "html": "<p>ON DECEMBER 4, after conferring with Gates and Shirley, Gaudette phoned Eff W. Martin, 37, a vice president in Goldman’s San Fran cisco office who had been calling on Micro soft for two years. ’’I like you guys,’’ Gaudette said, ’’and Microsoft wants to give you dinner on December 11 in Seattle. Do you think you can find time to come?’’</p>",
+            "markdown": "ON DECEMBER 4, after conferring with Gates and Shirley, Gaudette phoned Eff W. Martin, 37, a vice president in Goldman’s San Fran cisco office who had been calling on Micro soft for two years. ’’I like you guys,’’ Gaudette said, ’’and Microsoft wants to give you dinner on December 11 in Seattle. Do you think you can find time to come?’’\n\n"
+          },
+          {
+            "segment_id": "25c4c015-6e57-4084-911a-cc10f5034c4d",
+            "bbox": {
+              "left": 653.1666,
+              "top": 1342.75,
+              "width": 545.75,
+              "height": 172.83333
+            },
+            "page_number": 2,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Dinner at the stuffy Rainier Club was awkward. The private room was large for the party of eight, and one wall was a sliding partition ideal for eavesdropping. Most of the party were meeting each other for the first time; how well they got along could make or break the deal. Microsoft’s top dogs didn’t make things easy. Gates, who had heard scare stories about investment bankers from friends like Mitchell",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/25c4c015-6e57-4084-911a-cc10f5034c4d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ddc3c87a0e922d17bf77e479e291deb0c9cf9bd7e23d8145832d463e958a2220",
+            "html": "<p>Dinner at the stuffy Rainier Club was awkward. The private room was large for the party of eight, and one wall was a sliding partition ideal for eavesdropping. Most of the party were meeting each other for the first time; how well they got along could make or break the deal. Microsoft’s top dogs didn’t make things easy. Gates, who had heard scare stories about investment bankers from friends like Mitchell</p>",
+            "markdown": "Dinner at the stuffy Rainier Club was awkward. The private room was large for the party of eight, and one wall was a sliding partition ideal for eavesdropping. Most of the party were meeting each other for the first time; how well they got along could make or break the deal. Microsoft’s top dogs didn’t make things easy. Gates, who had heard scare stories about investment bankers from friends like Mitchell\n\n"
+          },
+          {
+            "segment_id": "895bccf0-6d59-40d1-8b59-9f86ddfc2c0e",
+            "bbox": {
+              "left": 71.916664,
+              "top": 140.66666,
+              "width": 497.8333,
+              "height": 99.916664
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Kapor, chairman of Lotus Development, was tired and prepared to be bored. Shirley was caustic, wanting to know exactly what Goldman imagined it could do for Microsoft.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/895bccf0-6d59-40d1-8b59-9f86ddfc2c0e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f36a3d8b5b6a25654295cfcff0c521784ed4947936ba0889b8aaeb29a4a35495",
+            "html": "<p>Kapor, chairman of Lotus Development, was tired and prepared to be bored. Shirley was caustic, wanting to know exactly what Goldman imagined it could do for Microsoft.</p>",
+            "markdown": "Kapor, chairman of Lotus Development, was tired and prepared to be bored. Shirley was caustic, wanting to know exactly what Goldman imagined it could do for Microsoft.\n\n"
+          },
+          {
+            "segment_id": "48fe3264-1eca-4b93-b8fe-f6a7163ba00d",
+            "bbox": {
+              "left": 71.916664,
+              "top": 265.66666,
+              "width": 545.75,
+              "height": 247.83333
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "For nearly an hour everyone stood in a semicircle as Martin and three colleagues explained their efforts to be tops in financing technology companies. An Oklahoman by birth and polite to a fault, Martin labored to kindle some rapport. But it was not until talk turned to pricing the company’s stock that Gates folded his arms across his chest and started rocking to and fro, a sure sign of interest. At the end of dinner, Martin, striving to conclude on a high note, gushed that Mi- crosoft could have the ’’most visible initial public offering of 1986 -- or ever.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/48fe3264-1eca-4b93-b8fe-f6a7163ba00d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=73c159969f54b77ca5e6f4b1839f4ae63c9503ec28c6feb86b6b90d370043337",
+            "html": "<p>For nearly an hour everyone stood in a semicircle as Martin and three colleagues explained their efforts to be tops in financing technology companies. An Oklahoman by birth and polite to a fault, Martin labored to kindle some rapport. But it was not until talk turned to pricing the company’s stock that Gates folded his arms across his chest and started rocking to and fro, a sure sign of interest. At the end of dinner, Martin, striving to conclude on a high note, gushed that Mi- crosoft could have the ’’most visible initial public offering of 1986 -- or ever.’’</p>",
+            "markdown": "For nearly an hour everyone stood in a semicircle as Martin and three colleagues explained their efforts to be tops in financing technology companies. An Oklahoman by birth and polite to a fault, Martin labored to kindle some rapport. But it was not until talk turned to pricing the company’s stock that Gates folded his arms across his chest and started rocking to and fro, a sure sign of interest. At the end of dinner, Martin, striving to conclude on a high note, gushed that Mi- crosoft could have the ’’most visible initial public offering of 1986 -- or ever.’’\n\n"
+          }
+        ],
+        "chunk_length": 436
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "bcad0840-bfef-41d0-9783-67fd810b3562",
+            "bbox": {
+              "left": 71.916664,
+              "top": 540.6666,
+              "width": 545.75,
+              "height": 272.8333
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "’’Well, they didn’t spill their food and they seemed like nice guys,’’ Gates drawled to his colleagues afterward in the parking lot. ’’I guess we should go with them.’’ He and Shirley drove back to Microsoft headquarters, discussing co-managing underwriters. Gaudette leaned toward Robertson Colman & Stephens. But Alex. Brown had been cultivating Microsoft longer than any other investment banking house. ’’Better the whore you know than the whore you don’t,’’ Shirley concluded. Three days later the board quickly blessed the selection of Goldman Sachs and Alex. Brown.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/bcad0840-bfef-41d0-9783-67fd810b3562.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3dfe48fb7ddc4b5c7910bd9eb259a3aefcbeb46967883504f4e059df60792e97",
+            "html": "<p>’’Well, they didn’t spill their food and they seemed like nice guys,’’ Gates drawled to his colleagues afterward in the parking lot. ’’I guess we should go with them.’’ He and Shirley drove back to Microsoft headquarters, discussing co-managing underwriters. Gaudette leaned toward Robertson Colman & Stephens. But Alex. Brown had been cultivating Microsoft longer than any other investment banking house. ’’Better the whore you know than the whore you don’t,’’ Shirley concluded. Three days later the board quickly blessed the selection of Goldman Sachs and Alex. Brown.</p>",
+            "markdown": "’’Well, they didn’t spill their food and they seemed like nice guys,’’ Gates drawled to his colleagues afterward in the parking lot. ’’I guess we should go with them.’’ He and Shirley drove back to Microsoft headquarters, discussing co-managing underwriters. Gaudette leaned toward Robertson Colman & Stephens. But Alex. Brown had been cultivating Microsoft longer than any other investment banking house. ’’Better the whore you know than the whore you don’t,’’ Shirley concluded. Three days later the board quickly blessed the selection of Goldman Sachs and Alex. Brown.\n\n"
+          },
+          {
+            "segment_id": "faa65fd7-af00-4417-b05b-abecb098aa12",
+            "bbox": {
+              "left": 71.916664,
+              "top": 838.5833,
+              "width": 547.8333,
+              "height": 352
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "The offering formally lumbered into gear on December 17 at an ’’all-hands meeting’’ at Microsoft. It was the first gathering of the principal players: the company with its auditors and attorneys as well as both managing underwriters and their attorney. Some confusion crept in at first. Heavy fog, a Seattle specialty, delayed the arrival of several key people until early afternoon. One of Micro soft’s high priorities was making its prospectus ’’jury proof’’ -- so carefully phrased that no stockholder could hope to win a lawsuit by claiming he had been misled. The company had insisted that the underwriters’ counsel be Sullivan & Cromwell, a hidebound Wall Street firm. Gaudette was miffed to see that the law firm had sent only an associate, not a partner.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/faa65fd7-af00-4417-b05b-abecb098aa12.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2dbef6d323f51d149683c591ac3f161bac0c35c4d06633ab45c0520cb831fc45",
+            "html": "<p>The offering formally lumbered into gear on December 17 at an ’’all-hands meeting’’ at Microsoft. It was the first gathering of the principal players: the company with its auditors and attorneys as well as both managing underwriters and their attorney. Some confusion crept in at first. Heavy fog, a Seattle specialty, delayed the arrival of several key people until early afternoon. One of Micro soft’s high priorities was making its prospectus ’’jury proof’’ -- so carefully phrased that no stockholder could hope to win a lawsuit by claiming he had been misled. The company had insisted that the underwriters’ counsel be Sullivan & Cromwell, a hidebound Wall Street firm. Gaudette was miffed to see that the law firm had sent only an associate, not a partner.</p>",
+            "markdown": "The offering formally lumbered into gear on December 17 at an ’’all-hands meeting’’ at Microsoft. It was the first gathering of the principal players: the company with its auditors and attorneys as well as both managing underwriters and their attorney. Some confusion crept in at first. Heavy fog, a Seattle specialty, delayed the arrival of several key people until early afternoon. One of Micro soft’s high priorities was making its prospectus ’’jury proof’’ -- so carefully phrased that no stockholder could hope to win a lawsuit by claiming he had been misled. The company had insisted that the underwriters’ counsel be Sullivan & Cromwell, a hidebound Wall Street firm. Gaudette was miffed to see that the law firm had sent only an associate, not a partner.\n\n"
+          },
+          {
+            "segment_id": "26bd352b-b888-4eac-a787-0246d0476e95",
+            "bbox": {
+              "left": 71.916664,
+              "top": 1217.75,
+              "width": 541.5833,
+              "height": 297.8333
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "The 27-point agenda covered every phase of the offering. Gates said the company was contemplating a $40-million deal. Microsoft would raise $30 million by selling two million shares at an assumed price of around $15. Existing shareholders, bound by Gates’s informal rule that nobody should unload more than 10% of his holdings, would collect the other $10 million for 600,000 or so shares. The underwriters, as is customary in initial public offerings, would be granted the option to sell more shares. If they exercised an option for 300,000 additional shares of stock held by the company, almost 12% of Micro soft’s stock would end up in public hands, enough to create the liquid",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/26bd352b-b888-4eac-a787-0246d0476e95.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7a20d2e9a58d1538a044b54c5c24f66b64ff588165bc25c7cac2297fd1d448f6",
+            "html": "<p>The 27-point agenda covered every phase of the offering. Gates said the company was contemplating a $40-million deal. Microsoft would raise $30 million by selling two million shares at an assumed price of around $15. Existing shareholders, bound by Gates’s informal rule that nobody should unload more than 10% of his holdings, would collect the other $10 million for 600,000 or so shares. The underwriters, as is customary in initial public offerings, would be granted the option to sell more shares. If they exercised an option for 300,000 additional shares of stock held by the company, almost 12% of Micro soft’s stock would end up in public hands, enough to create the liquid</p>",
+            "markdown": "The 27-point agenda covered every phase of the offering. Gates said the company was contemplating a $40-million deal. Microsoft would raise $30 million by selling two million shares at an assumed price of around $15. Existing shareholders, bound by Gates’s informal rule that nobody should unload more than 10% of his holdings, would collect the other $10 million for 600,000 or so shares. The underwriters, as is customary in initial public offerings, would be granted the option to sell more shares. If they exercised an option for 300,000 additional shares of stock held by the company, almost 12% of Micro soft’s stock would end up in public hands, enough to create the liquid\n\n"
+          },
+          {
+            "segment_id": "5a1d95b4-81cc-4c87-acbb-ecbba3dd7258",
+            "bbox": {
+              "left": 655.25,
+              "top": 140.66666,
+              "width": 270.75,
+              "height": 22.833332
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "market the company wanted.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/5a1d95b4-81cc-4c87-acbb-ecbba3dd7258.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3630fb6f2517ac973d3a423a93f57bae346a5892e168dae27c9751d5b81d9843",
+            "html": "<p>market the company wanted.</p>",
+            "markdown": "market the company wanted.\n\n"
+          },
+          {
+            "segment_id": "763b0b8a-5a08-477b-8390-4f00e5b8285a",
+            "bbox": {
+              "left": 653.1666,
+              "top": 190.66666,
+              "width": 545.75,
+              "height": 297.8333
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gates had thought longest about the price. Guided by Goldman, he felt the market would accord a higher price-earnings multiple to Microsoft than to other personal computer software companies like Lotus and Ashton-Tate, which have narrower product lines. On the other hand, he figured the mar- ket ould give Microsoft a lower multiple than companies that create software for mainframe computers because they generally have longer track records and more predictable revenues. A price of roughly $15, more than ten times estimated earnings for fiscal 1986, would put Microsoft’s multiple right between those of personal software companies and mainframers.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/763b0b8a-5a08-477b-8390-4f00e5b8285a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9353d34221c9e442faf6c2347c29b72b8842e448ac7c02e08829d71854617ada",
+            "html": "<p>Gates had thought longest about the price. Guided by Goldman, he felt the market would accord a higher price-earnings multiple to Microsoft than to other personal computer software companies like Lotus and Ashton-Tate, which have narrower product lines. On the other hand, he figured the mar- ket ould give Microsoft a lower multiple than companies that create software for mainframe computers because they generally have longer track records and more predictable revenues. A price of roughly $15, more than ten times estimated earnings for fiscal 1986, would put Microsoft’s multiple right between those of personal software companies and mainframers.</p>",
+            "markdown": "Gates had thought longest about the price. Guided by Goldman, he felt the market would accord a higher price-earnings multiple to Microsoft than to other personal computer software companies like Lotus and Ashton-Tate, which have narrower product lines. On the other hand, he figured the mar- ket ould give Microsoft a lower multiple than companies that create software for mainframe computers because they generally have longer track records and more predictable revenues. A price of roughly $15, more than ten times estimated earnings for fiscal 1986, would put Microsoft’s multiple right between those of personal software companies and mainframers.\n\n"
+          },
+          {
+            "segment_id": "296ec9a7-75c0-4b91-8058-feac920c732d",
+            "bbox": {
+              "left": 653.1666,
+              "top": 515.6666,
+              "width": 545.75,
+              "height": 224.91666
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "A host of questions came up at the all- hands meeting. Both Shirley and Gates were concerned that going public would interfere with Microsoft’s ability to conduct business. Shirley wondered whether all three of Micro soft’s top officers would be needed for the ’’road show,’’ meetings at which company representatives would explain the offering to stockbrokers and institutional investors. Gates tried to escape the tour by saying, facetiously, ’’Hey, make the stock cheap enough and you won’t need us to sell it!’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/296ec9a7-75c0-4b91-8058-feac920c732d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=52fa607789e499bf2daf6b157361a47cc9085ca7b9fd3a8d203c7e7dd237ea5a",
+            "html": "<p>A host of questions came up at the all- hands meeting. Both Shirley and Gates were concerned that going public would interfere with Microsoft’s ability to conduct business. Shirley wondered whether all three of Micro soft’s top officers would be needed for the ’’road show,’’ meetings at which company representatives would explain the offering to stockbrokers and institutional investors. Gates tried to escape the tour by saying, facetiously, ’’Hey, make the stock cheap enough and you won’t need us to sell it!’’</p>",
+            "markdown": "A host of questions came up at the all- hands meeting. Both Shirley and Gates were concerned that going public would interfere with Microsoft’s ability to conduct business. Shirley wondered whether all three of Micro soft’s top officers would be needed for the ’’road show,’’ meetings at which company representatives would explain the offering to stockbrokers and institutional investors. Gates tried to escape the tour by saying, facetiously, ’’Hey, make the stock cheap enough and you won’t need us to sell it!’’\n\n"
+          }
+        ],
+        "chunk_length": 512
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8c5c9a43-b925-4f77-a6ac-d44de0439271",
+            "bbox": {
+              "left": 653.1666,
+              "top": 765.6666,
+              "width": 545.75,
+              "height": 272.8333
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Microsoft’s attorney, William H. Neukom, 44, a partner at Shidler McBroom Gates & Lucas -- the Gates in the title being Bill’s father, William H. Gates -- raised another matter. The company would have to tone down its public utterances, he said, lest it appear to be ’’gun jumping,’’ or touting the stock. Press releases could no longer refer to certain Microsoft programs as ’’industry standards,’’ no matter how true the phrase. Neukom would review all the company’s official statements, which came to include even a preface Gates was writing for a book on new computer technologies.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/8c5c9a43-b925-4f77-a6ac-d44de0439271.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1e29f09d21c3ec391930ddf91fa3d3a73ef7c29abfb8b9acf82032e8b4f6379c",
+            "html": "<p>Microsoft’s attorney, William H. Neukom, 44, a partner at Shidler McBroom Gates & Lucas -- the Gates in the title being Bill’s father, William H. Gates -- raised another matter. The company would have to tone down its public utterances, he said, lest it appear to be ’’gun jumping,’’ or touting the stock. Press releases could no longer refer to certain Microsoft programs as ’’industry standards,’’ no matter how true the phrase. Neukom would review all the company’s official statements, which came to include even a preface Gates was writing for a book on new computer technologies.</p>",
+            "markdown": "Microsoft’s attorney, William H. Neukom, 44, a partner at Shidler McBroom Gates & Lucas -- the Gates in the title being Bill’s father, William H. Gates -- raised another matter. The company would have to tone down its public utterances, he said, lest it appear to be ’’gun jumping,’’ or touting the stock. Press releases could no longer refer to certain Microsoft programs as ’’industry standards,’’ no matter how true the phrase. Neukom would review all the company’s official statements, which came to include even a preface Gates was writing for a book on new computer technologies.\n\n"
+          },
+          {
+            "segment_id": "bcd5070b-7ecc-4204-b520-121d4fef4975",
+            "bbox": {
+              "left": 653.1666,
+              "top": 1065.6666,
+              "width": 545.75,
+              "height": 374.91666
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "The most tedious part of taking the company public was writing a prospectus. It was a task rife with contradictions. By law Micro soft’s stock could be sold only on the basis of information in this document. If the SEC raised big objections to the preliminary version, Microsoft would have to circulate a heavily amended one, inviting rumors that the deal was fishy. However cheerful or gloomy the prospectus, many investors would fail to read it before buying. Then if the market price promptly fell, they would comb the text for the least hint of misrepresentation in order to sue. Still, the prospectus could not be too conservative. Like all such documents, it had to be a discreet sales tool, soft-pedaling weaknesses and stressing strengths, all the while concealing as much as possible from competitors.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/bcd5070b-7ecc-4204-b520-121d4fef4975.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=34a5077dbb9e394bc6658c1efa27983a86462fcd9b49ee844fc25b79f2ee7d2e",
+            "html": "<p>The most tedious part of taking the company public was writing a prospectus. It was a task rife with contradictions. By law Micro soft’s stock could be sold only on the basis of information in this document. If the SEC raised big objections to the preliminary version, Microsoft would have to circulate a heavily amended one, inviting rumors that the deal was fishy. However cheerful or gloomy the prospectus, many investors would fail to read it before buying. Then if the market price promptly fell, they would comb the text for the least hint of misrepresentation in order to sue. Still, the prospectus could not be too conservative. Like all such documents, it had to be a discreet sales tool, soft-pedaling weaknesses and stressing strengths, all the while concealing as much as possible from competitors.</p>",
+            "markdown": "The most tedious part of taking the company public was writing a prospectus. It was a task rife with contradictions. By law Micro soft’s stock could be sold only on the basis of information in this document. If the SEC raised big objections to the preliminary version, Microsoft would have to circulate a heavily amended one, inviting rumors that the deal was fishy. However cheerful or gloomy the prospectus, many investors would fail to read it before buying. Then if the market price promptly fell, they would comb the text for the least hint of misrepresentation in order to sue. Still, the prospectus could not be too conservative. Like all such documents, it had to be a discreet sales tool, soft-pedaling weaknesses and stressing strengths, all the while concealing as much as possible from competitors.\n\n"
+          },
+          {
+            "segment_id": "55631ca3-1ef0-444c-9420-6d399d7f889e",
+            "bbox": {
+              "left": 653.1666,
+              "top": 1465.6666,
+              "width": 535.3333,
+              "height": 47.833332
+            },
+            "page_number": 3,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "EVEN BEFORE Microsoft had picked its underwriters, Robert A. Eshelman, 32, an attorney at Shidler McBroom,",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/55631ca3-1ef0-444c-9420-6d399d7f889e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=46738d2b1fd615fbf7c624bf37c520e6a4b3f434c1bd3a0d4e79b659e46f4f8d",
+            "html": "<p>EVEN BEFORE Microsoft had picked its underwriters, Robert A. Eshelman, 32, an attorney at Shidler McBroom,</p>",
+            "markdown": "EVEN BEFORE Microsoft had picked its underwriters, Robert A. Eshelman, 32, an attorney at Shidler McBroom,\n\n"
+          },
+          {
+            "segment_id": "ba936bec-e2da-4c3c-8e29-3a0acf861632",
+            "bbox": {
+              "left": 74,
+              "top": 140.66666,
+              "width": 545.75,
+              "height": 224.91666
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "had started drafting the prospectus. That task took all of January. ’’As usual,’’ says one of the investment bankers, ’’it was like the Bataan death march.’’ Neukom, who had just left Shidler McBroom to join Micro soft, spent the first week of 1986 with Eshel man, sketching in ideas about the company’s products and business. Two days a week for the next three weeks, many of the people who had been at the all-hands meeting reconvened at Microsoft’s sleek headquarters in a Seattle suburb to edit the prospectus.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/ba936bec-e2da-4c3c-8e29-3a0acf861632.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=10d288cc0ed005990cbedf1454702cd0bcd63376ca356b0ee94476eacb1b04ca",
+            "html": "<p>had started drafting the prospectus. That task took all of January. ’’As usual,’’ says one of the investment bankers, ’’it was like the Bataan death march.’’ Neukom, who had just left Shidler McBroom to join Micro soft, spent the first week of 1986 with Eshel man, sketching in ideas about the company’s products and business. Two days a week for the next three weeks, many of the people who had been at the all-hands meeting reconvened at Microsoft’s sleek headquarters in a Seattle suburb to edit the prospectus.</p>",
+            "markdown": "had started drafting the prospectus. That task took all of January. ’’As usual,’’ says one of the investment bankers, ’’it was like the Bataan death march.’’ Neukom, who had just left Shidler McBroom to join Micro soft, spent the first week of 1986 with Eshel man, sketching in ideas about the company’s products and business. Two days a week for the next three weeks, many of the people who had been at the all-hands meeting reconvened at Microsoft’s sleek headquarters in a Seattle suburb to edit the prospectus.\n\n"
+          },
+          {
+            "segment_id": "89de9035-d938-48bd-8303-7c7d6259f1e2",
+            "bbox": {
+              "left": 71.916664,
+              "top": 390.66666,
+              "width": 543.6666,
+              "height": 247.83333
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "At the first sessions, on January 8 and 9, the underwriters brought along their security analysts to help conduct a ’’due diligence’’ examination, grilling the company’s managers to uncover skeletons. Gaudette was mollified that Sullivan & Cromwell had now furnished a partner from its Los Angeles office, Charles F. Rechlin, 39. Gaudette had met him years before in New York but was bowled over by how much he had changed. Rechlin was 40 pounds lighter and sported shoulder-length hair and a fierce sunburn.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/89de9035-d938-48bd-8303-7c7d6259f1e2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1d7c6370829068261da7907b31b7edcf67f25950c49c29aaf10b1d62851e48b5",
+            "html": "<p>At the first sessions, on January 8 and 9, the underwriters brought along their security analysts to help conduct a ’’due diligence’’ examination, grilling the company’s managers to uncover skeletons. Gaudette was mollified that Sullivan & Cromwell had now furnished a partner from its Los Angeles office, Charles F. Rechlin, 39. Gaudette had met him years before in New York but was bowled over by how much he had changed. Rechlin was 40 pounds lighter and sported shoulder-length hair and a fierce sunburn.</p>",
+            "markdown": "At the first sessions, on January 8 and 9, the underwriters brought along their security analysts to help conduct a ’’due diligence’’ examination, grilling the company’s managers to uncover skeletons. Gaudette was mollified that Sullivan & Cromwell had now furnished a partner from its Los Angeles office, Charles F. Rechlin, 39. Gaudette had met him years before in New York but was bowled over by how much he had changed. Rechlin was 40 pounds lighter and sported shoulder-length hair and a fierce sunburn.\n\n"
+          },
+          {
+            "segment_id": "0fd4a315-568c-49ea-a75d-766cada3863e",
+            "bbox": {
+              "left": 71.916664,
+              "top": 663.5833,
+              "width": 539.5,
+              "height": 197.83333
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "For ten hours Gates, Shirley, and other managers exhaustively described their parts of the business and fielded questions. Surprisingly, the Microsoft crew tended to be more conservative and pessimistic than the interrogators. Steven A. Ballmer, 30, a vice president sometimes described as Gates’s alter ego, came up with so many scenarios for Microsoft’s demise that one banker cracked: ’’I’d hate to hear you on a bad day.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/0fd4a315-568c-49ea-a75d-766cada3863e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a95f8256e6b8ced14c14c2958cd992c3bc5281a6fefc1719041c52cba288bf89",
+            "html": "<p>For ten hours Gates, Shirley, and other managers exhaustively described their parts of the business and fielded questions. Surprisingly, the Microsoft crew tended to be more conservative and pessimistic than the interrogators. Steven A. Ballmer, 30, a vice president sometimes described as Gates’s alter ego, came up with so many scenarios for Microsoft’s demise that one banker cracked: ’’I’d hate to hear you on a bad day.’’</p>",
+            "markdown": "For ten hours Gates, Shirley, and other managers exhaustively described their parts of the business and fielded questions. Surprisingly, the Microsoft crew tended to be more conservative and pessimistic than the interrogators. Steven A. Ballmer, 30, a vice president sometimes described as Gates’s alter ego, came up with so many scenarios for Microsoft’s demise that one banker cracked: ’’I’d hate to hear you on a bad day.’’\n\n"
+          }
+        ],
+        "chunk_length": 486
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8178c823-764a-4217-824e-21ffe1a18501",
+            "bbox": {
+              "left": 71.916664,
+              "top": 888.5833,
+              "width": 545.75,
+              "height": 349.91666
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "By late January only one major item remained undecided -- a price range for the stock. The bull market that began in September had kept roaring ahead, pushing up P/E multiples for other software companies. The underwriters suggested a price range of $17 to $20 a share. Gates insisted on, and got, $16 to $19. His argument was ultraconservative: $16 would guarantee that the underwriters would not have to go even lower to sell the shares, while a price of $20 would push Microsoft’s market value above half-a- billion dollars, which he thought uncomfortably high. ’’That was unusual,’’ says Christopher P. Forester, head of Goldman Sach’s high-technology finance group. ’’Few companies fight for a lower range than the underwriter recommends.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/8178c823-764a-4217-824e-21ffe1a18501.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=12ecc461c170e362d9d3e7c6f1d45ca386cc2c8bb01b4627e7c52219361ee593",
+            "html": "<p>By late January only one major item remained undecided -- a price range for the stock. The bull market that began in September had kept roaring ahead, pushing up P/E multiples for other software companies. The underwriters suggested a price range of $17 to $20 a share. Gates insisted on, and got, $16 to $19. His argument was ultraconservative: $16 would guarantee that the underwriters would not have to go even lower to sell the shares, while a price of $20 would push Microsoft’s market value above half-a- billion dollars, which he thought uncomfortably high. ’’That was unusual,’’ says Christopher P. Forester, head of Goldman Sach’s high-technology finance group. ’’Few companies fight for a lower range than the underwriter recommends.’’</p>",
+            "markdown": "By late January only one major item remained undecided -- a price range for the stock. The bull market that began in September had kept roaring ahead, pushing up P/E multiples for other software companies. The underwriters suggested a price range of $17 to $20 a share. Gates insisted on, and got, $16 to $19. His argument was ultraconservative: $16 would guarantee that the underwriters would not have to go even lower to sell the shares, while a price of $20 would push Microsoft’s market value above half-a- billion dollars, which he thought uncomfortably high. ’’That was unusual,’’ says Christopher P. Forester, head of Goldman Sach’s high-technology finance group. ’’Few companies fight for a lower range than the underwriter recommends.’’\n\n"
+          },
+          {
+            "segment_id": "52120b3e-5e51-45d7-b936-9414a4df7397",
+            "bbox": {
+              "left": 74,
+              "top": 1265.6666,
+              "width": 541.5833,
+              "height": 174.91666
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "On February 1 a courier rushed the final proof of the prospectus to Los Angeles for Sullivan & Cromwell’s approval and continued on to Washington, D.C., with 13 copies. Two days later Microsoft registered with the SEC, the underwriters sent out 38,000 copies of the prospectus, and the lawyers began waiting anxiously for comments from the regulators.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/52120b3e-5e51-45d7-b936-9414a4df7397.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=29ba2ed91b38cb051cc40c432f6e7b0d285146cd7bf26a1aa53c80379b4b83b7",
+            "html": "<p>On February 1 a courier rushed the final proof of the prospectus to Los Angeles for Sullivan & Cromwell’s approval and continued on to Washington, D.C., with 13 copies. Two days later Microsoft registered with the SEC, the underwriters sent out 38,000 copies of the prospectus, and the lawyers began waiting anxiously for comments from the regulators.</p>",
+            "markdown": "On February 1 a courier rushed the final proof of the prospectus to Los Angeles for Sullivan & Cromwell’s approval and continued on to Washington, D.C., with 13 copies. Two days later Microsoft registered with the SEC, the underwriters sent out 38,000 copies of the prospectus, and the lawyers began waiting anxiously for comments from the regulators.\n\n"
+          },
+          {
+            "segment_id": "6dbb0c33-ee18-4878-9492-69b02421cbcb",
+            "bbox": {
+              "left": 71.916664,
+              "top": 1465.6666,
+              "width": 545.75,
+              "height": 47.833332
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gates coped with concerns of a different sort. Relatives, friends, and acquaintances of Microsoft’s managers -- from",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/6dbb0c33-ee18-4878-9492-69b02421cbcb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5dbd4b4c326180fd6d1efdcf8b3cb351c0f02ed8baef4612b004f3a85ad6a1fc",
+            "html": "<p>Gates coped with concerns of a different sort. Relatives, friends, and acquaintances of Microsoft’s managers -- from</p>",
+            "markdown": "Gates coped with concerns of a different sort. Relatives, friends, and acquaintances of Microsoft’s managers -- from\n\n"
+          },
+          {
+            "segment_id": "394e0e84-826e-4cf2-80f7-a918f44f1acf",
+            "bbox": {
+              "left": 655.25,
+              "top": 140.66666,
+              "width": 543.6666,
+              "height": 199.91666
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gates’s doctor to a high school chum of Gaudette’s -- called begging to buy stock at the offering price. Except for about a dozen people, including Gates’s grandmother and his former housekeeper, who wanted small lots for sentimental reasons, Gates turned most of them down. ’’I won’t grant any of these goofy requests,’’ he said. ’’I hate the whole thing. All I’m thinking and dreaming about is selling software, not stock.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/394e0e84-826e-4cf2-80f7-a918f44f1acf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=03855425351d299a9d8b03857a7b7b9f07d96e2d01f7694272ae08d9ac92f271",
+            "html": "<p>Gates’s doctor to a high school chum of Gaudette’s -- called begging to buy stock at the offering price. Except for about a dozen people, including Gates’s grandmother and his former housekeeper, who wanted small lots for sentimental reasons, Gates turned most of them down. ’’I won’t grant any of these goofy requests,’’ he said. ’’I hate the whole thing. All I’m thinking and dreaming about is selling software, not stock.’’</p>",
+            "markdown": "Gates’s doctor to a high school chum of Gaudette’s -- called begging to buy stock at the offering price. Except for about a dozen people, including Gates’s grandmother and his former housekeeper, who wanted small lots for sentimental reasons, Gates turned most of them down. ’’I won’t grant any of these goofy requests,’’ he said. ’’I hate the whole thing. All I’m thinking and dreaming about is selling software, not stock.’’\n\n"
+          },
+          {
+            "segment_id": "cc5b9e9e-6acb-4a21-888b-4161d84db2a9",
+            "bbox": {
+              "left": 653.1666,
+              "top": 365.66666,
+              "width": 547.8333,
+              "height": 349.91666
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "REHEARSALS FOR the road show dramatized how differently Gates and Gaudette approached the pro- cess of going public. Neukom, Mi crosoft’s in-house attorney, had admonished Gates to say nothing to anybody that deviated from the prospectus or added new information. At Goldman Sachs’s New York offices for a February 7 rehearsal, Gates wondered to himself, ’’With my mouth taped, what’s the point of giving a speech?’’ Addressing about 30 investment bankers and salesmen, he assumed an uncharacteristic, robotic monotone while covering Micro soft’s key strengths. He became annoyed when one critic commented, ’’It’s a great first effort, but you can put more into it.’’ Snapped Gates: ’’You mean I’m supposed to say boring things in an exciting way?’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/cc5b9e9e-6acb-4a21-888b-4161d84db2a9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=de836c4e912a8210252d8741e57b6a0475d8059bac5cf6615235d5abbeb6f6af",
+            "html": "<p>REHEARSALS FOR the road show dramatized how differently Gates and Gaudette approached the pro- cess of going public. Neukom, Mi crosoft’s in-house attorney, had admonished Gates to say nothing to anybody that deviated from the prospectus or added new information. At Goldman Sachs’s New York offices for a February 7 rehearsal, Gates wondered to himself, ’’With my mouth taped, what’s the point of giving a speech?’’ Addressing about 30 investment bankers and salesmen, he assumed an uncharacteristic, robotic monotone while covering Micro soft’s key strengths. He became annoyed when one critic commented, ’’It’s a great first effort, but you can put more into it.’’ Snapped Gates: ’’You mean I’m supposed to say boring things in an exciting way?’’</p>",
+            "markdown": "REHEARSALS FOR the road show dramatized how differently Gates and Gaudette approached the pro- cess of going public. Neukom, Mi crosoft’s in-house attorney, had admonished Gates to say nothing to anybody that deviated from the prospectus or added new information. At Goldman Sachs’s New York offices for a February 7 rehearsal, Gates wondered to himself, ’’With my mouth taped, what’s the point of giving a speech?’’ Addressing about 30 investment bankers and salesmen, he assumed an uncharacteristic, robotic monotone while covering Micro soft’s key strengths. He became annoyed when one critic commented, ’’It’s a great first effort, but you can put more into it.’’ Snapped Gates: ’’You mean I’m supposed to say boring things in an exciting way?’’\n\n"
+          },
+          {
+            "segment_id": "a4c9adc0-84f5-4d1b-b25f-504bd94e7a53",
+            "bbox": {
+              "left": 653.1666,
+              "top": 740.6666,
+              "width": 531.1666,
+              "height": 247.83333
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gaudette, however, was in his element. He praised and repraised the company’s record, studding his talk with cliches and corny jokes. ’’When it comes to earnings,’’ he exclaimed, showing a graph of quarterly changes, ’’the pavement is bumpy, but the road goes only one way -- up!’’ Describing Microsoft’s $72 million in stockholders’ equity and its lack of long-term debt, Gaudette teased Goldman Sachs with a competing investment house’s slogan: ’’We made our money the old-fashioned way: We earned it!’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/a4c9adc0-84f5-4d1b-b25f-504bd94e7a53.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f1d27290e4f0b63d9688643d826019c0020f4f1834b0526ca0eb7b6c8b8b7fd7",
+            "html": "<p>Gaudette, however, was in his element. He praised and repraised the company’s record, studding his talk with cliches and corny jokes. ’’When it comes to earnings,’’ he exclaimed, showing a graph of quarterly changes, ’’the pavement is bumpy, but the road goes only one way -- up!’’ Describing Microsoft’s $72 million in stockholders’ equity and its lack of long-term debt, Gaudette teased Goldman Sachs with a competing investment house’s slogan: ’’We made our money the old-fashioned way: We earned it!’’</p>",
+            "markdown": "Gaudette, however, was in his element. He praised and repraised the company’s record, studding his talk with cliches and corny jokes. ’’When it comes to earnings,’’ he exclaimed, showing a graph of quarterly changes, ’’the pavement is bumpy, but the road goes only one way -- up!’’ Describing Microsoft’s $72 million in stockholders’ equity and its lack of long-term debt, Gaudette teased Goldman Sachs with a competing investment house’s slogan: ’’We made our money the old-fashioned way: We earned it!’’\n\n"
+          }
+        ],
+        "chunk_length": 463
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "542bd66e-32c5-4dbd-a2e5-7ee99893fbb9",
+            "bbox": {
+              "left": 653.1666,
+              "top": 1015.6666,
+              "width": 539.5,
+              "height": 274.91666
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "The road show previewed in Phoenix on February 18, and over the next ten days played eight cities, including engagements in London and Edinburgh. Halfway through, the pageant took on an almost festive air. Gates relaxed a bit, having been able to push his products as well as his stock at various ports of call. In London, Eff Martin of Goldman escorted the party to the Royal Observatory at Greenwich, found tickets for the smash musical Les Miserables, and arranged admittance to Annabel’s, a popular club. Gates danced the night away with Ruthann Quindlen, a se- curity analyst for Alex. Brown.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/542bd66e-32c5-4dbd-a2e5-7ee99893fbb9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=06b3cbb04b497faedbb01fd25c90a80b45d79052efd90d90c6d59bbeef875b4c",
+            "html": "<p>The road show previewed in Phoenix on February 18, and over the next ten days played eight cities, including engagements in London and Edinburgh. Halfway through, the pageant took on an almost festive air. Gates relaxed a bit, having been able to push his products as well as his stock at various ports of call. In London, Eff Martin of Goldman escorted the party to the Royal Observatory at Greenwich, found tickets for the smash musical Les Miserables, and arranged admittance to Annabel’s, a popular club. Gates danced the night away with Ruthann Quindlen, a se- curity analyst for Alex. Brown.</p>",
+            "markdown": "The road show previewed in Phoenix on February 18, and over the next ten days played eight cities, including engagements in London and Edinburgh. Halfway through, the pageant took on an almost festive air. Gates relaxed a bit, having been able to push his products as well as his stock at various ports of call. In London, Eff Martin of Goldman escorted the party to the Royal Observatory at Greenwich, found tickets for the smash musical Les Miserables, and arranged admittance to Annabel’s, a popular club. Gates danced the night away with Ruthann Quindlen, a se- curity analyst for Alex. Brown.\n\n"
+          },
+          {
+            "segment_id": "a7e0f28b-252c-490f-9b68-31349752a4bc",
+            "bbox": {
+              "left": 653.1666,
+              "top": 1315.6666,
+              "width": 545.75,
+              "height": 197.83333
+            },
+            "page_number": 4,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Festivity was appropriate. Every road show meetingattracted a full house, and many big institutional investors indicated they would take as much stock as they could get. By the end of February the Dow Jones industrial average had passed 1700. In London, Martin told Gaudette that Goldman’s marketing group considered the Microsoft issue very hot. The $16 to $19 price range would have to be raised, he said, and so would the number of",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/a7e0f28b-252c-490f-9b68-31349752a4bc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e8420b28c445cd5f8eee7031f13150e7872866e3000e9c08f6035c470413a920",
+            "html": "<p>Festivity was appropriate. Every road show meetingattracted a full house, and many big institutional investors indicated they would take as much stock as they could get. By the end of February the Dow Jones industrial average had passed 1700. In London, Martin told Gaudette that Goldman’s marketing group considered the Microsoft issue very hot. The $16 to $19 price range would have to be raised, he said, and so would the number of</p>",
+            "markdown": "Festivity was appropriate. Every road show meetingattracted a full house, and many big institutional investors indicated they would take as much stock as they could get. By the end of February the Dow Jones industrial average had passed 1700. In London, Martin told Gaudette that Goldman’s marketing group considered the Microsoft issue very hot. The $16 to $19 price range would have to be raised, he said, and so would the number of\n\n"
+          },
+          {
+            "segment_id": "825dbfb9-ea2d-4967-8d29-ca7314fa17e6",
+            "bbox": {
+              "left": 71.916664,
+              "top": 140.66666,
+              "width": 168.66666,
+              "height": 22.833332
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "shares to be sold.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/825dbfb9-ea2d-4967-8d29-ca7314fa17e6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5bf8fcc9f859781efe509a4ceab5ba326c3d7090a7b4db05165c80075db7d4aa",
+            "html": "<p>shares to be sold.</p>",
+            "markdown": "shares to be sold.\n\n"
+          },
+          {
+            "segment_id": "ffb1819b-18b7-44ff-b2a6-9e962b22c1af",
+            "bbox": {
+              "left": 74,
+              "top": 190.66666,
+              "width": 539.5,
+              "height": 322.8333
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "The underwriters had wanted to come to market while euphoria from the road show ran high. But the SEC held the starting flag. On March 4 and 5 an SEC reviewer phoned in the commission’s comments on the preliminary prospectus to Eshelman. The SEC had picked all sorts of nits, from how Micro soft accounted for returned merchandise to whether Gates had an employment contract (he does not). Its major concern appeared to be that the underwriters allocate shares widely enough to make the offering truly public and not just a bonanza for a handful of privileged investors. Eshelman was relieved. ’’It was a thorough review,’’ he says, ’’but it was nothing to make my stomach drop.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/ffb1819b-18b7-44ff-b2a6-9e962b22c1af.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=93ba64255b9914dc7b3a6fafaba8b0f5665bc5e39df32901003043fb6874deaf",
+            "html": "<p>The underwriters had wanted to come to market while euphoria from the road show ran high. But the SEC held the starting flag. On March 4 and 5 an SEC reviewer phoned in the commission’s comments on the preliminary prospectus to Eshelman. The SEC had picked all sorts of nits, from how Micro soft accounted for returned merchandise to whether Gates had an employment contract (he does not). Its major concern appeared to be that the underwriters allocate shares widely enough to make the offering truly public and not just a bonanza for a handful of privileged investors. Eshelman was relieved. ’’It was a thorough review,’’ he says, ’’but it was nothing to make my stomach drop.’’</p>",
+            "markdown": "The underwriters had wanted to come to market while euphoria from the road show ran high. But the SEC held the starting flag. On March 4 and 5 an SEC reviewer phoned in the commission’s comments on the preliminary prospectus to Eshelman. The SEC had picked all sorts of nits, from how Micro soft accounted for returned merchandise to whether Gates had an employment contract (he does not). Its major concern appeared to be that the underwriters allocate shares widely enough to make the offering truly public and not just a bonanza for a handful of privileged investors. Eshelman was relieved. ’’It was a thorough review,’’ he says, ’’but it was nothing to make my stomach drop.’’\n\n"
+          },
+          {
+            "segment_id": "5272a38c-59c5-43d8-a189-2994aaeafa15",
+            "bbox": {
+              "left": 71.916664,
+              "top": 540.6666,
+              "width": 545.75,
+              "height": 347.8333
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "On March 6 Microsoft’s lawyers and auditors called the SEC to negotiate changes. Meanwhile, the company persuaded two stockholders to sell an additional 295,000 shares. The next day, as the lawyers pored over proofs of a revised prospectus at the San Francisco office of Bowne & Co., the financial printers, Gaudette zestfully battled to raise the price. Eff Martin of Goldman, who had flown up to Seattle that morning, had good news. The ’’book’’ on Microsoft -- the list of buy orders from institutional investors -- was among the best Goldman had ever seen. The underwriters expected the stock to trade at $25 a share, give or take a dollar, several weeks after opening. A sounding of big potential buyers showed that an offering price of $20 to $21 would get the deal done.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/5272a38c-59c5-43d8-a189-2994aaeafa15.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e878b00ac4ed0c07562a193b64be9ba943dbf0e99935531180f5a06ad5d410f7",
+            "html": "<p>On March 6 Microsoft’s lawyers and auditors called the SEC to negotiate changes. Meanwhile, the company persuaded two stockholders to sell an additional 295,000 shares. The next day, as the lawyers pored over proofs of a revised prospectus at the San Francisco office of Bowne & Co., the financial printers, Gaudette zestfully battled to raise the price. Eff Martin of Goldman, who had flown up to Seattle that morning, had good news. The ’’book’’ on Microsoft -- the list of buy orders from institutional investors -- was among the best Goldman had ever seen. The underwriters expected the stock to trade at $25 a share, give or take a dollar, several weeks after opening. A sounding of big potential buyers showed that an offering price of $20 to $21 would get the deal done.</p>",
+            "markdown": "On March 6 Microsoft’s lawyers and auditors called the SEC to negotiate changes. Meanwhile, the company persuaded two stockholders to sell an additional 295,000 shares. The next day, as the lawyers pored over proofs of a revised prospectus at the San Francisco office of Bowne & Co., the financial printers, Gaudette zestfully battled to raise the price. Eff Martin of Goldman, who had flown up to Seattle that morning, had good news. The ’’book’’ on Microsoft -- the list of buy orders from institutional investors -- was among the best Goldman had ever seen. The underwriters expected the stock to trade at $25 a share, give or take a dollar, several weeks after opening. A sounding of big potential buyers showed that an offering price of $20 to $21 would get the deal done.\n\n"
+          }
+        ],
+        "chunk_length": 429
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "7812c515-56e4-47f7-8a24-806a1947d034",
+            "bbox": {
+              "left": 71.916664,
+              "top": 913.5833,
+              "width": 539.5,
+              "height": 274.91666
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gates asked Martin to leave while he conferred with Shirley and Gaudette. This was a different Gates from the one who two months before thought $20 too high. ’’These guys who happen to be in good with Gold man and get some stock will make an instant profit of $4,’’ he said. ’’Why are we handing millions of the company’s money to Gold man’s favorite clients?’’ Gaudette stressed that unless Microsoft left some money on the table the institutional investors would stay away. The three decided on a range of $21 to $22 a share, and Gaudette put in a conference call to Goldman and Alex. Brown.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/7812c515-56e4-47f7-8a24-806a1947d034.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=973e22bee73f0c620d0f8962fe0cc494743ab5b2f59310f9b0ca858d5a83ded8",
+            "html": "<p>Gates asked Martin to leave while he conferred with Shirley and Gaudette. This was a different Gates from the one who two months before thought $20 too high. ’’These guys who happen to be in good with Gold man and get some stock will make an instant profit of $4,’’ he said. ’’Why are we handing millions of the company’s money to Gold man’s favorite clients?’’ Gaudette stressed that unless Microsoft left some money on the table the institutional investors would stay away. The three decided on a range of $21 to $22 a share, and Gaudette put in a conference call to Goldman and Alex. Brown.</p>",
+            "markdown": "Gates asked Martin to leave while he conferred with Shirley and Gaudette. This was a different Gates from the one who two months before thought $20 too high. ’’These guys who happen to be in good with Gold man and get some stock will make an instant profit of $4,’’ he said. ’’Why are we handing millions of the company’s money to Gold man’s favorite clients?’’ Gaudette stressed that unless Microsoft left some money on the table the institutional investors would stay away. The three decided on a range of $21 to $22 a share, and Gaudette put in a conference call to Goldman and Alex. Brown.\n\n"
+          },
+          {
+            "segment_id": "37210567-6a24-4deb-8db8-c26a1c98bc13",
+            "bbox": {
+              "left": 74,
+              "top": 1215.6666,
+              "width": 545.75,
+              "height": 297.8333
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Eric Dobkin, 43, the partner in charge of common stock offerings at Goldman Sachs, felt queasy about Microsoft’s counterproposal. For an hour he tussled with Gaudette, using every argument he could muster. Coming out $1 too high would drive off some high-quality investors. Just a few significant defections could lead other investors to think the offering was losing its luster. Dobkin raised the specter of Sun Microsystems, a maker of high-powered microcomputers for engineers that had gone public three days earlier in a deal co-managed by Alex. Brown. Because of overpricing and bad luck -- competitors had recently announced new products -- Sun’s shares had",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/37210567-6a24-4deb-8db8-c26a1c98bc13.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0dfdd732723ab07194763ad6612b55aa6c43d479e9eafaeee5546c9bbfeeec9d",
+            "html": "<p>Eric Dobkin, 43, the partner in charge of common stock offerings at Goldman Sachs, felt queasy about Microsoft’s counterproposal. For an hour he tussled with Gaudette, using every argument he could muster. Coming out $1 too high would drive off some high-quality investors. Just a few significant defections could lead other investors to think the offering was losing its luster. Dobkin raised the specter of Sun Microsystems, a maker of high-powered microcomputers for engineers that had gone public three days earlier in a deal co-managed by Alex. Brown. Because of overpricing and bad luck -- competitors had recently announced new products -- Sun’s shares had</p>",
+            "markdown": "Eric Dobkin, 43, the partner in charge of common stock offerings at Goldman Sachs, felt queasy about Microsoft’s counterproposal. For an hour he tussled with Gaudette, using every argument he could muster. Coming out $1 too high would drive off some high-quality investors. Just a few significant defections could lead other investors to think the offering was losing its luster. Dobkin raised the specter of Sun Microsystems, a maker of high-powered microcomputers for engineers that had gone public three days earlier in a deal co-managed by Alex. Brown. Because of overpricing and bad luck -- competitors had recently announced new products -- Sun’s shares had\n\n"
+          },
+          {
+            "segment_id": "5ae1224e-a74f-4887-ba33-f5a7b164b8b7",
+            "bbox": {
+              "left": 655.25,
+              "top": 140.66666,
+              "width": 531.1666,
+              "height": 74.916664
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "dropped from $16 at the offering to $14.50 on the market. Dobkin warned that the market for software stocks was turning iffy.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/5ae1224e-a74f-4887-ba33-f5a7b164b8b7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=afa1096d3ffa25b600bb1520d9a74848b91e596dd2672c5215c873bbd906b895",
+            "html": "<p>dropped from $16 at the offering to $14.50 on the market. Dobkin warned that the market for software stocks was turning iffy.</p>",
+            "markdown": "dropped from $16 at the offering to $14.50 on the market. Dobkin warned that the market for software stocks was turning iffy.\n\n"
+          },
+          {
+            "segment_id": "5f2169a2-73de-45ed-adc5-7e7169482c2e",
+            "bbox": {
+              "left": 653.1666,
+              "top": 240.66666,
+              "width": 545.75,
+              "height": 295.75
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gaudette loved it. ’’They’re in pain!’’ he crowed to Shirley. ’’They’re used to dictating, but they’re not running the show now and they can’t stand it.’’ Getting back on the phone, Gaudette crooned: ’’Eric, I don’t mean to upset you, but I can’t deny what’s in my head. I keep thinking of all that pent-up demand from individual investors, which you haven’t factored in. And I keep thinking we may never see you again, but you go back to the institutional investors all the time. They’re your customers. I don’t know whose interests you’re trying to serve, but if you’re playing both sides of the street, then we’ve just become adversaries.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/5f2169a2-73de-45ed-adc5-7e7169482c2e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=02e7dcdf6723a08553249991e167c1ad1dbd02dce42313d1c41ddd5b3fcf6485",
+            "html": "<p>Gaudette loved it. ’’They’re in pain!’’ he crowed to Shirley. ’’They’re used to dictating, but they’re not running the show now and they can’t stand it.’’ Getting back on the phone, Gaudette crooned: ’’Eric, I don’t mean to upset you, but I can’t deny what’s in my head. I keep thinking of all that pent-up demand from individual investors, which you haven’t factored in. And I keep thinking we may never see you again, but you go back to the institutional investors all the time. They’re your customers. I don’t know whose interests you’re trying to serve, but if you’re playing both sides of the street, then we’ve just become adversaries.’’</p>",
+            "markdown": "Gaudette loved it. ’’They’re in pain!’’ he crowed to Shirley. ’’They’re used to dictating, but they’re not running the show now and they can’t stand it.’’ Getting back on the phone, Gaudette crooned: ’’Eric, I don’t mean to upset you, but I can’t deny what’s in my head. I keep thinking of all that pent-up demand from individual investors, which you haven’t factored in. And I keep thinking we may never see you again, but you go back to the institutional investors all the time. They’re your customers. I don’t know whose interests you’re trying to serve, but if you’re playing both sides of the street, then we’ve just become adversaries.’’\n\n"
+          },
+          {
+            "segment_id": "8274c70f-f2f9-4185-9698-7d4da5697613",
+            "bbox": {
+              "left": 653.1666,
+              "top": 565.6666,
+              "width": 543.6666,
+              "height": 247.83333
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "As negotiations dragged on, Shirley became impatient. Eshelman, the securities lawyer from Shidler McBroom, was waiting in San Francisco to get a price range so he could send an amended prospectus off to the SEC. Finally Gaudette told Dobkin, ’’I’ve listened to your prayers. Now you’re repeating yourself, and it’s bullshit.’’ The two compromised on a range of $20 to $22, with two provisos: Goldman would tell investors that the target price was $21 and nothing less, and Dobkin would report Monday on which investors had dropped out.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/8274c70f-f2f9-4185-9698-7d4da5697613.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0531b411dbaa48408c6ccfc2b2164d999158ca63a742a705927dbe45b6386b93",
+            "html": "<p>As negotiations dragged on, Shirley became impatient. Eshelman, the securities lawyer from Shidler McBroom, was waiting in San Francisco to get a price range so he could send an amended prospectus off to the SEC. Finally Gaudette told Dobkin, ’’I’ve listened to your prayers. Now you’re repeating yourself, and it’s bullshit.’’ The two compromised on a range of $20 to $22, with two provisos: Goldman would tell investors that the target price was $21 and nothing less, and Dobkin would report Monday on which investors had dropped out.</p>",
+            "markdown": "As negotiations dragged on, Shirley became impatient. Eshelman, the securities lawyer from Shidler McBroom, was waiting in San Francisco to get a price range so he could send an amended prospectus off to the SEC. Finally Gaudette told Dobkin, ’’I’ve listened to your prayers. Now you’re repeating yourself, and it’s bullshit.’’ The two compromised on a range of $20 to $22, with two provisos: Goldman would tell investors that the target price was $21 and nothing less, and Dobkin would report Monday on which investors had dropped out.\n\n"
+          }
+        ],
+        "chunk_length": 433
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4102623c-d3ed-4ed6-b174-8747c591232c",
+            "bbox": {
+              "left": 655.25,
+              "top": 840.6666,
+              "width": 545.75,
+              "height": 274.91666
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "MONDAY’S NEWS was mixed. Six big investors in Boston were threatening to ’’uncircle’’ -- to re- move their names from Goldman Sachs’s list. Chicago and Baltimore were fraying at the edges -- T. Rowe Price, for instance, said it might drop out above $20 -- while the West Coast stood firm. The market had closed flat, worrying Goldman’s salesmen. But their spirits revived the next day as the Dow surged 43 points. Gaudette, now confident that he and Dobkin could agree on a final offering price, flew with Neukom to San Francisco to pick up Martin, and the three boarded a red-eye flight for New York.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/4102623c-d3ed-4ed6-b174-8747c591232c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d7924a5f6dc175a3c91239cc7caa2028d658998320da36024f1fb4b346d98395",
+            "html": "<p>MONDAY’S NEWS was mixed. Six big investors in Boston were threatening to ’’uncircle’’ -- to re- move their names from Goldman Sachs’s list. Chicago and Baltimore were fraying at the edges -- T. Rowe Price, for instance, said it might drop out above $20 -- while the West Coast stood firm. The market had closed flat, worrying Goldman’s salesmen. But their spirits revived the next day as the Dow surged 43 points. Gaudette, now confident that he and Dobkin could agree on a final offering price, flew with Neukom to San Francisco to pick up Martin, and the three boarded a red-eye flight for New York.</p>",
+            "markdown": "MONDAY’S NEWS was mixed. Six big investors in Boston were threatening to ’’uncircle’’ -- to re- move their names from Goldman Sachs’s list. Chicago and Baltimore were fraying at the edges -- T. Rowe Price, for instance, said it might drop out above $20 -- while the West Coast stood firm. The market had closed flat, worrying Goldman’s salesmen. But their spirits revived the next day as the Dow surged 43 points. Gaudette, now confident that he and Dobkin could agree on a final offering price, flew with Neukom to San Francisco to pick up Martin, and the three boarded a red-eye flight for New York.\n\n"
+          },
+          {
+            "segment_id": "d45d0f29-a793-4cc9-a48c-c0f7e851d6db",
+            "bbox": {
+              "left": 655.25,
+              "top": 1140.6666,
+              "width": 543.6666,
+              "height": 172.83333
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Sleepless but freshly showered and shaved, Gaudette reached Goldman Sachs’s offices at 11 o’clock on Wednesday, March 12. Neukom walked over from Sullivan & Cromwell, where the other lawyers were preparing the last revision of the prospectus. After lunch the two Microsoft officers went to Dobkin’s office and patched Shirley and Marquardt into a speakerphone.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/d45d0f29-a793-4cc9-a48c-c0f7e851d6db.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8a010edbc622096b0b5d854745e17592cdbdf0a2f98fb355583f64d455b4e50a",
+            "html": "<p>Sleepless but freshly showered and shaved, Gaudette reached Goldman Sachs’s offices at 11 o’clock on Wednesday, March 12. Neukom walked over from Sullivan & Cromwell, where the other lawyers were preparing the last revision of the prospectus. After lunch the two Microsoft officers went to Dobkin’s office and patched Shirley and Marquardt into a speakerphone.</p>",
+            "markdown": "Sleepless but freshly showered and shaved, Gaudette reached Goldman Sachs’s offices at 11 o’clock on Wednesday, March 12. Neukom walked over from Sullivan & Cromwell, where the other lawyers were preparing the last revision of the prospectus. After lunch the two Microsoft officers went to Dobkin’s office and patched Shirley and Marquardt into a speakerphone.\n\n"
+          },
+          {
+            "segment_id": "91cacc00-801f-43e1-b5af-d247fd9f075e",
+            "bbox": {
+              "left": 653.1666,
+              "top": 1340.6666,
+              "width": 541.5833,
+              "height": 174.91666
+            },
+            "page_number": 5,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "The conferees had no trouble agreeing on a final price of $21. The market had risen another 14 points by noon. The reception for a $15 offering that morning by Oracle Systems, another software company, seemed a favorable omen: The stock had opened at $19.25. About half the potential dropouts, including T. Rowe Price, had decided to stay in.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/91cacc00-801f-43e1-b5af-d247fd9f075e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d1a1a0ff2ef181585b1454bf94dea403f590473a42d3776eb5f8fc1ea2a45de1",
+            "html": "<p>The conferees had no trouble agreeing on a final price of $21. The market had risen another 14 points by noon. The reception for a $15 offering that morning by Oracle Systems, another software company, seemed a favorable omen: The stock had opened at $19.25. About half the potential dropouts, including T. Rowe Price, had decided to stay in.</p>",
+            "markdown": "The conferees had no trouble agreeing on a final price of $21. The market had risen another 14 points by noon. The reception for a $15 offering that morning by Oracle Systems, another software company, seemed a favorable omen: The stock had opened at $19.25. About half the potential dropouts, including T. Rowe Price, had decided to stay in.\n\n"
+          },
+          {
+            "segment_id": "834774df-adcd-4abd-8778-f4b1f937cb5a",
+            "bbox": {
+              "left": 74,
+              "top": 140.66666,
+              "width": 543.6666,
+              "height": 149.91666
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "The only remaining issue was the underwriting discount, or ’’spread’’ -- the portion of the price that would go to the underwriters to cover salesmen’s commissions, underwriting expenses, and management fees. Having agreed fairly easily over dollars, the two sides bogged down over pennies.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/834774df-adcd-4abd-8778-f4b1f937cb5a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=97f02ebee719f18364455cf0794053e58f0ee1b7455db780a61022f46c54d69b",
+            "html": "<p>The only remaining issue was the underwriting discount, or ’’spread’’ -- the portion of the price that would go to the underwriters to cover salesmen’s commissions, underwriting expenses, and management fees. Having agreed fairly easily over dollars, the two sides bogged down over pennies.</p>",
+            "markdown": "The only remaining issue was the underwriting discount, or ’’spread’’ -- the portion of the price that would go to the underwriters to cover salesmen’s commissions, underwriting expenses, and management fees. Having agreed fairly easily over dollars, the two sides bogged down over pennies.\n\n"
+          },
+          {
+            "segment_id": "a289e260-9030-4e1e-8c30-c45d491b4b74",
+            "bbox": {
+              "left": 74,
+              "top": 315.66666,
+              "width": 541.5833,
+              "height": 199.91666
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Microsoft had always had a low spread in mind, no more than 6.5% of the selling price. That was before negotiators at Sun Micro systems, where Marquardt is a director, wangled 6.13% on a $64-million offering. Gates wanted Microsoft to get at least as good a deal on its offering. But he had gone to Australia, where he was difficult to reach. In theory Gaudette lacked authority to go above 6.13%, or just under $1.29 a share.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/a289e260-9030-4e1e-8c30-c45d491b4b74.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=366a2c157ab68949269d15136d73e8f07b6ad98ed5227b64e3ef28460c088004",
+            "html": "<p>Microsoft had always had a low spread in mind, no more than 6.5% of the selling price. That was before negotiators at Sun Micro systems, where Marquardt is a director, wangled 6.13% on a $64-million offering. Gates wanted Microsoft to get at least as good a deal on its offering. But he had gone to Australia, where he was difficult to reach. In theory Gaudette lacked authority to go above 6.13%, or just under $1.29 a share.</p>",
+            "markdown": "Microsoft had always had a low spread in mind, no more than 6.5% of the selling price. That was before negotiators at Sun Micro systems, where Marquardt is a director, wangled 6.13% on a $64-million offering. Gates wanted Microsoft to get at least as good a deal on its offering. But he had gone to Australia, where he was difficult to reach. In theory Gaudette lacked authority to go above 6.13%, or just under $1.29 a share.\n\n"
+          },
+          {
+            "segment_id": "d5d1e753-f920-41ed-b4fb-57716d5666cf",
+            "bbox": {
+              "left": 71.916664,
+              "top": 540.6666,
+              "width": 549.9166,
+              "height": 270.75
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Dobkin opened with an oration. He touched on what other Goldman clients had paid, noting that Sun’s spread was off the bottom of the charts. He suggested that the managing underwriters deserved healthy compensation; after all, their marketing efforts had raised Microsoft’s offering price 20%. Goldman’s best offer, Dobkin said, was 6.5%, or $1.36 a share. But if pushed very hard and given no alternative, it might, just to keep things amicable, go as low as $1.34. Having given away $62,000 -- each penny of the spread was worth $31,000 -- Dobkin and his contingent left the room to let Micro soft’s side confer.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/d5d1e753-f920-41ed-b4fb-57716d5666cf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e1bcbae8ac9187cb29099318a9ad32f6ee8323ec0d70c72582399a2c7a51e2fa",
+            "html": "<p>Dobkin opened with an oration. He touched on what other Goldman clients had paid, noting that Sun’s spread was off the bottom of the charts. He suggested that the managing underwriters deserved healthy compensation; after all, their marketing efforts had raised Microsoft’s offering price 20%. Goldman’s best offer, Dobkin said, was 6.5%, or $1.36 a share. But if pushed very hard and given no alternative, it might, just to keep things amicable, go as low as $1.34. Having given away $62,000 -- each penny of the spread was worth $31,000 -- Dobkin and his contingent left the room to let Micro soft’s side confer.</p>",
+            "markdown": "Dobkin opened with an oration. He touched on what other Goldman clients had paid, noting that Sun’s spread was off the bottom of the charts. He suggested that the managing underwriters deserved healthy compensation; after all, their marketing efforts had raised Microsoft’s offering price 20%. Goldman’s best offer, Dobkin said, was 6.5%, or $1.36 a share. But if pushed very hard and given no alternative, it might, just to keep things amicable, go as low as $1.34. Having given away $62,000 -- each penny of the spread was worth $31,000 -- Dobkin and his contingent left the room to let Micro soft’s side confer.\n\n"
+          },
+          {
+            "segment_id": "f52c1464-2d6d-46fd-bd32-0382430985f6",
+            "bbox": {
+              "left": 71.916664,
+              "top": 838.5833,
+              "width": 545.75,
+              "height": 149.91666
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "When they returned, Gaudette declared that Bill Gates had given definite orders: no more than $1.28. Besides, he argued, Micro soft was a much easier deal to handle than Sun. As to the underwriters’ marketing efforts, selling more shares at a higher price was its own reward since it automatically increased the mony in their pockets.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/f52c1464-2d6d-46fd-bd32-0382430985f6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=603f49fd2c291b6fa03ac72720fc792a433d0137e69d0ecfef97f91d93796af4",
+            "html": "<p>When they returned, Gaudette declared that Bill Gates had given definite orders: no more than $1.28. Besides, he argued, Micro soft was a much easier deal to handle than Sun. As to the underwriters’ marketing efforts, selling more shares at a higher price was its own reward since it automatically increased the mony in their pockets.</p>",
+            "markdown": "When they returned, Gaudette declared that Bill Gates had given definite orders: no more than $1.28. Besides, he argued, Micro soft was a much easier deal to handle than Sun. As to the underwriters’ marketing efforts, selling more shares at a higher price was its own reward since it automatically increased the mony in their pockets.\n\n"
+          }
+        ],
+        "chunk_length": 501
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c74a93ce-5f28-41a8-a59f-c36ef9dea55b",
+            "bbox": {
+              "left": 71.916664,
+              "top": 1017.74994,
+              "width": 541.5833,
+              "height": 272.8333
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "At 3:30 the two sides were stalemated, Goldman Sachs now at $1.33 and Microsoft at $1.30. They were arguing over all of $93,000 in a total fee of more than $4 million, and pressure was building. The market was turning flat and would close in minutes. Members of the syndicate were clamoring to know whether the deal was done. Dobkin kept reiterating his arguments. ’’Eric, you’re wasting my time,’’ Gaudette sighed wearily, donning his coat. ’’I’m going to visit me sainted mother in Astoria. When you’ve got something to say, send a limo to pick me up.’’ With that, the Goldman team left the room.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/c74a93ce-5f28-41a8-a59f-c36ef9dea55b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=88cf0a6458e1da034c6de4885c94aea33130c60c31614ec62c8c61a4bf5d039d",
+            "html": "<p>At 3:30 the two sides were stalemated, Goldman Sachs now at $1.33 and Microsoft at $1.30. They were arguing over all of $93,000 in a total fee of more than $4 million, and pressure was building. The market was turning flat and would close in minutes. Members of the syndicate were clamoring to know whether the deal was done. Dobkin kept reiterating his arguments. ’’Eric, you’re wasting my time,’’ Gaudette sighed wearily, donning his coat. ’’I’m going to visit me sainted mother in Astoria. When you’ve got something to say, send a limo to pick me up.’’ With that, the Goldman team left the room.</p>",
+            "markdown": "At 3:30 the two sides were stalemated, Goldman Sachs now at $1.33 and Microsoft at $1.30. They were arguing over all of $93,000 in a total fee of more than $4 million, and pressure was building. The market was turning flat and would close in minutes. Members of the syndicate were clamoring to know whether the deal was done. Dobkin kept reiterating his arguments. ’’Eric, you’re wasting my time,’’ Gaudette sighed wearily, donning his coat. ’’I’m going to visit me sainted mother in Astoria. When you’ve got something to say, send a limo to pick me up.’’ With that, the Goldman team left the room.\n\n"
+          },
+          {
+            "segment_id": "c543563b-4e74-4105-90b1-f9d4a3787861",
+            "bbox": {
+              "left": 71.916664,
+              "top": 1317.75,
+              "width": 541.5833,
+              "height": 147.83333
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Dobkin returned alone and closed the door. ’’Sometimes these things go better with fewer people,’’ he observed. Gaudette insisted he lacked authority to go higher. ’’All I can do is try to get another penny from Jon,’’ he said. ’’But I’m calling him just one more time, so don’t screw up.’’ ’’Make the call,’’ Dobkin said.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/c543563b-4e74-4105-90b1-f9d4a3787861.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f145073ecf20b4cb5d31208965a8a69bc668dfb8d443fba5f957c2a4bfc093f5",
+            "html": "<p>Dobkin returned alone and closed the door. ’’Sometimes these things go better with fewer people,’’ he observed. Gaudette insisted he lacked authority to go higher. ’’All I can do is try to get another penny from Jon,’’ he said. ’’But I’m calling him just one more time, so don’t screw up.’’ ’’Make the call,’’ Dobkin said.</p>",
+            "markdown": "Dobkin returned alone and closed the door. ’’Sometimes these things go better with fewer people,’’ he observed. Gaudette insisted he lacked authority to go higher. ’’All I can do is try to get another penny from Jon,’’ he said. ’’But I’m calling him just one more time, so don’t screw up.’’ ’’Make the call,’’ Dobkin said.\n\n"
+          },
+          {
+            "segment_id": "538f7bdc-8522-4fe6-8a5d-f5d72b1f9188",
+            "bbox": {
+              "left": 71.916664,
+              "top": 1490.6666,
+              "width": 508.24997,
+              "height": 22.833332
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Gaudette caught Shirley as he was leaving a Bellevue,",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/538f7bdc-8522-4fe6-8a5d-f5d72b1f9188.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d2082ff48983d35a96f408f96a5c2d914d122c9ae28ccf0eae7d75417154ee26",
+            "html": "<p>Gaudette caught Shirley as he was leaving a Bellevue,</p>",
+            "markdown": "Gaudette caught Shirley as he was leaving a Bellevue,\n\n"
+          },
+          {
+            "segment_id": "ecb99012-41e1-4b76-95f7-3de492c943b7",
+            "bbox": {
+              "left": 653.1666,
+              "top": 140.66666,
+              "width": 531.1666,
+              "height": 297.8333
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Washington, restaurant to buy a car for his daughter as a 16th birthday gift. The lowest spread they could get, Gaudette said, was $1.31. Though it was above Sun’s spread, it was way below what any other personal computer software company had achieved. Shirley approved. Neukom beckoned Dobkin back into the room, and Gau dette uttered one phrase that betokened his assent to $1.31: ’’It’s a go!’’ Dobkin hugged Gaudette. David Miller, a beefy ex-football player who was Goldman’s syndicate manager for the offering, thundered down the stairs to his office bellowing to his assistant, ’’Doreen, we have a deal!’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/ecb99012-41e1-4b76-95f7-3de492c943b7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3b774bb300213715c05c2ffa79d059025d04b9eef3261c3a4e0ee0ac61e5c56f",
+            "html": "<p>Washington, restaurant to buy a car for his daughter as a 16th birthday gift. The lowest spread they could get, Gaudette said, was $1.31. Though it was above Sun’s spread, it was way below what any other personal computer software company had achieved. Shirley approved. Neukom beckoned Dobkin back into the room, and Gau dette uttered one phrase that betokened his assent to $1.31: ’’It’s a go!’’ Dobkin hugged Gaudette. David Miller, a beefy ex-football player who was Goldman’s syndicate manager for the offering, thundered down the stairs to his office bellowing to his assistant, ’’Doreen, we have a deal!’’</p>",
+            "markdown": "Washington, restaurant to buy a car for his daughter as a 16th birthday gift. The lowest spread they could get, Gaudette said, was $1.31. Though it was above Sun’s spread, it was way below what any other personal computer software company had achieved. Shirley approved. Neukom beckoned Dobkin back into the room, and Gau dette uttered one phrase that betokened his assent to $1.31: ’’It’s a go!’’ Dobkin hugged Gaudette. David Miller, a beefy ex-football player who was Goldman’s syndicate manager for the offering, thundered down the stairs to his office bellowing to his assistant, ’’Doreen, we have a deal!’’\n\n"
+          },
+          {
+            "segment_id": "24d28b26-4e19-4ee5-a96f-27bf3e78c261",
+            "bbox": {
+              "left": 653.1666,
+              "top": 465.66666,
+              "width": 547.8333,
+              "height": 224.91666
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "GAUDETTE SAVED his cheers for the next morning. At 8 A.M. a courier had delivered Microsoft’s ’’filing package’’ to the SEC -- three copies of the final prospectus and a bundle of exhibits, including the underwriters’ agreement to buy the shares, which had been signed only hours earlier. The commission declared at 9:15 that Microsoft’s registration was effec tive. On the trading floor at Goldman Sachs, Gaudette heard a trader say, ’’We’re going to shoot the moon and open at 25!’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/24d28b26-4e19-4ee5-a96f-27bf3e78c261.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=92de47499780b2e159646aab1bd5ad067cca7ee1be0750e7f192a666ecbeed16",
+            "html": "<p>GAUDETTE SAVED his cheers for the next morning. At 8 A.M. a courier had delivered Microsoft’s ’’filing package’’ to the SEC -- three copies of the final prospectus and a bundle of exhibits, including the underwriters’ agreement to buy the shares, which had been signed only hours earlier. The commission declared at 9:15 that Microsoft’s registration was effec tive. On the trading floor at Goldman Sachs, Gaudette heard a trader say, ’’We’re going to shoot the moon and open at 25!’’</p>",
+            "markdown": "GAUDETTE SAVED his cheers for the next morning. At 8 A.M. a courier had delivered Microsoft’s ’’filing package’’ to the SEC -- three copies of the final prospectus and a bundle of exhibits, including the underwriters’ agreement to buy the shares, which had been signed only hours earlier. The commission declared at 9:15 that Microsoft’s registration was effec tive. On the trading floor at Goldman Sachs, Gaudette heard a trader say, ’’We’re going to shoot the moon and open at 25!’’\n\n"
+          },
+          {
+            "segment_id": "a7493373-ebc8-4cb9-bd97-d46051db2ca0",
+            "bbox": {
+              "left": 653.1666,
+              "top": 715.6666,
+              "width": 537.4166,
+              "height": 197.83333
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "At 9:35 Microsoft’s stock traded publicly on the over-the-counter market for the first time at $25.75. Within minutes Goldman Sachs and Alex. Brown exercised their option to take an extra 300,000 shares between them. Gaudette could hardly believe the tumult. Calling Shirley from the floor, he shouted into the phone, ’’It’s wild! I’ve never seen anything like it -- every last person here is trading Microsoft and nothing else.’’",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/a7493373-ebc8-4cb9-bd97-d46051db2ca0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ab206429600fb3c475784906bdd722d216f846d25c08dc024f5a0d629848c5e6",
+            "html": "<p>At 9:35 Microsoft’s stock traded publicly on the over-the-counter market for the first time at $25.75. Within minutes Goldman Sachs and Alex. Brown exercised their option to take an extra 300,000 shares between them. Gaudette could hardly believe the tumult. Calling Shirley from the floor, he shouted into the phone, ’’It’s wild! I’ve never seen anything like it -- every last person here is trading Microsoft and nothing else.’’</p>",
+            "markdown": "At 9:35 Microsoft’s stock traded publicly on the over-the-counter market for the first time at $25.75. Within minutes Goldman Sachs and Alex. Brown exercised their option to take an extra 300,000 shares between them. Gaudette could hardly believe the tumult. Calling Shirley from the floor, he shouted into the phone, ’’It’s wild! I’ve never seen anything like it -- every last person here is trading Microsoft and nothing else.’’\n\n"
+          },
+          {
+            "segment_id": "2e61a223-f33e-4716-bddf-f7b7d0d2ad06",
+            "bbox": {
+              "left": 653.1666,
+              "top": 940.6666,
+              "width": 539.5,
+              "height": 222.83333
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "The strength of retail demand caught everyone by surprise. By the end of the first day of trading, some 2.5 million shares had changed hands, and the price of Microsoft’s stock stood at $27.75. The opportunity to take a quick profit was too great for many institutional investors to resist. Over the next few weeks they sold off roughly half their shares. An estimated one-third of the shares in Microsoft’s offering has wound up in the hands of individuals.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/2e61a223-f33e-4716-bddf-f7b7d0d2ad06.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=267d21926621af9d2f61307ba785f7936fe502935c2bb08ffdcfee89af1531e6",
+            "html": "<p>The strength of retail demand caught everyone by surprise. By the end of the first day of trading, some 2.5 million shares had changed hands, and the price of Microsoft’s stock stood at $27.75. The opportunity to take a quick profit was too great for many institutional investors to resist. Over the next few weeks they sold off roughly half their shares. An estimated one-third of the shares in Microsoft’s offering has wound up in the hands of individuals.</p>",
+            "markdown": "The strength of retail demand caught everyone by surprise. By the end of the first day of trading, some 2.5 million shares had changed hands, and the price of Microsoft’s stock stood at $27.75. The opportunity to take a quick profit was too great for many institutional investors to resist. Over the next few weeks they sold off roughly half their shares. An estimated one-third of the shares in Microsoft’s offering has wound up in the hands of individuals.\n\n"
+          }
+        ],
+        "chunk_length": 499
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b7907aaa-3c75-4cd5-9ab1-42006eaae52a",
+            "bbox": {
+              "left": 653.1666,
+              "top": 1192.75,
+              "width": 547.8333,
+              "height": 320.75
+            },
+            "page_number": 6,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "In the wake of Microsoft’s triumph, Gates still fears that being public will hurt the company. No longer able to offer stock at bargain prices, he finds it harder to lure talented programmers and managers aboard. On the other hand, his greatly enriched executives have kept cool heads. Shirley, who cleared over $1 million on the shares he sold, has been the most lavish. He bought a 45-foot cabin cruiser, traded in two cars for fancier models, and may give in to his daughter’s pleas for an exotic horse. Gates used part of the $1.6 million he got to pay off a $150,000 mortgage and may buy a $5,000 ski boat -- if he finds time. One vice president who raked in more than $500,000 can think of nothing to buy except a $1,000 custom-made",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/b7907aaa-3c75-4cd5-9ab1-42006eaae52a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ff166916922426da4700868eca360b43d1b3eaf54d70c6172ef75dc6dbf37048",
+            "html": "<p>In the wake of Microsoft’s triumph, Gates still fears that being public will hurt the company. No longer able to offer stock at bargain prices, he finds it harder to lure talented programmers and managers aboard. On the other hand, his greatly enriched executives have kept cool heads. Shirley, who cleared over $1 million on the shares he sold, has been the most lavish. He bought a 45-foot cabin cruiser, traded in two cars for fancier models, and may give in to his daughter’s pleas for an exotic horse. Gates used part of the $1.6 million he got to pay off a $150,000 mortgage and may buy a $5,000 ski boat -- if he finds time. One vice president who raked in more than $500,000 can think of nothing to buy except a $1,000 custom-made</p>",
+            "markdown": "In the wake of Microsoft’s triumph, Gates still fears that being public will hurt the company. No longer able to offer stock at bargain prices, he finds it harder to lure talented programmers and managers aboard. On the other hand, his greatly enriched executives have kept cool heads. Shirley, who cleared over $1 million on the shares he sold, has been the most lavish. He bought a 45-foot cabin cruiser, traded in two cars for fancier models, and may give in to his daughter’s pleas for an exotic horse. Gates used part of the $1.6 million he got to pay off a $150,000 mortgage and may buy a $5,000 ski boat -- if he finds time. One vice president who raked in more than $500,000 can think of nothing to buy except a $1,000 custom-made\n\n"
+          }
+        ],
+        "chunk_length": 135
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a090811e-250b-4381-91bf-6bb93f555252",
+            "bbox": {
+              "left": 74,
+              "top": 96.916664,
+              "width": 752,
+              "height": 31.166666
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "Inside the deal that made Bill Gates $350,000,000.",
+            "segment_type": "Section header",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/a090811e-250b-4381-91bf-6bb93f555252.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5ac1b4a3b0a80ddfdd26c241465bb1e689f7589c28b48bac21c0b4b72c87b749",
+            "html": "<h2>Inside the deal that made Bill Gates $350,000,000.</h2>",
+            "markdown": "## Inside the deal that made Bill Gates $350,000,000.\n\n"
+          },
+          {
+            "segment_id": "8c132ad1-c705-4088-a38f-ba6385ffe4da",
+            "bbox": {
+              "left": 71.916664,
+              "top": 140.66666,
+              "width": 518.6666,
+              "height": 72.83333
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "bicycle frame; a programmer who received nearly $200,000 plans to use it to expand his working hours by hiring a housekeeper.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/8c132ad1-c705-4088-a38f-ba6385ffe4da.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=131da0b7db83459d1792ed7b43154d5b775044510a4da44e6b84e5855f1be552",
+            "html": "<p>bicycle frame; a programmer who received nearly $200,000 plans to use it to expand his working hours by hiring a housekeeper.</p>",
+            "markdown": "bicycle frame; a programmer who received nearly $200,000 plans to use it to expand his working hours by hiring a housekeeper.\n\n"
+          },
+          {
+            "segment_id": "27e2304c-b638-4f07-9159-fe12af935747",
+            "bbox": {
+              "left": 74,
+              "top": 240.66666,
+              "width": 529.0833,
+              "height": 172.83333
+            },
+            "page_number": 7,
+            "page_width": 1275,
+            "page_height": 1650,
+            "content": "That’s just the kind of attitude Gates prizes. Constantly urging people to ignore the price of Microsoft’s stock, he warns that it may become highly volatile. A few weeks after the offering, strolling through the software development area, he noticed a chart of Microsoft’s stock price posted on the door to a programmer’s office. Gates was bothered. ’’Is this a distraction?’’ he asked.",
+            "segment_type": "Text",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/d098c23f-750d-431f-b4d5-134c0fa69015/images/27e2304c-b638-4f07-9159-fe12af935747.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T035007Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8c1bbcf46fc91cf9d0d938257fe0fd7608f1b44dda89d6124111209a88bf2d24",
+            "html": "<p>That’s just the kind of attitude Gates prizes. Constantly urging people to ignore the price of Microsoft’s stock, he warns that it may become highly volatile. A few weeks after the offering, strolling through the software development area, he noticed a chart of Microsoft’s stock price posted on the door to a programmer’s office. Gates was bothered. ’’Is this a distraction?’’ he asked.</p>",
+            "markdown": "That’s just the kind of attitude Gates prizes. Constantly urging people to ignore the price of Microsoft’s stock, he warns that it may become highly volatile. A few weeks after the offering, strolling through the software development area, he noticed a chart of Microsoft’s stock price posted on the door to a programmer’s office. Gates was bothered. ’’Is this a distraction?’’ he asked.\n\n"
+          }
+        ],
+        "chunk_length": 92
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Inside the deal that made Bill Gates $350,000,000.\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Bro Uttal\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "March 13\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Seattle\nSan Francisco\nNew York\nBaltimore\nChicago\nBoston\nLondon\nEdinburgh\nPhoenix\nLos Angeles\nWashington, D.C.\nWashington (state)\nAstoria\nBellevue\nHawaii\nGreenwich\nOklahoman"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "file_name": "Inside The Deal That Made Bill Gates 350,000,000 (1986).pdf",
+  "task_id": "4b3f2fbb-b615-4ff9-9032-f6872e4de0de",
+  "output": {
+    "chunks": [],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\n  \"title\": \"\"\n}\n```\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "```\nauthor:  (missing information)\n```\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "```json\n{\n  \"date_published\": \"\"\n}\n```\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```\nlocation:  (no location is provided in the context)\n```\n"
+        }
+      ]
+    }
+  }
+}

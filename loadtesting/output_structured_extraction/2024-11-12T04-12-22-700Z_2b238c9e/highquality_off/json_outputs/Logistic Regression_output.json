@@ -1,0 +1,392 @@
+{
+  "file_name": "Logistic Regression.pdf",
+  "task_id": "29932305-7a37-41c3-a2de-977cb6749753",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "ddbbf180-ce70-4a48-9651-24c27d4fd6cf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Chapter 12\r\nLogistic Regression\r\n12.1 Modeling Conditional Probabilities\r\nSo far, we either looked at estimating the conditional expectations of continuous\r\nvariables (as in regression), or at estimating distributions. There are many situations\r\nwhere however we are interested in input-output relationships, as in regression, but\r\nthe output variable is discrete rather than continuous. In particular there are many\r\nsituations where we have binary outcomes (it snows in Pittsburgh on a given day, or\r\nit doesn’t; this squirrel carries plague, or it doesn’t; this loan will be paid back, or\r\nit won’t; this person will get heart disease in the next five years, or they won’t). In\r\naddition to the binary outcome, we have some input variables, which may or may\r\nnot be continuous. How could we model and analyze such data?\r\nWe could try to come up with a rule which guesses the binary output from the\r\ninput variables. This is called classification, and is an important topic in statistics\r\nand machine learning. However, simply guessing “yes” or “no” is pretty crude —\r\nespecially if there is no perfect rule. (Why should there be?) Something which takes\r\nnoise into account, and doesn’t just give a binary answer, will often be useful. In\r\nshort, we want probabilities — which means we need to fit a stochastic model.\r\nWhat would be nice, in fact, would be to have conditional distribution of the\r\nresponse Y, given the input variables, Pr(Y|X ). This would tell us about how pre\u0002cise our predictions are. If our model says that there’s a 51% chance of snow and it\r\ndoesn’t snow, that’s better than if it had said there was a 99% chance of snow (though\r\neven a 99% chance is not a sure thing). We have seen how to estimate conditional\r\nprobabilities non-parametrically, and could do this using the kernels for discrete vari\u0002ables from lecture 6. While there are a lot of merits to this approach, it does involve\r\ncoming up with a model for the joint distribution of outputs Y and inputs X , which\r\ncan be quite time-consuming.\r\nLet’s pick one of the classes and call it “1” and the other “0”. (It doesn’t mat\u0002ter which is which. Then Y becomes an indicator variable, and you can convince\r\nyourself that Pr(Y = 1) = E[Y]. Similarly, Pr(Y = 1|X = x) = E[Y|X = x]. (In\r\na phrase, “conditional probability is the conditional expectation of the indicator”.)\r\n223",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/ddbbf180-ce70-4a48-9651-24c27d4fd6cf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=75b882dc80dfc6042a205aa0bb14a1329f50f187b2f2fec84c4e88457269c3b9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 402
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "48331ae4-48e3-4185-8f49-5cce9160ee2f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "224 CHAPTER 12. LOGISTIC REGRESSION\r\nThis helps us because by this point we know all about estimating conditional ex\u0002pectations. The most straightforward thing for us to do at this point would be to\r\npick out our favorite smoother and estimate the regression function for the indicator\r\nvariable; this will be an estimate of the conditional probability function.\r\nThere are two reasons not to just plunge ahead with that idea. One is that proba\u0002bilities must be between 0 and 1, but our smoothers will not necessarily respect that,\r\neven if all the observed yi they get are either 0 or 1. The other is that we might be\r\nbetter off making more use of the fact that we are trying to estimate probabilities, by\r\nmore explicitly modeling the probability.\r\nAssume that Pr(Y = 1|X = x) = p(x;θ), for some function p parameterized by\r\nθ. parameterized function θ, and further assume that observations are independent\r\nof each other. The the (conditional) likelihood function is\r\n!n\r\ni=1\r\nPr \"Y = yi |X = xi\r\n#\r\n=!n\r\ni=1\r\np(xi ;θ)\r\nyi(1 − p(xi ;θ)1−yi) (12.1)\r\nRecall that in a sequence of Bernoulli trials y1,... yn, where there is a constant\r\nprobability of success p, the likelihood is\r\n!n\r\ni=1\r\npyi(1 − p)\r\n1−yi (12.2)\r\nAs you learned in intro. stats, this likelihood is maximized when p = ˆp = n−1 $n\r\ni=1 yi .\r\nIf each trial had its own success probability pi , this likelihood becomes\r\n!n\r\ni=1\r\npyi\r\ni (1 − pi)\r\n1−yi (12.3)\r\nWithout some constraints, estimating the “inhomogeneous Bernoulli” model by max\u0002imum likelihood doesn’t work; we’d get ˆpi = 1 when yi = 1, ˆpi = 0 when yi = 0, and\r\nlearn nothing. If on the other hand we assume that the pi aren’t just arbitrary num\u0002bers but are linked together, those constraints give non-trivial parameter estimates,\r\nand let us generalize. In the kind of model we are talking about, the constraint,\r\npi = p(xi ;θ), tells us that pi must be the same whenever xi is the same, and if p is a\r\ncontinuous function, then similar values of xi must lead to similar values of pi . As\u0002suming p is known (up to parameters), the likelihood is a function of θ, and we can\r\nestimate θ by maximizing the likelihood. This lecture will be about this approach.\r\n12.2 Logistic Regression\r\nTo sum up: we have a binary output variable Y, and we want to model the condi\u0002tional probability Pr(Y = 1|X = x) as a function of x; any unknown parameters in\r\nthe function are to be estimated by maximum likelihood. By now, it will not surprise\r\nyou to learn that statisticians have approach this problem by asking themselves “how\r\ncan we use linear regression to solve this?”",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/48331ae4-48e3-4185-8f49-5cce9160ee2f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f8053965d1e8d5a10e07c0ba6338ef904c74199e28b3d8069531e03caed8c922",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 462
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8ef624df-5969-4c2d-95fe-0e1356fe8164",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12.2. LOGISTIC REGRESSION 225\r\n1. The most obvious idea is to let p(x) be a linear function of x. Every increment\r\nof a component of x would add or subtract so much to the probability. The\r\nconceptual problem here is that p must be between 0 and 1, and linear func\u0002tions are unbounded. Moreover, in many situations we empirically see “dimin\u0002ishing returns” — changing p by the same amount requires a bigger change in\r\nx when p is already large (or small) than when p is close to 1/2. Linear models\r\ncan’t do this.\r\n2. The next most obvious idea is to let log p(x) be a linear function of x, so that\r\nchanging an input variable multiplies the probability by a fixed amount. The\r\nproblem is that logarithms are unbounded in only one direction, and linear\r\nfunctions are not.\r\n3. Finally, the easiest modification of log p which has an unbounded range is the\r\nlogistic (or logit) transformation, log p\r\n1−p\r\n. We can make this a linear func\u0002tion of x without fear of nonsensical results. (Of course the results could still\r\nhappen to be wrong, but they’re not guaranteed to be wrong.)\r\nThis last alternative is logistic regression.\r\nFormally, the model logistic regression model is that\r\nlog p(x)\r\n1 − p(x)\r\n= β0 + x · β (12.4)\r\nSolving for p, this gives\r\np(x; b, w) =\r\neβ0+x·β\r\n1 + eβ0+x·β = 11 + e−(β0+x·β) (12.5)\r\nNotice that the over-all specification is a lot easier to grasp in terms of the transformed\r\nprobability that in terms of the untransformed probability.1\r\nTo minimize the mis-classification rate, we should predict Y = 1 when p ≥ 0.5\r\nand Y = 0 when p < 0.5. This means guessing 1 whenever β0 + x ·β is non-negative,\r\nand 0 otherwise. So logistic regression gives us a linear classifier. The decision\r\nboundary separating the two predicted classes is the solution of β0 + x · β = 0,\r\nwhich is a point if x is one dimensional, a line if it is two dimensional, etc. One can\r\nshow (exercise!) that the distance from the decision boundary is β0/#β#+x ·β/#β#.\r\nLogistic regression not only says where the boundary between the classes is, but also\r\nsays (via Eq. 12.5) that the class probabilities depend on distance from the boundary,\r\nin a particular way, and that they go towards the extremes (0 and 1) more rapidly\r\nwhen #β# is larger. It’s these statements about probabilities which make logistic\r\nregression more than just a classifier. It makes stronger, more detailed predictions,\r\nand can be fit in a different way; but those strong predictions could be wrong.\r\nUsing logistic regression to predict class probabilities is a modeling choice, just\r\nlike it’s a modeling choice to predict quantitative variables with linear regression.\r\n1Unless you’ve taken statistical mechanics, in which case you recognize that this is the Boltzmann\r\ndistribution for a system with two states, which differ in energy by β0 + x · β.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/8ef624df-5969-4c2d-95fe-0e1356fe8164.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e1c2aac6305e52b7a669e11f0088ddc28b5fec682fd07a546a22a1134a4eab31",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 496
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a7b30732-7045-41de-93b7-82e2d9d59085",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "226 CHAPTER 12. LOGISTIC REGRESSION\r\n-\r\n+\r\n- + +\r\n+\r\n- +\r\n-\r\n+\r\n+\r\n+\r\n+\r\n- -\r\n-\r\n-\r\n+\r\n+\r\n-\r\n+\r\n+ +\r\n-\r\n+\r\n-\r\n+\r\n+\r\n-\r\n- +\r\n+\r\n- +\r\n+\r\n-\r\n-\r\n+\r\n+ -\r\n+\r\n+ -\r\n- + +\r\n-\r\n+\r\n+ -\r\n-1.0 -0.5 0.0 0.5 1.0\r\n-1.0 -0.5 0.0 0.5 1.0\r\nLogistic regression with b=-0.1, w=(-.2,.2)\r\nx[,1]\r\nx[,2]\r\n-\r\n+\r\n+ + +\r\n+\r\n+ -\r\n+\r\n+\r\n-\r\n-\r\n-\r\n- -\r\n+\r\n-\r\n-\r\n-\r\n+\r\n-\r\n- -\r\n-\r\n-\r\n-\r\n+\r\n-\r\n-\r\n+\r\n+\r\n+\r\n- -\r\n+\r\n+\r\n-\r\n+\r\n- -\r\n+\r\n+ -\r\n- + -\r\n+\r\n+\r\n- -\r\n-1.0 -0.5 0.0 0.5 1.0\r\n-1.0 -0.5 0.0 0.5 1.0\r\nLogistic regression with b=-0.5, w=(-1,1)\r\nx[,1]\r\nx[,2]\r\n-\r\n-\r\n- - -\r\n+\r\n- -\r\n+\r\n+\r\n-\r\n-\r\n-\r\n+ -\r\n-\r\n+\r\n+\r\n-\r\n+\r\n-\r\n- -\r\n-\r\n-\r\n-\r\n+\r\n+\r\n-\r\n-\r\n-\r\n-\r\n- -\r\n+\r\n+\r\n-\r\n-\r\n- -\r\n+\r\n+ +\r\n- + -\r\n+\r\n+\r\n- -\r\n-1.0 -0.5 0.0 0.5 1.0\r\n-1.0 -0.5 0.0 0.5 1.0\r\nLogistic regression with b=-2.5, w=(-5,5)\r\nx[,1]\r\nx[,2]\r\n-\r\n-\r\n- - -\r\n+\r\n- -\r\n+\r\n+\r\n-\r\n-\r\n-\r\n+ -\r\n-\r\n+\r\n+\r\n-\r\n-\r\n+\r\n- -\r\n-\r\n-\r\n-\r\n+\r\n+\r\n-\r\n-\r\n-\r\n+\r\n- -\r\n+\r\n+\r\n-\r\n-\r\n- -\r\n-\r\n+ +\r\n- + -\r\n+\r\n+\r\n- -\r\n-1.0 -0.5 0.0 0.5 1.0\r\n-1.0 -0.5 0.0 0.5 1.0\r\nLinear classifier with b= 1\r\n2 2\r\n,w=!\r\n!\r\n!\r\n!1\r\n2\r\n, 1\r\n2\r\n!\r\n!\r\n!\r\nx[,1]\r\nx[,2]\r\nFigure 12.1: Effects of scaling logistic regression parameters. Values of x1 and x2 are\r\nthe same in all plots (∼ Unif(−1, 1) for both coordinates), but labels were generated\r\nrandomly from logistic regressions with β0 = −0.1, β = (−0.2, 0.2) (top left); from\r\nβ0 = −0.5, β = (−1, 1) (top right); from β0 = −2.5, β = (−5, 5) (bottom left); and\r\nfrom a perfect linear classifier with the same boundary. The large black dot is the\r\norigin.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/a7b30732-7045-41de-93b7-82e2d9d59085.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=85b735b7589f7eefc0dcff3fa1ad3a2e310dd78323077665864a453b6f3516b4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 366
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c611c5fb-934c-4dea-a16b-3346214098a7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12.2. LOGISTIC REGRESSION 227\r\nIn neither case is the appropriateness of the model guaranteed by the gods, nature,\r\nmathematical necessity, etc. We begin by positing the model, to get something to\r\nwork with, and we end (if we know what we’re doing) by checking whether it really\r\ndoes match the data, or whether it has systematic flaws.\r\nLogistic regression is one of the most commonly used tools for applied statistics\r\nand discrete data analysis. There are basically four reasons for this.\r\n1. Tradition.\r\n2. In addition to the heuristic approach above, the quantity log p/(1 − p) plays\r\nan important role in the analysis of contingency tables (the “log odds”). Classi\u0002fication is a bit like having a contingency table with two columns (classes) and\r\ninfinitely many rows (values of x). With a finite contingency table, we can es\u0002timate the log-odds for each row empirically, by just taking counts in the table.\r\nWith infinitely many rows, we need some sort of interpolation scheme; logistic\r\nregression is linear interpolation for the log-odds.\r\n3. It’s closely related to “exponential family” distributions, where the probabil\u0002ity of some vector v is proportional to expβ0 +$m\r\nj=1 fj(v)βj . If one of the\r\ncomponents of v is binary, and the functions fj are all the identity function,\r\nthen we get a logistic regression. Exponential families arise in many contexts\r\nin statistical theory (and in physics!), so there are lots of problems which can\r\nbe turned into logistic regression.\r\n4. It often works surprisingly well as a classifier. But, many simple techniques of\u0002ten work surprisingly well as classifiers, and this doesn’t really testify to logistic\r\nregression getting the probabilities right.\r\n12.2.1 Likelihood Function for Logistic Regression\r\nBecause logistic regression predicts probabilities, rather than just classes, we can fit it\r\nusing likelihood. For each training data-point, we have a vector of features, xi , and\r\nan observed class, yi . The probability of that class was either p, if yi = 1, or 1 − p, if\r\nyi = 0. The likelihood is then\r\nL(β0,β) =!n\r\ni=1\r\np(xi)\r\nyi(1 − p(xi)\r\n1−yi (12.6)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/c611c5fb-934c-4dea-a16b-3346214098a7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3df187a0b8e53aa3ae20377bbe8646eeb4d0963321002992df64e94f9bc209a1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 345
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "63e8ffed-731b-4018-b963-9dba98d9ec91",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "228 CHAPTER 12. LOGISTIC REGRESSION\r\n(I could substitute in the actual equation for p, but things will be clearer in a moment\r\nif I don’t.) The log-likelihood turns products into sums:\r\n#(β0,β) = %n\r\ni=1\r\nyi log p(xi)+(1 − yi)log 1 − p(xi) (12.7)\r\n= %n\r\ni=1\r\nlog 1 − p(xi) +%n\r\ni=1\r\nyi log p(xi)\r\n1 − p(xi) (12.8)\r\n= %n\r\ni=1\r\nlog 1 − p(xi) +%n\r\ni=1\r\nyi(β0 + xi · β) (12.9)\r\n= %n\r\ni=1\r\n−log 1 + eβ0+xi ·β +\r\n%n\r\ni=1\r\nyi(β0 + xi · β) (12.10)\r\nwhere in the next-to-last step we finally use equation 12.4.\r\nTypically, to find the maximum likelihood estimates we’d differentiate the log\r\nlikelihood with respect to the parameters, set the derivatives equal to zero, and solve.\r\nTo start that, take the derivative with respect to one component of β, say βj .\r\n∂ #\r\n∂ βj\r\n= −\r\n%n\r\ni=1\r\n1\r\n1 + eβ0+xi ·β eβ0+xi ·βxi j +\r\n%n\r\ni=1\r\nyi xi j (12.11)\r\n= %n\r\ni=1\r\n\"\r\nyi − p(xi ;β0,β)\r\n#\r\nxi j (12.12)\r\nWe are not going to be able to set this to zero and solve exactly. (That’s a transcenden\u0002tal equation, and there is no closed-form solution.) We can however approximately\r\nsolve it numerically.\r\n12.2.2 Logistic Regression with More Than Two Classes\r\nIf Y can take on more than two values, say k of them, we can still use logistic regres\u0002sion. Instead of having one set of parameters β0,β, each class c in 0 : (k −1) will have\r\nits own offset β(c)\r\n0 and vector β(c)\r\n, and the predicted conditional probabilities will be\r\nPr&Y = c|X% = x\r\n'\r\n= eβ(c)\r\n0 +x·β(c)\r\n$\r\nc eβ(c)\r\n0 +x·β(c) (12.13)\r\nYou can check that when there are only two classes (say, 0 and 1), equation 12.13\r\nreduces to equation 12.5, with β0 = β(1)\r\n0 −β(0)0 and β = β(1)\r\n−β(0). In fact, no matter\r\nhow many classes there are, we can always pick one of them, say c = 0, and fix its\r\nparameters at exactly zero, without any loss of generality2.\r\n2Since we can arbitrarily chose which class’s parameters to “zero out” without affecting the predicted\r\nprobabilities, strictly speaking the model in Eq. 12.13 is unidentified. That is, different parameter settings\r\nlead to exactly the same outcome, so we can’t use the data to tell which one is right. The usual response\r\nhere is to deal with this by a convention: we decide to zero out the parameters of the first class, and then\r\nestimate the contrasting parameters for the others.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/63e8ffed-731b-4018-b963-9dba98d9ec91.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2cfa12075f2e7d1bb467319389698088a7b28fd45e056f4c5dffdbcacd17daf1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 430
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3618d24d-10bf-4134-8ec5-86211ddf9668",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12.3. NEWTON’S METHOD FOR NUMERICAL OPTIMIZATION 229\r\nCalculation of the likelihood now proceeds as before (only with more book\u0002keeping), and so does maximum likelihood estimation.\r\n12.3 Newton’s Method for Numerical Optimization\r\nThere are a huge number of methods for numerical optimization; we can’t cover all\r\nbases, and there is no magical method which will always work better than anything\r\nelse. However, there are some methods which work very well on an awful lot of the\r\nproblems which keep coming up, and it’s worth spending a moment to sketch how\r\nthey work. One of the most ancient yet important of them is Newton’s method (alias\r\n“Newton-Raphson”).\r\nLet’s start with the simplest case of minimizing a function of one scalar variable,\r\nsay f (β). We want to find the location of the global minimum, β∗. We suppose that\r\nf is smooth, and that β∗ is a regular interior minimum, meaning that the derivative\r\nat β∗ is zero and the second derivative is positive. Near the minimum we could make\r\na Taylor expansion:\r\nf (β) ≈ f (β∗) +\r\n1\r\n2\r\n(β − β∗)\r\n2 d2 f\r\ndβ2\r\n(\r\n(\r\n(\r\n(\r\n(\r\nβ=β∗\r\n(12.14)\r\n(We can see here that the second derivative has to be positive to ensure that f (β) >\r\nf (β∗).) In words, f (β) is close to quadratic near the minimum.\r\nNewton’s method uses this fact, and minimizes a quadratic approximation to the\r\nfunction we are really interested in. (In other words, Newton’s method is to replace\r\nthe problem we want to solve, with a problem which we can solve.) Guess an ini\u0002tial point β(0)\r\n. If this is close to the minimum, we can take a second order Taylor\r\nexpansion around β(0) and it will still be accurate:\r\nf (β) ≈ f (β(0))+(β − β(0))\r\nd f\r\nd w\r\n(\r\n(\r\n(\r\n(\r\n(\r\nβ=β(0)\r\n+\r\n1\r\n2\r\n&\r\nβ − β(0)\r\n'2 d2 f\r\nd w2\r\n(\r\n(\r\n(\r\n(\r\n(\r\nβ=β(0)\r\n(12.15)\r\nNow it’s easy to minimize the right-hand side of equation 12.15. Let’s abbreviate\r\nthe derivatives, because they get tiresome to keep writing out: d f\r\nd w\r\n(\r\n(\r\n(\r\nβ=β(0) = f '\r\n(β(0)),\r\nd2 f\r\nd w2\r\n(\r\n(\r\n(\r\nβ=β(0) = f ''(β(0)\r\n). We just take the derivative with respect to β, and set it equal\r\nto zero at a point we’ll call β(1):\r\n0 = f '(β(0)) +\r\n1\r\n2\r\nf ''(β(0))2(β(1) − β(0)) (12.16)\r\nβ(1) = β(0) − f '\r\n(β(0))\r\nf ''(β(0)) (12.17)\r\nThe value β(1) should be a better guess at the minimum β∗ than the initial one β(0)\r\nwas. So if we use it to make a quadratic approximation to f , we’ll get a better ap\u0002proximation, and so we can iterate this procedure, minimizing one approximation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/3618d24d-10bf-4134-8ec5-86211ddf9668.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bd9cce94d8963e08a70f110de8892ecf41068a95629d879aab46f07497d8e3cf",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 463
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "eec4a8e4-e3e2-4573-bb79-fe216da9a755",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "230 CHAPTER 12. LOGISTIC REGRESSION\r\nand then using that to get a new approximation:\r\nβ(n+1) = β(n) − f '\r\n(β(n))\r\nf ''(β(n)) (12.18)\r\nNotice that the true minimum β∗ is a fixed point of equation 12.18: if we happen to\r\nland on it, we’ll stay there (since f '(β∗) = 0). We won’t show it, but it can be proved\r\nthat if β(0) is close enough to β∗, then β(n) → β∗, and that in general |β(n) − β∗| =\r\nO(n−2), a very rapid rate of convergence. (Doubling the number of iterations we use\r\ndoesn’t reduce the error by a factor of two, but by a factor of four.)\r\nLet’s put this together in an algorithm.\r\nmy.newton = function(f,f.prime,f.prime2,beta0,tolerance=1e-3,max.iter=50) {\r\nbeta = beta0\r\nold.f = f(beta)\r\niterations = 0\r\nmade.changes = TRUE\r\nwhile(made.changes & (iterations < max.iter)) {\r\niterations <- iterations +1\r\nmade.changes <- FALSE\r\nnew.beta = beta - f.prime(beta)/f.prime2(beta)\r\nnew.f = f(new.beta)\r\nrelative.change = abs(new.f - old.f)/old.f -1\r\nmade.changes = (relative.changes > tolerance)\r\nbeta = new.beta\r\nold.f = new.f\r\n}\r\nif (made.changes) {\r\nwarning(\"Newton’s method terminated before convergence\")\r\n}\r\nreturn(list(minimum=beta,value=f(beta),deriv=f.prime(beta),\r\nderiv2=f.prime2(beta),iterations=iterations,\r\nconverged=!made.changes))\r\n}\r\nThe first three arguments here have to all be functions. The fourth argument is our\r\ninitial guess for the minimum, β(0). The last arguments keep Newton’s method from\r\ncycling forever: tolerance tells it to stop when the function stops changing very\r\nmuch (the relative difference between f (β(n)) and f (β(n+1)) is small), and max.iter\r\ntells it to never do more than a certain number of steps no matter what. The return\r\nvalue includes the estmated minimum, the value of the function there, and some\r\ndiagnostics — the derivative should be very small, the second derivative should be\r\npositive, etc.\r\nYou may have noticed some potential problems — what if we land on a point\r\nwhere f '' is zero? What if f (β(n+1)) > f (β(n))? Etc. There are ways of handling\r\nthese issues, and more, which are incorporated into real optimization algorithms\r\nfrom numerical analysis — such as the optim function in R; I strongly recommend",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/eec4a8e4-e3e2-4573-bb79-fe216da9a755.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=12ff8530e51f1eb48fe7075f91917a1025931eb8e3d2af5e249179c204e5c3f1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 343
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "684ca8cd-c656-405e-82fa-bcd53e34ca4f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12.3. NEWTON’S METHOD FOR NUMERICAL OPTIMIZATION 231\r\nyou use that, or something like that, rather than trying to roll your own optimization\r\ncode.3\r\n12.3.1 Newton’s Method in More than One Dimension\r\nSuppose that the objective f is a function of multiple arguments, f (β1,β2,...βp ).\r\nLet’s bundle the parameters into a single vector, w. Then the Newton update is\r\nβ(n+1) = β(n) − H−1(β(n))∇f (β(n)) (12.19)\r\nwhere ∇f is the gradient of f , its vector of partial derivatives [∂ f /∂ β1,∂ f /∂ β2,...∂ f /∂ βp ],\r\nand H is the Hessian of f , its matrix of second partial derivatives, Hi j = ∂ 2 f /∂ βi∂ βj .\r\nCalculating H and ∇f isn’t usually very time-consuming, but taking the inverse\r\nof H is, unless it happens to be a diagonal matrix. This leads to various quasi-Newton\r\nmethods, which either approximate H by a diagonal matrix, or take a proper inverse\r\nof H only rarely (maybe just once), and then try to update an estimate of H−1(β(n))\r\nas β(n) changes.\r\n12.3.2 Iteratively Re-Weighted Least Squares\r\nThis discussion of Newton’s method is quite general, and therefore abstract. In the\r\nparticular case of logistic regression, we can make everything look much more “sta\u0002tistical”.\r\nLogistic regression, after all, is a linear model for a transformation of the proba\u0002bility. Let’s call this transformation g :\r\ng ( p) ≡ log p\r\n1 − p\r\n(12.20)\r\nSo the model is\r\ng ( p) = β0 + x · β (12.21)\r\nand Y|X = x ∼ Binom(1, g −1(β0 + x · β)). It seems that what we should want to\r\ndo is take g (y) and regress it linearly on x. Of course, the variance of Y, according\r\nto the model, is going to chance depending on x — it will be (g −1(β0 + x · β))(1 −\r\ng −1(β0+x ·β)) — so we really ought to do a weighted linear regression, with weights\r\ninversely proportional to that variance. Since writing β0 + x ·β is getting annoying,\r\nlet’s abbreviate it by µ (for “mean”), and let’s abbreviate that variance as V (µ).\r\nThe problem is that y is either 0 or 1, so g (y) is either −∞ or +∞. We will evade\r\nthis by using Taylor expansion.\r\ng (y) ≈ g (µ)+(y − µ)g '(µ) ≡ z (12.22)\r\nThe right hand side, z will be our effective response variable. To regress it, we need\r\nits variance, which by propagation of error will be (g '(µ))2V (µ).\r\n3optim actually is a wrapper for several different optimization methods; method=BFGS selects a\r\nNewtonian method; BFGS is an acronym for the names of the algorithm’s inventors.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/684ca8cd-c656-405e-82fa-bcd53e34ca4f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4afeaa1d4436f8928d0e58dcd05a442520ddeecfd769b7936445a090fb63a6ac",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 445
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "182df8d2-fe89-47a2-8762-1e51231ae085",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "232 CHAPTER 12. LOGISTIC REGRESSION\r\nNotice that both the weights and z depend on the parameters of our logistic\r\nregression, through µ. So having done this once, we should really use the new pa\u0002rameters to update z and the weights, and do it again. Eventually, we come to a fixed\r\npoint, where the parameter estimates no longer change.\r\nThe treatment above is rather heuristic4, but it turns out to be equivalent to using\r\nNewton’s method, with the expected second derivative of the log likelihood, instead\r\nof its actual value.5 Since, with a large number of observations, the observed sec\u0002ond derivative should be close to the expected second derivative, this is only a small\r\napproximation.\r\n12.4 Generalized Linear Models and Generalized Ad\u0002ditive Models\r\nLogistic regression is part of a broader family of generalized linear models (GLMs),\r\nwhere the conditional distribution of the response falls in some parametric family,\r\nand the parameters are set by the linear predictor. Ordinary, least-squares regression\r\nis the case where response is Gaussian, with mean equal to the linear predictor, and\r\nconstant variance. Logistic regression is the case where the response is binomial, with\r\nn equal to the number of data-points with the given x (often but not always 1), and p\r\nis given by Equation 12.5. Changing the relationship between the parameters and the\r\nlinear predictor is called changing the link function. For computational reasons, the\r\nlink function is actually the function you apply to the mean response to get back the\r\nlinear predictor, rather than the other way around — (12.4) rather than (12.5). There\r\nare thus other forms of binomial regression besides logistic regression.6 There is also\r\nPoisson regression (appropriate when the data are counts without any upper limit),\r\ngamma regression, etc.; we will say more about these in Chapter 13.\r\nIn R, any standard GLM can be fit using the (base) glm function, whose syn\u0002tax is very similar to that of lm. The major wrinkle is that, of course, you need\r\nto specify the family of probability distributions to use, by the family option —\r\nfamily=binomial defaults to logistic regression. (See help(glm) for the gory\r\ndetails on how to do, say, probit regression.) All of these are fit by the same sort of\r\nnumerical likelihood maximization.\r\nOne caution about using maximum likelihood to fit logistic regression is that it\r\ncan seem to work badly when the training data can be linearly separated. The reason\r\nis that, to make the likelihood large, p(xi) should be large when yi = 1, and p should\r\nbe small when yi = 0. If β0,β0 is a set of parameters which perfectly classifies the\r\ntraining data, then cβ0,cβ is too, for any c > 1, but in a logistic regression the second\r\n4That is, mathematically incorrect.\r\n5This takes a reasonable amount of algebra to show, so we’ll skip it. The key point however is the\r\nfollowing. Take a single Bernoulli observation with success probability p. The log-likelihood is Y log p +\r\n(1−Y)log 1 − p. The first derivative with respect to p is Y/ p −(1−Y)/(1− p), and the second derivative\r\nis −Y/ p2 − (1 − Y)/(1 − p)\r\n2. Taking expectations of the second derivative gives −1/ p − 1/(1 − p) =\r\n−1/ p(1 − p). In other words, V ( p) = −1/E\r\n)\r\n#''*. Using weights inversely proportional to the variance\r\nthus turns out to be equivalent to dividing by the expected second derivative. 6My experience is that these tend to give similar error rates as classifiers, but have rather different\r\nguesses about the underlying probabilities.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/182df8d2-fe89-47a2-8762-1e51231ae085.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e15c4bd74c39a9d8291b2622e8c7397cdd55bcf5483d008b479066faad1d3e0e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 594
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "182df8d2-fe89-47a2-8762-1e51231ae085",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "232 CHAPTER 12. LOGISTIC REGRESSION\r\nNotice that both the weights and z depend on the parameters of our logistic\r\nregression, through µ. So having done this once, we should really use the new pa\u0002rameters to update z and the weights, and do it again. Eventually, we come to a fixed\r\npoint, where the parameter estimates no longer change.\r\nThe treatment above is rather heuristic4, but it turns out to be equivalent to using\r\nNewton’s method, with the expected second derivative of the log likelihood, instead\r\nof its actual value.5 Since, with a large number of observations, the observed sec\u0002ond derivative should be close to the expected second derivative, this is only a small\r\napproximation.\r\n12.4 Generalized Linear Models and Generalized Ad\u0002ditive Models\r\nLogistic regression is part of a broader family of generalized linear models (GLMs),\r\nwhere the conditional distribution of the response falls in some parametric family,\r\nand the parameters are set by the linear predictor. Ordinary, least-squares regression\r\nis the case where response is Gaussian, with mean equal to the linear predictor, and\r\nconstant variance. Logistic regression is the case where the response is binomial, with\r\nn equal to the number of data-points with the given x (often but not always 1), and p\r\nis given by Equation 12.5. Changing the relationship between the parameters and the\r\nlinear predictor is called changing the link function. For computational reasons, the\r\nlink function is actually the function you apply to the mean response to get back the\r\nlinear predictor, rather than the other way around — (12.4) rather than (12.5). There\r\nare thus other forms of binomial regression besides logistic regression.6 There is also\r\nPoisson regression (appropriate when the data are counts without any upper limit),\r\ngamma regression, etc.; we will say more about these in Chapter 13.\r\nIn R, any standard GLM can be fit using the (base) glm function, whose syn\u0002tax is very similar to that of lm. The major wrinkle is that, of course, you need\r\nto specify the family of probability distributions to use, by the family option —\r\nfamily=binomial defaults to logistic regression. (See help(glm) for the gory\r\ndetails on how to do, say, probit regression.) All of these are fit by the same sort of\r\nnumerical likelihood maximization.\r\nOne caution about using maximum likelihood to fit logistic regression is that it\r\ncan seem to work badly when the training data can be linearly separated. The reason\r\nis that, to make the likelihood large, p(xi) should be large when yi = 1, and p should\r\nbe small when yi = 0. If β0,β0 is a set of parameters which perfectly classifies the\r\ntraining data, then cβ0,cβ is too, for any c > 1, but in a logistic regression the second\r\n4That is, mathematically incorrect.\r\n5This takes a reasonable amount of algebra to show, so we’ll skip it. The key point however is the\r\nfollowing. Take a single Bernoulli observation with success probability p. The log-likelihood is Y log p +\r\n(1−Y)log 1 − p. The first derivative with respect to p is Y/ p −(1−Y)/(1− p), and the second derivative\r\nis −Y/ p2 − (1 − Y)/(1 − p)\r\n2. Taking expectations of the second derivative gives −1/ p − 1/(1 − p) =\r\n−1/ p(1 − p). In other words, V ( p) = −1/E\r\n)\r\n#''*. Using weights inversely proportional to the variance\r\nthus turns out to be equivalent to dividing by the expected second derivative. 6My experience is that these tend to give similar error rates as classifiers, but have rather different\r\nguesses about the underlying probabilities.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/182df8d2-fe89-47a2-8762-1e51231ae085.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e15c4bd74c39a9d8291b2622e8c7397cdd55bcf5483d008b479066faad1d3e0e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 594
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "90c394e4-e904-47ed-a9da-76cb84955c27",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12.4. GENERALIZED LINEAR MODELS AND GENERALIZED ADDITIVE MODELS233\r\nset of parameters will have more extreme probabilities, and so a higher likelihood.\r\nFor linearly separable data, then, there is no parameter vector which maximizes the\r\nlikelihood, since # can always be increased by making the vector larger but keeping\r\nit pointed in the same direction.\r\nYou should, of course, be so lucky as to have this problem.\r\n12.4.1 Generalized Additive Models\r\nA natural step beyond generalized linear models is generalized additive models\r\n(GAMs), where instead of making the transformed mean response a linear function\r\nof the inputs, we make it an additive function of the inputs. This means combining\r\na function for fitting additive models with likelihood maximization. The R function\r\nhere is gam, from the CRAN package of the same name. (Alternately, use the func\u0002tion gam in the package mgcv, which is part of the default R installation.) We will\r\nlook at how this works in some detail in Chapter 13.\r\nGAMs can be used to check GLMs in much the same way that smoothers can be\r\nused to check parametric regressions: fit a GAM and a GLM to the same data, then\r\nsimulate from the GLM, and re-fit both models to the simulated data. Repeated many\r\ntimes, this gives a distribution for how much better the GAM will seem to fit than\r\nthe GLM does, even when the GLM is true. You can then read a p-value off of this\r\ndistribution.\r\n12.4.2 An Example (Including Model Checking)\r\nHere’s a worked R example, using the data from the upper right panel of Figure 12.1.\r\nThe 50×2 matrix x holds the input variables (the coordinates are independently and\r\nuniformly distributed on [−1, 1]), and y.1 the corresponding class labels, themselves\r\ngenerated from a logistic regression with β0 = −0.5, β = (−1, 1).\r\n> logr = glm(y.1 ~ x[,1] + x[,2], family=binomial)\r\n> logr\r\nCall: glm(formula = y.1 ~ x[, 1] + x[, 2], family = binomial)\r\nCoefficients:\r\n(Intercept) x[, 1] x[, 2]\r\n-0.410 -1.050 1.366\r\nDegrees of Freedom: 49 Total (i.e. Null); 47 Residual\r\nNull Deviance: 68.59\r\nResidual Deviance: 58.81 AIC: 64.81\r\n> sum(ifelse(logr$fitted.values<0.5,0,1) != y.1)/length(y.1)\r\n[1] 0.32\r\nThe deviance of a model fitted by maximum likelihood is (twice) the difference\r\nbetween its log likelihood and the maximum log likelihood for a saturated model,\r\ni.e., a model with one parameter per observation. Hopefully, the saturated model",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/90c394e4-e904-47ed-a9da-76cb84955c27.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3b76d85e2b7719fd6b046f7d21423d90ed8b76dabbc452ff191bd87fd447194c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 396
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "3497d6fc-dd96-4cba-9726-f59f885e0eb9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "234 CHAPTER 12. LOGISTIC REGRESSION\r\ncan give a perfect fit.7 Here the saturated model would assign probability 1 to the\r\nobserved outcomes8, and the logarithm of 1 is zero, so D = 2#(β\r\n+0,β,). The null\r\ndeviance is what’s achievable by using just a constant bias b and setting w = 0. The\r\nfitted model definitely improves on that.9\r\nThe fitted values of the logistic regression are the class probabilities; this shows\r\nthat the error rate of the logistic regression, if you force it to predict actual classes, is\r\n32%. This sounds bad, but notice from the contour lines in the figure that lots of the\r\nprobabilities are near 0.5, meaning that the classes are just genuinely hard to predict.\r\nTo see how well the logistic regression assumption holds up, let’s compare this to\r\na GAM.10\r\n> library(gam)\r\n> gam.1 = gam(y.1~lo(x[,1])+lo(x[,2]),family=\"binomial\")\r\n> gam.1\r\nCall:\r\ngam(formula = y.1 ~ lo(x[, 1]) + lo(x[, 2]), family = \"binomial\")\r\nDegrees of Freedom: 49 total; 41.39957 Residual\r\nResidual Deviance: 49.17522\r\nThis fits a GAM to the same data, using lowess smoothing of both input variables.\r\nNotice that the residual deviance is lower. That is, the GAM fits better. We expect\r\nthis; the question is whether the difference is significant, or within the range of what\r\nwe should expect when logistic regression is valid. To test this, we need to simulate\r\nfrom the logistic regression model.\r\nsimulate.from.logr = function(x, coefs) {\r\nrequire(faraway) # For accessible logit and inverse-logit functions\r\nn = nrow(x)\r\nlinear.part = coefs[1] + x %*% coefs[-1]\r\nprobs = ilogit(linear.part) # Inverse logit\r\ny = rbinom(n,size=1,prob=probs)\r\nreturn(y)\r\n}\r\nNow we simulate from our fitted model, and re-fit both the logistic regression\r\nand the GAM.\r\n7The factor of two is so that the deviance will have a χ 2 distribution. Specifically, if the model with p\r\nparameters is right, the deviance will have a χ 2 distribution with n − p degrees of freedom. 8This is not possible when there are multiple observations with the same input features, but different\r\nclasses. 9AIC is of course the Akaike information criterion, −2#+2q, with q being the number of parameters\r\n(here, q = 3). AIC has some truly devoted adherents, especially among non-statisticians, but I have been\r\ndeliberately ignoring it and will continue to do so. Basically, to the extent AIC succeeds, it works as\r\nfast, large-sample approximation to doing leave-one-out cross-validation. Claeskens and Hjort (2008) is a\r\nthorough, modern treatment of AIC and related model-selection criteria from a statistical viewpoint. 10Previous examples of using GAMs have mostly used the mgcv package and spline smoothing. There\r\nis no particular reason to switch to the gam library and lowess smoothing here, but there’s also no real\r\nreason not to.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/3497d6fc-dd96-4cba-9726-f59f885e0eb9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8307d4a0c940225362d2f75cda086abfa225a73128c6c15699b6b6c30590d14a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 452
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b2953244-1506-4229-b550-d6d5ee43ec5e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12.4. GENERALIZED LINEAR MODELS AND GENERALIZED ADDITIVE MODELS235\r\ndelta.deviance.sim = function (x,logistic.model) {\r\ny.new = simulate.from.logr(x,logistic.model$coefficients)\r\nGLM.dev = glm(y.new ~ x[,1] + x[,2], family=\"binomial\")$deviance\r\nGAM.dev = gam(y.new ~ lo(x[,1]) + lo(x[,2]), family=\"binomial\")$deviance\r\nreturn(GLM.dev - GAM.dev)\r\n}\r\nNotice that in this simulation we are not generating new X% values. The logistic re\u0002gression and the GAM are both models for the response conditional on the inputs,\r\nand are agnostic about how the inputs are distributed, or even whether it’s meaning\u0002ful to talk about their distribution.\r\nFinally, we repeat the simulation a bunch of times, and see where the observed\r\ndifference in deviances falls in the sampling distribution.\r\n> delta.dev = replicate(1000,delta.deviance.sim(x,logr))\r\n> delta.dev.observed = logr$deviance - gam.1$deviance # 9.64\r\n> sum(delta.dev.observed > delta.dev)/1000\r\n[1] 0.685\r\nIn other words, the amount by which a GAM fits the data better than logistic regres\u0002sion is pretty near the middle of the null distribution. Since the example data really\r\ndid come from a logistic regression, this is a relief.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/b2953244-1506-4229-b550-d6d5ee43ec5e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f7b4d5baae35df6f910ca6a72beab7230f6e7d3d337a4ce6ef099425a4c9f2ea",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "27d1e506-0af8-4827-987d-76485e0a1a00",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "236 CHAPTER 12. LOGISTIC REGRESSION\r\n0 10 20 30\r\n0.00 0.02 0.04 0.06 0.08 0.10\r\nAmount by which GAM fits better than logistic regression\r\nSampling distribution under logistic regression\r\nN = 1000 Bandwidth = 0.8386\r\nDensity\r\nFigure 12.2: Sampling distribution for the difference in deviance between a GAM\r\nand a logistic regression, on data generated from a logistic regression. The observed\r\ndifference in deviances is shown by the dashed horizontal line.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/27d1e506-0af8-4827-987d-76485e0a1a00.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b6fb769b47602657a206dcb2b983c0d63ee32573ee307d513292da89036a1b98",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "35237215-dfa0-491a-b705-92beb26b56c6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "12.5. EXERCISES 237\r\n12.5 Exercises\r\nTo think through, not to hand in.\r\n1. A multiclass logistic regression, as in Eq. 12.13, has parameters β(c)\r\n0 and β(c)\r\nfor each class c. Show that we can always get the same predicted probabilities\r\nby setting β(c)\r\n0 = 0, β(c) = 0 for any one class c, and adjusting the parameters\r\nfor the other classes appropriately.\r\n2. Find the first and second derivatives of the log-likelihood for logistic regression\r\nwith one predictor variable. Explicitly write out the formula for doing one step\r\nof Newton’s method. Explain how this relates to re-weighted least squares.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/29932305-7a37-41c3-a2de-977cb6749753/images/35237215-dfa0-491a-b705-92beb26b56c6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041426Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=246b8b8096a8990a7066244660734baa7a65ce34dc08cbaa7d6532c33b6e1f37",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 335
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Effects of scaling logistic regression parameters. Values of x1 and x2 are the same in all plots (∼ Unif(−1, 1) for both coordinates), but labels were generated randomly from logistic regressions with β0 = −0.1, β = (−0.2, 0.2) (top left); from β0 = −0.5, β = (−1, 1) (top right); from β0 = −2.5, β = (−5, 5) (bottom left); and from a perfect linear classifier with the same boundary. The large black dot is the origin.\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Author: Not mentioned in the given text.\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "\"2024-04-03\"\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```json\n{\"location\": null}\n```\n"
+        }
+      ]
+    }
+  }
+}

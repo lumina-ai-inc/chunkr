@@ -1,0 +1,445 @@
+{
+  "file_name": "KMDF - How To Develop Framework Drivers - Microsoft - Slides (2007).pdf",
+  "task_id": "dd5d4595-100c-4ad9-881d-32e2fe615078",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "d931ed76-0db9-41b9-9d60-a933f6db38ae",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 1,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "KMDF\r\nHow to develop framework drivers\r\nKumar Rajeev\r\nSDET\r\nMicrosoft Corporation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/d931ed76-0db9-41b9-9d60-a933f6db38ae.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=07690aeb4bc05fc88099b8f82294b44e6bb41a3302f098bfb82085423fe2becf",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "09f080ee-eb30-473f-b500-b1e131cc6b4d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 2,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "KMDF And HID \r\nMinidriver\r\nKMDF does not support HID minidrivers natively due to conflicting \r\nKMDF and HID architecture requirements\r\nHID architecture requires that HIDclass driver own the driver \r\ndispatch table, while KMDF requires that it own the dispatch \r\ntable of the minidriver\r\nSolution is to use a driver stack that consists of a minimum WDM \r\npass-through driver and a complete KMDF driver\r\nPass-through driver registers with HIDclass as HID minidriver and \r\nforwards all requests to KMDF driver\r\nKMDF driver processes all the requests\r\nThe sample HIDUSBFX2 demonstrates this solution",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/09f080ee-eb30-473f-b500-b1e131cc6b4d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e6f3a676fd0393396ba1b0cd9e8977fdd49a845d905b2f55d6b8e13ded258380",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ba329e8b-c159-4748-891d-ad60d2e35fd3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 3,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "HIDclass Driver\r\nDriver Stack\r\nWDM\r\nUSB bus driver \r\n(PDO)\r\nSystem \r\nControl \r\nDevice\r\nConsumer \r\nControl \r\nDevice\r\nVendor\u0002defined \r\nDevice\r\nWDM function \r\ndriver \r\n(HID minidriver)\r\n�OSR UB - FX2 devicPluged in\r\n�USB busdrive catsPDO\r\n�WDM functio drvelas ndregist whHIDclas asmindrve . HIDclas eaO nae tl O\r\n�HIDclas drivecats PDOfortp -lev cotinsfud HID descripto ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/ba329e8b-c159-4748-891d-ad60d2e35fd3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9581e5a88cd41ee8380889a723e5e76b80db9f5e669089a42f6406a0d6735ad4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "29d0ce00-6bb7-41f4-9a56-8c3253f2fb34",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 4,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Driver Stack\r\nKMDF\r\n�OSR UB - FX2 devicPluged in\r\n�USB busdrive catsPDO\r\n�HIDClas drivecats PDOfortp - lev cotinsfud HID descripto\r\nUSB bus driver \r\n(PDO)\r\nSystem \r\nControl \r\nDevice\r\nConsumer \r\nControl \r\nDevice\r\nVendor\u0002defined \r\nDevice\r\nKMDF driver (FDO)\r\nHIDClass\r\nWDM pass\u0002through driver\r\n(HID minidriver) \r\n�KMDF functio drvelas ndcreats FDO\r\n�WDM pas -ru load l neisr iHIDClas asmindrve . HIDClas eaO nae tl O",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/29d0ce00-6bb7-41f4-9a56-8c3253f2fb34.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61bcee312bf92ff6d72a5685337f383b82c5ec8c565a317c6c2ac71dfd8a6f58",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "179e0e62-360d-4548-87e8-2b40e4cfde6f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 5,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Purpose Of The Sample\r\nEncourage use of KMDF for writing custom HID minidrivers\r\nDemonstrate KMDF features suitable for HID minidrivers\r\nSome of the reasons one may end up writing HID minidriver are \r\nEasier to provide complex HID logic in s/w than in firmware \r\nMaking a change in s/w may be cheaper than in firmware when device is \r\nalready in market\r\nNeed to make an existing non-HID USB device appear as HID device w/o \r\nupdating firmware\r\nWhen there is no inbox support for the device\r\nWhen sideband communication with minidriver is needed, since HIDclass\r\ndriver doesn’t allow user IOCTLs/WMI. With KMDF you can easily \r\nenumerate PDOs and use them for sideband communication",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/179e0e62-360d-4548-87e8-2b40e4cfde6f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=86d21009accc90392b06d6c7216a5f228afb44afcae230cdcb677c67df2e3aa6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9fecc4c2-7ae0-44b7-bd52-c910b0740d52",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 6,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Sample\r\nHIDUSBFX2\r\nFor OSR USB-FX2 device \r\n(non-HID device)\r\nMaps USB-FX2 device’s \r\nswitch pack to HID \r\ncontrols for keyboard \r\nhot-keys: Browser, Mail, \r\nSleep etc\r\nMaps 7-segment display \r\nand bar graph display as \r\nHID features",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/9fecc4c2-7ae0-44b7-bd52-c910b0740d52.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=48524cc9f0ffd3ab41fc75fc89866752e7b000044daf5e1270fad4b985cedf75",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a5057424-030d-48cc-941a-eac5e497989f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 7,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Switch Pack Mapping\r\nMapped as HID “Input Report”\r\nLower 7 bits represent usages from Consumer \r\nControl Collection for keyboard hot-keys\r\nOne highest bit is mapped to “Sleep” usage in \r\nSystem Control Collection\r\nBrowser\r\nB a c k\r\nF avorites F orw ard\r\nM ail\r\nCalculator\r\nS le e p R efre sh",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/a5057424-030d-48cc-941a-eac5e497989f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3701a50b87b4205414dd0b2ca0e9ec3c34ee38571e01338b75b85741fd080f64",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "612281d4-07ab-4fda-8e20-5e1f23bcfbbc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 8,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "7-Segment Display\r\nMapped as HID “Feature”\r\nHID clients can send SetFeature\r\nrequest to display numbers 1 thru \r\n8 on the segment display\r\nVendor Defined Usage Page (0xff00)\r\nVendor Defined Usages \r\nUsage 0x1 thru 0x8\r\nEach usage corresponds to numbers 1 through 8 \r\ndisplayed on segment display. For example, \r\nsending usage 0x7 causes the display to show \r\nnumber 7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/612281d4-07ab-4fda-8e20-5e1f23bcfbbc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7b036f865c9adcb68c5452a2cf8522135aa5888b1c315d7c3e448575a883a347",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9ca1afd7-65e6-47fd-a85b-06078c5c060f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 9,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Bar Graph Display\r\nMapped as HID “Feature”\r\nHID clients can send SetFeature\r\nrequest to light up LEDs on \r\nthe bar display\r\nVendor Defined Usage Page \r\n(0xff00)\r\nVendor Defined Usages \r\nUsage 9 through 18\r\nE.g. Sending usage 9 causes the display to turn \r\non LED 1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/9ca1afd7-65e6-47fd-a85b-06078c5c060f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4c3eb3b6b126987bceb8d4c1f788588a02489ea46965a57030bd9a4e3675f575",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 509
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f37d5dfa-0597-4baf-a6bc-923e4f64ae27",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 10,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Sample Details\r\nSample has a default parallel queue and a \r\nmanual queue\r\nHID data is generally provided by USB interrupt \r\nendpoints. KMDF provides “Continuous \r\nReader” mechanism to read such data\r\nMinidriver relinquishes power policy ownership \r\nsince HIDclass driver owns power policy",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/f37d5dfa-0597-4baf-a6bc-923e4f64ae27.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=81bcd80cb6f905022a113f17d3f5c0671dd3d8f2ac93b6ae4ba68a4840fdb744",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fd4ad954-a07e-4ac5-b70f-25abdbc2f890",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 11,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Request Cancellation\r\nIn A Framework \r\nDriver\r\nEliyas Yakub\r\nDevelopment Lead\r\nMicrosoft Corporation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/fd4ad954-a07e-4ac5-b70f-25abdbc2f890.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5fc1be6f9a080e74d8f00fa81c64174e15558c1d4d4214497297f2ed64a1aa7e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "009c213c-67ad-4b5a-9906-4161c3264b8b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 12,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Request Cancelation\r\nLong term request should be held in a \r\ncancelable state for better user experience\r\nDifficult to get it right in WDM\r\nFramework provides following options to deal \r\nwith the complexity\r\nManual queues to hold request\r\nPolling for canceled state of request\r\nUsing cancel-routine",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/009c213c-67ad-4b5a-9906-4161c3264b8b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5e7f0cb0c05cc60753f5806178e6f053737ad34b502650d81d027c6c28e26951",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9191eeac-a113-4612-a3c7-a8c70fd52d9e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 13,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Using Queues\r\nRequest waiting for hardware event should be \r\nplaced in a manual queue\r\nWhen the request is canceled, framework will \r\ncomplete the request on driver’s behalf\r\nIf you want to be notified before the request is \r\ncompleted, you can register for\r\nEvtIoCanceledOnQueue callback on Queue\r\nCan defer completion if the request is consumed by the hardware\r\nCallback is subject to synchronization scope and execution level of \r\nthe queue\r\nEvtContextCleanup callback on Request object",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/9191eeac-a113-4612-a3c7-a8c70fd52d9e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b961c907c6aaa78ad7957be551475ddf6e54650d31b76a4cedb2dddbe7ef1294",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "35093dc7-bf6a-4495-956d-bed3f3ac4480",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 14,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Sample Code\r\nSmartcard\r\nNTSTATUS CBCardTracking(PSMARTCARD_EXTENSION SmartcardExtension)\r\n{\r\nrequest = GET_WDFREQUEST_FROM_IRP(\r\nSmartcardExtension->OsData->NotificationIrp);\r\n status = WdfRequestForwardToIoQueue(request,\r\n DeviceExtension->NotificationQueue);\r\n if (!NT_SUCCESS(status)) {\r\nInterlockedExchangePointer(\r\n&(SmartcardExtension->OsData->NotificationIrp), NULL); \r\n WdfRequestComplete(request, status);\r\n }\r\n return status;\r\n}\r\nVOID PscrEvtIoCanceledOnQueue(WDFQUEUE Queue, WDFREQUEST Request)\r\n{\r\n InterlockedExchangePointer(\r\n &(smartcardExtension->OsData->NotificationIrp), NULL);\r\n WdfRequestComplete(Request, STATUS_CANCELLED);\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/35093dc7-bf6a-4495-956d-bed3f3ac4480.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=205cc1313535f4af65ed58be52d693add6d91f0239a902ddb481fc6fffcdf0bd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "59daefa9-60d2-460f-a811-93f40d9a80f8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 15,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Polling For \r\nCancellation\r\nFramework provides WdfRequestIsCanceled to \r\ncheck the state of the IRP\r\nUseful if you are staging single I/O into \r\nmultiple transactions or actively pooling the \r\nhardware before initiating the I/O\r\nCheck the canceled stated before initiating the \r\nnext transfer",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/59daefa9-60d2-460f-a811-93f40d9a80f8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=815edfa8ac0ded0cae67454ab646a2abe2fd99d5ff63157d720139044e945bde",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e173c273-a6c3-48cd-95e4-b8d37f56f292",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 16,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Using CancelRoutine\r\nUse this approach when you cannot keep long\u0002term requests in queue\r\nThis is by far the most difficult approach\r\nComplexity level of this approach is equivalent to \r\nthe WDM model\r\nCall WdfRequestMarkCancelable to set \r\nEvtRequestCancel on a request\r\nCall WdfRequestUnMarkCancelable to clear \r\nthe cancel routine before completing \r\nthe request",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/e173c273-a6c3-48cd-95e4-b8d37f56f292.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5037a41dc987fc4d12957d1508fad03a1ca8b4d01a166a696dffc64e334123cb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b9d89c82-22bc-4fe2-9959-a6aa264dccf9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 17,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Using CancelRoutine (2)\r\nRequest must be a valid uncompleted request \r\nwhen you call WdfRequestUnmarkCancelable\r\nThat means you have to manage the race \r\nbetween cancel routine and another \r\nasynchronous routine that tries to complete \r\nthe request",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/b9d89c82-22bc-4fe2-9959-a6aa264dccf9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ea7410191d0cbfde690b99558cae6714e1e6dfe875c2f608c99f56977304fcaa",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ee8fd490-6ef8-4fdb-a263-49e368784582",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 18,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Using CancelRoutine (3)\r\nFramework enables you to manage \r\nthe complexity \r\nBy using framework provided \r\nsynchronization scope\r\nBy tracking state in the request context area using \r\nyour own lock",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/ee8fd490-6ef8-4fdb-a263-49e368784582.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4c553fdee06c82975e4e6b39b2863a3d3dfdee5750627598cb0a669c2ae9ffba",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c32a1ddb-c3d4-438f-908b-349b48f7a7da",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 19,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Using Synchronization \r\nScope NTSTATUS EVtDeviceAdd() {\r\n attributes.SynchronizationScope = WdfSynchronizationScopeDevice;\r\n status = WdfDeviceCreate(&DeviceInit, &attributes, &device);\r\n ...\r\n}\r\nVOID EchoEvtIoRead(Queue, Request, Length) {\r\n WdfRequestMarkCancelable(Request, EchoEvtRequestCancel);\r\n queueContext->CurrentRequest = Request; \r\n}\r\nVOID EchoEvtRequestCancel(Request) {\r\n WdfRequestComplete(Request, STATUS_CANCELLED);\r\n queueContext->CurrentRequest = NULL;\r\n}\r\nVOID EchoEvtTimerFunc(WDFTIMER Timer) {\r\n Request = queueContext->CurrentRequest;\r\n if( Request != NULL ) {\r\n status = WdfRequestUnmarkCancelable(Request);\r\n if(status != STATUS_CANCELLED) {\r\n queueContext->CurrentRequest = NULL;\r\n WdfRequestComplete(Request, status);\r\n }\r\n }\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/c32a1ddb-c3d4-438f-908b-349b48f7a7da.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df7a8be5702e28870f2f8adeac99cba4c6b0cb708c8b664eb244d3ccc27c2f85",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c43e1492-6e35-4fbf-9102-b1ee60328081",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 20,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Using Driver Lock\r\nTrack the cancel state in the context area of \r\nthe request\r\ntypedef struct _REQUEST_CONTEXT {\r\n BOOLEAN IsCancelled;\r\n BOOLEAN IsTerminateFailed;\r\n KSPIN_LOCK Lock;\r\n} REQUEST_CONTEXT, *PREQUEST_CONTEXT;\r\nEvtDriverDeviceAdd(Driver, DeviceInit) {\r\n WDF_OBJECT_ATTRIBUTES attributes;\r\n WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes,REQUEST_CONTEXT);\r\n WdfDeviceInitSetRequestAttributes(DeviceInit, &attributes);\r\n}\r\nEvtIoDispatch(Queue, Request) {\r\nreqContext->IsCancelled = FALSE;\r\n reqContext->IsTerminateFailed = FALSE;\r\n KeInitializeSpinLock(&reqContext->Lock);\r\n WdfObjectReference(Request);\r\n WdfRequestMarkCancelable(Request, EvtRequestCancelRoutine); \r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/c43e1492-6e35-4fbf-9102-b1ee60328081.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2366b9355c7424e49b32d457be48f9a0be7d6b0f600c7a3cda46cc748d274567",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 480
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "25eefb35-eabc-4210-941e-22dc378187d0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 21,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "Using Driver Lock (2)\r\nEvtRequestCancelRoutine(Request) \r\n{\r\n KeAcquireSpinlock(&reqContext->Lock, \r\n&oldIrql);\r\n reqContext-> IsCancelled = TRUE;\r\n if (TerminateIO() == TRUE) {\r\n WdfObjectDereference(Request);\r\n completeRequest = TRUE;\r\n }\r\n else {\r\n reqContext->IsTerminateFailed = TRUE;\r\n completeRequest = FALSE;\r\n }\r\n KeReleaseSpinlock(&reqContext->Lock, oldIrql);\r\n if (completeRequest) {\r\n WdfRequestComplete(Request, \r\nSTATUS_CANCELLED);\r\n };\r\n}\r\nEvtDpcForIsr(Interrupt) \r\n{\r\n completeRequest = TRUE;\r\n KeAcquireSpinlock(&reqContext->Lock, \r\n&oldIrql);\r\n if (reqContext-> IsCancelled == FALSE) {\r\n status = \r\nWdfRequestUnmarkCancelable(Request);\r\n if (status == STATUS_CANCELLED) {\r\n completeRequest = FALSE;\r\n } \r\n status = STATUS_SUCCESS;\r\n } else {\r\n if (reqContext->IsTerminateFailed {\r\n status = STATUS_CANCELLED;\r\n } else {\r\n completeRequest = FALSE\r\n }\r\n }\r\n KeReleaseSpinlock(&reqContext->Lock, \r\noldIrql);\r\n WdfObjectDereference(Request);\r\n if (completeRequest) {\r\n WdfRequestComplete(Request, status);\r\n };\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/25eefb35-eabc-4210-941e-22dc378187d0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c5ab313bf8b98ecf3a7e3d7320907fb88991fa48cb89d0fdce7005b671e5fa54",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "45de2250-b5dd-4d07-ba79-da4fd9d22c5c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 841.9,
+              "height": 595.3
+            },
+            "page_number": 22,
+            "page_width": 841.9,
+            "page_height": 595.3,
+            "content": "© 2007 Microsoft Corporation. All rights reserved. Microsoft, Windows, Windows Vista and other product names are or may be registered trademarks and/or trademarks \r\nin the U.S. and/or other countries.\r\nThe information herein is for informational purposes only and represents the current view of Microsoft Corporation as of the date of this presentation. Because Microsoft \r\nmust respond to changing market conditions, it should not be interpreted to be a commitment on the part of Microsoft, and Microsoft cannot guarantee the accuracy of \r\nany information provided after the date of this presentation. \r\nMICROSOFT MAKES NO WARRANTIES, EXPRESS, IMPLIED OR STATUTORY, AS TO THE INFORMATION IN THIS PRESENTATION.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/dd5d4595-100c-4ad9-881d-32e2fe615078/images/45de2250-b5dd-4d07-ba79-da4fd9d22c5c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041448Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f5657ce46d5c3713d759a067f094af571d9143b694a340f7b008b8c618543d87",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 200
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Request Cancellation In A Framework Driver\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Eliyas Yakub, Kumar Rajeev\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "2007\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "U.S."
+        }
+      ]
+    }
+  }
+}

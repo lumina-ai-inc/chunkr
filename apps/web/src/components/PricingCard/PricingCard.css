@@ -1,16 +1,96 @@
-.pricing-card-container {
-  background-color: hsl(0, 0%, 100%, 0.1);
+.pricing-card {
+  flex: 1;
+  padding: 32px;
   border-radius: 8px;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(24px);
-  border: 1px solid hsla(0, 0%, 100%, 0.1);
-  padding: 40px;
+  background: rgba(255, 255, 255, 0.008);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
 }
 
-@media (max-width: 524px) {
-  .pricing-card-container {
-    padding: 24px;
-  }
+.pricing-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.pricing-card-highlighted {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.pricing-card-highlighted:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 4px 24px -4px rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.pricing-tag {
+  opacity: 0.9;
+  letter-spacing: 0.02em;
+}
+
+.pricing-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.pricing-period {
+  opacity: 0.6;
+}
+
+.pricing-subtitle {
+  margin-top: 16px;
+  margin-bottom: 32px;
+  opacity: 0.6;
+  line-height: 1.5;
+}
+
+.pricing-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.pricing-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pricing-button-highlighted {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pricing-button-highlighted:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Optional: Add a subtle gradient overlay to the card */
+.pricing-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
 }

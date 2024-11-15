@@ -1,0 +1,231 @@
+{
+  "file_name": "MSDN - DLLs the Dynamic Way (November, 1999).pdf",
+  "task_id": "408b2345-0477-41a9-b6f5-c0e1fcd5c5a9",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "bf16d44c-8dbd-4435-9a1f-81374e3c843f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "\u0014\u0013\u0012\u0019\u0012\u0015\u0013\u0014\u0018 '//V WKH '\\QDPLF :D\\\r\nKWWSV\u001d\u0012\u0012PVGQ\u0011PLFURVRIW\u0011FRP\u0012HQ\u0010XV\u0012OLEUDU\\\u0012PV\u001b\u0014\u0013\u0015\u001a\u001c\u000bG SULQWHU\f\u0011DVS[ \u0014\u0012\u001b\r\n'//V WKH '\\QDPLF :D\\\r\n0LF+DHO *DONRYVN\\\r\n3HUYDVLYH 6RIWZDUH\r\n1RYHPEHU \u0014\u001c\u001c\u001c\r\n6XPPDU\\\u001d 'HVFULEHV D PDFUR FODVV WKDW VLPSOLILHV DQG DXWRPDWHV WKH G\\QDPLF OLQNLQJ RI '//V\u0011 \u000b\u001b SULQWHG SDJHV\f\r\n&RQWHQWV\r\n,QWURGXFWLRQ\r\n7KH 2OG :D\\\r\n3'// &ODVV\r\n8QGHU WKH +RRG\r\n$QRWKHU ([DPSOH\r\n,QWURGXFWLRQ\r\n'\\QDPLF OLQN OLEUDULHV \u000b'//V\f DUH D YHU\\ SRZHUIXO IHDWXUH RI WKH 0LFURVRIW :LQGRZV RSHUDWLQJ V\\VWHP\u0011 /LNH PRVW\r\nGHYHORSHUV\u000f , KDYH RIWHQ IRXQG WKH QHHG WR OLQN WR YDULRXV '//V\u0011 :KHQ WKHVH '//V DUH QRW &RPSRQHQW 2EMHFW 0RGHO\r\n\u000b&20\f OLEUDULHV\u000f OLQNLQJ WR WKHP KDV SURYHQ WR EH D ELJ KHDGDFKH\u0011 7KH UHTXLUHG VWHSV DUH FXPEHUVRPH DQG QRQ\u0010\r\nLQWXLWLYH IRU REMHFW\u0010RULHQWHG SURJUDPPHUV OLNH P\\VHOI\u000f DQG , KDYH DOZD\\V HQGHG XS UHXVLQJ ROG FRGH\u0011 $IWHU VHYHUDO\r\nDWWHPSWV WR GLJ XS ROG H[DPSOHV\u000f , GHFLGHG WR ZULWH D PDFUR FODVV WR VLPSOLI\\ DQG DXWRPDWH WKH G\\QDPLF OLQNLQJ RI\r\n'//V\u0011 7KLV FODVV LV DEVWUDFW DQG DOORZV D GHYHORSHU WR H[WHQG WKH IXQFWLRQDOLW\\ LI QHHGHG\u0011\r\n7KH 2OG :D\\\r\n$FFRUGLQJ WR \u0005$ERXW '\\QDPLF /LQN /LEUDULHV\u0005 LQ WKH 3ODWIRUP 6'.\u000f WKHUH DUH WZR PHWKRGV IRU FDOOLQJ '//V\u001d\r\n\u0005,Q ORDG\u0010WLPH G\\QDPLF OLQNLQJ\u000f D PRGXOH PDNHV H[SOLFLW FDOOV WR H[SRUWHG '// IXQFWLRQV\u0011 7KLV UHTXLUHV \\RX WR\r\nOLQN WKH PRGXOH ZLWK WKH LPSRUW OLEUDU\\ IRU WKH '//\u0011 $Q LPSRUW OLEUDU\\ VXSSOLHV WKH V\\VWHP ZLWK WKH LQIRUPDWLRQ\r\nQHHGHG WR ORDG WKH '// DQG ORFDWH WKH H[SRUWHG '// IXQFWLRQV ZKHQ WKH DSSOLFDWLRQ LV ORDGHG\u0011\u0005\r\n\u0005,Q UXQ\u0010WLPH G\\QDPLF OLQNLQJ\u000f D PRGXOH XVHV WKH /RDG/LEUDU\\ RU /RDG/LEUDU\\([ IXQFWLRQ WR ORDG WKH '// DW\r\nUXQ WLPH\u0011 $IWHU WKH '// LV ORDGHG\u000f WKH PRGXOH FDOOV WKH *HW3URF$GGUHVV IXQFWLRQ WR JHW WKH DGGUHVVHV RI WKH\r\nH[SRUWHG '// IXQFWLRQV\u0011 7KH PRGXOH FDOOV WKH H[SRUWHG '// IXQFWLRQV XVLQJ WKH IXQFWLRQ SRLQWHUV UHWXUQHG E\\\r\n*HW3URF$GGUHVV\u0011 7KLV HOLPLQDWHV WKH QHHG IRU DQ LPSRUW OLEUDU\\\u0011\u0005\r\n7KH WZR PDMRU EHQHILWV WR XVLQJ UXQ\u0010WLPH OLQNLQJ DUH\u001d\r\n:KHQ WKH '// LV QRW DYDLODEOH\u000f DQ DSSOLFDWLRQ XVLQJ ORDG\u0010WLPH G\\QDPLF OLQNLQJ VLPSO\\ WHUPLQDWHV\u000f ZKLOH WKH\r\nUXQ\u0010WLPH G\\QDPLF OLQNLQJ LV DEOH WR UHVSRQG WR WKH HUURU\u0011\r\n,I WKH '// FKDQJHV\u000f DQ DSSOLFDWLRQ WKDW XVHV ORDG\u0010WLPH G\\QDPLF OLQNLQJ PD\\ DJDLQ WHUPLQDWH\u000f ZKLOH DQ\r\nDSSOLFDWLRQ OLQNHG DW UXQ\u0010WLPH LV RQO\\ DIIHFWHG LI WKH GHVLUHG IXQFWLRQV DUH QRW SUHVHQW LQ WKH QHZ '//\u0011\r\n5XQ\u0010WLPH G\\QDPLF OLQNLQJ LV QRW XQOLNH TXHU\\LQJ LQWHUIDFHV LQ &20\u0011 ,W LV PRUH UREXVW\u000f KRZHYHU\u000f DQG DOORZV IRU PRUH",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/408b2345-0477-41a9-b6f5-c0e1fcd5c5a9/images/bf16d44c-8dbd-4435-9a1f-81374e3c843f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041646Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1afc855d1f7f1f19b964e0dbc82533900cf061a396f26a475e657c1413bd7e19",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 380
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b9eba884-31fa-4f40-bccb-2d0c09438b83",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "\u0014\u0013\u0012\u0019\u0012\u0015\u0013\u0014\u0018 '//V WKH '\\QDPLF :D\\\r\nKWWSV\u001d\u0012\u0012PVGQ\u0011PLFURVRIW\u0011FRP\u0012HQ\u0010XV\u0012OLEUDU\\\u0012PV\u001b\u0014\u0013\u0015\u001a\u001c\u000bG SULQWHU\f\u0011DVS[ \u0015\u0012\u001b\r\nIOH[LELOLW\\ RQ WKH SDUW RI '// SURYLGHU DQG FRQVXPHU\u0011 7KLV DUWLFOH DVVXPHV WKDW \\RX ZLOO ZDQW WR OLQN '//V XVLQJ UXQ\u0010\r\nWLPH G\\QDPLF OLQNLQJ\u0011\r\n7UDGLWLRQDO /LQNLQJ³$ 6DPSOH\r\n/HW\nV DVVXPH WKDW \\RX QHHG WR OLQN WR D '// WKDW NHHSV WUDFN RI \\RXU DUW FROOHFWLRQ\u0011 7KLV '//\u000f DUW\u0011GOO\u000f KDV WKH IROORZLQJ\r\nIXQFWLRQV\u001d\r\n \t\u0004ſ\u000f\u0013\u0006\u0017\u0016\u0017\u0015 ƀŚ\r\n \u0004\u0004ſ\u000f\u0013\u0006\u0017\u0016\u0017\u0015 ř \u000f\u0013\u0006\u0017\u0016\u0017\u0015 ř  ƀŚ\r\n \t\u0004ſ\u000f\u0013\u0006\u0017\u0016\u0017\u0015 ř \u000f\u0013\u0006\u0017\u0016\u0017\u0015 ƀŚ\r\n \u0004\u0004ſ\u000f\u0013\u0006\u0017\u0016\u0017\u0015 ř \u000f\u0013\u0006\u0017\u0016\u0017\u0015 ř  ƀŚ\r\nŵŵ Ŝ\r\nŵŵ \u0004     \u000f\u000f \r\nŵŵ \n\u0013\u0004   \t\u0004   ŜŜ\r\nɤ ʳŜʴ\r\nɤ ʳŜʴ\r\nŵŵ\u0007   \r\n  ſ\u0006\u0004\u000f\u000f\u0005\u0004\u0006\u000eƋ \t\u0004\u0017ƀſ\u000f\u0013\u0006\u0017\u0016\u0017\u0015ƀŚ\r\n ſƀ\r\nƇ\r\n\u0005\u0012\u0012\u000f \u0015ř \u0017\u000f\u0016 ʰ \t\u0004\u000f\u0016\bŚ\r\n\u000b\f\u0011\u0016\u0017\u0004\u0011\u0006\b \u000b ʰ \u0011\u0018\u000f\u000fŚ\r\n\t\u0004\u0017 \t\u0004\u0013 ʰ \u0011\u0018\u000f\u000fŚ\r\nŵŵ\u000f        \r\n\u000b ʰ \u000f\u000fſɑŜɑƀŚ\r\nŵŵ \f    ř      Ŝ\r\n ſ\u0011\u0018\u000f\u000f Šʰ \u000bƀ\r\nƇ\r\nŵŵ\n      \n\u0013\u0004ś\r\n\t\u0004\u0013 ʰ ſ\t\u0004\u0017ƀ\n\u0013\u0004ſ\u000bř\r\nɑ\t\u0004ɑƀŚ\r\nŵŵ \f     ř   Ŝ\r\n ſ\u0017\u000f\u0016 ʰ ſ\u0011\u0018\u000f\u000f Šʰ \t\u0004\u0013ƀƀ\r\nƇ\r\n\u000f\u0013\u0006\u0017\u0016\u0017\u0015 \u0004 ʰ ɑ\u0007ɑŚ\r\n \u0019 ʰ \t\u0004\u0013ſ\u0004ƀŚ\r\nƈ\r\nŵŵ\t  ś\r\n\u0015 ʰ \t\u000fſ\u000bƀŚ\r\nƈ\r\nŵŵ\f     \u0007\u000f\u000f ř   Ŝ\r\nſŠ\u0017\u000f\u0016ƀ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/408b2345-0477-41a9-b6f5-c0e1fcd5c5a9/images/b9eba884-31fa-4f40-bccb-2d0c09438b83.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041646Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5c4507f4859bb5d1c457b39d0602bbf65998f774955fc09e17e96f7960659adb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "07c6f80b-ea40-4d2c-acb9-277b1cb904c6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "\u0014\u0013\u0012\u0019\u0012\u0015\u0013\u0014\u0018 '//V WKH '\\QDPLF :D\\\r\nKWWSV\u001d\u0012\u0012PVGQ\u0011PLFURVRIW\u0011FRP\u0012HQ\u0010XV\u0012OLEUDU\\\u0012PV\u001b\u0014\u0013\u0015\u001a\u001c\u000bG SULQWHU\f\u0011DVS[ \u0016\u0012\u001b\r\n7KLV FRGH VDPSOH ZDV EDVHG LQ SDUW RQ WKH FRGH LQ WKH \u00058VLQJ 5XQ\u00107LPH '\\QDPLF /LQNLQJ\u0005 VHFWLRQ RI WKH 3ODWIRUP\r\n6'.\u0011\r\n7UDGLWLRQDO /LQNLQJ³7KH 6WHSV\r\n7KHVH DUH WKH VWHSV \\RX QHHG WR IROORZ HYHU\\ WLPH \\RX ZDQW WR OLQN WR D '// IURP \\RXU DSSOLFDWLRQ\u001d\r\n\u0014\u0011 'HILQH WKH IXQFWLRQ SURWRW\\SHV\u0011\r\n\u0015\u0011 /RDG WKH '// XVLQJ WKH /RDG/LEUDU\\ IXQFWLRQ\u0011\r\n\u0016\u0011 .HHS WKH KDQGOH WR WKH '// LQVWDQFH\u0011\r\n\u0017\u0011 *HW D SRLQWHU WR HDFK IXQFWLRQ XVLQJ WKH *HW3URF$GGUHVV IXQFWLRQ\u0011\r\n\u0018\u0011 &DVW IXQFWLRQ SRLQWHUV WR WKH W\\SHV GHILQHG LQ 6WHS \u0014\u0011\r\n\u0019\u0011 9HULI\\ IXQFWLRQ SRLQWHUV\u0011\r\n\u001a\u0011 8VH IXQFWLRQV\u0011\r\n\u001b\u0011 8QORDG WKH '//\u0011\r\nſɑ   ɎɑƀŚ\r\nƈ\r\n  ſ\u0006\u0004\u000f\u000f\u0005\u0004\u0006\u000eƋ \t\u0004\u0017ƀſ\u000f\u0013\u0006\u0017\u0016\u0017\u0015ƀŚ\r\n\u000b ʰ \u000f\u000fſɑŜɑƀŚ\r\n\t\u0004\u0013 ʰ ſ\t\u0004\u0017ƀ\n\u0013\u0004ſ\u000bř\r\nɑ\t\u0004ɑƀŚ\r\n ſ\u0017\u000f\u0016 ʰ ſ\u0011\u0018\u000f\u000f Šʰ \t\u0004\u0013ƀƀ\r\n \u0019 ʰ \t\u0004\u0013ſ\u0004ƀŚ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/408b2345-0477-41a9-b6f5-c0e1fcd5c5a9/images/07c6f80b-ea40-4d2c-acb9-277b1cb904c6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041646Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c6e79e14714b2bd5a259bf9ce011e60cf70c800e33f06446a33e00a1f60750d3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 386
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6d5ac0ec-ffc8-4b71-85df-3fc98199851c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "\u0014\u0013\u0012\u0019\u0012\u0015\u0013\u0014\u0018 '//V WKH '\\QDPLF :D\\\r\nKWWSV\u001d\u0012\u0012PVGQ\u0011PLFURVRIW\u0011FRP\u0012HQ\u0010XV\u0012OLEUDU\\\u0012PV\u001b\u0014\u0013\u0015\u001a\u001c\u000bG SULQWHU\f\u0011DVS[ \u0017\u0012\u001b\r\n,I \\RX ZDQW WR XVH DUW\u0011GOO LQ VHYHUDO DSSOLFDWLRQV\u000f \\RX ZLOO QHHG WR LQFOXGH WKLV FRGH LQ DOO RI WKHP\u0011 ,I \\RX DUH JRLQJ WR\r\nXVH PRUH WKHQ RQH IXQFWLRQ\u000f WKHQ WKH ZRUNORDG LQFUHDVHV\u0011 <RX ZLOO QHHG WR GHFODUH PRUH W\\SHV DQG FKHFN IRU PRUH\r\n18// SRLQWHUV\u0011 $VVLJQHG IXQFWLRQ SRLQWHUV DUH HDVLO\\ FRQIXVHG\u001e DQG ZKHQ \\RX ORDG PXOWLSOH '//V ZLWK PXOWLSOH\r\nIXQFWLRQV\u000f LW\nV HYHQ HDVLHU WR ORVH WUDFN RI ZKDW SRLQWV WR ZKDW\u0011 $IWHU GRLQJ WKLV VHYHUDO WLPHV\u000f , ZURWH WKH 3'// FODVV\u0011\r\n3'// &ODVV\r\n, ZDQWHG WR ZULWH '// ORDGLQJ FRGH RQFH DQG WKHQ EH DEOH WR IRUJHW DERXW LW\u0011 , ZDQWHG WR EH DEOH WR LQFOXGH D KHDGHU\r\nILOH LQ P\\ SURMHFW DQG VWDUW XVLQJ WKH IXQFWLRQV IURP WKH '//\u0011 $QG , ZDQWHG WR EH DEOH WR GR WKLV ZLWK DQ\\ '// DW DQ\\\r\nWLPH\u0011 , RULJLQDOO\\ VHW RII WR DFFRPSOLVK WKLV ZLWK &\u000e\u000e WHPSODWHV EXW WKHQ TXLFNO\\ UHDOL]HG WKDW\u000f EHFDXVH W\\SHV RI\r\nSDUDPHWHUV DQG QDPHV RI WKH IXQFWLRQV DUH QRW NQRZQ XS IURQW\u000f , KDG WR XVH PDFURV\u0011 $IWHU KRXUV RI ILJKWLQJ ZLWK\r\nPDFURV DQG SDLQIXO GHEXJJLQJ\u000f WKH VROXWLRQ VWDUWHG WR WDNH IRUP\u0011\r\n/HW\nV ILUVW ORRN DW WKH VWHSV UHTXLUHG IRU XVLQJ WKH 3'// FODVV\u001d\r\n\u0014\u0011 'HFODUH D FODVV\u000f DQG LQKHULW LW IURP WKH 3'// FODVV\u0011\r\n\u0015\u0011 &DOO WKH '(&/$5(B&/$66 PDFUR\u000f DQG SDVV LW WKH FODVV QDPH\u0011\r\n\u0016\u0011 &DOO WKH '(&/$5(B)81&7,21 PDFUR IRU HYHU\\ QHHGHG IXQFWLRQ IURP WKH '//\u0011\r\n7KH FRGH ORRNV OLNH WKLV\u001d\r\n<RX DUH QRZ UHDG\\ WR XVH WKH QHZ FODVV WKDW HQFDSVXODWHV WKH '// IXQFWLRQDOLW\\\u0011\r\n\u0015 ʰ \t\u000fſ\u000bƀŚ\r\nŵŵ\u0004\u0007Ŝ\r\nŵŵ   \u0004\u0007 \r\nɤ ɑŜɑ\r\n \u0004\u0007ś  \u0013\u0007\u000f\u000f\r\nƇ\r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\u0006\u000f\u0004\u0016\u0016ſ\u0004\u0007ƀ\r\nŵŵ         \r\nŵŵř        \r\nŵŵ ř  ř \r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɨſř \t\u0004ř \u000f\u0013\u0006\u0017\u0016\u0017\u0015ƀ\r\nƈ\r\nŵŵ\u0004Ŝ\r\nɤ ɑ\u0004\u0007Ŝɑ\r\nŵŵ    \r\n\u0004\u0007 \u0007ſɑŜɑƀŚ\r\nŵŵ     \r\n\u0007Ŝ\t\u0004ſƀŚ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/408b2345-0477-41a9-b6f5-c0e1fcd5c5a9/images/6d5ac0ec-ffc8-4b71-85df-3fc98199851c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041646Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b00119b9304039ec9c3e1aaa3d9b51f5c7381ab7e0b6d538bc823f39cbf3d3f2",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 340
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fb22d5b1-9e65-4267-870c-935e8f5f17f9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "\u0014\u0013\u0012\u0019\u0012\u0015\u0013\u0014\u0018 '//V WKH '\\QDPLF :D\\\r\nKWWSV\u001d\u0012\u0012PVGQ\u0011PLFURVRIW\u0011FRP\u0012HQ\u0010XV\u0012OLEUDU\\\u0012PV\u001b\u0014\u0013\u0015\u001a\u001c\u000bG SULQWHU\f\u0011DVS[ \u0018\u0012\u001b\r\n$V \\RX FDQ VHH\u000f WKH VWHSV ORRN D ELW FOHDQHU DQG DUH PXFK PRUH REMHFW\u0010RULHQWHG\u0011\r\n+HUH LV ZKDW WKH 3'// FODVV FDQ GR IRU \\RX\u001d\r\n/RDG WKH '//\u0011 7KH FODVV OHWV \\RX FKRRVH ZKHWKHU \\RX ZDQW WR VSHFLI\\ WKH '// QDPH LQ FODVV FRQVWUXFWRU RU\r\nODWHU E\\ FDOOLQJ WKH ,QLWLDOL]H IXQFWLRQ\u0011 ,I WKH UHTXHVWHG '// LV QRW IRXQG\u000f \\RXU DSSOLFDWLRQ ZLOO QRW WHUPLQDWH\u0011\r\n<RX FDQ LQFOXGH \\RXU RZQ FXVWRP PHVVDJHV LQIRUPLQJ WKH XVHU DERXW WKH PLVVLQJ '// RU SURYLGH DOWHUQDWLYH\r\nZD\\V WR KDQGOH WKH VLWXDWLRQ\u0011\r\n8QORDG WKH '//\u0011 &ODVV LQKHULWHG IURP 3'// NHHSV D VWDWLF UHIHUHQFH FRXQW RI LWV LQVWDQFHV\u0011 7KH '// LV\r\nXQORDGHG DIWHU WKH ODVW LQVWDQFH LV GHVWUR\\HG\u000f FXWWLQJ GRZQ RQ UHVRXUFH XVDJH ZLWKLQ \\RXU DSSOLFDWLRQ\u0011\r\n2EWDLQ IXQFWLRQ SRLQWHUV\u0011 )XQFWLRQV DUH ORDGHG ZKHQ \\RX XVH WKHP\u000f DYRLGLQJ RYHUKHDG DW FUHDWLRQ WLPH\u0011 $\r\nIXQFWLRQ SRLQWHU LV REWDLQHG XVLQJ *HW3URF$GGUHVV WKH ILUVW WLPH D FDOO WR WKH IXQFWLRQ LV PDGH\u0011 ,I\r\n*HW3URF$GGUHVV IDLOV\u000f \\RXU DSSOLFDWLRQ ZLOO QRW FUDVK\u0011\r\n2UJDQL]H IXQFWLRQV E\\ '//\u0011 :LWK WKH 3'// FODVV\u000f \\RX FDQ JURXS \\RXU IXQFWLRQV DFFRUGLQJ WR ZKLFK '//\r\nFRQWDLQV WKH IXQFWLRQDOLW\\\u0011\r\n8QGHU WKH +RRG\r\n/HW\nV ORRN XQGHU WKH KRRG RI 3'// FODVV LQ VRPH GHWDLO\u0011 0RVW RI WKH FRGH LV ZULWWHQ XVLQJ & PDFURV\u0011 0DFURV DUH\r\nLPSRVVLEOH WR GHEXJ DQG DUH DOVR YHU\\ VHQVLWLYH WR VSDFHV DQG DOLJQPHQWV\u0011 ,I \\RX SODQ WR FKDQJH WKHVH PDFURV\u000f EH\r\nFDUHIXO\u0011\r\n7KH EDFNVODVK LV XVHG DV D FRQWLQXDWLRQ FKDUDFWHU\u0011 0DNH VXUH WKDW WKHUH DUH QR EODQN VSDFHV DIWHU WKH EDFNVODVK\u0011 ,I \\RX\r\nDUH QHZ WR PDFURV\u000f WKLV PD\\ FRQIXVH \\RX D ELW\u0011 %XW WKH JRRG QHZV LV WKDW \\RX GRQ\nW KDYH WR ZRUU\\ DERXW WKLV LI \\RX\r\nGRQ\nW SODQ WR PDNH PRGLILFDWLRQV\u0011\r\n)XQFWLRQ 'HFODUDWLRQV\r\n+HDGHU ILOH SGOO\u0011K FRQWDLQV PDFURV WKDW\u000f ZKHQ JLYHQ D IXQFWLRQ GHVFULSWLRQ\u000f FUHDWH WKH W\\SHGHI DQG GHFODUH D ZUDSSHU\r\nIXQFWLRQ\u0011 <RX\nOO QHHG WR FDOO D GLVWLQFW PDFUR DFFRUGLQJ WR WKH QXPEHU RI DUJXPHQWV WKH GHVLUHG IXQFWLRQ KDV\u0011 )RU D\r\nIXQFWLRQ ZLWK WKUHH SDUDPHWHUV\u000f \\RX ZLOO QHHG WR FDOO WKH PDFUR '(),1(B)81&7,21\u0016\u001e IRU D IXQFWLRQ ZLWK WZR\r\nDUJXPHQWV\u000f \\RX ZLOO QHHG WR FDOO WKH PDFUR '(),1(B)81&7,21\u0015\u000f DQG VR RQ\u0011 7KH ZUDSSHU IXQFWLRQV WKDW WKHVH\r\nPDFURV GHFODUH FRQWDLQ FRGH WR PDNH VXUH WKDW WKH IXQFWLRQV DUH ORDGHG VXFFHVVIXOO\\ DQG YDOLG IXQFWLRQ SRLQWHUV DUH\r\nREWDLQHG\u0011 7KHVH PDFURV GHFODUH D VKRUW LQWHJHU WKDW LQGLFDWHV ZKHWKHU DQ DWWHPSW KDV EHHQ PDGH WR ORDG WKH '//\r\nIXQFWLRQV\u0011 )XQFWLRQ DGGUHVVHV DUH ORDGHG WKH ILUVW WLPH WKH IXQFWLRQV DUH FDOOHG\u000f DOORZLQJ \\RX WR NHHS WKH RYHUKHDG WR\r\nD PLQLPXP DW ORDG WLPH\u0011 7KH IXQFWLRQ DGGUHVVHV FDQ RQO\\ EH REWDLQHG LI D YDOLG '// KDQGOH LV REWDLQHG\u0011 ,I WKH '//\r\nFDQQRW EH ORDGHG RU WKH DWWHPSW WR REWDLQ WKH IXQFWLRQ DGGUHVV KDV IDLOHG DQG D FDOO LV PDGH WR WKH IXQFWLRQ\u000f WKH\r\nUHWXUQ YDOXH ZLOO EH 18// FDVW WR WKH UHWXUQ YDOXH RI WKH IXQFWLRQ\u0011\r\nŵŵ   \r\nŵŵŜ\r\nŵŵ       \r\nɤ \u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɨſ\u0019ř \t\u0011ř \u0013ɨƀ Ɏ\r\n \u0019 ſ\u0006\u0004\u000f\u000f\u0005\u0004\u0006\u000eƋ \u0017\u001c\u0013\bɏɤɤ\t\u0011ƀſ\u0013ɨƀŚ Ɏ\r\n\u0017\u001c\u0013\bɏɤɤ\t\u0011 ɏɤɤ\t\u0011Ś Ɏ\r\n ɏɤɤ\t\u0011ŚɎ\r\n\u0019 \t\u0011ſ\u0013ɨ ɨƀ Ɏ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/408b2345-0477-41a9-b6f5-c0e1fcd5c5a9/images/fb22d5b1-9e65-4267-870c-935e8f5f17f9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041646Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d499af7db24561211e1ec5341a8b8c364a938733003b7922c3220ce4575b2ab4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 526
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fb22d5b1-9e65-4267-870c-935e8f5f17f9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "\u0014\u0013\u0012\u0019\u0012\u0015\u0013\u0014\u0018 '//V WKH '\\QDPLF :D\\\r\nKWWSV\u001d\u0012\u0012PVGQ\u0011PLFURVRIW\u0011FRP\u0012HQ\u0010XV\u0012OLEUDU\\\u0012PV\u001b\u0014\u0013\u0015\u001a\u001c\u000bG SULQWHU\f\u0011DVS[ \u0018\u0012\u001b\r\n$V \\RX FDQ VHH\u000f WKH VWHSV ORRN D ELW FOHDQHU DQG DUH PXFK PRUH REMHFW\u0010RULHQWHG\u0011\r\n+HUH LV ZKDW WKH 3'// FODVV FDQ GR IRU \\RX\u001d\r\n/RDG WKH '//\u0011 7KH FODVV OHWV \\RX FKRRVH ZKHWKHU \\RX ZDQW WR VSHFLI\\ WKH '// QDPH LQ FODVV FRQVWUXFWRU RU\r\nODWHU E\\ FDOOLQJ WKH ,QLWLDOL]H IXQFWLRQ\u0011 ,I WKH UHTXHVWHG '// LV QRW IRXQG\u000f \\RXU DSSOLFDWLRQ ZLOO QRW WHUPLQDWH\u0011\r\n<RX FDQ LQFOXGH \\RXU RZQ FXVWRP PHVVDJHV LQIRUPLQJ WKH XVHU DERXW WKH PLVVLQJ '// RU SURYLGH DOWHUQDWLYH\r\nZD\\V WR KDQGOH WKH VLWXDWLRQ\u0011\r\n8QORDG WKH '//\u0011 &ODVV LQKHULWHG IURP 3'// NHHSV D VWDWLF UHIHUHQFH FRXQW RI LWV LQVWDQFHV\u0011 7KH '// LV\r\nXQORDGHG DIWHU WKH ODVW LQVWDQFH LV GHVWUR\\HG\u000f FXWWLQJ GRZQ RQ UHVRXUFH XVDJH ZLWKLQ \\RXU DSSOLFDWLRQ\u0011\r\n2EWDLQ IXQFWLRQ SRLQWHUV\u0011 )XQFWLRQV DUH ORDGHG ZKHQ \\RX XVH WKHP\u000f DYRLGLQJ RYHUKHDG DW FUHDWLRQ WLPH\u0011 $\r\nIXQFWLRQ SRLQWHU LV REWDLQHG XVLQJ *HW3URF$GGUHVV WKH ILUVW WLPH D FDOO WR WKH IXQFWLRQ LV PDGH\u0011 ,I\r\n*HW3URF$GGUHVV IDLOV\u000f \\RXU DSSOLFDWLRQ ZLOO QRW FUDVK\u0011\r\n2UJDQL]H IXQFWLRQV E\\ '//\u0011 :LWK WKH 3'// FODVV\u000f \\RX FDQ JURXS \\RXU IXQFWLRQV DFFRUGLQJ WR ZKLFK '//\r\nFRQWDLQV WKH IXQFWLRQDOLW\\\u0011\r\n8QGHU WKH +RRG\r\n/HW\nV ORRN XQGHU WKH KRRG RI 3'// FODVV LQ VRPH GHWDLO\u0011 0RVW RI WKH FRGH LV ZULWWHQ XVLQJ & PDFURV\u0011 0DFURV DUH\r\nLPSRVVLEOH WR GHEXJ DQG DUH DOVR YHU\\ VHQVLWLYH WR VSDFHV DQG DOLJQPHQWV\u0011 ,I \\RX SODQ WR FKDQJH WKHVH PDFURV\u000f EH\r\nFDUHIXO\u0011\r\n7KH EDFNVODVK LV XVHG DV D FRQWLQXDWLRQ FKDUDFWHU\u0011 0DNH VXUH WKDW WKHUH DUH QR EODQN VSDFHV DIWHU WKH EDFNVODVK\u0011 ,I \\RX\r\nDUH QHZ WR PDFURV\u000f WKLV PD\\ FRQIXVH \\RX D ELW\u0011 %XW WKH JRRG QHZV LV WKDW \\RX GRQ\nW KDYH WR ZRUU\\ DERXW WKLV LI \\RX\r\nGRQ\nW SODQ WR PDNH PRGLILFDWLRQV\u0011\r\n)XQFWLRQ 'HFODUDWLRQV\r\n+HDGHU ILOH SGOO\u0011K FRQWDLQV PDFURV WKDW\u000f ZKHQ JLYHQ D IXQFWLRQ GHVFULSWLRQ\u000f FUHDWH WKH W\\SHGHI DQG GHFODUH D ZUDSSHU\r\nIXQFWLRQ\u0011 <RX\nOO QHHG WR FDOO D GLVWLQFW PDFUR DFFRUGLQJ WR WKH QXPEHU RI DUJXPHQWV WKH GHVLUHG IXQFWLRQ KDV\u0011 )RU D\r\nIXQFWLRQ ZLWK WKUHH SDUDPHWHUV\u000f \\RX ZLOO QHHG WR FDOO WKH PDFUR '(),1(B)81&7,21\u0016\u001e IRU D IXQFWLRQ ZLWK WZR\r\nDUJXPHQWV\u000f \\RX ZLOO QHHG WR FDOO WKH PDFUR '(),1(B)81&7,21\u0015\u000f DQG VR RQ\u0011 7KH ZUDSSHU IXQFWLRQV WKDW WKHVH\r\nPDFURV GHFODUH FRQWDLQ FRGH WR PDNH VXUH WKDW WKH IXQFWLRQV DUH ORDGHG VXFFHVVIXOO\\ DQG YDOLG IXQFWLRQ SRLQWHUV DUH\r\nREWDLQHG\u0011 7KHVH PDFURV GHFODUH D VKRUW LQWHJHU WKDW LQGLFDWHV ZKHWKHU DQ DWWHPSW KDV EHHQ PDGH WR ORDG WKH '//\r\nIXQFWLRQV\u0011 )XQFWLRQ DGGUHVVHV DUH ORDGHG WKH ILUVW WLPH WKH IXQFWLRQV DUH FDOOHG\u000f DOORZLQJ \\RX WR NHHS WKH RYHUKHDG WR\r\nD PLQLPXP DW ORDG WLPH\u0011 7KH IXQFWLRQ DGGUHVVHV FDQ RQO\\ EH REWDLQHG LI D YDOLG '// KDQGOH LV REWDLQHG\u0011 ,I WKH '//\r\nFDQQRW EH ORDGHG RU WKH DWWHPSW WR REWDLQ WKH IXQFWLRQ DGGUHVV KDV IDLOHG DQG D FDOO LV PDGH WR WKH IXQFWLRQ\u000f WKH\r\nUHWXUQ YDOXH ZLOO EH 18// FDVW WR WKH UHWXUQ YDOXH RI WKH IXQFWLRQ\u0011\r\nŵŵ   \r\nŵŵŜ\r\nŵŵ       \r\nɤ \u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɨſ\u0019ř \t\u0011ř \u0013ɨƀ Ɏ\r\n \u0019 ſ\u0006\u0004\u000f\u000f\u0005\u0004\u0006\u000eƋ \u0017\u001c\u0013\bɏɤɤ\t\u0011ƀſ\u0013ɨƀŚ Ɏ\r\n\u0017\u001c\u0013\bɏɤɤ\t\u0011 ɏɤɤ\t\u0011Ś Ɏ\r\n ɏɤɤ\t\u0011ŚɎ\r\n\u0019 \t\u0011ſ\u0013ɨ ɨƀ Ɏ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/408b2345-0477-41a9-b6f5-c0e1fcd5c5a9/images/fb22d5b1-9e65-4267-870c-935e8f5f17f9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041646Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d499af7db24561211e1ec5341a8b8c364a938733003b7922c3220ce4575b2ab4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 526
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2fea03d4-5abe-4fa1-bb53-ea8b3886321a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "\u0014\u0013\u0012\u0019\u0012\u0015\u0013\u0014\u0018 '//V WKH '\\QDPLF :D\\\r\nKWWSV\u001d\u0012\u0012PVGQ\u0011PLFURVRIW\u0011FRP\u0012HQ\u0010XV\u0012OLEUDU\\\u0012PV\u001b\u0014\u0013\u0015\u001a\u001c\u000bG SULQWHU\f\u0011DVS[ \u0019\u0012\u001b\r\n&ODVV 'HFODUDWLRQ\r\n<RX ZLOO QHHG DQRWKHU PDFUR WR LQYRNH WKH FODVV GHFODUDWLRQ\u0011 ,W ZLOO HQVXUH WKDW \\RX KDYH D FRQVWUXFWRU WKDW FDQ\r\nLQLWLDOL]H \\RXU '//\u0011\r\n$QRWKHU ([DPSOH\r\n/HW\nV ZDON WKURXJK WKH ZKROH SURFHVV ZKLOH FUHDWLQJ D FODVV IRU D FRPSUHVVLRQ '// FDOOHG FRPSUHVV\u0011GOO\u0011 /HW\nV DVVXPH\r\nWKDW WKLV '// KDV WZR IXQFWLRQV WKDW \\RX ZDQW WR XVH\u001d\r\n%HFDXVH \\RX GRQ\nW NQRZ ZKHWKHU RU QRW WKH XVHU ZLOO KDYH WKLV '// RQ WKHLU V\\VWHP DQG \\RX SODQ WR XSGDWH \\RXU\r\nFRPSUHVVLRQ '// RIWHQ \u000bE\\ DGGLQJ QHZ FRPSUHVVLRQ DOJRULWKPV\f\u000f 3'// FODVV VRXQGV OLNH D JRRG VROXWLRQ\u0011 <RX ZLOO\r\nQHHG WR GHFODUH D QHZ FODVV DQG LQKHULW LW IURP WKH 3'// FODVV\u0011 7KLV QHZ FODVV PDNHV VXUH WKDW LW FDQ ORDG WKH '//\r\nEHIRUH WKH IXQFWLRQV DUH XVHG DQG DOORZV \\RX WR XSGDWH \\RXU FRPSUHVVLRQ '// ZLWKRXW UHFRPSLOLQJ WKH DSSOLFDWLRQ\u0011\r\nƇ Ɏ\r\n ſɏ\u000bƀ Ɏ\r\nƇ Ɏ\r\n ſ\t\u0018\u0011\u0006ɏ\u000f\u0012\u0004\u0007\b\u0007 Šʰ ɏɤɤ\t\u0011ƀ Ɏ\r\nƇɎ\r\nɏɤɤ\t\u0011 ʰ \u0011\u0018\u000f\u000fŚ Ɏ\r\nɏɤɤ\t\u0011 ʰ ſ\u0017\u001c\u0013\bɏɤɤ\t\u0011ƀ\n\u0013\u0004ſɏ\u000bř\r\nɤ\t\u0011ƀŚ Ɏ\r\nɏɤɤ\t\u0011 ʰ \t\u0018\u0011\u0006ɏ\u000f\u0012\u0004\u0007\b\u0007ŚɎ\r\nƈɎ\r\n ſ\u0011\u0018\u000f\u000f Šʰ ɏɤɤ\t\u0011ƀ Ɏ\r\n ɏɤɤ\t\u0011ſɨƀŚ Ɏ\r\n Ɏ\r\n ſ\u0019ƀ\u0011\u0018\u000f\u000fŚ Ɏ\r\nƈ Ɏ\r\n Ɏ\r\n ſ\u0019ƀ\u0011\u0018\u000f\u000fŚ Ɏ\r\nƈ\r\nŵŵ \r\nŵŵ \u0006\u0011     \r\nɤ \u0007\b\u0006\u000f\u0004\u0015\bɏ\u0006\u000f\u0004\u0016\u0016ſ\u0006\u0011ƀ Ɏ\r\nś Ɏ\r\n\u0006\u0011 ſ \u000f\u0013\u0006\u0017\u0016\u0017\u0015 ƀƇ\u000f\u0007ſƀŚƈ Ɏ\r\n\u0006\u0011 ſƀ Ƈ\u0013\u0007\u000f\u000fſƀŚƈ\r\n \u0006\u0007ſƋ ř Ƌ ř  ř  ƀ\r\n \u0007\u0007ſƋ ř Ƌ ř  ř  ƀ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/408b2345-0477-41a9-b6f5-c0e1fcd5c5a9/images/2fea03d4-5abe-4fa1-bb53-ea8b3886321a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041646Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=245099c66fbff24d024082fa381b56e13b89ee6aa11ec4ee0aa572497cda9302",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 263
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8716eb86-3c90-42f8-8307-98eda96a7538",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "\u0014\u0013\u0012\u0019\u0012\u0015\u0013\u0014\u0018 '//V WKH '\\QDPLF :D\\\r\nKWWSV\u001d\u0012\u0012PVGQ\u0011PLFURVRIW\u0011FRP\u0012HQ\u0010XV\u0012OLEUDU\\\u0012PV\u001b\u0014\u0013\u0015\u001a\u001c\u000bG SULQWHU\f\u0011DVS[ \u001a\u0012\u001b\r\n<RX\nOO QHHG WR FUHDWH D QHZ KHDGHU ILOH WKDW FRQWDLQV WKH GHILQLWLRQ IRU WKH ZUDSSHU FODVV\u0011 /HW\nV FDOO WKLV FODVV &RPS'OO\u0011\r\n7KH KHDGHU ILOH VKRXOG ORRN OLNH WKLV\u001d\r\n,I \\RX ZDQW WKH IXQFWLRQV WR VKRZ XS LQ D 9LVXDO &\u000e\u000e GURS\u0010GRZQ IXQFWLRQ EURZVHU\u000f \\RX FDQ GHFODUH D SXUH YLUWXDO\r\nFODVV DQG WKHQ LQKHULW WKH '// FODVV IURP LW\u0011 7KH FRGH ORRNV OLNH WKLV\u001d\r\n:KHQ \\RX ZDQW WR XVH FRPSUHVV\u0011GOO\u000f \\RX ZLOO QHHG WR VSHFLI\\ LWV QDPH LQ WKH FRQVWUXFWRU RI WKH FODVV\u0011\r\n2U \\RX FDQ KDUG FRGH LW E\\ FUHDWLQJ D FRQVWUXFWRU IRU WKH FODVV\u0011\r\nŵŵŜ\r\nŵŵ       \u0006\u0007 \r\nɤ ɑŜɑ\r\n \u0006\u0007ś \u0013\u0007\u000f\u000f\r\nƇ\r\nŵŵ       \r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\u0006\u000f\u0004\u0016\u0016ſ\u0006\u0007ƀ\r\nŵŵ \u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɫ     ɫ \r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɫſř \u0006\u0007ř Ƌř Ƌř ř ƀ\r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɫſř \u0007\u0007ř Ƌř Ƌř ř ƀ\r\nƈ\r\nŵŵŜ\r\nɤ ɑŜɑ\r\nŵŵ      \r\n \u0019\u0006\r\nƇ\r\n  \u0006\u0007ſƋ ř Ƌ ř  ř \r\nƀ ʰ ɥŚ\r\n  \u0007\u0007ſƋ ř Ƌ ř  ř\r\n ƀ ʰ ɥŚ\r\nƈ\r\n \u0006\u0007ś \u0013\u0007\u000f\u000fř \u0019\u0006\r\nƇ\r\nŵŵ       \r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\u0006\u000f\u0004\u0016\u0016ſ\u0006\u0007ƀ\r\nŵŵ \u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɫ     ɫ \r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɫſř \u0006\u0007ř Ƌř Ƌř ř ƀ\r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɫſř \u0007\u0007ř Ƌř Ƌř ř ƀ\r\nƈ\r\n\u0006\u0007 \u0007ſɑŜɑƀŚ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/408b2345-0477-41a9-b6f5-c0e1fcd5c5a9/images/8716eb86-3c90-42f8-8307-98eda96a7538.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041646Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=55adf7e78495dbe5242c80caadc1c56715ead97b291ef88e327b4d99e38cd591",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0a5bb43d-8e7f-41de-b9dc-ee71bdda7029",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "\u0014\u0013\u0012\u0019\u0012\u0015\u0013\u0014\u0018 '//V WKH '\\QDPLF :D\\\r\nKWWSV\u001d\u0012\u0012PVGQ\u0011PLFURVRIW\u0011FRP\u0012HQ\u0010XV\u0012OLEUDU\\\u0012PV\u001b\u0014\u0013\u0015\u001a\u001c\u000bG SULQWHU\f\u0011DVS[ \u001b\u0012\u001b\r\n\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\r\n0LF+DHO *DONRYVN\\ OLYHV LQ $XVWLQ\u000f 7; DQG LV D VRIWZDUH HQJLQHHU RQ WKH 3HUYDVLYH 6RIWZDUH 'HYHORSHU 6ROXWLRQV WHDP\u000f\r\nZKHUH KH LV ZRUNLQJ RQ WKH QH[W JHQHUDWLRQ RI GDWDEDVH WRROV\u0011 )HHO IUHH WR H\u0010PDLO KLP DW\r\nPLFKDHO\u0011JDONRYVN\\#SHUYDVLYH\u0011FRP\u0011\r\n \u0015\u0013\u0014\u0018 0LFURVRIW\r\n \u0006\u0007ś \u0013\u0007\u000f\u000fř  \u0019\u0006\r\nƇ\r\nŵŵ       \r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\u0006\u000f\u0004\u0016\u0016ſ\u0006\u0007ƀ\r\nŵŵ \u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɫ     ɫ \r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɫſř \u0006\u0007ř Ƌř Ƌř ř ƀ\r\n\u0007\b\u0006\u000f\u0004\u0015\bɏ\t\u0018\u0011\u0006\u0017\f\u0012\u0011ɫſř \u0007\u0007ř Ƌř Ƌř ř ƀ\r\nŵŵ       \r\n\u0006\u0007ſƀƇ\fſɑŜɑƀƈŚ\r\nƈ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/408b2345-0477-41a9-b6f5-c0e1fcd5c5a9/images/0a5bb43d-8e7f-41de-b9dc-ee71bdda7029.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041646Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8cd12405720ac205bc3bf888dd385560810c707bba995ba3e76db53da0d62b59",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 365
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "DLLs the Dynamic Way\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Mike Galloy\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "10/6/2015\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "\"//V WKH '\\QDPLF :D\\\"\n"
+        }
+      ]
+    }
+  }
+}

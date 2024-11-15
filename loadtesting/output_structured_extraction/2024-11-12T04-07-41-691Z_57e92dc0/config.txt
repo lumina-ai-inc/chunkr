@@ -1,0 +1,52 @@
+{
+  "MODEL_CONFIGS": [
+    {
+      "model": "HighQuality",
+      "segmentationStrategy": "Page",
+      "ocrStrategy": "Off",
+      "percentage": 100,
+      "workers": 4
+    }
+  ],
+  "MAX_FILES_TO_PROCESS": 10,
+  "REQUESTS_PER_SECOND": 2,
+  "EXTRACTION_SCHEMA": {
+    "title": "Document Metadata",
+    "type": "object",
+    "properties": [
+      {
+        "name": "title",
+        "title": "Document Title",
+        "type": "string",
+        "description": "The main title of the document",
+        "default": null
+      },
+      {
+        "name": "author",
+        "title": "Author",
+        "type": "string",
+        "description": "The author(s) of the document",
+        "default": null
+      },
+      {
+        "name": "date_published",
+        "title": "Date Published",
+        "type": "string",
+        "description": "The publication date of the document",
+        "default": null
+      },
+      {
+        "name": "location",
+        "title": "Location",
+        "type": "string",
+        "description": "The location mentioned in the document",
+        "default": null
+      }
+    ]
+  },
+  "aggregateResults": {
+    "totalTime": 114952.701292,
+    "totalPages": 563,
+    "pagesPerSecond": 4.897666550435221
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "file_name": "Introduction to Intel Ethernet Flow Director.pdf",
+  "task_id": "39fd64f6-28d9-4eb8-8474-b55b89e7dc74",
+  "output": {
+    "chunks": [],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\n \"title\": \"\"\n}\n```"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "I cannot provide an author name because the provided context does not contain any information about the author of a document.\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I cannot provide a specific date as a string because the provided context does not include an example document or any mention of a publication date.  I need an example document to extract the `date_published` information.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "Unfortunately, there is no context provided to extract a location from.  Therefore, I cannot provide a value for the \"location\" field.\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,972 @@
+{
+  "file_name": "Less Hashing, Same Performance - Building a Better Bloom Filter - 2008 (10.1.1.152.579).pdf",
+  "task_id": "03c28ecb-e4bb-455b-8fc7-272084bdefea",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "21392113-832a-4080-b63c-3ba6aba840e4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 1,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "Less Hashing, Same Performance:\r\nBuilding a Better Bloom Filter\r\nAdam Kirsch,* Michael Mitzenmacher†\r\nHarvard School of Engineering and Applied Sciences, Cambridge, Massachusetts\r\n02138; e-mails: {kirsch, michaelm}@eecs.harvard.edu\r\nReceived 7 July 2006; accepted 11 July 2007\r\nPublished online 15 May 2008 in Wiley InterScience (www.interscience.wiley.com).\r\nDOI 10.1002/rsa.20208\r\nABSTRACT: A standard technique from the hashing literature is to use two hash functions h1(x)\r\nand h2(x) to simulate additional hash functions of the form gi(x) = h1(x) + ih2(x). We demonstrate\r\nthat this technique can be usefully applied to Bloom filters and related data structures. Specifically,\r\nonly two hash functions are necessary to effectively implement a Bloom filter without any loss in\r\nthe asymptotic false positive probability. This leads to less computation and potentially less need for\r\nrandomness in practice. © 2008 Wiley Periodicals, Inc. Random Struct. Alg., 33, 187–218, 2008\r\nKeywords: Bloom filters; double hashing; Poisson convergence\r\n1. INTRODUCTION\r\nA Bloom filter is a simple space-efficient randomized data structure for representing a set\r\nin order to support membership queries. Although Bloom filters allow false positives, the\r\nspace savings often outweigh this drawback. The Bloom filter and its many variations have\r\nproven increasingly important for many applications (see, for instance, the survey [4]). As\r\njust a partial listing of examples, counting Bloom filters allow deletions as well as insertions\r\nof items [13], compressed Bloom filters are optimized to minimize space when transmitted\r\n[20], retouched Bloom filters trade off false positives and false negatives [10], Bloomier\r\nCorrespondence to: Adam Kirsch\r\nPreliminary versions of this work appeared in [17] and [16].\r\n*Supported in part by an NSF Graduate Research Fellowship, NSF grants CCR-9983832 and CCR-0121154, and\r\na grant from Cisco Systems.\r\n†Supported in part by NSF grants CCR-9983832 and CCR-0121154, and a grant from Cisco Systems.\r\n© 2008 Wiley Periodicals, Inc.\r\n187",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/21392113-832a-4080-b63c-3ba6aba840e4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=301f6129d6e6903ea7dc3bee9a77c1ae7884b153055a65023e055c412dc23fc8",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 296
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d719920e-d743-4dca-8c94-07b12d2190ec",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 2,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "188 KIRSCH AND MITZENMACHER\r\nfilters keep function values associated with set elements (thereby offering more than set\r\nmembership) [5], Count-Min sketches [6] and multistage filters [12] track counts associated\r\nwith items, and approximate concurrent state machines track the dynamically changing state\r\nof a changing set of items [2]. Although recently more complex but asymptotically better\r\nalternatives have been proposed (e.g. [3, 23]), the Bloom filter’s simplicity, ease of use, and\r\nexcellent performance make it a standard data structure that is and will continue to be of\r\ngreat use in many applications. For those who are not familiar with the Bloom filter, we\r\nreview it below in Section 2. For now, it suffices to know that Bloom filters make use of\r\nmultiple hash functions.\r\nIn this paper, we show that applying a standard technique from the hashing literature\r\ncan simplify the implementation of Bloom filters significantly. The idea is the following:\r\ntwo hash functions h1(x) and h2(x) can simulate more than two hash functions of the form\r\ngi(x) = h1(x) + ih2(x). (See, for example, Knuth’s discussion of open addressing with\r\ndouble hashing [18].) In our context i will range from 0 up to some number k − 1 to give\r\nk hash functions, and the hash values are taken modulo the size of the relevant hash table.\r\nWe demonstrate that this technique can be usefully applied to Bloom filters and related data\r\nstructures. Specifically, only two hash functions are necessary to effectively implement a\r\nBloom filter without any increase in the asymptotic false positive probability. This leads\r\nto less computation and potentially less need for randomness in practice. Specifically, in\r\nquery-intensive applications where computationally nontrivial hash functions are used (such\r\nas in [8, 9]), hashing can be a potential bottleneck in using Bloom filters, and reducing the\r\nnumber of required hashes can yield an effective speedup. This improvement was found\r\nempirically in the work of Dillinger and Manolios [8, 9], who suggested using the hash\r\nfunctions\r\ngi(x) = h1(x) + ih2(x) + i\r\n2 mod m,\r\nwhere m is the size of the hash table.\r\nHere we provide a full theoretical analysis that holds for a wide class of variations of\r\nthis technique, justifies and gives insight into the previous empirical observations, and is\r\ninteresting in its own right. In particular, our methodology generalizes the standard asymp\u0002totic analysis of a Bloom filter, exposing a new convergence result that provides a common\r\nunifying intuition for the asymptotic false positive probabilities of the standard Bloom filter\r\nand the generalized class of Bloom filter variants that we analyze in this paper. We obtain\r\nthis result by a surprisingly simple approach; rather than attempt to directly analyze the\r\nasymptotic false positive probability, we formulate the initialization of the Bloom filter as a\r\nballs-and-bins experiment, prove a convergence result for that experiment, and then obtain\r\nthe asymptotic false positive probability as a corollary.\r\nWe start by analyzing a specific, somewhat idealized Bloom filter variation that provides\r\nthe main insights and intuition for deeper results. We then move to a more general setting\r\nthat covers several issues that might arise in practice, such as when the size of the hash table\r\nis a power of two as opposed to a prime. Finally, we demonstrate the utility of this approach\r\nbeyond the simple Bloom filter by showing how it can be used to reduce the number of hash\r\nfunctions required for Count-Min sketches [6], a variation of the Bloom filter idea used for\r\nkeeping approximate counts of frequent items in data streams.\r\nBefore beginning, we note that Luecker and Molodowitch [19] and Schmidt and Siegel\r\n[25] have shown that in the setting of open addressed hash tables, the double hashing\r\ntechnique gives the same performance as uniform hashing. These results are similar in\r\nspirit to ours, but the Bloom filter setting is sufficiently different from that of an open\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/d719920e-d743-4dca-8c94-07b12d2190ec.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=52a358b02991aa97dfdf5a7abd9693c7e27815e1c6fe42ea45e388ca74f993c7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 648
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d719920e-d743-4dca-8c94-07b12d2190ec",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 2,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "188 KIRSCH AND MITZENMACHER\r\nfilters keep function values associated with set elements (thereby offering more than set\r\nmembership) [5], Count-Min sketches [6] and multistage filters [12] track counts associated\r\nwith items, and approximate concurrent state machines track the dynamically changing state\r\nof a changing set of items [2]. Although recently more complex but asymptotically better\r\nalternatives have been proposed (e.g. [3, 23]), the Bloom filter’s simplicity, ease of use, and\r\nexcellent performance make it a standard data structure that is and will continue to be of\r\ngreat use in many applications. For those who are not familiar with the Bloom filter, we\r\nreview it below in Section 2. For now, it suffices to know that Bloom filters make use of\r\nmultiple hash functions.\r\nIn this paper, we show that applying a standard technique from the hashing literature\r\ncan simplify the implementation of Bloom filters significantly. The idea is the following:\r\ntwo hash functions h1(x) and h2(x) can simulate more than two hash functions of the form\r\ngi(x) = h1(x) + ih2(x). (See, for example, Knuth’s discussion of open addressing with\r\ndouble hashing [18].) In our context i will range from 0 up to some number k − 1 to give\r\nk hash functions, and the hash values are taken modulo the size of the relevant hash table.\r\nWe demonstrate that this technique can be usefully applied to Bloom filters and related data\r\nstructures. Specifically, only two hash functions are necessary to effectively implement a\r\nBloom filter without any increase in the asymptotic false positive probability. This leads\r\nto less computation and potentially less need for randomness in practice. Specifically, in\r\nquery-intensive applications where computationally nontrivial hash functions are used (such\r\nas in [8, 9]), hashing can be a potential bottleneck in using Bloom filters, and reducing the\r\nnumber of required hashes can yield an effective speedup. This improvement was found\r\nempirically in the work of Dillinger and Manolios [8, 9], who suggested using the hash\r\nfunctions\r\ngi(x) = h1(x) + ih2(x) + i\r\n2 mod m,\r\nwhere m is the size of the hash table.\r\nHere we provide a full theoretical analysis that holds for a wide class of variations of\r\nthis technique, justifies and gives insight into the previous empirical observations, and is\r\ninteresting in its own right. In particular, our methodology generalizes the standard asymp\u0002totic analysis of a Bloom filter, exposing a new convergence result that provides a common\r\nunifying intuition for the asymptotic false positive probabilities of the standard Bloom filter\r\nand the generalized class of Bloom filter variants that we analyze in this paper. We obtain\r\nthis result by a surprisingly simple approach; rather than attempt to directly analyze the\r\nasymptotic false positive probability, we formulate the initialization of the Bloom filter as a\r\nballs-and-bins experiment, prove a convergence result for that experiment, and then obtain\r\nthe asymptotic false positive probability as a corollary.\r\nWe start by analyzing a specific, somewhat idealized Bloom filter variation that provides\r\nthe main insights and intuition for deeper results. We then move to a more general setting\r\nthat covers several issues that might arise in practice, such as when the size of the hash table\r\nis a power of two as opposed to a prime. Finally, we demonstrate the utility of this approach\r\nbeyond the simple Bloom filter by showing how it can be used to reduce the number of hash\r\nfunctions required for Count-Min sketches [6], a variation of the Bloom filter idea used for\r\nkeeping approximate counts of frequent items in data streams.\r\nBefore beginning, we note that Luecker and Molodowitch [19] and Schmidt and Siegel\r\n[25] have shown that in the setting of open addressed hash tables, the double hashing\r\ntechnique gives the same performance as uniform hashing. These results are similar in\r\nspirit to ours, but the Bloom filter setting is sufficiently different from that of an open\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/d719920e-d743-4dca-8c94-07b12d2190ec.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=52a358b02991aa97dfdf5a7abd9693c7e27815e1c6fe42ea45e388ca74f993c7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 648
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ba96748e-1524-4f66-9d8c-85c3f2802d2b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 3,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 189\r\naddressed hash table that we do not see a direct connection. We also note that our use\r\nof hash functions of the form gi(x) = h1(x) + ih2(x) may appear similar to the use of\r\npairwise independent hash functions, and that one might wonder whether there is any\r\nformal connection between the two techniques in the Bloom filter setting. Unfortunately,\r\nthis is not the case; a straightforward modification of the standard Bloom filter analysis\r\nyields that if pairwise independent hash functions are used instead of fully random hash\r\nfunctions, then the space required to retain the same bound on the false positive probability\r\nincreases by a constant factor. In contrast, we show that using the gi’s causes no increase in\r\nthe false positive probability, so they can truly be used as a replacement for fully random\r\nhash functions.\r\n2. STANDARD BLOOM FILTERS\r\nWe begin by reviewing the fundamentals of Bloom filters, based on the presentation of\r\nthe survey [4], which we refer to for further details. A Bloom filter for representing a set\r\nS = {x1, x2, ... , xn} of n elements from a large universe U consists of an array of m bits,\r\ninitially all set to 0. The filter uses k independent hash functions h1, ... , hk with range\r\n{1, ... , m}, where it assumed that these hash functions map each element in the universe to\r\na random number uniformly over the range. Although the randomness of the hash functions\r\nis clearly an optimistic assumption, it appears to be suitable in practice [13, 24]. For each\r\nelement x ∈ S, the bits hi(x) are set to 1 for 1 ≤ i ≤ k. (A location can be set to 1 multiple\r\ntimes.) To check if an item y is in S, we check whether all hi(y) are set to 1. If not, then\r\nclearly y is not a member of S. If all hi(y) are set to 1, we assume that y is in S, and hence a\r\nBloom filter may yield a false positive.\r\nThe probability of a false positive for an element not in the set, or the false positive\r\nprobability, can be estimated in a straightforward fashion, given our assumption that hash\r\nfunctions are perfectly random. After all the elements of S are hashed into the Bloom filter,\r\nthe probability that a specific bit is still 0 is\r\np\u0003 = (1 − 1/m)\r\nkn ≈ e−kn/m.\r\nIn this section, we generally use the approximation p = e−kn/m in place of p\u0003 for convenience.\r\nIf ρ is the proportion of 0 bits after all the n elements are inserted in the table, then\r\nconditioned on ρ the probability of a false positive is\r\n(1 − ρ)k ≈ (1 − p\u0003\r\n)\r\nk ≈ (1 − p)k = (1 − e−kn/m)k\r\n.\r\nThese approximations follow sinceE[ρ] = p\u0003\r\n, and ρ can be shown to be highly concentrated\r\naround p\u0003 using standard techniques. It is easy to show that the expression (1 − e−kn/m)k is\r\nminimized when k = ln 2 · (m/n), giving a false positive probability f of\r\nf = (1 − e−kn/m)\r\nk = (1/2)k ≈ (0.6185)m/n\r\n.\r\nIn practice, k must be an integer, and a smaller, suboptimal k might be preferred, since this\r\nreduces the number of hash functions that have to be computed.\r\nThis analysis provides us (roughly) with the probability that a single item z ∈/ S gives\r\na false positive. We would like to make a broader statement, that in fact this gives a\r\nfalse positive rate. That is, if we choose a large number of distinct elements not in S,\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/ba96748e-1524-4f66-9d8c-85c3f2802d2b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c77596118f58c21e5bef5d74c5ad9714c42c288fdd615aafbc18183f9af01f55",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 617
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ba96748e-1524-4f66-9d8c-85c3f2802d2b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 3,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 189\r\naddressed hash table that we do not see a direct connection. We also note that our use\r\nof hash functions of the form gi(x) = h1(x) + ih2(x) may appear similar to the use of\r\npairwise independent hash functions, and that one might wonder whether there is any\r\nformal connection between the two techniques in the Bloom filter setting. Unfortunately,\r\nthis is not the case; a straightforward modification of the standard Bloom filter analysis\r\nyields that if pairwise independent hash functions are used instead of fully random hash\r\nfunctions, then the space required to retain the same bound on the false positive probability\r\nincreases by a constant factor. In contrast, we show that using the gi’s causes no increase in\r\nthe false positive probability, so they can truly be used as a replacement for fully random\r\nhash functions.\r\n2. STANDARD BLOOM FILTERS\r\nWe begin by reviewing the fundamentals of Bloom filters, based on the presentation of\r\nthe survey [4], which we refer to for further details. A Bloom filter for representing a set\r\nS = {x1, x2, ... , xn} of n elements from a large universe U consists of an array of m bits,\r\ninitially all set to 0. The filter uses k independent hash functions h1, ... , hk with range\r\n{1, ... , m}, where it assumed that these hash functions map each element in the universe to\r\na random number uniformly over the range. Although the randomness of the hash functions\r\nis clearly an optimistic assumption, it appears to be suitable in practice [13, 24]. For each\r\nelement x ∈ S, the bits hi(x) are set to 1 for 1 ≤ i ≤ k. (A location can be set to 1 multiple\r\ntimes.) To check if an item y is in S, we check whether all hi(y) are set to 1. If not, then\r\nclearly y is not a member of S. If all hi(y) are set to 1, we assume that y is in S, and hence a\r\nBloom filter may yield a false positive.\r\nThe probability of a false positive for an element not in the set, or the false positive\r\nprobability, can be estimated in a straightforward fashion, given our assumption that hash\r\nfunctions are perfectly random. After all the elements of S are hashed into the Bloom filter,\r\nthe probability that a specific bit is still 0 is\r\np\u0003 = (1 − 1/m)\r\nkn ≈ e−kn/m.\r\nIn this section, we generally use the approximation p = e−kn/m in place of p\u0003 for convenience.\r\nIf ρ is the proportion of 0 bits after all the n elements are inserted in the table, then\r\nconditioned on ρ the probability of a false positive is\r\n(1 − ρ)k ≈ (1 − p\u0003\r\n)\r\nk ≈ (1 − p)k = (1 − e−kn/m)k\r\n.\r\nThese approximations follow sinceE[ρ] = p\u0003\r\n, and ρ can be shown to be highly concentrated\r\naround p\u0003 using standard techniques. It is easy to show that the expression (1 − e−kn/m)k is\r\nminimized when k = ln 2 · (m/n), giving a false positive probability f of\r\nf = (1 − e−kn/m)\r\nk = (1/2)k ≈ (0.6185)m/n\r\n.\r\nIn practice, k must be an integer, and a smaller, suboptimal k might be preferred, since this\r\nreduces the number of hash functions that have to be computed.\r\nThis analysis provides us (roughly) with the probability that a single item z ∈/ S gives\r\na false positive. We would like to make a broader statement, that in fact this gives a\r\nfalse positive rate. That is, if we choose a large number of distinct elements not in S,\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/ba96748e-1524-4f66-9d8c-85c3f2802d2b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c77596118f58c21e5bef5d74c5ad9714c42c288fdd615aafbc18183f9af01f55",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 617
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c1ca1746-4dc6-4ae9-a25e-649326b87f70",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 4,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "190 KIRSCH AND MITZENMACHER\r\nthe fraction of them that yield false positives is approximately f . This result follows imme\u0002diately from the fact that ρ is highly concentrated around p\u0003\r\n, and for this reason, the false\r\npositive probability is sometimes called the false positive rate. As we will see, in our varia\u0002tions, it is not always as clear that the false positive probability acts like a false positive rate,\r\nand so we clearly distinguish between the two concepts. (Indeed, we think this clarification\r\nis a contribution of this paper.)\r\nBefore moving on, we note that sometimes Bloom filters are described slightly differently,\r\nwith each hash function having a disjoint range of m/k consecutive bit locations instead\r\nof having one shared array of m bits. We refer to this variant as a partitioned Bloom filter.\r\nRepeating the analysis above, we find that in this case the probability that a specific bit is 0 is\r\n\u0001\r\n1 − k\r\nm\r\n\u0002n\r\n≈ e−kn/m,\r\nand so, asymptotically, the performance is the same as the original scheme. In practice, how\u0002ever, the partitioned Bloom filter tends to perform slightly worse than the nonpartitioned\r\nBloom filter. This is explained by the observation that\r\n\u0001\r\n1 − 1\r\nm\r\n\u0002kn\r\n≥\r\n\u0001\r\n1 − k\r\nm\r\n\u0002n\r\n,\r\nso partitioned filters tend to have more 1’s than nonpartitioned filters, resulting in larger\r\nfalse positive probabilities.\r\n3. A SIMPLE CONSTRUCTION USING TWO HASH FUNCTIONS\r\nAs an instructive example case, we consider a specific application of the general technique\r\ndescribed in the introduction. We devise a Bloom filter that uses k fully random hash\r\nfunctions on some universe U of items, each with range {0, 1, 2, ... , p − 1} for a prime p.\r\nOur hash table consists of m = kp bits; each hash function is assigned a disjoint subarray of p\r\nbits in the filter, that we treat as numbered {0, 1, 2, ... , p−1}. Our k hash functions will be of\r\nthe form gi(x) = h1(x)+ih2(x) mod p, where h1(x) and h2(x) are two independent, uniform\r\nrandom hash functions on the universe with range {0, 1, 2, ... , p − 1}, and throughout we\r\nassume that i ranges from 0 to k − 1.\r\nAs with a standard partitioned Bloom filter, we fix some set S ⊆ U and initialize the\r\nfilter with S by first setting all of the bits to 0 and then, for each x ∈ S and i, setting the\r\ngi(x)-th bit of the i-th subarray to 1. For any y ∈ U, we answer a query of the form “Is\r\ny ∈ S?” with “Yes” if and only if the gi(y)-th bit of the i-th subarray is 1 for every i. Thus,\r\nan item z \u0007∈ S generates a false positive if and only if each of its hash locations in the array\r\nis also a hash location for some x ∈ S.\r\nThe advantage of our simplified setting is that for any two elements x, y ∈ U, exactly\r\none of the following three cases occurs:\r\n• gi(x) \u0007= gi(y) for all i, or\r\n• gi(x) = gi(y) for exactly one i, or\r\n• gi(x) = gi(y) for all i.\r\nThat is, because we have partitioned the bit array into disjoint hash tables, each hash function\r\ncan be considered separately. Moreover, by working modulo p, we have arranged that if\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/c1ca1746-4dc6-4ae9-a25e-649326b87f70.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ebc4c323b8f50a65625693b41f6609b43bf9fff694d8e93dce07fc203ed19c4d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 571
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c1ca1746-4dc6-4ae9-a25e-649326b87f70",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 4,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "190 KIRSCH AND MITZENMACHER\r\nthe fraction of them that yield false positives is approximately f . This result follows imme\u0002diately from the fact that ρ is highly concentrated around p\u0003\r\n, and for this reason, the false\r\npositive probability is sometimes called the false positive rate. As we will see, in our varia\u0002tions, it is not always as clear that the false positive probability acts like a false positive rate,\r\nand so we clearly distinguish between the two concepts. (Indeed, we think this clarification\r\nis a contribution of this paper.)\r\nBefore moving on, we note that sometimes Bloom filters are described slightly differently,\r\nwith each hash function having a disjoint range of m/k consecutive bit locations instead\r\nof having one shared array of m bits. We refer to this variant as a partitioned Bloom filter.\r\nRepeating the analysis above, we find that in this case the probability that a specific bit is 0 is\r\n\u0001\r\n1 − k\r\nm\r\n\u0002n\r\n≈ e−kn/m,\r\nand so, asymptotically, the performance is the same as the original scheme. In practice, how\u0002ever, the partitioned Bloom filter tends to perform slightly worse than the nonpartitioned\r\nBloom filter. This is explained by the observation that\r\n\u0001\r\n1 − 1\r\nm\r\n\u0002kn\r\n≥\r\n\u0001\r\n1 − k\r\nm\r\n\u0002n\r\n,\r\nso partitioned filters tend to have more 1’s than nonpartitioned filters, resulting in larger\r\nfalse positive probabilities.\r\n3. A SIMPLE CONSTRUCTION USING TWO HASH FUNCTIONS\r\nAs an instructive example case, we consider a specific application of the general technique\r\ndescribed in the introduction. We devise a Bloom filter that uses k fully random hash\r\nfunctions on some universe U of items, each with range {0, 1, 2, ... , p − 1} for a prime p.\r\nOur hash table consists of m = kp bits; each hash function is assigned a disjoint subarray of p\r\nbits in the filter, that we treat as numbered {0, 1, 2, ... , p−1}. Our k hash functions will be of\r\nthe form gi(x) = h1(x)+ih2(x) mod p, where h1(x) and h2(x) are two independent, uniform\r\nrandom hash functions on the universe with range {0, 1, 2, ... , p − 1}, and throughout we\r\nassume that i ranges from 0 to k − 1.\r\nAs with a standard partitioned Bloom filter, we fix some set S ⊆ U and initialize the\r\nfilter with S by first setting all of the bits to 0 and then, for each x ∈ S and i, setting the\r\ngi(x)-th bit of the i-th subarray to 1. For any y ∈ U, we answer a query of the form “Is\r\ny ∈ S?” with “Yes” if and only if the gi(y)-th bit of the i-th subarray is 1 for every i. Thus,\r\nan item z \u0007∈ S generates a false positive if and only if each of its hash locations in the array\r\nis also a hash location for some x ∈ S.\r\nThe advantage of our simplified setting is that for any two elements x, y ∈ U, exactly\r\none of the following three cases occurs:\r\n• gi(x) \u0007= gi(y) for all i, or\r\n• gi(x) = gi(y) for exactly one i, or\r\n• gi(x) = gi(y) for all i.\r\nThat is, because we have partitioned the bit array into disjoint hash tables, each hash function\r\ncan be considered separately. Moreover, by working modulo p, we have arranged that if\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/c1ca1746-4dc6-4ae9-a25e-649326b87f70.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ebc4c323b8f50a65625693b41f6609b43bf9fff694d8e93dce07fc203ed19c4d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 571
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "68e0eeb3-b0d9-4075-a5ef-eb13f51391fc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 5,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 191\r\ngi(x) = gi(y)for at least two values ofi, then we must have h1(x) = h1(y) and h2(x) = h2(y),\r\nso all hash values are the same. This codifies the intuition behind our result: the most likely\r\nway for a false positive to occur is when each element in the Bloom filter set S collides\r\nwith at most one array bit corresponding to the element generating the false positive; other\r\nevents that cause an element to generate a false positive occur with vanishing probability.\r\nIt is this intuition that motivates our analysis; in Section 4, we consider more general cases\r\nwhere other non-trivial collisions can occur.\r\nProceeding formally, we fix a set S = {x1, x2, ... , xn} of n elements from U and another\r\nelement z ∈/ S, and compute the probability that z yields a false positive. A false positive\r\ncorresponds to the event F that for each i there is (at least) one j such that gi(z) = gi(xj).\r\nObviously, one way this can occur is if h1(xj) = h1(z) and h2(xj) = h2(z) for some j. The\r\nprobability of this event E is\r\nPr(E) = 1 − (1 − 1/p2\r\n)\r\nn = 1 − (1 − k2\r\n/m2)\r\nn\r\n.\r\nNotice that when m/n = c is a constant and k is a constant, as is standard for a Bloom filter,\r\nwe have Pr(E) = o(1). Now since\r\nPr(F) = Pr(F|E) Pr(E) + Pr(F|¬E) Pr(¬E)\r\n= Pr(E) + Pr(F|¬E) Pr(¬E)\r\n= o(1) + Pr(F|¬E)(1 − o(1)),\r\nit suffices to consider Pr(F|¬E) to obtain the (constant) asymptotic false positive\r\nprobability.\r\nConditioned on ¬E and (h1(z), h2(z)), the pair (h1(xj), h2(xj)) is uniformly distributed\r\nover the p2 − 1 values in V = {0, ... , p − 1}2 − {(h1(z), h2(z))}. Of these, for each i\r\n∗ ∈\r\n{0, ... , k − 1}, the p − 1 pairs in\r\nVi∗ = {(a, b) ∈ V : a ≡ i\r\n∗\r\n(h2(z) − b) + h1(z) mod p, b \u0007≡ h2(z) mod p}\r\nare the ones such that if (h1(xj), h2(xj)) ∈ Vi∗ , then i\r\n∗ is the unique value of i such that\r\ngi(xj) = gi(z). We can therefore view the conditional probability as a variant of a balls\u0002and-bins problem. There are n balls (each corresponding to some xj ∈ S), and k bins (each\r\ncorresponding to some i\r\n∗ ∈ {0, ... , k−1}). With probability k(p−1)/(p2−1) = k/(p+1),\r\na ball lands in a bin, and with the remaining probability it is discarded; when a ball lands\r\nin a bin, the bin it lands in is chosen uniformly at random. What is the probability that all\r\nof the bins have at least one ball?\r\nThis question is surprisingly easy to answer. By the Poisson approximation and the fact\r\nthat p = m/k = cn/k, the total number of balls that are not discarded has distribution\r\nBin(n, k/(p + 1)) ≈ Po(k2/c), where Bin(·, ·) and Po(·) denote the binomial and Poisson\r\ndistributions, respectively. Since each ball that is not discarded lands in a bin chosen at\r\nrandom, the joint distribution of the number of balls in the bins is asymptotically the same\r\nas the joint distribution of k independent Po(k/c) random variables, by a standard property\r\nof Poisson random variables. The probability that each bin has a least one ball now clearly\r\nconverges to\r\nPr(Po(k/c) > 0)\r\nk = (1 − e−k/c\r\n)\r\nk = (1 − e−kn/m)k\r\n,\r\nwhich is the asymptotic false positive probability for a standard Bloom filter.\r\nWe make the above argument much more general and rigorous in Section 4, but for now\r\nwe emphasize that we have actually characterized much more than just the false positive\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/68e0eeb3-b0d9-4075-a5ef-eb13f51391fc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2d5f89d20ca4aa32e284b3a9539e8e83c21c429d1b139489a58492b2a20717ed",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 630
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "68e0eeb3-b0d9-4075-a5ef-eb13f51391fc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 5,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 191\r\ngi(x) = gi(y)for at least two values ofi, then we must have h1(x) = h1(y) and h2(x) = h2(y),\r\nso all hash values are the same. This codifies the intuition behind our result: the most likely\r\nway for a false positive to occur is when each element in the Bloom filter set S collides\r\nwith at most one array bit corresponding to the element generating the false positive; other\r\nevents that cause an element to generate a false positive occur with vanishing probability.\r\nIt is this intuition that motivates our analysis; in Section 4, we consider more general cases\r\nwhere other non-trivial collisions can occur.\r\nProceeding formally, we fix a set S = {x1, x2, ... , xn} of n elements from U and another\r\nelement z ∈/ S, and compute the probability that z yields a false positive. A false positive\r\ncorresponds to the event F that for each i there is (at least) one j such that gi(z) = gi(xj).\r\nObviously, one way this can occur is if h1(xj) = h1(z) and h2(xj) = h2(z) for some j. The\r\nprobability of this event E is\r\nPr(E) = 1 − (1 − 1/p2\r\n)\r\nn = 1 − (1 − k2\r\n/m2)\r\nn\r\n.\r\nNotice that when m/n = c is a constant and k is a constant, as is standard for a Bloom filter,\r\nwe have Pr(E) = o(1). Now since\r\nPr(F) = Pr(F|E) Pr(E) + Pr(F|¬E) Pr(¬E)\r\n= Pr(E) + Pr(F|¬E) Pr(¬E)\r\n= o(1) + Pr(F|¬E)(1 − o(1)),\r\nit suffices to consider Pr(F|¬E) to obtain the (constant) asymptotic false positive\r\nprobability.\r\nConditioned on ¬E and (h1(z), h2(z)), the pair (h1(xj), h2(xj)) is uniformly distributed\r\nover the p2 − 1 values in V = {0, ... , p − 1}2 − {(h1(z), h2(z))}. Of these, for each i\r\n∗ ∈\r\n{0, ... , k − 1}, the p − 1 pairs in\r\nVi∗ = {(a, b) ∈ V : a ≡ i\r\n∗\r\n(h2(z) − b) + h1(z) mod p, b \u0007≡ h2(z) mod p}\r\nare the ones such that if (h1(xj), h2(xj)) ∈ Vi∗ , then i\r\n∗ is the unique value of i such that\r\ngi(xj) = gi(z). We can therefore view the conditional probability as a variant of a balls\u0002and-bins problem. There are n balls (each corresponding to some xj ∈ S), and k bins (each\r\ncorresponding to some i\r\n∗ ∈ {0, ... , k−1}). With probability k(p−1)/(p2−1) = k/(p+1),\r\na ball lands in a bin, and with the remaining probability it is discarded; when a ball lands\r\nin a bin, the bin it lands in is chosen uniformly at random. What is the probability that all\r\nof the bins have at least one ball?\r\nThis question is surprisingly easy to answer. By the Poisson approximation and the fact\r\nthat p = m/k = cn/k, the total number of balls that are not discarded has distribution\r\nBin(n, k/(p + 1)) ≈ Po(k2/c), where Bin(·, ·) and Po(·) denote the binomial and Poisson\r\ndistributions, respectively. Since each ball that is not discarded lands in a bin chosen at\r\nrandom, the joint distribution of the number of balls in the bins is asymptotically the same\r\nas the joint distribution of k independent Po(k/c) random variables, by a standard property\r\nof Poisson random variables. The probability that each bin has a least one ball now clearly\r\nconverges to\r\nPr(Po(k/c) > 0)\r\nk = (1 − e−k/c\r\n)\r\nk = (1 − e−kn/m)k\r\n,\r\nwhich is the asymptotic false positive probability for a standard Bloom filter.\r\nWe make the above argument much more general and rigorous in Section 4, but for now\r\nwe emphasize that we have actually characterized much more than just the false positive\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/68e0eeb3-b0d9-4075-a5ef-eb13f51391fc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2d5f89d20ca4aa32e284b3a9539e8e83c21c429d1b139489a58492b2a20717ed",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 630
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "012dc06c-d302-4ae3-aad2-c99cd64fc23d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 6,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "192 KIRSCH AND MITZENMACHER\r\nprobability of our Bloom filter variant. In fact, we have characterized the asymptotic joint\r\ndistribution of the number of items in S hashing to the locations used by some z \u0007∈ S as\r\nbeing independent Po(k/c) random variables. Furthermore, from a technical perspective,\r\nthis approach appears fairly robust. In particular, the above analysis uses only the facts\r\nthat the probability that some x ∈ S shares more than one of z’s hash locations is o(1),\r\nand that if some x ∈ S shares exactly one of z’s hash locations, then that hash location is\r\nnearly uniformly distributed over z’s hash locations. These observations suggest that the\r\ntechniques used in this section can be generalized to handle a much wider class of Bloom\r\nfilter variants, and form the intuitive basis for the arguments in Section 4.\r\nNow, as in Section 2, we must argue that the asymptotic false positive probability also\r\nacts like a false positive rate. Similar to the case for the standard Bloom filter, this fact boils\r\ndown to a concentration argument. Once the set S is hashed, there is a set\r\nB = {(b1, b2) : h1(z) = b1 and h2(z) = b2 implies z gives a false positive}.\r\nConditioned on |B|, the probability of a false positive for any element in U − S is |B|/p2,\r\nand these events are independent. If we show that |B| is concentrated around its expectation,\r\nit follows easily that the fraction of false positives in a set of distinct elements not in S is\r\nconcentrated around the false positive probability.\r\nA simple Doob martingale argument suffices (e.g. [21, Section 12.5]). Each hashed\r\nelement of S can change the number of pairs in B by at most kp in either direction. This\r\nobservation follows immediately from the fact that given any element x, its hash values h1(x)\r\nand h2(x), and some i ∈ {0, ... , k−1}, there are exactly p solutions(b1, b2) ∈ {0, ... , p−1}2\r\nto the equation\r\nh1(x) + ih2(x) ≡ b1 + ib2 (mod p).\r\nBy [21, Section 12.5], we now have that for any \u0002 > 0,\r\nPr(|B − E[B]| ≥ \u0002p2\r\n) ≤ 2 exp[−2\u00022p2/nk2].\r\nIt is now easy to derive the desired conclusion. We defer further details until Section 7,\r\nwhere we consider a similar but much more general argument.\r\nAs an aside, we remark that unlike the analysis of the standard Bloom filter in Section 2,\r\nhere the fraction ρ of zeros in the Bloom filter array is not important for showing that the\r\nfalse positive probability acts like a false positive rate. However, it can be easily shown\r\nthat ρ has essentially the same asymptotic expectation in this Bloom filter variation as\r\nfor a standard Bloom filter, and that ρ is highly concentrated around its mean. (The same\r\nobservations hold for the specific schemes in Section 5.)\r\n4. A GENERAL FRAMEWORK\r\nIn this section, we introduce a general framework for analyzing Bloom filter variants, such\r\nas the one examined in Section 3. We start with some new notation. For any integer \u0003, we\r\ndefine the set [\u0003]={0, 1, ... , \u0003 − 1} (note that this definition is slightly nonstandard). We\r\ndenote the support of a random variable X by Supp(X). For a multiset M, we use |M| to\r\ndenote the number of distinct elements of M, and \nM\n to denote the number of elements\r\nof M with multiplicity. For two multisets M and M\u0003\r\n, we define M ∩ M\u0003 and M ∪ M\u0003 to\r\nbe, respectively, the intersection and union of M\u0003 as multisets. Furthermore, in an abuse of\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/012dc06c-d302-4ae3-aad2-c99cd64fc23d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d98d5d13f620e79dce950d733a74270a6efe265244ec4409ecefb75566c16762",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 609
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "012dc06c-d302-4ae3-aad2-c99cd64fc23d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 6,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "192 KIRSCH AND MITZENMACHER\r\nprobability of our Bloom filter variant. In fact, we have characterized the asymptotic joint\r\ndistribution of the number of items in S hashing to the locations used by some z \u0007∈ S as\r\nbeing independent Po(k/c) random variables. Furthermore, from a technical perspective,\r\nthis approach appears fairly robust. In particular, the above analysis uses only the facts\r\nthat the probability that some x ∈ S shares more than one of z’s hash locations is o(1),\r\nand that if some x ∈ S shares exactly one of z’s hash locations, then that hash location is\r\nnearly uniformly distributed over z’s hash locations. These observations suggest that the\r\ntechniques used in this section can be generalized to handle a much wider class of Bloom\r\nfilter variants, and form the intuitive basis for the arguments in Section 4.\r\nNow, as in Section 2, we must argue that the asymptotic false positive probability also\r\nacts like a false positive rate. Similar to the case for the standard Bloom filter, this fact boils\r\ndown to a concentration argument. Once the set S is hashed, there is a set\r\nB = {(b1, b2) : h1(z) = b1 and h2(z) = b2 implies z gives a false positive}.\r\nConditioned on |B|, the probability of a false positive for any element in U − S is |B|/p2,\r\nand these events are independent. If we show that |B| is concentrated around its expectation,\r\nit follows easily that the fraction of false positives in a set of distinct elements not in S is\r\nconcentrated around the false positive probability.\r\nA simple Doob martingale argument suffices (e.g. [21, Section 12.5]). Each hashed\r\nelement of S can change the number of pairs in B by at most kp in either direction. This\r\nobservation follows immediately from the fact that given any element x, its hash values h1(x)\r\nand h2(x), and some i ∈ {0, ... , k−1}, there are exactly p solutions(b1, b2) ∈ {0, ... , p−1}2\r\nto the equation\r\nh1(x) + ih2(x) ≡ b1 + ib2 (mod p).\r\nBy [21, Section 12.5], we now have that for any \u0002 > 0,\r\nPr(|B − E[B]| ≥ \u0002p2\r\n) ≤ 2 exp[−2\u00022p2/nk2].\r\nIt is now easy to derive the desired conclusion. We defer further details until Section 7,\r\nwhere we consider a similar but much more general argument.\r\nAs an aside, we remark that unlike the analysis of the standard Bloom filter in Section 2,\r\nhere the fraction ρ of zeros in the Bloom filter array is not important for showing that the\r\nfalse positive probability acts like a false positive rate. However, it can be easily shown\r\nthat ρ has essentially the same asymptotic expectation in this Bloom filter variation as\r\nfor a standard Bloom filter, and that ρ is highly concentrated around its mean. (The same\r\nobservations hold for the specific schemes in Section 5.)\r\n4. A GENERAL FRAMEWORK\r\nIn this section, we introduce a general framework for analyzing Bloom filter variants, such\r\nas the one examined in Section 3. We start with some new notation. For any integer \u0003, we\r\ndefine the set [\u0003]={0, 1, ... , \u0003 − 1} (note that this definition is slightly nonstandard). We\r\ndenote the support of a random variable X by Supp(X). For a multiset M, we use |M| to\r\ndenote the number of distinct elements of M, and \nM\n to denote the number of elements\r\nof M with multiplicity. For two multisets M and M\u0003\r\n, we define M ∩ M\u0003 and M ∪ M\u0003 to\r\nbe, respectively, the intersection and union of M\u0003 as multisets. Furthermore, in an abuse of\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/012dc06c-d302-4ae3-aad2-c99cd64fc23d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d98d5d13f620e79dce950d733a74270a6efe265244ec4409ecefb75566c16762",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 609
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "be2052a0-a25b-4f3e-8b7c-870ad10c5303",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 7,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 193\r\nstandard notation, we define the statement i, i ∈ M as meaning that i is an element of M of\r\nmultiplicity at least 2.\r\nWe are now ready to define the framework. As before, U denotes the universe of items\r\nand S ⊆ U denotes the set of n items for which the Bloom filter will answer membership\r\nqueries. We define a scheme to be a method of assigning hash locations to every element\r\nof U. Formally, a scheme is specified by a joint distribution of discrete random variables\r\n{H(u) : u ∈ U} (implicitly parameterized by n), where for u ∈ U, H(u) represents the\r\nmultiset of hash-locations assigned to u by the scheme. We do not require a scheme to be\r\ndefined for every value of n, but we do insist that it be defined for infinitely many values of\r\nn, so that we may take limits as n → ∞. For example, for the class of schemes discussed in\r\nSection 3, we think of the constants k and c as being fixed to give a particular scheme that is\r\ndefined for those values of n such that p \u0001 m/k is a prime, where m \u0001 cn. Since there are\r\ninfinitely many primes, the asymptotic behavior of this scheme as n → ∞ is well-defined\r\nand is the same as in Section 3, where we let m be a free parameter and analyzed the behavior\r\nas n, m → ∞ subject to m/n and k being fixed constants, and m/k being prime.\r\nHaving defined the notion of a scheme, we may now formalize some important concepts\r\nwith new notation (all of which is implicitly parameterized by n). We define H to be the set\r\nof all hash locations that can be assigned by the scheme (formally, H is the set of elements\r\nthat appear in some multiset in the support of H(u), for some u ∈ U). For x ∈ S and\r\nz ∈ U − S, define C(x,z) = H(x) ∩ H(z) to be the multiset of hash collisions of x with z.\r\nWe let F(z) denote the false positive event for z ∈ U − S, which occurs when each of z’s\r\nhash locations is also a hash location for some x ∈ S.\r\nIn the schemes that we consider, {H(u) : u ∈ U} will always be independent and\r\nidentically distributed. In this case, Pr(F(z)) is the same for all z ∈ U − S, as is the joint\r\ndistribution of {C(x,z) : x ∈ S}. Thus, to simplify the notation, we may fix an arbitrary\r\nz ∈ U−S and simply use Pr(F)instead of Pr(F(z))to denote the false positive probability,\r\nand we may use {C(x) : x ∈ S} instead of {C(x,z) : x ∈ S} to denote the joint probability\r\ndistribution of the multisets of hash collisions of elements of S with z.\r\nThe main technical result of this section is the following key theorem, which is a for\u0002malization and generalization of the analysis of the asymptotic false positive probability in\r\nSection 3.\r\nTheorem 4.1. Fix a scheme. Suppose that there are constants λ and k and functions\r\nγ1(n) = o(1/n) and γ2(n) = o(1) such that:\r\n1. {H(u) : u ∈ U} are independent and identically distributed.\r\n2. For u ∈ U, \nH(u)\n = k.\r\n3. For x ∈ S, Pr(\nC(x)\n = i) =\r\n\r\n\r\n\r\n1 − λ\r\nn + O(γ1(n)) i = 0 λ\r\nn + O(γ1(n)) i = 1\r\nO(γ1(n)) i > 1\r\n.\r\n4. For x ∈ S, maxi∈H | Pr(i ∈ C(x)|\nC(x)\n = 1, i ∈ H(z)) − 1\r\nk | = O(γ2(n)).\r\nThen limn→∞ Pr(F) = (1 − e−λ/k )k .\r\nRemark 1. It is not difficult to verify that the scheme analyzed in Section 3 satisfies the\r\nconditions of Theorem 4.1 with λ = k2/c. However, more complicated schemes are not so\r\namenable to a direct application of Theorem 4.1. Thus, after proving the theorem, we give\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/be2052a0-a25b-4f3e-8b7c-870ad10c5303.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8c7f131858c08702b9524c9bda337088fded27804be8e4c53d985a0518453ba7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 677
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "be2052a0-a25b-4f3e-8b7c-870ad10c5303",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 7,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 193\r\nstandard notation, we define the statement i, i ∈ M as meaning that i is an element of M of\r\nmultiplicity at least 2.\r\nWe are now ready to define the framework. As before, U denotes the universe of items\r\nand S ⊆ U denotes the set of n items for which the Bloom filter will answer membership\r\nqueries. We define a scheme to be a method of assigning hash locations to every element\r\nof U. Formally, a scheme is specified by a joint distribution of discrete random variables\r\n{H(u) : u ∈ U} (implicitly parameterized by n), where for u ∈ U, H(u) represents the\r\nmultiset of hash-locations assigned to u by the scheme. We do not require a scheme to be\r\ndefined for every value of n, but we do insist that it be defined for infinitely many values of\r\nn, so that we may take limits as n → ∞. For example, for the class of schemes discussed in\r\nSection 3, we think of the constants k and c as being fixed to give a particular scheme that is\r\ndefined for those values of n such that p \u0001 m/k is a prime, where m \u0001 cn. Since there are\r\ninfinitely many primes, the asymptotic behavior of this scheme as n → ∞ is well-defined\r\nand is the same as in Section 3, where we let m be a free parameter and analyzed the behavior\r\nas n, m → ∞ subject to m/n and k being fixed constants, and m/k being prime.\r\nHaving defined the notion of a scheme, we may now formalize some important concepts\r\nwith new notation (all of which is implicitly parameterized by n). We define H to be the set\r\nof all hash locations that can be assigned by the scheme (formally, H is the set of elements\r\nthat appear in some multiset in the support of H(u), for some u ∈ U). For x ∈ S and\r\nz ∈ U − S, define C(x,z) = H(x) ∩ H(z) to be the multiset of hash collisions of x with z.\r\nWe let F(z) denote the false positive event for z ∈ U − S, which occurs when each of z’s\r\nhash locations is also a hash location for some x ∈ S.\r\nIn the schemes that we consider, {H(u) : u ∈ U} will always be independent and\r\nidentically distributed. In this case, Pr(F(z)) is the same for all z ∈ U − S, as is the joint\r\ndistribution of {C(x,z) : x ∈ S}. Thus, to simplify the notation, we may fix an arbitrary\r\nz ∈ U−S and simply use Pr(F)instead of Pr(F(z))to denote the false positive probability,\r\nand we may use {C(x) : x ∈ S} instead of {C(x,z) : x ∈ S} to denote the joint probability\r\ndistribution of the multisets of hash collisions of elements of S with z.\r\nThe main technical result of this section is the following key theorem, which is a for\u0002malization and generalization of the analysis of the asymptotic false positive probability in\r\nSection 3.\r\nTheorem 4.1. Fix a scheme. Suppose that there are constants λ and k and functions\r\nγ1(n) = o(1/n) and γ2(n) = o(1) such that:\r\n1. {H(u) : u ∈ U} are independent and identically distributed.\r\n2. For u ∈ U, \nH(u)\n = k.\r\n3. For x ∈ S, Pr(\nC(x)\n = i) =\r\n\r\n\r\n\r\n1 − λ\r\nn + O(γ1(n)) i = 0 λ\r\nn + O(γ1(n)) i = 1\r\nO(γ1(n)) i > 1\r\n.\r\n4. For x ∈ S, maxi∈H | Pr(i ∈ C(x)|\nC(x)\n = 1, i ∈ H(z)) − 1\r\nk | = O(γ2(n)).\r\nThen limn→∞ Pr(F) = (1 − e−λ/k )k .\r\nRemark 1. It is not difficult to verify that the scheme analyzed in Section 3 satisfies the\r\nconditions of Theorem 4.1 with λ = k2/c. However, more complicated schemes are not so\r\namenable to a direct application of Theorem 4.1. Thus, after proving the theorem, we give\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/be2052a0-a25b-4f3e-8b7c-870ad10c5303.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8c7f131858c08702b9524c9bda337088fded27804be8e4c53d985a0518453ba7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 677
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "bdc67f8d-58a7-46ab-a962-a357f1ceef57",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 8,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "194 KIRSCH AND MITZENMACHER\r\na result that identifies another set of conditions that imply the hypotheses of Theorem 4.1\r\nand are easier to verify.\r\nProof. For ease of exposition, we assign every element of H(z) a unique number in [k]\r\n(treating multiple instances of the same hash location as distinct elements). More formally,\r\nwe define an arbitrary bijection fM from M to [k] for every multi-set M ⊆ H with \nM\n = k\r\n(where fM treats multiple instances of the same hash location in M as distinct elements),\r\nand label the elements of H(z) according to fH(z). This convention allows us to identify the\r\nelements of H(z) by numbers i ∈ [k], rather than hash locations i ∈ H.\r\nFor i ∈ [k] and x ∈ S, define Xi(x) = 1 if i ∈ C(x) and 0 otherwise, and define\r\nXi = \u0006\r\nx∈S Xi(x). Note that i ∈ C(x) is an abuse of notation; what we really mean is\r\nf −1\r\nH(z)(i) ∈ C(x), although we will continue using the former since it is much less cumbersome.\r\nWe show that Xn \u0001 (X0, ... , Xk−1) converges in distribution to a vector P \u0001\r\n(P0, ... , Pk−1) of k independent Poisson random variables with parameter λ/k, as n → ∞.\r\nTo do this, we make use of moment generating functions. For a random variable R, the\r\nmoment generating function of R is defined by MR(t) \u0001 E[exp(tR)]. We show that for any\r\nt0, ... , tk ,\r\nlim\r\nn→∞ M\u0006k−1 i=0 tiXi\r\n(tk ) = M\u0006k−1 i=0 tiPi(tk ),\r\nwhich is sufficient by [1, Theorem 29.4 and p. 390], since\r\nM\u0006k−1 i=0 tiPi\r\n(tk ) = E\r\n\u0007\r\netk\r\n\u0006\r\ni∈[k] tiPi\r\n\b\r\n= \t\r\ni∈[k]\r\nE\r\n\u0007\r\netk tiPo(λ/k)\r\n\b\r\n= \t\r\ni∈[k]\r\n\n∞\r\nj=0\r\ne−λ/k λj\r\nkjj!\r\netk tij\r\n= \t\r\ni∈[k]\r\ne\r\nλ\r\nk (et\r\nk t\r\ni −1)\r\n= e\r\nλ\r\nk\r\n\u000b\u0006\r\ni∈[k] et\r\nk t\r\ni −1\r\n\f\r\n< ∞,\r\nwhere the first step is just the definition of the moment generating function, the second\r\nstep follows from independence of the tiPi(λk )’s, the third step is just the definition of the\r\nPoisson distribution, the fourth step follows from the Taylor series for ex\r\n, and the fifth step\r\nis obvious.\r\nProceeding, we write\r\nM\u0006\r\ni∈[k] tiXi\r\n(tk )\r\n= M\u0006\r\ni∈[k] ti\r\n\u0006\r\nx∈S Xi(x)(tk )\r\n= M\u0006\r\nx∈S\r\n\u0006\r\ni∈[k] tiXi(x)(tk )\r\n= \u000bM\u0006\r\ni∈[k] tiXi(x)(tk )\r\n\fn\r\n=\r\n\r\n Pr(\nC(x)\n = 0)\r\n+\r\n\nk\r\nj=1\r\nPr(\nC(x)\n = j) \n\r\nT⊆[k]:|T|=j\r\nPr(C(x) = f −1\r\nH(z)(T)|\nC(x)\n = j)etk\r\n\u0006\r\ni∈T ti\r\n\r\n\r\nn\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/bdc67f8d-58a7-46ab-a962-a357f1ceef57.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=19e6c790061df7b46d5d9f7cc03e78628a1cbc60013dc6c0ce62c1f5eecb10ae",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 439
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "75e35f90-1b74-4c1d-84ee-4ceeb004d5a7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 9,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 195\r\n=\r\n\u0011\r\n1 − λ\r\nn +\r\nλ\r\nn\r\n\n\r\ni∈[k]\r\nPr(i ∈ C(x)|\nC(x)\n = 1)etk ti + o(1/n)\r\n\u0012n\r\n=\r\n\u0011\r\n1 − λ\r\nn +\r\nλ\r\nn\r\n\n\r\ni∈[k]\r\n\u00011\r\nk + o(1)\r\n\u0002\r\netk ti + o(1/n)\r\n\u0012n\r\n=\r\n\u0001\r\n1 − λ\r\nn +\r\nλ\r\n\u0006\r\ni∈[k] etk ti\r\nkn + o(1/n)\r\n\u0002n\r\n→ e−λ+ λ\r\nk\r\n\u0006\r\ni∈[k] et\r\nk t\r\ni as n → ∞\r\n= e\r\nλ\r\nk\r\n\u000b\u0006\r\ni∈[k](et\r\nk t\r\ni −1)\r\n\f\r\n= M\u0006\r\ni∈[k] tiPoi(λk )(tk ).\r\nThe first two steps are obvious. The third step follows from the fact that the H(x)’s are inde\u0002pendent and identically distributed (for x ∈ S) conditioned on H(z), so the \u0006\r\ni∈[k] tiXi(x)’s\r\nare too, since each is a function of the corresponding H(x). The fourth step follows from\r\nthe definition of the moment generating function. The fifth and sixth steps follow from the\r\nassumptions on the distribution of C(x) (in the sixth step, the conditioning on i ∈ H(z) is\r\nimplicit in our convention that associates integers in [k] with the elements of H(z)). The\r\nseventh, eighth, and ninth steps are obvious, and the 10th step follows from a previous\r\ncomputation.\r\nNow fix some bijection g : Zk\r\n≥0 → Z≥0, and define h : Z≥0 → {0, 1} : h(x) = 1\r\nif and only if every coordinate of g−1(x) is greater than 0. Since {Xn} converges to P in\r\ndistribution, {g(Xn)} converges to g(P) in distribution, because g is a bijection and Xn and\r\nP have discrete distributions. Skorohod’s Representation Theorem [1, Theorem 25.6] now\r\nimplies that there is some probability space where one may define random variables {Yn}\r\nand P\u0003\r\n, where Yn ∼ g(Xn) and P\u0003 ∼ g(P), and {Yn} converges to P\u0003 almost surely. Of course,\r\nsince the Yn’s only take integer values, whenever {Yn} converges to P\u0003\r\n, there must be some\r\nn0 such that Yn0 = Yn1 = P\u0003 for any n1 > n0, and so {h(Yn)} trivially converges to h(P\u0003\r\n).\r\nTherefore, {h(Yn)} converges to h(P\u0003\r\n) almost surely, so\r\nPr(F) = Pr(∀i ∈ [k], Xi > 0)\r\n= E[h(g(Xn\r\n))]\r\n= E[h(Yn)]\r\n→ E[h(P\u0003\r\n)] as n → ∞\r\n= Pr(Po(λ/k) > 0)\r\nk\r\n= (1 − e−λ/k)\r\nk\r\n,\r\nwhere the fourth step is the only nontrivial one, and it follows from [1, Theorem 5.4].\r\nIt turns out that the conditions of Theorem 4.1 can be verified very easily in many cases.\r\nLemma 4.1. Fix a scheme. Suppose that there are constants λ and k and a function\r\nγ (n) = o(1/n) such that:\r\n1. {H(u) : u ∈ U} are independent and identically distributed.\r\n2. For u ∈ U, \nH(u)\n = k.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/75e35f90-1b74-4c1d-84ee-4ceeb004d5a7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=210ed57763ba83e236f753e92ed2837b4b568dcf2faec316a4a1a7eb1b5e58ad",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 462
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4014c70a-36ef-4de8-bbd2-df5cb94ffa7d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 10,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "196 KIRSCH AND MITZENMACHER\r\n3. For u ∈ U, maxi∈H | Pr(i ∈ H(u)) − λ\r\nkn | = O(γ (n)).\r\n4. For u ∈ U, maxi1,i2∈H Pr(i1, i2 ∈ H(u)) = O(γ (n)).\r\n5. The set of all possible hash locations H satisfies |H| = O(n).\r\nThen the conditions of Theorem 4.1 hold with γ1(n) = γ (n) and γ2(n) = nγ (n) (and the\r\nsame values for λ and k).\r\nRemark 2. Recall that, under our notation, the statement i, i ∈ H(u) is true if and only if\r\ni is an element of H(u) of multiplicity at least 2.\r\nProof. The proof is essentially just a number of applications of the first two Boole\u0002Bonferroni inequalities (e.g. [22, Proposition C.2]). We adopt the convention introduced in\r\nthe proof of Theorem 4.1 where the elements of H(z) are identified by the integers in [k]. For\r\ni ∈ [k], we continue to abuse notation and write i ∈ H(x) as shorthand for f −1\r\nH(z)(i) ∈ H(x)\r\nwhere doing so does not cause confusion.\r\nThe first two conditions of Theorem 4.1 are trivially satisfied. For the third condition,\r\nobserve that for any j ∈ {2, ... , k} and x ∈ S,\r\nPr(\nC(x)\n = j) ≤ Pr(\nC(x)\n > 1)\r\n= Pr \u000b∃i1 < i2 ∈ [k] : f −1\r\nH(z)(i1), f −1H(z)(i2) ∈ H(x)\r\nor ∃i ∈ H : i ∈ H(x), i, i ∈ H(z)\r\n\f\r\n≤ Pr \u000b∃i1 < i2 ∈ [k] : f −1\r\nH(z)(i1), f −1H(z)(i2) ∈ H(x)\r\n\f\r\n+ Pr(∃i ∈ H : i ∈ H(x), i, i ∈ H(z))\r\n= Pr(∃i1 < i2 ∈ [k] : i1, i2 ∈ H(x)) + Pr(∃i ∈ H : i ∈ H(x), i, i ∈ H(z))\r\n≤ \n\r\ni1<i2∈[k]\r\nPr(i1, i2 ∈ H(x)) +\n\r\ni∈H\r\nPr(i ∈ H(x)) Pr(i, i ∈ H(z))\r\n≤\r\n\u0001\r\nk\r\n2\r\n\u0002\r\nO(γ (n)) + |H|\r\n\u0001 λ\r\nkn + O(γ (n))\u0002\r\nO(γ (n))\r\n= O(γ (n)) + O(n)O(γ (n)/n)\r\n= O(γ (n)),\r\nand\r\nPr(\nC(x)\n = 1) ≤ Pr(|C(x)| ≥ 1) ≤ \n\r\ni∈[k]\r\nPr(i ∈ H(x)) ≤ k\r\n\u0001 λ\r\nkn + O(γ (n))\u0002\r\n= λ\r\nn + O(γ (n)),\r\nand\r\nPr(\nC(x)\n ≥ 1)\r\n= Pr \u0011\u0013\r\ni∈[k]\r\ni ∈ H(x)\r\n\u0012\r\n≥ \n\r\ni∈[k]\r\nPr(i ∈ H(x)) − \n\r\ni1<i2∈[k]\r\nPr(i1 ∈ H(x), i2 ∈ H(x))\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/4014c70a-36ef-4de8-bbd2-df5cb94ffa7d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3f3906ece9c2f9b0ecfad57bc0f561fc0ab9c5d64d7f2268b9b794459539bbb3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 389
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "79398949-ac49-4350-a674-257b81580a59",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 11,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 197\r\n≥ \n\r\ni∈[k]\r\nPr(i ∈ H(x))\r\n−\r\n\r\n \n\r\ni1<i2∈[k]\r\nPr(i1, i2 ∈ H(x)) +\n\r\ni∈H\r\nPr(i ∈ H(x)) Pr(i, i ∈ H(z))\r\n\r\n\r\n≥ k\r\n\u0001 λ\r\nkn + O(γ (n))\u0002\r\n− O(γ (n))\r\n= λ\r\nn + O(γ (n)),\r\nso\r\nPr(\nC(x)\n = 1) = Pr(\nC(x)\n ≥ 1) − Pr(\nC(x)\n > 1)\r\n≥\r\nλ\r\nn + O(γ (n)) − O(γ (n))\r\n= λ\r\nn + O(γ (n)).\r\nTherefore,\r\nPr(\nC(x)\n = 1) = λ\r\nn + O(γ (n)),\r\nand\r\nPr(\nC(x)\n = 0) = 1 −\nk\r\nj=1\r\nPr(\nC(x)\n = j) = 1 − λ\r\nn + O(γ (n)).\r\nWe have now shown that the third condition of Theorem 4.1 is satisfied.\r\nFor the fourth condition, we observe that for any i ∈ [k] and x ∈ S,\r\nPr(i ∈ C(x), \nC(x)\n = 1) ≤ Pr(i ∈ H(x)) = λ\r\nkn + O(γ (n)),\r\nand\r\nPr(i ∈ C(x), \nC(x)\n = 1) = Pr(i ∈ H(x)) − Pr(i ∈ H(x), \nC(x)\n > 1)\r\n≥ Pr(i ∈ H(x)) − Pr(\nC(x)\n > 1)\r\n= λ\r\nkn + O(γ (n)) − O(γ (n)),\r\nso\r\nPr(i ∈ C(x), \nC(x)\n = 1) = λ\r\nkn + O(γ (n)),\r\nimplying that\r\nPr(i ∈ C(x)|\nC(x)\n = 1) = Pr(i ∈ C(x), \nC(x)\n = 1)\r\nPr(\nC(x)\n = 1) =\r\nλ\r\nkn + O(γ (n))\r\nλ\r\nn + O(γ (n)) = 1\r\nk\r\n+O(nγ (n)),\r\ncompleting the proof (the conditioning on i ∈ H(z) is once again implied by the convention\r\nthat associates elements of [k] with the hash locations in H(z)).\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/79398949-ac49-4350-a674-257b81580a59.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f34d1b1aa67308fcf119dff977958e70fae475b98fc9f10f63d5f42cce8998d",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 272
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "959d6365-a97e-4789-a7d9-3677ecb6180a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 12,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "198 KIRSCH AND MITZENMACHER\r\n5. SOME SPECIFIC SCHEMES\r\nWe are now ready to analyze some specific schemes. In particular, we examine a natural\r\ngeneralization of the scheme described in Section 3, as well as the double hashing and\r\nenhanced double hashing schemes introduced in [8, 9]. In both of these cases, we consider\r\na Bloom filter consisting of an array of m = cn bits and k hash functions, where c > 0\r\nand k ≥ 1 are fixed constants. The nature of the hash functions depends on the particular\r\nscheme under consideration.\r\n5.1. Partition Schemes\r\nFirst, we consider the class of partition schemes, where the Bloom filter is defined by an\r\narray of m bits that is partitioned into k disjoint arrays of m\u0003 = m/k bits (we require that m\r\nbe divisible by k), and an item u ∈ U is hashed to location\r\nh1(u) + ih2(u) mod m\u0003\r\nof array i, for i ∈ [k], where h1 and h2 are independent fully random hash functions with\r\ncodomain [m\u0003\r\n]. Note that the scheme analyzed in Section 3 is a partition scheme where m\u0003\r\nis prime (and so is denoted by p in Section 3).\r\nUnless otherwise stated, henceforth we do all arithmetic involving h1 and h2 modulo m\u0003\r\n.\r\nWe prove the following theorem concerning partition schemes.\r\nTheorem 5.1. For a partition scheme, limn→∞ Pr(F) = (1 − e−k/c\r\n)k .\r\nProof. We show that the H(u)’s satisfy the conditions of Lemma 4.1 with λ = k2/c and\r\nγ (n) = 1/n2. For i ∈ [k] and u ∈ U, define gi(u) = (i, h1(u) + ih2(u)) and H(u) = (gi(u) :\r\ni ∈ [k]). That is, gi(u) is u’s ith hash location, and H(u) is the multiset of u’s hash locations.\r\nThis notation is obviously consistent with the definitions required by Lemma 4.1.\r\nSince h1 and h2 are independent and fully random, the first two conditions are trivial.\r\nThe last condition is also trivial, since there are m = cn possible hash locations. For the\r\nremaining two conditions, fix u ∈ U. Observe that for (i,r) ∈ [k]×[m\u0003\r\n],\r\nPr((i,r) ∈ H(u)) = Pr(h1(u) = r − ih2(u)) = 1/m\u0003 = (k2\r\n/c)/kn,\r\nand that for distinct (i1,r1),(i2,r2) ∈ [k]×[m\u0003\r\n], we have\r\nPr((i1,r1),(i2,r2) ∈ H(u))\r\n= Pr(i1 ∈ H(u)) Pr(i2 ∈ H(u)|i1 ∈ H(u))\r\n= 1\r\nm\u0003 Pr(h1(u) = r2 − i2h2(u)|h1(u) = r1 − i1h2(u))\r\n= 1\r\nm\u0003 Pr((i1 − i2)h2(u) = r1 − r2)\r\n≤\r\n1\r\nm\u0003 ·\r\ngcd(|i2 − i1|, m\u0003\r\n)\r\nm\u0003 ≤\r\nk\r\n(m\u0003)2 = O(1/n2\r\n),\r\nwhere the fourth step is the only nontrivial step, and it follows from the standard fact that\r\nfor any r,s ∈ [m], there are at most gcd(r, m) values t ∈ [m] such that rt ≡ s mod m\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/959d6365-a97e-4789-a7d9-3677ecb6180a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=53d76158bcbc0c14f853c09dd0abc2b5e9e9b0bdbaa03e00b079eb203d39e7c3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 472
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "fb611d57-b5ce-4352-939e-3aa2fb2358f3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 13,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 199\r\n(see, for example, [15, Proposition 3.3.1]). Finally, since it is clear that from the definition\r\nof the scheme that |H(u)| = k for all u ∈ U, we have that for any (i,r) ∈ [k]×[m\u0003\r\n],\r\nPr((i,r),(i,r) ∈ H(u)) = 0.\r\n5.2. (Enhanced) Double Hashing Schemes\r\nNext, we consider the class of double hashing and enhanced double hashing schemes, which\r\nare analyzed empirically in [8, 9]. In these schemes, an item u ∈ U is hashed to location\r\nh1(u) + ih2(u) + f(i) mod m\r\nof the array of m bits, for i ∈ [k], where h1 and h2 are independent fully random hash\r\nfunctions with codomain [m], and f : [k]→[m] is an arbitrary function. When f(i) ≡ 0,\r\nthe scheme is called a double hashing scheme. Otherwise, it is called an enhanced double\r\nhashing scheme (with f ). We show that the asymptotic false positive probability for an\r\n(enhanced) double hashing scheme is the same as for a standard Bloom filter.\r\nTheorem 5.2. For any (enhanced) double hashing scheme,\r\nlim\r\nn→∞ Pr(F) = (1 − e−k/c\r\n)\r\nk\r\n.\r\nRemark 3. The result holds for any choice of f . In fact, f can even be drawn from an\r\narbitrary probability distribution over [m]\r\n[k]\r\n, as long as it is drawn independently of the two\r\nrandom hash functions h1 and h2.\r\nProof. We proceed by showing that this scheme satisfies the conditions of Lemma 4.1\r\nwith λ = k2/c and γ (n) = 1/n2. Since h1 and h2 are independent and fully random, the\r\nfirst two conditions trivially hold. The last condition is also trivial, since there are m = cn\r\npossible hash locations.\r\nShowing that the third and fourth conditions hold requires more effort. First, we need\r\nsome notation. For u ∈ U, i ∈ [k], define\r\ngi(u) = h1(u) + ih2(u) + f(i)\r\nH(u) = (gi(u) : i ∈ [k]).\r\nThat is, gi(u) is u’s ith hash location, and H(u) is the multi-set of u’s hash locations. This\r\nnotation is obviously consistent with the definitions required by Lemma 4.1. Fix u ∈ U.\r\nFor r ∈ [m],\r\nPr(∃j ∈ [k] : gj(u) = r) ≤ \n\r\nj∈[k]\r\nPr(h1(u) = r − jh2(u) − f(j)) = k\r\nm.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/fb611d57-b5ce-4352-939e-3aa2fb2358f3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cde900be744871c931713bb28819177f5570e9591fd35584cc395ef6c957918c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 383
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "57809ae9-f34d-4c55-b074-dcbbbf3eb6de",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 14,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "200 KIRSCH AND MITZENMACHER\r\nFurthermore, for any j1, j2 ∈ [k] and r1,r2 ∈ [m]\r\nPr(gj1 (u) = r1, gj2 (u) = r2) = Pr(gj1 (u) = r1) Pr(gj2 (u) = r2|gj1 (u) = r1)\r\n= 1\r\nm Pr(gj2 (u) = r2|gj1 (u) = r1)\r\n= 1\r\nm Pr((j1 − j2)h2(u) = r1 − r2 + f(j2) − f(j1))\r\n≤\r\n1\r\nm ·\r\ngcd(|j1 − j2|, m)\r\nm\r\n≤\r\n1\r\nm · km\r\n= k\r\nm2\r\n= O(1/n2),\r\nwhere the fourth step is the only nontrivial step, and it follows from the standard fact that\r\nfor any r,s ∈ [m], there are at most gcd(r, m) values t ∈ [m] such that rt ≡ s mod m (see,\r\nfor example, [15, Proposition 3.3.1]). Therefore, for r ∈ [m],\r\nPr(∃j ∈ [k] : gj(u) = r) ≥ \n\r\nj∈[k]\r\nPr(gj(u) = r) − \n\r\nj1<j2∈[k]\r\nPr(gj1 (u) = r, gj2 (u) = r)\r\n≥\r\nk\r\nm − k2\r\nO(1/n2)\r\n= k2/c\r\nn + O(1/n2\r\n),\r\nimplying that\r\nPr(r ∈ H(u)) = Pr(∃j ∈ [k] : gj(u) = r) = k2/c\r\nn + O(1/n2\r\n),\r\nso the third condition of Lemma 4.1 holds. For the fourth condition, fix any r1,r2 ∈ [m].\r\nThen\r\nPr(r1,r2 ∈ H(u)) ≤ \n\r\nj1,j2∈[k]\r\nPr(gj1 (u) = r1, gj2 (u) = r2) ≤ k2O(1/n2) = O(1/n2),\r\ncompleting the proof.\r\n6. RATE OF CONVERGENCE\r\nIn the previous sections, we identified a broad class of nonstandard Bloom filter hashing\r\nschemes that have the same asymptotic false positive probability as a standard Bloom\r\nfilter. For many applications, we would also like to know that these asymptotics kick in\r\nfairly quickly, for reasonable values of n. With these applications in mind, we provide an\r\nanalysis of the rate of convergence in Theorem 4.1, and then apply that analysis to the\r\nspecific hashing schemes discussed in Section 5. Our results indicate that those hashing\r\nschemes yield performance almost identical to that of a standard Bloom filter for a wide\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/57809ae9-f34d-4c55-b074-dcbbbf3eb6de.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a2a4ef5176c2489575f5e8dcbb21cc6aa55bd0a898e486ae064c05366ba7cc3b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 330
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "cd661324-13de-4f2a-9a7a-4ecd3ed24a89",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 15,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 201\r\nrange of practical settings. Furthermore, in Section 8, we show the results of some simple\r\nexperiments as further evidence of this fact.\r\nThe rate of convergence analysis proceeds along the following lines, where the underlying\r\nintuition is drawn from the analysis of the asymptotic false positive probability in Section\r\n3, and we assume the hypotheses of Lemma 4.1. First, for each x ∈ S, we couple \nC(x)\n\r\nwith a Bern(λ/n) random variable Bx (where Bern(·) denotes the Bernoulli distribution).\r\n(We specify exactly how to do the coupling later.) We then define a Bin(n, λ/n) random\r\nvariable B = \u0006\r\nx∈S Bx. In the terminology of Section 3, each x ∈ S represents a ball\r\nwhich is discarded if and only if Bx = 0, so B is the total number of balls that are not\r\ndiscarded. Next, conditioned on T = {x : Bx = 1}, for each x ∈ T, we couple the smallest\r\nelement Cx of fH(z)(C(x)) with a random variable Tx selected uniformly from [k] (recall\r\nfrom the proof of Theorem 4.1 that fH(z) defines a correspondence between H(z) and [k]).\r\n(In the asymptotically insignificant case where \nC(x)\n = 0, we simply define Cx = −1.)\r\nIn the terminology of Section 3, T is the set of balls that are thrown into the bins, and for\r\neach x ∈ T, the random variable Tx represents the bin where it lands.\r\nWe can now bound the difference between the false positive probability (for a particular\r\nvalue of n) and the probability that every bin in [k] is hit by at least one ball by the probability\r\nthat at least one of the random variables just defined is different than the random variable\r\nto which it is coupled. Thus, we relate the true false positive probability to the same simple\r\nballs and bins experiment as in Section 3. Finally, as in Section 3, the asymptotics of the balls\r\nand bins experiment are easy to analyze; we just couple B with a Po(λ) random variable Y\r\nand bound Pr(B \u0007= Y). (This is because, for both the experiment where B balls are thrown\r\n(that is, not discarded) and the experiment where Po(λ) balls are thrown, each ball is placed\r\nin a bin that is chosen randomly from the k bins, so for each ball that is thrown in both\r\nexperiments, the random variables indicating the bins where it lands in the two experiments\r\ncan be trivially coupled.)\r\nWe now formalize the above argument. In particular, we obtain rate of convergence\r\nresults that subsume many of the results in Sections 4 and 5. However, we have chosen to\r\nkeep our earlier results because they demonstrate that the underlying Poisson convergence\r\nof interest can be cleanly derived using a standard moment generating function approach.\r\nBefore proceeding, we define the total variation distance between two discrete\r\ndistributions (or random variables) X1 and X2 to be\r\ndist(X1, X2) = \n\r\nx∈Supp(X1)∪Supp(X2)\r\n| Pr(X1 = x) − Pr(X2 = x)|.\r\nAlso, if X1 and X2 are jointly distributed random variables, then we use the notation X1 | X2\r\nto refer to the conditional distribution of X1 given X2.\r\nTheorem 6.1. Consider a hashing scheme that satisfies the hypotheses of Lemma 4.1.\r\nThen\r\n| Pr(F) − (1 − e−λ/k\r\n)\r\nk\r\n| = O(nγ (n) + 1/n).\r\nProof. With the above outline in mind, define the events\r\nE1 = {∀x ∈ S \nC(x)\n = Bx}\r\nE2 = {∀x ∈ T Cx = Tx}.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/cd661324-13de-4f2a-9a7a-4ecd3ed24a89.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=15685c191456c18f0f18c1152130a132cc22f5bb3be21c1a76487d7962bf113a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 588
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "cd661324-13de-4f2a-9a7a-4ecd3ed24a89",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 15,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 201\r\nrange of practical settings. Furthermore, in Section 8, we show the results of some simple\r\nexperiments as further evidence of this fact.\r\nThe rate of convergence analysis proceeds along the following lines, where the underlying\r\nintuition is drawn from the analysis of the asymptotic false positive probability in Section\r\n3, and we assume the hypotheses of Lemma 4.1. First, for each x ∈ S, we couple \nC(x)\n\r\nwith a Bern(λ/n) random variable Bx (where Bern(·) denotes the Bernoulli distribution).\r\n(We specify exactly how to do the coupling later.) We then define a Bin(n, λ/n) random\r\nvariable B = \u0006\r\nx∈S Bx. In the terminology of Section 3, each x ∈ S represents a ball\r\nwhich is discarded if and only if Bx = 0, so B is the total number of balls that are not\r\ndiscarded. Next, conditioned on T = {x : Bx = 1}, for each x ∈ T, we couple the smallest\r\nelement Cx of fH(z)(C(x)) with a random variable Tx selected uniformly from [k] (recall\r\nfrom the proof of Theorem 4.1 that fH(z) defines a correspondence between H(z) and [k]).\r\n(In the asymptotically insignificant case where \nC(x)\n = 0, we simply define Cx = −1.)\r\nIn the terminology of Section 3, T is the set of balls that are thrown into the bins, and for\r\neach x ∈ T, the random variable Tx represents the bin where it lands.\r\nWe can now bound the difference between the false positive probability (for a particular\r\nvalue of n) and the probability that every bin in [k] is hit by at least one ball by the probability\r\nthat at least one of the random variables just defined is different than the random variable\r\nto which it is coupled. Thus, we relate the true false positive probability to the same simple\r\nballs and bins experiment as in Section 3. Finally, as in Section 3, the asymptotics of the balls\r\nand bins experiment are easy to analyze; we just couple B with a Po(λ) random variable Y\r\nand bound Pr(B \u0007= Y). (This is because, for both the experiment where B balls are thrown\r\n(that is, not discarded) and the experiment where Po(λ) balls are thrown, each ball is placed\r\nin a bin that is chosen randomly from the k bins, so for each ball that is thrown in both\r\nexperiments, the random variables indicating the bins where it lands in the two experiments\r\ncan be trivially coupled.)\r\nWe now formalize the above argument. In particular, we obtain rate of convergence\r\nresults that subsume many of the results in Sections 4 and 5. However, we have chosen to\r\nkeep our earlier results because they demonstrate that the underlying Poisson convergence\r\nof interest can be cleanly derived using a standard moment generating function approach.\r\nBefore proceeding, we define the total variation distance between two discrete\r\ndistributions (or random variables) X1 and X2 to be\r\ndist(X1, X2) = \n\r\nx∈Supp(X1)∪Supp(X2)\r\n| Pr(X1 = x) − Pr(X2 = x)|.\r\nAlso, if X1 and X2 are jointly distributed random variables, then we use the notation X1 | X2\r\nto refer to the conditional distribution of X1 given X2.\r\nTheorem 6.1. Consider a hashing scheme that satisfies the hypotheses of Lemma 4.1.\r\nThen\r\n| Pr(F) − (1 − e−λ/k\r\n)\r\nk\r\n| = O(nγ (n) + 1/n).\r\nProof. With the above outline in mind, define the events\r\nE1 = {∀x ∈ S \nC(x)\n = Bx}\r\nE2 = {∀x ∈ T Cx = Tx}.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/cd661324-13de-4f2a-9a7a-4ecd3ed24a89.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=15685c191456c18f0f18c1152130a132cc22f5bb3be21c1a76487d7962bf113a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 588
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "070636e3-e58b-4790-8331-c06403eced83",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 16,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "202 KIRSCH AND MITZENMACHER\r\nLet F\u0003 denote the event that in the experiment where Y balls are thrown randomly into\r\nk bins, each bin receives at least one ball. Since Y ∼ Po(λ), a standard fact of Poisson\r\nrandom variables tells us that the joint distribution of number of balls in each bin is the\r\nsame as the joint distribution of k independent Po(λ/k) random variables. Thus, Pr(F\u0003\r\n) =\r\n(1 − exp[−λ/k])k . Letting 1(·) denote the indicator function, we write\r\n| Pr(F) − (1 − exp[−λ/k])\r\nk\r\n|=| Pr(F) − Pr(F\u0003)|\r\n= |E[1(F) − 1(F\u0003\r\n)]|\r\n≤ E[| 1(F) − 1(F\u0003)|]\r\n= Pr(1(F) \u0007= 1(F\u0003\r\n))\r\n≤ Pr(¬E1 ∪ ¬E2 ∪ (B \u0007= Y))\r\n≤ Pr(¬E1 ∪ ¬E2) + Pr(B \u0007= Y)\r\n= E [Pr(¬E1 ∪ ¬E2 | H(z))] + Pr(B \u0007= Y)\r\n= E [Pr(¬E1 | H(z)) + Pr(E1 | H(z)) Pr(¬E2 | E1, H(z))]\r\n+ Pr(B \u0007= Y)\r\nwhere we have used the fact that if 1(F) \u0007= 1(F\u0003\r\n), then some random variable in the\r\ncoupling established above is not equal to the random variable to which it is coupled.\r\nBefore continuing, we must address the issue of actually constructing the couplings\r\ndescribed above. Of course, our goal is to find a coupling so that random variables with\r\nsimilar distributions are likely to be equal in the probability space where they are coupled. To\r\nconstruct the coupling, we fix some ordering x1, ... , xn of the elements in S. We first sample\r\nH(z) and then sample independent Uniform[0, 1] random variables U1, ... , U2n+1. For i =\r\n1, ... , n, we use Ui to perform a coupling between Bxi and the conditional distribution of\r\n\nC(xi)\n given H(z) (we specify exactly how we do this later). If Bxi = 1, then we use Ui+n\r\nto perform a coupling between Txi and the conditional distribution of Cxi given \nC(xi)\n and\r\nH(z). Note that here we are using the fact that all of the C(x)’s are conditionally independent\r\ngiven H(z), so these pairwise couplings are consistent with the appropriate joint distribution\r\nof the random variables. Finally, we use U2n+1 and the already sampled value of B to sample\r\nY; this gives the coupling between B and Y. As for how we construct the pairwise couplings,\r\nit follows from standard facts (see, for example, [14, Exercise 4.12.5]) that we can construct\r\na coupling of any pair of distributions X1 and X2 so that Pr(X1 \u0007= X2) = 1\r\n2 dist(X1, X2) by\r\nrepresenting X2 as function of X1 and a Uniform(0, 1) random variable that is independent\r\nof X1. We perform all of our pairwise couplings in this way.\r\nNow we define\r\nZ1 = Pr(\nC(x)\n \u0007= Bx | H(z))\r\nZ2 = Pr(Cx \u0007= Tx | x ∈ T, E1, H(z))\r\nfor some x ∈ S; note that the choice of x does not matter. A union bound now gives\r\nPr(¬E1 | H(z)) ≤ nZ1, and another union bound gives\r\nPr(∃x ∈ T : Cx \u0007= Tx | |T|, E1, H(z)) ≤ |T|Z2.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/070636e3-e58b-4790-8331-c06403eced83.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e5e98f286804d7edda30144ef788196743d81fb88c4d0b56927c4245898866e5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 513
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "070636e3-e58b-4790-8331-c06403eced83",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 16,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "202 KIRSCH AND MITZENMACHER\r\nLet F\u0003 denote the event that in the experiment where Y balls are thrown randomly into\r\nk bins, each bin receives at least one ball. Since Y ∼ Po(λ), a standard fact of Poisson\r\nrandom variables tells us that the joint distribution of number of balls in each bin is the\r\nsame as the joint distribution of k independent Po(λ/k) random variables. Thus, Pr(F\u0003\r\n) =\r\n(1 − exp[−λ/k])k . Letting 1(·) denote the indicator function, we write\r\n| Pr(F) − (1 − exp[−λ/k])\r\nk\r\n|=| Pr(F) − Pr(F\u0003)|\r\n= |E[1(F) − 1(F\u0003\r\n)]|\r\n≤ E[| 1(F) − 1(F\u0003)|]\r\n= Pr(1(F) \u0007= 1(F\u0003\r\n))\r\n≤ Pr(¬E1 ∪ ¬E2 ∪ (B \u0007= Y))\r\n≤ Pr(¬E1 ∪ ¬E2) + Pr(B \u0007= Y)\r\n= E [Pr(¬E1 ∪ ¬E2 | H(z))] + Pr(B \u0007= Y)\r\n= E [Pr(¬E1 | H(z)) + Pr(E1 | H(z)) Pr(¬E2 | E1, H(z))]\r\n+ Pr(B \u0007= Y)\r\nwhere we have used the fact that if 1(F) \u0007= 1(F\u0003\r\n), then some random variable in the\r\ncoupling established above is not equal to the random variable to which it is coupled.\r\nBefore continuing, we must address the issue of actually constructing the couplings\r\ndescribed above. Of course, our goal is to find a coupling so that random variables with\r\nsimilar distributions are likely to be equal in the probability space where they are coupled. To\r\nconstruct the coupling, we fix some ordering x1, ... , xn of the elements in S. We first sample\r\nH(z) and then sample independent Uniform[0, 1] random variables U1, ... , U2n+1. For i =\r\n1, ... , n, we use Ui to perform a coupling between Bxi and the conditional distribution of\r\n\nC(xi)\n given H(z) (we specify exactly how we do this later). If Bxi = 1, then we use Ui+n\r\nto perform a coupling between Txi and the conditional distribution of Cxi given \nC(xi)\n and\r\nH(z). Note that here we are using the fact that all of the C(x)’s are conditionally independent\r\ngiven H(z), so these pairwise couplings are consistent with the appropriate joint distribution\r\nof the random variables. Finally, we use U2n+1 and the already sampled value of B to sample\r\nY; this gives the coupling between B and Y. As for how we construct the pairwise couplings,\r\nit follows from standard facts (see, for example, [14, Exercise 4.12.5]) that we can construct\r\na coupling of any pair of distributions X1 and X2 so that Pr(X1 \u0007= X2) = 1\r\n2 dist(X1, X2) by\r\nrepresenting X2 as function of X1 and a Uniform(0, 1) random variable that is independent\r\nof X1. We perform all of our pairwise couplings in this way.\r\nNow we define\r\nZ1 = Pr(\nC(x)\n \u0007= Bx | H(z))\r\nZ2 = Pr(Cx \u0007= Tx | x ∈ T, E1, H(z))\r\nfor some x ∈ S; note that the choice of x does not matter. A union bound now gives\r\nPr(¬E1 | H(z)) ≤ nZ1, and another union bound gives\r\nPr(∃x ∈ T : Cx \u0007= Tx | |T|, E1, H(z)) ≤ |T|Z2.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/070636e3-e58b-4790-8331-c06403eced83.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e5e98f286804d7edda30144ef788196743d81fb88c4d0b56927c4245898866e5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 513
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b8667c8f-8c64-4573-b86a-2ecebeb6bee7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 17,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 203\r\nTherefore,\r\nPr(¬E2 | E1, H(z)) = E\r\n\u0007\r\nPr(∃x ∈ T : fH(z)(Cx) \u0007= Tx | |T|, E1, H(z)) | E1, H(z)\r\n\b\r\n≤ E[|T| | E1, H(z)]Z2\r\n≤\r\nE[|T| | H(z)]Z2\r\nPr(E1 | H(z)) .\r\nCombining these results gives\r\nE[Pr(¬E1 | H(z)) + Pr(E1 | H(z)) Pr(¬E2 | E1, H(z))]\r\n≤ n E[Z1] + E[|T|Z2]\r\n= n E[Z1] + E[|T|]E[Z2]\r\n= n E[Z1] + λE[Z2],\r\nwhere we have used the fact that T and H(z) are independent in our coupling, which implies\r\nthat T and Z2 are independent (since Z2 is a function of H(z)).\r\nAs for the coupling between the Bin(n, λ/n) random variable B and the Po(λ) random\r\nvariable Y, we have Pr(B \u0007= Y) = 1\r\n2 dist(X, Y). A standard result (e.g. [14, Section 4.12])\r\ntells us dist(X, Y) ≤ 2λ2/n. Therefore,\r\n\u0014\r\n\u0014\r\n\u0014\r\nPr(F) − \u000b1 − e−λ/k\r\n\fk\r\n\u0014\r\n\u0014\r\n\u0014 = O(n E[Z1] + E[Z2] + 1/n).\r\nIt remains to show that E[Z1] = O(γ (n)) and E[Z2] = O(nγ (n)). The proof technique\r\nis essentially the same as in Lemma 4.1. First, we write\r\nE[Z1] =\r\n1\r\n2 E[dist(Bern(λ/n), \nC(x)\n | H(z))]\r\n= 1\r\n2\r\n\u0015\r\nE[| Pr(\nC(x)\n = 0 | H(z)) − 1 + λ/n|] + E[| Pr(\nC(x)\n = 1 | H(z)) − λ/n|]\r\n+ Pr(\nC(x)\n ≥ 2)\r\n\u0016\r\nBy Lemma 4.1, we have Pr(\nC(x)\n ≥ 2) = O(γ (n)). For the other two terms, we write\r\nPr(\nC(x)\n ≥ 1 | H(z)) = Pr \u0011\u0013\r\ni∈[k]\r\ni ∈ H(x)\r\n\u0014\r\n\u0014\r\n\u0014\r\nH(z)\r\n\u0012\r\n≤ \n\r\ni∈[k]\r\nPr(i ∈ H(x) | H(z))\r\n= λ\r\nn + O(γ (n))\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/b8667c8f-8c64-4573-b86a-2ecebeb6bee7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2de86981fdc4ce990306d50a025b74a26abf0fca92d4615d53b590acee7fb159",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 285
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b108a838-5330-42ce-8a23-18675c811ec0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 18,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "204 KIRSCH AND MITZENMACHER\r\nand\r\nPr(\nC(x)\n ≥ 1 | H(z))\r\n= Pr \u0011\u0013\r\ni∈[k]\r\ni ∈ H(x)\r\n\u0014\r\n\u0014\r\n\u0014\r\nH(z)\r\n\u0012\r\n≥ \n\r\ni∈[k]\r\nPr(i ∈ H(x) | H(z)) − \n\r\ni1<i2∈[k]\r\nPr(i1 ∈ H(x), i2 ∈ H(x))\r\n≥ \n\r\ni∈[k]\r\nPr(i ∈ H(x) | H(z))\r\n−\r\n\r\n \n\r\ni1<i2∈[k]\r\nPr(i1, i2 ∈ H(x)) + 1(\nH(z)\n < k)\r\n\n\r\ni∈H(z)\r\nPr(i ∈ H(x))\r\n\r\n\r\n≥\r\nλ\r\nn + O(γ (n)) − 1(\nH(z)\n < k)\r\nλ\r\nn\r\n.\r\nTherefore,\r\nPr(\nC(x)\n = 1 | H(z)) − λ\r\nn\r\n≤ Pr(\nC(x)\n ≥ 1 | H(z)) − λ\r\nn\r\n≤ O(γ (n))\r\nand\r\nPr(\nC(x)\n = 1 | H(z)) − λ\r\nn\r\n= Pr(\nC(x)\n ≥ 1 | H(z)) − Pr(\nC(x)\n ≥ 2 | H(z)) − λ\r\nn\r\n≥ Pr(\nC(x)\n ≥ 1 | H(z)) + O(γ (n)) − λ\r\nn\r\n≥ O(γ (n)) − 1(\nH(z)\n < k)\r\nλ\r\nn\r\n.\r\nThus,\r\nE[| Pr(\nC(x)\n = 1 | H(z)) − λ/n|] ≤ O(γ (n)) +\r\nλ\r\nn Pr(|H(z)| < k)\r\n≤ O(γ (n)) +\r\nλ\r\nn\r\n\n\r\ni∈H\r\nPr(i, i ∈ H(z))\r\n= O(γ (n)).\r\nAlso,\r\nE[| Pr(\nC(x)\n = 0 | H(z)) − 1 + λ/n|] = E[|λ/n − Pr(\nC(x)\n ≥ 1 | H(z))|]\r\n≤ E[O(γ (n)) + 1(|H(z)| < k)λ/n]\r\n= O(γ (n)) +\r\nλ\r\nn Pr(|H(z)| < k)\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/b108a838-5330-42ce-8a23-18675c811ec0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b4b3dec06ad89a7b09d4cd2b0a1864426c4c98f670f070c1d78eedb5ac850c18",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "485a7851-38cd-46cd-b26d-0a774a0a5a95",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 19,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 205\r\n≤ O(γ (n)) +\r\nλ\r\nn\r\n\n\r\ni∈H\r\nPr(i, i ∈ H(z))\r\n= O(γ (n)).\r\nWe have now shown that E[Z1] = O(γ (n)).\r\nTo complete the proof, we show that E[Z2] = O(nγ (n)). Now,\r\nE[Z2] =\r\n1\r\n2 E[dist(Uniform([k]),Cx | \nC(x)\n = 1, H(z))]\r\n= 1\r\n2\r\n\n\r\ni∈[k]\r\nE[| Pr(Cx = i | \nC(x)\n = 1, H(z)) − 1/k|]\r\n= 1\r\n2\r\n\n\r\ni∈[k]\r\nE[| Pr(i ∈ H(x) | \nC(x)\n = 1, H(z)) − 1/k|].\r\nWe show that for i ∈ [k], we have\r\nE[| Pr(i ∈ H(x) | \nC(x)\n = 1, H(z)) − 1/k|] = O(nγ (n)).\r\nIndeed,\r\nPr(i ∈ H(x), \nC(x)\n = 1 | H(z)) ≤ Pr(i ∈ H(x) | H(z))\r\n≤\r\nλ\r\nkn + O(γ (n))\r\nand\r\nPr(i ∈ H(x), \nC(x)\n = 1 | H(z))\r\n≥ Pr(i ∈ H(x) | H(z)) − Pr(\nC(x)\n ≥ 2 | H(z))\r\n≥\r\nλ\r\nkn + O(γ (n)).\r\nFurthermore, previous calculations give\r\n| Pr(\nC(x)\n = 1 | H(z), |H(z)| = k) − λ/n| = O(γ (n)),\r\nand so\r\nE[| Pr(i ∈ H(x) | \nC(x)\n = 1, H(z)) − 1/k|||H(z)| = k]\r\n= E\r\n\u0017\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\nPr(i ∈ H(x), \nC(x)\n = 1 | H(z))\r\nPr(\nC(x)\n = 1 | H(z)) − 1k\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014 |H(z)| = k\r\n\u0018\r\n= E\r\n\u0019\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\nλ\r\nkn + O(γ (n))\r\nλ\r\nn + O(γ (n)) − 1\r\nk\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n|H(z)| = k\r\n\u001a\r\n= O(nγ (n)).\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/485a7851-38cd-46cd-b26d-0a774a0a5a95.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=17831127d61ae0bb69e1ea773754a09f9f6cad8020b962ef4b7674fbcb9e3fc6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 490
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "502a0315-abf2-4c11-b209-b6198ebda86c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 20,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "206 KIRSCH AND MITZENMACHER\r\nThus,\r\nE[| Pr(i ∈ H(x) | \nC(x)\n = 1, H(z)) − 1/k|]\r\n≤ Pr(|H(z)| < k) + E[| Pr(i ∈ H(x) | \nC(x)\n = 1, H(z)) − 1/k|||H(z)| = k]\r\n≤ Pr(|H(z)| < k) + O(nγ (n))\r\n= O(nγ (n)) +\n\r\nj∈H\r\nPr(j, j ∈ H(z))\r\n= O(nγ (n)),\r\ncompleting the proof.\r\nWe now use Theorem 6.1 to bound the rate of convergence in Theorems 5.1 and 5.2.\r\nTheorem 6.2. For any partition or (enhanced) double hashing scheme,\r\n\u0014\r\n\u0014\r\n\u0014\r\nPr(F) − \u000b1 − e−λ/k\r\n\fk\r\n\u0014\r\n\u0014\r\n\u0014 = O(1/n).\r\nProof. In the proofs of Theorems 5.1 and 5.2, we show that all of these hashing schemes\r\nsatisfy the conditions of Lemma 4.1 with γ (n) = 1/n2. Theorem 6.1 now gives the desired\r\nresult.\r\n7. MULTIPLE QUERIES\r\nIn the previous sections, we analyzed the behavior of Pr(F(z)) for some fixed z and mod\u0002erately sized n. Unfortunately, this quantity is not directly of interest in most applications.\r\nInstead, one is usually concerned with certain characteristics of the distribution of the num\u0002ber of, say, z1, ... ,z\u0003 ∈ U − S for which F(z) occurs. In other words, rather than being\r\ninterested in the probability that a particular false positive occurs, we are concerned with,\r\nfor example, the fraction of distinct queries on elements of U − S posed to the filter for\r\nwhich it returns false positives. Since {F(z) : z ∈ U − S} are not independent, the behav\u0002ior of Pr(F) alone does not directly imply results of this form. This section is devoted to\r\novercoming this difficulty.\r\nNow, it is easy to see that in the schemes that we analyze here, once the hash locations for\r\nevery x ∈ S have been determined, the events{F(z) : z ∈ U−S} are independent and occur\r\nwith equal probability. More formally,{1(F(z)) : z ∈ U−S} are conditionally independent\r\nand identically distributed given {H(x) : x ∈ S}. Thus, conditioned on {H(x) : x ∈ S}, an\r\nenormous number of classical convergence results (e.g. the law of large numbers and the\r\ncentral limit theorem) can be applied to {1(F(z)) : z ∈ U − S}.\r\nThese observations motivate a general technique for deriving the sort of convergence\r\nresults for {1(F(z)) : z ∈ U −S} that one might desire in practice. First, we show that with\r\nhigh probability over the set of hash locations used by elements of S (that is,{H(x) : x ∈ S}),\r\nthe random variables {1(F(z)) : z ∈ U − S} are essentially independent Bern(p) random\r\nvariables, for p \u0001 limn→∞ Pr(F). From a technical standpoint, this result is the most\r\nimportant in this section. Next, we show how to use that result to prove counterparts to the\r\nclassical convergence theorems mentioned above that hold in our setting.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/502a0315-abf2-4c11-b209-b6198ebda86c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=028c3fd0dad58b9e92ab40df3cfc859c0514ec47358b41bfb42c7975181de09b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 472
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c82f4048-28dc-414c-8429-1364f8367536",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 21,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 207\r\nProceeding formally, we begin with a critical definition.\r\nDefinition 7.1. Consider any scheme where {H(u) : u ∈ U} are independent and\r\nidentically distributed. Write S = {x1, ... , xn}. The false positive rate is defined to be the\r\nrandom variable\r\nR = Pr(F|H(x1), ... , H(xn)).\r\nThe false positive rate gets its name from the fact that, conditioned on R, the random\r\nvariables {1(F(z)) : z ∈ U − S} are independent Bern(R) random variables. Thus, the\r\nfraction of a large number of queries on elements of U − S posed to the filter for which\r\nit returns false positives is very likely to be close to R. In this sense, R, while a random\r\nvariable, acts like a rate for {1(F(z)) : z ∈ U − S}.\r\nIt is important to note that in much of literature concerning standard Bloom filters, the\r\nfalse positive rate is not defined as above. Instead the term is often used as a synonym for\r\nthe false positive probability. Indeed, for a standard Bloom filter, the distinction between\r\nthe two concepts as we have defined them is unimportant in practice, since, as mentioned\r\nin Section 2, one can easily show that R is very close to Pr(F) with extremely high proba\u0002bility (see, for example, [20]). It turns out that this result generalizes very naturally to the\r\nframework presented in this paper, and so the practical difference between the two concepts\r\nis largely unimportant even in our very general setting. However, the proof is more compli\u0002cated than in the case of a standard Bloom filter, and so we will be very careful to use the\r\nterms as we have defined them.\r\nTheorem 7.1. Consider a scheme where the conditions of Lemma 4.1 hold. Furthermore,\r\nassume that there is some function g and independent identically distributed random vari\u0002ables {Vu : u ∈ U}, each of which is uniformly distributed over some finite set V, such that\r\nfor u ∈ U we have H(u) = g(Vu). Define\r\np = (1 − e−λ/k\r\n)\r\nk\r\n\u0006 = max\r\ni∈H Pr(i ∈ H(u)) − λ\r\nnk (= o(1/n))\r\nξ = nk\u0006(2λ + k\u0006) (= o(1))\r\nThen for any \u0002 = \u0002(n) > 0 with \u0002 = ω(| Pr(F) − p|), for n sufficiently large so that\r\n\u0002 > | Pr(F) − p|,\r\nPr(|R − p| > \u0002) ≤ 2 exp \u0017\r\n−2n(\u0002 − | Pr(F) − p|)2\r\nλ2 + ξ\r\n\u0018\r\n.\r\nFurthermore, for any function h(n) = o(min(1/| Pr(F)−p|,\r\n√n)), we have that(R−p)h(n)\r\nconverges to 0 in probability as n → ∞.\r\nRemark 4. Since | Pr(F) − p| = o(1) by Lemma 4.1, we may take h(n) = 1 in Theorem\r\n7.1 to conclude that R converges to p in probability as n → ∞.\r\nRemark 5. From the proofs of Theorems 5.1 and 5.2, it is easy to see that for both the\r\npartition and (enhanced) double hashing schemes, \u0006 = 0, so ξ = 0 for both schemes as\r\nwell.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/c82f4048-28dc-414c-8429-1364f8367536.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cf5429179afae30d49cd120f2f19674bc3f5c91b9bd410d822a71acf5d27ec95",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 509
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "91815518-aebd-4d80-9d6e-4bd53836a38d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 22,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "208 KIRSCH AND MITZENMACHER\r\nRemark 6. We have added a new condition on the distribution of H(u), but it trivially holds\r\nin all of the schemes that we discuss in this paper (since, for independent fully random hash\r\nfunctions h1 and h2, the random variables {(h1(u), h2(u)) : u ∈ U} are independent and\r\nidentically distributed, and (h1(u), h2(u)) is uniformly distributed over its support, which is\r\nfinite).\r\nProof. The proof is essentially a standard application of Azuma’s inequality to an appro\u0002priately defined Doob martingale. Specifically, we employ the technique discussed in\r\n[21, Section 12.5].\r\nFor convenience, write S = {x1, ... , xn}. For h1, ... , hn ∈ Supp(H(u)), define\r\nf(h1, ... , hn) = Pr(F|H(x1) = h1, ... , H(xn) = hn),\r\nand note that R = f(H(x1), ... , H(xn)). Now consider some d such that for any h1, ... , hj,\r\nh\u0003\r\nj\r\n, hj+1, ... , hn ∈ Supp(H(u)),\r\n\u0014\r\n\u0014f(h1, ... , hn) − f\r\n\u000b\r\nh1, ... , hj−1, h\u0003\r\nj\r\n, hj+1, ... , hn\r\n\f\u0014\r\n\u0014 ≤ d.\r\nSince the H(xi)’s are independent, we may apply the result of [21, Section 12.5] to obtain\r\nPr(|R − E[R]| ≥ δ) ≤ 2e−2δ2/nd2\r\n,\r\nfor any δ > 0.\r\nTo find an appropriate and small choice for d, we write\r\n\u0014\r\n\u0014f(h1, ... , hn) − f\r\n\u000b\r\nh1, ... , hj−1, h\u0003\r\nj\r\n, hj+1, ... , hn\r\n\f\u0014\r\n\u0014\r\n= | Pr(F|H(x1) = h1, ... , H(xn) = hn)\r\n− Pr(F|H(x1) = h1, ... , H(xj−1) = hj−1, H(xj) = h\u0003\r\nj\r\n, H(xj+1) = hj+1, ... H(xn) = hn)|\r\n=\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u001b\r\nv ∈ V : g(v) ⊆ \u001cn\r\ni=1 hi\r\n\u001d\u0014\r\n\u0014 −\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u001e\r\nv ∈ V : g(v) ⊆ \u001cn\r\ni=1\r\n\u001e\r\nh\u0003\r\nj i = j\r\nhi i \u0007= j\r\n\u001f\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n|V|\r\n≤\r\nmaxv\u0003∈V |{v ∈ V : |g(v) ∩ g(v\u0003\r\n)| ≥ 1}|\r\n|V|\r\n= max M\u0003∈Supp(H(u))\r\nPr(|H(u) ∩ M\u0003| ≥ 1),\r\nwhere the first step is just the definition of f , the second step follows from the definitions\r\nof Vu and g, the third step holds since changing one of the hi’s to some M\u0003 ∈ Supp(H(u))\r\ncannot change\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n \r\nv ∈ V : g(v) ⊆ \u0013n\r\ni=1\r\nhi\r\n!\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\nby more than\r\n|{v ∈ V : |g(v) ∩ M\u0003\r\n| ≥ 1}|,\r\nand the fourth step follows from the definitions of Vu and g.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/91815518-aebd-4d80-9d6e-4bd53836a38d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=475267e6e422c24562bb961d03355da0190634dc903f9ba9c02dc62ec2b0eeb7",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 430
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "af1a70cf-0754-4d79-981a-b84fd72ae6b4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 23,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 209\r\nNow consider any fixed M\u0003 ∈ Supp(H(u)), and let y1, ... , y|M\u0003| be the distinct elements\r\nof M\u0003\r\n. Recall that \nM\u0003\n = k, so |M\u0003| ≤ k. Applying a union bound, we have that\r\nPr(|H(u) ∩ M\u0003\r\n| ≥ 1) = Pr\r\n\r\n\r\n|M\u0003 \u0013|\r\ni=1\r\nyi ∈ H(u)\r\n\r\n\r\n≤\r\n|M\u0003 \n|\r\ni=1\r\nPr(yi ∈ H(u))\r\n≤\r\n|M\u0003 \n|\r\ni=1\r\nλ\r\nkn + \u0006\r\n≤\r\nλ\r\nn + k\u0006.\r\nTherefore, we may set d = λ\r\nn + k\u0006 to obtain\r\nPr(|R − E[R]| > δ) ≤ 2 exp \u0017\r\n−2nδ2\r\nλ2 + ξ\r\n\u0018\r\n,\r\nfor any δ > 0. Since E[R] = Pr(F), we write (for sufficiently large n so that \u0002 > | Pr(F)−\r\np|)\r\nPr(|R − p| > \u0002) ≤ Pr(|R − Pr(F)| > \u0002 − | Pr(F) − p|)\r\n≤ 2 exp \u0017\r\n−2n(\u0002 − | Pr(F) − p|)2\r\nλ2 + ξ\r\n\u0018\r\n.\r\nTo complete the proof, we see that for any constant δ > 0,\r\nPr(|R − p|h(n) > δ) = Pr(|R − p| > δ/h(n)) → 0 as n → ∞,\r\nwhere the second step follows from the fact that | Pr(F)−p| = o(1/h(n)), so for sufficiently\r\nlarge n,\r\nPr(|R − p| > δ/h(n)) ≤ 2 exp \u0017\r\n−2n(δ/h(n) − | Pr(F) − p|)2\r\nλ2 + ξ\r\n\u0018\r\n≤ 2 exp \u0017− δ2\r\nλ2 + ξ · nh(n)2\r\n\u0018\r\n→ 0 as n → ∞,\r\nand the last step follows from the fact that h(n) = o(\r\n√n).\r\nSince, conditioned on R, the events {F(z) : z ∈ U − S} are independent and each\r\noccur with probability R, Theorem 7.1 suggests that {1(F(z)) : z ∈ U − S} are essentially\r\nindependent Bern(p) random variables. We formalize this idea in the next result, where we\r\nuse Theorem 7.1 to prove versions of the strong law of large numbers, the weak law of large\r\nnumbers, Hoeffding’s inequality, and the central limit theorem.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/af1a70cf-0754-4d79-981a-b84fd72ae6b4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1a3f5c2489384233e55832104675c4eea497e58077090c1bd6b89dbbf620b6a6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 337
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "a2f5f0e5-55ca-4502-8d81-60b6f14d8e9f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 24,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "210 KIRSCH AND MITZENMACHER\r\nTheorem 7.2. Consider a scheme that satisfies the conditions of Theorem 7.1. Let Z ⊆\r\nU − S be countably infinite, and write Z = {z1,z2, ...}. Then we have:\r\n1.\r\nPr \u0011lim\r\n\u0003→∞\r\n1\r\n\u0003\r\n\n\u0003\r\ni=1\r\n1(Fn(zi)) = Rn\r\n\u0012\r\n= 1.\r\n2. For any \u0002 > 0, for n sufficiently large so that \u0002 > | Pr(F) − p|,\r\nPr \u0011\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\nlim\r\n\u0003→∞\r\n1\r\n\u0003\r\n\n\u0003\r\ni=1\r\n1(Fn(zi)) − p\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n> \u0002\u0012≤ 2 exp \u0017\r\n−2n(\u0002 − | Pr(F) − p|)2\r\nλ2 + ξ\r\n\u0018\r\n.\r\nIn particular, lim\u0003→∞ 1\r\n\u0003\r\n\u0006\u0003\r\ni=1 1(Fn(zi)) converges to p in probability as n → ∞.\r\n3. For any function Q(n), \u0002 > 0, and n sufficiently large so that \u0002/2 > | Pr(F) − p|,\r\nPr \u0011\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n1\r\nQ(n)\r\n\n\r\nQ(n)\r\ni=1\r\n1(Fn(zi)) − p\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n> \u0002\u0012≤ 2e−Q(n)\u00022/2\r\n+ 2 exp \u0017\r\n−2n(\u0002/2 − | Pr(F) − p|)2\r\nλ2 + ξ\r\n\u0018\r\n.\r\n4. For any function Q(n) with limn→∞ Q(n) = ∞ and Q(n) = o(min(1/| Pr(F) −\r\np|\r\n2, n)),\r\n\n\r\nQ(n)\r\ni=1\r\n1(Fn(zi)) − p\r\n√Q(n)p(1 − p) → N(0, 1) in distribution as n → ∞.\r\nRemark 7. By Theorem 6.2, | Pr(F) − p| = O(1/n) for both the partition and double\r\nhashing schemes introduced in Section 5. Thus, for each of the schemes, the condition\r\nQ(n) = o(min(1/| Pr(F)−p|\r\n2, n))in the fourth part of Theorem 7.2 becomes Q(n) = o(n).\r\nProof. Since, given Rn, the random variables {1(Fn(z)) : z ∈ Z} are conditionally inde\u0002pendent Bern(Rn) random variables, a direct application of the strong law of large numbers\r\nyields the first item.\r\nFor the second item, we note that the first item implies that\r\nlim\r\n\u0003→∞\r\n1\r\n\u0003\r\n\n\u0003\r\ni=1\r\n1(Fn(zi)) ∼ Rn.\r\nA direct application of Theorem 7.1 then gives the result.\r\nFor the third item, we write\r\nPr \u0011\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n1\r\nQ(n)\r\n\n\r\nQ(n)\r\ni=1\r\n1(Fn(zi)) − p\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n> \u0002\u0012\r\n≤ Pr \u0011\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n1\r\nQ(n)\r\n\n\r\nQ(n)\r\ni=1\r\n1(Fn(zi)) − Rn\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n> \u0002/2||Rn − p| ≤ \u0002/2\r\n\u0012\r\n+ Pr(|Rn − p| > \u0002/2)\r\n≤ 2e−Q(n)\u00022/2 + 2 exp \u0017\r\n−2n(\u0002/2 − | Pr(F) − p|)2\r\nλ2 + ξ\r\n\u0018\r\n,\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/a2f5f0e5-55ca-4502-8d81-60b6f14d8e9f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ad81b51a3e620daa1aafa071f7f34f6ecae7e1985c5c164afdce18b1dbb7871b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 402
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "51bc82d4-ffe1-4a50-aaf4-cb9456df5069",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 25,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 211\r\nwhere the last step follows from Hoeffding’s inequality and Theorem 7.1.\r\nFor the fourth item, we write\r\n\n\r\nQ(n)\r\ni=1\r\n1(Fn(zi)) − p\r\n√Q(n)p(1 − p) =\r\n\"\r\nRn(1 − Rn)\r\np(1 − p)\r\n\u0011\r\n\n\r\nQ(n)\r\ni=1\r\n1(Fn(zi)) − Rn √Q(n)Rn(1 − Rn)\r\n+ (Rn − p)\r\n\"\r\nQ(n)\r\nRn(1 − Rn)\r\n\u0012\r\n.\r\nBy Slutsky’s theorem, it suffices to show the following three items:\r\n1. Rn → p in probability as n → ∞,\r\n2. (Rn − p)\r\n√Q(n) → 0 in probability as n → ∞, and\r\n3.\r\n\n\r\nQ(n)\r\ni=1\r\n1(Fn(zi)) − Rn √Q(n)Rn(1 − Rn) → N(0, 1) in distribution as n → ∞.\r\nThe first item holds by Remark 4, and the second item holds by Theorem 7.1, since √Q(n) =\r\no(min(1/| Pr(F) − p|,\r\n√n)). The third item requires a little more work. First, we need a\r\nversion of the central limit theorem that allows us to bound its rate of convergence.\r\nLemma 7.1. [7, Theorem 24] Let X1, X2, ... be independent random variables with some\r\ncommon distribution X, where E[X] = 0 and Var[X] = 1. For n ≥ 1, let Yn = \u0006n\r\ni=1 Xi/\r\n√n.\r\nThen there is some constant a such that for any n ≥ 1 and x ∈ R,\r\n| Pr(Yn ≤ x) − Pr(N(0, 1) ≤ x)| ≤ a E[|X|\r\n3\r\n]/\r\n√n.\r\nFix some constant \u0002 > 0 so that I \u0001 [p − \u0002, p + \u0002] ⊆ (0, 1), and let b =\r\nminx∈I\r\n√x(1 − x) > 0. With Lemma 7.1 in mind, define\r\nXi(n) = 1(Fn(zi)) − Rn √Rn(1 − Rn) .\r\nSince, given Rn, the random variables are independent Bern(Rn) random variables, Lemma\r\n7.1 tells us that for any x ∈ R,\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\nPr \u0011\r\n\n\r\nQ(n)\r\ni=1\r\nXi(n)/#Q(n)\r\n\u0012\r\n− Pr(N(0, 1) ≤ x)\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n≤ Pr(|Rn − p| > \u0002) +\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\nPr \u0011\r\n\n\r\nQ(n)\r\ni=1\r\nXi(n)\r\n√Q(n) ≤ x\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n|Rn − p| ≤ \u0002\r\n\u0012\r\n− Pr(N(0, 1) ≤ x)\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n\u0014\r\n≤ Pr(|Rn − p| > \u0002) + a(1/b)3\r\n√Q(n)\r\n→ 0 as n → ∞,\r\nwhere the last step follows from Remark 4.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/51bc82d4-ffe1-4a50-aaf4-cb9456df5069.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5649bbc70dcfe7cbe09ffd22fec40aff7612dece80ae4d13ba0937f31967a2de",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 387
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d74fc171-ca8e-4603-a226-997172873a91",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 26,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "212 KIRSCH AND MITZENMACHER\r\nFig. 1. Estimates of the false positive probability for various schemes and parameters.\r\n8. EXPERIMENTS\r\nIn this section, we evaluate the theoretical results of the previous sections empirically for\r\nsmall values of n. We are interested in the following specific schemes: the standard Bloom\r\nfilter scheme, the partition scheme, the double hashing scheme, and the enhanced double\r\nhashing schemes where f(i) = i\r\n2 and f(i) = i3.\r\nFor c ∈ {4, 8, 12, 16}, we do the following. First, compute the value of k ∈\r\n{\u0013c ln 2\u0014, \u0015c ln 2\u0016} that minimizes p = (1 − exp[−k/c])k . Next, for each of the schemes\r\nunder consideration, repeat the following procedure 10, 000 times: instantiate the filter with\r\nthe specified values of n, c, and k, populate the filter with a set S of n items, and then query\r\n\u001510/p\u0016 elements not in S, recording the number Q of those queries for which the filter\r\nreturns a false positive. We then approximate the false positive probability of the scheme\r\nby averaging the results over all 10, 000 trials. Furthermore, we bin the results of the trials\r\nby their values for Q in order to examine the other characteristics of Q’s distribution.\r\nThe results are shown in Figures 1 and 2. In Figure 1, we see that for small values of c,\r\nthe different schemes are essentially indistinguishable from each other, and simultaneously\r\nhave a false positive probability/rate close to p. This result is particularly significant since\r\nthe filters that we are experimenting with are fairly small, supporting our claim that these\r\nschemes are useful even in settings with very limited space. However, we also see that for\r\nthe slightly larger values of c ∈ {12, 16}, the partition scheme is no longer particularly\r\nuseful for small values of n, while the other schemes are. This result is not particularly\r\nsurprising; for large values of c and small values of n, the probability of a false positive can\r\nbe substantially affected by the asymptotically vanishing probability that one element in the\r\nset can yield multiple collisions with an element not in the set, and this is somewhat larger\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/d74fc171-ca8e-4603-a226-997172873a91.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cc417f70b6135b0ffc1305e82915d3a087c5275999f1cd813799fe750f22e6bf",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 368
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f43f266a-391e-40e1-a970-a8a5a1b31e73",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 27,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 213\r\nFig. 2. Estimate of distribution of Q (for n = 5000 and c = 8), compared with f .\r\nin the partition scheme. Nevertheless, the difference is sufficiently small that the partition\r\nscheme might still be worthwhile in practice if parallelism is desired.\r\nAs an aside, Dillinger and Manolios [8, 9] observe that as c grows very large, various\r\nenhanced double hashing schemes (including triple hashing, where the gi’s use a third hash\r\nfunction with a coefficient that is quadratic in the index i) tend to perform slightly better\r\nthan the regular double hashing scheme. Their results suggest that the difference is most\r\nlikely due to differences in the constants in the rates of convergence of the various schemes.\r\nFor the most part, this effect is not noticeable for the Bloom filter configurations that we\r\nconsider, which are chosen to capture the typical Bloom filter setting where the false positive\r\nprobability is small enough to be tolerable, but still non-negligible.\r\nIn Figure 2, we give histograms of the results from our experiments with n = 5000 and\r\nc = 8 for the partition and enhanced double hashing schemes. For this value of c, optimizing\r\nfor k yields k = 6, so we have p ≈ 0.021577 and \u001510/p\u0016 = 464. In each plot, we compare\r\nthe results to f \u0001 10, 000φ464p,464p(1−p), where\r\nφµ,σ2 (x) \u0001 e−(x−µ)2/2σ2\r\nσ\r\n√2π\r\ndenotes the density function of N(µ, σ2). As one would expect, given the central limit\r\ntheorem result in the fourth part of Theorem 7.2, f provides a reasonable approximation to\r\neach of the histograms.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/f43f266a-391e-40e1-a970-a8a5a1b31e73.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9baff3f24f6e4a07553de506d77e263cdb48179bf3bd1d21eb2ae469c88c5985",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 275
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "62597f68-53f3-4e64-856b-407fc8e4fd48",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 28,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "214 KIRSCH AND MITZENMACHER\r\n9. A MODIFIED COUNT-MIN SKETCH\r\nWe now present a modification to the Count-Min sketch introduced in [6] that uses fewer\r\nhash functions in a manner similar to our improvement for Bloom filters, at the cost of a\r\nsmall space increase. We begin by reviewing the original data structure.\r\n9.1. Count-Min Sketch Review\r\nThe following is an abbreviated review of the description given in [6]. A Count-Min sketch\r\ntakes as input a stream of updates(it, ct), starting from t = 1, where each item it is a member\r\nof a universe U = {1, ... , n}, and each count ct is a positive number. (Extensions to negative\r\ncounts are possible; we do not consider them here for convenience.) The state of the system\r\nat time T is given by a vector a\u0017(T) = (a1(T), ... , an(T)), where aj(T) is the sum of all ct\r\nfor which t ≤ T and it = j. We generally drop the T when the meaning is clear.\r\nThe Count-Min sketch consists of an array Count of width w \u0001 \u0015e/\u0002\u0016 and depth d \u0001\r\n\u0015ln 1/δ\u0016 : Count[1, 1], ... , Count[d,w]. Every entry of the array is initialized to 0. In\r\naddition, the Count-Min sketch uses d hash functions chosen independently from a pairwise\r\nindependent family H : {1, ... , n}→{1, ... , w}.\r\nThe mechanics of the Count-Min sketch are extremely simple. Whenever an update (i, c)\r\narrives, we increment Count[j, hj(i)] by c, for j = 1, ... , d. Whenever we want an estimate\r\nof ai (called a point query), we compute\r\naˆi \u0001\r\nd\r\nmin\r\nj=1 Count[j, hj(i)].\r\nThe fundamental result of Count-Min sketches is that for every i,\r\naˆi ≥ ai and Pr(aˆi ≤ ai + \u0002\n\u0017a\n) ≥ 1 − δ,\r\nwhere the norm is the L1 norm. Surprisingly, this very simple bound allows for a number\r\nof sophisticated estimation procedures to be efficiently and effectively implemented on\r\nCount-Min sketches. The reader is once again referred to [6] for details.\r\n9.2. Using Fewer Hash Functions\r\nWe now show how the improvements to Bloom filters discussed previously in this paper can\r\nbe usefully applied to Count-Min sketches. Our modification maintains all of the essential\r\nfeatures of Count-Min sketches, but reduces the required number of pairwise independent\r\nhash functions to 2\u0015(ln 1/δ)/(ln 1/\u0002)\u0016. We expect that, in many settings, \u0002 and δ will be\r\nrelated, so that only a constant number of hash functions will be required; in fact, in many\r\nsuch situations only two hash functions are required.\r\nWe describe a variation of the Count-Min sketch that uses just two pairwise independent\r\nhash functions and guarantees that\r\naˆi ≥ ai and Pr(aˆi ≤ ai + \u0002\n\u0017a\n) ≥ 1 − \u0002.\r\nGiven such a result, it is straightforward to obtain a variation that uses 2\u0015(ln 1/δ)/(ln 1/\u0002)\u0016\r\npairwise independent hash functions and achieves the desired failure probability δ: simply\r\nbuild 2\u0015(ln 1/δ)/(ln 1/\u0002)\u0016 independent copies of this data structure, and always answer a\r\npoint query with the minimum estimate given by one of those copies.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/62597f68-53f3-4e64-856b-407fc8e4fd48.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9f2c017d675715405c909a8f6eaf68b0ea557b69a18d7ad56dcb2caeb7b5f8a2",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 521
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "62597f68-53f3-4e64-856b-407fc8e4fd48",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 28,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "214 KIRSCH AND MITZENMACHER\r\n9. A MODIFIED COUNT-MIN SKETCH\r\nWe now present a modification to the Count-Min sketch introduced in [6] that uses fewer\r\nhash functions in a manner similar to our improvement for Bloom filters, at the cost of a\r\nsmall space increase. We begin by reviewing the original data structure.\r\n9.1. Count-Min Sketch Review\r\nThe following is an abbreviated review of the description given in [6]. A Count-Min sketch\r\ntakes as input a stream of updates(it, ct), starting from t = 1, where each item it is a member\r\nof a universe U = {1, ... , n}, and each count ct is a positive number. (Extensions to negative\r\ncounts are possible; we do not consider them here for convenience.) The state of the system\r\nat time T is given by a vector a\u0017(T) = (a1(T), ... , an(T)), where aj(T) is the sum of all ct\r\nfor which t ≤ T and it = j. We generally drop the T when the meaning is clear.\r\nThe Count-Min sketch consists of an array Count of width w \u0001 \u0015e/\u0002\u0016 and depth d \u0001\r\n\u0015ln 1/δ\u0016 : Count[1, 1], ... , Count[d,w]. Every entry of the array is initialized to 0. In\r\naddition, the Count-Min sketch uses d hash functions chosen independently from a pairwise\r\nindependent family H : {1, ... , n}→{1, ... , w}.\r\nThe mechanics of the Count-Min sketch are extremely simple. Whenever an update (i, c)\r\narrives, we increment Count[j, hj(i)] by c, for j = 1, ... , d. Whenever we want an estimate\r\nof ai (called a point query), we compute\r\naˆi \u0001\r\nd\r\nmin\r\nj=1 Count[j, hj(i)].\r\nThe fundamental result of Count-Min sketches is that for every i,\r\naˆi ≥ ai and Pr(aˆi ≤ ai + \u0002\n\u0017a\n) ≥ 1 − δ,\r\nwhere the norm is the L1 norm. Surprisingly, this very simple bound allows for a number\r\nof sophisticated estimation procedures to be efficiently and effectively implemented on\r\nCount-Min sketches. The reader is once again referred to [6] for details.\r\n9.2. Using Fewer Hash Functions\r\nWe now show how the improvements to Bloom filters discussed previously in this paper can\r\nbe usefully applied to Count-Min sketches. Our modification maintains all of the essential\r\nfeatures of Count-Min sketches, but reduces the required number of pairwise independent\r\nhash functions to 2\u0015(ln 1/δ)/(ln 1/\u0002)\u0016. We expect that, in many settings, \u0002 and δ will be\r\nrelated, so that only a constant number of hash functions will be required; in fact, in many\r\nsuch situations only two hash functions are required.\r\nWe describe a variation of the Count-Min sketch that uses just two pairwise independent\r\nhash functions and guarantees that\r\naˆi ≥ ai and Pr(aˆi ≤ ai + \u0002\n\u0017a\n) ≥ 1 − \u0002.\r\nGiven such a result, it is straightforward to obtain a variation that uses 2\u0015(ln 1/δ)/(ln 1/\u0002)\u0016\r\npairwise independent hash functions and achieves the desired failure probability δ: simply\r\nbuild 2\u0015(ln 1/δ)/(ln 1/\u0002)\u0016 independent copies of this data structure, and always answer a\r\npoint query with the minimum estimate given by one of those copies.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/62597f68-53f3-4e64-856b-407fc8e4fd48.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9f2c017d675715405c909a8f6eaf68b0ea557b69a18d7ad56dcb2caeb7b5f8a2",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 521
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "629c1a97-6f5c-4b50-9ec0-659ab59778f0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 29,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 215\r\nOur variation will use d tables numbered {0, 1, ... , d − 1}, each with exactly w counters\r\nnumbered {0, 1, ... , w − 1}, where d and w will be specified later. We insist that w be\r\nprime. Just as in the original Count-Min sketch, we let Count[j, k] denote the value of the\r\nkth counter in the jth table. We choose hash functions h1 and h2 independently from a\r\npairwise independent family H : {0, ... , n − 1}→{0, 1, ... ,w − 1}, and define gj(x) =\r\nh1(x) + jh2(x) mod w for j = 0, ... , d − 1.\r\nThe mechanics of our data structure are the same as for the original Count-Min sketch.\r\nWhenever an update (i, c) occurs in the stream, we increment Count[j, gj(i)] by c, for\r\nj = 0, ... , d − 1. Whenever we want an estimate of ai, we compute\r\naˆi \u0001\r\nd−1\r\nmin\r\nj=0 Count[j, gj(i)].\r\nWe prove the following result:\r\nTheorem 9.1. For the Count-Min sketch variation described above,\r\naˆi ≥ ai and Pr(aˆi > ai + \u0002\n\u0017a\n) ≤\r\n2\r\n\u0002w2 +\r\n\u0001 2\r\n\u0002w\r\n\u0002d\r\n.\r\nIn particular, for w ≥ 2e/\u0002 and δ ≥ ln 1/\u0002(1 − 1/2e2),\r\naˆi ≥ ai and Pr(aˆi > ai + \u0002\n\u0017a\n) ≤ \u0002.\r\nProof. Fix some item i. Let Ai be the total count for all itemsz(besidesi) with h1(z) = h1(i)\r\nand h2(z) = h2(i). Let Bj,i be the total count for all items z with gj(i) = gj(z), excluding i\r\nand items z counted in Ai. It follows that\r\naˆi = d−1\r\nmin\r\nj=0 Count[j, gj(i)] = ai + Ai +\r\nd−1\r\nmin\r\nj=0 Bj,i.\r\nThe lower bound now follows immediately from the fact that all items have nonnegative\r\ncounts, since all updates are positive. Thus, we concentrate on the upper bound, which we\r\napproach by noticing that\r\nPr(aˆi ≥ ai + \u0002\n\u0017a\n) ≤ Pr(Ai ≥ \u0002\n\u0017a\n/2) + Pr \u0001 d−1\r\nmin\r\nj=0 Bj,i ≥ \u0002\n\u0017a\n/2\r\n\u0002\r\n.\r\nWe first bound Ai. Letting 1(·) denote the indicator function, we have\r\nE[Ai] = \n\r\nz\u0007=i\r\naz E[1(h1(z) = h1(i) ∧ h2(z) = h2(i))] ≤ \n\r\nz\u0007=i\r\naz/w2 ≤ \n\u0017a\n/w2,\r\nwhere the first step follows from linearity of expectation and the second step follows from\r\nthe definition of the hash functions. Markov’s inequality now implies that\r\nPr(Ai ≥ \u0002\n\u0017a\n/2) ≤ 2/\u0002w2\r\n.\r\nTo bound mind−1\r\nj=0 Bj,i, we note that for any j ∈ {0, ... , d − 1} and z \u0007= i,\r\nPr((h1(z) \u0007= h1(i) ∨ h2(z) \u0007= h2(i)) ∧ gj(z) = gj(i)) ≤ Pr(gj(z) = gj(i))\r\n= Pr(h1(z) = h1(i) + j(h2(i) − h2(z)))\r\n= 1/w,\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/629c1a97-6f5c-4b50-9ec0-659ab59778f0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fefd3c618785cf4c98fe7779ca7e9d91fff64f903c0baa8815931691b573971e",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 466
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5c3e2519-e7f8-4f5d-bf5b-bf4708045274",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 30,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "216 KIRSCH AND MITZENMACHER\r\nso\r\nE[Bj,i] = \n\r\nz\u0007=i\r\naz E[1((h1(z) \u0007= h1(i) ∨ h2(z) \u0007= h2(i)) ∧ gj(z) = gj(i))] ≤ \n\u0017a\n/w,\r\nand so Markov’s inequality implies that\r\nPr(Bj,i ≥ \u0002\n\u0017a\n/2) ≤ 2/\u0002w.\r\nFor arbitrary w, this result is not strong enough to bound mind−1\r\nj=0 Bj,i. However, since w is\r\nprime, each item z can only contribute to one Bk,i (since if gj(z) = gj(i) for two values of j,\r\nwe must have h1(z) = h1(i) and h2(z) = h2(i), and in this case z’s count is not included in\r\nany Bj,i). In this sense, the Bj,i’s are negatively dependent (specifically, they are negatively\r\nright orthant dependent) [11]. It follows that for any value v,\r\nPr \u0001 d−1\r\nmin\r\nj=0 Bj,i ≥ v\r\n\u0002\r\n≤ \t\r\nd−1\r\nj=0\r\nPr(Bj,i ≥ v).\r\nIn particular, we have that\r\nPr \u0001 d−1\r\nmin\r\nj=0 Bj,i ≥ \u0002\n\u0017a\n/2\r\n\u0002\r\n≤ (2/\u0002w)\r\nd\r\n,\r\nso\r\nPr(aˆi ≥ ai + \u0002\n\u0017a\n) ≤ Pr(Ai ≥ \u0002\n\u0017a\n/2) + Pr \u0001 d−1\r\nmin\r\nj=0 Bj, i ≥ \u0002\n\u0017a\n/2\r\n\u0002\r\n≤\r\n2\r\n\u0002w2 +\r\n\u0001 2\r\n\u0002w\r\n\u0002d\r\n.\r\nAnd for w ≥ 2e/\u0002 and δ ≥ ln 1/\u0002(1 − 1/2e2), we have\r\n2\r\n\u0002w2 +\r\n\u0001 2\r\n\u0002w\r\n\u0002d\r\n≤ \u0002/2e2 + \u0002(1 − 1/2e2) = \u0002,\r\ncompleting the proof.\r\n10. CONCLUSION\r\nBloom filters are simple randomized data structures that are extremely useful in practice.\r\nIn fact, they are so useful that any significant reduction in the time required to perform a\r\nBloom filter operation immediately translates to a substantial speedup for many practical\r\napplications. Unfortunately, Bloom filters are so simple that they do not leave much room\r\nfor optimization.\r\nThis paper focuses on modifying Bloom filters to use less of the only resource that they\r\ntraditionally use liberally: (pseudo)randomness. Since the only nontrivial computations\r\nperformed by a Bloom filter are the constructions and evaluations of pseudorandom hash\r\nfunctions, any reduction in the required number of pseudorandom hash functions yields\r\na nearly equivalent reduction in the time required to perform a Bloom filter operation\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/5c3e2519-e7f8-4f5d-bf5b-bf4708045274.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=54d024876505ed32e6677327dc66f7d2d02a2d56dd2e85653f2e8052fc8e2047",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 352
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "b043fe74-18de-4c0b-add7-5a14e9b4b306",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 31,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "BUILDING A BETTER BLOOM FILTER 217\r\n(assuming, of course, that the Bloom filter is stored entirely in memory, so that random\r\naccesses can be performed very quickly).\r\nWe have shown that a Bloom filter can be implemented with only two random hash\r\nfunctions without any increase in the asymptotic false positive probability. We have also\r\nshown that the asymptotic false positive probability acts, for all practical purposes and\r\nreasonable settings of a Bloom filter’s parameters, like a false positive rate. This result has\r\nenormous practical significance, since the analogous result for standard Bloom filters is\r\nessentially the theoretical justification for their extensive use.\r\nMore generally, we have given a framework for analyzing modified Bloom filters, which\r\nwe expect will be used in the future to refine the specific schemes that we analyzed in this\r\npaper. We also expect that the techniques used in this paper will be usefully applied to other\r\ndata structures, as demonstrated by our modification to the Count-Min sketch.\r\nACKNOWLEDGMENTS\r\nWe are very grateful to Peter Dillinger and Panagiotis Manolios for introducing us to\r\nthis problem, providing us with advance copies of their work, and also for many useful\r\ndiscussions.\r\nREFERENCES\r\n[1] P. Billingsley, Probability and measure, 3rd edition, Wiley, New York, 1995.\r\n[2] F. Bonomi, M. Mitzenmacher, R. Panigrahy, S. Singh, and G. Varghese, Beyond Bloom fil\u0002ters: From approximate membership checks to approximate state machines, Proc 2006 ACM\r\nSIGCOMM, 2006, pp. 315–326.\r\n[3] F. Bonomi, M. Mitzenmacher, R. Panigrahy, S. Singh, and G. Varghese, Bloom filters via d\u0002left hashing and dynamic bit reassignment, Proc Allerton Conf Communication, Control and\r\nComputing, 2006, pp. 877–883.\r\n[4] A. Broder and M. Mitzenmacher, Network applications of Bloom filters: A survey, Internet\r\nMath 1 (2004), 485–509.\r\n[5] B. Chazelle, J. Kilian, R. Rubinfeld, and A. Tal, The Bloomier filter: An efficient data structure\r\nfor static support lookup tables, Proc 15th ACM/SIAM Symp Discrete Algorithms (SODA),\r\n2004, pp. 30–39.\r\n[6] G. Cormode and S. Muthukrishnan, Improved data stream summaries: The Count-Min sketch\r\nand its applications, DIMACS Technical Report 2003-20, 2003.\r\n[7] H. Cramer, Random variables and probability distributions, 3rd edition, Cambridge University\r\nPress, Cambridge, 1970.\r\n[8] P. C. Dillinger and P. Manolios, Fast and accurate bitstate verification for SPIN, Proc 11th Int\r\nSPIN Workshop, 2004, pp. 57–75.\r\n[9] P. C. Dillinger and P. Manolios, Bloom filters in probabilistic verification, Proc 5th Int Conf\r\nFMCAD, 2004, pp. 367–381.\r\n[10] B. Donnet, B. Baynat, and T. Friedman, Retouched Bloom filters: Allowing networked appli\u0002cations to flexibly trade off false positives against false negatives, arxiv, cs.NI/0607038,\r\n2006.\r\n[11] D. P. Dubhashi and D. Ranjan, Balls and bins: A case study in negative dependence, Random\r\nStructures Algorithms 13 (1998), 99–124.\r\n[12] C. Estan and G. Varghese, New directions in traffic measurement and accounting: Focusing on\r\nthe elephants, ignoring the mice, ACM Trans Comput Syst 21 (2003), 270–313.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/b043fe74-18de-4c0b-add7-5a14e9b4b306.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6f8d7ae38e969ca87ab2a43400a596de2af6c2f82174e7a27f86ff6d298700d1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 476
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "74f7740f-f995-4336-bd4d-1a13c40073c4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 522,
+              "height": 738
+            },
+            "page_number": 32,
+            "page_width": 522,
+            "page_height": 738,
+            "content": "218 KIRSCH AND MITZENMACHER\r\n[13] L. Fan, P. Cao, J. Almeida, and A. Z. Broder, Summary cache: A scalable wide-area Web cache\r\nsharing protocol, IEEE/ACM Trans Netw 8 (2000), 281–293.\r\n[14] G. Grimmett and D. Stirzaker, Probability and random processes, 3rd edition, Oxford University\r\nPress, Oxford, UK, 2001.\r\n[15] K. Ireland and M. Rosen, A classical introduction to modern number theory, 2nd edition,\r\nSpringer-Verlag, New York, NY, 1990.\r\n[16] A. Kirsch and M. Mitzenmacher, Building a better Bloom filter, Proc 14th ESA, 2006,\r\npp. 456–467.\r\n[17] A. Kirsch and M. Mitzenmacher, Building a better Bloom filter, Harvard University Com\u0002puter Science Technical Report TR-02-05, 2005, Available at: ftp://ftp.deas.harvard.edu/\r\ntechreports/tr-02-05.pdf.\r\n[18] D. Knuth, The art of computer programming, vol. 3, sorting and searching, Addison-Wesley,\r\nReading, MA, 1973.\r\n[19] G. Lueker and M. Molodowitch, More analysis of double hashing, Proc 20th ACM STOC,\r\n1988, pp. 354–359.\r\n[20] M. Mitzenmacher, Compressed Bloom filters, IEEE/ACM Trans Netw 10 (2002), 613–620.\r\n[21] M. Mitzenmacher and E. Upfal, Probability and computing: Randomized algorithms and\r\nprobabilistic analysis, Cambridge University Press, Cambridge, 2005.\r\n[22] R. Motwani and P. Raghavan, Randomized algorithms, Cambridge University Press, Cam\u0002bridge, 1995.\r\n[23] A. Pagh, R. Pagh, and S. S. Rao, An optimal Bloom filter replacement, Proc 16th ACM-SIAM\r\nSODA, 2005, pp. 823–829.\r\n[24] M. V. Ramakrishna, Practical performance of Bloom filters and parallel free-text searching,\r\nCommun ACM 32 (1989), 1237–1239.\r\n[25] J. P. Schmidt and A. Siegel, The analysis of closed hashing under limited randomness, Proc\r\n22nd ACM STOC, 1990, pp. 224–234.\r\nRandom Structures and Algorithms DOI 10.1002/rsa",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/03c28ecb-e4bb-455b-8fc7-272084bdefea/images/74f7740f-f995-4336-bd4d-1a13c40073c4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041952Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=db3ba09b79c3c5a82bc9b0d368387e446a61a01fdabb94f4f2d7e5daeac4fc40",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 254
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\"title\": \"Less Hashing, Same Performance: Building a Better Bloom Filter\"}\n```"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "No response"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "No response"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "No response"
+        }
+      ]
+    }
+  }
+}

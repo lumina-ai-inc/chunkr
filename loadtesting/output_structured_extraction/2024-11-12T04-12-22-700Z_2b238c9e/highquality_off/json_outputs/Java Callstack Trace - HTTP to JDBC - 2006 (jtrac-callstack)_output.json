@@ -1,0 +1,57 @@
+{
+  "file_name": "Java Callstack Trace - HTTP to JDBC - 2006 (jtrac-callstack).pdf",
+  "task_id": "a01182fe-b475-45c7-9854-aec42e5ccf75",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "9e697e2c-c39f-404f-a8f7-8508ad44101e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MVC Action\r\nAOP TX Proxy\r\nBusiness Logic\r\nDAO\r\nSpring-Hibernate\r\nHibernate\r\nJDBC\r\nSpring WebFlow\r\nAcegi\r\nSpring MVC\r\nTomcat / JBoss",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/a01182fe-b475-45c7-9854-aec42e5ccf75/images/9e697e2c-c39f-404f-a8f7-8508ad44101e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041956Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=22bd718f6183f98223b84c63ee05393e247e9a3a48d7c93412b98aee292be47b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 19
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "Field Name: title\nField Description: The main title of the document\nField Type: string\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Field Name: author\nField Description: The author(s) of the document\nField Type: string\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "Field Name: date_published\nField Description: The publication date of the document\nField Type: string\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```json\n{\n  \"Field Name\": \"location\",\n  \"Field Description\": \"The location mentioned in the document\",\n  \"Field Type\": \"string\"\n}\n```"
+        }
+      ]
+    }
+  }
+}

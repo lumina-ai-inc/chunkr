@@ -1,0 +1,1003 @@
+{
+  "file_name": "Investigation of Hardware Transactional Memory - 2015 (Andrew-Nguyen-Thesis).pdf",
+  "task_id": "470fb8bc-0366-4e52-9612-5b5af45b5f11",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "999403fd-d3f5-4d67-ae63-a9ead58947e2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 1,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Investigation of Hardware Transactional Memory\r\nby\r\nAndrew T. Nguyen\r\nSubmitted to the\r\nDepartment of Electrical Engineering and Computer Science\r\nin Partial Fulfillment of the Requirements for the Degree of\r\nMaster of Engineering in Electrical Engineering and Computer Science\r\nat the\r\nMASSACHUSETTS INSTITUTE OF TECHNOLOGY\r\nJune 2015\r\n○c Massachusetts Institute of Technology 2015. All rights reserved.\r\nAuthor . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .\r\nDepartment of Electrical Engineering and Computer Science\r\nMay 22, 2015\r\nCertified by. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .\r\nNir Shavit\r\nProfessor of Computer Science and Engineering\r\nThesis Supervisor\r\nAccepted by . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .\r\nAlbert R. Meyer\r\nChairman, Masters of Engineering Thesis Committee",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/999403fd-d3f5-4d67-ae63-a9ead58947e2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4d767f0e400b3c42e1c5f55456900dc2a74ce1c9bf30ad25917d1179e990ecf1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "95c1be9f-e208-4e20-aaee-bdbf7bd9f54b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 2,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/95c1be9f-e208-4e20-aaee-bdbf7bd9f54b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=abda3c104968667ae0c8f4c55968d1bf2da0eee0d627afb96ba1872ce96d8567",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ca72f62f-0d19-4cce-9fe1-59cf63c1e41e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 3,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Investigation of Hardware Transactional Memory\r\nby\r\nAndrew T. Nguyen\r\nSubmitted to the Department of Electrical Engineering and Computer Science\r\non May 22, 2015, in Partial Fulfillment of the\r\nRequirements for the Degree of\r\nMaster of Engineering in Electrical Engineering and Computer Science\r\nAbstract\r\nHardware transactional memory is a new method of optimistic concurrency control\r\nthat can be used to solve the synchronization problem in multicore software. It is\r\na promising solution due to its simple semantics and good performance relative to\r\ntraditional approaches. Before we can incorporate this nascent technology into high\u0002performing concurrent programs, it is necessary to investigate the physical capacity\r\nconstraints and performance characteristics of hardware transactions in order to bet\u0002ter inform programmers of their abilities and limitations.\r\nOur investigation involves the first empirical study of the “capacity envelope” of\r\nHTM in Intel’s Haswell and IBM’s Power8 architectures. We additionally survey how\r\ncontention parameters, such as transaction size or write ratio, affect HTM perfor\u0002mance and we capture these trends in a regression model for predicting the through\u0002put of HTM-enabled concurrent programs. Through our investigation, we aim to\r\nprovide what we believe is a much needed understanding of the extent to which one\r\ncan use HTM to replace locks.\r\nThesis Supervisor: Nir Shavit\r\nTitle: Professor of Computer Science and Engineering\r\n3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/ca72f62f-0d19-4cce-9fe1-59cf63c1e41e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cccef9091f21e420805b0ce758a89f48b71496f6683faf0217942438f29b33fc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b32d4a90-5e0e-44b2-9bbc-aceddfbc3497",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 4,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "4",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/b32d4a90-5e0e-44b2-9bbc-aceddfbc3497.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2bc98a089ae3276d2a853569ea0704ebf5cab55d0530bc3515e4c8be19c7e2d6",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 485
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f58028cf-7abc-45d4-884f-2d41f08411e2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 5,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Acknowledgments\r\nNir Shavit, my advisor, provided invaluable technical insight. His guidance helped\r\ndirect my focus toward relevant research problems, which ultimately led to our most\r\nsignificant findings. I am grateful that he made himself available, even though he was\r\nthousands of miles away on sabbatical!\r\nMy assistant advisor, William Hasenplaugh, was my pillar of support. Whenever I\r\nencountered a confounding problem, he both encouraged me to keep pressing forward\r\nand also guided me through solving the problem. Our frequent technical discussions\r\nled to the key revelations in this thesis. I could not have completed this thesis without\r\nhis patience and support, and for that I am deeply appreciative.\r\nI thank William Leiserson for facilitating my access to an HTM-enabled Intel\r\nHaswell machine to conduct my experiments, and also for helping me sort out machine\r\nissues that left me perplexed.\r\nI further thank Pascal Felber and Patrick Marlier for allowing me to experiment\r\non their IBM Power8. Without access to this machine, I would not have been able\r\nto collect the IBM experimental results.\r\nThanks! It has been a remarkable ride.\r\n5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/f58028cf-7abc-45d4-884f-2d41f08411e2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=832ea8ebebcb5f64587346ac6a15c57438f9d5d94caced4ffd9674663b585981",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c5c472c8-0574-447c-b390-2090116877d2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 6,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "6",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/c5c472c8-0574-447c-b390-2090116877d2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b493839c9e60a458a069bdd6612e7972222fef08d505d53700c91eaab44b9987",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 182
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f7dfddbb-7230-4d52-a16d-d964000a0d3e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Contents\r\n1 Opening 9\r\n1.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9\r\n1.2 Related Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11\r\n1.3 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11\r\n1.4 Experimental Setup . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12\r\n2 Capacity Constraints 15\r\n2.1 Intel . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15\r\n2.2 IBM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17\r\n2.3 Implications . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19\r\n3 Performance Characteristics 21\r\n3.1 Multicore Basis Set . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22\r\n3.2 Trends . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23\r\n4 Throughput Prediction 37\r\n4.1 Multivariate Linear Regression Models . . . . . . . . . . . . . . . . . 37\r\n4.2 Basis Parameters Decomposition . . . . . . . . . . . . . . . . . . . . 39\r\n4.3 Empirical Validation . . . . . . . . . . . . . . . . . . . . . . . . . . . 39\r\n4.4 Use Case . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41\r\n5 Closing 43\r\n5.1 Future Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43\r\n5.2 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43\r\n7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/f7dfddbb-7230-4d52-a16d-d964000a0d3e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=30d9de4dcc243926c9021d95a5725afc69787c075cdf286cb3028d86cc0d9759",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 530
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "f7dfddbb-7230-4d52-a16d-d964000a0d3e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 7,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Contents\r\n1 Opening 9\r\n1.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9\r\n1.2 Related Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11\r\n1.3 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11\r\n1.4 Experimental Setup . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12\r\n2 Capacity Constraints 15\r\n2.1 Intel . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15\r\n2.2 IBM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17\r\n2.3 Implications . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19\r\n3 Performance Characteristics 21\r\n3.1 Multicore Basis Set . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22\r\n3.2 Trends . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23\r\n4 Throughput Prediction 37\r\n4.1 Multivariate Linear Regression Models . . . . . . . . . . . . . . . . . 37\r\n4.2 Basis Parameters Decomposition . . . . . . . . . . . . . . . . . . . . 39\r\n4.3 Empirical Validation . . . . . . . . . . . . . . . . . . . . . . . . . . . 39\r\n4.4 Use Case . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41\r\n5 Closing 43\r\n5.1 Future Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43\r\n5.2 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43\r\n7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/f7dfddbb-7230-4d52-a16d-d964000a0d3e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=30d9de4dcc243926c9021d95a5725afc69787c075cdf286cb3028d86cc0d9759",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 530
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "9650e938-2409-4b68-b262-7d7e14bdc85a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 8,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/9650e938-2409-4b68-b262-7d7e14bdc85a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1efa2704c110a1bd5a51a2074266539eedffe815cf3abaf2cb66e41c9679b917",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ef66d0e3-a346-42a3-8e53-f32231db9fd8",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 9,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Chapter 1\r\nOpening\r\n1.1 Introduction\r\nAs Moore’s law has plateaued [20] over the last several years, the number of researchers\r\ninvestigating technologies for fast concurrent programs has doubled approximately\r\nevery two years. 1 High performance concurrent programs require the effective uti\u0002lization of ever-increasing core counts and perhaps no technology has been more antic\u0002ipated toward this end than Hardware Transactional Memory (HTM). Transactional\r\nmemory [9] was originally proposed as a programming abstraction with simple seman\u0002tics that could also achieve good performance, and Intel [13, 17] and IBM [3, 11, 15]\r\nhave both recently introduced mainstream multicore processors supporting restricted\r\nHTM.\r\nHardware transactions offer a performance advantage over software implementa\u0002tions [4, 19] by harnessing the power of existing cache coherence mechanisms which are\r\nalready fast, automatic, and parallel. HTM has been shown to achieve the high per\u0002formance of well-engineered software using fine-grained locks and atomic instructions\r\n(e.g. compare-and-swap [8]) [25] while maintaining the simplicity of coarse-grained\r\nlocks [25]. The source of their superior performance, however, is also the root of their\r\nweakness: the Intel and IBM systems are both best effort hardware transactional\r\n1This estimation was determined by searching the ACM Digital Library within years to find out\r\nhow many unique researchers were publishing papers with ’transactional memory’ in the title.\r\n9",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/ef66d0e3-a346-42a3-8e53-f32231db9fd8.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7551357e9990f50604573170ad5452c66ec961bd4cd4c4e8237bda07fd22b7e4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d0732571-ddf3-4f80-adc5-7ff7eb83fb3e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 10,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "memory implementations [3, 7, 12, 13] because transactions can fail when the work\u0002ing set exceeds the capacity of the underlying hardware. The capacity constraints\r\nthat dictate the conditions under which these failures inevitably occur dramatically\r\ninfluence whether the complexity of designing a software system using restricted HTM\r\nis justified by the expected performance.\r\nThe feasibility tradeoff imposed by the capacity constraints is just one considera\u0002tion in the design of software systems using restricted HTM. If the ultimate goal is\r\nto build fast concurrent programs, then we must also focus our attention on finding\r\nthe optimal use cases for HTM. This motivation leads us to explore the design space\r\nof multicore programs to understand how hardware transactions perform in different\r\ncases of contention.\r\nOur goal in this paper is to characterize the capacity constraints of HTM and to\r\ndiscover their performance characteristics with respect to contention parameters like\r\ntransaction size or write ratio. These are the steps we have taken to move closer to\r\nthis end:\r\n∙ Empirically study the capacity constraints of hardware transactions to expose\r\nthe hardware implementations that dictate these limits\r\n∙ Articulate a set of contention parameters, like transaction size or write ratio,\r\nthat sufficiently span the multicore design space and can be used to synthetically\r\ngenerate different cases of contention for benchmarking\r\n∙ Discover performance trends of hardware transactions with respect to different\r\ncontention parameters\r\n∙ Capture these trends in a multivariate linear regression model that can be used\r\nto predict HTM performance in real multicore programs\r\nWe anticipate these contributions will provide a much needed understanding of\r\nhardware transactional memory to better enable its effective utilization in future\r\nmulticore programs.\r\n10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/d0732571-ddf3-4f80-adc5-7ff7eb83fb3e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=585af098b563d061bb8a83df53f0616da2631a836a3ad822c052c217e4e4a276",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 487
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "41234aa3-9b50-48a7-a19f-8fd509c50c2a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 11,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "1.2 Related Work\r\nRecently, several researchers have considered variations of hybrid transactional mem\u0002ory (HyTM) systems [5, 6, 14] which exploit the performance potential of recent HTM\r\nimplementations, while preserving the semantics and progress guarantees of software\r\ntransactional memory (STM) systems [19]. Underlying all of this work is the assump\u0002tion that hardware constraints on the size of transactions are sufficiently unforgiving\r\nthat elaborate workarounds are justified. For instance, Xiang et al. [23, 24] propose\r\nthe decomposition of a transaction into a nontransactional read-only planning phase\r\nand a transactional write-mostly completion phase in order to reduce the size of the\r\nactual transaction. Similarly, Wang et al. [22] use a nontransactional execution phase\r\nand a transactional commit phase in the context of an in-memory database in order\r\nto limit the actual transaction to the database meta-data and excluding the pay\u0002load data. These related works validate the need for an understanding of the HTM\r\ncapacity constraints.\r\nWang et al. [21] studied the performance sensitivity of HTM to a variety of ap\u0002plication patterns. Our investigation takes this idea further by exploring HTM per\u0002formance in a broader expanse of the multicore design space. For example, we also\r\nexperiment with padding memory locations, varying the level of contention between\r\nthreads, and varying the amount of work done between transaction attempts.\r\n1.3 Background\r\nTransactions require the logical maintenance of read sets, the set of memory locations\r\nthat are read within a transaction, and write sets, the set of memory locations\r\nthat are written within a transaction [9]. Upon completion of a transaction, the\r\nmemory state is validated for consistency before the transaction commits, making\r\nmodifications to memory visible to other threads. Transactions may conflict abort\r\nwhen one thread’s write set intersects at least one memory location in the read or\r\nwrite set of another thread, as illustrated in Table 1.1. In addition to conflict aborts,\r\n11",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/41234aa3-9b50-48a7-a19f-8fd509c50c2a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2045bd1c86944edb4a81d78785c07d7f901bd75fcb8f9754b117b0fcfd0c6bf1",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 308
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ff122b20-0edf-446d-8bfc-2dd6434b012f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 12,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "hardware transactions suffer from capacity aborts when the underlying hardware\r\nlacks sufficient resources to maintain the read or write set of an attempted transaction.\r\n𝑟𝑒𝑎𝑑𝐴(𝑋) 𝑤𝑟𝑖𝑡𝑒𝐴(𝑋)\r\n𝑟𝑒𝑎𝑑𝐵(𝑋) commit abort\r\n𝑤𝑟𝑖𝑡𝑒𝐵(𝑋) abort abort\r\nTable 1.1: Read and Write Conflicts to Memory Location X Between Threads A and B\r\nRead and write sets are often maintained in hardware using an extension to an\r\nexisting cache hierarchy. Caches in modern processors are organized in sets and\r\nways, where a surjection from memory address to set number is used in hardware\r\nto restrict the number of locations that must be checked on a cache access. The\r\nnumber of ways per set is the associativity of the cache and an address mapping to\r\na particular set is eligible to be stored in any one of the associated ways. To maintain\r\nthe read and write sets of a transaction, one can “lock” each accessed memory address\r\ninto the cache until the transaction commits. The logic of the cache coherence protocol\r\ncan also be extended to ensure atomicity of transactions by noting whether or not a\r\ncache-to-cache transfer of data involves an element of a transaction’s read or write\r\nset. These extensions to the caches and the cache coherence protocol are very natural\r\nand lead to high performance, however the nature of the design reveals an inherent\r\nweakness: caches are finite in size and associativity, thus such an architecture could\r\nnever guarantee forward progress for arbitrarily large transactions.\r\n1.4 Experimental Setup\r\nThe performance characteristics of hardware transactions are naturally dependent\r\non the underlying hardware. The results from our experiments should only be fully\r\naccepted with respect to the microprocessors we specify in this section, although the\r\nconclusions will still generally apply to different generations of the hardware. The\r\nIntel machine we experimented on contains a Haswell i7-4770 processor with\r\n∙ 4 cores running at 3.4GHz\r\n12",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/ff122b20-0edf-446d-8bfc-2dd6434b012f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=78712dd5ebfeb93ce95009db1fb3503f68c4e5f5568e75e7f2f63f28bc64f4d3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "fd088a8f-8546-4f3c-95e1-f410c3dfa14d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 13,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "∙ 8 hardware threads\r\n∙ 64B cache lines\r\n∙ 8MB 16-way shared L3 cache\r\n∙ 32KB per-core 8-way L1 caches\r\nWe also tested an IBM Power8 processor with\r\n∙ 10 cores running at 3.425GHz\r\n∙ 80 hardware threads\r\n∙ 128B cache lines\r\n∙ 80MB 8-way shared L3 cache\r\n∙ 64KB per-core 8-way L1 caches\r\nAll experiments are written in C and compiled with GCC, optimization level -O0.\r\n2\r\nOur experiments use the GCC hardware transactional memory intrinsics interface.\r\n2We compiled with -O0 because we found that higher optimization levels sometimes caused\r\nspurious transaction aborts, thus confounding our results.\r\n13",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/fd088a8f-8546-4f3c-95e1-f410c3dfa14d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9567a6c2ceca7cc7405bdbea88a2d7d0babbf649dd6a0a2f60eabd3c2d37c684",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cd1538ae-8a3b-4ff7-8f66-74ee79dfb885",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 14,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "14",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/cd1538ae-8a3b-4ff7-8f66-74ee79dfb885.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=af36b8327254504fed30e69a862c2c3274623bb4c5d3c51d668b1d751746d5df",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 409
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "39e40c5b-6296-4b09-9339-2100b24d5c06",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 15,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Chapter 2\r\nCapacity Constraints\r\nPhysical limitations to the size of hardware transactions are governed by how they are\r\nimplemented in hardware. Such capacity constraints determine when a transaction\r\nwill inevitably abort, even in the case of zero contention. We devised a parame\u0002terizable array access experiment to measure the maximum cache line capacity of\r\nsequential read-only and write-only hardware transactions. We also experimented\r\nwith strided memory access patterns to detect whether the read and write sets are\r\nmaintained on a per-cache line basis or a per-read / per-write basis. With knowledge\r\nof the maximum sequential access capacity and also the maximum strided access ca\u0002pacity, we can draw conclusions about where in the caching architecture the read and\r\nwrite sets are maintained.\r\n2.1 Intel\r\nWe experimentally support the hypothesis that the Intel HTM implementation uses\r\nthe L3 cache to store read sets and the L1 cache to store write sets.\r\nFigure 2-1 summarizes the result of a sequential read-only access experiment where\r\ndata points represent the success probability of the transaction with respect to the\r\nnumber of cache lines read. We see that a single transaction can reliably read around\r\n75,000 contiguous cache lines. The L3 cache of the Intel machine has a maximum\r\ncapacity of 2\r\n17 (= 131, 072) cache lines and it is unlikely for much more than half\r\n15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/39e40c5b-6296-4b09-9339-2100b24d5c06.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8b07e998f22d368acdba2937de02421d6c6d5eb2bee29986bd82bd27588369b5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bae1b20c-e908-4abf-87df-a9d3960847f0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 16,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Figure 2-1: Lines Read vs Success Rate Figure 2-2: Lines Written vs Success Rate\r\nFigure 2-3: lg2 Stride vs lg2 Lines Readable Figure 2-4: lg2 Stride vs lg2 Lines Writable\r\nof the total capacity to fit perfectly into the L3 due to the hash function mapping\r\nphysical address to L3 cache bank.\r\nFigure 2-3 shows the result of a strided read-only access experiment. The stride\r\namount indicates the number of cache lines per iteration (e.g. reading cache lines 1,\r\n5, 9, 13, 17 etc. indicates a stride of 4) and each data point represents the maximum\r\nnumber of cache lines that can be reliably read with respect to the stride amount.\r\nFor example, the third data point in the graph indicates that when the stride amount\r\nis 2\r\n2\r\n(= 4) (i.e. accessing every fourth cache line), the transaction can reliably read\r\n2\r\n14 (= 16, 384) cache lines and commit. We can see that the number of cache lines\r\nthat can be read in a single transaction is generally halved as we double the stride\r\namount, presumably because the access pattern accesses progressively fewer cache\r\nsets while completely skipping over the other sets. It is important to note that the\r\nplot plateaus at 2\r\n4\r\n(= 16) cache lines. When the stride amounts are large enough to\r\nconsecutively hit the same cache set we see support for the hypothesis that the read\r\nset is maintained in the L3 cache because the minimum number of readable values\r\nnever drops below 16, the L3 associativity.\r\n16",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/bae1b20c-e908-4abf-87df-a9d3960847f0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=02f345ffb09eb8d2ec00b67accf08a349052c461bde81780cef81c7fd3a3e7c0",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 476
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "7309f9f7-7a03-4de3-8f88-7461268fb150",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 17,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "We also conducted similar experiments for write-only accesses patterns. Figure 2-2\r\nillustrates the result of an identical array access experiment, except that the transac\u0002tions are write-only instead of read-only. A single write-only transaction can reliably\r\ncommit about 400 contiguous cache lines. The size of the L1 cache is 512 cache lines\r\nand a transaction must also have sufficient space to store other program metadata\r\n(e.g. the head of the program stack), thus we would not expect to fill all 512 lines\r\nperfectly.\r\nFigure 2-4 illustrates that the number of cache lines that can be written in a single\r\ntransaction is also generally halved as we double the stride amount. However, even\r\nas we increase the stride amount significantly, the number of cache lines that a trans\u0002action can reliably write to does not fall below 8, corresponding to the associativity\r\nof the L1 cache. This suggests that, at worst, one is limited to storing all writes in a\r\nsingle, but entire, set of the L1 cache.\r\n2.2 IBM\r\nWe experimentally support the hypothesis that the IBM HTM implementation uses\r\na dedicated structure to maintain read and write sets, choosing not to extend the\r\nfunctionality of the existing cache structures as with the Intel implementation. In\r\naddition, we observe that the dedicated structures used for read and write set main\u0002tenance is not shared among the 8 threads per core, but rather each thread is allocated\r\nits own copy.\r\nFigure 2-5: Lines Read / Written vs Success\r\nRate\r\nFigure 2-6: Stride vs Lines Readable /\r\nWriteable\r\nThe results of our sequential and strided access experiments for both read-only\r\n17",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/7309f9f7-7a03-4de3-8f88-7461268fb150.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=58336be548b2dcc0b41f148b86095b935224dfc4d4675b10c78ddff7d14573c3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 266
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "9d788f6f-38ee-477f-a83b-63b17fc4d93f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 18,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "and write-only transactions appear to be identical in Figure 2-5 and Figure 2-6, where\r\nthe maximum number of reads or writes in a transaction is 64 and that the maximum\r\ntransaction size halves as we double the stride amount with a minimum of 16. The\r\nmaximum observed hardware transaction size is far too small to be attributable to\r\neven the L1 cache, which holds 512 cache lines. Thus, we conclude that there are\r\ndedicated caches for transactions in the IBM implementation independent of the\r\nstandard core caches, and that these caches likely each have 4 sets and an associativity\r\nof 16.\r\nA natural next question is whether this IBM machine has 10 dedicated caches that\r\nare spread across each core, or if there are 80 dedicated caches that are spread across\r\neach hardware thread. To determine the difference, we experimented and measured\r\nthe number of successful write-only transactions that concurrently running threads\r\nwere able to complete. Each thread makes 10,000 transaction attempts to write 40\r\nthread-local cache lines and then commit. The transaction size of 40 cache lines is\r\ndesigned to sufficiently fill up the dedicated caches per transaction to induce capacity\r\naborts in the case of shared caches.\r\nFigure 2-7: Number of Threads vs Committed Transactions (Thousands)\r\nWe see in Figure 2-7 evidence that there are dedicated caches for each hardware\r\nthread and that they are not shared among threads within a core. Each spawned\r\nsoftware thread is pinned to a unique hardware thread in round robin fashion such\r\nthat the distribution is even across the 10 cores. If all 8 of the hardware threads on a\r\nsingle core share a single dedicated cache, we would expect to see sublinear (or even\r\nno) speedup as we spawn more running threads and assign them to the same core.\r\nInstead, we observe a linear increase in the aggregate number of successfully com\u000218",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/9d788f6f-38ee-477f-a83b-63b17fc4d93f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b29c282ba5e8b97cef86d30a24d809ef7862bd8697df11b7b0b816998cca4ef5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8d96f1dc-3f7e-4920-b566-d3be9ffbc04b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 19,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "mitted transactions, while the average per-thread number of successful transactions\r\nis constant. Although the general 45% success rate suggests some level of contention\r\nbetween the running threads, it is most likely not due to per-core sharing of a ded\u0002icated cache because the addition of other threads does not decrease the aggregate\r\nthroughput.\r\n2.3 Implications\r\nDevelopers using HTM on Intel’s Haswell microprocessors have a lot of flexibility with\r\nhardware transaction size, but they should be wary of how the behavior of nontransac\u0002tional code sharing a cache with transactional code might affect HTM performance,\r\nas well as how the access pattern of transactional code can limit transaction size.\r\nIBM’s Power8 developers should be cautious of the tight restriction on transaction\r\nsize, but fortunately they only need to reason about HTM performance within the\r\nscope of a single hardware thread.\r\n19",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/8d96f1dc-3f7e-4920-b566-d3be9ffbc04b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=19f2f8023959fd07f678f26da39be2de88a26d926301106295645262b7fd6e60",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6ea1dfeb-42d1-4ccb-8276-d34881f27a7e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 20,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "20",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/6ea1dfeb-42d1-4ccb-8276-d34881f27a7e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3088e1abe531e6d5962e730df27c342c28fdf1768d2c2e5a1bb37957a9bb0e32",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 450
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "10b3eccd-adea-4678-8e45-67acac19071d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 21,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Chapter 3\r\nPerformance Characteristics\r\nA program can be described by some combination of contention parameters, and it is\r\ndistinguishable from another program if even a single parameter setting is different.\r\nFor instance, a program with threads that only ever access 10 different memory\r\nlocations is inherently different from one with 100 different memory locations, and\r\nthat program is even further distinguishable from one with 1000 different memory\r\nlocations. These programs illustrate a few of the many different cases of contention\r\nthat exist in the multicore programming space.\r\nTo explore the behavior of HTM under these different cases of contention, we\r\nmodel the use of hardware transactions by a parameterizable array access experiment.\r\nA single run of the experiment involves measuring the aggregate throughput, given\r\na specific setting of the contention parameters, of concurrent threads transactionally\r\nreading and / or incrementing counters of a shared array.\r\nEven for a simple experiment like this, the space of all such multicore programs\r\nis infinite because of the unbounded variability of contention parameters. Thus,\r\nwe constrained our parameter set and measured the performance characteristics of\r\nhardware transactions in this controlled space.\r\n21",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/10b3eccd-adea-4678-8e45-67acac19071d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3d8c25e55652a01a0100ce167361f7a0b352281b5b9f2364ca60a5cb214bc0b9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "95dd3949-529c-43e9-b121-3337e7b3f46e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 22,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "3.1 Multicore Basis Set\r\nThe parameter space of multicore programs consists of many variables such as the\r\ntransaction size, the memory access pattern, or the number of concurrent threads.\r\nFor both the Intel and IBM machines, we experimented using the following contention\r\nparameter set with corresponding values that sufficiently span the multicore program\r\nspace; we term this the multicore basis set:\r\n∙ random ∈ (0 1)\r\ndenotes sequential array access or random array access.\r\n∙ padded ∈ (0 1)\r\ndenotes accesses to a simple array of 32 bit counters or to one where individual\r\ncounters are padded to cache lines.\r\n∙ counters ∈ (1 2 4 8 16 32 64 128 256 512 1024 2048 4096)\r\nis the number of counters in the shared array; this simulates the level of con\u0002tention in a program–fewer counters result in higher contention for those fewer\r\nmemory locations, and vice versa.\r\n∙ workBetween ∈ (0 5 10 15 20)\r\nrepresents the amount of nontransactional work done between each transaction.\r\nMore specifically, threads execute a naive recursive fibonacci, fib(workBetween),\r\nbetween transactions.\r\n∙ workWithin ∈ (1 5 10 15 20)\r\nis the number of memory locations accessed within each transaction; it is the\r\nsize of the critical section in a program.\r\n∙ writeRatio ∈ (0 1 10 25 50 75 100)\r\nis the percentage of write accesses in each transaction. To elaborate, writeRatio\r\n= 25 means that 25% of the array accesses are writes (increments) and 75%\r\nare reads.\r\n22",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/95dd3949-529c-43e9-b121-3337e7b3f46e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=557ff66ea4ab16810bdc721656902877987158f7275882d72bce2fd87de1c602",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 432
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "dda65e23-cdb4-4c01-bc8c-b90757a01862",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 23,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "rand pad counters between within write % threads success throughput\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n1 0 1024 5 5 25% 3 0.52 12.1M tx/s\r\n1 0 1024 5 5 25% 4 0.36 10.6M tx/s\r\n1 0 1024 5 5 50% 1 0.99 8.8M tx/s\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\n.\r\nTable 3.1: Intel x86 Example Experimental Results\r\n∙ threads ∈ (1 2 3 4 8 16 32 64)\r\nis the number of threads that are concurrently trying to atomically read and/or\r\nincrement the counters in the shared array. Note that our Intel machine ex\u0002periments omit the (8 16 32 64) values because the machine only has 4 non\u0002hyperthreaded cores.\r\nFor each cross product of our basis set, we run our experiment on that synthetically\r\ngenerated case of contention and we record throughput and transaction success rate:\r\n∙ throughput := 𝑡𝑥_𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑒𝑠\r\n𝑟𝑢𝑛𝑡𝑖𝑚𝑒\r\n∙ success rate := 𝑡𝑥_𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑒𝑠\r\n𝑡𝑥_𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑒𝑠+𝑡𝑥_𝑟𝑒𝑠𝑡𝑎𝑟𝑡𝑠\r\nThe result is 36400 performance measurements for the Intel machine, and 63700\r\nmeasurements for the IBM machine. Table 3.1 illustrates exemplary measurements\r\nfrom the Intel results; the IBM results are identical in form.\r\n3.2 Trends\r\nWith the 36400 Intel measurements and 63700 IBM measurements, we can plot\r\nthroughput and success rate while modulating individual contention parameters in\r\norder to observe how those modulated parameters affect HTM performance. In all\r\nsubsequent plots, the unmodulated parameters are marginalized by averaging the\r\nperformance values.\r\nFigure 3-1 illustrates the HTM performance difference between sequential and\r\nrandom memory accesses while varying the number of counters on the Intel machine.\r\n23",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/dda65e23-cdb4-4c01-bc8c-b90757a01862.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7089515ab9c3f2fff30ad4595075e6dffb13c66af5671dac82c7c562e0ebbcc2",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 296
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4d8f18d3-ed0a-4644-a665-c26fc79c8db9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 24,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "With fewer than 8 counters, it hardly matters whether the access pattern is sequential\r\nor random because the contention for those few counters is so high that conflict\r\naborts are rampant. However, as we increase the number of counters in the array and\r\nreduce the contention for those shared counters, we see much higher throughput when\r\naccessing memory sequentially compared to accessing memory randomly. This makes\r\nsense because when there are fewer conflict aborts, as is the case when there are more\r\ncounters that the concurrently executing threads can operate on, then optimizations\r\nlike data prefetching during sequential access begin to make observable differences\r\nin performance. The results for the IBM machine in Figure 3-2 are very similar\r\nto those of the Intel machine. When the number of counters is small, we see that\r\nthere is little difference between random access and sequential access. With more\r\ncounters, we again observe that sequential memory access results in higher transaction\r\nthroughput than random memory access. The implication of these results is that\r\nwhen programming with hardware transactions, accessing memory sequentially will\r\ngenerally result in higher performance than accessing memory randomly.\r\nA common optimization in concurrent programming is to pad memory accesses\r\nto reduce false sharing.1 We now do a comparison between unpadded versus padded\r\nmemory accesses that is similar to the previous analysis of sequential versus random\r\nmemory accesses. In Figure 3-3 we observe slightly mixed results for the Intel machine,\r\nwith some evidence of higher transaction throughput when padding memory accesses.\r\nThe reason for the slightly mixed results is because there are two conflicting effects of\r\npadding. First, padding memory accesses reduces false sharing and reduces conflict\r\naborts, thus improving performance. Second, padding a single 4 byte counter to\r\nthe full 64 byte Intel machine cache line results in less batch accessing, which can\r\nactually reduce performance because many more (up to 16x) cache lines may need to\r\nbe fetched in the padded case than in the unpadded case when accessing the same\r\nnumber of counters.\r\n1False sharing occurs when two logically independent memory locations reside on the same cache\r\nline and one or both of those memory locations are accessed by different threads, resulting in an\r\ninvalidation of the whole cache line. Padding memory locations to reside entirely on different cache\r\nlines eliminates this false sharing problem.\r\n24",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/4d8f18d3-ed0a-4644-a665-c26fc79c8db9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ad5ce846ac8b29b783a0888e2e356dca817367fee10bd96ccf554dc0d33c0620",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 388
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5356a65d-3905-4da5-aacf-08c02fee33a6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 25,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel: Num Counters / Random Access vs Avg Throughput\r\nFigure 3-1: Sequential memory access results in higher transaction throughput than random\r\nmemory access on the Intel machine\r\nIn Figure 3-4 we actually see distinct regions in the IBM results when one phe\u0002nomenon dominates the other. When the probability of conflicting memory accesses\r\nbetween threads is sufficiently high due to contention (≤ 1024 counters), padding\r\nmemory accesses results in higher throughput because false sharing is reduced and\r\nthe rate of conflict aborts is reduced. However, when the probability of conflicting\r\naccesses is lower (≥ 2048 counters), we see the performance penalty of unbatched\r\nmemory accesses overcome the performance benefit of reduced false sharing. The\r\nIBM machine cache line is 128 bytes wide, which means that up to 32x more cache\r\nlines may need to be fetched in the padded case than in the unpadded case when ac\u0002cessing the same number of counters; this makes the unbatched access penalty much\r\nmore significant on the IBM machine than the Intel machine.\r\n25",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/5356a65d-3905-4da5-aacf-08c02fee33a6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4ea8ddcc05392194a9e50fddce6d76860906644e7cbce059ad7b5dc9f7e7aeb4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d4561b99-4048-4ada-bfb2-b54e68870e66",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 26,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "IBM: Num Counters / Random Access vs Avg Throughput\r\nFigure 3-2: Sequential memory access also results in higher transaction throughput than\r\nrandom memory access on the IBM machine\r\nFrom these observations, we conclude that padding memory accesses generally\r\nimproves transaction performance on the Intel machine, but the effect on the IBM\r\nmachine depends on the level of contention.\r\nNext we examine the effect of modulating the write ratio while also varying the\r\nnumber of threads. Each individual block in Figure 3-5 is labeled with the specified\r\nnumber of threads and write ratio, along with the measured throughput and success\r\nrate on the Intel machine. Throughput is visually depicted by the size of the block–the\r\nlarger the block, the higher the throughput. We see that as we increase the number\r\nof threads, which is visualized by the color of the blocks, throughput increases and\r\nsuccess rate decreases. The increased performance makes sense because more work\r\ncan be done with more concurrent threads; this increase is sublinear, however, as\r\n26",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/d4561b99-4048-4ada-bfb2-b54e68870e66.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e5d09490d8d481ecb4d722ebb31c6ffe6e0beb9f31f032959f28e67231cf7323",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "12ce5049-2b07-4327-b9d0-36d4b21d53bb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 27,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel: Num Counters / Padded vs Avg Throughput\r\nFigure 3-3: Padding memory accesses on the Intel machine generally improves transaction\r\nperformance\r\n27",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/12ce5049-2b07-4327-b9d0-36d4b21d53bb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9124d715d97304cf2c76d7f6983ae11646c0828b145e9e41d341f2d569654fb3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6b2ce018-d098-4157-8d1d-d24aa837acc3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 28,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "IBM: Num Counters / Padded vs Avg Throughput\r\nFigure 3-4: Padding memory accesses on the IBM machine improves transaction perfor\u0002mance when contention is high, but it reduces performance when contention is low\r\n28",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/6b2ce018-d098-4157-8d1d-d24aa837acc3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=80ffe160b1c718d27c6a1b5f473ccc9e1b5634e05cdffb988cbba15e93cd1d2b",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 392
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "2a3bc154-2d48-475b-96a5-6891d614bbc9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 29,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "increasing the contention by adding more threads also has the effect of increasing\r\nconflict aborts which lowers throughput.\r\nWe can further break down Figure 3-5 by examining the effect that the write ratio,\r\nwhich is visually represented by the color gradient of the blocks, has on transaction\r\nperformance across different numbers of threads. For a single thread, the percentage\r\nof writes to reads generally has no effect on the throughput or success rate. For any\r\nnumber of threads greater than 1, however, we see that the higher the write ratio\r\nis and the darker the block is, the lower the throughput and success rate is and the\r\nsmaller the block is. There is a clear trend indicating that transaction performance\r\nof a concurrent program is negatively correlated with the write ratio, and the mag\u0002nitude of this negative relationship increases as the number of threads increases: the\r\nperformance for 0% writes is 2.27x the performance for 100% writes in the case of 2\r\nthreads, 2.84x in the case of 3 threads, and 3.43x in the case of 4 threads.\r\nIn Figure 3-6 we have an analagous picture for the IBM machine. Each block is\r\nagain labeled with thread count / write ratio / throughput (M tx/s) / sucess rate.\r\nWe omit the data corresponding to the cases of fewer than 4 running threads for\r\nlack of space in the figure. We similarly observe that as we increase the number of\r\nthreads, throughput increases and success rate decreases, and the negative correlation\r\nbetween performance and write ratio increases in magnitude as the number of threads\r\nincreases. The IBM results contain data for very large thread counts, and the effects\r\nof modulating write ratio is much more evident than when analyzing results on the\r\nIntel machine. On the IBM machine, the marginal difference between 0% writes and\r\n1% writes results in a huge performance difference, 1.39x throughput, for the case of\r\n32 threads, and the difference is even more significant, 1.9x, for the case of 64 threads.\r\nWith so many concurrently running threads, even the slightest increase in contention\r\ncauses conflict aborts to surge, thus reducing performance greatly. For multicore\r\nprograms with sufficiently high write ratios, the throughput gain from increasing the\r\nnumber of threads might hardly be worth the cost. For instance, the performance for\r\n64 threads is 2.2x the performance for 4 threads in the case of 25% writes, despite\r\nthe 16x increase in resources used.\r\n29",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/2a3bc154-2d48-475b-96a5-6891d614bbc9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6159c72f82c96d752285e8a487fa51beecc5c82dd734c518e3558be44da76dd0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ae856e3d-4de2-44ce-a435-b63701d5711c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 30,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel: Num Threads / Write Ratio vs Avg Throughput\r\nFigure 3-5: Performance is negatively correlated with write ratio, and the magnitude of this relationship increases with thread count\r\n30",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/ae856e3d-4de2-44ce-a435-b63701d5711c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ccd7500521a5b2e860a1ba955f01f3bb6891a6c74e24be520f51dca48071e43c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8197851b-2290-4afd-bbc0-ee4ef8ab3cc0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 31,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "IBM: Num Threads / Write Ratio vs Avg Throughput\r\nFigure 3-6: Performance is negatively correlated with write ratio, and the magnitude of this relationship increases with thread count\r\n31",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/8197851b-2290-4afd-bbc0-ee4ef8ab3cc0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3c73f0e6dbdb6ebe2a93737ca2b76b88f3a90abb5d5611be4016a4c5056a0bfa",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 464
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1d53f704-1795-476e-ab7e-75da09d61b64",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 32,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "A peculiar observation about the IBM results is that performance is slightly better\r\nin the case of 100% writes than 50% writes or 75% writes. It could be that the\r\nmechanisms in place for implementing transactions in the IBM Power8 hardware favor\r\nhomogenous (i.e. read-only or write-only) transactions, but this is pure speculation.\r\nNote that even when there are no writes and no conflict aborts, the success rate\r\nis not 1.00 because the IBM machine is sensitive to capacity aborts, as we previously\r\ndiscovered. Even for fairly small transaction sizes of 20 counters, it is possible for\r\nthese 20 counters to reside on at least 16 different cache lines that map to the same\r\ncache set, which will cause a capacity abort because the dedicated 4-set, 16-way cache\r\nwill not be able to fit that transaction. This point serves to illustrate the significance\r\nof understanding the capacity constraints of hardware transactions.\r\nWhen we increase transaction sizes, we naturally expect lower throughput, which\r\nis measured as transactions completed per second, because there is simply more work\r\nbeing done within each transaction. The top two plots in Figure 3-7 exactly illus\u0002trate this intuition for both the Intel and IBM machines. However, when analyzing\r\nweighted throughput–which is calculated as 𝑡ℎ𝑟𝑜𝑢𝑔ℎ𝑝𝑢𝑡*𝑤𝑜𝑟𝑘𝑊 𝑖𝑡ℎ𝑖𝑛–we actually see\r\nan increase in the number of operations completed per second in the middle two plots.\r\nThere is inherent overhead to implementing a hardware transaction, regardless of the\r\namount of work done within it, so when we increase the transaction size, the fixed\r\ncost is amortized. The large jump in weighted throughput from 𝑤𝑜𝑟𝑘𝑊 𝑖𝑡ℎ𝑖𝑛 = 1\r\nto 𝑤𝑜𝑟𝑘𝑊 𝑖𝑡ℎ𝑖𝑛 = 5 suggests that there is increased efficiency in batching opera\u0002tions within a transaction. Beyond 𝑤𝑜𝑟𝑘𝑊 𝑖𝑡ℎ𝑖𝑛 = 5, however, there are diminishing\r\ngains to weighted throughput because larger transactions also raise the probability\r\nof conflict aborts, thus lowering transaction success rate, as depicted in the lower\r\nplots of Figure 3-7. From these observations we anticipate that an optimal value for\r\nhardware transaction size is around 5, because this value seems to balance the per\u0002formance benefit of batching operations with the performance penalty of increased\r\nconflict aborts.\r\nThe work a program does between critical sections is inherent to the program\r\nand significantly affects the transaction throughput of that program. We can draw\r\n32",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/1d53f704-1795-476e-ab7e-75da09d61b64.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ad3b0c1cac6d79120a5b5b72f19928c1b6610fd9dd6fa5eb4b6ec6f13d593dc9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0860dd6b-0b3c-49e9-9747-6f4ba3125dcd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 33,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Work Within vs Throughput, Weighted Throughput, Success Rate\r\n(a) Intel (b) IBM\r\nFigure 3-7: Increasing the work within transactions decreases throughput, measured as trans\u0002actions completed per second, but increases weighted throughput, measured as operations\r\ncompleted per second\r\n33",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/0860dd6b-0b3c-49e9-9747-6f4ba3125dcd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b82504f15343e48c5f8d46e802caa1d8ae371d0bbdd6db33b3bc66254b1f404a",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 420
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "4d0761ce-7fe0-44ba-b4b9-59b644a12485",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 34,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "meaningful insights by viewing how workWithin interacts with workBetween to affect\r\nperformance because these two parameters together determine the ratio of critical\r\nto noncritical sections in a program. We plot, for different values of workBetween,\r\nthe effect of modulating transaction size on the Intel machine in Figure 3-8. When\r\nthe amount of work that threads do between transactions is minimal and the pro\u0002gram is frequently in the critical section, as is the case when 𝑤𝑜𝑟𝑘𝐵𝑒𝑡𝑤𝑒𝑒𝑛 ≤ 5,\r\nincreasing transaction size significantly decreases throughput as we observed before.\r\nOn the other hand when there is more time between critical sections, such as when\r\n𝑤𝑜𝑟𝑘𝐵𝑒𝑡𝑤𝑒𝑒𝑛 ≥ 10, we see that the amount of work done within each transaction has\r\nless of an influence on performance because less of the program runtime is spent exe\u0002cuting transactional code. The results on the IBM machine are very similar and have\r\nthus been omitted. While these observations fall in line with our expectations and\r\nmay not appear novel, it is still meaningful to empirically validate our intuitions in\r\nthis effort to fully understand the performance characteristics of HTM under different\r\ncases of contention.\r\n34",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/4d0761ce-7fe0-44ba-b4b9-59b644a12485.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9e140f8cb19977076653b2adc64f74dffe122e13de48bcb173b8cad9ff3bf420",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "488d9cdd-2477-47ae-931b-8c3a4c8f715d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 35,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Intel: Work Between / Work Within vs Avg Throughput, Success Rate\r\nFigure 3-8: The amount of work done within a transaction significantly affects performance\r\nwhen concurrent threads do little work between transactions and are frequently in the crit\u0002ical section. The work within does not matter as much when the amount of work between\r\ntransactions is large and relatively little time is spent in the critical section\r\n35",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/488d9cdd-2477-47ae-931b-8c3a4c8f715d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e7f615ac0319a19c6cb364d9d094f46cd1b1e63bb3e0441d16759f02148e64b9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c61febde-c953-46e8-9ff5-5cde6389ef9a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 36,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "36",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/c61febde-c953-46e8-9ff5-5cde6389ef9a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bfc0d41d65883760ec0bd1cd5bf908b91fd7665ee497fbb6df6eccb4d0cd6884",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3424c26a-b027-48dd-97bb-5ecf845a6a10",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 37,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Chapter 4\r\nThroughput Prediction\r\nIn analyzing the experimental results from our synthetically generated contention\r\nexperiments, we found many compelling performance trends that suggest the potential\r\nfor predicting HTM performance in programs that are not precisely defined in our\r\nmulticore basis set. We wanted to leverage the large amount of performance data we\r\ncollected to somehow enable a prediction about other points in the infinite multicore\r\nprogramming space; Figure 4-1 illustrates our goal to predict the throughput of any\r\narbitrary, real program.\r\nTo this end, we trained1 a multivariate linear regression model on each of our\r\nIntel and IBM experimental result sets. The goal of these two models is to be able to\r\npredict the throughput of any multicore program that synchronizes using HTM.\r\n4.1 Multivariate Linear Regression Models\r\nTo train the multivariate linear regression models, we first transformed the Intel\r\nand IBM result sets using a radial basis function [16] with 𝛾 = 0.0001 in order to\r\nimprove the fit, because some of the first degree relations were found to be nonlinear.\r\nThese transformed results were then used as input training data for the models.2 To\r\nmitigate the problem of overfitting to the training data, we methodically generalized\r\n1We used a supervised learning algorithm.\r\n2We used the python scikit-learn module.\r\n37",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/3424c26a-b027-48dd-97bb-5ecf845a6a10.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3994c540f99c53a9103525afbd1b56c80cc67332fe6a8c73487474d9549d7eeb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f40088ec-9367-4468-8cf9-f89c8c178591",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 38,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "3D Basis Subspace\r\nFigure 4-1: Projection of a linear probing hash table into a 3D subspace of our parameter\r\nset. Knowing the throughput of adjacent points in our multicore basis set should somehow\r\ninform us of the throughput of the unknown point\r\n38",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/f40088ec-9367-4468-8cf9-f89c8c178591.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=df8da0eecc7baba53df0189cee37e1fe8b7f2e93f3642b8b49dba136ac7535a3",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 510
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1ed73e70-bb64-4469-8f99-34386aa76f0f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 39,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "the models with 5-folds cross validation [18]. The resulting goodness-of-fit [1] values,\r\n𝑅2\r\n𝑖𝑛𝑡𝑒𝑙 = 0.96 and 𝑅2𝑖𝑏𝑚 = 0.90, for both models were quite high, and this reinforces our\r\nintuition about the potential for predicting the throughput of programs that utilize\r\nhardware transactions.\r\n4.2 Basis Parameters Decomposition\r\nIn order to use the multivariate linear regression models to predict the throughput of\r\nan arbitrary multicore program, one must first decompose the program into a vector\r\nof parameters that matches the dimensionality of our basis set:\r\n<random, padded, counters, workBetween, workWithin, writeRatio, threads>\r\nMost parameters are either binary (random, padded), or they are straightforward\r\napproximations (counters, workWithin, writeRatio, threads); the one confounding\r\nparameter is workBetween. To measure the work done between critical sections of\r\na program, a simple Intel pintool [2] can be used to instrument the program to\r\ncount the number of CPU instructions both inside and outside of a program critical\r\nsection. Recall that we modeled this parameter in our experiment as the execution\r\nof a naive recursive fibonacci, fib(workBetween), between transactions. Considering\r\nthe algorithmic complexity of naive fibonacci is 𝑂(2𝑁 ), the parameter workBetween\r\ncan thus be calculated by the formula:\r\n𝑤𝑜𝑟𝑘𝐵𝑒𝑡𝑤𝑒𝑒𝑛 = 𝑙𝑜𝑔2(\r\n#𝑜𝑢𝑡𝑠𝑖𝑑𝑒\r\n#𝑖𝑛𝑠𝑖𝑑𝑒 · 𝑤𝑜𝑟𝑘𝑊 𝑖𝑡ℎ𝑖𝑛)\r\nFigure 4-2 captures the process of decomposing an actual program and using the\r\nresulting vector of parameters to produce a throughput prediction from the multi\u0002variate linear regression.\r\n4.3 Empirical Validation\r\nTo empirically validate the regression models, we compared the predicted throughput\r\nvalues to actual measured values for three concurrent data structures: a stack, a\r\n39",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/1ed73e70-bb64-4469-8f99-34386aa76f0f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3b0fb2ebbf85212f0615b58226b685408089c70d72e4cfeba67ae9f238db9354",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 256
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8c9dc849-8023-46c0-b06e-5cb037a27bc0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 40,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Throughput Prediction Flow\r\nFigure 4-2: Decomposing a hash table implementation into a vector of parameters to pass\r\ninto the multivariate linear regression model for throughput prediction. The parameter trans\u0002formation step is an artifact of our model training process when we further transformed the\r\ninput data to maximize regression fit\r\nlinear probing hash table, and a skiplist. Table 4.1 shows the results comparing the\r\npredicted and measured values for the Intel machine, and Table 4.2 shows the results\r\nfor the IBM machine. In each case, we decomposed the concurrent data structure into\r\na vector of parameters using the described method before applying the multivariate\r\nlinear regression models to predict throughput.\r\nWhile the predictions on the Intel machine are not 100% accurate, they are at\r\nleast a reasonable approximation from the actual stack, linear probing hash table, and\r\nskiplist measurements. The same is true of the stack and hash table measurements\r\non the IBM machine. These measurements empirically validate the accuracy of our\r\nregression models.\r\nWe were unable to record an actual measurement for the concurrent skiplist im\u0002plementation on the IBM machine. When the skiplist became sufficiently large, the\r\ncritical section accessed too many different memory locations, thus exceeding the max\u0002imum HTM capacity. Infinitely repeating capacity aborts left the program in a state\r\nof livelock [10] and the execution never finished. While failure to predict this livelock\r\nscenario is a failure of the IBM regression model, we still consider this example to be\r\nconstructive because it validates the need for an understanding of the limitations of\r\nhardware transactions–without the knowledge we found from our capacity constraint\r\nexperiments, we may have never realized the problem in this execution.\r\n40",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/8c9dc849-8023-46c0-b06e-5cb037a27bc0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7738830b90f68284eb88c94a63d4b4210fab48cf3529f8af65b56bce51a82b0e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0b040e32-ac12-41f6-a735-026c50605baa",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 41,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "stack hash skiplist\r\nrandom 0 1 1\r\npadded 1 0 0\r\n𝑙𝑜𝑔2(𝑐𝑜𝑢𝑛𝑡𝑒𝑟𝑠) 0 9 12\r\nworkBetween 5.19 2.33 2.15\r\nworkWithin 2 10 18\r\nwriteRatio 50% 10% 20%\r\n𝑙𝑜𝑔2(𝑡ℎ𝑟𝑒𝑎𝑑𝑠) 0 0 0\r\npredicted 15.2M ops/sec 5.0M ops/sec 3.3M ops/sec\r\nactual 17.2M ops/sec 4.1M ops/sec 2.6M ops/sec\r\nerror 13.2% 22.0% 26.9%\r\nTable 4.1: Intel: Comparing Predicted and Measured Throughput of Concurrent Data Struc\u0002tures\r\nstack hash skiplist\r\nrandom 0 1 1\r\npadded 1 0 0\r\n𝑙𝑜𝑔2(𝑐𝑜𝑢𝑛𝑡𝑒𝑟𝑠) 0 9 12\r\nworkBetween 5.19 2.33 2.15\r\nworkWithin 2 10 18\r\nwriteRatio 50% 10% 20%\r\n𝑙𝑜𝑔2(𝑡ℎ𝑟𝑒𝑎𝑑𝑠) 0 0 0\r\npredicted 4.7M ops/sec 1.5M ops/sec 1.7M ops/sec\r\nactual 5.3M ops/sec 1.9M ops/sec N/A\r\nerror 12.8% 26.7% N/A\r\nTable 4.2: IBM: Comparing Predicted and Measured Throughput of Concurrent Data Struc\u0002tures\r\n4.4 Use Case\r\nWith these models, a programmer can now simplify the design of a multicore program\r\nthat synchronizes with hardware transactions. An illustrative use case is to leverage a\r\nmodel to predict the throughput of different design iterations of a program (each with\r\ndifferent respective parameter decompositions), compare the predicted throughputs,\r\nand select the design iteration that yields the best predicted performance. While\r\nthe regression models may not predict absolute performance metrics well, they will\r\nbe able to sufficiently capture the relative performance difference between iterations.\r\n41",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/0b040e32-ac12-41f6-a735-026c50605baa.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a317aa5af98061c4dcd3298dc6680adae8863ee757a0471454521cc2b5a94490",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "86ff3978-f03d-4fd7-8eef-09c4209ec677",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 42,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "This distinction is enough to inform a decision about the most high-performing design,\r\neven before any programming investment is made.\r\n42",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/86ff3978-f03d-4fd7-8eef-09c4209ec677.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6a16fb2f87c5709fa94d4d9567df729555595b8e5a5e796a2cb14ce7843de479",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 506
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "c4e65a48-202e-4d7c-bdaa-bfc099a5827c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 43,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "Chapter 5\r\nClosing\r\n5.1 Future Work\r\nDue to limitations of the existing Intel hardware, the Intel machine experiments did\r\nnot involve more than 4 non-hyperthreaded hardware threads. It will be meaningful\r\nto further explore the Intel performance characteristics with more hardware threads\r\nonce larger chips with HTM support are developed.\r\nGCC optimization level -O0 was used in our experiments because we were inter\u0002ested in investigating the pure performance characteristics of hardware transactional\r\nmemory without the confounding effects that would come with different compiler\r\noptimization levels. That said, compiler optimizations are necessary to build the\r\nfastest programs. A future study of high-performing multicore C programs using\r\nHTM should include different optimization levels.\r\n5.2 Conclusion\r\nWith the advent of hardware transactional memory in new Intel and IBM micro\u0002processors, a new solution to the synchronization problem in multicore programs\r\nis available. We ran capacity constraint benchmarks to expose the hardware im\u0002plementations that dictate the limits of HTM. We gathered synthetically generated\r\nperformance data that informed us about how different cases of contention correlate\r\n43",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/c4e65a48-202e-4d7c-bdaa-bfc099a5827c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fea24df0e67a9dde5d9cabc580f08e9fdec92bd6bdb7f878d03293a98d60cb40",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0a2513d1-c8dc-4766-aa61-ff09383b5ee1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 44,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "with hardware transaction performance. We captured these performance trends in\r\nmultivariate linear regression models that we have shown to be useful in predicting\r\nthe throughput of arbitrary concurrent programs and facilitating their design. We an\u0002ticipate that the contributions from this investigation will provide a much needed un\u0002derstanding of HTM, ultimately enabling its proliferation into future high-performing\r\nmulticore programs.\r\n44",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/0a2513d1-c8dc-4766-aa61-ff09383b5ee1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=724ec01bd01d0f09e5818dfeed3e46ec837e947d8451073139ce026f35c45c57",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cf85669c-4ed2-4ad7-bd72-aaec9d29a396",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 45,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "References\r\n[1] P. Bentler and D. Bonett. Significance tests and goodness of fit in the analysis\r\nof covariance structures. Psychological Bulletin, 88(3):588–606, November 1980.\r\n[2] S. Berkowits. Pin - a dynamic binary instrumentation tool. Intel Developer Zone,\r\nJune 2012.\r\n[3] H. W. Cain, M. M. Michael, B. Frey, C. May, D. Williams, and H. Le. Robust\r\narchitectural support for transactional memory in the power architecture. In Pro\u0002ceedings of the 40th Annual International Symposium on Computer Architecture,\r\nISCA ’13, pages 225–236, New York, NY, USA, 2013. ACM.\r\n[4] C. Cascaval, C. Blundell, M. Michael, H. W. Cain, P. Wu, S. Chiras, and S. Chat\u0002terjee. Software transactional memory: Why is it only a research toy? Queue,\r\n6(5):40:46–40:58, Sept. 2008.\r\n[5] L. Dalessandro, M. F. Spear, and M. L. Scott. NOrec: Streamlining STM by\r\nabolishing ownership records. In Proceedings of the 15th ACM SIGPLAN Sym\u0002posium on Principles and Practice of Parallel Programming, PPoPP ’10, pages\r\n67–78, New York, NY, USA, 2010. ACM.\r\n[6] P. Damron, A. Fedorova, Y. Lev, V. Luchangco, M. Moir, and D. Nussbaum. Hy\u0002brid transactional memory. In Proceedings of the 12th International Conference\r\non Architectural Support for Programming Languages and Operating Systems,\r\nASPLOS ’06, pages 336–346, New York, NY, USA, 2006. ACM.\r\n45",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/cf85669c-4ed2-4ad7-bd72-aaec9d29a396.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0dd066214f9dad6439a7928f7fdd8a7f9f460f40567e76a1cc2e52a33e2ac571",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 433
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "d2b27860-4405-4653-b5de-9f939fdcfc93",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 46,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[7] R. Dementiev. Exploring intel transactional synchronization extensions with\r\nintel software development emulator. Intel Developer Zone, November 2012.\r\n[8] M. Herlihy. Wait-free synchronization. ACM Transactions on Programming\r\nLanguages and Systems, 13(1):124–149, Jan. 1991.\r\n[9] M. Herlihy and J. E. B. Moss. Transactional memory: Architectural support\r\nfor lock-free data structures. In Proceedings of the 20th Annual International\r\nSymposium on Computer Architecture, ISCA ’93, pages 289–300, New York, NY,\r\nUSA, 1993. ACM.\r\n[10] A. Ho, S. Smith, and S. Hand. On deadlock, livelock, and forward progress. Tech\u0002nical Report UCAM-CL-TR-633, Cambridge University Computer Laboratory,\r\nMay 2005.\r\n[11] IBM. IBM power systems S814 and S824 technical overview and introduction.\r\nRedpaper REDP-5097-00, IBM Corporation, Aug. 2014.\r\n[12] IBM. Performance optimization and tuning techniques for IBM processors, in\u0002cluding IBM POWER8. Redbooks SG24-8171-00, IBM Corporation, July 2014.\r\n[13] Intel. Intel architecture instruction set extensions programming reference. De\u0002veloper Manual 319433-012A, Intel Corporation, Feb. 2012.\r\n[14] A. Matveev and N. Shavit. Reduced hardware NOrec: A safe and scalable hybrid\r\ntransactional memory. In Proceedings of the Twentieth International Conference\r\non Architectural Support for Programming Languages and Operating Systems,\r\nASPLOS ’15, pages 59–71, New York, NY, USA, 2015. ACM.\r\n[15] R. Merritt. IBM plants transactional memory in cpu, August 2011.\r\n[16] M. J. L. Orr. Introduction to radial basis function networks, April 1996.\r\n[17] J. Reinders. Transactional synchronization in haswell. Intel Developer Zone,\r\nFebruary 2012.\r\n46",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/d2b27860-4405-4653-b5de-9f939fdcfc93.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ef23a11e06d8f3e6bbe60fdc6ec63323fe6a5057a2c3c331bdf0eb00609d424e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1bfd90bc-f61f-4d78-ba1c-393f25b332c3",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 612,
+              "height": 792
+            },
+            "page_number": 47,
+            "page_width": 612,
+            "page_height": 792,
+            "content": "[18] J. D. Rodríguez, A. P. Martínez, and J. A. Lozano. Sensitivity analysis of k-fold\r\ncross validation in prediction error estimation. IEEE Transactions on Pattern\r\nAnalysis and Machine Intelligence, pages 569–575, January 2010.\r\n[19] N. Shavit and D. Touitou. Software transactional memory. In Proceedings of the\r\nFourteenth Annual ACM Symposium on Principles of Distributed Computing,\r\nPODC ’95, pages 204–213, New York, NY, USA, 1995. ACM.\r\n[20] M. Y. Vardi. Moore’s law and the sand-heap paradox. Communications of the\r\nACM, 57(5):5–5, May 2014.\r\n[21] M. D. Wang, M. Burcea, L. Li, S. Sharifymoghaddam, G. Steffan, and C. Amza.\r\nExploring the performance and programmability design space of hardware trans\u0002actional memory. In TRANSACT ’14, 2014.\r\n[22] Z. Wang, H. Qian, J. Li, and H. Chen. Using restricted transactional memory\r\nto build a scalable in-memory database. In Proceedings of the Ninth European\r\nConference on Computer Systems, EuroSys ’14, pages 26:1–26:15, New York,\r\nNY, USA, 2014. ACM.\r\n[23] L. Xiang and M. L. Scott. Composable partitioned transactions. In Workshop\r\non the Theory of Transactional Memory, 2013.\r\n[24] L. Xiang and M. L. Scott. Software partitioning of hardware transactions. In\r\nProceedings of the 20th ACM SIGPLAN Symposium on Principles and Practice\r\nof Parallel Programming, PPoPP ’15, pages 76–86, New York, NY, USA, 2015.\r\nACM.\r\n[25] R. M. Yoo, C. J. Hughes, K. Lai, and R. Rajwar. Performance evaluation of\r\nintel; transactional synchronization extensions for high-performance computing.\r\nIn Proceedings of the International Conference on High Performance Computing,\r\nNetworking, Storage and Analysis, SC ’13, pages 19:1–19:11, New York, NY,\r\nUSA, 2013. ACM.\r\n47",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/470fb8bc-0366-4e52-9612-5b5af45b5f11/images/1bfd90bc-f61f-4d78-ba1c-393f25b332c3.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041948Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7f06d57f963802dcc241b46d6bfd22cc443738c5d940d043a0d5e9160d9defbb",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 480
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "```json\n{\"title\": \"Investigation of Hardware Transactional Memory\"}\n```"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Andrew T. Nguyen\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "```json\n{\"date_published\": \"May 22, 2015\"}\n```"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "```json\n{\"location\": \"Intel Haswell i7-4770\"}\n```"
+        }
+      ]
+    }
+  }
+}

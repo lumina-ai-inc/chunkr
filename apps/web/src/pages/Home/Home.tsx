@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Flex, Text } from "@radix-ui/themes";
 import { useAuth } from "react-oidc-context";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +20,7 @@ import segmentationAnimation from "../../assets/animations/segment.json";
 import ocrAnimation from "../../assets/animations/ocr.json";
 import stackingAnimation from "../../assets/animations/stacking.json";
 import extractAnimation from "../../assets/animations/extract.json";
+import PricingCard from "../../components/PricingCard/PricingCard";
 
 const Home = () => {
   const auth = useAuth();
@@ -40,6 +41,8 @@ const Home = () => {
   const ocrLottieRef = useRef<LottieRefCurrentProps>(null);
   const stackingLottieRef = useRef<LottieRefCurrentProps>(null);
   const extractLottieRef = useRef<LottieRefCurrentProps>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
   useEffect(() => {
     if (lottieRef.current) {
       lottieRef.current.pause();
@@ -95,6 +98,15 @@ const Home = () => {
     }
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const curlCommand = `$ <span class="command">curl</span> <span class="flag">-X</span> <span class="flag">POST</span> ${import.meta.env.VITE_API_URL}/api/v1/task <span class="dim">\\</span>
@@ -182,7 +194,7 @@ const Home = () => {
       }}
       className="background"
     >
-      <Flex className="header-container">
+      <Flex className={`header-container ${isScrolled ? "scrolled" : ""}`}>
         <div
           style={{
             maxWidth: "1424px",
@@ -190,79 +202,90 @@ const Home = () => {
             height: "fit-content",
           }}
         >
-          {/* <a
-            href="https://github.com/lumina-ai-inc/chunkr#readme"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "white", textDecoration: "none" }}
-          >
-            <Flex direction="row" className="temp-banner" justify="center">
-              <Text className="white" size="2">
-                
-              </Text>
-            </Flex>
-          </a> */}
           <Header px="0px" home={true} />
         </div>
       </Flex>
-      <div>
+      <Flex direction="column" align="center" justify="center">
         <div className="hero-main-container">
-          <div className="hero-content-container">
-            <Flex className="hero-container" align="center" justify="center">
-              <Flex
-                className="text-container"
-                direction="column"
+          <div className="hero-image"></div>
+          <Flex className="hero-container" align="center" justify="center">
+            <Flex
+              className="text-container"
+              direction="column"
+              align="center"
+              justify="center"
+            >
+              <Flex direction="row" gap="16px" className="yc-tag">
+                <Text
+                  size="2"
+                  weight="regular"
+                  style={{ color: "hsl(0, 0%, 100%, 0.9)" }}
+                >
+                  Backed by Y Combinator
+                </Text>
+              </Flex>
+              <Text
+                weight="bold"
+                className="hero-title"
+                mb="16px"
                 align="center"
-                justify="center"
               >
-                <Flex direction="row" gap="16px" className="yc-tag">
-                  <Text
-                    size="2"
-                    weight="regular"
-                    style={{ color: "hsl(0, 0%, 100%, 0.9)" }}
-                  >
-                    Backed by Y Combinator
-                  </Text>
-                </Flex>
-                <Text
-                  weight="bold"
-                  className="hero-title"
-                  mb="16px"
-                  align="center"
-                >
-                  Open Source Document Ingestion
-                </Text>
-                <Text
-                  weight="medium"
-                  size="3"
-                  className="hero-description"
-                  align="center"
-                >
-                  API service to turn complex documents into RAG/LLM-ready data
-                </Text>
+                Open Source Document Ingestion
+              </Text>
+              <Text
+                weight="medium"
+                size="3"
+                className="hero-description"
+                align="center"
+              >
+                API service to turn complex documents into RAG/LLM-ready data
+              </Text>
 
-                <Flex
-                  className="signup-container"
-                  direction="row"
-                  gap="16px"
-                  align="center"
-                >
-                  <button className="signup-button" onClick={handleGetStarted}>
-                    {isAuthenticated ? (
-                      <Text size="5" weight="bold">
-                        Go to dashboard
-                      </Text>
-                    ) : (
-                      <Text size="5" weight="bold">
-                        Get started for free
-                      </Text>
-                    )}
-                  </button>
-                </Flex>
+              <Flex
+                className="signup-container"
+                direction="row"
+                gap="16px"
+                align="center"
+              >
+                <button className="signup-button" onClick={handleGetStarted}>
+                  {isAuthenticated ? (
+                    <Text size="5" weight="bold">
+                      Go to dashboard
+                    </Text>
+                  ) : (
+                    <Text size="5" weight="bold">
+                      Get started for free
+                    </Text>
+                  )}
+                </button>
               </Flex>
             </Flex>
-          </div>
+          </Flex>
         </div>
+        <Flex px="24px" width="100%" align="center" justify="center">
+          <div className="hero-content-container">
+            <div className="hero-content">
+              <div className="placeholder-window">
+                <div className="window-header">
+                  <div className="window-controls">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <div className="window-title">Document Processing</div>
+                </div>
+                <div className="window-content">
+                  <div className="loading-animation">
+                    <div className="progress-bar">
+                      <div className="progress"></div>
+                    </div>
+                    <div className="status-text">Processing document...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Flex>
         <div className="features-container">
           <Flex
             direction="row"
@@ -515,17 +538,279 @@ const Home = () => {
               padding: "24px",
             }}
           >
+            <Flex direction="column" px="24px" align="center" justify="center">
+              <Flex className="yc-tag">
+                <Text
+                  size="2"
+                  weight="medium"
+                  style={{
+                    color: "#ffffff",
+                    textShadow: "0 0 10px rgba(255, 255, 255, 0.45)",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  Built for scale
+                </Text>
+              </Flex>
+              <Text
+                size="9"
+                weight="medium"
+                align="center"
+                className="features-bottom-box-title"
+              >
+                Fast by default<br></br>Powerful by design
+              </Text>
+              <Flex className="feature-bottom-box-wrapper" direction="column">
+                <Flex
+                  direction="row"
+                  gap="32px"
+                  className="features-bottom-box-container"
+                  style={{
+                    width: "100%",
+                    marginTop: "56px",
+                  }}
+                >
+                  <Flex
+                    direction="column"
+                    className="feature-bottom-box"
+                    onMouseEnter={() => handleLottieHover(rustLottieRef)}
+                  >
+                    <Lottie
+                      lottieRef={rustLottieRef}
+                      animationData={rustAnimation}
+                      loop={false}
+                      autoplay={false}
+                      style={{
+                        width: 32,
+                        height: 32,
+                      }}
+                    />
+                    <Text
+                      size="6"
+                      weight="medium"
+                      style={{ color: "white", marginTop: "24px" }}
+                    >
+                      Connected via Rust
+                    </Text>
+                    <Text
+                      size="3"
+                      style={{
+                        color: "rgba(255, 255, 255, 0.6)",
+                        marginTop: "8px",
+                      }}
+                    >
+                      Process multiple documents simultaneously with efficient
+                      resource utilization
+                    </Text>
+                  </Flex>
+
+                  <Flex
+                    direction="column"
+                    className="feature-bottom-box"
+                    onMouseEnter={() => handleLottieHover(fileuploadLottieRef)}
+                  >
+                    <Lottie
+                      lottieRef={fileuploadLottieRef}
+                      animationData={fileuploadAnimation}
+                      loop={false}
+                      autoplay={false}
+                      style={{
+                        width: 32,
+                        height: 32,
+                      }}
+                    />
+                    <Text
+                      size="6"
+                      weight="medium"
+                      style={{ color: "white", marginTop: "24px" }}
+                    >
+                      Support for multiple file types
+                    </Text>
+                    <Text
+                      size="3"
+                      style={{
+                        color: "rgba(255, 255, 255, 0.6)",
+                        marginTop: "8px",
+                      }}
+                    >
+                      Minimize memory overhead with efficient data handling and
+                      processing
+                    </Text>
+                  </Flex>
+
+                  <Flex
+                    direction="column"
+                    className="feature-bottom-box"
+                    onMouseEnter={() => handleLottieHover(timerLottieRef)}
+                  >
+                    <Lottie
+                      lottieRef={timerLottieRef}
+                      animationData={timerAnimation}
+                      loop={false}
+                      autoplay={false}
+                      style={{
+                        width: 32,
+                        height: 32,
+                      }}
+                    />
+                    <Text
+                      size="6"
+                      weight="medium"
+                      style={{ color: "white", marginTop: "24px" }}
+                    >
+                      Optimized last-mile
+                    </Text>
+                    <Text
+                      size="3"
+                      style={{
+                        color: "rgba(255, 255, 255, 0.6)",
+                        marginTop: "8px",
+                      }}
+                    >
+                      Leverage Rust's native performance for lightning-fast
+                      document processing
+                    </Text>
+                  </Flex>
+                </Flex>
+                <Flex
+                  direction="row"
+                  gap="32px"
+                  className="features-bottom-box-container"
+                  style={{
+                    width: "100%",
+                    marginTop: "48px",
+                  }}
+                >
+                  <Flex
+                    direction="column"
+                    className="feature-bottom-box"
+                    onMouseEnter={() => handleLottieHover(bargraphLottieRef)}
+                  >
+                    <Lottie
+                      lottieRef={bargraphLottieRef}
+                      animationData={bargraphAnimation}
+                      loop={false}
+                      autoplay={false}
+                      style={{
+                        width: 32,
+                        height: 32,
+                      }}
+                    />
+                    <Text
+                      size="6"
+                      weight="medium"
+                      style={{ color: "white", marginTop: "24px" }}
+                    >
+                      Built-in visibility
+                    </Text>
+                    <Text
+                      size="3"
+                      style={{
+                        color: "rgba(255, 255, 255, 0.6)",
+                        marginTop: "8px",
+                      }}
+                    >
+                      Process multiple documents simultaneously with efficient
+                      resource utilization
+                    </Text>
+                  </Flex>
+
+                  <Flex
+                    direction="column"
+                    className="feature-bottom-box"
+                    onMouseEnter={() => handleLottieHover(codeLottieRef)}
+                  >
+                    <Lottie
+                      lottieRef={codeLottieRef}
+                      animationData={codeAnimation}
+                      loop={false}
+                      autoplay={false}
+                      style={{
+                        width: 32,
+                        height: 32,
+                      }}
+                    />
+                    <Text
+                      size="6"
+                      weight="medium"
+                      style={{ color: "white", marginTop: "24px" }}
+                    >
+                      Simple API / Cloud-Ready
+                    </Text>
+                    <Text
+                      size="3"
+                      style={{
+                        color: "rgba(255, 255, 255, 0.6)",
+                        marginTop: "8px",
+                      }}
+                    >
+                      Start in seconds with our API, or deploy on your
+                      infrastructure for complete control
+                    </Text>
+                  </Flex>
+
+                  <Flex
+                    direction="column"
+                    className="feature-bottom-box"
+                    onMouseEnter={() => handleLottieHover(secureLottieRef)}
+                  >
+                    <Lottie
+                      lottieRef={secureLottieRef}
+                      animationData={secureAnimation}
+                      loop={false}
+                      autoplay={false}
+                      style={{
+                        width: 32,
+                        height: 32,
+                      }}
+                    />
+                    <Text
+                      size="6"
+                      weight="medium"
+                      style={{ color: "white", marginTop: "24px" }}
+                    >
+                      Secure in every way
+                    </Text>
+                    <Text
+                      size="3"
+                      style={{
+                        color: "rgba(255, 255, 255, 0.6)",
+                        marginTop: "8px",
+                      }}
+                    >
+                      Leverage Rust's native performance for lightning-fast
+                      document processing
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Flex>
+            </Flex>
+          </Flex>
+        </div>
+        <div className="pricing-section">
+          <Flex
+            direction="column"
+            align="center"
+            style={{
+              maxWidth: "1424px",
+              height: "100%",
+              margin: "0 auto",
+              padding: "24px",
+              position: "relative",
+              zIndex: 2,
+            }}
+          >
             <Flex className="yc-tag">
               <Text
                 size="2"
                 weight="medium"
                 style={{
                   color: "#ffffff",
-                  textShadow: "0 0 10px rgba(255, 255, 255, 0.55)",
+                  textShadow: "0 0 10px rgba(255, 255, 255, 0.45)",
                   letterSpacing: "0.02em",
                 }}
               >
-                Built for scale
+                Plans & Pricing
               </Text>
             </Flex>
             <Text
@@ -534,235 +819,53 @@ const Home = () => {
               align="center"
               className="features-bottom-box-title"
             >
-              Fast by default<br></br>and powerful by design
+              Simple, transparent plans for every stage
             </Text>
-            <Flex className="feature-bottom-box-wrapper" direction="column">
-              <Flex
-                direction="row"
-                gap="32px"
-                className="features-bottom-box-container"
-                style={{
-                  width: "100%",
-                  marginTop: "56px",
-                }}
-              >
-                <Flex
-                  direction="column"
-                  className="feature-bottom-box"
-                  onMouseEnter={() => handleLottieHover(rustLottieRef)}
-                >
-                  <Lottie
-                    lottieRef={rustLottieRef}
-                    animationData={rustAnimation}
-                    loop={false}
-                    autoplay={false}
-                    style={{
-                      width: 32,
-                      height: 32,
-                    }}
-                  />
-                  <Text
-                    size="6"
-                    weight="medium"
-                    style={{ color: "white", marginTop: "24px" }}
-                  >
-                    Connected via Rust
-                  </Text>
-                  <Text
-                    size="3"
-                    style={{
-                      color: "rgba(255, 255, 255, 0.6)",
-                      marginTop: "8px",
-                    }}
-                  >
-                    Process multiple documents simultaneously with efficient
-                    resource utilization
-                  </Text>
-                </Flex>
 
-                <Flex
-                  direction="column"
-                  className="feature-bottom-box"
-                  onMouseEnter={() => handleLottieHover(fileuploadLottieRef)}
-                >
-                  <Lottie
-                    lottieRef={fileuploadLottieRef}
-                    animationData={fileuploadAnimation}
-                    loop={false}
-                    autoplay={false}
-                    style={{
-                      width: 32,
-                      height: 32,
-                    }}
-                  />
-                  <Text
-                    size="6"
-                    weight="medium"
-                    style={{ color: "white", marginTop: "24px" }}
-                  >
-                    Support for multiple file types
-                  </Text>
-                  <Text
-                    size="3"
-                    style={{
-                      color: "rgba(255, 255, 255, 0.6)",
-                      marginTop: "8px",
-                    }}
-                  >
-                    Minimize memory overhead with efficient data handling and
-                    processing
-                  </Text>
-                </Flex>
+            <Flex
+              direction="row"
+              justify="between"
+              gap="48px"
+              className="pricing-container"
+              style={{
+                width: "100%",
+                marginTop: "56px",
+                padding: "0 24px",
+                position: "relative",
+                zIndex: 2,
+              }}
+            >
+              <PricingCard
+                title="Managed"
+                description="Fully managed instance with SLA and premium support"
+                price="$2,500"
+                priceDetail="/month + 10% compute"
+                imageSrc="/path/to/managed-image.png"
+                buttonText="Contact Sales"
+              />
 
-                <Flex
-                  direction="column"
-                  className="feature-bottom-box"
-                  onMouseEnter={() => handleLottieHover(timerLottieRef)}
-                >
-                  <Lottie
-                    lottieRef={timerLottieRef}
-                    animationData={timerAnimation}
-                    loop={false}
-                    autoplay={false}
-                    style={{
-                      width: 32,
-                      height: 32,
-                    }}
-                  />
-                  <Text
-                    size="6"
-                    weight="medium"
-                    style={{ color: "white", marginTop: "24px" }}
-                  >
-                    Optimized last-mile
-                  </Text>
-                  <Text
-                    size="3"
-                    style={{
-                      color: "rgba(255, 255, 255, 0.6)",
-                      marginTop: "8px",
-                    }}
-                  >
-                    Leverage Rust's native performance for lightning-fast
-                    document processing
-                  </Text>
-                </Flex>
-              </Flex>
-              <Flex
-                direction="row"
-                gap="32px"
-                className="features-bottom-box-container"
-                style={{
-                  width: "100%",
-                  marginTop: "48px",
-                }}
-              >
-                <Flex
-                  direction="column"
-                  className="feature-bottom-box"
-                  onMouseEnter={() => handleLottieHover(bargraphLottieRef)}
-                >
-                  <Lottie
-                    lottieRef={bargraphLottieRef}
-                    animationData={bargraphAnimation}
-                    loop={false}
-                    autoplay={false}
-                    style={{
-                      width: 32,
-                      height: 32,
-                    }}
-                  />
-                  <Text
-                    size="6"
-                    weight="medium"
-                    style={{ color: "white", marginTop: "24px" }}
-                  >
-                    Built-in visibility
-                  </Text>
-                  <Text
-                    size="3"
-                    style={{
-                      color: "rgba(255, 255, 255, 0.6)",
-                      marginTop: "8px",
-                    }}
-                  >
-                    Process multiple documents simultaneously with efficient
-                    resource utilization
-                  </Text>
-                </Flex>
+              <PricingCard
+                title="Pay as you go"
+                description="Perfect for projects of any size. Start with 100 free pages."
+                price="$0.01"
+                priceDetail="/page"
+                imageSrc="/path/to/api-image.png"
+                buttonText="Get Started"
+                highlighted={true}
+              />
 
-                <Flex
-                  direction="column"
-                  className="feature-bottom-box"
-                  onMouseEnter={() => handleLottieHover(codeLottieRef)}
-                >
-                  <Lottie
-                    lottieRef={codeLottieRef}
-                    animationData={codeAnimation}
-                    loop={false}
-                    autoplay={false}
-                    style={{
-                      width: 32,
-                      height: 32,
-                    }}
-                  />
-                  <Text
-                    size="6"
-                    weight="medium"
-                    style={{ color: "white", marginTop: "24px" }}
-                  >
-                    Simple API / Cloud-Ready
-                  </Text>
-                  <Text
-                    size="3"
-                    style={{
-                      color: "rgba(255, 255, 255, 0.6)",
-                      marginTop: "8px",
-                    }}
-                  >
-                    Start in seconds with our API, or deploy on your
-                    infrastructure for complete control
-                  </Text>
-                </Flex>
-
-                <Flex
-                  direction="column"
-                  className="feature-bottom-box"
-                  onMouseEnter={() => handleLottieHover(secureLottieRef)}
-                >
-                  <Lottie
-                    lottieRef={secureLottieRef}
-                    animationData={secureAnimation}
-                    loop={false}
-                    autoplay={false}
-                    style={{
-                      width: 32,
-                      height: 32,
-                    }}
-                  />
-                  <Text
-                    size="6"
-                    weight="medium"
-                    style={{ color: "white", marginTop: "24px" }}
-                  >
-                    Secure in every way
-                  </Text>
-                  <Text
-                    size="3"
-                    style={{
-                      color: "rgba(255, 255, 255, 0.6)",
-                      marginTop: "8px",
-                    }}
-                  >
-                    Leverage Rust's native performance for lightning-fast
-                    document processing
-                  </Text>
-                </Flex>
-              </Flex>
+              <PricingCard
+                title="Self-hosted"
+                description="Free for non-commercial use. Special startup pricing available."
+                price="$5,000"
+                priceDetail="/month"
+                imageSrc="/path/to/self-hosted-image.png"
+                buttonText="Deploy Now"
+              />
             </Flex>
           </Flex>
         </div>
-      </div>
+      </Flex>
 
       <Footer />
     </Flex>

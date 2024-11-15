@@ -1,0 +1,2069 @@
+{
+  "file_name": "Intel SIMD Architecture - Yung-Yu - UCONN (2007).pdf",
+  "task_id": "2ec2df62-64e1-4d94-ae83-372ce88f8b47",
+  "output": {
+    "chunks": [
+      {
+        "segments": [
+          {
+            "segment_id": "84d6dabc-5e9f-44ed-b6bc-f8882836e73e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 1,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Intel SIMD architecture\r\nZ. Jerry Shi\r\nAssociate Professor of Computer Science and Engineering\r\nUniversity of Connecticut\r\nRevised from Yung-Yu Chuang’s slides , 2007",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/84d6dabc-5e9f-44ed-b6bc-f8882836e73e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=294bbf1a55555f71f63eba1ccdac842d8b221090fd23419ae485c2aabaa3b61f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dccbb093-2aab-4eb3-82d6-075a371675b7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 2,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Overview\r\n• SIMD\r\n• MMX architectures\r\n• MMX instructions\r\n• Examples\r\n• SSE/SSE2/SSE3/SSE4\r\n• SIMD instructions are probably the best place to use assembly \r\n– Compilers usually do not do a good job on using these \r\ninstructions\r\n2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/dccbb093-2aab-4eb3-82d6-075a371675b7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b3572f3149594d87801b445f85ac60cbe8180e8cca7be2d3c8543d4b1bf36d85",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1a816b6f-c197-47c7-a8f9-536b79384050",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 3,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Performance boost\r\n• Increasing clock rate is not fast enough for boosting performance\r\n• Architecture improvements (such as pipeline/cache/SIMD) are \r\nmore significant \r\n• Multimedia applications share the following characteristics:\r\n– Small native data types (8-bit pixel, 16-bit audio)\r\n– Recurring operations\r\n– Inherent parallelism\r\n3",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/1a816b6f-c197-47c7-a8f9-536b79384050.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f77f17036fec59a233479c61a1722d3b1a10b6f11e33e57133937db503c1d599",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "abc74793-1d0c-4454-8280-87050978ec67",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 4,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SIMD\r\n4\r\n• SIMD (single instruction multiple data) architecture \r\nperforms the same operation on multiple data elements \r\nin parallel\r\nPADDW MM0, MM1",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/abc74793-1d0c-4454-8280-87050978ec67.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=006768be478a92175c84b1eb17d41a2421c2022c7fff4224b11b0f595df5ea2f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4dc30b03-94e8-4543-9522-b8402c4fef4a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 5,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SISD/SIMD/Streaming\r\n5",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/4dc30b03-94e8-4543-9522-b8402c4fef4a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0553ea0a61e7199ec62e2de657d70fb34e93ae4654fa20dae1872d9739f9d86c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "530ccce2-808c-457f-847c-d3e7a3ccee7a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 6,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "IA-32 SIMD development\r\n• MMX (Multimedia Extension) was introduced in 1996 \r\n– Pentium with MMX and Pentium II\r\n• SSE (Streaming SIMD Extension) was introduced with Pentium III\r\n• SSE2 was introduced with Pentium 4\r\n• SSE3 was introduced with Pentium 4 \r\n– For supporting hyper-threading technology\r\n– 13 more instructions\r\n• SSSE3 (Supplemental) in June 2006 in the “Woodcrest” Xeons\r\n– 16 new discrete instructions\r\n• SSE4 in spring 2007 has 54 new instructions\r\n– 47 in SSE4.1\r\n– 7 in SSE 4.2\r\n• SSE4a from AMD are different from SSE4.1\r\n6",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/530ccce2-808c-457f-847c-d3e7a3ccee7a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=682cfab100cca4eca499d17f2a40b51604923154ab4a7b11e4b50e0d0303c7a4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7a8301e4-eb48-46e7-8c8a-164c3f1abbaf",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 7,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MMX\r\n• Typical elements in many applications are small\r\n– 8 bits for pixels\r\n– 16 bits for audio \r\n– 32 bits for general computing\r\n• New data type: 64-bit packed data type. Why 64 bits?\r\n– Good enough\r\n– Practical, see in a moment\r\n7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/7a8301e4-eb48-46e7-8c8a-164c3f1abbaf.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e4447cd82e312f74230c39ce914c1dbeb754171b5ffec1c7090048d723e0d63b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "49ebcd53-12f3-4135-aa31-0e249e945bf1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 8,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MMX data types\r\n8",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/49ebcd53-12f3-4135-aa31-0e249e945bf1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6454dc100bf00f07b6cb1da46f8c5bd9c7791dc4f7bc1776dc6e74f58a1820f8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0e09ae23-e85c-4593-bd60-c63e1bb950c6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 9,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MMX integration into IA-32\r\n9\r\n79\r\n11…11\r\nNaN or infinity as real\r\nbecause bits 79-64 are\r\nones.\r\nEven if MMX registers\r\nare 64-bit, they don’t\r\nextend Pentium to a\r\n64-bit CPU since only\r\nlogic instructions are\r\nprovided for 64-bit \r\ndata. \r\n8 MM0~MM7",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/0e09ae23-e85c-4593-bd60-c63e1bb950c6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=62ac3911a412092c7d9baf84a5d652e76bf6dd9f6dbb26fa35d3e91df0084306",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "97e2308e-33d1-49f7-9321-5a6cd2a0aa2c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 10,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Compatibility\r\n• Fully compatible with existing IA \r\n– No new mode or state was created\r\n– No extra state needs to be saved for context switching\r\n• MMX is hidden behind FPU \r\n– When floating-point state is saved or restored, MMX is saved or \r\nrestored.\r\n• Existing OS to perform context switching on the processes \r\nexecuting MMX instruction without be aware of MMX\r\n– MMX and FPU cannot be used at the same time\r\n• It may be a bad decision \r\n• OS can just provide a service pack or get updated\r\n• Intel introduced SSE later without any aliasing\r\n10",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/97e2308e-33d1-49f7-9321-5a6cd2a0aa2c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ee1b581f0de88c9f72e190071358946e182bb28666bfe317e067f2fe4c91ebee",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f01ad0e8-0a6b-4165-a40b-723538f32a05",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 11,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MMX instructions\r\n• 57 MMX instructions\r\n– add, subtract, multiply, multiply-add\r\n– compare\r\n– shift, logical operation\r\n– data conversion\r\n– 64-bit data move\r\n• All instructions except for data move use MMX registers as \r\noperands\r\n– All starts with p except for movd, movq, and emms\r\n• Most complete support for 16-bit operations\r\n11",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/f01ad0e8-0a6b-4165-a40b-723538f32a05.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bc59b32d3071c80be159186ba237f2f58e576dd96dce550ab9b069a375d5a1dd",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0e0142d9-dccd-4ec3-942e-84929df3b973",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 12,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MMX instructions\r\n12",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/0e0142d9-dccd-4ec3-942e-84929df3b973.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=043852f9a4aa70ea69a8196734a0480195324d78b6427aea07ccdef208e7636e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d2605feb-1723-4060-a395-72e3124c9027",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 13,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MMX instructions\r\n13\r\nCall it before you switch to FPU from MMX",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/d2605feb-1723-4060-a395-72e3124c9027.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=602fd5207ae2fba646966c5f3b2983135a3227c3bc887e5838fc6a5af79fedf4",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 486
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "55b9e6b8-4694-4e83-b051-d23fb4e11a51",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 14,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Saturation arithmetic\r\n14\r\nwrap-around saturating\r\n• Useful in graphics applications.\r\n• When an operation overflows or underflows, the result \r\nbecomes the largest or smallest possible representable \r\nnumber.\r\n• Two types: signed and unsigned saturation",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/55b9e6b8-4694-4e83-b051-d23fb4e11a51.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ce7ba5b18c35f8d44321a4f8648886ec0df3d5c533392c7bf6b56ef2366efe92",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "11d1c9a3-266e-4faf-89a2-a16562324aee",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 15,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Arithmetic\r\n• PADDB/PADDW/PADDD: add two packed numbers, no EFLAGS \r\nis set, ensure overflow never occurs by yourself\r\n• Multiplication: two steps\r\n• PMULLW: multiplies four words and stores the four lo words of \r\nthe four double word results\r\n• PMULHW/PMULHUW: multiplies four words and stores the four hi \r\nwords of the four double word results. PMULHUW for unsigned.\r\n15",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/11d1c9a3-266e-4faf-89a2-a16562324aee.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cb869f9894bd9800ca60b1d5a807bb75a279cf7f7f7f557d4d2d1ba7349fe5f9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0d321d8e-822a-411c-bbbf-4171f85cb3e6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 16,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Arithmetic\r\n• PMADDWD\r\n16",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/0d321d8e-822a-411c-bbbf-4171f85cb3e6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6c1c0f7bfae981c0806207f8b611c5d0d524522521c26108545ea6a982f4382f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1b4c0400-fe00-4afe-9af1-66aefc24d06f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 17,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Example: add a constant to a vector\r\nchar d[]={5, 5, 5, 5, 5, 5, 5, 5}; \r\nchar clr[]={65,66,68,...,87,88}; // 24 bytes\r\n__asm{\r\n movq mm1, d \r\n mov cx, 3\r\n mov esi, 0\r\nL1: movq mm0, clr[esi] \r\n paddb mm0, mm1 \r\n movq clr[esi], mm0 \r\n add esi, 8\r\n loop L1\r\n emms\r\n} 17",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/1b4c0400-fe00-4afe-9af1-66aefc24d06f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=45bedc6a3e4b6b325e42a8907993e4f03021cc344221b792476184347f884a70",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5c24ad82-4b70-4978-95aa-d2e0de741109",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 18,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Comparison\r\n18\r\n• No CFLAGS, how many flags will you need? \r\nResults are stored in destination.\r\n• EQ/GT, no LT",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/5c24ad82-4b70-4978-95aa-d2e0de741109.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=460c826bd88a2b8845d0b0048e3c89c102ee2f100026045d264e1893fdc693fa",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f7b0e5a4-3885-40bb-9076-616764445667",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 19,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Change data types\r\n• Pack: converts a larger data type to the next smaller data type.\r\n• Unpack: takes two operands and interleave them. It can be used \r\nfor expand data type for immediate calculation.\r\n19",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/f7b0e5a4-3885-40bb-9076-616764445667.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=84955a33dea4b9f4aaa5d167d2ef8f81814340790b51ea9d259309138a0cf1e9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f3d61f08-3610-4101-8eb9-27780022748c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 20,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Pack with signed saturation\r\n20",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/f3d61f08-3610-4101-8eb9-27780022748c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=602b6053bbae240d980b51f27fa83a5f8576d632b16f3a8d38b1f1cd9fdde20a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7cb2e5f8-d58e-49ce-a7da-0d7248c7045b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 21,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Pack with signed saturation\r\n21",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/7cb2e5f8-d58e-49ce-a7da-0d7248c7045b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=705770545abf31d46bff6b92c893367e430c2fea2690b05a52da0c498e59b9f3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d776d261-23f7-4357-9800-2ae350f250f1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 22,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Unpack low portion\r\n22",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/d776d261-23f7-4357-9800-2ae350f250f1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c3b72d7101c377ab4763b7240f37c8b07dd7a298e876df3f492fcd5cb4eed8c5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "dbc553fd-4e55-4c16-9f82-fab5304ac084",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 23,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Unpack low portion\r\n23",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/dbc553fd-4e55-4c16-9f82-fab5304ac084.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=aeaf092a2a6a5a6a0199d8bcb1f6cd7748d4c9191cb1902dd2a0ab4e722987b9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7664bd5e-294f-4c50-9b0b-b44ca881d494",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 24,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Unpack low portion\r\n24",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/7664bd5e-294f-4c50-9b0b-b44ca881d494.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b821422071740ac0f1529437d9467b7917d0348d081ea296a5cce44e1a299c9b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ee726628-b60b-4992-970a-16c59cb1b6ef",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 25,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Unpack high portion\r\n25",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/ee726628-b60b-4992-970a-16c59cb1b6ef.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8a20d8779e0fbdd768b388bd7e9f8bdb08c48300e115bfaef06e5e19dd69dc96",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5717e9c9-ff0d-4c21-b316-5082404b804c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 26,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Performance boost (data from 1996)\r\nBenchmark kernels: FFT, \r\nFIR, vector dot-product, \r\nIDCT, motion compensation.\r\n65% performance gain\r\nLower the cost of \r\nmultimedia programs by \r\nremoving the need of \r\nspecialized DSP chips\r\n26",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/5717e9c9-ff0d-4c21-b316-5082404b804c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d49740fffc0795314a31fb00615548fba1793337755e1d3cfd714d824f77b106",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5b319bb8-8929-42b2-a59e-16f2551bf148",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 27,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Keys to SIMD programming\r\n• Efficient data layout\r\n• Elimination of branches\r\n27",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/5b319bb8-8929-42b2-a59e-16f2551bf148.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cb9ea9d647ec0d1ca52774c1ad7d07b1cb0fcf03ac0d3db7d51141c2317b05be",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "da96fd27-e151-4485-ac25-305587150589",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 28,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Application: frame difference\r\n28\r\nA B\r\n|A-B|",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/da96fd27-e151-4485-ac25-305587150589.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=425eeb4a0c83220d67c5b8d44ce3b4de75b97abae77523ebeb175c09b7f99d21",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "7e4dcc6f-f43b-4a36-92c5-2e9d618fc46e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 29,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Application: frame difference\r\n29\r\nA-B B-A\r\n(A-B) or (B-A)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/7e4dcc6f-f43b-4a36-92c5-2e9d618fc46e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d8ee093dccf491fefd99907c19de7c5adfe02591aa85b161ee6bca327d4ccca5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b6b8cb89-21f0-4b1e-9c2c-b0973befc793",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 30,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Application: frame difference\r\nMOVQ mm1, A //move 8 pixels of image A\r\nMOVQ mm2, B //move 8 pixels of image B\r\nMOVQ mm3, mm1 // mm3=A\r\nPSUBSB mm1, mm2 // mm1=A-B\r\nPSUBSB mm2, mm3 // mm2=B-A\r\nPOR mm1, mm2 // mm1=|A-B|\r\n30",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/b6b8cb89-21f0-4b1e-9c2c-b0973befc793.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=00c3caa202a2bb153073396db55b398b28521c2fe290777aef8b9a8524f8b94e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "70ffd49d-cbba-418c-bfac-acf3a93c1a31",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 31,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Example: image fade-in-fade-out\r\nA*α+B*(1-α) = B+α(A-B)\r\n31\r\nA B",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/70ffd49d-cbba-418c-bfac-acf3a93c1a31.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e46470f4816f047293951ab8eab0bd5dc3003a9aba7974b5fce0261b7fdc5a59",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "595e9e15-2445-4ea6-8c62-6ef723545ba7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 32,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "α=0.75\r\n32",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/595e9e15-2445-4ea6-8c62-6ef723545ba7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f3d2a28c1af7321216f002d84006c464dd815541edd0d930732f184ad2129b2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e2b74007-b949-4a56-a8c8-edb6cebb6bea",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 33,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "α=0.5\r\n33",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/e2b74007-b949-4a56-a8c8-edb6cebb6bea.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=048d826656e8c14d6cf8dd42f425eacdc9d60830aae2e910e27dee655ac7389f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "ecf1fc45-982a-4e99-b0f4-e671e0b7c859",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 34,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "α=0.25\r\n34",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/ecf1fc45-982a-4e99-b0f4-e671e0b7c859.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=52f4be236a0b09658b6cd855085105d995fe348e1bbec64b0ffd6c916401702b",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3e054fa6-cca0-4503-af9c-bc6149d5782d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 35,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Example: image fade-in-fade-out\r\n• Two formats: planar and chunky\r\n• In Chunky format, 16 bits of 64 bits are wasted\r\n• So, we use planar in the following example\r\n35\r\nR G B A R G B A",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/3e054fa6-cca0-4503-af9c-bc6149d5782d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=29459eedd14508def821b2e82bdfc73bc7aad859604f57c59e82d95395d06038",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "633570cc-24ae-496b-9d37-c9925a0f2e74",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 36,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Example: image fade-in-fade-out\r\n36\r\nImage A Image B",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/633570cc-24ae-496b-9d37-c9925a0f2e74.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=dde1c618c3f0d6622ab1e609f97283eb9f6fee2c423579d05a042d010be3bc33",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4ee47b9e-9c42-42db-9798-84108099dbc1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 37,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Example: image fade-in-fade-out\r\nMOVQ mm0, alpha //4 16-b zero-padding α\r\nMOVD mm1, A //move 4 pixels of image A\r\nMOVD mm2, B //move 4 pixels of image B\r\nPXOR mm3, mm3 //clear mm3 to all zeroes\r\n//unpack 4 pixels to 4 words\r\nPUNPCKLBW mm1, mm3 // Because B-A could be \r\nPUNPCKLBW mm2, mm3 // negative, need 16 bits\r\nPSUBW mm1, mm2 //(B-A)\r\nPMULHW mm1, mm0 //(B-A)*fade/256\r\nPADDW mm1, mm2 //(B-A)*fade + B\r\n//pack four words back to four bytes\r\nPACKUSWB mm1, mm3\r\n37",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/4ee47b9e-9c42-42db-9798-84108099dbc1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=87a6f80b8885b1e014839ca8dfc189804c5c5d81ac555485748e7f561c9dc5f9",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c89e25af-42f1-4b60-8de4-cfb4b7dab5a7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 38,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Data-independent computation\r\n• Each operation can execute without needing to know the results \r\nof a previous operation.\r\n• Example, sprite overlay\r\nfor i=1 to sprite_Size\r\n if sprite[i]=clr \r\n then out_color[i]=bg[i]\r\n else out_color[i]=sprite[i]\r\n38",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/c89e25af-42f1-4b60-8de4-cfb4b7dab5a7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7cb11137baa610109bb84f94435888be9ff61bfe03ce2fdbf5dcccca9ae19c62",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "34999ee7-466d-40a5-aeae-3c596a808052",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 39,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Application: sprite overlay\r\n39",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/34999ee7-466d-40a5-aeae-3c596a808052.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=59b8926a29be47781f78c9ec31d4df2caba7f1cf3a6d09c40a1b3f4d45ff2d39",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 511
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "1a14a62c-3671-4a0f-b674-0032906f80b7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 40,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Application: sprite overlay\r\nMOVQ mm0, sprite\r\nMOVQ mm2, mm0\r\nMOVQ mm4, bg\r\nMOVQ mm1, clr\r\nPCMPEQW mm0, mm1\r\nPAND mm4, mm0\r\nPANDN mm0, mm2\r\nPOR mm0, mm4\r\n40",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/1a14a62c-3671-4a0f-b674-0032906f80b7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9fba81a26099e7956db900e0142e20391c658f9ed2898d6d928c539e76d51d93",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3b540f76-1e4f-484c-91c7-1d64868bb7e1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 41,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Application: matrix transpose\r\n41",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/3b540f76-1e4f-484c-91c7-1d64868bb7e1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2b2616be808e3231b2c1d63efa816ab7ba36351668b78f19b05819985f2089ac",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "52b54875-6003-45a7-a358-2951d37f630a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 42,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Application: matrix transpose (C code)\r\nchar M1[4][8];// matrix to be transposed\r\nchar M2[8][4];// transposed matrix\r\nint n=0;\r\nfor (int i=0;i<4;i++)\r\n for (int j=0;j<8;j++)\r\n { M1[i][j]=n; n++; }\r\n42",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/52b54875-6003-45a7-a358-2951d37f630a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=85a9961211c93788cac16e8fdb8b0f11e0cc9672bc8e114e95ca32c59de2d78f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "8a4d56e9-d3c2-4044-8718-198372fed2d9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 43,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Application: matrix transpose (MMX) - 1\r\n__asm{\r\n//move the 4 rows of M1 into MMX registers\r\nmovq mm1,M1\r\nmovq mm2,M1+8\r\nmovq mm3,M1+16\r\nmovq mm4,M1+24\r\n//generate rows 1 to 4 of M2\r\npunpcklbw mm1, mm2 \r\npunpcklbw mm3, mm4\r\nmovq mm0, mm1\r\npunpcklwd mm1, mm3 //mm1 has row 2 & row 1\r\npunpckhwd mm0, mm3 //mm0 has row 4 & row 3\r\nmovq M2, mm1\r\nmovq M2+8, mm0\r\n43",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/8a4d56e9-d3c2-4044-8718-198372fed2d9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f879902a0319fb07aacad76e819d6fa97d53ad693286b26c215a4be465b0419e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9687c2e3-b718-424a-b23c-eba014c60b4f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 44,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Application: matrix transpose (MMX) - 2\r\n//generate rows 5 to 8 of M2\r\nmovq mm1, M1 //get row 1 of M1\r\nmovq mm3, M1+16 //get row 3 of M1\r\npunpckhbw mm1, mm2\r\npunpckhbw mm3, mm4\r\nmovq mm0, mm1\r\npunpcklwd mm1, mm3 //mm1 has row 6 & row 5\r\npunpckhwd mm0, mm3 //mm0 has row 8 & row 7\r\n//save results to M2\r\nmovq M2+16, mm1\r\nmovq M2+24, mm0\r\nemms\r\n} //end\r\n44",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/9687c2e3-b718-424a-b23c-eba014c60b4f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=971b346bc8d5ee14617301d6b21bf326b677beaa4833b4ebd7313a74e4620fbe",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e52d6740-0109-469e-8f24-beec99db919d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 45,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "How to use assembly in projects\r\n• Write the whole project in assembly\r\n– Link with high-level languages\r\n• Inline assembly\r\n• Intrinsics\r\n45",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/e52d6740-0109-469e-8f24-beec99db919d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=38afc88bc513a4ef859102e4ccadde65db7f9f919ef1a3d6169f163540127bd0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d42e8fdc-3546-4f26-8086-8f25b247786f",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 46,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Detect MMX/SSE\r\nmov eax, 1 ; request version info \r\ncpuid ; supported since Pentium\r\ntest edx, 00800000h ;bit 23\r\n ; 02000000h (bit 25) SSE\r\n ; 04000000h (bit 26) SSE2\r\njnz HasMMX\r\n46",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/d42e8fdc-3546-4f26-8086-8f25b247786f.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ee28cd802a247faad50bdd3e91b717fe638e0678d47cb4e20f1768626b2ac602",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "215c2a12-76bd-466e-83e5-9a89fcf5fbd6",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 47,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "cpuid\r\n47\r\n:\r\n:",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/215c2a12-76bd-466e-83e5-9a89fcf5fbd6.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=810039d37871a38ba64250beb0a1cbf54bfa3f6cd6c5c58543a7dbf10cf9f819",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "d0f2359e-7379-49b5-8ed8-af9f349c6b6b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 48,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/d0f2359e-7379-49b5-8ed8-af9f349c6b6b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2ca352bc5ecef5d196c6210073b5cab335e2be66eaeae580209deefa95d4ce93",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "677597dc-6ddb-483a-ae2d-36720603daae",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 49,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Link ASM and High-level Language programs\r\n• Assembly is rarely used to develop the entire program.\r\n• Use high-level language for overall project development\r\n– Relieves programmer from low-level details\r\n• Use assembly language code\r\n– Speed up critical sections of code\r\n– Access nonstandard hardware devices\r\n– Write platform-specific code\r\n– Extend the high-level language's capabilities\r\n49",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/677597dc-6ddb-483a-ae2d-36720603daae.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2840dd0ee7aa27dbeff98b1752657fdfc313b17fad01b3ce91bf3ab581ecfcac",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3db5d986-ccf8-4f01-9606-328c1b0b5baa",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 50,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "General conventions\r\n• Considerations when calling assembly language procedures from \r\nhigh-level languages:\r\n– Both must use the same naming convention (rules regarding the \r\nnaming of variables and procedures)\r\n– Both must use the same memory model, with compatible segment \r\nnames\r\n– Both must use the same calling convention\r\n50",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/3db5d986-ccf8-4f01-9606-328c1b0b5baa.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=003afb34c7dcf1e6f0eb7b83a12c70a7f410a9ef6d90188b6d47ef37c8938506",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2abc8cf2-63e4-43ba-9cef-c02811b51698",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 51,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Inline assembly code\r\n• Assembly language source code that is inserted directly into a \r\nHLL program.\r\n• Compilers such as Microsoft Visual C++ and Borland C++ \r\nhave compiler-specific directives that identify inline ASM \r\ncode.\r\n• Efficient inline code executes quickly because CALL and \r\nRET instructions are not required.\r\n• Simple to code because there are no external names, memory \r\nmodels, or naming conventions involved.\r\n• Decidedly not portable because it is written for a single \r\nplatform.\r\n51",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/2abc8cf2-63e4-43ba-9cef-c02811b51698.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e0c0754f6f3fc6c306d20303f9b095aaed4114eb8282cd2ddc4c75d3536b7949",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "318a04db-1b90-4462-a0d5-eeae68d5c8cb",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 52,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "__asm directive in Microsoft Visual C++\r\n• Can be placed at the beginning of a single statement\r\n• Or, It can mark the beginning of a block of assembly language \r\nstatements\r\n• Syntax:\r\n52\r\n__asm statement\r\n__asm {\r\n statement-1\r\n statement-2\r\n ...\r\n statement-n\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/318a04db-1b90-4462-a0d5-eeae68d5c8cb.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2c9ea256f41e068a42b4f4cf3725b4f6cdbb18846f80db83dd8f3374cc972619",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 486
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "db355deb-1e61-4d1b-92fc-2d46d08df509",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 53,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Intrinsics\r\n• An intrinsic is a function known by the compiler that directly \r\nmaps to a sequence of one or more assembly language \r\ninstructions. \r\n• The compiler manages things that the user would normally have \r\nto be concerned with, such as register names, register allocations, \r\nand memory locations of data. \r\n• Intrinsic functions are inherently more efficient than called \r\nfunctions because no calling linkage is required. But, not \r\nnecessarily as efficient as assembly.\r\n• _mm_<opcode>_<suffix>\r\n53\r\nps: packed single-precision\r\nss: scalar single-precision",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/db355deb-1e61-4d1b-92fc-2d46d08df509.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8a0ceaabbcbca8eab9f54f486036dd2f4705879b2ee9aa951a8051fd10ba88e0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "bc6aac57-2dd3-4cb0-a4e8-5b1fd9f42690",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 54,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Intrinsics\r\n#include <xmmintrin.h>\r\n__m128 a , b , c;\r\nc = _mm_add_ps( a , b );\r\nfloat a[4] , b[4] , c[4];\r\nfor( int i = 0 ; i < 4 ; ++ i )\r\n c[i] = a[i] + b[i];\r\n// a = b * c + d / e; \r\n__m128 a = _mm_add_ps( _mm_mul_ps( b , c ) , \r\n _mm_div_ps( d , e ) ); \r\n54",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/bc6aac57-2dd3-4cb0-a4e8-5b1fd9f42690.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f5735c12cb8a1738b00d5a789e952ebdcfd239771ab80f73e719591fd81bc4e3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "951a4c84-70c2-48cd-a96e-69551361c3b9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 55,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE features\r\n• Add eight 128-bit data registers (XMM registers) \r\n• Sixteen XMM registers are available in 64-bit mode\r\n• 32-bit MXCSR register (control and status)\r\n• Add a new data type\r\n– 4 single-precision floating-point numbers in a 128-bit register\r\n• New instructions: \r\n– Instruction to perform SIMD operations on 128-bit packed single\u0002precision FP \r\n– Additional 64-bit SIMD integer operations\r\n• Instructions that explicitly prefetch data, control data cacheability \r\nand ordering of store\r\n55",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/951a4c84-70c2-48cd-a96e-69551361c3b9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=72bc322573fec658b56626d2af6bd96c36cc88e749d07932ad36d54533d2b5f3",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1d888601-795d-4a13-bc7f-edddab5aeac7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 56,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "56\r\nAdvantages of SSE\r\nIn MMX\r\n• An application cannot execute MMX instructions and perform \r\nfloating-point operations simultaneously.\r\n• A large number of processor clock cycles are needed to change \r\nthe state of executing MMX instructions to the state of executing \r\nFP operations and vice versa. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/1d888601-795d-4a13-bc7f-edddab5aeac7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3ac5a475e554ba851809f3307ecd4defa11bc46bcbaf1d2527b61e17c3e1e202",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0181d187-cb59-4eb6-a936-b8c754869e98",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 57,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "57\r\nSSE programming environment\r\nXMM0\r\n|\r\nXMM7\r\nMM0\r\n|\r\nMM7\r\nEAX, EBX, ECX, EDX\r\nEBP, ESI, EDI, ESP",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/0181d187-cb59-4eb6-a936-b8c754869e98.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b1e0928236382c0cc9877ae2290de1766f0312fb2d190ae70b49aaf412a0eee5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "12a7f979-d23e-498e-894c-0786b869c3b0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 58,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Exception\r\n_MM_ALIGN16 float test1[4] = { 0, 0, 0, 1 }; \r\n_MM_ALIGN16 float test2[4] = { 1, 2, 3, 0 }; \r\n_MM_ALIGN16 float out[4]; \r\n_MM_SET_EXCEPTION_MASK(0);//enable exception \r\n__try { \r\n__m128 a = _mm_load_ps(test1); \r\n__m128 b = _mm_load_ps(test2); \r\na = _mm_div_ps(a, b); \r\n_mm_store_ps(out, a); \r\n} \r\n__except(EXCEPTION_EXECUTE_HANDLER) { \r\nif(_mm_getcsr() & _MM_EXCEPT_DIV_ZERO)\r\ncout << \"Divide by zero\" << endl;\r\nreturn; \r\n} \r\n58\r\nWithout this, result is 1.#INF",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/12a7f979-d23e-498e-894c-0786b869c3b0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=31663276e7e696e6a7d6c8c644d34fc0f49564c97ccaba0ad94b0bbe85a29bb1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c0e5db36-01ec-48a8-a4ee-5777dbb32f17",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 59,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "MXCSR control and status register\r\n59\r\nGenerally faster, but not compatible with IEEE 754",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/c0e5db36-01ec-48a8-a4ee-5777dbb32f17.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=006d29d21171b7dac8c879d6249fb52f6ca16fa34082d356d772093f084b8ac6",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "22e8f22b-df27-448e-9eb8-e9e0dbf8a5dd",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 60,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Packed FP Operation\r\nPacked single-precision FP\r\nADDPS, SUBPS, MULPS, DIVPS, RCPPS, SQRTPS, RSQRTPS,\r\nMAXPS, MINPS\r\n60",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/22e8f22b-df27-448e-9eb8-e9e0dbf8a5dd.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f9a3e292fb96ef8ba7ec1682b6b3915994d105e80e380a72e53ed3b580948a29",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f141964a-8e89-4c0e-8b23-732334996669",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 61,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Scalar FP Operation\r\n61\r\nScalar single-precision FP used as FPU\r\nADDSS, SUBSS, MULSS, DIVSS, RCPSS, SQRTSS, RSQRTSS,\r\nMAXSS, MINSS",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/f141964a-8e89-4c0e-8b23-732334996669.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6162542e7bf589d02c7f684ad8ef067b9a704286a9016bf5eb8fa635dd0c1925",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "6aefcd2b-0b2d-461b-ae04-7485695199a4",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 62,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Shuffle Packed Single-Precision (SHUFPS)\r\nSHUFPS xmm1, xmm2, imm8\r\nSelect [1..0] select DEST[0] from DEST // xmm1\r\nSelect [3..2] select DEST[1] from DEST\r\nSelect [5..4] select DEST[2] from SRC // xmm2\r\nSelect [7..6] select DEST[3] from SRC",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/6aefcd2b-0b2d-461b-ae04-7485695199a4.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2eca1e1f983ce318b77a5b3a6cc56d5ad608f69dd7a9d219b5569cfcf0c11b06",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e42131b3-2757-4610-bd7b-99f00a90f9e7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 63,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Shuffle Packed Single-Precision (SHUFPS) - 2",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/e42131b3-2757-4610-bd7b-99f00a90f9e7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fd3b4f14abed56ac995626269f83e7c72f7795cecec83b2519de21db763db0fc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3e48629f-921c-41ae-8db9-a41d0ac116ee",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 64,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Swap bytes with SHUFPS\r\n64",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/3e48629f-921c-41ae-8db9-a41d0ac116ee.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f413bdf7f44ebba9e0ec2c07ff855ec5fa8b5652c2038ea2ebfb910528a021bb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "2fff8b0f-beda-4a30-9fdf-40e969849fa7",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 65,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Broadcast with SHUFPS\r\n65",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/2fff8b0f-beda-4a30-9fdf-40e969849fa7.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b206cf501aec271720e1d5297821ac67bfe92bd1d595f3b9cc03ba354b78b62d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "34fab4ad-a0a5-4da5-b241-07071d7b0a6d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 66,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Rotate with SHUFPS\r\n66",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/34fab4ad-a0a5-4da5-b241-07071d7b0a6d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=890f5ba4529eb1f6958dd929898670e01be53c3e42ca9b2f066530db21b14bcc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cbb16f81-b5ad-4bef-8842-be03fd7546e0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 67,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Unpack Shuffle (UNPCKLPS and UNPCKHPS)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/cbb16f81-b5ad-4bef-8842-be03fd7546e0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d01f60b54cfeab21287b3b3aa1eb6945fee9496406adfc5a9870e9ea4c57c18c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "507d6e79-d522-49f4-8488-6e014790dfb1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 68,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE MOVLPS, MOVLHPS, MOVAPS\r\nMany types: SS, LPS, HPS, APS, UPS, HLPS, LHPS",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/507d6e79-d522-49f4-8488-6e014790dfb1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f9baffa902f1ad6016efd146c05dec6d1d56ba647fe5df8c39ecb24d4425f9fc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cba8aa55-ca26-4be0-ade6-61aedf0e2acc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 69,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Comparison for Single-precision FP\r\n69\r\nTwo versions: packed (ps) and scalar (ss)\r\nCMPEQPS, CMPNEQPS, CMPLTPS, CMPNLTPS, CMPLEPS, CMPNLEPS\r\nCMPEQSS, CMPNEQSS, CMPLTSS, CMPNLTSS, CMPLESS, CMPNLESS",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/cba8aa55-ca26-4be0-ade6-61aedf0e2acc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ae36015ff6a61e04b4f5f4340c9121f4cb9c9d1ed28236d21b3a8b2c298f254f",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 503
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "53925a4d-0f75-4726-ba81-ab5e9eae5d45",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 70,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Instruction Set (Floating-point Instructions) \r\n• Memory-to-Register / Register-to-Memory / Register-to-Register data movement \r\n– Scalar – MOVSS \r\n– Packed – MOVAPS, MOVUPS, MOVLPS, MOVHPS, MOVLHPS, \r\nMOVHLPS \r\n• Arithmetic \r\n– Scalar – ADDSS, SUBSS, MULSS, DIVSS, RCPSS, SQRTSS, MAXSS, \r\nMINSS, RSQRTSS \r\n– Packed – ADDPS, SUBPS, MULPS, DIVPS, RCPPS, SQRTPS, MAXPS, \r\nMINPS, RSQRTPS \r\n• Compare \r\n– Scalar – CMPSS, COMISS, UCOMISS \r\n– Packed – CMPPS \r\n• Data shuffle and unpacking \r\n– Packed – SHUFPS, UNPCKHPS, UNPCKLPS \r\n• Data-type conversion \r\n– Scalar – CVTSI2SS, CVTSS2SI, CVTTSS2SI \r\n– Packed – CVTPI2PS, CVTPS2PI, CVTTPS2PI \r\n• Bitwise logical operations \r\n– Packed – ANDPS, ORPS, XORPS, ANDNPS ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/53925a4d-0f75-4726-ba81-ab5e9eae5d45.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8f12fa366a13f307f3bb410c2f892de31a7e0ce7d5b19e47a08d981b20dc9bc1",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "9d9a2461-09c7-44ed-b0dd-c84f917d37de",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 71,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Instruction Set (Integer and Other)\r\nInteger instructions\r\n• Arithmetic \r\n– PMULHUW, PSADBW, PAVGB, PAVGW, PMAXUB, PMINUB, \r\nPMAXSW, PMINSW \r\n• Data movement \r\n– PEXTRW, PINSRW \r\n• Other \r\n– PMOVMSKB, PSHUFW \r\nOther instructions\r\n• MXCSR management \r\n– LDMXCSR, STMXCSR \r\n• Cache and Memory management \r\n– PREFETCH0, PREFETCH1, PREFETCHNTA\r\n– MOVNTQ, MOVNTPS, MASKMOVQ, SFENCE ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/9d9a2461-09c7-44ed-b0dd-c84f917d37de.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a6da7ce02ae3d624feb39a368f42b9d53922cbef2e97d8b2a103aa2eb936fe4f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f0ad2a03-a90b-45e6-894b-170f55e9ab93",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 72,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: Packed Floating-point Addition\r\nvoid add(float *a, float *b, float *c) {\r\n for (int i = 0; i < 4; i++)\r\n c[i] = a[i] + b[i];\r\n}\r\n__asm {\r\nmov eax, a\r\nmov edx, b\r\nmov ecx, c\r\nmovaps xmm0, XMMWORD PTR [eax]\r\naddps xmm0, XMMWORD PTR [edx]\r\nmovaps XMMWORD PTR [ecx], xmm0\r\n}\r\nmovaps: move aligned packed SP FP\r\naddps: add packed SP FP",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/f0ad2a03-a90b-45e6-894b-170f55e9ab93.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=43e9ca4b1790a86b7939309c9e7d00cf7f81c037ff783579e3412b3aef6d7c80",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "20e6dacf-10d0-4bc7-b5f8-60324357bc33",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 73,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: PS Addition with Intrinsics\r\n_MM_ALIGN16 float input1[4]\r\n = { 1.2f, 3.5f, 1.7f, 2.8f }; \r\n_MM_ALIGN16 float input2[4]\r\n = { -0.7f, 2.6f, 3.3f, -0.8f }; \r\n_MM_ALIGN16 float output[4]; \r\n__m128 a = _mm_load_ps(input1); \r\n__m128 b = _mm_load_ps(input2); \r\n__m128 t = _mm_add_ps(a, b); \r\n_mm_store_ps(output, t);",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/20e6dacf-10d0-4bc7-b5f8-60324357bc33.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5a4e2b3d8ea342d388fdbb79f9881924ed217407309e75d49f98d6db9925405e",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a04f5691-5b23-4305-af2c-4087d2bb9694",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 74,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: Cross Product (C code)\r\nVector cross(const Vector& a , const Vector& b ) {\r\n return Vector(\r\n ( a[1] * b[2] - a[2] * b[1] ) ,\r\n ( a[2] * b[0] - a[0] * b[2] ) ,\r\n ( a[0] * b[1] - a[1] * b[0] ) );\r\n}",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/a04f5691-5b23-4305-af2c-4087d2bb9694.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f5f7129dc0ddbf9c91395daa22f109620c4b227c272de54fd0ee9bada9140b2c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "1bcf820b-748f-49a6-8617-d04ca38e7b1c",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 75,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: Cross Product\r\n__m128 _mm_cross_ps( __m128 a , __m128 b ) {\r\n__m128 ea , eb;\r\n// set to a[1][2][0][3] , b[2][0][1][3]\r\nea = _mm_shuffle_ps( a, a, _MM_SHUFFLE(3,0,2,1) );\r\neb = _mm_shuffle_ps( b, b, _MM_SHUFFLE(3,1,0,2) );\r\n// multiply\r\n__m128 xa = _mm_mul_ps( ea , eb );\r\n// set to a[2][0][1][3] , b[1][2][0][3]\r\na = _mm_shuffle_ps( a, a, _MM_SHUFFLE(3,1,0,2) );\r\nb = _mm_shuffle_ps( b, b, _MM_SHUFFLE(3,0,2,1) );\r\n__m128 xb = _mm_mul_ps( a , b ); // multiply\r\nreturn _mm_sub_ps( xa , xb ); // subtract\r\n}\r\n75",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/1bcf820b-748f-49a6-8617-d04ca38e7b1c.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a3c796c3aaec6da76f9e5f69cb13100c5dd299ea6d2ede7d840ca9c403488951",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5bb1824f-363d-4da7-a68c-46d4e19e0ace",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 76,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: Dot Product\r\n• Given a set of vectors {v1,v2,…vn}={(x1,y1,z1), (x2,y2,z2),…, \r\n(xn,yn,zn)} and a vector vc=(xc,yc,zc), calculate {vcvi}\r\n• Two options for memory layout\r\n• Array of structure (AoS)\r\ntypedef struct { float dc, x, y, z; } Vertex;\r\nVertex v[n];\r\n• Structure of array (SoA)\r\ntypedef struct { float x[n], y[n], z[n]; }\r\n VerticesList;\r\nVerticesList v;\r\n76",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/5bb1824f-363d-4da7-a68c-46d4e19e0ace.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2a2f12af404f3514cc9a7ce8ce5c814d1be72b9bd971df01092e5d6075924e61",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 458
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "83282e4f-2d4c-4c73-bbe7-8577e131c123",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 77,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: Dot Product (AoS)\r\nmovaps xmm0, v ; xmm0 = DC, x0, y0, z0\r\nmovaps xmm1, vc ; xmm1 = DC, xc, yc, zc\r\nmulps xmm0, xmm1 ; xmm0 = DC,x0*xc,y0*yc,z0*zc\r\nmovhlps xmm1, xmm0 ;xmm1 = DC, DC, DC,x0*xc\r\naddps xmm1, xmm0 ; xmm1 = DC, DC, DC, x+z\r\n ; x0*xc+z0*zc\r\nmovaps xmm2, xmm0\r\nshufps xmm2, xmm2, 55h ; xmm2=DC, DC, DC,y0*yc\r\naddps xmm1, xmm2 ; xmm1 = DC, DC, DC,x+y+z\r\n ; x0*xc+y0*yc+z0*zc\r\n77\r\nmovhlps:DEST[63..0] := SRC[127..64]",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/83282e4f-2d4c-4c73-bbe7-8577e131c123.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=18ee0c66d6ab82f8a4064e0b5fb3dcfd9fedab5aa6451e72c3d0d2662fbfa52d",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "e3a4fce2-6a67-4a53-9db8-422ec5cf52be",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 78,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: Dot Product (SoA)\r\n; X = x1,x2,...,x3\r\n; Y = y1,y2,...,y3\r\n; Z = z1,z2,...,z3\r\n; A = xc,xc,xc,xc\r\n; B = yc,yc,yc,yc\r\n; C = zc,zc,zc,zc\r\nmovaps xmm0, X ; xmm0 = x1,x2,x3,x4\r\nmovaps xmm1, Y ; xmm1 = y1,y2,y3,y4\r\nmovaps xmm2, Z ; xmm2 = z1,z2,z3,z4\r\nmulps xmm0, A ;xmm0=x1*xc,x2*xc,x3*xc,x4*xc\r\nmulps xmm1, B ;xmm1=y1*yc,y2*yc,y3*xc,y4*yc\r\nmulps xmm2, C ;xmm2=z1*zc,z2*zc,z3*zc,z4*zc\r\naddps xmm0, xmm1\r\naddps xmm0, xmm2 ;xmm0=(x0*xc+y0*yc+z0*zc)…\r\n78",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/e3a4fce2-6a67-4a53-9db8-422ec5cf52be.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2a9aeb5d3fae6d3dae37cdcbba115e1eea3b7489c442d01319cb1d3e729e04db",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "87af3dc4-ef07-49f0-b2e5-eb1f9326710e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 79,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: Dot Product (SoA), Intrinsics\r\n__m128 x1 = _mm_load_ps(vec1_x); \r\n__m128 y1 = _mm_load_ps(vec1_y); \r\n__m128 z1 = _mm_load_ps(vec1_z); \r\n__m128 x2 = _mm_load_ps(vec2_x); \r\n__m128 y2 = _mm_load_ps(vec2_y); \r\n__m128 z2 = _mm_load_ps(vec2_z); \r\n__m128 t1 = _mm_mul_ps(x1, x2); // x1 * x2\r\n__m128 t2 = _mm_mul_ps(y1, y2); // y1 * y2\r\n t1 = _mm_add_ps(t1, t2); // x + y\r\n t2 = _mm_mul_ps(z1, z2); // z1 * z2\r\n t1 = _mm_add_ps(t1, t2); // x + y + z\r\n_mm_store_ps(output, t1); ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/87af3dc4-ef07-49f0-b2e5-eb1f9326710e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5c88bd2beda7f9d3c93851ced0c3cfeabfdfc3c1f0f21d94517e17f09f1fadf0",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "34e68fde-44a6-4b94-8a5e-89107871647e",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 80,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Cache Control\r\n• prefetch (_mm_prefetch): a hint for CPU to load operands \r\nfor the next instructions so that data loading can be executed in \r\nparallel with computation.\r\n• movntps (_mm_stream_ps): ask CPU not to write data into \r\ncache, but to the memory directly.\r\n80",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/34e68fde-44a6-4b94-8a5e-89107871647e.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6548042e7b428dfc292abef3a246155f1dc3409b7060690410bc897a85891fa2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "68b1aefc-a805-418f-86dd-68e94c0178c0",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 81,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: Dot Product with Prefetch\r\n__m128 x1 = _mm_load_ps(vec1_x); \r\n__m128 y1 = _mm_load_ps(vec1_y); \r\n__m128 z1 = _mm_load_ps(vec1_z); \r\n__m128 x2 = _mm_load_ps(vec2_x); \r\n__m128 y2 = _mm_load_ps(vec2_y); \r\n__m128 z2 = _mm_load_ps(vec2_z); \r\n_mm_prefetch((const char*)(vec1_x + next), _MM_HINT_NTA); \r\n_mm_prefetch((const char*)(vec1_y + next), _MM_HINT_NTA); \r\n_mm_prefetch((const char*)(vec1_z + next), _MM_HINT_NTA);\r\n_mm_prefetch((const char*)(vec2_x + next), _MM_HINT_NTA); \r\n_mm_prefetch((const char*)(vec2_y + next), _MM_HINT_NTA); \r\n_mm_prefetch((const char*)(vec2_z + next), _MM_HINT_NTA); \r\n// 1.5x speedup\r\n…\r\n81",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/68b1aefc-a805-418f-86dd-68e94c0178c0.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=39fe826d76ac71e3d19d9819190eb721d979c1a14e10a7bafbf087e10116f5eb",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "4b69b93c-9550-4add-89fa-2beef3a98bed",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 82,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE Example: Exponential Function\r\nfloat result = coeff[8] * x; \r\nint i; \r\nfor(i = 7; i >= 2; i--) { \r\nresult += coeff[i]; \r\nresult *= x; \r\n} \r\nreturn (result + 1) * x + 1; \r\n82 ...\r\n2! 3! 4!\r\n1\r\n2 3 4\r\n     \r\nx x x\r\ne x\r\nx",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/4b69b93c-9550-4add-89fa-2beef3a98bed.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cfe0eff4cfe1bb2199506de45b35ac2b8abc77978dab89a60325b9531d150814",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "99cc45a7-845b-46d8-a8ce-fc1c46ef01fc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 83,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Example: Exponential with Intrinsics\r\nint i; \r\n__m128 X = _mm_load_ps(data); \r\n__m128 result = _mm_mul_ps(X,coeff_sse[8]); \r\nfor(i = 7; i >=2; i--) { \r\nresult = _mm_add_ps(result, coeff_sse[i]); \r\nresult = _mm_mul_ps(result, X); \r\n} \r\nresult = _mm_add_ps(result, sse_one); \r\nresult = _mm_mul_ps(result, X); \r\nresult = _mm_add_ps(result, sse_one); \r\n_mm_store_ps(out, result); \r\n83",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/99cc45a7-845b-46d8-a8ce-fc1c46ef01fc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8f07f7a35526ba3c38c9ba0b55d58257fafae6edd59baee64fcc04384b3c5774",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "695e401c-339b-42de-a5b9-f2e3014f2696",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 84,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "84\r\nSSE2\r\n• Introduced into the IA-32 architecture in the Pentium 4 and Intel \r\nXeon processors in 2001\r\n• Allowing advanced graphics such as 3-D graphics, video \r\ndecoding/encoding, speech recognition\r\n• What is new? \r\n– SIMD operations on 128-bit packed double-precision FP\r\n– SIMD operations on 128-bit packed 64-bit integers\r\n• Offers more flexibility in big numbers\r\n• 144 new instructions\r\n• AMD didn't support SSE2 until 2003, with their Opteron and \r\nAthlon64 processors ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/695e401c-339b-42de-a5b9-f2e3014f2696.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8bfbc0d6fd59f843b8eb83ebe78ed62952e71b61e66a8c533f5aba26aaa4062c",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 509
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "5e78920f-d159-479d-9956-ef526db7b7bc",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 85,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE2 Features\r\n• Add data types and instructions for them\r\n• Programming environment unchanged (also packed and scalar)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/5e78920f-d159-479d-9956-ef526db7b7bc.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c4ecdc508f4a6d808a74ca0f8c6cbac924d9d6acb83c82770c80a4bf030d9c63",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "feff9a4c-961f-4425-a166-77b24dabdac1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 86,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE2 Instructions (ARITHMETIC)\r\naddpd - Adds 2 64bit doubles.\r\naddsd - Adds bottom 64bit doubles.\r\nsubpd - Subtracts 2 64bit doubles.\r\nsubsd - Subtracts bottom 64bit doubles.\r\nmulpd - Multiplies 2 64bit doubles.\r\nmulsd - Multiplies bottom 64bit doubles.\r\ndivpd - Divides 2 64bit doubles.\r\ndivsd - Divides bottom 64bit doubles.\r\nmaxpd - Gets largest of 2 64bit doubles for 2 sets.\r\nmaxsd - Gets largest of 2 64bit doubles to bottom set.\r\nminpd - Gets smallest of 2 64bit doubles for 2 sets.\r\nminsd - Gets smallest of 2 64bit values for bottom set.\r\npaddb - Adds 16 8bit integers.\r\npaddw - Adds 8 16bit integers.\r\npaddd - Adds 4 32bit integers.\r\npaddq - Adds 2 64bit integers.\r\npaddsb - Adds 16 8bit integers with saturation.\r\npaddsw - Adds 8 16bit integers using saturation.\r\npaddusb - Adds 16 8bit unsigned integers using saturation.\r\npaddusw - Adds 8 16bit unsigned integers using saturation.\r\npsubb - Subtracts 16 8bit integers.\r\npsubw - Subtracts 8 16bit integers.\r\npsubd - Subtracts 4 32bit integers.\r\npsubq - Subtracts 2 64bit integers.\r\npsubsb - Subtracts 16 8bit integers using saturation.\r\npsubsw - Subtracts 8 16bit integers using saturation.\r\npsubusb - Subtracts 16 8bit unsigned integers using saturation.\r\npsubusw - Subtracts 8 16bit unsigned integers using saturation.\r\npmaddwd - Multiplies 16bit integers into 32bit results and adds results.\r\npmulhw - Multiplies 16bit integers and returns the high 16bits of the result.\r\npmullw - Multiplies 16bit integers and returns the low 16bits of the result.\r\npmuludq - Multiplies 2 32bit pairs and stores 2 64bit results.\r\nrcpps - Approximates the reciprocal of 4 32bit singles.\r\nrcpss - Approximates the reciprocal of bottom 32bit single.\r\nsqrtpd - Returns square root of 2 64bit doubles.\r\nsqrtsd - Returns square root of bottom 64bit double. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/feff9a4c-961f-4425-a166-77b24dabdac1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=93c23f03def4151f3035cc4f90d750016739b3fca8a45ff37aebbdab99aba4a2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b271bc0b-8014-4155-ac4c-b1851054ac86",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 87,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE2 Instructions (Logic)\r\nandnpd - Logically NOT ANDs 2 64bit doubles.\r\nandnps - Logically NOT ANDs 4 32bit singles.\r\nandpd - Logically ANDs 2 64bit doubles.\r\npand - Logically ANDs 2 128bit registers.\r\npandn - Logically Inverts the first 128bit operand and ANDs \r\nwith the second.\r\npor - Logically ORs 2 128bit registers.\r\npslldq - Logically left shifts 1 128bit value.\r\npsllq - Logically left shifts 2 64bit values.\r\npslld - Logically left shifts 4 32bit values.\r\npsllw - Logically left shifts 8 16bit values.\r\npsrad - Arithmetically right shifts 4 32bit values.\r\npsraw - Arithmetically right shifts 8 16bit values.\r\npsrldq - Logically right shifts 1 128bit values.\r\npsrlq - Logically right shifts 2 64bit values.\r\npsrld - Logically right shifts 4 32bit values.\r\npsrlw - Logically right shifts 8 16bit values.\r\npxor - Logically XORs 2 128bit registers.\r\norpd - Logically ORs 2 64bit doubles.\r\nxorpd - Logically XORs 2 64bit doubles.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/b271bc0b-8014-4155-ac4c-b1851054ac86.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=50510051ca0aa97ba29b91678dcdd8d1cdf310a2bccb7f307e5f4c382fed7df5",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 467
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "ad2b3c25-6232-406f-b434-33581dfac4ab",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 88,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE2 Instructions (Compare)\r\ncmppd - Compares 2 pairs of 64bit doubles. \r\ncmpsd - Compares bottom 64bit doubles.\r\ncomisd - Compares bottom 64bit doubles and stores result in \r\nEFLAGS.\r\nucomisd - Compares bottom 64bit doubles and stores result in \r\nEFLAGS. (QNaNs don't throw exceptions with ucomisd, unlike \r\ncomisd.\r\npcmpxxb - Compares 16 8bit integers.\r\npcmpxxw - Compares 8 16bit integers.\r\npcmpxxd - Compares 4 32bit integers.\r\nCompare Codes (the xx parts above):\r\neq - Equal to.\r\nlt - Less than.\r\nle - Less than or equal to.\r\nne - Not equal.\r\nnlt - Not less than.\r\nnle - Not less than or equal to.\r\nord - Ordered.\r\nunord - Unordered.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/ad2b3c25-6232-406f-b434-33581dfac4ab.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=652027d06bf09f3020418abc6e39ea4b82bd46a565c5ec06ae1574e2b3255c7c",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "5eb57800-858c-480c-ba4f-0e0afab706fe",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 89,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE2 Instructions (Conversion)\r\ncvtdq2pd - Converts 2 32bit integers into 2 64bit doubles.\r\ncvtdq2ps - Converts 4 32bit integers into 4 32bit singles.\r\ncvtpd2pi - Converts 2 64bit doubles into 2 32bit integers in an MMX register.\r\ncvtpd2dq - Converts 2 64bit doubles into 2 32bit integers in the bottom of an XMM \r\nregister.\r\ncvtpd2ps - Converts 2 64bit doubles into 2 32bit singles in the bottom of an XMM \r\nregister.\r\ncvtpi2pd - Converts 2 32bit integers into 2 32bit singles in the bottom of an XMM \r\nregister.\r\ncvtps2dq - Converts 4 32bit singles into 4 32bit integers.\r\ncvtps2pd - Converts 2 32bit singles into 2 64bit doubles.\r\ncvtsd2si - Converts 1 64bit double to a 32bit integer in a GPR.\r\ncvtsd2ss - Converts bottom 64bit double to a bottom 32bit single. Tops are \r\nunchanged.\r\ncvtsi2sd - Converts a 32bit integer to the bottom 64bit double.\r\ncvtsi2ss - Converts a 32bit integer to the bottom 32bit single.\r\ncvtss2sd - Converts bottom 32bit single to bottom 64bit double.\r\ncvtss2si - Converts bottom 32bit single to a 32bit integer in a GPR.\r\ncvttpd2pi - Converts 2 64bit doubles to 2 32bit integers using truncation into an \r\nMMX register.\r\ncvttpd2dq - Converts 2 64bit doubles to 2 32bit integers using truncation.\r\ncvttps2dq - Converts 4 32bit singles to 4 32bit integers using truncation.\r\ncvttps2pi - Converts 2 32bit singles to 2 32bit integers using truncation into an \r\nMMX register.\r\ncvttsd2si - Converts a 64bit double to a 32bit integer using truncation into a GPR.\r\ncvttss2si - Converts a 32bit single to a 32bit integer using truncation into a GPR.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/5eb57800-858c-480c-ba4f-0e0afab706fe.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3f0b2fd1c694e9656eb0476fb10ffa825f7583fa90394495d5408e985ce7f4c4",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "401e1f74-da85-43c3-a4c5-451b4cb95802",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 90,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE2 Instructions",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/401e1f74-da85-43c3-a4c5-451b4cb95802.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3bbeab2c9c8c53d65ecfdf82f193325264f59abf541247fd7e256ad3cefd16b9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 377
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "37f2d8f0-1d4d-4cff-ba4c-8d8acfd6b6e2",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 91,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "91\r\nSSE2 Instructions\r\nLoad/Store:\r\n(is \"minimize cache pollution\" the same as \"without using cache\"??)\r\nmovq - Moves a 64bit value, clearing the top 64bits of an XMM register.\r\nmovsd - Moves a 64bit double, leaving tops unchanged if move is between two \r\nXMMregisters.\r\nmovapd - Moves 2 aligned 64bit doubles.\r\nmovupd - Moves 2 unaligned 64bit doubles.\r\nmovhpd - Moves top 64bit value to or from an XMM register.\r\nmovlpd - Moves bottom 64bit value to or from an XMM register.\r\nmovdq2q - Moves bottom 64bit value into an MMX register.\r\nmovq2dq - Moves an MMX register value to the bottom of an XMM register. Top is \r\ncleared to zero.\r\nmovntpd - Moves a 128bit value to memory without using the cache. NT is \"Non \r\nTemporal.\"\r\nmovntdq - Moves a 128bit value to memory without using the cache.\r\nmovnti - Moves a 32bit value without using the cache.\r\nmaskmovdqu - Moves 16 bytes based on sign bits of another XMM register.\r\npmovmskb - Generates a 16bit Mask from the sign bits of each byte in an XMM \r\nregister.",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/37f2d8f0-1d4d-4cff-ba4c-8d8acfd6b6e2.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=18d34b12ec7f19784d6d3e8c6c2f720bae3bc3ebb9b09b82873c275adbfec879",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f91bea81-ac47-4e34-8a85-0fd732824904",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 92,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "92\r\nSSE2 Instructions\r\nShuffling:\r\npshufd - Shuffles 32bit values in a complex way.\r\npshufhw - Shuffles high 16bit values in a complex way.\r\npshuflw - Shuffles low 16bit values in a complex way.\r\nunpckhpd - Unpacks and interleaves top 64bit doubles from 2 128bit sources into 1.\r\nunpcklpd - Unpacks and interleaves bottom 64bit doubles from 2 128 bit sources into 1.\r\npunpckhbw - Unpacks and interleaves top 8 8bit integers from 2 128bit sources into 1.\r\npunpckhwd - Unpacks and interleaves top 4 16bit integers from 2 128bit sources into 1.\r\npunpckhdq - Unpacks and interleaves top 2 32bit integers from 2 128bit sources into 1.\r\npunpckhqdq - Unpacks and interleaces top 64bit integers from 2 128bit sources into 1.\r\npunpcklbw - Unpacks and interleaves bottom 8 8bit integers from 2 128bit sources into 1.\r\npunpcklwd - Unpacks and interleaves bottom 4 16bit integers from 2 128bit sources into 1.\r\npunpckldq - Unpacks and interleaves bottom 2 32bit integers from 2 128bit sources into 1.\r\npunpcklqdq - Unpacks and interleaces bottom 64bit integers from 2 128bit sources into 1.\r\npackssdw - Packs 32bit integers to 16bit integers using saturation.\r\npacksswb - Packs 16bit integers to 8bit integers using saturation.\r\npackuswb - Packs 16bit integers to 8bit unsigned integers unsing saturation.\r\nCache Control:\r\nclflush - Flushes a Cache Line from all levels of cache.\r\nlfence - Guarantees that all memory loads issued before the lfence instruction are completed before \r\nanyloads after the lfence instruction.\r\nmfence - Guarantees that all memory reads and writes issued before the mfence instruction are completed \r\nbefore any reads or writes after the mfence instruction.\r\npause - Pauses execution for a set amount of time. ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/f91bea81-ac47-4e34-8a85-0fd732824904.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7aa78ca32c50ea4ca0047ae14f87e0aa31ef9ae435672fdb8348f7351a5fc732",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 457
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "8acc93be-4cc9-444d-a4a2-cd9dc8bd3902",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 93,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE3/SSSE3/SSE4\r\n• Introduced for Pentium 4 processor supporting Hyper-Threading \r\nTechnology in 2004.\r\n• The Intel Xeon processor 5100 series, Intel Core 2 processor \r\nfamilies introduced Supplemental Streaming SIMD Extensions 3 \r\n(SSSE3)\r\n• SSE4 are introduced in Intel processor generations built from \r\n45nm process technology in 2006\r\n• SSE3/SSSE3/SSE4 do not introduce new data types \r\n– XMM registers are used to operate on packed data types\r\n• integer, single-precision FP, or double-precision FP",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/8acc93be-4cc9-444d-a4a2-cd9dc8bd3902.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=09ca3ed3c84573cd982771268d374392c1c57fbff1853edbc51c450c1c61f015",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "f2f3c7c2-d03a-4de5-972b-761af609f66b",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 94,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE3\r\n• 13 new instructions\r\n– Support horizontal operations across a single register \r\n• Instead of down through multiple registers \r\n– Asymmetric processing\r\n• Unaligned access instructions are new type of instructions\r\n• Process control instructions to boost performance with Intel's \r\nhyper-threading feature\r\n• AMD started to support SSE3 in 2005 ",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/f2f3c7c2-d03a-4de5-972b-761af609f66b.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f9e10554b2b43e26d10393c1b79b7da07e5a6ab886650c7f91292132c350343f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b17a4ff0-d417-4ada-89ae-974755bed36d",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 95,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "95\r\nSSE3 Instructions ADDSUBPD\r\nAsymmetric processing: ADDSUBPD \r\nAdd and Sub of packed double-precision FP\r\nThe second operand may be from memory",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/b17a4ff0-d417-4ada-89ae-974755bed36d.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a369b96fd09e4967815a26fa56fb8dd2c1a955afeab9ecff5a6c4916c7a2ad36",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a3c3c74d-74ba-4a56-9ea6-ef77f3edf364",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 96,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "96\r\nSSE3 Instructions: HADDPD\r\nHorizontal data movement: HADDPD\r\nHorizontal add of packed double-precision FP \r\nThe second operand may be from memory",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/a3c3c74d-74ba-4a56-9ea6-ef77f3edf364.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ae3f807a0768e55d66ba3ccbe622121425541c8c0a8abb89094a76f1d36219ff",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a0712bc6-336e-477a-b284-581d1c0213e5",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 97,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE3 Instructions Summary\r\nArithmetic:\r\naddsubpd – DP. Additon on higher pair, subtraction on lower pair (+, - ).\r\naddsubps – SP. Two adds and two subs interleaved (+, -, +, -).\r\nhaddpd – DP. Horizontal addition. (src1+src0, dst1+dst0)\r\nhaddps – SP. Horizontal addition. (src3+src2, src1+src0, dst3+dst2, dst1+dst0)\r\nhsubpd – DP. Horizontal addition. (src1+src0, dst1+dst0) \r\nhsubps – SP. Horizontal addition. (src3+src2, src1+src0, dst3+dst2, dst1+dst0)\r\nLoad/Store:\r\nlddqu – Loads an unaligned 128bit value\r\nmovddup – Loads or move a DP into lower half and duplicate to the higher\r\nmovshdup – Duplicates the higher singles. (src3, src3, src1, src1)\r\nmovsldup – Duplicates the lower singles. (src2, src2, src0, src0)\r\nfisttp – Converts a floating-point value to an integer using truncation\r\nProcess Control:\r\nmonitor – Sets up a region to monitor for activity\r\nmwait – Waits until activity happens in a region specified by monitor",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/a0712bc6-336e-477a-b284-581d1c0213e5.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=6bc464c4596cf49557002f615cd51e1874674b8ee628195dd10d7b68e48925d8",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "862de907-6142-4920-b153-a7972c2678c9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 98,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSSE3\r\n• New 32 instructions designed for to accelerate a variety of \r\nmultimedia and signal processing applications\r\n– Only 16, for both MMX and XMM\r\n• Integer data types include packed byte, word, or double word \r\n• Operands can be 64 or 128 bit in MMX registers, XMM \r\nregisters, or memory",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/862de907-6142-4920-b153-a7972c2678c9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=08a1dd00d3b6cf650eb98a85556a67675725516c8f7201085ccec776c5382113",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3a96abca-c9cc-41e3-b032-61f9368e9085",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 99,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "99\r\nSSSE3 Instructions: PHADDD\r\nHorizontal data movement: PHADDD\r\nHorizontal add of packed DW \r\nThe second operand may be from memory",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/3a96abca-c9cc-41e3-b032-61f9368e9085.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f53b5fe51f8b186b573c237f705033d1f42f40cf60190ecc458bbd47a0ada6e5",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "cb1fb859-f07b-40e6-be99-de972f8833ea",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 100,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSSE3 Instructions Summary\r\n• 12 for horizontal addition or subtraction operations\r\n– ADDW, ADDD, ADDSW, and three for SUB\r\n• 6 for evaluating absolute values\r\n– PABSB, PABSW, PABSD\r\n• 2 for multiply and add operations \r\n– PMADDUBSW (byte mul, add pairs, and to saturated words)\r\n– Speed up dot products\r\n• 2 for packed-integer multiply operations \r\n– PMULHRSW (Q.15 multiplications, with rounding and scaling)\r\n• 2 for a byte-wise, in-place shuffle\r\n– PSHUFB (similar to PERMUTE)\r\n• 6 instructions negating packed integers in the destination\r\n– B, W, and D version\r\n• 2 for alignment data from the composite of two operands\r\n– PALIGNR (similar to SHIFT PAIR)",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/cb1fb859-f07b-40e6-be99-de972f8833ea.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=72d667cace37c44be71de5a94dc3fc8ff99828dc880dfb283636afd340055941",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 486
+      },
+      {
+        "segments": [
+          {
+            "segment_id": "6827f027-7495-418c-a26e-1238afdcad22",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 101,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE4\r\n• SSE4 comprises of two sets of extensions\r\n– SSE4.1 includes 47 new instructions\r\n• Targets media, imaging and 3D graphics\r\n• Adds instructions for improving compiler vectorization \r\n• Significantly increases support for packed dword computation\r\n– SSE4.2 has 7 new instructions\r\n• Improves performance in string and text processing\r\n• Registers\r\n– Two SSE4.2 instructions operate on general-purpose registers\r\n– All other instructions operate on XMM registers\r\n• No MMX registers \r\n101",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/6827f027-7495-418c-a26e-1238afdcad22.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=17e70d99b21b1afdb431ebcd54d4bb213999a3dc6378279ac1f0da7afdb0fe85",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "0df325a7-3c17-4963-8313-002d7b8e0b0a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 102,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE4.1 Instructions Summary (1)\r\n• Six instructions for conditional copying\r\n– BLENDPS, BLENDPD, BLENDVPS, BLENDVPD\r\n– PBLENDVB, PBLENDW\r\n• Eight instructions expand support for packed integer MIN/MAX\r\n– PMINSB, PMINUW, PMINUD, PMINSD and PMAX versions\r\n• Four instructions for floating-point rounding \r\n– ROUNDPS, ROUNDSS, ROUNDPD, ROUNDSD\r\n– One of the four rounding modes specified by an immediate\r\n• Seven instructions for data insertion and extractions\r\n– INSERTPS, PINSRB, PINSRD/Q\r\n– EXTRACTPS, PEXTRB, PEXTRW, PEXTRD/PEXTRQ\r\n• Twelve instructions converting packed integer format to D\r\n– PMOVSXBW, PMOVZXBW, also BQ, WD, WQ, DQ\r\n– Sign and zero extensions",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/0df325a7-3c17-4963-8313-002d7b8e0b0a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c4520d74f3356f8419c721ffc0f06d0b8a78dc02465678aaf679007d4b733849",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "893be7a4-4ea5-4352-8b1b-3b2bf5249138",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 103,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE 4.1 Insructions Summary (2)\r\n• Two instructions perform packed DW multiplications\r\n– PMULDQ, 32-bit to 64-bit, two DW from the source are used\r\n– PMULLD, 32-bit to 32-bit\r\n• Two instructions floating-point dot products\r\n– DPPS, dot product of PS, result in any (one or more) locations\r\n– DPPD, dot product of PD\r\n• MPSADBW – Computes 8 offset sums of absolute differences\r\n• PTEST – Compare two 128 bits values and set ZF and CF flags\r\n• PCMPEQQ – QD equality comparison\r\n• PACKUSDW – Signed DW to unsigned W with saturation\r\n• MOVNTDQA – Move DQ \r\n• PHMINPOSUW – Packed horizontal word minimum\r\n– Value in lower 16 bits and 3-bit index are bits 16 – 18\r\n103",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/893be7a4-4ea5-4352-8b1b-3b2bf5249138.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=466fa05c9c0dbf24ff621ed03fbb64869ba8aed9a8e64ac9aad323f294b06f29",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "a743e03d-fdd2-4d89-9b23-26f1b18c53d9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 104,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE 4.1 BLEND Instructions\r\n• Copy PS of PD from SRC if the control bit is 1\r\n– PS needs four bits while PD needs only two bits\r\n• V versions use XMM0 as control\r\n– Use the MSB\r\n104",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/a743e03d-fdd2-4d89-9b23-26f1b18c53d9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a1fe7856c363e3d5404c371a776f0ccf907b3b673d1ba1e8af321c9f20afcf0f",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "909e8550-82a0-431e-a65a-62959f609246",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 105,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "SSE4.2 Instructions\r\n• CRC32 – Use the polynomial 0x11EDC6F41 \r\n– R32 or R64 mode\r\n• Four string comparison instructions \r\n– PCMPESTRI\r\n– PCMPESTRM\r\n– PCMPISTRI\r\n– PCMPISTRM\r\n• PCMPGTQ – Compare packed QW for greater than\r\n• POPCNT – Population count\r\n• LZCNT – Leading zero count",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/909e8550-82a0-431e-a65a-62959f609246.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b85c67ed5860d71f667d1fddccd92b41acaff67b48c06a9040591dc6fd785e2a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "44342c7e-1974-4846-b9dd-0875ddde8ab1",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 106,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Other SIMD architectures\r\n• Graphics Processing Unit (GPU): nVidia 7800, 24 pipelines (8 \r\nvector/16 fragment)\r\n106",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/44342c7e-1974-4846-b9dd-0875ddde8ab1.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ef07b1db7391fa5301e33537edf46ae20c69480ef78995f84ea14bbfcbcbbdbc",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "24680741-94c2-4557-8751-2eb8bb482ba9",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 107,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "NVidia GeForce 8800, 2006\r\n• Each GeForce 8800 GPU stream processor is a fully generalized, \r\nfully decoupled, scalar, processor that supports IEEE 754 \r\nfloating point precision. \r\n• Up to 128 stream processors\r\n107",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/24680741-94c2-4557-8751-2eb8bb482ba9.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a5398aeb36f5b8c0b79218841452de5a15e1e72fb5f7ca7612c66ce3bb5f54a2",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "3eb7182c-222c-4097-a702-e33339abeb0a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 108,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Cell processor\r\n• Cell Processor (IBM/Toshiba/Sony): 1 PPE (Power Processing \r\nUnit) +8 SPEs (Synergistic Processing Unit)\r\n• An SPE is a RISC processor with 128-bit SIMD for \r\nsingle/double precision instructions, 128 128-bit registers, 256K \r\nlocal cache\r\n• used in PS3.\r\n108",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/3eb7182c-222c-4097-a702-e33339abeb0a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=05e9fd7c742852a0abda85798afe254d9f5818e926c3e3526b032dd035b49ce7",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "b29f0837-b0bb-4150-9ee0-c8dbc0714b7a",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 109,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "Cell processor\r\n109",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/b29f0837-b0bb-4150-9ee0-c8dbc0714b7a.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=30875e029d93013e9d0847403a794d55e92d2714f2e16133b15e7a0e7a81567a",
+            "html": null,
+            "markdown": null
+          },
+          {
+            "segment_id": "c943c142-6ae1-4400-a8ec-d0e099638244",
+            "bbox": {
+              "left": 0,
+              "top": 0,
+              "width": 720,
+              "height": 540
+            },
+            "page_number": 110,
+            "page_width": 720,
+            "page_height": 540,
+            "content": "References\r\n• Intel MMX for Multimedia PCs, CACM, Jan. 1997\r\n• Chapter 11 The MMX Instruction Set, The Art of Assembly\r\n• Chap. 9, 10, 11 of IA-32 Intel Architecture Software Developer’s \r\nManual: Volume 1: Basic Architecture\r\n• http://www.csie.ntu.edu.tw/~r89004/hive/sse/page_1.html\r\n110",
+            "segment_type": "Page",
+            "ocr": null,
+            "image": "https://storage.googleapis.com/chunkr-bucket-dev/ccf89702-e38e-4089-bd6b-77e3ba63c341/2ec2df62-64e1-4d94-ae83-372ce88f8b47/images/c943c142-6ae1-4400-a8ec-d0e099638244.jpg?x-id=GetObject&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GOOG1E6ZKWCYPX4LV42MGE7WJ66QU2EMDPF3DJ2IFHNTQIGHNC2STOGTWF75E%2F20241112%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241112T041607Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9ed292e2d90b75c7a9c15dc63873f9fc503d8ae01e49ba915ea011917fc637e9",
+            "html": null,
+            "markdown": null
+          }
+        ],
+        "chunk_length": 511
+      }
+    ],
+    "extracted_json": {
+      "title": "Document Metadata",
+      "schema_type": "object",
+      "extracted_fields": [
+        {
+          "name": "title",
+          "field_type": "string",
+          "value": "SIMD Programming\n"
+        },
+        {
+          "name": "author",
+          "field_type": "string",
+          "value": "Z. Jerry Shi\n"
+        },
+        {
+          "name": "date_published",
+          "field_type": "string",
+          "value": "I am unable to extract the publication date of this document. While there is a date (2007) mentioned on page 2, it is within the context of slide revisions and not explicitly stated as the document's publication date.  Therefore, I cannot confidently provide a date_published value.\n"
+        },
+        {
+          "name": "location",
+          "field_type": "string",
+          "value": "41\n39\n12\n28\n12\n51\n20\n95\n76\n108\n77\n34\n109\n5\n96\n30\n64\n80\n25\n69\n23\n32\n31\n40\n22\n62\n13\n99\n75\n101\n45\n18\n15\n1\n14\n"
+        }
+      ]
+    }
+  }
+}
