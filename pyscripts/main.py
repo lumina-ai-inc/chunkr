@@ -138,7 +138,7 @@ if __name__ == "__main__":
     
     
     target_chunk_length = 1000
-    ocr_strategy = OcrStrategy.Off
+    ocr_strategy = OcrStrategy.Auto
     json_schema = JsonSchema(
         title="Summary of the Document",
         type="object", 
@@ -166,8 +166,8 @@ if __name__ == "__main__":
         )
         ]
     )
-    segmentation_strategy = SegmentationStrategy.Page
-    times = asyncio.run(main( model, target_chunk_length, ocr_strategy, "input/papers", json_schema=json_schema, segmentation_strategy=segmentation_strategy))  
+    segmentation_strategy = SegmentationStrategy.LayoutAnalysis
+    times = asyncio.run(main( model, target_chunk_length, ocr_strategy, "input", json_schema=json_schema, segmentation_strategy=segmentation_strategy))  
     
     if times:
         total_time = sum(result['elapsed_time'] for result in times)
