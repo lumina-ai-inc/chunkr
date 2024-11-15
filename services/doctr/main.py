@@ -1,73 +1,112 @@
-from fastapi import FastAPI, BackgroundTasks
-from pydantic import BaseModel
 import asyncio
 from collections import deque
+from contextlib import asynccontextmanager
+from doctr.io import DocumentFile
+from doctr.models import ocr_predictor
+import dotenv
+from fastapi import FastAPI, File, UploadFile
+import os
+from pydantic import BaseModel
 import time
-from typing import List
+import torch
+from typing import Dict, List
+
+dotenv.load_dotenv(override=True)
+
+batch_wait_time = float(os.getenv('BATCH_WAIT_TIME', 0.2))
+max_batch_size = int(os.getenv('MAX_BATCH_SIZE')) if os.getenv('MAX_BATCH_SIZE') else None
 
 app = FastAPI()
 
-# Queue to store pending tasks
+predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, 
+                         export_as_straight_boxes=True).cuda()
+
 pending_tasks = deque()
-# Lock to protect batch processing
 processing_lock = asyncio.Lock()
-# Event to signal batch processor
 batch_event = asyncio.Event()
 
-class Task(BaseModel):
-    data: str
+class OCRTask(BaseModel):
+    image_data: bytes
+    page_number: int = 0
+    future: asyncio.Future = None
 
-class TaskResponse(BaseModel):
-    result: str
+    class Config:
+        arbitrary_types_allowed = True
 
-async def process_tasks(tasks: List[Task]) -> List[TaskResponse]:
-    # Your batch processing logic here
-    # This is just an example
-    return [TaskResponse(result=f"Processed: {task.data}") for task in tasks]
+class OCRResponse(BaseModel):
+    page_content: Dict
+    processing_time: float
+
+async def process_ocr_batch(tasks: List[OCRTask]) -> List[OCRResponse]:
+    image_bytes_list = [task.image_data for task in tasks]
+    doc = DocumentFile.from_images(image_bytes_list)
+    start_time = time.time()
+    result = predictor(doc)
+    json_output = result.export()
+    processing_time = time.time() - start_time
+    
+    responses = []
+    for i in range(len(tasks)):
+        page_content = json_output['pages'][i]
+        responses.append(OCRResponse(
+            page_content=page_content,
+            processing_time=processing_time
+        ))
+    
+    return responses
 
 async def batch_processor():
     while True:
-        # Wait for tasks to arrive
         await batch_event.wait()
         batch_event.clear()
         
-        # Wait additional 500ms for more tasks
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(batch_wait_time)
         
         async with processing_lock:
             if not pending_tasks:
                 continue
-                
-            # Get all pending tasks
+            
             current_batch = list(pending_tasks)
             pending_tasks.clear()
-            
-        # Process the batch
-        results = await process_tasks(current_batch)
         
-        # Resolve all waiting futures
-        for task, result in zip(current_batch, results):
-            task.future.set_result(result)
+        try:
+            results = []
+            if max_batch_size is None:
+                results.extend(await process_ocr_batch(current_batch))
+            else:
+                for i in range(0, len(current_batch), max_batch_size):
+                    batch = current_batch[i:i+max_batch_size]
+                    results.extend(await process_ocr_batch(batch))  
+            
+            for task, result in zip(current_batch, results):
+                task.future.set_result(result)
+        except Exception as e:
+            for task in current_batch:
+                task.future.set_exception(e)
 
-@app.on_event("startup")
-async def startup_event():
-    # Start the batch processor
-    asyncio.create_task(batch_processor())
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    batch_processor_task = asyncio.create_task(batch_processor())
+    yield
+    batch_processor_task.cancel()
+    torch.cuda.empty_cache()
 
-@app.post("/task", response_model=TaskResponse)
-async def create_task(task: Task):
-    # Create a future to get the result
-    future = asyncio.Future()
+app = FastAPI(lifespan=lifespan)
+
+@app.post("/ocr", response_model=OCRResponse)
+async def create_ocr_task(file: UploadFile = File(...), page_number: int = 0):
+    image_data = await file.read()
     
-    # Add task metadata
+    task = OCRTask(image_data=image_data, page_number=page_number)
+    future = asyncio.Future()
     task.future = future
     
-    # Add task to queue
     pending_tasks.append(task)
-    
-    # Signal batch processor
     batch_event.set()
     
-    # Wait for result
     result = await future
     return result
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
