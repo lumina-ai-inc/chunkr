@@ -1,0 +1,43 @@
+# Ignore Rust build artifacts
+target/
+
+# Ignore backup files
+**/*.rs.bk
+*.bak
+*.tmp
+
+# Ignore compiled libraries
+*.rlib
+
+# Ignore Cargo.lock for libraries
+Cargo.lock
+
+# Ignore editor-specific files
+.idea/
+.vscode/
+*.swp
+
+# Ignore Git directory
+.git/
+
+# Ignore any .env files
+*.env
+
+# Ignore any log files
+*.log
+
+# Ignore whisper cache
+.whisper
+
+# Ignore lh cache
+.lh
+
+.venv
+
+*secret.yaml
+
+./output
+
+./input
+
+__pycache__
