@@ -13,8 +13,8 @@ from typing import Dict, List
 
 dotenv.load_dotenv(override=True)
 
-batch_wait_time = float(os.getenv('BATCH_WAIT_TIME', 0.2))
-max_batch_size = int(os.getenv('MAX_BATCH_SIZE')) if os.getenv('MAX_BATCH_SIZE') else None
+batch_wait_time = float(os.getenv('BATCH_WAIT_TIME', 0.5))
+max_batch_size = int(os.getenv('MAX_BATCH_SIZE', 240))
 
 app = FastAPI()
 
@@ -38,6 +38,7 @@ class OCRResponse(BaseModel):
     processing_time: float
 
 async def process_ocr_batch(tasks: List[OCRTask]) -> List[OCRResponse]:
+    print(f"Number of tasks: {len(tasks)}")
     image_bytes_list = [task.image_data for task in tasks]
     doc = DocumentFile.from_images(image_bytes_list)
     start_time = time.time()
@@ -109,4 +110,11 @@ async def create_ocr_task(file: UploadFile = File(...), page_number: int = 0):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=8000, help="Port to bind to") 
+    args = parser.parse_args()
+
+    uvicorn.run(app, host=args.host, port=args.port)

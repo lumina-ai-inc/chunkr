@@ -11,7 +11,7 @@ pub struct Config {
 }
 
 fn default_general_ocr_rate_limit() -> f32 {
-    6.0
+    20.0
 }
 
 fn default_llm_ocr_rate_limit() -> f32 {

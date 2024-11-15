@@ -8,8 +8,8 @@ use crate::utils::db::deadpool_postgres::create_pool;
 
 use crate::utils::services::{
     log::log_task,
+    ocr_url::{download_and_formula_ocr, download_and_ocr, download_and_table_ocr},
     payload::produce_extraction_payloads,
-    segment_ocr::{download_and_formula_ocr, download_and_ocr, download_and_table_ocr},
 };
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
@@ -112,7 +112,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                             }
                             Err(e) => {
                                 eprintln!("Error processing OCR: {:?}", e);
-                                Ok::<_, Box<dyn std::error::Error>>(())
+                                Err(e)
                             }
                         }
                     })

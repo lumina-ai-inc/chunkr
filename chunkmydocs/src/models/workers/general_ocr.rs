@@ -60,10 +60,10 @@ impl From<DoctrResponse> for Vec<OCRResult> {
             for line in block.lines {
                 for word in line.words {
                     let geometry = &word.geometry;
-                    let left = geometry[0][0] as f32;
-                    let top = geometry[0][1] as f32;
-                    let right = geometry[2][0] as f32;
-                    let bottom = geometry[2][1] as f32;
+                    let left = geometry[0][0] as f32 * payload.page_content.dimensions[1] as f32;
+                    let top = geometry[0][1] as f32 * payload.page_content.dimensions[0] as f32;
+                    let right = geometry[1][0] as f32 * payload.page_content.dimensions[1] as f32;
+                    let bottom = geometry[1][1] as f32 * payload.page_content.dimensions[0] as f32;
 
                     results.push(OCRResult {
                         bbox: BoundingBox {
