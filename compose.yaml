@@ -162,8 +162,6 @@ services:
       - redis
       - minio
       - rrq
-      - general-ocr
-      - table-ocr
     env_file:
       - .env
     deploy:
