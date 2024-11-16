@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: general-ocr
+  name: doctr
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: general-ocr
+    app.kubernetes.io/name: doctr
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: general-ocr
+      app.kubernetes.io/name: doctr
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: general-ocr
+        app.kubernetes.io/name: doctr
     spec:
       affinity:
         podAntiAffinity:
@@ -25,7 +25,7 @@ spec:
                 - key: app.kubernetes.io/name
                   operator: In
                   values:
-                  - general-ocr
+                  - doctr
               topologyKey: "kubernetes.io/hostname"
       tolerations:
       - key: "nvidia.com/gpu.b"
@@ -35,8 +35,8 @@ spec:
         operator: "Exists"
         effect: "PreferNoSchedule"
       containers:
-      - name: general-ocr
-        image: luminainc/general-ocr:e41a77cf
+      - name: doctr
+        image: luminainc/doctr:7ab34337
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
