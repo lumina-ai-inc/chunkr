@@ -28,32 +28,13 @@ spec:
                   - doctr
               topologyKey: "kubernetes.io/hostname"
       tolerations:
-      - key: "nvidia.com/gpu.b"
-        operator: "Exists"
-        effect: "NoSchedule"
       - key: "nvidia.com/gpu"
         operator: "Exists"
-        effect: "PreferNoSchedule"
+        effect: "NoSchedule"
       containers:
       - name: doctr
         image: luminainc/doctr:3fb97289
         imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 60
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 8000
-          initialDelaySeconds: 60
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
         ports:
         - containerPort: 8000
         securityContext:
