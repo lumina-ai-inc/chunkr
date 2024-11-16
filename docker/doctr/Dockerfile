@@ -1,15 +1,15 @@
-FROM ghcr.io/mindee/doctr:torch-py3.9.18-gpu-2023-09
+FROM pytorch/pytorch:2.2.1-cuda12.1-cudnn8-runtime
 
-# The installer requires curl (and certificates) to download the release archive
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    libgl1-mesa-glx \
+    libglib2.0-0
 
-# Download the latest installer
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
-# Run the installer then remove it
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-# Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
 
 WORKDIR /app
