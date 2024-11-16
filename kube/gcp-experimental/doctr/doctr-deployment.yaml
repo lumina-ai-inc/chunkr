@@ -36,7 +36,7 @@ spec:
         effect: "PreferNoSchedule"
       containers:
       - name: doctr
-        image: luminainc/doctr:7ab34337
+        image: luminainc/doctr:3fb97289
         imagePullPolicy: Always
         livenessProbe:
           httpGet:

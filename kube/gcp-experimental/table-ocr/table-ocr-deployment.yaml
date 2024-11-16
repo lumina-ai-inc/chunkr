@@ -29,7 +29,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: table-ocr
-        image: luminainc/table-ocr:7ab34337
+        image: luminainc/table-ocr:3fb97289
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
