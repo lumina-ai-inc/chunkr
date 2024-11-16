@@ -34,6 +34,7 @@ spec:
       - key: "nvidia.com/gpu"
         operator: "Exists"
         effect: "PreferNoSchedule"
+      runtimeClassName: nvidia
       containers:
       - name: doctr
         image: luminainc/doctr:3fb97289
