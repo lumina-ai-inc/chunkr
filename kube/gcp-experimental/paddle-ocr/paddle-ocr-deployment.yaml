@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: table-ocr
+  name: paddle-ocr
   namespace: chunkmydocs
   labels:
-    app.kubernetes.io/name: table-ocr
+    app.kubernetes.io/name: paddle-ocr
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: table-ocr
+      app.kubernetes.io/name: paddle-ocr
   template:
     metadata:
       namespace: chunkmydocs
       labels:
-        app.kubernetes.io/name: table-ocr
+        app.kubernetes.io/name: paddle-ocr
     spec:
       affinity:
         podAntiAffinity:
@@ -25,11 +25,18 @@ spec:
                 - key: app.kubernetes.io/name
                   operator: In
                   values:
-                  - table-ocr
+                  - paddle-ocr
               topologyKey: "kubernetes.io/hostname"
+      tolerations:
+      - key: "nvidia.com/gpu.b"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "PreferNoSchedule"
       containers:
-      - name: table-ocr
-        image: luminainc/table-ocr:7ab34337
+      - name: paddle-ocr
+        image: luminainc/paddle-ocr:7ab34337
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
