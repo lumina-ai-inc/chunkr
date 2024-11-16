@@ -1,19 +1,27 @@
-FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+FROM ghcr.io/mindee/doctr:torch-py3.9.18-gpu-2023-09
 
-ENV DEBIAN_FRONTEND=noninteractive
+# The installer requires curl (and certificates) to download the release archive
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
-RUN apt-get update
-RUN apt-get install -y -q --no-install-recommends libgomp1 ffmpeg libsm6 libxext6 pdftohtml git ninja-build g++
+# Download the latest installer
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+
+# Run the installer then remove it
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+
+# Ensure the installed binary is on the `PATH`
+ENV PATH="/root/.local/bin/:$PATH"
 
 WORKDIR /app
 
+COPY services/doctr/.python-version .
 COPY services/doctr/download_models.py .
 COPY services/doctr/main.py .
-COPY services/doctr/requirements.txt .
+COPY services/doctr/pyproject.toml .
+COPY services/doctr/uv.lock .
 
-RUN pip install -r requirements.txt
-RUN python3 download_models.py
+RUN uv run download_models.py
 
 EXPOSE 8000
 
-ENTRYPOINT ["python3", "main.py"]
+ENTRYPOINT ["uv", "run", "python3", "main.py"]
