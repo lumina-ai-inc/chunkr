@@ -108,6 +108,10 @@ async def create_ocr_task(file: UploadFile = File(...), page_number: int = 0):
     result = await future
     return result
 
+@app.get("/")
+async def root():
+    return {"message": "Hello, World!"}
+
 if __name__ == "__main__":
     import uvicorn
     import argparse
