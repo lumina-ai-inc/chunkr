@@ -23,22 +23,17 @@ pub async fn open_ai_call(
     };
 
     let client = reqwest::Client::new();
-    let response = match client
+    let response = client
         .post(url)
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {}", key))
         .json(&request)
         .send()
         .await?
-        .error_for_status() {
-            Ok(response) => response,
-            Err(e) => {
-                println!("Error status: {}", e.status().unwrap_or_default());
-                return Err(Box::new(e));
-            }
-        };
+        .error_for_status()?
+        .json::<OpenAiResponse>()
+        .await?;
 
-    let response: OpenAiResponse = response.json().await?;
     Ok(response)
 }
 
@@ -83,7 +78,9 @@ mod tests {
     use super::*;
 
     use crate::utils::configs::llm_config::Config as LlmConfig;
-    use crate::utils::services::ocr::{get_html_from_llm_table_ocr, get_markdown_from_llm_table_ocr};
+    use crate::utils::services::ocr::{
+        get_html_from_llm_table_ocr, get_markdown_from_llm_table_ocr,
+    };
     use std::collections::HashMap;
     use std::fs;
     use std::path::Path;
@@ -102,9 +99,7 @@ mod tests {
         let url = llm_config.url;
         let key = llm_config.key;
 
-        let models = HashMap::from([
-            ("geminipro", "google/gemini-pro-1.5"),
-        ]);
+        let models = HashMap::from([("geminipro", "google/gemini-pro-1.5")]);
 
         let prompts = HashMap::from([
             ("prompt1", "Analyze this image and convert the table to HTML format maintaining the original structure. If the image provided is not a table (for example if it is a image, formula, chart, etc), then represent the information (maintain all the text exactly as it is) but structure it gracefully into html.
@@ -156,12 +151,13 @@ mod tests {
             })
             .collect();
 
-        let mut tasks: Vec<tokio::task::JoinHandle<Result<(), Box<dyn Error + Send + Sync>>>> = Vec::new();
+        let mut tasks: Vec<tokio::task::JoinHandle<Result<(), Box<dyn Error + Send + Sync>>>> =
+            Vec::new();
         let mut stats = HashMap::new();
         for (model_shorthand, _) in &models {
             stats.insert(model_shorthand.to_string(), (0, 0)); // (total, broken)
         }
-        
+
         // Process specified number of files or all if n_files is 0
         let n_files = 100; // Change this to limit number of files processed
         let files_to_process = if n_files > 0 {
@@ -169,7 +165,7 @@ mod tests {
         } else {
             input_files.iter().collect::<Vec<_>>()
         };
-        
+
         for input_file in files_to_process {
             let table_name = input_file
                 .file_stem()
@@ -214,28 +210,38 @@ mod tests {
                         match open_ai_call(url, key, model, messages, None, None).await {
                             Ok(response) => {
                                 let duration = start_time.elapsed();
-                                let mut content: MessageContent = response.choices[0].message.content.clone();
+                                let mut content: MessageContent =
+                                    response.choices[0].message.content.clone();
                                 content = match content {
                                     MessageContent::String { content: text } => {
-                                        let re = regex::Regex::new(r"<thinking>.*?</thinking>").unwrap();
-                                        MessageContent::String { content: re.replace_all(&text, "").to_string() }
-                                    },
-                                    _ => content
+                                        let re =
+                                            regex::Regex::new(r"<thinking>.*?</thinking>").unwrap();
+                                        MessageContent::String {
+                                            content: re.replace_all(&text, "").to_string(),
+                                        }
+                                    }
+                                    _ => content,
                                 };
                                 if let MessageContent::String { content } = content {
                                     let html_result = get_html_from_llm_table_ocr(content.clone());
                                     let html_content = html_result.unwrap_or(content);
-                                    
 
-                                    let html_file = table_dir
-                                        .join(format!("{}_{}.html", model_shorthand, prompt_shorthand));
+                                    let html_file = table_dir.join(format!(
+                                        "{}_{}.html",
+                                        model_shorthand, prompt_shorthand
+                                    ));
                                     if let Err(e) = fs::write(&html_file, html_content) {
                                         println!("Error writing HTML file: {:?}", e);
                                     }
-                                    println!("HTML for {} saved to {:?}", model_shorthand, html_file);
+                                    println!(
+                                        "HTML for {} saved to {:?}",
+                                        model_shorthand, html_file
+                                    );
 
-                                    let csv_file = table_dir
-                                        .join(format!("{}_{}.csv", model_shorthand, prompt_shorthand));
+                                    let csv_file = table_dir.join(format!(
+                                        "{}_{}.csv",
+                                        model_shorthand, prompt_shorthand
+                                    ));
                                     let csv_content = format!(
                                         "Model,Table,Prompt,Duration\n{},{},{},{:?}\n",
                                         model_for_write, table_name, prompt_for_write, duration
@@ -244,14 +250,19 @@ mod tests {
                                         println!("Error writing CSV file: {:?}", e);
                                     }
                                 } else {
-                                    let html_file = table_dir
-                                        .join(format!("{}_{}.html", model_shorthand, prompt_shorthand));
-                                    if let Err(e) = fs::write(&html_file, "No choices in response") {
+                                    let html_file = table_dir.join(format!(
+                                        "{}_{}.html",
+                                        model_shorthand, prompt_shorthand
+                                    ));
+                                    if let Err(e) = fs::write(&html_file, "No choices in response")
+                                    {
                                         println!("Error writing HTML file: {:?}", e);
                                     }
 
-                                    let csv_file = table_dir
-                                        .join(format!("{}_{}.csv", model_shorthand, prompt_shorthand));
+                                    let csv_file = table_dir.join(format!(
+                                        "{}_{}.csv",
+                                        model_shorthand, prompt_shorthand
+                                    ));
                                     let csv_content = format!(
                                         "Model,Table,Prompt,Duration\n{},{},{},{:?}\n",
                                         model_for_write, table_name, prompt_for_write, duration
@@ -285,10 +296,10 @@ mod tests {
         println!("\nFinal Statistics:");
         for (model, (total, broken)) in stats {
             println!(
-                "{}: {}/{} successful ({:.1}% broken)", 
-                model, 
-                total - broken, 
-                total, 
+                "{}: {}/{} successful ({:.1}% broken)",
+                model,
+                total - broken,
+                total,
                 (broken as f64 / total as f64) * 100.0
             );
         }
@@ -308,9 +319,7 @@ mod tests {
         let url = llm_config.url;
         let key = llm_config.key;
 
-        let models = HashMap::from([
-            ("geminipro", "google/gemini-pro-1.5"),
-        ]);
+        let models = HashMap::from([("geminipro", "google/gemini-pro-1.5")]);
 
         let prompts = HashMap::from([
             ("prompt1", "you are always outputting HTML code.Analyze this image and convert the table to markdown format maintaining the original structure.                 3. if the image provided is not a table, then represent the information (maintain all the text exactly as it is) but structure it gracefully into markdown. Output the table directly in ```markdown``` tags."),
@@ -353,12 +362,13 @@ mod tests {
             })
             .collect();
 
-        let mut tasks: Vec<tokio::task::JoinHandle<Result<(), Box<dyn Error + Send + Sync>>>> = Vec::new();
+        let mut tasks: Vec<tokio::task::JoinHandle<Result<(), Box<dyn Error + Send + Sync>>>> =
+            Vec::new();
         let mut stats = HashMap::new();
         for (model_shorthand, _) in &models {
             stats.insert(model_shorthand.to_string(), (0, 0)); // (total, broken)
         }
-        
+
         // Process specified number of files or all if n_files is 0
         let n_files = 100; // Change this to limit number of files processed
         let files_to_process = if n_files > 0 {
@@ -366,7 +376,7 @@ mod tests {
         } else {
             input_files.iter().collect::<Vec<_>>()
         };
-        
+
         for input_file in files_to_process {
             let table_name = input_file
                 .file_stem()
@@ -411,27 +421,39 @@ mod tests {
                         match open_ai_call(url, key, model, messages, None, None).await {
                             Ok(response) => {
                                 let duration = start_time.elapsed();
-                                let mut content: MessageContent = response.choices[0].message.content.clone();
+                                let mut content: MessageContent =
+                                    response.choices[0].message.content.clone();
                                 content = match content {
                                     MessageContent::String { content: text } => {
-                                        let re = regex::Regex::new(r"<thinking>.*?</thinking>").unwrap();
-                                        MessageContent::String { content: re.replace_all(&text, "").to_string() }
-                                    },
-                                    _ => content
+                                        let re =
+                                            regex::Regex::new(r"<thinking>.*?</thinking>").unwrap();
+                                        MessageContent::String {
+                                            content: re.replace_all(&text, "").to_string(),
+                                        }
+                                    }
+                                    _ => content,
                                 };
                                 if let MessageContent::String { content } = content {
-                                    let markdown_result = get_markdown_from_llm_table_ocr(content.clone());
+                                    let markdown_result =
+                                        get_markdown_from_llm_table_ocr(content.clone());
                                     let markdown_content = markdown_result.unwrap_or(content);
 
-                                    let markdown_file = table_dir
-                                        .join(format!("{}_{}.md", model_shorthand, prompt_shorthand));
+                                    let markdown_file = table_dir.join(format!(
+                                        "{}_{}.md",
+                                        model_shorthand, prompt_shorthand
+                                    ));
                                     if let Err(e) = fs::write(&markdown_file, markdown_content) {
                                         println!("Error writing markdown file: {:?}", e);
                                     }
-                                    println!("Markdown for {} saved to {:?}", model_shorthand, markdown_file);
+                                    println!(
+                                        "Markdown for {} saved to {:?}",
+                                        model_shorthand, markdown_file
+                                    );
 
-                                    let csv_file = table_dir
-                                        .join(format!("{}_{}.csv", model_shorthand, prompt_shorthand));
+                                    let csv_file = table_dir.join(format!(
+                                        "{}_{}.csv",
+                                        model_shorthand, prompt_shorthand
+                                    ));
                                     let csv_content = format!(
                                         "Model,Table,Prompt,Duration\n{},{},{},{:?}\n",
                                         model_for_write, table_name, prompt_for_write, duration
@@ -440,14 +462,20 @@ mod tests {
                                         println!("Error writing CSV file: {:?}", e);
                                     }
                                 } else {
-                                    let markdown_file = table_dir
-                                        .join(format!("{}_{}.md", model_shorthand, prompt_shorthand));
-                                    if let Err(e) = fs::write(&markdown_file, "No choices in response") {
+                                    let markdown_file = table_dir.join(format!(
+                                        "{}_{}.md",
+                                        model_shorthand, prompt_shorthand
+                                    ));
+                                    if let Err(e) =
+                                        fs::write(&markdown_file, "No choices in response")
+                                    {
                                         println!("Error writing markdown file: {:?}", e);
                                     }
 
-                                    let csv_file = table_dir
-                                        .join(format!("{}_{}.csv", model_shorthand, prompt_shorthand));
+                                    let csv_file = table_dir.join(format!(
+                                        "{}_{}.csv",
+                                        model_shorthand, prompt_shorthand
+                                    ));
                                     let csv_content = format!(
                                         "Model,Table,Prompt,Duration\n{},{},{},{:?}\n",
                                         model_for_write, table_name, prompt_for_write, duration
@@ -481,10 +509,10 @@ mod tests {
         println!("\nFinal Statistics:");
         for (model, (total, broken)) in stats {
             println!(
-                "{}: {}/{} successful ({:.1}% broken)", 
-                model, 
-                total - broken, 
-                total, 
+                "{}: {}/{} successful ({:.1}% broken)",
+                model,
+                total - broken,
+                total,
                 (broken as f64 / total as f64) * 100.0
             );
         }
