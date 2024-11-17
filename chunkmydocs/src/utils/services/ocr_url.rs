@@ -1,5 +1,4 @@
 use crate::models::server::segment::OCRResult;
-use crate::utils::services::html::{convert_table_to_markdown, extract_table_html};
 use crate::utils::services::ocr::{perform_formula_ocr, perform_general_ocr, perform_table_ocr};
 use crate::utils::storage::services::download_to_tempfile;
 use aws_sdk_s3::Client as S3Client;
