@@ -33,7 +33,7 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: doctr
-        image: luminainc/doctr:4e428294
+        image: luminainc/doctr:927c358e
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
