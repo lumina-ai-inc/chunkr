@@ -44,8 +44,8 @@ fn init_throttle() {
     });
     LLM_RATE_LIMITER
         .get_or_init(|| create_llm_rate_limiter(POOL.get().unwrap().clone(), domain_name));
-    GENERAL_OCR_TIMEOUT.get_or_init(|| 45);
-    TOKEN_TIMEOUT.get_or_init(|| 120);
+    GENERAL_OCR_TIMEOUT.get_or_init(|| 60);
+    TOKEN_TIMEOUT.get_or_init(|| 360);
 }
 
 #[derive(Debug)]
@@ -195,13 +195,10 @@ async fn llm_ocr(file_path: &Path, prompt: String) -> Result<String, Box<dyn Err
     }
 }
 
-
 pub enum OcrType {
     Markdown,
     HTML,
 }
-
-
 
 fn get_html_from_paddle_table_ocr(
     table_ocr_result: PaddleTableRecognitionResult,
@@ -272,7 +269,9 @@ pub async fn perform_general_ocr(
     }
 }
 
-pub async fn perform_table_ocr(file_path: &Path) -> Result<(String, String), Box<dyn Error + Send + Sync>> {
+pub async fn perform_table_ocr(
+    file_path: &Path,
+) -> Result<(String, String), Box<dyn Error + Send + Sync>> {
     init_throttle();
     let worker_config = WorkerConfig::from_env().unwrap();
     match worker_config.table_ocr_model {
