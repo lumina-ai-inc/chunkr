@@ -36,7 +36,7 @@
   - [Docker Compose](#quick-start-with-docker-compose)
   - [Kubernetes](#production-deployment-with-kubernetes)
 - [Licensing](#licensing)
-- [Contact](#want-to-talk-to-a-founder)
+- [Connect With Us](#connect-with-us)
 
 ## Docs
 
