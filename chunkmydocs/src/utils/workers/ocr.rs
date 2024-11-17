@@ -7,9 +7,7 @@ use crate::utils::configs::worker_config;
 use crate::utils::db::deadpool_postgres::create_pool;
 
 use crate::utils::services::{
-    log::log_task,
-    ocr_url::{download_and_formula_ocr, download_and_ocr, download_and_table_ocr},
-    payload::produce_extraction_payloads,
+    log::log_task, ocr_segments::ocr_segments, payload::produce_extraction_payloads,
 };
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};
 use chrono::Utc;
@@ -76,28 +74,13 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                     Some(async {
                         let s3_client = s3_client.clone();
                         let reqwest_client = reqwest_client.clone();
-                        let ocr_result = if segment.segment_type == SegmentType::Table {
-                            download_and_table_ocr(
-                                &s3_client,
-                                &reqwest_client,
-                                segment.image.as_ref().unwrap(),
-                            )
-                            .await
-                        } else if segment.segment_type == SegmentType::Formula {
-                            download_and_formula_ocr(
-                                &s3_client,
-                                &reqwest_client,
-                                segment.image.as_ref().unwrap(),
-                            )
-                            .await
-                        } else {
-                            download_and_ocr(
-                                &s3_client,
-                                &reqwest_client,
-                                segment.image.as_ref().unwrap(),
-                            )
-                            .await
-                        };
+                        let ocr_result = ocr_segments(
+                            &s3_client,
+                            &reqwest_client,
+                            segment.image.as_ref().unwrap(),
+                            segment.segment_type.clone(),
+                        )
+                        .await;
                         match ocr_result {
                             Ok((ocr_result, html, markdown)) => {
                                 segment.ocr = Some(ocr_result);
