@@ -94,7 +94,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                                 Ok::<_, Box<dyn std::error::Error>>(())
                             }
                             Err(e) => {
-                                eprintln!("Error processing OCR: {:?}", e);
+                                eprintln!("Error processing OCR segment: {:?}", e);
                                 Err(e)
                             }
                         }
