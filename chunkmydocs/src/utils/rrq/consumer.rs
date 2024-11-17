@@ -1,21 +1,20 @@
 use crate::models::rrq::{
     consume::ConsumePayload,
     queue::QueuePayload,
-    status::{ StatusPayload, StatusResult },
+    status::{StatusPayload, StatusResult},
 };
-use crate::utils::rrq::service::{ complete, consume, health };
+use crate::utils::rrq::service::{complete, consume, health};
 use tokio::time::Duration;
 
 pub async fn consumer<F, Fut>(
     process_fn: F,
     queue_name: String,
     item_count: i64,
-    expiration_seconds: u64
-)
-    -> Result<(), Box<dyn std::error::Error>>
-    where
-        F: Fn(QueuePayload) -> Fut + Sync + 'static,
-        Fut: std::future::Future<Output = Result<(), Box<dyn std::error::Error>>>
+    expiration_seconds: u64,
+) -> Result<(), Box<dyn std::error::Error>>
+where
+    F: Fn(QueuePayload) -> Fut + Sync + 'static,
+    Fut: std::future::Future<Output = Result<(), Box<dyn std::error::Error>>>,
 {
     let _ = match health().await {
         Ok(_) => (),
@@ -36,7 +35,6 @@ pub async fn consumer<F, Fut>(
         match consume(consumer_payload.clone()).await {
             Ok(consume_payloads) => {
                 if consume_payloads.is_empty() {
-                    println!("No content received, waiting for 1 second before trying again...");
                     tokio::time::sleep(Duration::from_secs(1)).await;
                     continue;
                 }
