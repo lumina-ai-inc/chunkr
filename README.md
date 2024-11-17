@@ -16,9 +16,7 @@
     ·
     <a href="https://github.com/lumina-ai-inc/chunkr/issues/new">Report Bug</a>
     ·
-    <a href="https://cal.com/mehulc/30min">Talk to a founder</a>
-     ·
-    <a href="mailto:mehul@lumina.sh">Email</a>
+    <a href="#want-to-talk-to-a-founder">Contact</a>
   </p>
 </div>
 
@@ -101,5 +99,7 @@ This project is dual-licensed:
 
 To use Chunkr without complying with the AGPL-3.0 license terms you can [contact us](mailto:mehul@lumina.sh) or visit our [website](https://chunkr.ai).
 
-## Want to talk to a founder?
-[https://cal.com/mehulc/30min](https://cal.com/mehulc/30min)
+## Connect With Us
+- 📧 Email: [mehul@lumina.sh](mailto:mehul@lumina.sh)
+- 📅 Schedule a call: [Book a 30-minute meeting](https://cal.com/mehulc/30min)
+- 🌐 Visit our website: [chunkr.ai](https://chunkr.ai)
