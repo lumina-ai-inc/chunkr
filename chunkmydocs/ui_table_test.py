@@ -23,15 +23,18 @@ def streamlit_ui():
         st.session_state.selected_prompt = None
     if 'show_raw' not in st.session_state:
         st.session_state.show_raw = False
+    if 'file_type' not in st.session_state:
+        st.session_state.file_type = "html"
 
     # Get current image and available models/prompts
     current_image = processed_images[st.session_state.current_image_idx]
     image_dir = output_dir / current_image.name
     html_files = list(image_dir.glob("*.html"))
+    md_files = list(image_dir.glob("*.md"))
     
-    # Get model info
+    # Get model info from both HTML and MD files
     model_prompt_info = []
-    for f in html_files:
+    for f in html_files + md_files:
         parts = f.stem.split('_')
         model = parts[0]
         prompt = parts[1]
@@ -54,6 +57,18 @@ def streamlit_ui():
             st.session_state.current_image_idx += 1
             st.rerun()
 
+    # File type toggle
+    st.write("### Select Output Type")
+    file_type_cols = st.columns(2)
+    with file_type_cols[0]:
+        if st.button("HTML", type="primary" if st.session_state.file_type == "html" else "secondary"):
+            st.session_state.file_type = "html"
+            st.rerun()
+    with file_type_cols[1]:
+        if st.button("Markdown", type="primary" if st.session_state.file_type == "md" else "secondary"):
+            st.session_state.file_type = "md"
+            st.rerun()
+
     # Model selection buttons in a row
     st.write("### Select Model")
     cols = st.columns(len(unique_models))
@@ -73,28 +88,48 @@ def streamlit_ui():
                 st.rerun()
 
     # Display original and results side by side
-    col1, col2 = st.columns(2)
+    container_style = """
+        <style>
+            .side-by-side-container {
+                display: flex;
+                width: 100vw;
+                gap: 124px;
+                justify-content: center;
+            }
+            .side-by-side-container > div {
+                flex: 0 0 calc(50% - 62px);
+            }
+        </style>
+    """
+    st.markdown(container_style, unsafe_allow_html=True)
     
-    with col1:
-        st.subheader("Original Image")
-        st.image(str(image_dir / "original.jpg"))
+    st.markdown('<div class="side-by-side-container">', unsafe_allow_html=True)
     
-    with col2:
-        st.subheader("Model Output")
-        if st.session_state.selected_model and st.session_state.selected_prompt:
-            html_file = image_dir / f"{st.session_state.selected_model}_{st.session_state.selected_prompt}.html"
-            
-            if html_file.exists():
-                with open(html_file) as f:
-                    html_content = f.read()
-                    table_content = html_content.strip()
-                    
-                    # Toggle raw HTML view
-                    st.session_state.show_raw = st.checkbox("Show raw HTML", value=st.session_state.show_raw)
-                    
-                    if st.session_state.show_raw:
-                        st.code(table_content, language="html")
-                    else:
+    # First column
+    st.markdown('<div>', unsafe_allow_html=True)
+    st.subheader("Original Image")
+    st.image(str(image_dir / "original.jpg"), use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Second column
+    st.markdown('<div>', unsafe_allow_html=True)
+    st.subheader("Model Output")
+    if st.session_state.selected_model and st.session_state.selected_prompt:
+        file_ext = "html" if st.session_state.file_type == "html" else "md"
+        result_file = image_dir / f"{st.session_state.selected_model}_{st.session_state.selected_prompt}.{file_ext}"
+        
+        if result_file.exists():
+            with open(result_file) as f:
+                content = f.read()
+                table_content = content.strip()
+                
+                # Toggle raw view
+                st.session_state.show_raw = st.checkbox(f"Show raw {file_ext.upper()}", value=st.session_state.show_raw)
+                
+                if st.session_state.show_raw:
+                    st.code(table_content, language=file_ext)
+                else:
+                    if file_ext == "html":
                         # Clean up HTML content
                         if table_content.lower().startswith('<html>') and table_content.lower().endswith('</html>'):
                             table_content = table_content[6:-7].strip()
@@ -111,18 +146,30 @@ def streamlit_ui():
                         </div>
                         """
                         st.markdown(styled_content, unsafe_allow_html=True)
+                    else:
+                        # Clean up Markdown content
+                        if "```markdown" in table_content:
+                            table_content = table_content[table_content.find("```markdown"):]
+                            if "```" in table_content[11:]:
+                                table_content = table_content[:table_content.find("```", 11)]
+                            table_content = table_content.replace("```markdown", "").strip()
                         
-                    # Display metrics
-                    csv_file = image_dir / f"{st.session_state.selected_model}_{st.session_state.selected_prompt}.csv"
-                    if csv_file.exists():
-                        with open(csv_file) as f:
-                            metrics = f.readlines()[1].strip().split(',')
-                            if len(metrics) > 3:  # Check if metrics has enough elements
-                                st.caption(f"Processing time: {metrics[3]}")
-            else:
-                st.error(f"No results found for {st.session_state.selected_model} with {st.session_state.selected_prompt}")
+                        st.markdown(table_content)
+                    
+                # Display metrics
+                csv_file = image_dir / f"{st.session_state.selected_model}_{st.session_state.selected_prompt}.csv"
+                if csv_file.exists():
+                    with open(csv_file) as f:
+                        metrics = f.readlines()[1].strip().split(',')
+                        if len(metrics) > 3:  # Check if metrics has enough elements
+                            st.caption(f"Processing time: {metrics[3]}")
         else:
-            st.info("Select a model and prompt to view results")
+            st.error(f"No {file_ext.upper()} results found for {st.session_state.selected_model} with {st.session_state.selected_prompt}")
+    else:
+        st.info("Select a model and prompt to view results")
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     streamlit_ui()
