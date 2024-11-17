@@ -44,8 +44,8 @@ fn init_throttle() {
     });
     LLM_RATE_LIMITER
         .get_or_init(|| create_llm_rate_limiter(POOL.get().unwrap().clone(), domain_name));
-    GENERAL_OCR_TIMEOUT.get_or_init(|| 60);
-    TOKEN_TIMEOUT.get_or_init(|| 360);
+    GENERAL_OCR_TIMEOUT.get_or_init(|| 120);
+    TOKEN_TIMEOUT.get_or_init(|| 10000);
 }
 
 #[derive(Debug)]

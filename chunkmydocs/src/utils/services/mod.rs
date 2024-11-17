@@ -5,7 +5,7 @@ pub mod images;
 pub mod llm;
 pub mod log;
 pub mod ocr;
-pub mod ocr_url;
+pub mod ocr_segments;
 pub mod payload;
 pub mod pdf;
 pub mod pdla;
