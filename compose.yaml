@@ -19,6 +19,14 @@ services:
     deploy:
       replicas: 1
 
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    restart: always
+
   redis:
     image: redis:latest
     ports:
