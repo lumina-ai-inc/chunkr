@@ -41,7 +41,6 @@ where
     loop {
         let consume_payloads: Vec<ConsumeResponse> = consume(consumer_payload.clone()).await?;
         if consume_payloads.is_empty() {
-            println!("No content received, waiting for 1 second before trying again...");
             tokio::time::sleep(Duration::from_secs(1)).await;
             continue;
         }
