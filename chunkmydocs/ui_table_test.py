@@ -17,46 +17,30 @@ def streamlit_ui():
     # Initialize session state for current image index if not exists
     if 'current_image_idx' not in st.session_state:
         st.session_state.current_image_idx = 0
+    if 'selected_model' not in st.session_state:
+        st.session_state.selected_model = None
+    if 'selected_prompt' not in st.session_state:
+        st.session_state.selected_prompt = None
+    if 'show_raw' not in st.session_state:
+        st.session_state.show_raw = False
 
-    # Sidebar controls
-    with st.sidebar:
-        st.header("Controls")
-        
-        # Get available prompts and models from the files
-        current_image = processed_images[st.session_state.current_image_idx]
-        image_dir = output_dir / current_image.name
-        html_files = list(image_dir.glob("*.html"))
-        
-        # Split filename into model, prompt and check for cot
-        model_prompt_info = []
-        for f in html_files:
-            parts = f.stem.split('_')
-            model = parts[0]
-            prompt = parts[1]
-            cot = "cot1" if f.stem.endswith("_cot1") else "cot0"
-            model_prompt_info.append((model, prompt, cot))
-        
-        unique_models = sorted(set(model for model, _, _ in model_prompt_info))
-        unique_prompts = sorted(set(prompt for _, prompt, _ in model_prompt_info))
-        unique_cots = sorted(set(cot for _, _, cot in model_prompt_info))
-        
-        selected_models = st.multiselect(
-            "Select Models to Compare",
-            options=unique_models,
-            default=unique_models[:2]  # Default select first two
-        )
-        
-        selected_prompt = st.selectbox(
-            "Select Prompt",
-            options=unique_prompts
-        )
+    # Get current image and available models/prompts
+    current_image = processed_images[st.session_state.current_image_idx]
+    image_dir = output_dir / current_image.name
+    html_files = list(image_dir.glob("*.html"))
+    
+    # Get model info
+    model_prompt_info = []
+    for f in html_files:
+        parts = f.stem.split('_')
+        model = parts[0]
+        prompt = parts[1]
+        model_prompt_info.append((model, prompt))
+    
+    unique_models = sorted(set(model for model, _ in model_prompt_info))
+    unique_prompts = sorted(set(prompt for _, prompt in model_prompt_info))
 
-        selected_cot = st.selectbox(
-            "Select Chain of Thought",
-            options=unique_cots
-        )
-
-    # Image navigation
+    # Image navigation and model selection
     col1, col2, col3 = st.columns([1, 3, 1])
     with col1:
         if st.button("←") and st.session_state.current_image_idx > 0:
@@ -70,59 +54,75 @@ def streamlit_ui():
             st.session_state.current_image_idx += 1
             st.rerun()
 
-    # Display original image
-    st.image(str(image_dir / "original.jpg"))
+    # Model selection buttons in a row
+    st.write("### Select Model")
+    cols = st.columns(len(unique_models))
+    for idx, model in enumerate(unique_models):
+        with cols[idx]:
+            if st.button(model, type="primary" if st.session_state.selected_model == model else "secondary"):
+                st.session_state.selected_model = model
+                st.rerun()
+
+    # Prompt selection buttons in a row
+    st.write("### Select Prompt")
+    cols = st.columns(len(unique_prompts))
+    for idx, prompt in enumerate(unique_prompts):
+        with cols[idx]:
+            if st.button(prompt, type="primary" if st.session_state.selected_prompt == prompt else "secondary"):
+                st.session_state.selected_prompt = prompt
+                st.rerun()
+
+    # Display original and results side by side
+    col1, col2 = st.columns(2)
     
-    # Display results for each selected model in a list format
-    if selected_models:
-        st.subheader("Model Results")
-        for model in selected_models:
-            st.write(f"**Model: {model}**")
-            html_file = image_dir / f"{model}_{selected_prompt}.html"
+    with col1:
+        st.subheader("Original Image")
+        st.image(str(image_dir / "original.jpg"))
+    
+    with col2:
+        st.subheader("Model Output")
+        if st.session_state.selected_model and st.session_state.selected_prompt:
+            html_file = image_dir / f"{st.session_state.selected_model}_{st.session_state.selected_prompt}.html"
             
             if html_file.exists():
                 with open(html_file) as f:
                     html_content = f.read()
-                    
-                    # Extract just the table content from the HTML
                     table_content = html_content.strip()
                     
-                    # Add toggle for raw HTML view
-                    show_raw = st.checkbox("Show raw HTML", value=False, key=f"show_raw_{model}")
+                    # Toggle raw HTML view
+                    st.session_state.show_raw = st.checkbox("Show raw HTML", value=st.session_state.show_raw)
                     
-                    if show_raw:
-                        # Show raw HTML
+                    if st.session_state.show_raw:
                         st.code(table_content, language="html")
                     else:
-                        # Remove HTML tags if present
+                        # Clean up HTML content
                         if table_content.lower().startswith('<html>') and table_content.lower().endswith('</html>'):
                             table_content = table_content[6:-7].strip()
                             
-                        # Remove content outside ```html and ```
                         if "```html" in table_content:
-                            # Keep only the content between ```html and the next ```
                             table_content = table_content[table_content.find("```html"):]
-                            if "```" in table_content[7:]:  # Look for closing ``` after "```html"
+                            if "```" in table_content[7:]:
                                 table_content = table_content[:table_content.find("```", 7)]
                             table_content = table_content.replace("```html", "").strip()
-                        # Render table with HTML formatting and styling
+                            
                         styled_content = f"""
-                        <div style="width: 100%; overflow-x: auto;">
+                        <div style="width: 100vw; overflow-x: auto;">
                             {table_content}
                         </div>
                         """
                         st.markdown(styled_content, unsafe_allow_html=True)
                         
-                    # Display metrics if available
-                    csv_file = image_dir / f"{model}_{selected_prompt}.csv"
+                    # Display metrics
+                    csv_file = image_dir / f"{st.session_state.selected_model}_{st.session_state.selected_prompt}.csv"
                     if csv_file.exists():
                         with open(csv_file) as f:
                             metrics = f.readlines()[1].strip().split(',')
-                        st.caption(f"Processing time: {metrics[3]}s")
+                            if len(metrics) > 3:  # Check if metrics has enough elements
+                                st.caption(f"Processing time: {metrics[3]}")
             else:
-                st.error(f"No results found for this model and prompt combination")
-            
-            st.divider() # Add visual separation between models
+                st.error(f"No results found for {st.session_state.selected_model} with {st.session_state.selected_prompt}")
+        else:
+            st.info("Select a model and prompt to view results")
 
 if __name__ == "__main__":
     streamlit_ui()

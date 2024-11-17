@@ -196,8 +196,7 @@ async def process_image(
     prompt: str,
     llm_config: LLMConfig,
     model_shorthand: str,
-    prompt_shorthand: str,
-    cot_prompt: Optional[str] = None
+    prompt_shorthand: str
 ) -> None:
     if not llm_config.url or not llm_config.key:
         raise ValueError("Missing LLM configuration (url or key)")
@@ -211,7 +210,6 @@ async def process_image(
         start_time = time.time()
         messages = get_image_message(input_file, prompt)
         
-        # First response without CoT
         response: OpenAiResponse = await call_llm_api(
             url=str(llm_config.url),
             key=str(llm_config.key),
@@ -241,37 +239,6 @@ async def process_image(
             csv_content = f"Model,Table,Prompt,Duration\n{model},{table_name},{prompt},{duration:.2f}\n"
             with open(csv_file, "w") as f:
                 f.write(csv_content)
-
-            # If there's a CoT prompt, run a second time with the first response
-            if cot_prompt:
-                cot_start_time = time.time()
-                cot_messages = get_image_message(input_file, cot_prompt + " " + content)
-                cot_response: OpenAiResponse = await call_llm_api(
-                    url=str(llm_config.url),
-                    key=str(llm_config.key),
-                    model=str(model),
-                    messages=cot_messages
-                )
-                
-                cot_duration = time.time() - cot_start_time
-
-                if cot_response.choices and len(cot_response.choices) > 0:
-                    cot_message_content = cot_response.choices[0].message.content
-                    if isinstance(cot_message_content, list):
-                        cot_content = next((part.text for part in cot_message_content if part.text is not None), "")
-                    else:
-                        cot_content = str(cot_message_content)
-
-                    # Save CoT HTML output
-                    cot_html_file = table_dir / f"{model_shorthand}_{prompt_shorthand}_cot1.html"
-                    with open(cot_html_file, "w") as f:
-                        f.write(cot_content)
-
-                    # Save CoT metrics
-                    cot_csv_file = table_dir / f"{model_shorthand}_{prompt_shorthand}_cot1.csv"
-                    cot_csv_content = f"Model,Table,Prompt,Duration\n{model},{table_name},{cot_prompt},{cot_duration:.2f}\n"
-                    with open(cot_csv_file, "w") as f:
-                        f.write(cot_csv_content)
 
         else:
             print("No choices in response")
@@ -311,7 +278,6 @@ async def main(n_files=1):
             # "prompt1": "Analyze this image and convert the table to HTML format maintaining the original structure. Find all text, headers, and data. DO not omit anything in the image. Try to keep the structure as close as possible while using HTML code. Make minimal and tasteful (only very sparsly or none at all) edits to handle complex tables. Keep a special eye out for Col and Row spans - accurately calculate how many you would need. Output the table directly in ```html``` tags.",
             "prompt2": "Analyze this image and convert the table to HTML format maintaining the original structure. Output the table directly in ```html``` tags."
         }
-        cot_prompt = "examine the image and an old output that you generated. correct it to make it more representative of the graphic you are seeing. HTML."
         
         input_dir = Path("input")
         output_dir = Path("output")
@@ -336,25 +302,16 @@ async def main(n_files=1):
         for input_file in files_to_process:
             for model_shorthand, model in models.items():
                 for prompt_shorthand, prompt in prompts.items():
-                    if len(cot_prompt)>0:
-                        tasks.append(
-                            process_image(input_file, output_dir, model, cot_prompt, llm_config, 
-                                        model_shorthand, prompt_shorthand, cot_prompt)
-                        )
-                    else:
-                        tasks.append(
-                            process_image(input_file, output_dir, model, prompt, llm_config, 
-                                        model_shorthand, prompt_shorthand)
-                        )
-
+                    tasks.append(
+                        process_image(input_file, output_dir, model, prompt, llm_config, 
+                                    model_shorthand, prompt_shorthand)
+                    )
             
         await asyncio.gather(*tasks)
         
     except Exception as e:
         print(f"Main execution failed: {str(e)}")
         raise
-
-
 
 if __name__ == "__main__":
     import sys
