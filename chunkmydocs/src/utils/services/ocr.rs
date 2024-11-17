@@ -7,7 +7,7 @@ use crate::{
     utils::configs::worker_config::{Config as WorkerConfig, GeneralOcrModel, TableOcrModel},
     utils::db::deadpool_redis::{create_pool as create_redis_pool, Pool},
     utils::rate_limit::{create_general_ocr_rate_limiter, create_llm_rate_limiter, RateLimiter},
-    utils::services::html::{clean_img_tags, validate_html},
+    utils::services::html::clean_img_tags,
     utils::services::llm::{get_basic_image_message, open_ai_call},
 };
 use image_base64;
@@ -184,7 +184,7 @@ async fn llm_ocr(file_path: &Path, prompt: String) -> Result<String, Box<dyn Err
         llm_config.ocr_model.unwrap_or(llm_config.model),
         messages,
         None,
-        None,
+        Some(0.0),
     )
     .await
     .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
@@ -193,11 +193,6 @@ async fn llm_ocr(file_path: &Path, prompt: String) -> Result<String, Box<dyn Err
     } else {
         Err("Invalid content type".into())
     }
-}
-
-pub enum OcrType {
-    Markdown,
-    HTML,
 }
 
 fn get_html_from_paddle_table_ocr(
@@ -210,46 +205,35 @@ fn get_html_from_paddle_table_ocr(
     }
 }
 
+fn extract_fenced_content(content: &str, fence_type: &str) -> Option<String> {
+    content
+        .split(&format!("```{}", fence_type))
+        .nth(1)
+        .and_then(|content| content.split("```").next())
+        .map(|content| content.trim().to_string())
+}
+
 pub fn get_html_from_llm_table_ocr(
     table_ocr_result: String,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    if let Some(html_content) = table_ocr_result.split("```html").nth(1) {
-        if let Some(html) = html_content.split("```").next() {
-            let html = html.trim().to_string();
-            let cleaned_html = clean_img_tags(&html);
-            return match validate_html(&cleaned_html) {
-                Ok(_) => Ok(cleaned_html),
-                Err(e) => Err(e.to_string().into()),
-            };
-        }
-    }
-    Err("No HTML content found in table OCR result".into())
+    let html = extract_fenced_content(&table_ocr_result, "html")
+        .ok_or_else(|| "No HTML content found in table OCR result")?;
+    let cleaned_html = clean_img_tags(&html);
+    Ok(cleaned_html)
 }
+
 pub fn get_markdown_from_llm_table_ocr(
     table_ocr_result: String,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    if let Some(markdown_content) = table_ocr_result.split("```markdown").nth(1) {
-        if let Some(markdown) = markdown_content.split("```").next() {
-            let markdown = markdown.trim().to_string();
-            let cleaned_markdown = clean_img_tags(&markdown);
-            return match validate_html(&cleaned_markdown) {
-                Ok(_) => Ok(cleaned_markdown),
-                Err(e) => Err(e.to_string().into()),
-            };
-        }
-    }
-    Ok(table_ocr_result)
+    extract_fenced_content(&table_ocr_result, "markdown")
+        .ok_or_else(|| "No markdown content found in table OCR result".into())
 }
 
-pub fn get_latex_from_vllm_formula_ocr(
+pub fn get_latex_from_llm_formula_ocr(
     formula_ocr_result: String,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    if let Some(latex_content) = formula_ocr_result.split("```latex").nth(1) {
-        if let Some(latex) = latex_content.split("```").next() {
-            return Ok(latex.trim().to_string());
-        }
-    }
-    Err("No LaTeX content found in formula OCR result".into())
+    extract_fenced_content(&formula_ocr_result, "latex")
+        .ok_or_else(|| "No LaTeX content found in formula OCR result".into())
 }
 
 pub async fn perform_general_ocr(
@@ -318,7 +302,7 @@ pub async fn perform_formula_ocr(file_path: &Path) -> Result<String, Box<dyn Err
         .await?;
     let prompt = get_prompt("formula", &HashMap::new())?;
     let latex_formula = llm_ocr(file_path, prompt).await?;
-    get_latex_from_vllm_formula_ocr(latex_formula)
+    get_latex_from_llm_formula_ocr(latex_formula)
 }
 
 #[cfg(test)]
