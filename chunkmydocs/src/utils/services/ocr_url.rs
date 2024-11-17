@@ -53,9 +53,9 @@ pub async fn download_and_table_ocr(
     let original_file_path_clone = original_file_path.clone();
     let table_ocr_task =
         tokio::task::spawn(async move { perform_table_ocr(&original_file_path).await });
-    let paddle_ocr_task =
+    let general_ocr_task =
         tokio::task::spawn(async move { perform_general_ocr(&original_file_path_clone).await });
-    let ocr_results = match paddle_ocr_task.await {
+    let ocr_results = match general_ocr_task.await {
         Ok(ocr_results) => ocr_results.unwrap_or_default(),
         Err(e) => {
             println!("Error getting OCR results: {}", e);
@@ -65,18 +65,17 @@ pub async fn download_and_table_ocr(
 
     let table_ocr_result: Result<(String, String), Box<dyn std::error::Error>> =
         match table_ocr_task.await {
-            Ok(html) => match html {
-                Ok(html) => {
-                    let html = extract_table_html(html);
-                    let markdown = convert_table_to_markdown(html.clone());
-                    Ok((html, markdown))
-                }
+            Ok(table_result) => match table_result {
+                Ok((html, markdown)) => Ok((html, markdown)),
                 Err(e) => {
-                    println!("Error getting table OCR results: {}", e);
+                    println!("Error unwrapping table OCR results: {}", e);
                     Ok(("".to_string(), "".to_string()))
                 }
             },
-            Err(e) => Err(e.to_string().into()),
+            Err(e) => {
+                println!("Error getting table OCR results: {}", e);
+                Ok(("".to_string(), "".to_string()))
+            }
         };
 
     match table_ocr_result {
