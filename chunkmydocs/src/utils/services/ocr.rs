@@ -17,6 +17,8 @@ use std::error::Error;
 use std::fmt;
 use std::path::Path;
 
+use crate::utils::services::html::convert_table_to_markdown;
+
 static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 static LLM_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 static POOL: OnceCell<Pool> = OnceCell::new();
@@ -193,6 +195,14 @@ async fn llm_ocr(file_path: &Path, prompt: String) -> Result<String, Box<dyn Err
     }
 }
 
+
+pub enum OcrType {
+    Markdown,
+    HTML,
+}
+
+
+
 fn get_html_from_paddle_table_ocr(
     table_ocr_result: PaddleTableRecognitionResult,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
@@ -217,6 +227,21 @@ pub fn get_html_from_llm_table_ocr(
         }
     }
     Err("No HTML content found in table OCR result".into())
+}
+pub fn get_markdown_from_llm_table_ocr(
+    table_ocr_result: String,
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    if let Some(markdown_content) = table_ocr_result.split("```markdown").nth(1) {
+        if let Some(markdown) = markdown_content.split("```").next() {
+            let markdown = markdown.trim().to_string();
+            let cleaned_markdown = clean_img_tags(&markdown);
+            return match validate_html(&cleaned_markdown) {
+                Ok(_) => Ok(cleaned_markdown),
+                Err(e) => Err(e.to_string().into()),
+            };
+        }
+    }
+    Ok(table_ocr_result)
 }
 
 pub fn get_latex_from_vllm_formula_ocr(
@@ -247,7 +272,7 @@ pub async fn perform_general_ocr(
     }
 }
 
-pub async fn perform_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
+pub async fn perform_table_ocr(file_path: &Path) -> Result<(String, String), Box<dyn Error + Send + Sync>> {
     init_throttle();
     let worker_config = WorkerConfig::from_env().unwrap();
     match worker_config.table_ocr_model {
@@ -259,7 +284,9 @@ pub async fn perform_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error
                 ))
                 .await?;
             let result = paddle_table_ocr(file_path).await?;
-            get_html_from_paddle_table_ocr(result)
+            let html = get_html_from_paddle_table_ocr(result)?;
+            let markdown = convert_table_to_markdown(html.clone());
+            Ok((html, markdown))
         }
         TableOcrModel::LLM => {
             let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
@@ -268,9 +295,16 @@ pub async fn perform_table_ocr(file_path: &Path) -> Result<String, Box<dyn Error
                     *TOKEN_TIMEOUT.get().unwrap(),
                 ))
                 .await?;
-            let prompt = get_prompt("table", &HashMap::new())?;
-            let result = llm_ocr(file_path, prompt).await?;
-            get_html_from_llm_table_ocr(result)
+            let html_prompt = get_prompt("html_table", &HashMap::new())?;
+            let md_prompt = get_prompt("md_table", &HashMap::new())?;
+            let html_task = llm_ocr(file_path, html_prompt);
+            let markdown_task = llm_ocr(file_path, md_prompt);
+            let (html_response, markdown_response) = tokio::try_join!(html_task, markdown_task)?;
+            let html = get_html_from_llm_table_ocr(html_response)
+                .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
+            let markdown = get_markdown_from_llm_table_ocr(markdown_response)
+                .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
+            Ok((html, markdown))
         }
     }
 }

@@ -83,7 +83,7 @@ mod tests {
     use super::*;
 
     use crate::utils::configs::llm_config::{get_prompt, Config as LlmConfig};
-    use crate::utils::services::ocr::get_html_from_llm_table_ocr;
+    use crate::utils::services::ocr::{get_html_from_llm_table_ocr, get_markdown_from_llm_table_ocr};
     use std::collections::HashMap;
     use std::fs;
     use std::path::Path;
@@ -103,45 +103,44 @@ mod tests {
         let key = llm_config.key;
 
         let models = HashMap::from([
-            ("geminiflash8b", "google/gemini-flash-1.5-8b"),
-            ("qwen", "qwen/qwen-2-vl-72b-instruct"),
-            ("geminiflash", "google/gemini-flash-1.5"),
             ("geminipro", "google/gemini-pro-1.5"),
         ]);
 
         let prompts = HashMap::from([
-            ("prompt1", "you are always outputting HTML code. Analyze this image and convert the table to HTML format maintaining the original structure.                 if the image provided is not a table (for example if it is a image, formula, chart, etc), then represent the information (maintain all the text exactly as it is) but structure it gracefully into html.
+            ("prompt1", "Analyze this image and convert the table to HTML format maintaining the original structure. If the image provided is not a table (for example if it is a image, formula, chart, etc), then represent the information (maintain all the text exactly as it is) but structure it gracefully into html.
 . Output the table directly in ```html``` tags."),
-            ("prompt2", "Task: Convert the provided image into a complete and precise HTML representation using advanced HTML techniques. 
-            DO NOT SIMPLIFY THE TABLE STRUCTURE AND ENSURE YOU COMPLETE THE ENTIRE TABLE. Get all content including titles, headers and footers.
-                HTML only.
-                Instructions:
-                1. Analyze the table thoroughly, ensuring no detail is overlooked.
-                2. Create an HTML structure that exactly mirrors the layout and content of the table, using advanced HTML5 elements where appropriate (e.g., <thead>, <tbody>, <tfoot>, <colgroup>, <caption>).
-                3. Include ALL text, numbers, and any other content present in the table.
-                4. Preserve the table structure exactly as it appears, using appropriate HTML tags (<table>, <tr>, <td>, <th>, etc.).
-                5. Maintain proper formatting, including any bold, italic, or other text styles visible. 
-                6. Transcribe the content exactly as it appears, using appropriate semantic HTML elements (e.g., <strong>, <em>, <sup>, <sub>) where necessary.
-                7. Implement proper accessibility features, such as including a <caption> for the table if a title is present.
-                8. PRESERVE ALL COMPLEXITY OF THE ORIGINAL TABLE IN YOUR HTML, including any nested tables, rowspans, or colspans.
-                9. If the table contains any interactive elements or complex layouts, consider using appropriate ARIA attributes to enhance accessibility.
-                10. ENSURE YOU COMPLETE THE ENTIRE TABLE. Do not stop until you have transcribed every single row and column. Use colspan and rowspan attributes to handle merged cells. If the table is extensive, prioritize completeness over perfect formatting.
-                11. Double-check that you have included all rows and columns before finishing.
-                12. Pay special attention to merged cells, split cells, and complex table structures. 
-                Use appropriate colspan and rowspan attributes with the right number to accurately represent the table layout. For cells split diagonally or containing multiple pieces of information, consider using nested tables or CSS positioning to faithfully reproduce the layout.
-                Ensure the structure of information is accurately represented in your html.
-                Output: Provide the complete HTML code, without any explanations or comments. 
-                Your response will be evaluated based on its completeness, accuracy, and use of HTML techniques in representing every aspect of the table.
-                Intelligently include any text around the table if present. Make intelligent decisions about how to represent the table. It must still be contained inside the ```html ... ``` tags.
-                if the image provided is not a table (for example if it is a image, formula, chart, etc), then represent the information (maintain all the text exactly as it is) but structure it gracefully into html.
-                output all your html in a <body> </body> tag enclosed in ```html ... ``` tags. For example:
-                ```html
-                <body>
-                ...
-                </body>
-                ```
-                you are always outputting HTML code. Wrap your output in a code block like ```html ... ```."
-            )
+            ("prompt2", "Analyze this image and convert the table to HTML format maintaining the original structure. If the image provided is not a table (for example if it is a image, formula, chart, etc), then represent the information (maintain all the text exactly as it is) but structure it gracefully into html.
+            . Include all text shown and any empty cells. Output the table directly in ```html``` tags."),
+            // ("prompt3", "Task: Convert the provided image into a complete and precise HTML representation using advanced HTML techniques. 
+            // DO NOT SIMPLIFY THE TABLE STRUCTURE AND ENSURE YOU COMPLETE THE ENTIRE TABLE. Get all content including titles, headers and footers.
+            //     HTML only.
+            //     Instructions:
+            //     1. Analyze the table thoroughly, ensuring no detail is overlooked.
+            //     2. Create an HTML structure that exactly mirrors the layout and content of the table, using advanced HTML5 elements where appropriate (e.g., <thead>, <tbody>, <tfoot>, <colgroup>, <caption>).
+            //     3. Include ALL text, numbers, and any other content present in the table.
+            //     4. Preserve the table structure exactly as it appears, using appropriate HTML tags (<table>, <tr>, <td>, <th>, etc.).
+            //     5. Maintain proper formatting, including any bold, italic, or other text styles visible. 
+            //     6. Transcribe the content exactly as it appears, using appropriate semantic HTML elements (e.g., <strong>, <em>, <sup>, <sub>) where necessary.
+            //     7. Implement proper accessibility features, such as including a <caption> for the table if a title is present.
+            //     8. PRESERVE ALL COMPLEXITY OF THE ORIGINAL TABLE IN YOUR HTML, including any nested tables, rowspans, or colspans.
+            //     9. If the table contains any interactive elements or complex layouts, consider using appropriate ARIA attributes to enhance accessibility.
+            //     10. ENSURE YOU COMPLETE THE ENTIRE TABLE. Do not stop until you have transcribed every single row and column. Use colspan and rowspan attributes to handle merged cells. If the table is extensive, prioritize completeness over perfect formatting.
+            //     11. Double-check that you have included all rows and columns before finishing.
+            //     12. Pay special attention to merged cells, split cells, and complex table structures. 
+            //     Use appropriate colspan and rowspan attributes with the right number to accurately represent the table layout. For cells split diagonally or containing multiple pieces of information, consider using nested tables or CSS positioning to faithfully reproduce the layout.
+            //     Ensure the structure of information is accurately represented in your html.
+            //     Output: Provide the complete HTML code, without any explanations or comments. 
+            //     Your response will be evaluated based on its completeness, accuracy, and use of HTML techniques in representing every aspect of the table.
+            //     Intelligently include any text around the table if present. Make intelligent decisions about how to represent the table. It must still be contained inside the ```html ... ``` tags.
+            //     if the image provided is not a table (for example if it is a image, formula, chart, etc), then represent the information (maintain all the text exactly as it is) but structure it gracefully into html.
+            //     output all your html in a <body> </body> tag enclosed in ```html ... ``` tags. For example:
+            //     ```html
+            //     <body>
+            //     ...
+            //     </body>
+            //     ```
+            //     you are always outputting HTML code. Wrap your output in a code block like ```html ... ```."
+            // )
         ]);
 
         let input_files: Vec<_> = fs::read_dir(input_dir)?
@@ -310,36 +309,35 @@ mod tests {
         let key = llm_config.key;
 
         let models = HashMap::from([
-            ("geminiflash8b", "google/gemini-flash-1.5-8b"),
-            ("geminiflash", "google/gemini-flash-1.5"),
             ("geminipro", "google/gemini-pro-1.5"),
         ]);
 
         let prompts = HashMap::from([
             ("prompt1", "you are always outputting HTML code.Analyze this image and convert the table to markdown format maintaining the original structure.                 3. if the image provided is not a table, then represent the information (maintain all the text exactly as it is) but structure it gracefully into markdown. Output the table directly in ```markdown``` tags."),
-            ("prompt2", "Task: Convert the provided image into a complete and precise markdown representation using advanced markdown techniques. 
-            DO NOT SIMPLIFY THE TABLE STRUCTURE AND ENSURE YOU COMPLETE THE ENTIRE TABLE. Get all content including titles, headers and footers.
-                Markdown only.
-                Instructions:
-                1. Analyze the table thoroughly, ensuring no detail is overlooked.
-                2. Create a markdown structure that exactly mirrors the layout and content of the table.
-                3. Include ALL text, numbers, and any other content present in the table.
-                4. Preserve the table structure exactly as it appears, using appropriate markdown table syntax.
-                5. Maintain proper formatting, including any bold, italic, or other text styles visible.
-                6. Transcribe the content exactly as it appears, using appropriate markdown formatting (e.g., **bold**, *italic*).
-                7. Include table headers and alignment if present.
-                8. PRESERVE ALL COMPLEXITY OF THE ORIGINAL TABLE IN YOUR MARKDOWN.
-                9. ENSURE YOU COMPLETE THE ENTIRE TABLE. Do not stop until you have transcribed every single row and column.
-                10. Double-check that you have included all rows and columns before finishing.
-                11. Pay special attention to complex table structures.
-                Ensure the structure of information is accurately represented in your markdown.
-                Output: Provide the complete markdown code, without any explanations or comments.
-                Your response will be evaluated based on its completeness, accuracy, and use of markdown techniques in representing every aspect of the table.
-                Intelligently include any text around the table if present. Make intelligent decisions about how to represent the table. It must still be contained inside the ```markdown ... ``` tags.
-                if the image provided is not a table, then represent the information (maintain all the text exactly as it is) but structure it gracefully into markdown.
+            // ("prompt2", "you are always outputting HTML code. Analyze this image and convert the table to markdown format maintaining the original structure.                 3. if the image provided is not a table, then represent the information (maintain all the text exactly as it is) but structure it gracefully into markdown. Output the table directly in ```markdown``` tags."),
+            // ("prompt2", "Task: Convert the provided image into a complete and precise markdown representation using advanced markdown techniques. 
+            // DO NOT SIMPLIFY THE TABLE STRUCTURE AND ENSURE YOU COMPLETE THE ENTIRE TABLE. Get all content including titles, headers and footers.
+            //     Markdown only.
+            //     Instructions:
+            //     1. Analyze the table thoroughly, ensuring no detail is overlooked.
+            //     2. Create a markdown structure that exactly mirrors the layout and content of the table.
+            //     3. Include ALL text, numbers, and any other content present in the table.
+            //     4. Preserve the table structure exactly as it appears, using appropriate markdown table syntax.
+            //     5. Maintain proper formatting, including any bold, italic, or other text styles visible.
+            //     6. Transcribe the content exactly as it appears, using appropriate markdown formatting (e.g., **bold**, *italic*).
+            //     7. Include table headers and alignment if present.
+            //     8. PRESERVE ALL COMPLEXITY OF THE ORIGINAL TABLE IN YOUR MARKDOWN.
+            //     9. ENSURE YOU COMPLETE THE ENTIRE TABLE. Do not stop until you have transcribed every single row and column.
+            //     10. Double-check that you have included all rows and columns before finishing.
+            //     11. Pay special attention to complex table structures.
+            //     Ensure the structure of information is accurately represented in your markdown.
+            //     Output: Provide the complete markdown code, without any explanations or comments.
+            //     Your response will be evaluated based on its completeness, accuracy, and use of markdown techniques in representing every aspect of the table.
+            //     Intelligently include any text around the table if present. Make intelligent decisions about how to represent the table. It must still be contained inside the ```markdown ... ``` tags.
+            //     if the image provided is not a table, then represent the information (maintain all the text exactly as it is) but structure it gracefully into markdown.
 
-                you are always outputting HTML code. Wrap your output in a code block like ```markdown ... ```."
-            )
+            //     you are always outputting HTML code. Wrap your output in a code block like ```markdown ... ```."
+            // )
         ]);
 
         let input_files: Vec<_> = fs::read_dir(input_dir)?
@@ -422,7 +420,7 @@ mod tests {
                                     _ => content
                                 };
                                 if let MessageContent::String { content } = content {
-                                    let markdown_result = get_mkd_from_llm_table_ocr(content.clone());
+                                    let markdown_result = get_markdown_from_llm_table_ocr(content.clone());
                                     let markdown_content = markdown_result.unwrap_or(content);
 
                                     let markdown_file = table_dir

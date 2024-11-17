@@ -47,7 +47,8 @@ fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
     let content = match prompt_name {
         "formula" => include_str!("../prompts/formula.txt"),
         "structured_extraction" => include_str!("../prompts/structured_extraction.txt"),
-        "table" => include_str!("../prompts/table.txt"),
+        "html_table" => include_str!("../prompts/html_table.txt"),
+        "md_table" => include_str!("../prompts/md_table.txt"),
         _ => {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
