@@ -1,0 +1,29 @@
+.nav-container {
+  width: 100%;
+  max-width: 324px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logo-container {
+  align-items: center;
+  justify-content: center;
+  height: fit-content;
+  border-radius: var(--Radius-4-max, 8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px;
+
+  box-shadow:
+    0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
+    0px 3px 12px -4px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
+    0px 2px 3px -2px var(--Colors-Neutral-Neutral-Alpha-3, rgba(0, 0, 51, 0.06));
+}
+
+.nav-container-toggle {
+  padding: 16px;
+}
