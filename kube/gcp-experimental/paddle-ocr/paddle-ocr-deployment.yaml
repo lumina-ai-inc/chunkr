@@ -37,7 +37,7 @@ spec:
         effect: "PreferNoSchedule"
       containers:
       - name: paddle-ocr
-        image: luminainc/paddle-ocr:bf6f0faa 
+        image: luminainc/paddle-ocr:07c654a8 
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
