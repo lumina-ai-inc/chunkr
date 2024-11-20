@@ -1,4 +1,6 @@
 .button-resting {
+  width: fit-content;
+  height: fit-content;
   border: 1px solid hsla(0, 0%, 100%, 0.2);
   background-color: hsla(191, 71%, 32%, 0);
   color: inherit;

@@ -12,11 +12,11 @@
   cursor: pointer;
 }
 
-.logo-container {
+.header-logo-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .logo:hover .logo-container {
