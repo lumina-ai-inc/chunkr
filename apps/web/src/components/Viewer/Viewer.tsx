@@ -49,19 +49,15 @@ export const Viewer = ({ output, inputFileUrl, task }: ViewerProps) => {
       }
     };
 
-    // Initial update
     updateWidth();
 
-    // Schedule additional updates
     const timeouts = [100, 500, 1000].map((delay) =>
       setTimeout(updateWidth, delay)
     );
 
-    // Add resize event listener
     window.addEventListener("resize", updateWidth);
 
     return () => {
-      // Clear timeouts and remove event listener on cleanup
       timeouts.forEach(clearTimeout);
       window.removeEventListener("resize", updateWidth);
     };

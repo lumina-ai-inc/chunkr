@@ -54,7 +54,6 @@ export const SegmentChunk = forwardRef<
       .map((segment) => {
         const textContent = segment.content || "";
 
-        // Skip if this content is the same as the previous one (ignoring LaTeX formatting)
         const normalizedContent = textContent.replace(/[\s\n${}\\]/g, "");
         const normalizedLast = lastContent.replace(/[\s\n${}\\]/g, "");
         if (normalizedContent === normalizedLast) {
@@ -79,7 +78,6 @@ export const SegmentChunk = forwardRef<
   const combinedHtml = useMemo(() => {
     return chunk.segments
       .map((segment) => {
-        // Handle tables with images
         if (
           segment.segment_type === "Table" &&
           segment.html?.startsWith("<span class=")
@@ -87,7 +85,6 @@ export const SegmentChunk = forwardRef<
           return `<br><img src="${segment.image}" />`;
         }
 
-        // Handle LaTeX content wrapped in formula spans
         if (segment.html?.includes('class="formula"')) {
           const formulaMatch = segment.html.match(
             /<span class="formula">(.*?)<\/span>/s
@@ -115,7 +112,6 @@ export const SegmentChunk = forwardRef<
           }
         }
 
-        // Handle other LaTeX content
         if (segment.content && segment.content.includes("\\")) {
           try {
             return katex.renderToString(segment.content, {
