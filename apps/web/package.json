@@ -34,6 +34,7 @@
     "dompurify": "^3.1.6",
     "i": "^0.3.7",
     "install": "^0.13.0",
+    "katex": "^0.16.11",
     "keycloak-js": "^25.0.4",
     "npm": "^10.8.2",
     "oidc-client-ts": "^3.0.1",
@@ -61,6 +62,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/dompurify": "^3.0.5",
+    "@types/katex": "^0.16.7",
     "@types/pdfjs-dist": "^2.10.378",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
