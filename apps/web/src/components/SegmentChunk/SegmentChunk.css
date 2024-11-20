@@ -1,4 +1,9 @@
 /* reset */
+.math-display {
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
 button,
 h3 {
   all: unset;
