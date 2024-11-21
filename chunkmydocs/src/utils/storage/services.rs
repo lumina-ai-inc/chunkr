@@ -37,20 +37,25 @@ pub async fn generate_presigned_url(
 ) -> Result<String, Box<dyn std::error::Error>> {
     let expiration = expires_in.unwrap_or(Duration::from_secs(3600));
 
-    // Extract bucket and key from the S3 path
     let (bucket, key) = extract_bucket_and_key(location)?;
 
-    // Generate presigned URL
-    let presigned_request = s3_client
-        .get_object()
-        .bucket(bucket)
-        .key(key)
+    let is_pdf = key.to_lowercase().ends_with(".pdf");
+
+    let mut get_object = s3_client.get_object().bucket(bucket).key(key);
+
+    if is_pdf {
+        get_object = get_object
+            .response_content_disposition("inline")
+            .response_content_type("application/pdf")
+            .response_content_encoding("utf-8");
+    }
+
+    let presigned_request = get_object
         .presigned(PresigningConfig::expires_in(expiration)?)
         .await?;
 
     Ok(presigned_request.uri().to_string())
 }
-
 pub async fn generate_presigned_url_if_exists(
     s3_client: &S3Client,
     location: &str,
