@@ -87,7 +87,7 @@ async def extract_and_annotate_file(file_path: str, model: Model, target_chunk_l
     print(f"Downloading bounding boxes for {file_path}...")
     output_json_path = await save_to_json(output_json_path, output, file_name)
     print(f"Downloaded bounding boxes for {file_path}")
-
+    print("PDF URL", task.pdf_url)
     if task.pdf_url:
         temp_pdf_path = os.path.join(output_dir, f"{file_name}_temp.pdf")
         urllib.request.urlretrieve(task.pdf_url, temp_pdf_path)

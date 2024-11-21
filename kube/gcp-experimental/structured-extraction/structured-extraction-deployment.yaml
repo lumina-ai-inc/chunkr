@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: structured-extraction
-        image: luminainc/structured-extraction:07c654a8 
+        image: luminainc/structured-extraction:740b308e 
         imagePullPolicy: Always
         envFrom:
         - secretRef:
