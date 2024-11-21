@@ -104,7 +104,7 @@ export default function Header({
           className="auth-container"
           justify="end"
         >
-          <Flex direction="row" gap="2" py="12px" px="16px" align="center">
+          <Flex direction="row" gap="2" px="16px" mt="2px" align="center">
             <svg
               width="18"
               height="18"
@@ -126,7 +126,7 @@ export default function Header({
                 </clipPath>
               </defs>
             </svg>
-            <Text size="1" weight="bold" className="nav-item">
+            <Text size="2" weight="medium" className="nav-item">
               {repoStats.stars >= 1000
                 ? `${(repoStats.stars / 1000).toFixed(1)}K`
                 : repoStats.stars}
