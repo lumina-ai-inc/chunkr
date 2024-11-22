@@ -218,7 +218,7 @@ services:
     restart: always
 
   paddle-ocr:
-    image: luminainc/paddle-ocr:740b308e
+    image: luminainc/paddle:latest
     ports:
       - "8003:8000"
     deploy:
