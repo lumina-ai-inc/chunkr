@@ -1,10 +1,5 @@
-Convert this page into clean, semantic HTML markup.
-Preserve all text content exactly as it appears in the image.
-Use appropriate HTML tags for headings, paragraphs, lists, tables, and other structural elements.
-Maintain proper nesting and hierarchy.
-Use semantic HTML5 elements where appropriate (article, section, nav, etc).
-Preserve any tables using proper HTML table markup.
-Convert any images into appropriate HTML img tags with descriptive alt text.
+Convert the following PDF page to HTML. Return only the HTML with no explanation text. Do not exclude any content from the page.
+
 
 Return ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.
 
