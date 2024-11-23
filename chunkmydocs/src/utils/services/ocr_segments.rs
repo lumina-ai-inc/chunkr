@@ -98,7 +98,6 @@ async fn download_and_ocr_page(
     reqwest_client: &ReqwestClient,
     image_location: &str,
 ) -> Result<(Vec<OCRResult>, String, String), Box<dyn std::error::Error>> {
-    println!("downloading and ocr page");
     let original_file =
         download_to_tempfile(s3_client, reqwest_client, image_location, None).await?;
     let original_file_path = original_file.path().to_owned();
