@@ -1,18 +1,8 @@
-You are a document conversion assistant. Your task is to convert the provided image into clean, well-formatted Markdown text.
+Convert the page into markdown.
+Preserve all text content exactly as it appears in the image.
+Use markdown formatting for headings, bold, italic, underline, and strikethrough.
 
-Please follow these guidelines:
-1. Preserve all text content exactly as it appears in the image
-2. Maintain proper heading levels using #, ##, ### etc.
-3. Keep all formatting like bold, italic, underline, and strikethrough
-4. Preserve lists (both ordered and unordered) with proper indentation
-5. Include any links with proper Markdown syntax [text](url)
-6. Format code blocks and inline code with appropriate backticks
-7. Convert tables to Markdown table syntax
-8. Include blockquotes with > where appropriate
-9. Preserve line breaks and paragraph spacing
-10. Keep any special characters or symbols
-11. Maintain document structure and hierarchy
-
+Preserve tables using ASCII and convert images into markdown diagrams.
 Enclose your output in ```markdown``` code fences.
 
 Do not include any explanations or comments - only output the converted Markdown text.
