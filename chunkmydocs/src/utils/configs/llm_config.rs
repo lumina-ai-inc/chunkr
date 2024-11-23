@@ -49,6 +49,8 @@ fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
         "structured_extraction" => include_str!("../prompts/structured_extraction.txt"),
         "html_table" => include_str!("../prompts/html_table.txt"),
         "md_table" => include_str!("../prompts/md_table.txt"),
+        "html_page" => include_str!("../prompts/html_page.txt"),
+        "md_page" => include_str!("../prompts/md_page.txt"),
         _ => {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
