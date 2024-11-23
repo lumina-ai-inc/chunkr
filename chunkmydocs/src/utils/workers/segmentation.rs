@@ -64,7 +64,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let mut batch_number: i32 = 0;
         match extraction_payload.configuration.segmentation_strategy {
             Some(SegmentationStrategy::Page) => {
-                println!("page strategy");
                 let mut segments = Vec::new();
                 let page_texts = extract_text_pdf(&pdf_file_path).await?;
                 let doc = lopdf::Document::load(&pdf_file_path)?;
