@@ -64,10 +64,12 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let mut batch_number: i32 = 0;
         match extraction_payload.configuration.segmentation_strategy {
             Some(SegmentationStrategy::Page) => {
+                println!("page strategy");
                 let mut segments = Vec::new();
                 let page_texts = extract_text_pdf(&pdf_file_path).await?;
                 let doc = lopdf::Document::load(&pdf_file_path)?;
                 for (page_num, obj_id) in doc.get_pages() {
+                    println!("page num: {}", page_num);
                     if let Ok(page_dict) = doc.get_dictionary(obj_id) {
                         if let Ok(mediabox) = page_dict.get(b"MediaBox").and_then(Object::as_array) {
                             if mediabox.len() >= 4 {
@@ -83,8 +85,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                                     segment_id: Uuid::new_v4().to_string(),
                                     content: content,
                                     bbox: BoundingBox {
-                                        top: 0.0,
-                                        left: 0.0,
+                                        top: y2,
+                                        left: x1,
                                         width,
                                         height,
                                     },
@@ -188,7 +190,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         })
     .await;
 
-    println!("25");
     match result {
         Ok(_) => {
             println!("Task succeeded");

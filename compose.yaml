@@ -96,7 +96,7 @@ services:
     restart: always
 
   chunkmydocs:
-    image: luminainc/chunkmydocs:740b308e
+    image: luminainc/chunkmydocs:7720eed1
     ports:
       - "8000:8000"
     depends_on:
@@ -110,7 +110,7 @@ services:
     restart: always
 
   preprocess:
-    image: luminainc/preprocess:740b308e
+    image: luminainc/preprocess:7720eed1
     depends_on:
       - postgres
       - redis
@@ -123,7 +123,7 @@ services:
     restart: always
 
   fast:
-    image: luminainc/fast:740b308e
+    image: luminainc/fast:7720eed1
     depends_on:
       - postgres
       - redis
@@ -137,7 +137,7 @@ services:
     restart: always
 
   high-quality:
-    image: luminainc/high-quality:740b308e
+    image: luminainc/high-quality:7720eed1
     depends_on:
       - postgres
       - redis
@@ -147,11 +147,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   postprocess:
-    image: luminainc/postprocess:740b308e
+    image: luminainc/postprocess:7720eed1
     depends_on:
       - postgres
       - redis
@@ -164,7 +164,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/ocr:740b308e
+    image: luminainc/ocr:7720eed1
     depends_on:
       - postgres
       - redis
@@ -173,11 +173,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   structured-extraction:
-    image: luminainc/structured-extraction:740b308e
+    image: luminainc/structured-extraction:7720eed1
     depends_on:
       - postgres
       - redis
@@ -218,7 +218,7 @@ services:
     restart: always
 
   paddle-ocr:
-    image: luminainc/paddle-ocr:740b308e
+    image: luminainc/paddle-ocr:7720eed1
     ports:
       - "8003:8000"
     deploy:
@@ -234,7 +234,7 @@ services:
     restart: always
 
   doctr:
-    image: luminainc/doctr:740b308e
+    image: luminainc/doctr:7720eed1
     ports:
       - "8003:8000"
     deploy:
@@ -250,7 +250,7 @@ services:
     restart: always
 
   table-ocr:
-    image: luminainc/table-ocr:740b308e
+    image: luminainc/table-ocr:7720eed1
     ports:
       - "8004:8000"
     deploy:
