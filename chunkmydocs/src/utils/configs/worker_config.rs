@@ -16,6 +16,12 @@ pub enum TableOcrModel {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum PageOcrModel {
+    LLM,
+    Doctr,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(default = "default_batch_size")]
     pub batch_size: i32,
@@ -65,6 +71,12 @@ pub struct Config {
     pub task_expiration: Option<Duration>,
     #[serde(default = "default_version")]
     pub version: String,
+    #[serde(default = "default_page_ocr_model")]
+    pub page_ocr_model: PageOcrModel,
+}
+
+fn default_page_ocr_model() -> PageOcrModel {
+    PageOcrModel::LLM
 }
 
 fn default_batch_size() -> i32 {
