@@ -29,6 +29,7 @@ pub fn filter_segment(segment: &Segment, ocr_strategy: OcrStrategy) -> bool {
             SegmentType::Table => true,
             SegmentType::Picture => true,
             SegmentType::Formula => true,
+            SegmentType::Page => true,
             _ => segment.content.is_empty(),
         },
     }
