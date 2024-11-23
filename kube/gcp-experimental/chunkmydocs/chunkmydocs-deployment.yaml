@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: chunkmydocs
-        image: luminainc/chunkmydocs:740b308e 
+        image: luminainc/chunkmydocs:24cb784b 
         imagePullPolicy: Always
         envFrom:
         - secretRef:
