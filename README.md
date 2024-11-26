@@ -71,7 +71,7 @@ https://docs.chunkr.ai
 
 2. Deploy:
    ```bash
-   git clone https://github.com/luminainc/chunkr
+   git clone https://github.com/lumina-ai-inc/chunkr
    cd chunkr
    cp .env.example .env
    docker compose up -d
