@@ -222,7 +222,7 @@ services:
     ports:
       - "8003:8080"
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:
@@ -238,7 +238,7 @@ services:
     ports:
       - "8003:8000"
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
