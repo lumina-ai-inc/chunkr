@@ -220,7 +220,7 @@ services:
   paddle-ocr:
     image: luminainc/paddle-ocr:24cb784b
     ports:
-      - "8003:8000"
+      - "8003:8080"
     deploy:
       replicas: 0
       resources:
