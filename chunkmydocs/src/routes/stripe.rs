@@ -1,6 +1,6 @@
 use crate::models::server::auth::UserInfo;
 use crate::models::server::user::{InvoiceStatus, Tier, UsageType};
-use crate::utils::configs::stripe_config::Config as StripeConfig;
+use crate::utils::configs::stripe_config::Config;
 use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::get_user::get_monthly_usage_count;
 use crate::utils::server::get_user::{get_invoice_information, get_invoices};
@@ -25,7 +25,7 @@ pub async fn create_setup_intent(
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
-    let stripe_config = StripeConfig::from_env().map_err(|e| {
+    let stripe_config = Config::from_env().map_err(|e| {
         eprintln!("Error loading Stripe configuration: {:?}", e);
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
@@ -96,7 +96,7 @@ pub async fn create_stripe_session(
     pool: web::Data<Pool>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
-    let stripe_config = StripeConfig::from_env().map_err(|e| {
+    let stripe_config = Config::from_env().map_err(|e| {
         eprintln!("Error loading Stripe configuration: {:?}", e);
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
@@ -164,7 +164,7 @@ pub async fn stripe_webhook(
     req: HttpRequest,
     payload: web::Bytes,
 ) -> Result<HttpResponse, Error> {
-    let stripe_config = StripeConfig::from_env().map_err(|e| {
+    let stripe_config = Config::from_env().map_err(|e| {
         eprintln!("Error loading Stripe configuration: {:?}", e);
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
