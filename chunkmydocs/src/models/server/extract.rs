@@ -53,7 +53,17 @@ pub struct ExtractionPayload {
 }
 
 #[derive(
-    Serialize, Deserialize, Debug, Clone, Display, EnumString, Eq, PartialEq, ToSql, FromSql,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    Display,
+    EnumString,
+    Eq,
+    PartialEq,
+    ToSql,
+    FromSql,
+    ToSchema,
 )]
 pub enum SegmentationStrategy {
     LayoutAnalysis,
