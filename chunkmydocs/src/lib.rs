@@ -69,6 +69,7 @@ fn run_migrations(url: &str) {
             models::server::extract::Model,
             models::server::extract::OcrStrategy,
             models::server::extract::UploadForm,
+            models::server::extract::SegmentationStrategy,
             models::server::segment::BoundingBox,
             models::server::segment::Chunk,
             models::server::segment::OCRResult,
