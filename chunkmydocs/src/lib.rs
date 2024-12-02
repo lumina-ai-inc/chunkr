@@ -8,13 +8,19 @@ use actix_web::HttpRequest;
 use actix_web::{web, App, HttpServer};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use env_logger::Env;
-use std::time::Duration;
-use tokio::time;
+use utoipa::{
+    openapi::security::{ApiKey, ApiKeyValue, SecurityScheme},
+    Modify, OpenApi,
+};
+use utoipa_redoc::{Redoc, Servable};
+use utoipa_swagger_ui::SwaggerUi;
+pub mod jobs;
 pub mod middleware;
 pub mod models;
 pub mod routes;
 pub mod utils;
 
+use jobs::init::init_jobs;
 use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
 use routes::health::health_check;
@@ -29,13 +35,6 @@ use routes::user::get_or_create_user;
 use utils::configs::s3_config::{create_client, create_external_client, ExternalS3Client};
 use utils::db::deadpool_postgres;
 use utils::server::admin_user::get_or_create_admin_user;
-use utils::stripe::invoicer::invoice;
-use utoipa::{
-    openapi::security::{ApiKey, ApiKeyValue, SecurityScheme},
-    Modify, OpenApi,
-};
-use utoipa_redoc::{Redoc, Servable};
-use utoipa_swagger_ui::SwaggerUi;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
@@ -113,6 +112,7 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
+        env_logger::init_from_env(Env::default().default_filter_or("info"));
         let pg_pool = deadpool_postgres::create_pool();
         let s3_client = create_client().await.expect("Failed to create S3 client");
         let s3_external_client = create_external_client()
@@ -122,7 +122,7 @@ pub fn main() -> std::io::Result<()> {
         get_or_create_admin_user(&pg_pool)
             .await
             .expect("Failed to create admin user");
-
+        init_jobs(pg_pool.clone());
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
             println!("Multipart error: {}", err);
             Error::from(err)
@@ -141,26 +141,6 @@ pub fn main() -> std::io::Result<()> {
             .parse()
             .expect("TIMEOUT must be a valid usize");
         let timeout = std::time::Duration::from_secs(timeout.try_into().unwrap());
-
-        env_logger::init_from_env(Env::default().default_filter_or("info"));
-        let pg_pool_clone = deadpool_postgres::create_pool();
-        if std::env::var("STRIPE__API_KEY").is_ok() {
-            actix_web::rt::spawn(async move {
-                let _ = chrono::Utc::now().date_naive();
-                let interval = std::env::var("INVOICE_INTERVAL")
-                    .unwrap_or_else(|_| "86400".to_string())
-                    .parse()
-                    .expect("INVOICE_INTERVAL must be a valid usize");
-                let mut interval = time::interval(Duration::from_secs(interval));
-                loop {
-                    interval.tick().await;
-                    println!("Processing daily invoices");
-                    if let Err(e) = invoice(&pg_pool_clone, None).await {
-                        eprintln!("Error processing daily invoices: {}", e);
-                    }
-                }
-            });
-        }
         HttpServer::new(move || {
             let mut app = App::new()
                 .wrap(Cors::permissive())
