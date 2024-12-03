@@ -123,7 +123,7 @@ pub fn main() -> std::io::Result<()> {
         get_or_create_admin_user(&pg_pool)
             .await
             .expect("Failed to create admin user");
-        init_jobs(pg_pool.clone());
+        init_jobs(pg_pool.clone(), s3_client.clone());
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
             println!("Multipart error: {}", err);
             Error::from(err)
