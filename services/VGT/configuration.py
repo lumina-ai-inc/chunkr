@@ -11,12 +11,8 @@ logging.root.handlers = []
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", handlers=handlers)
 service_logger = logging.getLogger(__name__)
 
-IMAGES_ROOT_PATH = Path(join(ROOT_PATH, "images"))
-WORD_GRIDS_PATH = Path(join(ROOT_PATH, "word_grids"))
-JSONS_ROOT_PATH = Path(join(ROOT_PATH, "jsons"))
-JSON_TEST_FILE_PATH = Path(join(JSONS_ROOT_PATH, "test.json"))
-MODELS_PATH = Path(join(ROOT_PATH, "models"))
-XMLS_PATH = Path(join(ROOT_PATH, "xmls"))
+
+MODELS_PATH = Path(join(ROOT_PATH, "/app/object_detection/weights"))
 
 DOCLAYNET_TYPE_BY_ID = {
     1: "Caption",
