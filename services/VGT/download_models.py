@@ -24,6 +24,12 @@ def download_vgt_model(model_name: str):
     urlretrieve(download_link, model_path, reporthook=download_progress)
 
 
+def download_models(model_name: str):
+    makedirs(MODELS_PATH, exist_ok=True)
+
+    download_vgt_model(model_name)
+    download_embedding_model()
+
 def download_embedding_model():
     model_path = join(MODELS_PATH, "layoutlm-base-uncased")
     if exists(model_path):
@@ -33,34 +39,5 @@ def download_embedding_model():
     snapshot_download(repo_id="microsoft/layoutlm-base-uncased", local_dir=model_path, local_dir_use_symlinks=False)
 
 
-def download_lightgbm_models():
-    tokens_type_model_path = join(MODELS_PATH, "token_type_lightgbm.model")
-    paragraph_extraction_model_path = join(MODELS_PATH, "paragraph_extraction_lightgbm.model")
-    if not exists(tokens_type_model_path):
-        hf_hub_download(
-            repo_id="HURIDOCS/pdf-document-layout-analysis",
-            filename="token_type_lightgbm.model",
-            local_dir=str(MODELS_PATH),
-            local_dir_use_symlinks=False,
-        )
-    if not exists(paragraph_extraction_model_path):
-        hf_hub_download(
-            repo_id="HURIDOCS/pdf-document-layout-analysis",
-            filename="paragraph_extraction_lightgbm.model",
-            local_dir=str(MODELS_PATH),
-            local_dir_use_symlinks=False,
-        )
-
-
-def download_models(model_name: str):
-    makedirs(MODELS_PATH, exist_ok=True)
-    if model_name == "fast":
-        download_lightgbm_models()
-        return
-    download_vgt_model(model_name)
-    download_embedding_model()
-
-
 if __name__ == "__main__":
     download_models("doclaynet")
-    download_models("fast")

@@ -1,0 +1,35 @@
+_BASE_: "../Base-RCNN-FPN.yaml"
+MODEL:
+  MASK_ON: False
+  META_ARCHITECTURE: "VGT"
+  WORDGRID:
+    VOCAB_SIZE: 30552
+    EMBEDDING_DIM: 64
+    MODEL_PATH: "/path/layoutlm-base-uncased/"
+    USE_PRETRAIN_WEIGHT: True
+  PIXEL_MEAN: [ 127.5, 127.5, 127.5 ]
+  PIXEL_STD: [ 127.5, 127.5, 127.5 ]
+  BACKBONE:
+    NAME: "build_VGT_fpn_backbone"
+  WEIGHTS: "https://layoutlm.blob.core.windows.net/dit/dit-pts/dit-base-224-p16-500k-62d53a.pth"
+  VIT:
+    NAME: "VGT_dit_base_patch16"
+    MERGE_TYPE: "Sum"
+  ROI_HEADS:
+    NAME: CascadeROIHeads
+    NUM_CLASSES: 5
+  ROI_BOX_HEAD:
+    CLS_AGNOSTIC_BBOX_REG: True
+  RPN:
+    POST_NMS_TOPK_TRAIN: 2000
+SOLVER:
+  BASE_LR: 0.0002
+  WARMUP_ITERS: 1000
+  STEPS: (80000, 100000)
+  MAX_ITER: 120000
+  IMS_PER_BATCH: 24
+TEST:
+  EVAL_PERIOD: 20000
+DATASETS:
+  TRAIN: ("publaynet_train",)
+  TEST: ("publaynet_val",)
