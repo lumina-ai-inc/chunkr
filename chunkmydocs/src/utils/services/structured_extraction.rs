@@ -16,9 +16,12 @@ use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 pub struct JsonSchema {
+    /// The title of the JSON schema. This can be used to identify the schema.
     pub title: String,
+    /// The type of the JSON schema. [being deprecated]
     #[serde(rename = "type")]
     pub schema_type: String,
+    /// The properties of the JSON schema. Each property is a field to be extracted from the document.
     pub properties: Vec<Property>,
 }
 
@@ -31,12 +34,21 @@ impl std::str::FromStr for JsonSchema {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
+/// A property of the JSON schema.
 pub struct Property {
+    /// The identifier for the property in the extracted data.
     pub name: String,
+    /// A human-readable title for the property.
+    /// This is optional and can be used to increase the accuracy of the extraction.
     pub title: Option<String>,
     #[serde(rename = "type")]
+    /// The data type of the property
     pub prop_type: String,
+    /// A description of what the property represents.
+    /// This is optional and can be used increase the accuracy of the extraction.
+    /// Available for string, int, float, bool, list, object.
     pub description: Option<String>,
+    /// The default value for the property if no data is extracted.
     pub default: Option<String>,
 }
 
@@ -49,16 +61,23 @@ pub struct Field {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
+/// Structured data extracted from the document using an LLM. It adheres to the JSON schema provided.
 pub struct ExtractedJson {
+    /// The title of the extracted JSON.
     pub title: String,
+    /// The type of the extracted JSON.
     pub schema_type: String,
+    /// The extracted fields. Each field is a key in the json schema provided.
     pub extracted_fields: Vec<ExtractedField>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub struct ExtractedField {
+    /// The identifier for the field in the extracted data.
     pub name: String,
+    /// The data type of the field
     pub field_type: String,
+    /// The value of the field extracted from the document.
     #[serde(
         serialize_with = "serialize_value",
         deserialize_with = "deserialize_value"
