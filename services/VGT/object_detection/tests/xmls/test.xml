@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pdf2xml SYSTEM "pdf2xml.dtd">
+
+<pdf2xml producer="poppler" version="22.02.0">
+<page number="1" position="absolute" top="0" left="0" height="792" width="612">
+	<fontspec id="0" size="19" family="AAAAAA+Roboto" color="#000000"/>
+	<fontspec id="1" size="9" family="BAAAAA+Roboto" color="#000000"/>
+	<fontspec id="2" size="10" family="CAAAAA+Arial" color="#000000"/>
+	<fontspec id="3" size="10" family="DAAAAA+ArialMT" color="#000000"/>
+<text top="72" left="183" width="246" height="22" font="0"><b>Document Big Centered Title</b></text>
+<text top="151" left="72" width="48" height="12" font="1">Some text.</text>
+<text top="151" left="122" width="66" height="12" font="2"><b>Lorem Ipsum</b></text>
+<text top="151" left="191" width="344" height="12" font="3">is simply dummy text of the printing and typesetting industry. Lorem Ipsum</text>
+<text top="165" left="72" width="463" height="12" font="3">has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a</text>
+<text top="179" left="72" width="420" height="12" font="3">galley of type and scrambled it to make a type specimen book. It has survived not only five</text>
+<text top="193" left="72" width="439" height="12" font="3">centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was</text>
+<text top="207" left="72" width="463" height="12" font="3">popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and</text>
+<text top="221" left="72" width="453" height="12" font="3">more recently with desktop publishing software like Aldus PageMaker including versions of Lorem</text>
+<text top="235" left="72" width="32" height="12" font="3">Ipsum.</text>
+<text top="290" left="72" width="43" height="12" font="2"><b>List Title</b></text>
+<text top="318" left="90" width="69" height="12" font="3">● FORMULA</text>
+<text top="332" left="90" width="76" height="12" font="3">● FOOTNOTE</text>
+<text top="346" left="90" width="40" height="12" font="3">● LIST</text>
+<text top="360" left="90" width="50" height="12" font="3">● TABLE</text>
+<text top="373" left="90" width="58" height="12" font="3">● FIGURE</text>
+<text top="387" left="90" width="47" height="12" font="3">● TITLE</text>
+<text top="401" left="90" width="45" height="12" font="3">● TEXT</text>
+</page>
+</pdf2xml>

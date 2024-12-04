@@ -13,19 +13,6 @@ from detectron2.structures import BoxMode
 import detectron2.data.transforms as T
 from transformers import AutoTokenizer
 from ditod import add_vit_config
-from create_grid_input import create_grid_dict
-
-def create_grid_dict_from_image(tokenizer, image):
-    """Create grid dictionary for a single image without PDF processing"""
-    # For now, we'll create an empty grid since we don't have OCR
-    # In production, you might want to add OCR here
-    grid = {
-        "input_ids": np.array([], dtype=np.int64),
-        "bbox_subword_list": np.array([], dtype=np.float32),
-        "texts": [],
-        "bbox_texts_list": np.array([], dtype=np.float32)
-    }
-    return grid
 
 class MemoryPredictor:
     def __init__(self, cfg):
@@ -50,7 +37,7 @@ class MemoryPredictor:
         # Initialize tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-uncased")
 
-    def __call__(self, original_image):
+    def __call__(self, original_image, grid_dict):
         """
         Args:
             original_image (np.ndarray): an image of shape (H, W, C) (in BGR order).
@@ -69,9 +56,7 @@ class MemoryPredictor:
             # Convert to tensor
             image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
 
-            # Create grid dictionary
-            grid_dict = create_grid_dict_from_image(self.tokenizer, original_image)
-            
+            # Create grid dictionary            
             # Transform bbox coordinates if they exist
             bbox = []
             if len(grid_dict["bbox_subword_list"]) > 0:
