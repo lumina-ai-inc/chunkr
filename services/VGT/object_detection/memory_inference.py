@@ -37,50 +37,91 @@ class MemoryPredictor:
         # Initialize tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-uncased")
 
-    def __call__(self, original_image, grid_dict):
-        """
-        Args:
-            original_image (np.ndarray): an image of shape (H, W, C) (in BGR order).
+    def __call__(self, original_images, grid_dicts):
+            """
+            Args:
+                original_images (list[np.ndarray]): list of images, each of shape (H, W, C) (in BGR order)
+                grid_dicts (list[dict]): list of grid dictionaries, one for each image
 
-        Returns:
-            predictions (dict): the output of the model
-        """
-        with torch.no_grad():
-            # Get image dimensions
-            height, width = original_image.shape[:2]
-            
-            # Apply transforms
-            image, transforms = T.apply_transform_gens([self.aug], original_image)
-            image_shape = image.shape[:2]  # h, w
-            
-            # Convert to tensor
-            image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
+            Returns:
+                predictions (list[dict]): the output of the model for each image
+            """
+            with torch.no_grad():
+                batch_inputs = []
+                
+                for original_image, grid_dict in zip(original_images, grid_dicts):
+                    # Get image dimensions
+                    height, width = original_image.shape[:2]
+                    
+                    # Apply transforms
+                    image, transforms = T.apply_transform_gens([self.aug], original_image)
+                    image_shape = image.shape[:2]  # h, w
+                    
+                    # Convert to tensor
+                    image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
 
-            # Create grid dictionary            
-            # Transform bbox coordinates if they exist
-            bbox = []
-            if len(grid_dict["bbox_subword_list"]) > 0:
-                for bbox_per_subword in grid_dict["bbox_subword_list"]:
-                    text_word = {
-                        'bbox': bbox_per_subword.tolist(),
-                        'bbox_mode': BoxMode.XYWH_ABS
+                    # Transform bbox coordinates if they exist
+                    bbox = []
+                    if len(grid_dict["bbox_subword_list"]) > 0:
+                        for bbox_per_subword in grid_dict["bbox_subword_list"]:
+                            text_word = {
+                                'bbox': bbox_per_subword,
+                                'bbox_mode': BoxMode.XYWH_ABS
+                            }
+                            utils.transform_instance_annotations(text_word, transforms, image_shape)
+                            bbox.append(text_word['bbox'])
+
+                    # Prepare input dictionary
+                    dataset_dict = {
+                        "input_ids": grid_dict["input_ids"],
+                        "bbox": bbox,
+                        "image": image,
+                        "height": height,
+                        "width": width
                     }
-                    utils.transform_instance_annotations(text_word, transforms, image_shape)
-                    bbox.append(text_word['bbox'])
+                    batch_inputs.append(dataset_dict)
 
-            # Prepare input dictionary
-            dataset_dict = {
-                "input_ids": grid_dict["input_ids"],
-                "bbox": bbox,
-                "image": image,
-                "height": height,
-                "width": width
-            }
+                # Run inference on batch
+                predictions = self.model(batch_inputs)
+                return predictions
 
-            # Run inference
-            predictions = self.model([dataset_dict])[0]
-            print(predictions)
-            return predictions
+def process_image_batch(predictor, images, dataset_name="doclaynet", grid_dicts=None):
+    """
+    Process a batch of images using the predictor and return predictions and visualizations.
+    
+    Args:
+        predictor (MemoryPredictor): Initialized predictor
+        images (list[np.ndarray]): List of input images in BGR format
+        dataset_name (str): Name of the dataset to use for metadata
+        grid_dicts (list[dict]): List of grid dictionaries, one for each image
+
+    Returns:
+        tuple: (predictions, visualization_images)
+    """
+    # Get predictions for batch
+    predictions = predictor(images, grid_dicts)
+
+    # Set up metadata based on dataset
+    md = MetadataCatalog.get(predictor.cfg.DATASETS.TEST[0])
+    if dataset_name == 'doclaynet':
+        md.set(thing_classes=["Caption","Footnote","Formula","List-item","Page-footer", 
+                            "Page-header", "Picture", "Section-header", "Table", "Text", "Title"])
+    # ... other dataset configurations ...
+
+    # Create visualizations for each image
+    visualizations = []
+    # for image, pred in zip(images, predictions):
+    #     v = Visualizer(
+    #         image[:, :, ::-1],
+    #         metadata=md,
+    #         scale=1.0,
+    #         instance_mode=ColorMode.SEGMENTATION
+    #     )
+    #     result = v.draw_instance_predictions(pred["instances"].to("cpu"))
+    #     visualization = result.get_image()[:, :, ::-1]
+    #     visualizations.append(visualization)
+
+    return predictions, visualizations
 def setup_cfg(config_file, weights_path, opts=None):
     """
     Create configs and perform basic setups.
@@ -108,7 +149,7 @@ def create_predictor(config_file, weights_path, opts=None):
     cfg = setup_cfg(config_file, weights_path, opts)
     return MemoryPredictor(cfg)
 
-def process_image(predictor, image, dataset_name="doclaynet"):
+def process_image(predictor, image, dataset_name="doclaynet", grid_dict=None):
     """
     Process an image using the predictor and return both predictions and visualization.
     
@@ -121,7 +162,7 @@ def process_image(predictor, image, dataset_name="doclaynet"):
         tuple: (predictions, visualization_image)
     """
     # Get predictions
-    predictions = predictor(image)
+    predictions = predictor(image, grid_dict)
 
     # Set up metadata based on dataset
     md = MetadataCatalog.get(predictor.cfg.DATASETS.TEST[0])

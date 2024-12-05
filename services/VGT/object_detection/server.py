@@ -3,8 +3,13 @@ from fastapi.responses import FileResponse
 import cv2
 import numpy as np
 from pathlib import Path
-from memory_inference import create_predictor, process_image
+from memory_inference import create_predictor, process_image_batch
 import uvicorn
+from fastapi import Body
+from fastapi import FastAPI, UploadFile, File, Form
+from pydantic import BaseModel
+from typing import List, Optional
+import json
 app = FastAPI()
 
 # Global variables
@@ -20,20 +25,41 @@ async def startup_event():
     predictor = create_predictor(CONFIG_FILE, WEIGHTS_PATH)
     print("Model loaded successfully!")
 
-@app.post("/process-image/")
-async def process_image_endpoint(file: UploadFile = File(...), grid_dict: dict = None):
-    # Read the uploaded image file
-    image_data = await file.read()
-    image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
+# Add this model to define the expected structure
 
-    # Process the image
-    predictions, result_image = process_image(predictor, image, dataset_name="doclaynet", grid_dict=grid_dict)
-
-    # Save the processed image to a temporary location
-    output_file = Path(f"/app/object_detection/tmp/{file.filename}_processed.jpg")
-    cv2.imwrite(str(output_file), result_image)
-
-    return predictions
+@app.post("/batch/")
+async def process_image_batch_endpoint(
+    files: List[UploadFile] = File(...),
+    grid_dicts: str = Form(...)  # JSON string containing list of grid dicts
+):    
+    # Parse the JSON string into list of dictionaries
+    grid_dicts = json.loads(grid_dicts)
+    
+    # Read all images
+    images = []
+    for file in files:
+        image_data = await file.read()
+        image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
+        images.append(image)
+    
+    # Process the batch
+    predictions, visualizations = process_image_batch(predictor, images, dataset_name="doclaynet", grid_dicts=grid_dicts)
+    
+    # Convert predictions to serializable format
+    serializable_predictions = []
+    for pred in predictions:
+        serializable_pred = {
+            "boxes": pred["instances"].pred_boxes.tensor.tolist(),
+            "scores": pred["instances"].scores.tolist(),
+            "classes": pred["instances"].pred_classes.tolist(),
+            "image_size": [
+                pred["instances"].image_size[0],
+                pred["instances"].image_size[1]
+            ]
+        }
+        serializable_predictions.append(serializable_pred)
+    
+    return serializable_predictions
 
 @app.get("/")
 async def root():

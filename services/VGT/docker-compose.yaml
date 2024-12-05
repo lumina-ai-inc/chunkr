@@ -1,0 +1,16 @@
+version: '3'
+services:
+  vgt-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    entrypoint: [ "python", "object_detection/server.py" ]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
