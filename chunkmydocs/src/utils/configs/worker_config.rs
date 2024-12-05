@@ -66,7 +66,6 @@ pub struct Config {
     pub table_ocr_model: TableOcrModel,
     #[serde(default = "default_table_ocr_url")]
     pub table_ocr_url: Option<String>,
-    pub task_expiration: Option<i32>,
     #[serde(default = "default_version")]
     pub version: String,
     #[serde(default = "default_page_ocr_model")]

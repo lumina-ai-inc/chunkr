@@ -14,7 +14,7 @@ pub async fn expire(
 
     let expired_tasks = client
         .query(
-            "SELECT user_id, task_id FROM tasks WHERE expires_at < CURRENT_TIMESTAMP",
+            "SELECT user_id, task_id FROM tasks WHERE expires_at < CURRENT_TIMESTAMP and finished_at > CURRENT_TIMESTAMP",
             &[],
         )
         .await?;
