@@ -3,7 +3,8 @@ use crate::models::{
     server::extract::{Configuration, ExtractionPayload},
     server::task::{Status, TaskResponse},
 };
-use crate::utils::configs::worker_config::Config;
+use crate::utils::configs::expiration_config::Config as ExpirationConfig;
+use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::services::payload::produce_extraction_payloads;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
@@ -33,13 +34,14 @@ pub async fn create_task(
     let target_chunk_length = configuration.target_chunk_length.unwrap_or(512);
     let created_at = Utc::now();
     let client: Client = pool.get().await?;
-    let config = Config::from_env()?;
-    let expires_in: Option<i32> = configuration.expires_in.or(config.task_expiration);
+    let worker_config = WorkerConfig::from_env()?;
+    let expiration_config = ExpirationConfig::from_env()?;
+    let expires_in: Option<i32> = configuration.expires_in.or(expiration_config.time);
     let expiration_time: Option<DateTime<Utc>> =
         expires_in.map(|seconds| Utc::now() + chrono::Duration::seconds(seconds as i64));
-    let bucket_name = config.s3_bucket;
-    let ingest_batch_size = config.batch_size;
-    let base_url = config.server_url;
+    let bucket_name = worker_config.s3_bucket;
+    let ingest_batch_size = worker_config.batch_size;
+    let base_url = worker_config.server_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
     let file_path: PathBuf = PathBuf::from(file.file.path());
@@ -141,7 +143,9 @@ pub async fn create_task(
                 page_count: Some(page_count),
             };
 
-            match produce_extraction_payloads(config.queue_preprocess, extraction_payload).await {
+            match produce_extraction_payloads(worker_config.queue_preprocess, extraction_payload)
+                .await
+            {
                 Ok(_) => {
                     println!(
                         "Time taken to produce extraction payloads: {:?}",

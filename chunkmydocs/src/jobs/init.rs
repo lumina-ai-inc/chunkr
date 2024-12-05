@@ -12,7 +12,6 @@ pub fn run_expiration_job(pg_pool: Pool, s3_client: S3Client) {
         let expiration_config = ExpirationConfig::from_env().unwrap();
         let interval = expiration_config.job_interval;
         let mut interval = time::interval(Duration::from_secs(interval));
-        println!("Expiration interval: {:?}", interval.period());
         loop {
             interval.tick().await;
             println!("Processing expired tasks");
@@ -33,7 +32,6 @@ pub fn run_invoice_job(pg_pool: Pool) {
     actix_web::rt::spawn(async move {
         let interval = stripe_config.invoice_interval;
         let mut interval = time::interval(Duration::from_secs(interval));
-        println!("Invoice interval: {:?}", interval.period());
         loop {
             interval.tick().await;
             println!("Processing daily invoices");

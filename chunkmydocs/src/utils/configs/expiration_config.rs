@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    pub time: Option<u64>,
+    pub time: Option<i32>,
     #[serde(default = "default_job_interval")]
     pub job_interval: u64,
 }
