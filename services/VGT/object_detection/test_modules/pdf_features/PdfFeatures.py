@@ -112,6 +112,7 @@ class PdfFeatures:
         if not PdfFeatures.contains_text(xml_path):
             print("No text found in initial conversion, trying with -hidden flag...")
             subprocess.run(["pdftohtml", "-i", "-hidden", "-xml", "-zoom", "1.0", pdf_path, xml_path])
+        
 
         print("Extracting features from XML...")
         pdf_features = PdfFeatures.from_poppler_etree(xml_path, file_name=Path(pdf_path).name)

@@ -7,7 +7,7 @@ from os.path import join, exists
 from test_modules.pdf_features.PdfToken import PdfToken
 from test_modules.pdf_features.Rectangle import Rectangle
 from test_modules.pdf_features.PdfFeatures import PdfFeatures
-
+import json
 from tokenization import BrosTokenizer
 from pathlib import Path
 ROOT_PATH = Path(__file__).parent.parent.absolute()
@@ -73,6 +73,7 @@ def get_grid_words_dict(tokens: list[PdfToken]):
             inputs_ids += ids
             bbox_subword_list += [rectangle_to_bbox(r) for r in subwords_bboxes]
 
+
     return {
         "input_ids": np.array(inputs_ids),
         "bbox_subword_list": np.array(bbox_subword_list),
@@ -82,20 +83,21 @@ def get_grid_words_dict(tokens: list[PdfToken]):
 
 
 def create_word_grid(pdf_features_list: list[PdfFeatures]):
+    grid_list = []
     makedirs(WORD_GRIDS_PATH, exist_ok=True)
-
     for pdf_features in pdf_features_list:
         for page in pdf_features.pages:
             image_id = f"{pdf_features.file_name}_{page.page_number - 1}"
-            if exists(join(WORD_GRIDS_PATH, image_id + ".pkl")):
-                continue
+            print(f"Image ID: {image_id}")
+            # if exists(join(WORD_GRIDS_PATH, image_id + ".pkl")):
+            #     continue
             grid_words_dict = get_grid_words_dict(page.tokens)
-            with open(join(WORD_GRIDS_PATH, f"{image_id}.pkl"), mode="wb") as file:
-                pickle.dump(grid_words_dict, file)
+            grid_list.append(grid_words_dict)
 
+    return grid_list
 
-def remove_word_grids():
-    shutil.rmtree(WORD_GRIDS_PATH, ignore_errors=True)
+# def remove_word_grids():
+#     shutil.rmtree(WORD_GRIDS_PATH, ignore_errors=True)
 
 if __name__ == "__main__":
     # For APACHE 2.0:
@@ -149,10 +151,11 @@ if __name__ == "__main__":
             if not pdf_path.exists():
                 raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
-            xml_path = Path(join(XMLS_PATH, xml_file_name)) if xml_file_name else None
+            xml_path = Path(join(XMLS_PATH, pdf_path.stem + ".xml"))
+            
             if xml_path and not xml_path.parent.exists():
                 os.makedirs(xml_path.parent, exist_ok=True)
-
+            print(f"Using XML path: {xml_path}")
             pdf_features = PdfFeatures.from_pdf_path(pdf_path, str(xml_path) if xml_path else None)
             if pdf_features is None:
                 raise ValueError(f"Failed to extract features from PDF: {pdf_path}")
@@ -167,42 +170,84 @@ if __name__ == "__main__":
             return PdfImages(pdf_features, pdf_images)
 
     # Convert PDF to images and create word grid
-    pdf_path = "figures/test.pdf"
+    pdf_path = "figures/test_batch.pdf"
+    batch_files = []
+    batch_grid_data = [] 
     pdf_images_list = [PdfImages.from_pdf_path(pdf_path, "", "test", density=300, extension="jpg")]
     print(len(pdf_images_list))
     
+    print("boutta start creating word grid")
     # Create word grid pkl files
-    create_word_grid(pdf_images_list)
-
+    grid_list = create_word_grid([pdf_images.pdf_features for pdf_images in pdf_images_list])
     # Send requests to server for each page
     import requests
+    import time
     import pickle
     from pathlib import Path
-
-    server_url = "http://localhost:8000/process-image/"
-
-    for pdf_images in pdf_images_list:
-        for i, image_path in enumerate(pdf_images.image_paths):
-            # Load corresponding grid data
-            image_id = f"{Path(pdf_path).stem}_{i}"
-            grid_path = Path(WORD_GRIDS_PATH) / f"{image_id}.pkl"
+    import io
+    from PIL import ImageDraw
+    server_url = "http://localhost:8000/batch/"
+    for pdf_images, page_grid_list in zip(pdf_images_list, [grid_list]):
+        for i, image in enumerate(pdf_images.pdf_images):
+            # Convert PIL image to bytes
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format='JPEG')
+            img_byte_arr = img_byte_arr.getvalue()
             
-            with open(grid_path, "rb") as f:
-                grid_data = pickle.load(f)
-
-            # Prepare files and data for request
-            files = {"file": open(image_path, "rb")}
+            # Get corresponding grid data
+            grid_data = page_grid_list[i]
+            grid_data_serializable = {
+                "input_ids": grid_data["input_ids"].tolist(),
+                "bbox_subword_list": grid_data["bbox_subword_list"].tolist(),
+                "texts": [""],
+                "bbox_texts_list": grid_data["bbox_texts_list"].tolist()
+            }
             
-            # Send request to server
-            response = requests.post(
-                server_url,
-                files=files,
-                json={"grid_dict": grid_data}
-            )
+            batch_files.append(("files", ("image.jpg", img_byte_arr, "image/jpeg")))
+            batch_grid_data.append(grid_data_serializable)
+    
+    print(f"Sending batch request with {len(batch_files)} images")
+    
+    # Send batch request
+    try:
+        start_time = time.time()
+        
+        # Create the proper GridList structure
+        grid_data_json = json.dumps(batch_grid_data)
 
-            if response.status_code == 200:
-                print(f"Successfully processed page {i+1}")
-                print("Predictions:", response.json())
-            else:
-                print(f"Error processing page {i+1}")
-
+        response = requests.post(
+            server_url,
+            files=batch_files,
+            data={"grid_dicts": grid_data_json}  # Wrap in GridList structure
+        )
+        end_time = time.time()
+        print("Response received")
+            
+        print(f"Batch request completed in {end_time - start_time:.2f} seconds")
+        
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}")
+            print(f"Response: {response.text}")
+        else:
+            # Process the batch response
+            predictions = response.json()
+            print(f"Received predictions for {len(predictions)} images")
+            
+            # Create visualizations for each prediction
+            for i, (pred, image) in enumerate(zip(predictions, batch_files)):
+                # Convert image bytes back to PIL Image for visualization
+                image_bytes = image[1][1]  # Get image bytes from tuple
+                annotated_image = Image.open(io.BytesIO(image_bytes))
+                draw = ImageDraw.Draw(annotated_image)
+                
+                # Draw boxes from predictions
+                for box in pred["boxes"]:
+                    draw.rectangle(box, outline="red", width=3)
+                
+                # Save the annotated image
+                annotated_image_path = Path(IMAGES_ROOT_PATH) / f"annotated_img_{i}.jpg"
+                annotated_image.save(annotated_image_path)
+                print(f"Annotated image saved at: {annotated_image_path}")
+                
+    except Exception as e:
+        print(f"Error during batch processing: {str(e)}")
