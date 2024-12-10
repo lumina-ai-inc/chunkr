@@ -21,4 +21,4 @@ spec:
         - containerPort: 8000
         envFrom:
         - secretRef:
-            name: rrq-secrets
+            name: rrq-secret
