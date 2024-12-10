@@ -286,6 +286,10 @@ output "storage_account_key" {
   sensitive = true
 }
 
+output "storage_account_endpoint" {
+  value = azurerm_storage_account.storage.endpoint
+}
+
 output "postgres_server_name" {
   value = azurerm_postgresql_flexible_server.postgres.name
 }
