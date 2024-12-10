@@ -1,0 +1,2 @@
+{{- include "chunkr.deployment" . -}}
+{{- include "chunkr.service" . -}}
