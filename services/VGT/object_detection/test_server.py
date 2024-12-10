@@ -1,9 +1,8 @@
-import pickle
 import shutil
 
 import numpy as np
 from os import makedirs
-from os.path import join, exists
+from os.path import join
 from test_modules.pdf_features.PdfToken import PdfToken
 from test_modules.pdf_features.Rectangle import Rectangle
 from test_modules.pdf_features.PdfFeatures import PdfFeatures
@@ -119,6 +118,7 @@ if __name__ == "__main__":
     from PIL import Image
     from pdf2image import convert_from_path
     from test_modules.pdf_features.PdfFeatures import PdfFeatures
+    from PIL import ImageFont
 
     IMAGES_ROOT_PATH = "tests/images"
     XMLS_PATH = "tests/xmls"
@@ -231,20 +231,72 @@ if __name__ == "__main__":
         else:
             # Process the batch response
             predictions = response.json()
-            print(f"Received predictions for {len(predictions)} images")
-            
-            # Create visualizations for each prediction
+            print("Server response format:", predictions)  # Debug the response structure
+
+            # Define class labels
+            class_labels = [
+                "Caption", "Footnote", "Formula", "List-item", "Page-footer", 
+                "Page-header", "Picture", "Section-header", "Table", "Text", "Title"
+            ]
+
+            # Then modify the visualization code to handle the actual response format
             for i, (pred, image) in enumerate(zip(predictions, batch_files)):
-                # Convert image bytes back to PIL Image for visualization
-                image_bytes = image[1][1]  # Get image bytes from tuple
+                image_bytes = image[1][1]
                 annotated_image = Image.open(io.BytesIO(image_bytes))
+                # Resize the image to be 2x larger
+                annotated_image = annotated_image.resize((annotated_image.width * 2, annotated_image.height * 2))
                 draw = ImageDraw.Draw(annotated_image)
                 
-                # Draw boxes from predictions
-                for box in pred["boxes"]:
-                    draw.rectangle(box, outline="red", width=3)
+                # Extract boxes, scores, and classes from the nested structure
+                boxes = pred.get('instances', {}).get('boxes', [])
+                scores = pred.get('instances', {}).get('scores', [])
+                classes = pred.get('instances', {}).get('classes', [])
                 
-                # Save the annotated image
+                # Draw boxes with confidence scores, class labels, and order numbers
+                try:
+                    for order, (box, score, cls) in enumerate(zip(boxes, scores, classes), start=1):
+                        if score > 0:  # Skip the dummy first prediction with score 0
+                            # Scale the box coordinates to match the resized image
+                            scaled_box = [coord * 2 for coord in box]
+                            # Draw the bounding box
+                            draw.rectangle(scaled_box, outline="red", width=3)
+                            
+                            # Prepare label text
+                            class_label = class_labels[cls] if cls < len(class_labels) else "Unknown"
+                            label_text = f"{order}: {score:.2f} ({class_label})"
+                            
+                            # Calculate label background position
+                            text_position = (scaled_box[0], max(0, scaled_box[1] - 35))  # Adjusted for larger label
+                            text_width = len(label_text) * 10  # Increased width for larger text
+                            text_height = 30  # Increased height for larger text
+                            
+                            # Draw label background
+                            label_bbox = [
+                                text_position[0],
+                                text_position[1],
+                                text_position[0] + text_width,
+                                text_position[1] + text_height
+                            ]
+                            draw.rectangle(label_bbox, fill="red")
+                            
+                            # Draw text in white on red background using a larger font
+                            try:
+                                font = ImageFont.truetype("DejaVuSans", 100)
+                            except OSError:
+                                print("DejaVuSans not found, using default font")
+                                # Fallback to default if DejaVuSans is not available
+                                font = ImageFont.load_default()
+
+                            draw.text(
+                                (text_position[0] + 2, text_position[1] + 2),
+                                label_text,
+                                fill="black",
+                                font=font
+                            )
+                except Exception as e:
+                    print(f"Error drawing box: {str(e)}")
+                    print(f"Box data: {box}")
+                    continue
                 annotated_image_path = Path(IMAGES_ROOT_PATH) / f"annotated_img_{i}.jpg"
                 annotated_image.save(annotated_image_path)
                 print(f"Annotated image saved at: {annotated_image_path}")

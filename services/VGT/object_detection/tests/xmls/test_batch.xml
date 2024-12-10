@@ -1,0 +1,906 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pdf2xml SYSTEM "pdf2xml.dtd">
+
+<pdf2xml producer="poppler" version="22.02.0">
+<page number="1" position="absolute" top="0" left="0" height="792" width="612">
+	<fontspec id="0" size="9" family="CGTNQE+KBYOEY弫CMR10" color="#000000"/>
+	<fontspec id="1" size="10" family="EHYMCM+AAAAAB弫HelveticaNeue" color="#000000"/>
+	<fontspec id="2" size="5" family="LFSDUV+AAAAAC弫HelveticaNeue" color="#000000"/>
+	<fontspec id="3" size="8" family="ADNXCM+PUASJT弫CMR9" color="#000000"/>
+	<fontspec id="4" size="8" family="ORTMUC+FSYUBL弫CMBX9" color="#000000"/>
+	<fontspec id="5" size="8" family="TAFVVG+FSYUBL弫CMBX9" color="#000000"/>
+	<fontspec id="6" size="8" family="VKVNKB+PUASJT弫CMR9" color="#000000"/>
+	<fontspec id="7" size="9" family="TTYMLX+KBYOEY弫CMR10" color="#000000"/>
+	<fontspec id="8" size="10" family="EDSRFY+AAAAAB弫HelveticaNeue" color="#000000"/>
+	<fontspec id="9" size="6" family="KGPRAD+AAAAAC弫HelveticaNeue" color="#000000"/>
+<text top="29" left="557" width="5" height="10" font="0">4</text>
+<text top="59" left="58" width="7" height="12" font="1"><b>A</b></text>
+<text top="111" left="58" width="7" height="12" font="1"><b>B</b></text>
+<text top="231" left="58" width="8" height="12" font="1"><b>D</b></text>
+<text top="231" left="179" width="7" height="12" font="1"><b>E</b></text>
+<text top="111" left="186" width="8" height="12" font="1"><b>C</b></text>
+<text top="243" left="179" width="43" height="7" font="2">No stopped ants</text>
+<text top="263" left="179" width="49" height="7" font="2">Single stopped ant</text>
+<text top="284" left="179" width="46" height="7" font="2">Two stopped ants</text>
+<text top="304" left="179" width="50" height="7" font="2">Three stopped ants</text>
+<text top="324" left="179" width="46" height="7" font="2">Five stopped ants</text>
+<text top="388" left="54" width="29" height="9" font="3">FIG. 3.</text>
+<text top="388" left="87" width="134" height="9" font="4">Ant speed depends on ant in</text>
+<text top="388" left="221" width="6" height="9" font="5"></text>
+<text top="388" left="227" width="72" height="9" font="4">ux and stopped</text>
+<text top="399" left="54" width="53" height="9" font="4">individuals.</text>
+<text top="399" left="111" width="188" height="9" font="3">(A) Positions of stopped ants over a 10-minute</text>
+<text top="409" left="54" width="245" height="9" font="3">interval. (B) Histogram showing the time ants stop for. Ar-</text>
+<text top="420" left="54" width="245" height="9" font="3">rows indicate the average stopping time. (B) Average number</text>
+<text top="430" left="54" width="245" height="9" font="3">of ants stopped as a function of the ant arrival rate. (D) Av-</text>
+<text top="441" left="54" width="245" height="9" font="3">erage ant speed versus ant arrival rate from individual-based</text>
+<text top="451" left="54" width="206" height="9" font="3">simulations when stopped ants are present (three,</text>
+<text top="451" left="264" width="5" height="9" font="6"></text>
+<text top="451" left="269" width="30" height="9" font="3">ve, and</text>
+<text top="461" left="54" width="245" height="9" font="3">ten stopped ants for the 5, 10, and 20 mm bridge, respec-</text>
+<text top="472" left="54" width="245" height="9" font="3">tively). (C) Simulated ant tracks (red tracks start at the left</text>
+<text top="482" left="54" width="245" height="9" font="3">end, while blue tracks start at the right end of the bridge)</text>
+<text top="493" left="54" width="245" height="9" font="3">with 0, 1, 2, and 5 (top to bottom) obstacles inserted at ran-</text>
+<text top="503" left="54" width="245" height="9" font="3">dom points on the bridge for a constant ant arrival rate of 5</text>
+<text top="514" left="54" width="27" height="9" font="3">ants/s.</text>
+<text top="559" left="54" width="245" height="10" font="0">ants (Fig. 3C). Crucially, the narrower the bridge, the</text>
+<text top="571" left="54" width="157" height="10" font="0">smaller the number of stopped ants.</text>
+<text top="588" left="64" width="235" height="10" font="0">From this data, we hypothesized that stopped ants ac-</text>
+<text top="600" left="54" width="68" height="10" font="0">tively shape tra</text>
+<text top="600" left="122" width="8" height="10" font="7"></text>
+<text top="600" left="131" width="140" height="10" font="0">c into narrower channels by arti</text>
+<text top="600" left="271" width="6" height="10" font="7"></text>
+<text top="600" left="276" width="23" height="10" font="0">cially</text>
+<text top="611" left="54" width="245" height="10" font="0">reducing the available space. In our simulation model,</text>
+<text top="622" left="54" width="80" height="10" font="0">we implemented di</text>
+<text top="622" left="134" width="6" height="10" font="7"></text>
+<text top="622" left="140" width="159" height="10" font="0">erent numbers of stopped ants at ran-</text>
+<text top="634" left="54" width="245" height="10" font="0">dom positions on the bridge to understand how their traf-</text>
+<text top="645" left="54" width="6" height="10" font="7"></text>
+<text top="645" left="60" width="16" height="10" font="0">c in</text>
+<text top="645" left="76" width="6" height="10" font="7"></text>
+<text top="645" left="81" width="218" height="10" font="0">uences the transport across the bridge. Simulated</text>
+<text top="657" left="54" width="245" height="10" font="0">ant trajectories avoided the stopped ants, creating space</text>
+<text top="668" left="54" width="58" height="10" font="0">devoid of tra</text>
+<text top="668" left="112" width="8" height="10" font="7"></text>
+<text top="668" left="120" width="179" height="10" font="0">c (Fig. 3E). Indeed, stopped ants cause</text>
+<text top="680" left="54" width="245" height="10" font="0">the simulated mean speed across the bridge to drop at</text>
+<text top="691" left="54" width="245" height="10" font="0">low ant arrival rates. As a result, the model incorpo-</text>
+<text top="703" left="54" width="245" height="10" font="0">rating stopped ants captures the experimental data well</text>
+<text top="714" left="54" width="43" height="10" font="0">(Fig. 3E).</text>
+<text top="55" left="336" width="10" height="9" font="4">E.</text>
+<text top="55" left="357" width="19" height="9" font="4">Arti</text>
+<text top="55" left="376" width="6" height="9" font="5"></text>
+<text top="55" left="382" width="161" height="9" font="4">cial obstacles play a similar role to</text>
+<text top="66" left="410" width="59" height="9" font="4">stopped ants</text>
+<text top="105" left="319" width="7" height="12" font="8"><b>A</b></text>
+<text top="177" left="319" width="8" height="12" font="8"><b>C</b></text>
+<text top="177" left="449" width="8" height="12" font="8"><b>D</b></text>
+<text top="180" left="343" width="29" height="7" font="9">Measured</text>
+<text top="180" left="467" width="29" height="7" font="9">Simulated</text>
+<text top="132" left="319" width="7" height="12" font="8"><b>B</b></text>
+<text top="317" left="317" width="29" height="9" font="3">FIG. 4.</text>
+<text top="317" left="350" width="19" height="9" font="4">Arti</text>
+<text top="317" left="370" width="6" height="9" font="5"></text>
+<text top="317" left="376" width="69" height="9" font="4">cial obstacles a</text>
+<text top="317" left="445" width="6" height="9" font="5"></text>
+<text top="317" left="451" width="49" height="9" font="4">ect the tra</text>
+<text top="317" left="501" width="9" height="9" font="5"></text>
+<text top="317" left="509" width="5" height="9" font="4">c</text>
+<text top="317" left="518" width="6" height="9" font="5"></text>
+<text top="317" left="523" width="39" height="9" font="4">ow simi-</text>
+<text top="328" left="317" width="129" height="9" font="4">larly to stopped individuals.</text>
+<text top="328" left="450" width="112" height="9" font="3">(A) Experimental setup of a</text>
+<text top="338" left="317" width="245" height="9" font="3">bridge of 10 mm with pillars. (B) Simulation showing pillars</text>
+<text top="348" left="317" width="245" height="9" font="3">in orange and ant tracks over 100 s in blue. (C) Average ant</text>
+<text top="359" left="317" width="245" height="9" font="3">speed as a function of ant arrival rate (measured over 10 s</text>
+<text top="369" left="317" width="141" height="9" font="3">time intervals) for bridges with arti</text>
+<text top="369" left="458" width="5" height="9" font="6"></text>
+<text top="369" left="463" width="99" height="9" font="3">cial obstacles. (D) Simu-</text>
+<text top="380" left="317" width="245" height="9" font="3">lated average ant speed as a function of ant arrival rate with</text>
+<text top="390" left="317" width="14" height="9" font="3">arti</text>
+<text top="390" left="331" width="5" height="9" font="6"></text>
+<text top="390" left="336" width="55" height="9" font="3">cial obstacles.</text>
+<text top="416" left="327" width="172" height="10" font="0">To test this further, we introduced arti</text>
+<text top="416" left="499" width="6" height="10" font="7"></text>
+<text top="416" left="505" width="57" height="10" font="0">cial obstacles</text>
+<text top="428" left="317" width="245" height="10" font="0">(pillars) in a regular pattern across the 10 mm bridge</text>
+<text top="439" left="317" width="245" height="10" font="0">(Fig. 4A) connected to a colony of approximately 25 600</text>
+<text top="451" left="317" width="245" height="10" font="0">individuals. This caused ants at low arrival rates (up to</text>
+<text top="462" left="317" width="245" height="10" font="0">3 ants/s) to move substantially faster (13.5 mm/s, up to</text>
+<text top="474" left="317" width="245" height="10" font="0">twice the speed) than in the same bridge without obsta-</text>
+<text top="485" left="317" width="245" height="10" font="0">cles (compare Fig. 1D and Fig. 4C). At higher arrival</text>
+<text top="496" left="317" width="245" height="10" font="0">rates, we observe a sharp increase in the mean speed up</text>
+<text top="508" left="317" width="245" height="10" font="0">to 20 mm/s (Fig. 4C). In all, the pillars reduce the space</text>
+<text top="519" left="317" width="245" height="10" font="0">available to ants, leading to an increased speed and shift-</text>
+<text top="531" left="317" width="245" height="10" font="0">ing the curve in Fig. 1D so that the plateau is attained</text>
+<text top="542" left="317" width="245" height="10" font="0">at lower ant arrival rates (we cannot access an analogous</text>
+<text top="554" left="317" width="245" height="10" font="0">sharp increase beyond 14 mm/s in the case without ob-</text>
+<text top="565" left="317" width="245" height="10" font="0">stacles, which might occur for ant arrival rates higher</text>
+<text top="577" left="317" width="245" height="10" font="0">than 8 ants/s). In the presence of pillars, we found vir-</text>
+<text top="588" left="317" width="245" height="10" font="0">tually no stopped ants in the bridge (Fig. S6). This sup-</text>
+<text top="600" left="317" width="245" height="10" font="0">ports our hypothesis that pillars can replace the role of</text>
+<text top="611" left="317" width="159" height="10" font="0">stopped ants in actively shaping tra</text>
+<text top="611" left="476" width="8" height="10" font="7"></text>
+<text top="611" left="485" width="77" height="10" font="0">c by reducing the</text>
+<text top="622" left="317" width="245" height="10" font="0">available space. To validate it, we implemented pillars in</text>
+<text top="634" left="317" width="245" height="10" font="0">our model arranged in the same regular pattern as in the</text>
+<text top="645" left="317" width="115" height="10" font="0">experiments (Fig. 4B). We</text>
+<text top="645" left="436" width="6" height="10" font="7"></text>
+<text top="645" left="441" width="121" height="10" font="0">nd that the simulated mean</text>
+<text top="657" left="317" width="245" height="10" font="0">speed describes the experimental data with pillars well</text>
+<text top="668" left="317" width="245" height="10" font="0">(Fig. 4D). Comparing the results with pillars or stopped</text>
+<text top="680" left="317" width="37" height="10" font="0">ants, we</text>
+<text top="680" left="358" width="6" height="10" font="7"></text>
+<text top="680" left="363" width="199" height="10" font="0">nd that in experiments, the regular arrange-</text>
+<text top="691" left="317" width="245" height="10" font="0">ment of pillars produces larger speeds than the corre-</text>
+<text top="703" left="317" width="245" height="10" font="0">sponding experiment of dynamically stopped ants (Ap-</text>
+<text top="714" left="317" width="245" height="10" font="0">pendix, Fig. S8A). In the case of simulations, the same</text>
+</page>
+<page number="2" position="absolute" top="0" left="0" height="792" width="612">
+	<fontspec id="10" size="9" family="HMBPRB+JYZOLI弫CMTI10" color="#000000"/>
+<text top="29" left="557" width="5" height="10" font="0">5</text>
+<text top="55" left="54" width="175" height="10" font="0">is true only at high densities, with the e</text>
+<text top="55" left="229" width="6" height="10" font="7"></text>
+<text top="55" left="235" width="64" height="10" font="0">ect reversed at</text>
+<text top="66" left="54" width="163" height="10" font="0">lower densities (Appendix, Fig. S8B).</text>
+<text top="103" left="131" width="16" height="9" font="4">III.</text>
+<text top="103" left="157" width="66" height="9" font="4">DISCUSSION</text>
+<text top="128" left="64" width="70" height="10" font="0">In this paper,</text>
+<text top="128" left="144" width="155" height="10" font="0">we demonstrated that ants au-</text>
+<text top="140" left="54" width="145" height="10" font="0">tonomously regulate their own tra</text>
+<text top="140" left="199" width="8" height="10" font="7"></text>
+<text top="140" left="207" width="29" height="10" font="0">c and e</text>
+<text top="140" left="237" width="6" height="10" font="7"></text>
+<text top="140" left="243" width="57" height="10" font="0">ectively over-</text>
+<text top="151" left="54" width="168" height="10" font="0">come environmental constraints. Our</text>
+<text top="151" left="226" width="6" height="10" font="7"></text>
+<text top="151" left="232" width="68" height="10" font="0">ndings reveal a</text>
+<text top="163" left="54" width="57" height="10" font="0">remarkable e</text>
+<text top="163" left="111" width="8" height="10" font="7"></text>
+<text top="163" left="119" width="180" height="10" font="0">ciency in ant transport, particularly un-</text>
+<text top="174" left="54" width="194" height="10" font="0">der high-density conditions, where typical tra</text>
+<text top="174" left="248" width="8" height="10" font="7"></text>
+<text top="174" left="256" width="43" height="10" font="0">c systems,</text>
+<text top="185" left="54" width="245" height="10" font="0">such as pedestrian or vehicular models, would predict a</text>
+<text top="197" left="54" width="245" height="10" font="0">decline in speed. Contrary to these systems, we observed</text>
+<text top="208" left="54" width="102" height="10" font="0">that not only does the</text>
+<text top="208" left="160" width="6" height="10" font="7"></text>
+<text top="208" left="166" width="133" height="10" font="0">ux (or transport rate) remain</text>
+<text top="220" left="54" width="245" height="10" font="0">high at elevated densities, but the velocity of individual</text>
+<text top="231" left="54" width="186" height="10" font="0">ants also reaches its maximum in high-tra</text>
+<text top="231" left="240" width="8" height="10" font="7"></text>
+<text top="231" left="249" width="50" height="10" font="0">c situations</text>
+<text top="243" left="54" width="214" height="10" font="0">(Fig. 1). This result challenges conventional tra</text>
+<text top="243" left="268" width="8" height="10" font="7"></text>
+<text top="243" left="276" width="23" height="10" font="0">c dy-</text>
+<text top="254" left="54" width="245" height="10" font="0">namics, where increased density generally leads to slower</text>
+<text top="266" left="54" width="128" height="10" font="0">movement, even if the overall</text>
+<text top="266" left="185" width="6" height="10" font="7"></text>
+<text top="266" left="191" width="76" height="10" font="0">ow is maintained.</text>
+<text top="278" left="64" width="235" height="10" font="0">We developed an agent-based model simulating ant</text>
+<text top="289" left="54" width="245" height="10" font="0">movement along the bridge to interpret these observa-</text>
+<text top="301" left="54" width="245" height="10" font="0">tions further. This model allowed us to examine the un-</text>
+<text top="312" left="54" width="189" height="10" font="0">derlying mechanisms driving this unique tra</text>
+<text top="312" left="243" width="8" height="10" font="7"></text>
+<text top="312" left="252" width="47" height="10" font="0">c behavior.</text>
+<text top="324" left="54" width="155" height="10" font="0">Our analysis suggests that when tra</text>
+<text top="324" left="209" width="8" height="10" font="7"></text>
+<text top="324" left="217" width="82" height="10" font="0">c density is moder-</text>
+<text top="335" left="54" width="245" height="10" font="0">ate, ants coordinate their movements by having a fraction</text>
+<text top="346" left="54" width="245" height="10" font="0">of individuals stop. These stationary ants reduce the ef-</text>
+<text top="358" left="54" width="245" height="10" font="0">fective cross-sectional area of the bridge, thereby concen-</text>
+<text top="369" left="54" width="201" height="10" font="0">trating the movement into a narrower, more e</text>
+<text top="369" left="255" width="8" height="10" font="7"></text>
+<text top="369" left="263" width="36" height="10" font="0">cient re-</text>
+<text top="381" left="54" width="245" height="10" font="0">gion. This counterintuitive behavior–where stopped ants</text>
+<text top="392" left="54" width="67" height="10" font="0">enhance overall</text>
+<text top="392" left="125" width="6" height="10" font="7"></text>
+<text top="392" left="131" width="168" height="10" font="0">ow–was supported by our simulations,</text>
+<text top="404" left="54" width="245" height="10" font="0">which revealed that the presence of motionless ants is</text>
+<text top="415" left="54" width="204" height="10" font="0">crucial for replicating the experimental results.</text>
+<text top="427" left="64" width="198" height="10" font="0">To validate our hypothesis, we introduced arti</text>
+<text top="427" left="262" width="6" height="10" font="7"></text>
+<text top="427" left="268" width="32" height="10" font="0">cial ob-</text>
+<text top="439" left="54" width="245" height="10" font="0">stacles in both experiments and simulations to mimic the</text>
+<text top="450" left="54" width="4" height="10" font="0">e</text>
+<text top="450" left="58" width="6" height="10" font="7"></text>
+<text top="450" left="64" width="235" height="10" font="0">ect of stopped ants. With these regularly spaced pillars</text>
+<text top="462" left="54" width="232" height="10" font="0">in place, we observed fewer stationary ants, yet the tra</text>
+<text top="462" left="286" width="8" height="10" font="7"></text>
+<text top="462" left="295" width="4" height="10" font="0">c</text>
+<text top="473" left="54" width="6" height="10" font="7"></text>
+<text top="473" left="60" width="64" height="10" font="0">ow remained e</text>
+<text top="473" left="123" width="8" height="10" font="7"></text>
+<text top="473" left="132" width="147" height="10" font="0">cient. This suggests that the arti</text>
+<text top="473" left="279" width="6" height="10" font="7"></text>
+<text top="473" left="284" width="15" height="10" font="0">cial</text>
+<text top="484" left="54" width="245" height="10" font="0">obstacles replicate the function of the stopped ants by</text>
+<text top="496" left="54" width="245" height="10" font="0">inducing a higher density in localized areas, thus reduc-</text>
+<text top="507" left="54" width="150" height="10" font="0">ing the need for ants to halt. Our</text>
+<text top="507" left="207" width="6" height="10" font="7"></text>
+<text top="507" left="213" width="47" height="10" font="0">ndings con</text>
+<text top="507" left="259" width="6" height="10" font="7"></text>
+<text top="507" left="265" width="34" height="10" font="0">rm that</text>
+<text top="519" left="54" width="122" height="10" font="0">these obstacles optimize tra</text>
+<text top="519" left="176" width="8" height="10" font="7"></text>
+<text top="519" left="184" width="4" height="10" font="0">c</text>
+<text top="519" left="192" width="6" height="10" font="7"></text>
+<text top="519" left="197" width="102" height="10" font="0">ow in a manner similar</text>
+<text top="530" left="54" width="196" height="10" font="0">to the natural stoppage behavior of the ants.</text>
+<text top="542" left="64" width="67" height="10" font="0">These results o</text>
+<text top="542" left="131" width="6" height="10" font="7"></text>
+<text top="542" left="137" width="129" height="10" font="0">er a novel perspective on tra</text>
+<text top="542" left="266" width="8" height="10" font="7"></text>
+<text top="542" left="274" width="25" height="10" font="0">c reg-</text>
+<text top="554" left="54" width="245" height="10" font="0">ulation strategies in biological systems, where crowding</text>
+<text top="565" left="54" width="208" height="10" font="0">can paradoxically lead to improved transport e</text>
+<text top="565" left="262" width="8" height="10" font="7"></text>
+<text top="565" left="270" width="29" height="10" font="0">ciency.</text>
+<text top="577" left="54" width="245" height="10" font="0">In the case of Argentine ants, this improvement seems</text>
+<text top="588" left="54" width="245" height="10" font="0">to arise from enhanced coordination and more directed</text>
+<text top="600" left="54" width="245" height="10" font="0">movement under crowded conditions. This form of dy-</text>
+<text top="611" left="54" width="107" height="10" font="0">namic, self-organized tra</text>
+<text top="611" left="161" width="8" height="10" font="7"></text>
+<text top="611" left="169" width="130" height="10" font="0">c management, where individ-</text>
+<text top="622" left="54" width="233" height="10" font="0">uals adjust their behavior to maximize collective e</text>
+<text top="622" left="287" width="8" height="10" font="7"></text>
+<text top="622" left="296" width="3" height="10" font="0">-</text>
+<text top="634" left="54" width="245" height="10" font="0">ciency, could have implications beyond ant colonies. Our</text>
+<text top="645" left="54" width="6" height="10" font="7"></text>
+<text top="645" left="60" width="227" height="10" font="0">ndings suggest potential applications in human tra</text>
+<text top="645" left="286" width="8" height="10" font="7"></text>
+<text top="645" left="295" width="4" height="10" font="0">c</text>
+<text top="657" left="54" width="245" height="10" font="0">systems, particularly in crowded environments such as</text>
+<text top="668" left="54" width="245" height="10" font="0">stadiums or transit hubs. By strategically incorporat-</text>
+<text top="680" left="54" width="195" height="10" font="0">ing obstacles or barriers, achieving optimal</text>
+<text top="680" left="254" width="6" height="10" font="7"></text>
+<text top="680" left="260" width="39" height="10" font="0">ow while</text>
+<text top="691" left="54" width="197" height="10" font="0">maintaining safety may be possible [27–30], o</text>
+<text top="691" left="251" width="6" height="10" font="7"></text>
+<text top="691" left="257" width="42" height="10" font="0">ering new</text>
+<text top="703" left="54" width="145" height="10" font="0">insights into the design of more e</text>
+<text top="703" left="199" width="8" height="10" font="7"></text>
+<text top="703" left="207" width="92" height="10" font="0">cient pedestrian traf-</text>
+<text top="714" left="54" width="6" height="10" font="7"></text>
+<text top="714" left="60" width="240" height="10" font="0">c systems [31]. Studies on pedestrians indicate that the</text>
+<text top="55" left="317" width="245" height="10" font="0">spatial layout of obstacles is important [32]. While our</text>
+<text top="66" left="317" width="77" height="10" font="0">focus was on the e</text>
+<text top="66" left="394" width="6" height="10" font="7"></text>
+<text top="66" left="400" width="139" height="10" font="0">ect of stopped individuals on the</text>
+<text top="66" left="542" width="6" height="10" font="7"></text>
+<text top="66" left="547" width="15" height="10" font="0">ow,</text>
+<text top="78" left="317" width="245" height="10" font="0">we also observed that the spatial arrangement of such in-</text>
+<text top="89" left="317" width="109" height="10" font="0">dividuals can play a role.</text>
+<text top="123" left="412" width="55" height="9" font="4">METHODS</text>
+<text top="148" left="387" width="104" height="9" font="4">Experimental protocol</text>
+<text top="173" left="327" width="235" height="10" font="0">The experimental data used for the analyses in (sec-</text>
+<text top="185" left="317" width="195" height="10" font="0">tions without pillars) was taken from [22].</text>
+<text top="185" left="522" width="40" height="10" font="0">Here, we</text>
+<text top="196" left="317" width="17" height="10" font="0">brie</text>
+<text top="196" left="334" width="6" height="10" font="7"></text>
+<text top="196" left="339" width="223" height="10" font="0">y summarise their experimental protocol; full de-</text>
+<text top="208" left="317" width="245" height="10" font="0">tails can be found in [22]. In the experiments, a colony</text>
+<text top="219" left="317" width="76" height="10" font="0">of Argentine ants</text>
+<text top="219" left="397" width="87" height="10" font="10">Linepithema humile</text>
+<text top="219" left="487" width="75" height="10" font="0">was connected to</text>
+<text top="230" left="317" width="245" height="10" font="0">a food source using a bridge of 170 mm in length. To</text>
+<text top="242" left="317" width="245" height="10" font="0">manipulate density, the authors used a combination of</text>
+<text top="253" left="317" width="56" height="10" font="0">bridges of di</text>
+<text top="253" left="373" width="6" height="10" font="7"></text>
+<text top="253" left="379" width="183" height="10" font="0">erent widths (5, 10, and 20mm) and ex-</text>
+<text top="265" left="317" width="245" height="10" font="0">perimental colonies of various sizes (from 400 to 25 600</text>
+<text top="276" left="317" width="245" height="10" font="0">ants) (see Fig. 1A, [22]). They conducted a total of 170</text>
+<text top="288" left="317" width="245" height="10" font="0">experiments. The size and design of the food source were</text>
+<text top="299" left="317" width="245" height="10" font="0">such that it never saturated, even for the largest colony</text>
+<text top="311" left="317" width="18" height="10" font="0">size.</text>
+<text top="322" left="327" width="235" height="10" font="0">In this paper, we introduced a new experiment con-</text>
+<text top="334" left="317" width="245" height="10" font="0">ducted with the 10 mm and the 20 mm wide bridges</text>
+<text top="345" left="317" width="245" height="10" font="0">similar to the one used by [22]. We glued eight pillars</text>
+<text top="357" left="317" width="245" height="10" font="0">on the bridge, materialized by cylindrical plastic beads</text>
+<text top="368" left="317" width="245" height="10" font="0">(4mm high, 1mm wide). The pillars were 2cm apart and</text>
+<text top="380" left="317" width="245" height="10" font="0">placed in a staggered pattern (see Fig. 4). We run four</text>
+<text top="391" left="317" width="245" height="10" font="0">replicates of this experiment following the same proto-</text>
+<text top="402" left="317" width="245" height="10" font="0">col as in [22]. Before each replicate, the experimental</text>
+<text top="414" left="317" width="109" height="10" font="0">colonies were starved for</text>
+<text top="414" left="430" width="6" height="10" font="7"></text>
+<text top="414" left="436" width="126" height="10" font="0">ve days, and the experiment</text>
+<text top="425" left="317" width="245" height="10" font="0">started when the ants were given access to a food source</text>
+<text top="437" left="317" width="245" height="10" font="0">placed on a platform (120x120 mm) at the other end of a</text>
+<text top="448" left="317" width="245" height="10" font="0">plastic bridge. The total length of the bridge was 170mm.</text>
+<text top="460" left="317" width="245" height="10" font="0">The food consisted of a 1M sucrose solution contained in</text>
+<text top="471" left="317" width="245" height="10" font="0">16 grooves (185mm long) carved in a block of plexiglas.</text>
+<text top="483" left="317" width="245" height="10" font="0">The grooves were numerous enough to prevent crowd-</text>
+<text top="494" left="317" width="22" height="10" font="0">ing e</text>
+<text top="494" left="339" width="6" height="10" font="7"></text>
+<text top="494" left="345" width="218" height="10" font="0">ects at the food source. The whole experimental</text>
+<text top="506" left="317" width="245" height="10" font="0">set-up was isolated from any sources of disturbance by</text>
+<text top="517" left="317" width="167" height="10" font="0">surrounding it with white paper walls.</text>
+<text top="552" left="346" width="187" height="9" font="4">Data collection, extraction, and analysis</text>
+<text top="577" left="327" width="161" height="10" font="0">Throughout the experiments, the tra</text>
+<text top="577" left="488" width="8" height="10" font="7"></text>
+<text top="577" left="496" width="66" height="10" font="0">c on the bridge</text>
+<text top="588" left="317" width="16" height="10" font="0">was</text>
+<text top="588" left="337" width="6" height="10" font="7"></text>
+<text top="588" left="342" width="220" height="10" font="0">lmed from above for 60 minutes, starting as soon</text>
+<text top="599" left="317" width="26" height="10" font="0">as the</text>
+<text top="599" left="346" width="6" height="10" font="7"></text>
+<text top="599" left="351" width="211" height="10" font="0">rst ant entered the bridge. We used two cameras</text>
+<text top="611" left="317" width="164" height="10" font="0">(Canon LEGRIA HF G30): one was</text>
+<text top="611" left="485" width="6" height="10" font="7"></text>
+<text top="611" left="491" width="71" height="10" font="0">lming the entire</text>
+<text top="622" left="317" width="245" height="10" font="0">set-up, and the second one was focused on the bridge.</text>
+<text top="634" left="317" width="245" height="10" font="0">We analyzed 116 videos among the 170 available, us-</text>
+<text top="645" left="317" width="245" height="10" font="0">ing trackR [33] to extract the trajectories of individual</text>
+<text top="657" left="317" width="245" height="10" font="0">ants (see Fig. 1B). We tracked a central portion of the</text>
+<text top="668" left="317" width="245" height="10" font="0">bridge with a length of 100 mm. In Figs. 2, 3, and 4, we</text>
+<text top="680" left="317" width="198" height="10" font="0">only use the data once a steady bidirectional</text>
+<text top="680" left="519" width="6" height="10" font="7"></text>
+<text top="680" left="524" width="38" height="10" font="0">ux along</text>
+<text top="691" left="317" width="128" height="10" font="0">the bridge has been attained.</text>
+<text top="703" left="327" width="235" height="10" font="0">To calculate the relationship between the mean ant</text>
+<text top="714" left="317" width="245" height="10" font="0">speed and the ant arrival rate, we divided each exper-</text>
+</page>
+<page number="3" position="absolute" top="0" left="0" height="792" width="612">
+	<fontspec id="11" size="9" family="UXSHOV+PTLFPR弫CMTT10" color="#000000"/>
+	<fontspec id="12" size="9" family="AXRIDP+TXJQZA弫CMMI10" color="#000000"/>
+	<fontspec id="13" size="9" family="NYFAYD+LXUECY弫CMBX10" color="#000000"/>
+	<fontspec id="14" size="6" family="ZHOAGH+WXMGCY弫CMMI7" color="#000000"/>
+	<fontspec id="15" size="6" family="BYYKTY+ESQLCZ弫CMR7" color="#000000"/>
+	<fontspec id="16" size="9" family="XFNTZQ+PCBWLV弫CMSY10" color="#000000"/>
+	<fontspec id="17" size="9" family="DNTQQC+GSXYAU弫CMEX10" color="#000000"/>
+	<fontspec id="18" size="6" family="CAMGTA+FUDAET弫CMSY7" color="#000000"/>
+	<fontspec id="19" size="9" family="NIFMUU+TXJQZA弫CMMI10" color="#000000"/>
+	<fontspec id="20" size="9" family="CRLLYV+PCBWLV弫CMSY10" color="#000000"/>
+	<fontspec id="21" size="8" family="CYTYAE+ITYRVJ弫CMTI9" color="#000000"/>
+	<fontspec id="22" size="8" family="BDOYGA+ITYRVJ弫CMTI9" color="#000000"/>
+<text top="29" left="557" width="5" height="10" font="0">6</text>
+<text top="55" left="54" width="245" height="10" font="0">iment into 10 s intervals and counted how many ants</text>
+<text top="66" left="54" width="245" height="10" font="0">arrived at the bridge. For each interval, we averaged the</text>
+<text top="78" left="54" width="245" height="10" font="0">individual speeds of all ants on the bridge throughout</text>
+<text top="89" left="54" width="104" height="10" font="0">that interval. We then</text>
+<text top="89" left="163" width="6" height="10" font="7"></text>
+<text top="89" left="169" width="130" height="10" font="0">tted a GAM to the resulting</text>
+<text top="100" left="54" width="245" height="10" font="0">mean ant speed versus ant arrival rate data using the</text>
+<text top="112" left="54" width="21" height="9" font="11">mgcv</text>
+<text top="112" left="79" width="220" height="10" font="0">package [34] in R (version 4.4.1), using six knots,</text>
+<text top="123" left="54" width="245" height="10" font="0">restricted maximum likelihood as the smoothing parame-</text>
+<text top="135" left="54" width="245" height="10" font="0">ter estimation method, and a Gaussian distribution with</text>
+<text top="146" left="54" width="195" height="10" font="0">the identity link function (Figs. 1D and 4C).</text>
+<text top="161" left="64" width="235" height="10" font="0">To identify stopped ants, we looked for parts of indi-</text>
+<text top="173" left="54" width="245" height="10" font="0">vidual ant tracks that did not move more than 1 mm</text>
+<text top="184" left="54" width="245" height="10" font="0">in any given 4 s interval. We gathered information on</text>
+<text top="196" left="54" width="245" height="10" font="0">how long ants stay stopped according to these criteria</text>
+<text top="207" left="54" width="245" height="10" font="0">(Fig. 3B). We also counted how many ants were stopped</text>
+<text top="219" left="54" width="245" height="10" font="0">on average throughout each 10 s time window and again</text>
+<text top="230" left="54" width="6" height="10" font="7"></text>
+<text top="230" left="60" width="240" height="10" font="0">tted a GAM to the resulting stopped ants vs ant arrival</text>
+<text top="242" left="54" width="245" height="10" font="0">rate data, using 6 knots and a Poisson distribution with</text>
+<text top="253" left="54" width="163" height="10" font="0">a logarithmic link function (Fig. 3C).</text>
+<text top="306" left="132" width="89" height="9" font="4">Agent-based model</text>
+<text top="335" left="64" width="235" height="10" font="0">Ants are modeled as interacting active Brownian parti-</text>
+<text top="346" left="54" width="64" height="10" font="0">cles, where the</text>
+<text top="346" left="121" width="3" height="10" font="12">i</text>
+<text top="346" left="125" width="79" height="10" font="0">th ant with center</text>
+<text top="346" left="207" width="9" height="10" font="13">X</text>
+<text top="350" left="216" width="3" height="7" font="14">i</text>
+<text top="346" left="219" width="4" height="10" font="0">(</text>
+<text top="346" left="223" width="4" height="10" font="12">t</text>
+<text top="346" left="226" width="21" height="10" font="0">) = (</text>
+<text top="346" left="247" width="8" height="10" font="12">X</text>
+<text top="350" left="256" width="3" height="7" font="14">i</text>
+<text top="346" left="259" width="4" height="10" font="0">(</text>
+<text top="346" left="263" width="4" height="10" font="12">t</text>
+<text top="346" left="266" width="4" height="10" font="0">)</text>
+<text top="346" left="270" width="10" height="10" font="12">, Y</text>
+<text top="350" left="281" width="3" height="7" font="14">i</text>
+<text top="346" left="284" width="4" height="10" font="0">(</text>
+<text top="346" left="288" width="4" height="10" font="12">t</text>
+<text top="346" left="291" width="8" height="10" font="0">))</text>
+<text top="358" left="54" width="67" height="10" font="0">and orientation</text>
+<text top="358" left="124" width="8" height="10" font="7">Θ</text>
+<text top="361" left="132" width="3" height="7" font="14">i</text>
+<text top="358" left="135" width="4" height="10" font="0">(</text>
+<text top="358" left="139" width="4" height="10" font="12">t</text>
+<text top="358" left="143" width="39" height="10" font="0">) at time</text>
+<text top="358" left="185" width="4" height="10" font="12">t</text>
+<text top="358" left="192" width="87" height="10" font="0">evolves according to</text>
+<text top="389" left="79" width="6" height="10" font="0">d</text>
+<text top="389" left="84" width="9" height="10" font="13">X</text>
+<text top="393" left="93" width="3" height="7" font="14">i</text>
+<text top="389" left="99" width="8" height="10" font="0">=</text>
+<text top="389" left="110" width="5" height="10" font="12">v</text>
+<text top="393" left="114" width="4" height="7" font="15">0</text>
+<text top="389" left="119" width="5" height="10" font="13">e</text>
+<text top="389" left="124" width="4" height="10" font="0">(</text>
+<text top="389" left="128" width="8" height="10" font="7">Θ</text>
+<text top="393" left="136" width="3" height="7" font="14">i</text>
+<text top="389" left="139" width="9" height="10" font="0">)d</text>
+<text top="389" left="149" width="4" height="10" font="12">t</text>
+<text top="389" left="154" width="8" height="12" font="16">−</text>
+<text top="379" left="164" width="14" height="12" font="17"></text>
+<text top="403" left="165" width="3" height="7" font="14">j</text>
+<text top="403" left="169" width="0" height="8" font="18"≯</text>
+<text top="403" left="169" width="6" height="7" font="15">=</text>
+<text top="403" left="175" width="3" height="7" font="14">i</text>
+<text top="389" left="180" width="8" height="12" font="16"></text>
+<text top="389" left="189" width="6" height="10" font="12">u</text>
+<text top="389" left="194" width="4" height="10" font="0">(</text>
+<text top="389" left="198" width="3" height="12" font="16"></text>
+<text top="389" left="201" width="9" height="10" font="13">X</text>
+<text top="393" left="210" width="3" height="7" font="14">i</text>
+<text top="389" left="215" width="8" height="12" font="16">−</text>
+<text top="389" left="225" width="9" height="10" font="13">X</text>
+<text top="393" left="234" width="3" height="7" font="14">j</text>
+<text top="389" left="238" width="3" height="12" font="16"></text>
+<text top="389" left="241" width="9" height="10" font="0">)d</text>
+<text top="389" left="250" width="6" height="10" font="12">t,</text>
+<text top="389" left="281" width="18" height="10" font="0">(1a)</text>
+<text top="417" left="80" width="6" height="10" font="0">d</text>
+<text top="417" left="85" width="8" height="10" font="7">Θ</text>
+<text top="421" left="93" width="3" height="7" font="14">i</text>
+<text top="417" left="99" width="8" height="10" font="0">=</text>
+<text top="408" left="110" width="8" height="12" font="16">√</text>
+<text top="417" left="118" width="5" height="10" font="0">2</text>
+<text top="417" left="123" width="8" height="10" font="12">D</text>
+<text top="417" left="131" width="6" height="10" font="0">d</text>
+<text top="417" left="137" width="9" height="10" font="12">W</text>
+<text top="421" left="146" width="3" height="7" font="14">i</text>
+<text top="417" left="150" width="3" height="10" font="19"></text>
+<text top="417" left="281" width="18" height="10" font="0">(1b)</text>
+<text top="446" left="54" width="20" height="10" font="0">Here</text>
+<text top="446" left="80" width="5" height="10" font="12">v</text>
+<text top="449" left="85" width="4" height="7" font="15">0</text>
+<text top="446" left="96" width="37" height="10" font="0">is the (</text>
+<text top="446" left="132" width="6" height="10" font="7"></text>
+<text top="446" left="138" width="121" height="10" font="0">xed) self-propulsion speed,</text>
+<text top="446" left="266" width="5" height="10" font="13">e</text>
+<text top="446" left="271" width="4" height="10" font="0">(</text>
+<text top="446" left="275" width="5" height="10" font="19">θ</text>
+<text top="446" left="280" width="19" height="10" font="0">) =</text>
+<text top="457" left="54" width="17" height="10" font="0">(cos</text>
+<text top="457" left="73" width="5" height="10" font="19">θ</text>
+<text top="457" left="78" width="3" height="10" font="12">,</text>
+<text top="457" left="82" width="12" height="10" font="0">sin</text>
+<text top="457" left="96" width="5" height="10" font="19">θ</text>
+<text top="457" left="101" width="90" height="10" font="0">) is the ant direction,</text>
+<text top="457" left="194" width="8" height="10" font="12">D</text>
+<text top="457" left="205" width="79" height="10" font="0">is the rotational di</text>
+<text top="457" left="284" width="6" height="10" font="7"></text>
+<text top="457" left="290" width="9" height="10" font="0">u-</text>
+<text top="469" left="54" width="34" height="10" font="0">sion coe</text>
+<text top="469" left="88" width="8" height="10" font="7"></text>
+<text top="469" left="96" width="42" height="10" font="0">cient, and</text>
+<text top="469" left="142" width="9" height="10" font="12">W</text>
+<text top="472" left="151" width="3" height="7" font="14">i</text>
+<text top="469" left="157" width="142" height="10" font="0">are independent one-dimensional</text>
+<text top="480" left="54" width="245" height="10" font="0">Brownian motions. The ants interact through a repul-</text>
+<text top="491" left="54" width="113" height="10" font="0">sive exponential potential</text>
+<text top="491" left="171" width="6" height="10" font="12">u</text>
+<text top="491" left="177" width="4" height="10" font="0">(</text>
+<text top="491" left="181" width="4" height="10" font="12">r</text>
+<text top="491" left="186" width="16" height="10" font="0">) =</text>
+<text top="491" left="205" width="7" height="10" font="12">C</text>
+<text top="495" left="213" width="4" height="7" font="14">r</text>
+<text top="491" left="219" width="19" height="10" font="0">exp(</text>
+<text top="491" left="238" width="8" height="12" font="16">−</text>
+<text top="491" left="245" width="4" height="10" font="12">r</text>
+<text top="491" left="250" width="5" height="10" font="19"></text>
+<text top="491" left="255" width="3" height="10" font="12">l</text>
+<text top="495" left="258" width="4" height="7" font="14">r</text>
+<text top="491" left="263" width="36" height="10" font="0">), where</text>
+<text top="503" left="54" width="7" height="10" font="12">C</text>
+<text top="507" left="61" width="4" height="7" font="14">r</text>
+<text top="503" left="68" width="16" height="10" font="0">and</text>
+<text top="503" left="86" width="3" height="10" font="12">l</text>
+<text top="507" left="89" width="4" height="7" font="14">r</text>
+<text top="503" left="96" width="78" height="10" font="0">are the interaction</text>
+<text top="503" left="174" width="3" height="10" font="7"></text>
+<text top="503" left="177" width="122" height="10" font="0">s strength and range, respec-</text>
+<text top="514" left="54" width="245" height="10" font="0">tively. Pheromone deposition and trails are not included</text>
+<text top="55" left="317" width="73" height="10" font="0">in (1) since its e</text>
+<text top="55" left="390" width="6" height="10" font="7"></text>
+<text top="55" left="396" width="166" height="10" font="0">ect is negligible given the experiment</text>
+<text top="66" left="317" width="169" height="10" font="0">bridge geometry and level of crowding.</text>
+<text top="78" left="327" width="235" height="10" font="0">We simulate the tracked central portion of the bridge,</text>
+<text top="89" left="317" width="99" height="10" font="0">that is, the domain (</text>
+<text top="89" left="416" width="15" height="10" font="12">x, y</text>
+<text top="89" left="432" width="4" height="10" font="0">)</text>
+<text top="89" left="442" width="7" height="12" font="16"></text>
+<text top="89" left="454" width="3" height="10" font="0">[</text>
+<text top="89" left="457" width="8" height="12" font="16">−</text>
+<text top="89" left="465" width="10" height="10" font="0">50</text>
+<text top="89" left="475" width="3" height="10" font="12">,</text>
+<text top="89" left="479" width="13" height="10" font="0">50]</text>
+<text top="89" left="496" width="8" height="12" font="20">×</text>
+<text top="89" left="507" width="3" height="10" font="0">[</text>
+<text top="89" left="510" width="8" height="12" font="16">−</text>
+<text top="89" left="517" width="7" height="10" font="12">w</text>
+<text top="89" left="525" width="5" height="10" font="19"></text>
+<text top="89" left="530" width="5" height="10" font="0">2</text>
+<text top="89" left="535" width="12" height="10" font="12">, w</text>
+<text top="89" left="547" width="5" height="10" font="19"></text>
+<text top="89" left="552" width="10" height="10" font="0">2].</text>
+<text top="100" left="317" width="88" height="10" font="0">Ants are released at</text>
+<text top="100" left="408" width="6" height="10" font="12">x</text>
+<text top="100" left="417" width="8" height="10" font="0">=</text>
+<text top="100" left="428" width="8" height="12" font="20">±</text>
+<text top="100" left="435" width="127" height="10" font="0">50 mm uniformly distributed</text>
+<text top="112" left="317" width="8" height="10" font="0">in</text>
+<text top="112" left="330" width="5" height="10" font="12">y</text>
+<text top="112" left="341" width="119" height="10" font="0">and with orientations cos(</text>
+<text top="112" left="460" width="5" height="10" font="19">θ</text>
+<text top="112" left="465" width="17" height="10" font="0">) =</text>
+<text top="112" left="488" width="8" height="12" font="20">±</text>
+<text top="112" left="496" width="66" height="10" font="0">1, respectively.</text>
+<text top="123" left="317" width="69" height="10" font="0">The boundaries</text>
+<text top="123" left="390" width="6" height="10" font="12">x</text>
+<text top="123" left="401" width="8" height="10" font="0">=</text>
+<text top="123" left="413" width="8" height="12" font="20">±</text>
+<text top="123" left="421" width="141" height="10" font="0">50 mm are absorbing (when an</text>
+<text top="135" left="317" width="245" height="10" font="0">ant arrives there, it is removed from the simulation).</text>
+<text top="146" left="317" width="245" height="10" font="0">In experiments, some ants can walk sideways along the</text>
+<text top="158" left="317" width="51" height="10" font="0">bridge ends</text>
+<text top="158" left="373" width="5" height="10" font="12">y</text>
+<text top="158" left="383" width="8" height="10" font="0">=</text>
+<text top="157" left="395" width="8" height="12" font="20">±</text>
+<text top="158" left="403" width="7" height="10" font="12">w</text>
+<text top="158" left="410" width="5" height="10" font="19"></text>
+<text top="158" left="415" width="147" height="10" font="0">2. In the simulations, we model</text>
+<text top="169" left="317" width="170" height="10" font="0">it as a slip boundary: if an ant hits</text>
+<text top="169" left="493" width="5" height="10" font="12">y</text>
+<text top="169" left="504" width="8" height="10" font="0">=</text>
+<text top="169" left="517" width="8" height="12" font="20">±</text>
+<text top="169" left="525" width="7" height="10" font="12">w</text>
+<text top="169" left="532" width="5" height="10" font="19"></text>
+<text top="169" left="537" width="25" height="10" font="0">2, we</text>
+<text top="181" left="317" width="90" height="10" font="0">project its direction</text>
+<text top="181" left="412" width="5" height="10" font="13">e</text>
+<text top="181" left="417" width="4" height="10" font="0">(</text>
+<text top="181" left="421" width="8" height="10" font="7">Θ</text>
+<text top="181" left="429" width="133" height="10" font="0">) along the bridge, becoming</text>
+<text top="192" left="317" width="5" height="10" font="13">e</text>
+<text top="192" left="322" width="4" height="10" font="0">(</text>
+<text top="192" left="326" width="8" height="10" font="7">Θ</text>
+<text top="192" left="334" width="57" height="10" font="0">) = (sgn(cos(</text>
+<text top="192" left="390" width="8" height="10" font="7">Θ</text>
+<text top="192" left="398" width="8" height="10" font="0">))</text>
+<text top="192" left="406" width="3" height="10" font="12">,</text>
+<text top="192" left="410" width="152" height="10" font="0">0) (see Fig. 2D). In the simulations</text>
+<text top="204" left="317" width="245" height="10" font="0">with pillars (Fig. 4D), the interaction between an ant and</text>
+<text top="215" left="317" width="236" height="10" font="0">a pillar is modeled with the same interaction potential</text>
+<text top="215" left="556" width="6" height="10" font="12">u</text>
+<text top="226" left="317" width="245" height="10" font="0">as the ant-ant interaction. Trajectories of (1) are sim-</text>
+<text top="238" left="317" width="202" height="10" font="0">ulated with an Euler–Maruyama scheme with</text>
+<text top="238" left="522" width="8" height="10" font="7">∆</text>
+<text top="238" left="531" width="4" height="10" font="12">t</text>
+<text top="238" left="538" width="16" height="10" font="0">= 0</text>
+<text top="238" left="554" width="3" height="10" font="19"></text>
+<text top="238" left="557" width="5" height="10" font="0">1</text>
+<text top="249" left="317" width="31" height="10" font="0">s using</text>
+<text top="250" left="352" width="47" height="9" font="11">Agents.jl</text>
+<text top="249" left="399" width="163" height="10" font="0">. The parameter values, obtained by</text>
+<text top="261" left="317" width="6" height="10" font="7"></text>
+<text top="261" left="323" width="158" height="10" font="0">tting to the experimental data, are</text>
+<text top="261" left="485" width="5" height="10" font="12">v</text>
+<text top="265" left="490" width="4" height="7" font="15">0</text>
+<text top="261" left="499" width="22" height="10" font="0">= 15</text>
+<text top="261" left="522" width="3" height="10" font="19"></text>
+<text top="261" left="524" width="38" height="10" font="0">5 mm/s,</text>
+<text top="272" left="317" width="8" height="10" font="12">D</text>
+<text top="276" left="325" width="6" height="7" font="14">R</text>
+<text top="272" left="335" width="16" height="10" font="0">= 0</text>
+<text top="272" left="352" width="3" height="10" font="19"></text>
+<text top="272" left="354" width="28" height="10" font="0">38 rad</text>
+<text top="271" left="383" width="4" height="7" font="15">2</text>
+<text top="272" left="387" width="12" height="10" font="0">/s,</text>
+<text top="272" left="403" width="7" height="10" font="12">C</text>
+<text top="276" left="410" width="4" height="7" font="14">r</text>
+<text top="272" left="418" width="47" height="10" font="0">= 129 mm</text>
+<text top="271" left="465" width="4" height="7" font="15">2</text>
+<text top="272" left="469" width="29" height="10" font="0">/s and</text>
+<text top="272" left="502" width="3" height="10" font="12">l</text>
+<text top="276" left="505" width="4" height="7" font="14">r</text>
+<text top="272" left="513" width="16" height="10" font="0">= 3</text>
+<text top="272" left="529" width="3" height="10" font="19"></text>
+<text top="272" left="532" width="30" height="10" font="0">96 mm</text>
+<text top="284" left="317" width="116" height="10" font="0">(see Appendix for details).</text>
+<text top="295" left="327" width="85" height="10" font="0">In simulations with</text>
+<text top="295" left="416" width="5" height="10" font="12">k</text>
+<text top="295" left="425" width="106" height="10" font="0">stopped ants, we choose</text>
+<text top="295" left="535" width="5" height="10" font="12">k</text>
+<text top="295" left="544" width="18" height="10" font="0">ran-</text>
+<text top="307" left="317" width="245" height="10" font="0">dom positions on the bridge at the start of the simulation</text>
+<text top="318" left="317" width="245" height="10" font="0">run and placed ants held motionless at those positions</text>
+<text top="330" left="317" width="197" height="10" font="0">throughout the simulation at these positions.</text>
+<text top="341" left="327" width="235" height="10" font="0">For each value of the ant arrival rate, we ran 200 re-</text>
+<text top="352" left="317" width="245" height="10" font="0">alizations of 100 seconds each. We ascertained that the</text>
+<text top="364" left="317" width="30" height="10" font="0">ant tra</text>
+<text top="364" left="347" width="8" height="10" font="7"></text>
+<text top="364" left="356" width="206" height="10" font="0">c reached a steady state after at most 50 s and</text>
+<text top="375" left="317" width="245" height="10" font="0">used the latter 50 s of each realization to calculate the</text>
+<text top="387" left="317" width="117" height="10" font="0">average speed of ants. We</text>
+<text top="387" left="437" width="6" height="10" font="7"></text>
+<text top="387" left="443" width="119" height="10" font="0">tted the same GAM model</text>
+<text top="398" left="317" width="245" height="10" font="0">to the simulated data as for the experiments, except for</text>
+<text top="410" left="317" width="245" height="10" font="0">the number of knots (we used ten instead of 6 knots,</text>
+<text top="421" left="317" width="97" height="10" font="0">Figs. 2E, 3D and 4D).</text>
+<text top="455" left="380" width="119" height="9" font="4">ACKNOWLEDGMENTS</text>
+<text top="480" left="327" width="235" height="10" font="0">UD acknowledges funding from the Isaac Newton Trust</text>
+<text top="491" left="317" width="245" height="10" font="0">(G101121). SG was supported by the National Science</text>
+<text top="503" left="317" width="245" height="10" font="0">Foundation under grant no #EF-2222418. MB acknowl-</text>
+<text top="514" left="317" width="186" height="10" font="0">edges funding from the Royal Society (URF</text>
+<text top="514" left="503" width="5" height="12" font="20">\</text>
+<text top="514" left="508" width="12" height="10" font="0">R1</text>
+<text top="514" left="521" width="5" height="12" font="20">\</text>
+<text top="514" left="526" width="37" height="10" font="0">180040).</text>
+<text top="569" left="59" width="240" height="9" font="3">[1] I. Mellman and G. Warren, The road taken: past and fu-</text>
+<text top="579" left="72" width="132" height="9" font="3">ture foundations of membrane tra</text>
+<text top="579" left="205" width="8" height="9" font="6"></text>
+<text top="579" left="212" width="25" height="9" font="3">c, Cell</text>
+<text top="579" left="239" width="16" height="9" font="4">100</text>
+<text top="579" left="255" width="44" height="9" font="3">, 99 (2000).</text>
+<text top="589" left="59" width="240" height="9" font="3">[2] G. van Niel, D. R. Carter, A. Clayton, D. W. Lam-</text>
+<text top="600" left="72" width="227" height="9" font="3">bert, G. Raposo, and P. Vader, Challenges and direc-</text>
+<text top="610" left="72" width="227" height="9" font="3">tions in studying cell–cell communication by extracellu-</text>
+<text top="621" left="72" width="210" height="9" font="3">lar vesicles, Nature Reviews Molecular Cell Biology</text>
+<text top="621" left="286" width="11" height="9" font="4">23</text>
+<text top="621" left="297" width="3" height="9" font="3">,</text>
+<text top="631" left="72" width="45" height="9" font="3">369 (2022).</text>
+<text top="642" left="59" width="159" height="9" font="3">[3] J. Tu, K. Inthavong, and G. Ahmadi,</text>
+<text top="642" left="220" width="59" height="9" font="21">Computational</text>
+<text top="642" left="281" width="5" height="9" font="22"></text>
+<text top="642" left="287" width="12" height="9" font="21">uid</text>
+<text top="652" left="72" width="227" height="9" font="21">and particle dynamics in the human respiratory system</text>
+<text top="663" left="72" width="175" height="9" font="3">(Springer Science &amp; Business Media, 2012).</text>
+<text top="673" left="59" width="240" height="9" font="3">[4] C. Seguin, M. P. Van Den Heuvel, and A. Zalesky, Nav-</text>
+<text top="684" left="72" width="227" height="9" font="3">igation of brain networks, Proceedings of the National</text>
+<text top="694" left="72" width="83" height="9" font="3">Academy of Sciences</text>
+<text top="694" left="159" width="16" height="9" font="4">115</text>
+<text top="694" left="175" width="55" height="9" font="3">, 6297 (2018).</text>
+<text top="705" left="59" width="147" height="9" font="3">[5] N. M. Coe and H. W.-C. Yeung,</text>
+<text top="705" left="209" width="90" height="9" font="21">Global production net-</text>
+<text top="715" left="72" width="227" height="9" font="21">works: Theorizing economic development in an intercon-</text>
+<text top="569" left="335" width="50" height="9" font="21">nected world</text>
+<text top="569" left="389" width="131" height="9" font="3">(Oxford University Press, 2015).</text>
+<text top="579" left="322" width="240" height="9" font="3">[6] C. Bonansco and M. Fuenzalida, Plasticity of hippocam-</text>
+<text top="589" left="335" width="227" height="9" font="3">pal excitatory-inhibitory balance: Missing the synaptic</text>
+<text top="600" left="335" width="198" height="9" font="3">control in the epileptic brain, Neural Plasticity</text>
+<text top="600" left="538" width="21" height="9" font="4">2016</text>
+<text top="600" left="560" width="3" height="9" font="3">,</text>
+<text top="610" left="335" width="63" height="9" font="3">8607038 (2016).</text>
+<text top="621" left="322" width="240" height="9" font="3">[7] N. Shiwakoti, M. Sarvi, G. Rose, and M. Burd, Animal</text>
+<text top="631" left="335" width="227" height="9" font="3">dynamics based approach for modeling pedestrian crowd</text>
+<text top="642" left="335" width="227" height="9" font="3">egress under panic conditions, Procedia-social and be-</text>
+<text top="652" left="335" width="67" height="9" font="3">havioral sciences</text>
+<text top="652" left="405" width="11" height="9" font="4">17</text>
+<text top="652" left="416" width="51" height="9" font="3">, 438 (2011).</text>
+<text top="663" left="322" width="240" height="9" font="3">[8] D. Chowdhury, A. Schadschneider, and K. Nishinari,</text>
+<text top="673" left="335" width="118" height="9" font="3">Physics of transport and tra</text>
+<text top="673" left="453" width="8" height="9" font="6"></text>
+<text top="673" left="461" width="101" height="9" font="3">c phenomena in biology:</text>
+<text top="684" left="335" width="227" height="9" font="3">from molecular motors and cells to organisms, Physics of</text>
+<text top="694" left="335" width="48" height="9" font="3">Life reviews</text>
+<text top="694" left="386" width="5" height="9" font="4">2</text>
+<text top="694" left="392" width="51" height="9" font="3">, 318 (2005).</text>
+<text top="705" left="322" width="240" height="9" font="3">[9] A. Dussutour, V. Fourcassi´e, D. Helbing, and J.-L.</text>
+<text top="715" left="335" width="104" height="9" font="3">Deneubourg, Optimal tra</text>
+<text top="715" left="439" width="8" height="9" font="6"></text>
+<text top="715" left="447" width="115" height="9" font="3">c organization in ants under</text>
+</page>
+<page number="4" position="absolute" top="0" left="0" height="792" width="612">
+<text top="29" left="557" width="5" height="10" font="0">7</text>
+<text top="55" left="72" width="111" height="9" font="3">crowded conditions, Nature</text>
+<text top="55" left="186" width="16" height="9" font="4">428</text>
+<text top="55" left="202" width="46" height="9" font="3">, 70 (2004).</text>
+<text top="66" left="54" width="111" height="9" font="3">[10] T. J. Czaczkes, C. Gr¨</text>
+<text top="66" left="160" width="139" height="9" font="3">uter, and F. L. Ratnieks, Negative</text>
+<text top="76" left="72" width="227" height="9" font="3">feedback in ants: crowding results in less trail pheromone</text>
+<text top="87" left="72" width="209" height="9" font="3">deposition, Journal of the Royal Society Interface</text>
+<text top="87" left="286" width="11" height="9" font="4">10</text>
+<text top="87" left="297" width="3" height="9" font="3">,</text>
+<text top="97" left="72" width="68" height="9" font="3">20121009 (2013).</text>
+<text top="108" left="54" width="245" height="9" font="3">[11] S. Wendt, N. Kleinhoelting, and T. J. Czaczkes, Nega-</text>
+<text top="118" left="72" width="227" height="9" font="3">tive feedback: ants choose unoccupied over occupied food</text>
+<text top="129" left="72" width="227" height="9" font="3">sources and lay more pheromone to them, Journal of The</text>
+<text top="139" left="72" width="93" height="9" font="3">Royal Society Interface</text>
+<text top="139" left="168" width="11" height="9" font="4">17</text>
+<text top="139" left="179" width="74" height="9" font="3">, 20190661 (2020).</text>
+<text top="149" left="54" width="66" height="9" font="3">[12] M. Moussa¨</text>
+<text top="149" left="116" width="3" height="9" font="6">ı</text>
+<text top="149" left="119" width="181" height="9" font="3">d, D. Helbing, and G. Theraulaz, How simple</text>
+<text top="160" left="72" width="227" height="9" font="3">rules determine pedestrian behavior and crowd disasters,</text>
+<text top="170" left="72" width="204" height="9" font="3">Proceedings of the National Academy of Sciences</text>
+<text top="170" left="281" width="16" height="9" font="4">108</text>
+<text top="170" left="297" width="3" height="9" font="3">,</text>
+<text top="181" left="72" width="95" height="9" font="3">6884 (2011), 1105.2152.</text>
+<text top="191" left="54" width="66" height="9" font="3">[13] M. Moussa¨</text>
+<text top="191" left="116" width="3" height="9" font="6">ı</text>
+<text top="191" left="119" width="180" height="9" font="3">d, S. Garnier, G. Theraulaz, and D. Helbing,</text>
+<text top="202" left="72" width="227" height="9" font="3">Collective information processing and pattern formation</text>
+<text top="212" left="72" width="44" height="9" font="3">in swarms,</text>
+<text top="212" left="120" width="5" height="9" font="6"></text>
+<text top="212" left="125" width="174" height="9" font="3">ocks, and crowds, Topics in Cognitive Sci-</text>
+<text top="223" left="72" width="17" height="9" font="3">ence</text>
+<text top="223" left="93" width="5" height="9" font="4">1</text>
+<text top="223" left="98" width="51" height="9" font="3">, 469 (2009).</text>
+<text top="233" left="54" width="82" height="9" font="3">[14] D. Helbing, Tra</text>
+<text top="233" left="136" width="8" height="9" font="6"></text>
+<text top="233" left="143" width="156" height="9" font="3">c and related self-driven many-particle</text>
+<text top="244" left="72" width="145" height="9" font="3">systems, Reviews of modern physics</text>
+<text top="244" left="221" width="11" height="9" font="4">73</text>
+<text top="244" left="231" width="55" height="9" font="3">, 1067 (2001).</text>
+<text top="254" left="54" width="245" height="9" font="3">[15] J. Duan, G. Zeng, N. Serok, D. Li, E. B. Lieberthal, H.-J.</text>
+<text top="265" left="72" width="215" height="9" font="3">Huang, and S. Havlin, Spatiotemporal dynamics of tra</text>
+<text top="265" left="287" width="8" height="9" font="6"></text>
+<text top="265" left="295" width="4" height="9" font="3">c</text>
+<text top="275" left="72" width="227" height="9" font="3">bottlenecks yields an early signal of heavy congestions,</text>
+<text top="285" left="72" width="96" height="9" font="3">Nature communications</text>
+<text top="285" left="171" width="11" height="9" font="4">14</text>
+<text top="285" left="182" width="55" height="9" font="3">, 8002 (2023).</text>
+<text top="296" left="54" width="245" height="9" font="3">[16] M. Burd, D. Archer, N. Aranwela, and D. J. Stradling,</text>
+<text top="306" left="72" width="14" height="9" font="3">Tra</text>
+<text top="306" left="86" width="8" height="9" font="6"></text>
+<text top="306" left="94" width="205" height="9" font="3">c dynamics of the leaf-cutting ant, atta cephalotes,</text>
+<text top="317" left="72" width="101" height="9" font="3">The American Naturalist</text>
+<text top="317" left="177" width="16" height="9" font="4">159</text>
+<text top="317" left="193" width="51" height="9" font="3">, 283 (2002).</text>
+<text top="327" left="54" width="245" height="9" font="3">[17] I. D. Couzin and N. R. Franks, Self-organized lane forma-</text>
+<text top="338" left="72" width="90" height="9" font="3">tion and optimized tra</text>
+<text top="338" left="162" width="8" height="9" font="6"></text>
+<text top="338" left="170" width="4" height="9" font="3">c</text>
+<text top="338" left="177" width="5" height="9" font="6"></text>
+<text top="338" left="182" width="117" height="9" font="3">ow in army ants, Proceedings</text>
+<text top="348" left="72" width="227" height="9" font="3">of the Royal Society of London. Series B: Biological Sci-</text>
+<text top="359" left="72" width="21" height="9" font="3">ences</text>
+<text top="359" left="96" width="16" height="9" font="4">270</text>
+<text top="359" left="112" width="51" height="9" font="3">, 139 (2003).</text>
+<text top="369" left="54" width="245" height="9" font="3">[18] V. Fourcassi´e, A. Dussutour, and J.-L. Deneubourg, Ant</text>
+<text top="380" left="72" width="12" height="9" font="3">tra</text>
+<text top="380" left="84" width="8" height="9" font="6"></text>
+<text top="380" left="92" width="164" height="9" font="3">c rules, Journal of Experimental Biology</text>
+<text top="380" left="259" width="16" height="9" font="4">213</text>
+<text top="380" left="275" width="24" height="9" font="3">, 2357</text>
+<text top="390" left="72" width="28" height="9" font="3">(2010).</text>
+<text top="401" left="54" width="245" height="9" font="3">[19] N. Gravish, G. Gold, A. Zangwill, M. A. Goodisman,</text>
+<text top="411" left="72" width="189" height="9" font="3">and D. I. Goldman, Glass-like dynamics in con</text>
+<text top="411" left="262" width="5" height="9" font="6"></text>
+<text top="411" left="267" width="32" height="9" font="3">ned and</text>
+<text top="421" left="72" width="70" height="9" font="3">congested ant tra</text>
+<text top="421" left="142" width="8" height="9" font="6"></text>
+<text top="421" left="150" width="56" height="9" font="3">c, Soft matter</text>
+<text top="421" left="209" width="11" height="9" font="4">11</text>
+<text top="421" left="220" width="55" height="9" font="3">, 6552 (2015).</text>
+<text top="432" left="54" width="42" height="9" font="3">[20] C. H¨</text>
+<text top="432" left="92" width="148" height="9" font="3">onicke, P. Bliss, and R. F. Moritz, E</text>
+<text top="432" left="239" width="5" height="9" font="6"></text>
+<text top="432" left="245" width="54" height="9" font="3">ect of density</text>
+<text top="442" left="72" width="24" height="9" font="3">on tra</text>
+<text top="442" left="96" width="8" height="9" font="6"></text>
+<text top="442" left="104" width="195" height="9" font="3">c and velocity on trunk trails of formica pratensis,</text>
+<text top="453" left="72" width="90" height="9" font="3">The Science of Nature</text>
+<text top="453" left="165" width="16" height="9" font="4">102</text>
+<text top="453" left="181" width="41" height="9" font="3">, 1 (2015).</text>
+<text top="463" left="54" width="47" height="9" font="3">[21] D. Str¨</text>
+<text top="463" left="96" width="177" height="9" font="3">ombom and A. Dussutour, Self-organized tra</text>
+<text top="463" left="273" width="8" height="9" font="6"></text>
+<text top="463" left="281" width="18" height="9" font="3">c via</text>
+<text top="474" left="72" width="227" height="9" font="3">priority rules in leaf-cutting ants, PLoS Computational</text>
+<text top="484" left="72" width="30" height="9" font="3">Biology</text>
+<text top="484" left="106" width="11" height="9" font="4">14</text>
+<text top="484" left="116" width="73" height="9" font="3">, e1006523 (2018).</text>
+<text top="495" left="54" width="245" height="9" font="3">[22] L.-A. Poissonnier, S. Motsch, J. Gautrais, J. Buhl, and</text>
+<text top="505" left="72" width="215" height="9" font="3">A. Dussutour, Experimental investigation of ant tra</text>
+<text top="505" left="287" width="8" height="9" font="6"></text>
+<text top="505" left="295" width="4" height="9" font="3">c</text>
+<text top="516" left="72" width="125" height="9" font="3">under crowded conditions, elife</text>
+<text top="516" left="200" width="5" height="9" font="4">8</text>
+<text top="516" left="206" width="64" height="9" font="3">, e48945 (2019).</text>
+<text top="526" left="54" width="245" height="9" font="3">[23] I. Prigogine, A boltzmann-like approach to the statistical</text>
+<text top="55" left="335" width="50" height="9" font="3">theory of tra</text>
+<text top="55" left="385" width="8" height="9" font="6"></text>
+<text top="55" left="393" width="4" height="9" font="3">c</text>
+<text top="55" left="400" width="5" height="9" font="6"></text>
+<text top="55" left="405" width="24" height="9" font="3">ow, in</text>
+<text top="55" left="431" width="55" height="9" font="21">Theory of Tra</text>
+<text top="55" left="486" width="8" height="9" font="22"></text>
+<text top="55" left="494" width="26" height="9" font="21">c Flow</text>
+<text top="55" left="520" width="42" height="9" font="3">, edited by</text>
+<text top="66" left="335" width="193" height="9" font="3">R. Herman (Elsevier, Amsterdam, 1961) p. 158.</text>
+<text top="76" left="317" width="245" height="9" font="3">[24] W. Luo, L. Sun, L. Yao, Q. Gong, and J. Rong,</text>
+<text top="87" left="335" width="54" height="9" font="3">Experimental</text>
+<text top="87" left="403" width="22" height="9" font="3">study</text>
+<text top="87" left="439" width="11" height="9" font="3">for</text>
+<text top="87" left="464" width="42" height="9" font="3">optimizing</text>
+<text top="87" left="520" width="42" height="9" font="3">pedestrian</text>
+<text top="97" left="335" width="5" height="9" font="6"></text>
+<text top="97" left="340" width="222" height="9" font="3">ows at bottlenecks of subway stations, Promet-</text>
+<text top="108" left="335" width="14" height="9" font="3">Tra</text>
+<text top="108" left="349" width="8" height="9" font="6"></text>
+<text top="108" left="357" width="72" height="9" font="3">c&amp;Transportation</text>
+<text top="108" left="432" width="11" height="9" font="4">30</text>
+<text top="108" left="443" width="51" height="9" font="3">, 525 (2018).</text>
+<text top="118" left="317" width="245" height="9" font="3">[25] D. Helbing, I. J. Farkas, P. Molnar, and T. Vicsek, Sim-</text>
+<text top="129" left="335" width="227" height="9" font="3">ulation of pedestrian crowds in normal and evacuation</text>
+<text top="139" left="335" width="196" height="9" font="3">situations, Pedestrian and evacuation dynamics</text>
+<text top="139" left="536" width="11" height="9" font="4">21</text>
+<text top="139" left="546" width="16" height="9" font="3">, 21</text>
+<text top="149" left="335" width="28" height="9" font="3">(2002).</text>
+<text top="160" left="317" width="79" height="9" font="3">[26] N. A. M. Ara´</text>
+<text top="160" left="391" width="171" height="9" font="3">ujo, L. M. C. Janssen, T. Barois, G. Bof-</text>
+<text top="170" left="335" width="227" height="9" font="3">fetta, I. Cohen, A. Corbetta, O. Dauchot, M. Di-</text>
+<text top="181" left="335" width="227" height="9" font="3">jkstra, W. M. Durham, A. Dussutour, S. Garnier,</text>
+<text top="191" left="335" width="227" height="9" font="3">H. Gelderblom, R. Golestanian, L. Isa, G. H. Koen-</text>
+<text top="202" left="335" width="56" height="9" font="3">derink, H. L¨</text>
+<text top="202" left="387" width="175" height="9" font="3">owen, R. Metzler, M. Polin, C. P. Royall,</text>
+<text top="212" left="335" width="20" height="9" font="3">A. e.</text>
+<text top="210" left="360" width="5" height="9" font="6">ˇ</text>
+<text top="212" left="360" width="202" height="9" font="3">Sari´c, A. Sengupta, C. Sykes, V. Trianni, I. Tu-</text>
+<text top="223" left="335" width="227" height="9" font="3">val, N. Vogel, J. M. Yeomans, I. Zuriguel, A. Marin, and</text>
+<text top="233" left="335" width="190" height="9" font="3">G. Volpe, Steering self-organisation through con</text>
+<text top="233" left="525" width="5" height="9" font="6"></text>
+<text top="233" left="530" width="32" height="9" font="3">nement,</text>
+<text top="244" left="335" width="47" height="9" font="3">Soft Matter</text>
+<text top="244" left="386" width="11" height="9" font="4">19</text>
+<text top="244" left="396" width="55" height="9" font="3">, 1695 (2023).</text>
+<text top="254" left="317" width="245" height="9" font="3">[27] G. A. Frank and C. O. Dorso, Room evacuation in the</text>
+<text top="265" left="335" width="227" height="9" font="3">presence of an obstacle, Physica A: Statistical Mechanics</text>
+<text top="275" left="335" width="81" height="9" font="3">and its Applications</text>
+<text top="275" left="420" width="16" height="9" font="4">390</text>
+<text top="275" left="436" width="55" height="9" font="3">, 2135 (2011).</text>
+<text top="285" left="317" width="65" height="9" font="3">[28] R. Yano, E</text>
+<text top="285" left="382" width="5" height="9" font="6"></text>
+<text top="285" left="388" width="174" height="9" font="3">ect of form of obstacle on speed of crowd</text>
+<text top="296" left="335" width="123" height="9" font="3">evacuation, Physical Review E</text>
+<text top="296" left="462" width="11" height="9" font="4">97</text>
+<text top="296" left="472" width="64" height="9" font="3">, 032319 (2018).</text>
+<text top="306" left="317" width="245" height="9" font="3">[29] Y. Hu, Y. Bi, X. Ren, S. Huang, and W. Gao, Exper-</text>
+<text top="317" left="335" width="227" height="9" font="3">imental study on the impact of a stationary pedestrian</text>
+<text top="327" left="335" width="227" height="9" font="3">obstacle at the exit on evacuation, Physica A: Statistical</text>
+<text top="338" left="335" width="126" height="9" font="3">Mechanics and its Applications</text>
+<text top="338" left="464" width="16" height="9" font="4">626</text>
+<text top="338" left="480" width="64" height="9" font="3">, 129062 (2023).</text>
+<text top="348" left="317" width="245" height="9" font="3">[30] Y. Zhao, T. Lu, L. Fu, P. Wu, and M. Li, Experimen-</text>
+<text top="359" left="335" width="29" height="9" font="3">tal veri</text>
+<text top="359" left="365" width="5" height="9" font="6"></text>
+<text top="359" left="370" width="73" height="9" font="3">cation of escape e</text>
+<text top="359" left="443" width="8" height="9" font="6"></text>
+<text top="359" left="451" width="111" height="9" font="3">ciency enhancement by the</text>
+<text top="369" left="335" width="144" height="9" font="3">presence of obstacles, Safety science</text>
+<text top="369" left="482" width="16" height="9" font="4">122</text>
+<text top="369" left="498" width="64" height="9" font="3">, 104517 (2020).</text>
+<text top="380" left="317" width="245" height="9" font="3">[31] N. Shiwakoti and M. Sarvi, Enhancing the panic escape</text>
+<text top="390" left="335" width="227" height="9" font="3">of crowd through architectural design, Transportation re-</text>
+<text top="401" left="335" width="148" height="9" font="3">search part C: emerging technologies</text>
+<text top="401" left="487" width="11" height="9" font="4">37</text>
+<text top="401" left="497" width="51" height="9" font="3">, 260 (2013).</text>
+<text top="411" left="317" width="201" height="9" font="3">[32] S. Chen, L. Fu, J. Fang, and P. Yang, The e</text>
+<text top="411" left="518" width="5" height="9" font="6"></text>
+<text top="411" left="523" width="39" height="9" font="3">ect of ob-</text>
+<text top="421" left="335" width="112" height="9" font="3">stacle layouts on pedestrian</text>
+<text top="421" left="450" width="5" height="9" font="6"></text>
+<text top="421" left="455" width="107" height="9" font="3">ow in corridors: An exper-</text>
+<text top="432" left="335" width="227" height="9" font="3">imental study, Physica A: Statistical Mechanics and its</text>
+<text top="442" left="335" width="50" height="9" font="3">Applications</text>
+<text top="442" left="389" width="16" height="9" font="4">534</text>
+<text top="442" left="405" width="64" height="9" font="3">, 122333 (2019).</text>
+<text top="453" left="317" width="62" height="9" font="3">[33] S. Garnier,</text>
+<text top="453" left="382" width="148" height="9" font="21">trackR - Multi-object tracking with R</text>
+<text top="453" left="534" width="28" height="9" font="3">(2022),</text>
+<text top="463" left="335" width="94" height="9" font="3">r package version 0.5.3.</text>
+<text top="474" left="317" width="70" height="9" font="3">[34] S. N. Wood,</text>
+<text top="474" left="392" width="170" height="9" font="21">mgcv: Mixed GAM Computation Vehicle</text>
+<text top="484" left="335" width="156" height="9" font="21">with Automatic Smoothness Estimation</text>
+<text top="484" left="495" width="68" height="9" font="3">(2023), r package</text>
+<text top="495" left="335" width="53" height="9" font="3">version 1.9-1.</text>
+<text top="505" left="317" width="81" height="9" font="3">[35] In fact, we also</text>
+<text top="505" left="402" width="5" height="9" font="6"></text>
+<text top="505" left="407" width="155" height="9" font="3">tted the parameters using (5), and no</text>
+<text top="516" left="335" width="53" height="9" font="3">noticeable di</text>
+<text top="516" left="388" width="5" height="9" font="6"></text>
+<text top="516" left="393" width="169" height="9" font="3">erence to the resulting parameter values</text>
+<text top="526" left="335" width="78" height="9" font="3">was found from the</text>
+<text top="526" left="417" width="5" height="9" font="6"></text>
+<text top="526" left="422" width="85" height="9" font="3">tted values using (6).</text>
+</page>
+</pdf2xml>

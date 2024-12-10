@@ -38,21 +38,21 @@ class PTM_VIT_Backbone(Backbone):
     def __init__(self, name, out_features, drop_path, img_size, pos_type, merge_type, model_kwargs):
         super().__init__()
         self._out_features = out_features
-        if 'base' in name:
+        if "base" in name:
             self._out_feature_strides = {"layer3": 4, "layer5": 8, "layer7": 16, "layer11": 32}
         else:
             self._out_feature_strides = {"layer7": 4, "layer11": 8, "layer15": 16, "layer23": 32}
 
-        if name == 'beit_base_patch16':
+        if name == "beit_base_patch16":
             model_func = beit_base_patch16
             self._out_feature_channels = {"layer3": 768, "layer5": 768, "layer7": 768, "layer11": 768}
-        elif name == 'dit_base_patch16':
+        elif name == "dit_base_patch16":
             model_func = dit_base_patch16
             self._out_feature_channels = {"layer3": 768, "layer5": 768, "layer7": 768, "layer11": 768}
         elif name == "deit_base_patch16":
             model_func = deit_base_patch16
             self._out_feature_channels = {"layer3": 768, "layer5": 768, "layer7": 768, "layer11": 768}
-        elif name == 'VGT_dit_base_patch16':
+        elif name == "VGT_dit_base_patch16":
             model_func = VGT_dit_base_patch16
             self._out_feature_channels = {"layer3": 768, "layer5": 768, "layer7": 768, "layer11": 768}
         elif name == "mae_base_patch16":
@@ -67,36 +67,46 @@ class PTM_VIT_Backbone(Backbone):
         else:
             raise ValueError("Unsupported VIT name yet.")
 
-        if 'beit' in name or 'dit' in name:
+        if "beit" in name or "dit" in name:
             if pos_type == "abs":
-                self.backbone = model_func(img_size=img_size,
-                                           out_features=out_features,
-                                           drop_path_rate=drop_path,
-                                           use_abs_pos_emb=True,
-                                           **model_kwargs)
+                self.backbone = model_func(
+                    img_size=img_size,
+                    out_features=out_features,
+                    drop_path_rate=drop_path,
+                    use_abs_pos_emb=True,
+                    **model_kwargs,
+                )
             elif pos_type == "shared_rel":
-                self.backbone = model_func(img_size=img_size,
-                                           out_features=out_features,
-                                           drop_path_rate=drop_path,
-                                           use_shared_rel_pos_bias=True,
-                                           **model_kwargs)
+                self.backbone = model_func(
+                    img_size=img_size,
+                    out_features=out_features,
+                    drop_path_rate=drop_path,
+                    use_shared_rel_pos_bias=True,
+                    **model_kwargs,
+                )
             elif pos_type == "rel":
-                self.backbone = model_func(img_size=img_size,
-                                           out_features=out_features,
-                                           drop_path_rate=drop_path,
-                                           use_rel_pos_bias=True,
-                                           **model_kwargs)
+                self.backbone = model_func(
+                    img_size=img_size,
+                    out_features=out_features,
+                    drop_path_rate=drop_path,
+                    use_rel_pos_bias=True,
+                    **model_kwargs,
+                )
             else:
                 raise ValueError()
         else:
-            self.backbone = model_func(img_size=img_size,
-                                       out_features=out_features,
-                                       drop_path_rate=drop_path,
-                                       **model_kwargs)
-        
+            self.backbone = model_func(
+                img_size=img_size, out_features=out_features, drop_path_rate=drop_path, **model_kwargs
+            )
+
         logger = logging.getLogger("detectron2")
         logger.info("Merge using: {}".format(merge_type))
-        self.FeatureMerge = FeatureMerge(feature_names = self._out_features, visual_dim=[768,768,768,768], semantic_dim=[768,768,768,768], merge_type = merge_type)
+        self.FeatureMerge = FeatureMerge(
+            feature_names=self._out_features,
+            visual_dim=[768, 768, 768, 768],
+            semantic_dim=[768, 768, 768, 768],
+            merge_type=merge_type,
+        )
 
     def forward(self, x, grid):
         """
@@ -107,16 +117,14 @@ class PTM_VIT_Backbone(Backbone):
             dict[str->Tensor]: names and the corresponding features
         """
         assert x.dim() == 4, f"VIT takes an input of shape (N, C, H, W). Got {x.shape} instead!"
-        
+
         vis_feat_out, grid_feat_out = self.backbone.forward_features(x, grid)
         return self.FeatureMerge.forward(vis_feat_out, grid_feat_out)
         # return self.backbone.forward_features(x)
 
     def output_shape(self):
         return {
-            name: ShapeSpec(
-                channels=self._out_feature_channels[name], stride=self._out_feature_strides[name]
-            )
+            name: ShapeSpec(channels=self._out_feature_channels[name], stride=self._out_feature_strides[name])
             for name in self._out_features
         }
 
@@ -140,9 +148,7 @@ class GridFPN(FPN):
         results.append(self.output_convs[0](prev_features))
 
         # Reverse feature maps into top-down order (from low to high resolution)
-        for idx, (lateral_conv, output_conv) in enumerate(
-            zip(self.lateral_convs, self.output_convs)
-        ):
+        for idx, (lateral_conv, output_conv) in enumerate(zip(self.lateral_convs, self.output_convs)):
             # Slicing of ModuleList is not supported https://github.com/pytorch/pytorch/issues/47336
             # Therefore we loop over all modules but skip the first one
             if idx > 0:
@@ -163,7 +169,8 @@ class GridFPN(FPN):
             results.extend(self.top_block(top_block_in_feature))
         assert len(self._out_features) == len(results)
         return {f: res for f, res in zip(self._out_features, results)}
-    
+
+
 def build_PTM_VIT_Backbone(cfg):
     """
     Create a VIT instance from config.
