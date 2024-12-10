@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: structured-extraction
-  namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: structured-extraction
 spec:
@@ -11,7 +10,6 @@ spec:
         app.kubernetes.io/name: structured-extraction
   template:
     metadata:
-      namespace: chunkmydocs
       labels:
         app.kubernetes.io/name: structured-extraction
     spec:
