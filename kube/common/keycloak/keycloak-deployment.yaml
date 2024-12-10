@@ -20,7 +20,7 @@ spec:
           args: ["start-dev", "--import-realm"]
           envFrom:
           - secretRef:
-              name: keycloak-secrets
+              name: keycloak-secret
           ports:
             - name: http
               containerPort: 8080
