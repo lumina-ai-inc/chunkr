@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ocr
-  namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: ocr
 spec:
@@ -11,7 +10,6 @@ spec:
       app.kubernetes.io/name: ocr
   template:
     metadata:
-      namespace: chunkmydocs
       labels:
         app.kubernetes.io/name: ocr
     spec:
