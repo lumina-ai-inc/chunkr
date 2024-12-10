@@ -14,3 +14,14 @@ Selector labels
 app.kubernetes.io/name: {{ .Release.Name }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Standard environment variables
+Merges common environment variables with service-specific ones
+Usage: include "chunkr.standardEnv" (dict "Values" .Values "serviceEnv" .serviceEnv)
+*/}}
+{{- define "chunkr.standardEnv" -}}
+{{- $standardEnv := .Values.common.standardEnv -}}
+{{- $serviceEnv := .serviceEnv | default list -}}
+{{- concat $standardEnv $serviceEnv | toYaml -}}
+{{- end -}}
