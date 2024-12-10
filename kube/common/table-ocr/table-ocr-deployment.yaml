@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: table-ocr
-  namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: table-ocr
 spec:
@@ -11,7 +10,6 @@ spec:
       app.kubernetes.io/name: table-ocr
   template:
     metadata:
-      namespace: chunkmydocs
       labels:
         app.kubernetes.io/name: table-ocr
     spec:
