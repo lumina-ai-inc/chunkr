@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: paddle-ocr
-  namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: paddle-ocr
 spec:
@@ -12,7 +11,6 @@ spec:
       app.kubernetes.io/name: paddle-ocr
   template:
     metadata:
-      namespace: chunkmydocs
       labels:
         app.kubernetes.io/name: paddle-ocr
     spec:
