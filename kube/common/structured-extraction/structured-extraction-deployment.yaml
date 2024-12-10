@@ -19,7 +19,7 @@ spec:
         imagePullPolicy: Always
         envFrom:
         - secretRef:
-            name: chunkr-secrets
+            name: chunkr-secret
         env:
         - name: PG__POOL__MAX_SIZE
           value: "3"
