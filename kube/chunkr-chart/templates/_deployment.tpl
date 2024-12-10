@@ -49,10 +49,8 @@ spec:
         envFrom:
         {{- toYaml $service.envFrom | nindent 8 }}
         {{- end }}
-        {{- if $service.env }}
         env:
-        {{- toYaml $service.env | nindent 8 }}
-        {{- end }}
+        {{- include "chunkr.standardEnv" (dict "Values" $ "serviceEnv" $service.env) | nindent 8 }}
         {{- if $service.port }}
         ports:
         - containerPort: {{ $service.targetPort | default $service.port }}
