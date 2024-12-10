@@ -1,27 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chunkmydocs
-
+  name: chunkr
   labels:
-    app.kubernetes.io/name: chunkmydocs
+    app.kubernetes.io/name: chunkr
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: chunkmydocs
+      app.kubernetes.io/name: chunkr
   template:
     metadata:
-    
       labels:
-        app.kubernetes.io/name: chunkmydocs
+        app.kubernetes.io/name: chunkr
     spec:
       containers:
-      - name: chunkmydocs
-        image: luminainc/chunkmydocs:68a05839 
+      - name: chunkr
+        image: luminainc/chunkr:68a05839 
         imagePullPolicy: Always
         envFrom:
         - secretRef:
-            name: chunkmydocs-secrets
+            name: chunkr-secrets
         ports:
         - containerPort: 8000
         securityContext:
