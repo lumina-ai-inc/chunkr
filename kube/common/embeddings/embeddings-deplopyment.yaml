@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: embeddings
-  namespace: chunkmydocs
   labels:
     app.kubernetes.io/name: embeddings
 spec:
@@ -11,7 +10,7 @@ spec:
       app.kubernetes.io/name: embeddings
   template:
     metadata:
-      namespace: chunkmydocs
+    
       labels:
         app.kubernetes.io/name: embeddings
     spec:
