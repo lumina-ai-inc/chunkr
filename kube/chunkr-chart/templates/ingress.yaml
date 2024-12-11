@@ -26,7 +26,7 @@ spec:
   {{- end }}
   
   {{- range $serviceName, $service := .Values.services }}
-  {{- if $service.ingress.enabled }}
+  {{- if and (hasKey $service "ingress") $service.ingress.enabled }}
   - host: {{ printf "%s.%s" $service.ingress.subdomain $.Values.ingress.domain }}
     http:
       paths:
