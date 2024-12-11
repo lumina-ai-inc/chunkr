@@ -94,3 +94,26 @@ helm install chunkr ./chunkr-chart \
 helm uninstall chunkr --namespace chunkr
 ```
 
+### GPU Compatibility
+
+The embeddings service supports different GPU architectures through specific Docker images. Choose the appropriate image tag in your `values.yaml` based on your GPU:
+
+| Architecture | Image Tag | Notes |
+|--------------|-----------|--------|
+| CPU | `cpu-1.5` | For non-GPU deployments |
+| Volta | Not Supported | V100, Titan V, GTX 1000 series not supported |
+| Turing | `turing-1.5` | For T4, RTX 2000 series (experimental) |
+| Ampere 80 | `1.5` | For A100, A30 |
+| Ampere 86 | `86-1.5` | For A10, A40 |
+| Ada Lovelace | `89-1.5` | For RTX 4000 series |
+| Hopper | `hopper-1.5` | For H100 (experimental) |
+
+Example installation with GPU-specific image tag:
+```bash
+helm install chunkr ./chunkr-chart \
+  --namespace chunkr \
+  --create-namespace \
+  --set services.embeddings.image.tag=1.5  # Replace with your GPU-specific tag
+```
+
+
