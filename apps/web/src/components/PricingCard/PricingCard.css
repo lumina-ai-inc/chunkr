@@ -2,84 +2,133 @@
   flex: 1;
   padding: 32px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.008);
+  background: rgba(255, 255, 255, 0.01);
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
+  color: #fff;
   backdrop-filter: blur(8px);
 }
 
 .pricing-card:hover {
   transform: translateY(-8px);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
   box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+    0 4px 24px -4px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .pricing-card-highlighted {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.5);
   border-color: rgba(255, 255, 255, 0.15);
 }
 
 .pricing-card-highlighted:hover {
   border-color: rgba(255, 255, 255, 0.25);
   box-shadow:
-    0 4px 24px -4px rgba(255, 255, 255, 0.08),
-    0 0 0 1px rgba(255, 255, 255, 0.15);
+    0 4px 24px -4px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .pricing-tag {
-  opacity: 0.9;
-  letter-spacing: 0.02em;
+  font-size: 24px;
+  color: inherit;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.popular-tag {
+  background: #fff;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 14px;
+  position: absolute;
+  right: 24px;
+  top: 24px;
+}
+
+.credits {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+  margin-bottom: 16px;
 }
 
 .pricing-amount {
   display: flex;
   align-items: baseline;
   gap: 4px;
+  margin: 24px 0;
 }
 
-.pricing-period {
-  opacity: 0.6;
+.price {
+  font-size: 48px;
+  font-weight: 600;
+  background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.pricing-subtitle {
-  margin-top: 16px;
-  margin-bottom: 32px;
-  opacity: 0.6;
-  line-height: 1.5;
+.period {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+}
+
+.annual-price {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 4px;
+}
+
+.features-list {
+  margin: 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.feature-item svg {
+  color: #d86d3e;
 }
 
 .pricing-button {
-  padding: 12px 24px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .pricing-button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.pricing-button-highlighted {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.pricing-button-highlighted:hover {
   background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Optional: Add a subtle gradient overlay to the card */
+.pricing-card-highlighted .pricing-button {
+  background: #d86d3e;
+  border-color: transparent;
+}
+
+.pricing-card-highlighted .pricing-button:hover {
+  background: #e27b4c;
+}
+
+/* Gradient overlay */
 .pricing-card::before {
   content: "";
   position: absolute;
@@ -92,5 +141,6 @@
     rgba(255, 255, 255, 0.02) 0%,
     transparent 100%
   );
+  border-radius: 16px;
   pointer-events: none;
 }

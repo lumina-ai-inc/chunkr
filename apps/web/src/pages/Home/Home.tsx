@@ -21,6 +21,7 @@ import ocrAnimation from "../../assets/animations/ocr.json";
 import stackingAnimation from "../../assets/animations/stacking.json";
 import extractAnimation from "../../assets/animations/extract.json";
 import PricingCard from "../../components/PricingCard/PricingCard";
+import { ChunkrClient } from "@chunkr/node";
 
 const Home = () => {
   const auth = useAuth();
@@ -287,14 +288,18 @@ const Home = () => {
           </div>
         </Flex>
         <div className="features-container">
+          <div className="features-gradient-background" />
           <Flex
             direction="row"
-            gap="32px"
             style={{
-              maxWidth: "1424px",
+              maxWidth: "1386px",
               height: "100%",
               margin: "0 auto",
               padding: "24px",
+              paddingTop: "72px",
+              paddingBottom: "72px",
+              position: "relative",
+              zIndex: 1,
             }}
           >
             <Flex className="features-left-box">
@@ -384,6 +389,110 @@ const Home = () => {
               gap="32px"
               style={{ flex: 1, height: "100%" }}
             >
+              <Flex direction="column" className="code-container">
+                <div className="code-editor-header">
+                  <div className="tab-list">
+                    <button className="tab-item active">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8 13.1L3.6 9.4L5 8.2L7.9 10.6L10.8 8.3L12.2 9.5L8 13.1ZM8 9.7L3.6 6L8 2.3L12.4 6L8 9.7Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      Node.js
+                    </button>
+                    <button className="tab-item">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M7.9 13.5C4.3 13.5 1.4 10.6 1.4 7C1.4 3.4 4.3 0.5 7.9 0.5C11.5 0.5 14.4 3.4 14.4 7C14.4 10.6 11.5 13.5 7.9 13.5ZM7.9 11.5C10.4 11.5 12.4 9.5 12.4 7C12.4 4.5 10.4 2.5 7.9 2.5C5.4 2.5 3.4 4.5 3.4 7C3.4 9.5 5.4 11.5 7.9 11.5Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      Python
+                    </button>
+                    <button className="tab-item">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8 0.5L14.5 4V12L8 15.5L1.5 12V4L8 0.5Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      cURL
+                    </button>
+                  </div>
+                  <div className="action-buttons">
+                    <button className="action-button">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M13 4H3V3H13V4ZM13 7H3V6H13V7ZM13 10H3V9H13V10Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </button>
+                    <button className="action-button">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M8 12L3 7H13L8 12Z" fill="currentColor" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div className="code-editor-content">
+                  <div className="line-numbers">
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                  </div>
+                  <pre className="code-content">
+                    <code>{`import { ChunkrClient } from '@chunkr/node';
+
+const client = new ChunkrClient({ 
+  apiKey: 'YOUR_API_KEY'
+});
+
+// Process a document
+const result = await client.process({
+  file: './document.pdf',
+  model: 'HighQuality',
+  chunkLength: 512
+});
+
+console.log(result.chunks);`}</code>
+                  </pre>
+                </div>
+              </Flex>
+
               <Flex
                 direction="column"
                 className="feature-right-box feature-right-box-segmentation-image "
@@ -836,31 +945,108 @@ const Home = () => {
               }}
             >
               <PricingCard
-                title="Managed"
-                description="Fully managed instance with SLA and premium support"
-                price="$2,500"
-                priceDetail="/month + 10% compute"
-                imageSrc="/path/to/managed-image.png"
+                title="Free"
+                credits={100}
+                price={0}
+                period="month"
+                features={[
+                  "100 pages per month",
+                  "1 request per second",
+                  "Community support",
+                ]}
+                buttonText="Get Started"
+              />
+
+              <PricingCard
+                title="Hobby"
+                credits={10000}
+                price={49}
+                period="month"
+                features={[
+                  "10,000 pages per month",
+                  "10 requests per second",
+                  "Email support",
+                ]}
+                buttonText="Get Started"
+              />
+
+              <PricingCard
+                title="Dev"
+                credits={150000}
+                price={249}
+                period="month"
+                features={[
+                  "150,000 pages per month",
+                  "20 requests per second",
+                  "Priority support",
+                ]}
+                buttonText="Get Started"
+              />
+
+              <PricingCard
+                title="Startup"
+                credits={500000}
+                price={449}
+                period="month"
+                features={[
+                  "500,000 pages per month",
+                  "Enhanced support",
+                  "Advanced features",
+                ]}
+                buttonText="Get Started"
+              />
+            </Flex>
+
+            <Text
+              size="6"
+              weight="medium"
+              style={{
+                color: "white",
+                marginTop: "64px",
+                marginBottom: "32px",
+              }}
+            >
+              Enterprise Solutions
+            </Text>
+
+            <Flex
+              direction="row"
+              justify="center"
+              gap="48px"
+              className="pricing-container"
+              style={{
+                width: "100%",
+                padding: "0 24px",
+                position: "relative",
+                zIndex: 2,
+              }}
+            >
+              <PricingCard
+                title="Enterprise"
+                credits={0}
+                price={0}
+                period=""
+                features={[
+                  "Compute cost + 20%",
+                  "One-time setup fee",
+                  "99.9% SLA",
+                  "Dedicated support team",
+                ]}
                 buttonText="Contact Sales"
               />
 
               <PricingCard
-                title="Pay as you go"
-                description="Perfect for projects of any size. Start with 100 free pages."
-                price="$0.01"
-                priceDetail="/page"
-                imageSrc="/path/to/api-image.png"
-                buttonText="Get Started"
-                highlighted={true}
-              />
-
-              <PricingCard
                 title="Self-hosted"
-                description="Free for non-commercial use. Special startup pricing available."
-                price="$5,000"
-                priceDetail="/month"
-                imageSrc="/path/to/self-hosted-image.png"
-                buttonText="Deploy Now"
+                credits={0}
+                price={0}
+                period=""
+                features={[
+                  "Full source code access",
+                  "Custom license terms",
+                  "Implementation support",
+                  "Security reviews",
+                ]}
+                buttonText="Contact Sales"
               />
             </Flex>
           </Flex>

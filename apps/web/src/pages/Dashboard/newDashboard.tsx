@@ -1,8 +1,12 @@
 import { Flex, Text } from "@radix-ui/themes";
 import "./newDashboard.css";
 import BetterButton from "../../components/BetterButton/BetterButton";
+import { useState } from "react";
 
 export default function NewDashboard() {
+  const [isTasksOpen, setIsTasksOpen] = useState(false);
+  const activeTasks = 3; // Replace with actual task count
+
   return (
     <Flex direction="row" width="100%" height="100vh">
       <Flex className="nav-container" align="start" direction="column">
@@ -73,7 +77,7 @@ export default function NewDashboard() {
         >
           <Flex direction="column">
             <Flex className="nav-items" direction="column">
-              <Flex className="nav-item">
+              <Flex className="nav-item" direction="column" gap="12px">
                 <Flex className="upload-task-button">
                   <Text size="2" weight="medium" style={{ color: "#FFF" }}>
                     Create New Task
@@ -294,6 +298,15 @@ export default function NewDashboard() {
                   Terms of Service
                 </Text>
               </Flex>
+              <Flex className="profile-menu-item">
+                <Text
+                  size="2"
+                  weight="medium"
+                  style={{ color: "rgba(255,255,255,0.8)" }}
+                >
+                  Logout
+                </Text>
+              </Flex>
             </Flex>
             <Flex className="profile-info">
               <Flex gap="12px" align="center">
@@ -315,7 +328,7 @@ export default function NewDashboard() {
           </Flex>
         </Flex>
       </Flex>
-      <Flex className="main-container">
+      <Flex direction="column" className="main-container">
         <Flex className="main-header">
           <Text size="5" weight="bold" style={{ color: "#FFF" }}>
             Dashboard
@@ -336,6 +349,58 @@ export default function NewDashboard() {
                 Docs
               </Text>
             </BetterButton>
+          </Flex>
+        </Flex>
+        <Flex className="main-body" p="24px">
+          <Flex
+            className="tasks-status-container"
+            direction="column"
+            width="100%"
+            style={{
+              height: isTasksOpen ? "300px" : "56px",
+              transition: "height 0.2s ease-in-out",
+              overflow: "hidden",
+            }}
+          >
+            <Flex
+              className="tasks-status-header"
+              width="100%"
+              direction="row"
+              justify="between"
+              align="center"
+              onClick={() => setIsTasksOpen(!isTasksOpen)}
+            >
+              <Flex gap="12px" align="center">
+                <div className="status-indicator" />
+                <Text size="2" weight="bold" style={{ color: "#FFF" }}>
+                  {activeTasks} Tasks Processing
+                </Text>
+              </Flex>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                style={{
+                  transform: isTasksOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease-in-out",
+                }}
+              >
+                <path
+                  d="M2 4L6 8L10 4"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Flex>
+
+            {isTasksOpen && (
+              <div className="tasks-graph-container">
+                {/* Graph component will go here */}
+              </div>
+            )}
           </Flex>
         </Flex>
       </Flex>
