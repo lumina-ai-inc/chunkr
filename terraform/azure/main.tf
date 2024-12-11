@@ -287,7 +287,7 @@ output "storage_account_key" {
 }
 
 output "storage_account_endpoint" {
-  value = azurerm_storage_account.storage.endpoint
+  value = "https://${azurerm_storage_account.storage.name}.blob.core.windows.net"
 }
 
 output "postgres_server_name" {
