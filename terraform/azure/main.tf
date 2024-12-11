@@ -70,6 +70,10 @@ variable "gpu_vm_size" {
   default = "Standard_NC8as_T4_v3"
 }
 
+variable "container_name" {
+  default = "chunkr"
+}
+
 provider "azurerm" {
   features {
     resource_group {
@@ -197,7 +201,7 @@ resource "azurerm_storage_account" "storage" {
 }
 
 resource "azurerm_storage_container" "container" {
-  name                  = var.base_name
+  name                  = var.container_name
   storage_account_name  = azurerm_storage_account.storage.name
   container_access_type = "private"
 }
