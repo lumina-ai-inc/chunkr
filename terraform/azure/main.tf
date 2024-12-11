@@ -51,7 +51,7 @@ variable "general_max_vm_count" {
 }
 
 variable "general_vm_size" {
-  default = "Standard_F8s_v2" # Similar to GCP c2d-highcpu-4
+  default = "Standard_F8s_v2"
 }
 
 variable "gpu_vm_count" {
@@ -63,11 +63,11 @@ variable "gpu_min_vm_count" {
 }
 
 variable "gpu_max_vm_count" {
-  default = 6
+  default = 3
 }
 
 variable "gpu_vm_size" {
-  default = "Standard_NC8as_T4_v3" # Similar to GCP a2-highgpu-1g
+  default = "Standard_NC8as_T4_v3"
 }
 
 provider "azurerm" {
@@ -126,7 +126,38 @@ resource "azurerm_redis_cache" "cache" {
   resource_group_name = azurerm_resource_group.rg.name
   capacity            = 1
   family              = "C"
-  sku_name            = "Basic"
+  sku_name            = "Standard"
+}
+
+resource "azurerm_private_dns_zone" "redis" {
+  name                = "privatelink.redis.cache.windows.net"
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "redis" {
+  name                  = "${var.base_name}-redis-vnet-link"
+  private_dns_zone_name = azurerm_private_dns_zone.redis.name
+  resource_group_name   = azurerm_resource_group.rg.name
+  virtual_network_id    = azurerm_virtual_network.vnet.id
+}
+
+resource "azurerm_private_endpoint" "redis" {
+  name                = "${var.base_name}-redis-endpoint"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  subnet_id           = azurerm_subnet.services_subnet.id
+
+  private_service_connection {
+    name                           = "${var.base_name}-redis-privateserviceconnection"
+    private_connection_resource_id = azurerm_redis_cache.cache.id
+    subresource_names              = ["redisCache"]
+    is_manual_connection           = false
+  }
+
+  private_dns_zone_group {
+    name                 = "redis-dns-zone-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.redis.id]
+  }
 }
 
 ###############################################################
@@ -273,7 +304,7 @@ resource "azurerm_postgresql_flexible_server_database" "keycloak" {
 # Outputs
 ###############################################################
 output "redis_connection_string" {
-  value     = azurerm_redis_cache.cache.primary_connection_string
+  value     = "rediss://:${azurerm_redis_cache.cache.primary_access_key}@${azurerm_redis_cache.cache.hostname}:${azurerm_redis_cache.cache.ssl_port}"
   sensitive = true
 }
 
