@@ -63,8 +63,8 @@ data:
     no-autoupdate: true
     ingress:
     {{- range .Values.ingress.cloudflare.config.services }}
-      - hostname: {{ .hostname | quote }}
-        service: {{ .service }}
+      - hostname: {{ printf "%s.%s" (index $.Values.services .name "ingress" "subdomain") $.Values.ingress.domain | quote }}
+        service: {{ printf "http://%s-%s:%v" $.Release.Name .name (index $.Values.services .name "port") | quote }}
     {{- end }}
       - service: http_status:404
 {{- end }}
