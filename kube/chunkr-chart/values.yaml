@@ -24,11 +24,16 @@ ingress:
         - name: "keycloak"
         - name: "rrq-analytics"
         - name: "web"
+        - name: "s3proxy"
 
 common:
   standardEnv:
     - name: AWS__ENDPOINT
-      value: '{{ if eq .Values.global.provider "azure" }}http://{{- .Release.Name }}-s3proxy:{{ .Values.services.s3proxy.port }}{{ else }}https://s3.amazonaws.com{{ end }}'
+      value: '{{ if eq .Values.global.provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+    - name: AWS__PRESIGNED_URL_ENDPOINT
+      value: '{{ if eq .Values.global.provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+    - name: AWS__REGION
+      value: "auto"
     - name: RRQ__URL
       value: "http://{{- .Release.Name }}-rrq:8000"
     - name: REDIS__URL
@@ -40,7 +45,10 @@ common:
     - name: WORKER__PDLA_URL
       value: "http://{{- .Release.Name }}-pdla:8000"
     - name: WORKER__SERVER_URL
-      value: "https://api.{{ .Values.ingress.domain }}"
+      value: "https://{{ .Values.services.chunkr.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+    - name: WORKER__TABLE_OCR_MODEL
+      value: "LLM"
+
 
 global:
   image:
@@ -366,16 +374,20 @@ services:
       registry: andrewgaul
     port: 8080
     targetPort: 8080
+    ingress:
+      enabled: true
+      subdomain: "s3"
     env:
+      - name: S3PROXY_AUTHORIZATION
+        value: none
+      - name: S3_PROXY_CORS_ALLOW_ALL
+        value: "true"
       - name: S3PROXY_ENDPOINT
         value: "http://0.0.0.0:8080"
-      - name: S3PROXY_AUTHORIZATION
-        value: "none"
       - name: JCLOUDS_AZUREBLOB_AUTH
         value: "azureKey"
       - name: JCLOUDS_PROVIDER
         value: "azureblob"
-      - name: JCLOUDS_CREDENTIAL
     envFrom:
       - secretRef:
           name: s3proxy-secret
