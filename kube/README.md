@@ -5,22 +5,7 @@
 - [Helm](https://helm.sh/docs/intro/install/)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
-### NGINX Ingress Controller Setup
-Before installation, ensure you have the NGINX ingress controller:
-
-```bash
-# Check if NGINX ingress controller is already installed
-kubectl get pods -A | grep nginx-ingress
-# or
-kubectl get ingressclass
-
-# If not installed, you can install it using Helm:
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-helm install nginx-ingress ingress-nginx/ingress-nginx
-```
-
-### GPU Setup
+### GPU Setup [Required]
 Ensure the NVIDIA device plugin is installed:
 
 ```bash
@@ -34,35 +19,43 @@ kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.
 kubectl get pods -n kube-system | grep nvidia-device-plugin
 ```
 
-### Cloudflare SSL Certificate Setup [Optional]
-If you're using Cloudflare for DNS and want to enable TLS:
+### Ingress Setup [Required]
+Choose ONE of the following ingress methods:
 
-1. Log in to Cloudflare Dashboard:
-   - Navigate to your domain in the Cloudflare dashboard.
+#### Option 1: Cloudflare Tunnel [Recommended]
+This option uses Cloudflare Tunnels for both ingress and SSL termination. This is recommended for simpler setup and better security.
 
-2. Access Origin Certificates:
-   - Go to the SSL/TLS tab.
-   - Click on Origin Server in the sub-menu.
+Follow the setup instructions at: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/
 
-3. Create a Certificate:
-   - Click on Create Certificate.
-   - Choose "Let Cloudflare generate a private key and CSR".
-   - Under Hostnames, add your domain and any necessary subdomains (e.g., example.com, *.example.com).
-   - Select Key Type: RSA (2048) is standard.
-   - Set Certificate Validity as desired (default is 15 years).
+#### Option 2: NGINX Ingress Controller + Cloudflare SSL [In Development - Not Recommended]
+This option uses NGINX for ingress and Cloudflare for SSL termination.
 
-4. Download Certificate and Key:
-   - After creation, download the Origin Certificate and Private Key.
-   - Save them as `origin.crt` and `origin.key` respectively.
-
-5. Create the TLS secret in Kubernetes (we need both namespaces):
+1. Install NGINX Ingress Controller:
 ```bash
-kubectl create secret tls tls-secret --cert=origin.crt --key=origin.key
-kubectl create secret tls tls-secret --cert=origin.crt --key=origin.key -n chunkr
+# Check if NGINX ingress controller is already installed
+kubectl get pods -A | grep nginx-ingress
+# or
+kubectl get ingressclass
+
+# If not installed, you can install it using Helm:
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install nginx-ingress ingress-nginx/ingress-nginx
 ```
 
-### Cloudflare Tunnel Setup [Optional]
-Follow the setup instructions at: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/
+2. Set up Cloudflare SSL Certificate:
+   - Log in to Cloudflare Dashboard and navigate to your domain
+   - Go to SSL/TLS tab > Origin Server
+   - Click "Create Certificate"
+   - Choose "Let Cloudflare generate a private key and CSR"
+   - Add your domain and subdomains (e.g., example.com, *.example.com)
+   - Select RSA (2048) key type
+   - Download the certificate files as `origin.crt` and `origin.key`
+   - Create the TLS secret in Kubernetes:
+   ```bash
+   kubectl create secret tls tls-secret --cert=origin.crt --key=origin.key
+   kubectl create secret tls tls-secret --cert=origin.crt --key=origin.key -n chunkr
+   ```
 
 ## Installation
 
@@ -126,7 +119,8 @@ helm install chunkr ./chunkr-chart \
   --set "services.chunkr.ingress.subdomain=chunkr-api" \
   --set "services.keycloak.ingress.subdomain=chunkr-auth" \
   --set "services.rrq.ingress.subdomain=chunkr-rrq-api" \
-  --set "services.rrq-analytics.ingress.subdomain=chunkr-rrq"
+  --set "services.rrq-analytics.ingress.subdomain=chunkr-rrq" \
+  --set "services.s3proxy.ingress.subdomain=chunkr-s3"
 ```
 
 **Azure Installation:**
@@ -137,15 +131,6 @@ helm install chunkr ./chunkr-chart \
   --set global.provider=azure
 ```
 
-**Installation with TLS (Cloudflare):**
-```bash
-helm install chunkr ./chunkr-chart \
-  --namespace chunkr \
-  --create-namespace \
-  --set ingress.tls.enabled=true \
-  --set ingress.tls.secretName=tls-secret
-```
-
 **Cloudflare Tunnel Installation:**
 ```bash
 helm install chunkr ./chunkr-chart \
@@ -153,6 +138,15 @@ helm install chunkr ./chunkr-chart \
   --create-namespace \
   --set ingress.type=cloudflare \
   --set cloudflared.enabled=true
+```
+
+**Installation with TLS (Cloudflare):**
+```bash
+helm install chunkr ./chunkr-chart \
+  --namespace chunkr \
+  --create-namespace \
+  --set ingress.tls.enabled=true \
+  --set ingress.tls.secretName=tls-secret
 ```
 
 ## Update
@@ -202,28 +196,3 @@ helm install chunkr ./chunkr-chart \
   --create-namespace \
   --set services.embeddings.image.tag=1.5  # Replace with your GPU-specific tag
 ```
-
-
-kubectl create secret generic tunnel-credentials \
---from-file=credentials.json=/home/akhilesh/.cloudflared/7330d78f-5d5a-4821-920f-7196843cee60.json
-
-
-cloudflared tunnel route dns chunkr chunkr.chunkr.ai
-cloudflared tunnel route dns chunkr chunkr-api.chunkr.ai
-cloudflared tunnel route dns chunkr chunkr-auth.chunkr.ai
-cloudflared tunnel route dns chunkr chunkr-rrq-api.chunkr.ai
-cloudflared tunnel route dns chunkr chunkr-rrq.chunkr.ai
-
-
-helm upgrade chunkr ./chunkr-chart \
-  --namespace chunkr \
-  --create-namespace \
-  --set ingress.type=cloudflare \
-  --set ingress.cloudflare.enabled=true \
-  --set ingress.subdomains.root=false \
-  --set "services.web.ingress.subdomain=chunkr" \
-  --set "services.chunkr.ingress.subdomain=chunkr-api" \
-  --set "services.keycloak.ingress.subdomain=chunkr-auth" \
-  --set "services.rrq.ingress.subdomain=chunkr-rrq-api" \
-  --set "services.rrq-analytics.ingress.subdomain=chunkr-rrq" \
-  --set global.provider=azure
