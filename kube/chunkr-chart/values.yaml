@@ -12,7 +12,7 @@ common:
     - name: AUTH__KEYCLOAK_URL
       value: "http://keycloak:8080"
     - name: AWS__ENDPOINT
-      value: {{ if eq .Values.global.provider "azure" }}http://s3proxy:8080{{ else }}https://s3.amazonaws.com{{ end }}
+      value: '{{ if eq .Values.global.provider "azure" }}http://s3proxy:8080{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: RRQ__URL
       value: "http://rrq:8000"
     - name: SEARCH__DENSE_VECTOR_URL
@@ -35,33 +35,33 @@ global:
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                - ${SERVICE_NAME}
-            topologyKey: "kubernetes.io/hostname"
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - ${SERVICE_NAME}
+              topologyKey: "kubernetes.io/hostname"
     tolerations:
-    - key: "nvidia.com/gpu"
-      operator: "Exists"
-      effect: "NoSchedule"
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
     resources:
       limits:
         nvidia.com/gpu: 1
       requests:
         nvidia.com/gpu: 1
     volumes:
-    - name: dshm
-      emptyDir:
-        medium: Memory
-        sizeLimit: 5Gi
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 5Gi
     volumeMounts:
-    - name: dshm
-      mountPath: /dev/shm
-  
+      - name: dshm
+        mountPath: /dev/shm
+
 services:
   chunkr:
     enabled: true
@@ -72,36 +72,37 @@ services:
     targetPort: 8000
     ingress:
       enabled: true
-      subdomain: "api" 
+      subdomain: "api"
     envFrom:
       - secretRef:
           name: chunkr-secret
+
   web:
+    enabled: true
+    image:
+      repository: web
+      tag: "0c5f457a"
+    port: 8000
+    targetPort: 8000
+    ingress:
       enabled: true
-      image:
-        repository: web
-        tag: "0c5f457a"
-      port: 8000
-      targetPort: 8000
-      ingress:
-        enabled: true
-        subdomain: "www" 
-      env:
-        - name: VITE_API_URL
-          value: "https://api.{{ .Values.ingress.domain }}"
-        - name: VITE_KEYCLOAK_CLIENT_ID
-          value: "chunkr"
-        - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
-          value: "https://{{ .Values.ingress.domain }}"
-        - name: VITE_KEYCLOAK_REALM
-          value: "chunkr"
-        - name: VITE_KEYCLOAK_REDIRECT_URI
-          value: "https://{{ .Values.ingress.domain }}"
-        - name: VITE_KEYCLOAK_URL
-          value: "https://keycloak.{{ .Values.ingress.domain }}"
-      envFrom:
-        - secretRef:
-            name: web-secrets
+      subdomain: "www"
+    env:
+      - name: VITE_API_URL
+        value: "https://api.{{ .Values.ingress.domain }}"
+      - name: VITE_KEYCLOAK_CLIENT_ID
+        value: "chunkr"
+      - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
+        value: "https://{{ .Values.ingress.domain }}"
+      - name: VITE_KEYCLOAK_REALM
+        value: "chunkr"
+      - name: VITE_KEYCLOAK_REDIRECT_URI
+        value: "https://{{ .Values.ingress.domain }}"
+      - name: VITE_KEYCLOAK_URL
+        value: "https://keycloak.{{ .Values.ingress.domain }}"
+    envFrom:
+      - secretRef:
+          name: web-secrets
 
   keycloak:
     enabled: true
@@ -113,7 +114,7 @@ services:
     targetPort: 8080
     ingress:
       enabled: true
-      subdomain: "auth" 
+      subdomain: "auth"
     args: ["start-dev", "--import-realm"]
     envFrom:
       - secretRef:
@@ -140,7 +141,7 @@ services:
     targetPort: 8000
     ingress:
       enabled: true
-      subdomain: "rrq-api" 
+      subdomain: "rrq-api"
     env:
       - name: VERSION
         value: "1.0.5"
@@ -157,7 +158,7 @@ services:
     targetPort: 8000
     ingress:
       enabled: true
-      subdomain: "rrq" 
+      subdomain: "rrq"
     env:
       - name: VITE_API_URL
         value: "https://rrq-api.{{ .Values.ingress.domain }}"
@@ -201,7 +202,7 @@ services:
     env:
       - name: PG__POOL__MAX_SIZE
         value: "3"
-  
+
   postprocess:
     enabled: true
     image:
@@ -225,7 +226,7 @@ services:
     env:
       - name: PG__POOL__MAX_SIZE
         value: "3"
-  
+
   structured-extraction:
     enabled: true
     image:
@@ -246,7 +247,7 @@ services:
       tag: "07c654a8"
     port: 8000
     targetPort: 8000
-    useGPU: true 
+    useGPU: true
 
   embeddings:
     enabled: true
@@ -257,16 +258,16 @@ services:
     port: 8000
     targetPort: 80
     args: ["--model-id", "BAAI/bge-m3"]
-    useGPU: true 
-  
+    useGPU: true
+
   paddle-ocr:
-    enabled: false 
+    enabled: false
     image:
       repository: paddle-ocr
       tag: "07c654a8"
     port: 8000
     targetPort: 8000
-    useGPU: true 
+    useGPU: true
 
   pdla:
     enabled: true
@@ -275,8 +276,20 @@ services:
       tag: "8c4bfb6d"
     port: 8000
     targetPort: 8000
-    useGPU: true 
-    command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
+    useGPU: true
+    command:
+      [
+        "gunicorn",
+        "-k",
+        "uvicorn.workers.UvicornWorker",
+        "--chdir",
+        "./src",
+        "app:app",
+        "--bind",
+        "0.0.0.0:8000",
+        "--timeout",
+        "10000",
+      ]
 
   table-ocr:
     enabled: false
@@ -285,11 +298,11 @@ services:
       tag: "68a05839"
     port: 8000
     targetPort: 8000
-    useGPU: true 
+    useGPU: true
 
   # S3 proxy for azure blob storage
   s3proxy:
-    enabled: {{ if eq .Values.global.provider "azure" }}true{{ else }}false{{ end }}
+    enabled: '{{ if eq .Values.global.provider "azure" }}true{{ else }}false{{ end }}'
     image:
       repository: s3proxy
       tag: "latest"
