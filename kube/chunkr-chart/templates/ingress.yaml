@@ -1,4 +1,4 @@
-{{- if .Values.ingress.enabled -}}
+{{- if and .Values.ingress.enabled (eq .Values.ingress.type "nginx") -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -11,6 +11,19 @@ metadata:
     {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+  - hosts:
+    {{- if .Values.ingress.subdomains.root }}
+    - {{ .Values.ingress.domain }}
+    {{- end }}
+    {{- range $serviceName, $service := .Values.services }}
+    {{- if and (hasKey $service "ingress") $service.ingress.enabled }}
+    - {{ printf "%s.%s" $service.ingress.subdomain $.Values.ingress.domain }}
+    {{- end }}
+    {{- end }}
+    secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
   rules:
   {{- if .Values.ingress.subdomains.root }}
   - host: {{ .Values.ingress.domain }}
@@ -38,10 +51,5 @@ spec:
             port:
               number: {{ $service.port }}
   {{- end }}
-  {{- end }}
-  
-  {{- with .Values.ingress.tls }}
-  tls:
-    {{- toYaml . | nindent 4 }}
   {{- end }}
 {{- end }}
