@@ -8,12 +8,12 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct Config {
     access_key: String,
-    secret_key: String,
     #[serde(default = "default_endpoint")]
     pub endpoint: String,
     #[serde(default = "default_presigned_url_endpoint")]
     pub presigned_url_endpoint: Option<String>,
     region: String,
+    secret_key: String,
 }
 
 pub struct ExternalS3Client(pub Client);
