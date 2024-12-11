@@ -3,75 +3,82 @@ import "./PricingCard.css";
 
 interface PricingCardProps {
   title: string;
-  description: string;
-  price: string;
-  priceDetail?: string;
-  imageSrc: string;
+  credits: number;
+  price: number | "Custom";
+  period: string;
+  annualPrice?: number;
+  features: string[];
   buttonText: string;
   onButtonClick?: () => void;
   highlighted?: boolean;
+  isPopular?: boolean;
 }
 
 const PricingCard = ({
   title,
-  description,
+  credits,
   price,
-  priceDetail,
-  imageSrc,
+  period,
+  annualPrice,
+  features,
   buttonText,
   onButtonClick,
   highlighted = false,
+  isPopular = false,
 }: PricingCardProps) => {
   return (
     <Flex
       direction="column"
       className={`pricing-card ${highlighted ? "pricing-card-highlighted" : ""}`}
     >
-      <div
-        className="pricing-card-image"
-        style={{ backgroundImage: `url(${imageSrc})` }}
-      />
-
-      <Flex direction="column" p="4px">
-        <Text size="3" className="pricing-tag" style={{ color: "#ffffff" }}>
-          {title}
+      {isPopular && (
+        <Text className="popular-tag" size="2">
+          Most Popular
         </Text>
+      )}
 
-        <Text
-          size="8"
-          weight="bold"
-          className="pricing-amount"
-          mt="24px"
-          style={{ color: "#ffffff" }}
-        >
-          {price}
-          {priceDetail && (
-            <Text
-              size="3"
-              weight="regular"
-              className="pricing-period"
-              style={{ color: "#ffffff" }}
-            >
-              {priceDetail}
-            </Text>
-          )}
+      <Text className="pricing-tag" size="6" weight="medium">
+        {title}
+      </Text>
+
+      <Text size="3" color="gray">
+        {credits.toLocaleString()} credits {period}
+      </Text>
+
+      <Flex align="baseline" gap="1" className="pricing-amount">
+        <Text className="price" size="8" weight="bold">
+          {typeof price === "number" ? `$${price}` : price}
         </Text>
-
-        <Text
-          size="3"
-          className="pricing-subtitle"
-          style={{ color: "#ffffff" }}
-        >
-          {description}
-        </Text>
-
-        <button
-          className={`pricing-button ${highlighted ? "pricing-button-highlighted" : ""}`}
-          onClick={onButtonClick}
-        >
-          {buttonText}
-        </button>
+        {period && (
+          <Text className="period" size="2">
+            /{period}
+          </Text>
+        )}
       </Flex>
+
+      {annualPrice && (
+        <Text className="annual-price" size="2">
+          ${annualPrice}/yr (Billed annually)
+        </Text>
+      )}
+
+      <Flex direction="column" gap="4" className="features-list">
+        {features.map((feature, index) => (
+          <Flex key={index} align="center" gap="2" className="feature-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
+                fill="#ffffffd0"
+              />
+            </svg>
+            <Text size="2">{feature}</Text>
+          </Flex>
+        ))}
+      </Flex>
+
+      <button className="pricing-button" onClick={onButtonClick}>
+        {buttonText}
+      </button>
     </Flex>
   );
 };
