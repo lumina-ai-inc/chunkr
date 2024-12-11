@@ -82,7 +82,7 @@ helm upgrade chunkr ./chunkr-chart --namespace chunkr
 
 # Update configuration settings
 helm upgrade chunkr ./chunkr-chart --namespace chunkr \
-  --set ingress.domain=example.com
+  --set global.provider=azure
 ```
 
 ## Uninstall
