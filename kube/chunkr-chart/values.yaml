@@ -18,7 +18,7 @@ common:
     - name: REDIS__URL
       value: "redis://chunkr-redis:6379"
     - name: SEARCH__DENSE_VECTOR_URL
-      value: "http://chunkr-dense-vector:80"
+      value: "http://chunkr-embeddings:80"
     - name: WORKER__GENERAL_OCR_URL
       value: "http://chunkr-doctr:8000"
     - name: WORKER__PDLA_URL
@@ -313,7 +313,7 @@ services:
     enabled: true
     image:
       repository: text-embeddings-inference
-      tag: "1.5"
+      tag: "turing-1.5"
       registry: ghcr.io/huggingface
     port: 8000
     targetPort: 80
