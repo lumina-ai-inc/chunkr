@@ -5,6 +5,21 @@
 - [Helm](https://helm.sh/docs/intro/install/)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
+### NGINX Ingress Controller Setup
+Before installation, ensure you have the NGINX ingress controller:
+
+```bash
+# Check if NGINX ingress controller is already installed
+kubectl get pods -A | grep nginx-ingress
+# or
+kubectl get ingressclass
+
+# If not installed, you can install it using Helm:
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install nginx-ingress ingress-nginx/ingress-nginx
+```
+
 ### GPU Setup
 Ensure the NVIDIA device plugin is installed:
 
