@@ -15,19 +15,15 @@ ingress:
     replicas: 2
     image:
       repository: cloudflare/cloudflared
-      tag: "2022.3.0"
+      tag: "2024.12.1"
       pullPolicy: Always
     config:
       tunnelName: "chunkr"
       services:
-        - hostname: "{{ .Values.services.chunkr.ingress.subdomain }}.{{ .Values.ingress.domain }}"
-          service: "http://{{ .Release.Name }}-chunkr:{{ .Values.services.chunkr.port }}"
-        - hostname: "{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
-          service: "http://{{ .Release.Name }}-keycloak:{{ .Values.services.keycloak.port }}"
-        - hostname: "{{ .Values.services.rrq-analytics.ingress.subdomain }}.{{ .Values.ingress.domain }}"
-          service: "http://{{ .Release.Name }}-rrq-analytics:{{ .Values.services.rrq-analytics.port }}"
-        - hostname: "{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}"
-          service: "http://{{ .Release.Name }}-web:{{ .Values.services.web.port }}"
+        - name: "chunkr"
+        - name: "keycloak"
+        - name: "rrq-analytics"
+        - name: "web"
 
 common:
   standardEnv:
