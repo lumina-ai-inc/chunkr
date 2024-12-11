@@ -1,0 +1,70 @@
+{{- if and .Values.ingress.enabled (eq .Values.ingress.type "cloudflare") .Values.ingress.cloudflare.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Release.Name }}-cloudflared
+  labels:
+    {{- include "chunkr.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ingress.cloudflare.replicas }}
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      containers:
+        - name: cloudflared
+          image: "{{ .Values.ingress.cloudflare.image.repository }}:{{ .Values.ingress.cloudflare.image.tag }}"
+          imagePullPolicy: {{ .Values.ingress.cloudflare.image.pullPolicy }}
+          args:
+            - tunnel
+            - --config
+            - /etc/cloudflared/config/config.yaml
+            - run
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: 2000
+            failureThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: config
+              mountPath: /etc/cloudflared/config
+              readOnly: true
+            - name: creds
+              mountPath: /etc/cloudflared/creds
+              readOnly: true
+      volumes:
+        - name: creds
+          secret:
+            secretName: tunnel-credentials
+        - name: config
+          configMap:
+            name: {{ $.Release.Name }}-cloudflared-config
+            items:
+              - key: config.yaml
+                path: config.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}-cloudflared-config
+  labels:
+    {{- include "chunkr.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    tunnel: {{ .Values.ingress.cloudflare.config.tunnelName }}
+    credentials-file: /etc/cloudflared/creds/credentials.json
+    metrics: 0.0.0.0:2000
+    no-autoupdate: true
+    ingress:
+    {{- range .Values.ingress.cloudflare.config.services }}
+      - hostname: {{ .hostname | quote }}
+        service: {{ .service }}
+    {{- end }}
+      - service: http_status:404
+{{- end }}
