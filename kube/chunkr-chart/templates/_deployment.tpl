@@ -21,7 +21,9 @@ spec:
       {{- if $service.useGPU }}
       affinity:
         {{- $gpuAffinity := deepCopy $.Values.global.gpuWorkload.affinity }}
-        {{- $_ := set (index $gpuAffinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution 0).podAffinityTerm.labelSelector.matchExpressions 0 "values" (list $name) }}
+        {{- $matchExpr := index $gpuAffinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution 0 -}}
+        {{- $matchExpressions := $matchExpr.podAffinityTerm.labelSelector.matchExpressions }}
+        {{- $_ := set (index $matchExpressions 0) "values" (list $name) }}
         {{- toYaml $gpuAffinity | nindent 8 }}
       tolerations:
         {{- toYaml $.Values.global.gpuWorkload.tolerations | nindent 8 }}
