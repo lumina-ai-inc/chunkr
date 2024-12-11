@@ -14,17 +14,17 @@ common:
     - name: AWS__ENDPOINT
       value: '{{ if eq .Values.global.provider "azure" }}http://s3proxy:8080{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: RRQ__URL
-      value: "http://rrq:8000"
+      value: "http://chunkr-rrq:8000"
+    - name: REDIS__URL
+      value: "redis://chunkr-redis:6379"
     - name: SEARCH__DENSE_VECTOR_URL
-      value: "http://dense-vector:80"
+      value: "http://chunkr-dense-vector:80"
     - name: WORKER__GENERAL_OCR_URL
-      value: "http://doctr:8000"
+      value: "http://chunkr-doctr:8000"
     - name: WORKER__PDLA_URL
-      value: "http://pdla:8000"
+      value: "http://chunkr-pdla:8000"
     - name: WORKER__SERVER_URL
       value: "https://api.{{ .Values.ingress.domain }}"
-    - name: REDIS__URL
-      value: "redis://redis:6379"
 
 global:
   image:
@@ -371,7 +371,7 @@ services:
     targetPort: 8080
     env:
       - name: S3PROXY_ENDPOINT
-        value: "http://0.0.0.0:8080/"
+        value: "http://0.0.0.0:8080"
       - name: S3PROXY_AUTHORIZATION
         value: "none"
       - name: JCLOUDS_AZUREBLOB_AUTH

@@ -254,7 +254,7 @@ services:
     ports:
       - "8004:8000"
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:
