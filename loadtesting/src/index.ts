@@ -35,8 +35,8 @@ if (!API_KEY || !API_URL) {
 
 const eventEmitter = new EventEmitter();
 
-const MAX_FILES_TO_PROCESS = 200; // Adjust this value as needed
-const CONCURRENT_REQUESTS_PER_WORKER = 25; // You can adjust this value
+const MAX_FILES_TO_PROCESS = 100; // Adjust this value as needed
+const CONCURRENT_REQUESTS_PER_WORKER = 10; // You can adjust this value
 const WORKERS_PER_CONFIG = 2; // Adjust this number as needed
 const INPUT_FOLDER = path.join(__dirname, "..", "input");
 const OUTPUT_FOLDER = path.join(__dirname, "..", "output");
@@ -61,7 +61,7 @@ const MODEL_CONFIGS: (ModelConfig & { workers: number })[] = [
   {
     model: "HighQuality",
     ocrStrategy: "All",
-    percentage: 10,
+    percentage: 20,
     workers: WORKERS_PER_CONFIG,
     segmentationStrategy: "LayoutAnalysis",
     testType: "standard",
@@ -69,7 +69,7 @@ const MODEL_CONFIGS: (ModelConfig & { workers: number })[] = [
   {
     model: "HighQuality",
     ocrStrategy: "Auto",
-    percentage: 10,
+    percentage: 5,
     workers: WORKERS_PER_CONFIG,
     segmentationStrategy: "LayoutAnalysis",
     testType: "structured",
@@ -77,7 +77,7 @@ const MODEL_CONFIGS: (ModelConfig & { workers: number })[] = [
   {
     model: "HighQuality",
     ocrStrategy: "Auto",
-    percentage: 10,
+    percentage: 5,
     workers: WORKERS_PER_CONFIG,
     segmentationStrategy: "Page",
     testType: "structured",
