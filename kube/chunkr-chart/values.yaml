@@ -27,10 +27,8 @@ ingress:
 
 common:
   standardEnv:
-    - name: AUTH__KEYCLOAK_URL
-      value: "http://keycloak:8080"
     - name: AWS__ENDPOINT
-      value: '{{ if eq .Values.global.provider "azure" }}http://s3proxy:8080{{ else }}https://s3.amazonaws.com{{ end }}'
+      value: '{{ if eq .Values.global.provider "azure" }}http://{{- .Release.Name }}-s3proxy:{{ .Values.services.s3proxy.port }}{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: RRQ__URL
       value: "http://{{- .Release.Name }}-rrq:8000"
     - name: REDIS__URL
@@ -187,9 +185,6 @@ services:
     ingress:
       enabled: true
       subdomain: "rrq-api"
-    env:
-      - name: VERSION
-        value: "1.0.5"
     envFrom:
       - secretRef:
           name: rrq-secret
@@ -204,9 +199,6 @@ services:
     ingress:
       enabled: true
       subdomain: "rrq"
-    env:
-      - name: VITE_API_URL
-        value: "https://rrq-api.{{ .Values.ingress.domain }}"
     envFrom:
       - secretRef:
           name: rrq-secret
@@ -221,19 +213,6 @@ services:
     ingress:
       enabled: true
       subdomain: "www"
-    env:
-      - name: VITE_API_URL
-        value: "https://api.{{ .Values.ingress.domain }}"
-      - name: VITE_KEYCLOAK_CLIENT_ID
-        value: "chunkr"
-      - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
-        value: "https://{{ .Values.ingress.domain }}"
-      - name: VITE_KEYCLOAK_REALM
-        value: "chunkr"
-      - name: VITE_KEYCLOAK_REDIRECT_URI
-        value: "https://{{ .Values.ingress.domain }}"
-      - name: VITE_KEYCLOAK_URL
-        value: "https://auth.{{ .Values.ingress.domain }}"
     envFrom:
       - secretRef:
           name: web-secrets
