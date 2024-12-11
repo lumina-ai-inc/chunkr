@@ -117,7 +117,6 @@ resource "azurerm_subnet" "services_subnet" {
   }
 }
 
-// ... existing code ...
 
 ###############################################################
 # Network Security Group
@@ -198,7 +197,7 @@ resource "azurerm_storage_account" "storage" {
 }
 
 resource "azurerm_storage_container" "container" {
-  name                  = "${var.base_name}-container"
+  name                  = var.base_name
   storage_account_name  = azurerm_storage_account.storage.name
   container_access_type = "private"
 }
