@@ -117,6 +117,59 @@ resource "azurerm_subnet" "services_subnet" {
   }
 }
 
+// ... existing code ...
+
+###############################################################
+# Network Security Group
+###############################################################
+resource "azurerm_network_security_group" "services_nsg" {
+  name                = "${var.base_name}-services-nsg"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule {
+    name                       = "allow-http"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "allow-https"
+    priority                   = 101
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "allow-icmp"
+    priority                   = 102
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Icmp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
+# Associate the NSG with the services subnet
+resource "azurerm_subnet_network_security_group_association" "services_nsg_association" {
+  subnet_id                 = azurerm_subnet.services_subnet.id
+  network_security_group_id = azurerm_network_security_group.services_nsg.id
+}
+
 ###############################################################
 # Storage Account 
 ###############################################################

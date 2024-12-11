@@ -1,11 +1,33 @@
 ingress:
   enabled: true
+  type: "nginx" # can be "nginx" or "cloudflare"
   className: "nginx"
   annotations:
     kubernetes.io/ingress.class: nginx
   domain: "chunkr.ai"
   subdomains:
     root: true
+  tls:
+    enabled: false
+    secretName: "tls-secret"
+  cloudflare:
+    enabled: false
+    replicas: 2
+    image:
+      repository: cloudflare/cloudflared
+      tag: "2022.3.0"
+      pullPolicy: Always
+    config:
+      tunnelName: "chunkr"
+      services:
+        - hostname: "{{ .Values.services.chunkr.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+          service: "http://{{ .Release.Name }}-chunkr:{{ .Values.services.chunkr.port }}"
+        - hostname: "{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+          service: "http://{{ .Release.Name }}-keycloak:{{ .Values.services.keycloak.port }}"
+        - hostname: "{{ .Values.services.rrq-analytics.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+          service: "http://{{ .Release.Name }}-rrq-analytics:{{ .Values.services.rrq-analytics.port }}"
+        - hostname: "{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+          service: "http://{{ .Release.Name }}-web:{{ .Values.services.web.port }}"
 
 common:
   standardEnv:
@@ -14,15 +36,15 @@ common:
     - name: AWS__ENDPOINT
       value: '{{ if eq .Values.global.provider "azure" }}http://s3proxy:8080{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: RRQ__URL
-      value: "http://chunkr-rrq:8000"
+      value: "http://{{- .Release.Name }}-rrq:8000"
     - name: REDIS__URL
-      value: "redis://chunkr-redis:6379"
+      value: "redis://{{- .Release.Name }}-redis:6379"
     - name: SEARCH__DENSE_VECTOR_URL
-      value: "http://chunkr-embeddings:80"
+      value: "http://{{- .Release.Name }}-embeddings:80"
     - name: WORKER__GENERAL_OCR_URL
-      value: "http://chunkr-doctr:8000"
+      value: "http://{{- .Release.Name }}-doctr:8000"
     - name: WORKER__PDLA_URL
-      value: "http://chunkr-pdla:8000"
+      value: "http://{{- .Release.Name }}-pdla:8000"
     - name: WORKER__SERVER_URL
       value: "https://api.{{ .Values.ingress.domain }}"
 
@@ -215,7 +237,7 @@ services:
       - name: VITE_KEYCLOAK_REDIRECT_URI
         value: "https://{{ .Values.ingress.domain }}"
       - name: VITE_KEYCLOAK_URL
-        value: "https://keycloak.{{ .Values.ingress.domain }}"
+        value: "https://auth.{{ .Values.ingress.domain }}"
     envFrom:
       - secretRef:
           name: web-secrets
