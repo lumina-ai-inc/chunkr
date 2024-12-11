@@ -23,6 +23,8 @@ common:
       value: "http://pdla:8000"
     - name: WORKER__SERVER_URL
       value: "https://api.{{ .Values.ingress.domain }}"
+    - name: REDIS__URL
+      value: "redis://redis:6379"
 
 global:
   image:
@@ -65,8 +67,9 @@ global:
 services:
   chunkr:
     enabled: true
+    useStandardEnv: true
     image:
-      repository: chunkr
+      repository: chunkmydocs
       tag: "68a05839"
     port: 8000
     targetPort: 8000
@@ -76,33 +79,6 @@ services:
     envFrom:
       - secretRef:
           name: chunkr-secret
-
-  web:
-    enabled: true
-    image:
-      repository: web
-      tag: "0c5f457a"
-    port: 8000
-    targetPort: 8000
-    ingress:
-      enabled: true
-      subdomain: "www"
-    env:
-      - name: VITE_API_URL
-        value: "https://api.{{ .Values.ingress.domain }}"
-      - name: VITE_KEYCLOAK_CLIENT_ID
-        value: "chunkr"
-      - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
-        value: "https://{{ .Values.ingress.domain }}"
-      - name: VITE_KEYCLOAK_REALM
-        value: "chunkr"
-      - name: VITE_KEYCLOAK_REDIRECT_URI
-        value: "https://{{ .Values.ingress.domain }}"
-      - name: VITE_KEYCLOAK_URL
-        value: "https://keycloak.{{ .Values.ingress.domain }}"
-    envFrom:
-      - secretRef:
-          name: web-secrets
 
   keycloak:
     enabled: true
@@ -132,8 +108,59 @@ services:
         mountPath: /opt/keycloak/data/import/realm-export.json
         subPath: realm-export.json
 
+  redis:
+    enabled: true
+    image:
+      repository: redis
+      tag: "7.2-alpine"
+      registry: docker.io
+    port: 6379
+    targetPort: 6379
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "200m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: standard
+    args:
+      - "redis-server"
+      - "--appendonly"
+      - "yes"
+      - "--maxmemory"
+      - "900mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+      - "--save"
+      - "900"
+      - "1"
+      - "--save"
+      - "300"
+      - "10"
+      - "--save"
+      - "60"
+      - "10000"
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 999
+    livenessProbe:
+      tcpSocket:
+        port: 6379
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      tcpSocket:
+        port: 6379
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
   rrq:
     enabled: true
+    useStandardEnv: true
     image:
       repository: rrq
       tag: "9326b10"
@@ -166,9 +193,37 @@ services:
       - secretRef:
           name: rrq-secret
 
+  web:
+    enabled: true
+    image:
+      repository: web
+      tag: "0c5f457a"
+    port: 8000
+    targetPort: 8000
+    ingress:
+      enabled: true
+      subdomain: "www"
+    env:
+      - name: VITE_API_URL
+        value: "https://api.{{ .Values.ingress.domain }}"
+      - name: VITE_KEYCLOAK_CLIENT_ID
+        value: "chunkr"
+      - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
+        value: "https://{{ .Values.ingress.domain }}"
+      - name: VITE_KEYCLOAK_REALM
+        value: "chunkr"
+      - name: VITE_KEYCLOAK_REDIRECT_URI
+        value: "https://{{ .Values.ingress.domain }}"
+      - name: VITE_KEYCLOAK_URL
+        value: "https://keycloak.{{ .Values.ingress.domain }}"
+    envFrom:
+      - secretRef:
+          name: web-secrets
+
   # Workers
   fast:
     enabled: true
+    useStandardEnv: true
     image:
       repository: fast
       tag: "68a05839"
@@ -181,6 +236,7 @@ services:
 
   high-quality:
     enabled: true
+    useStandardEnv: true
     image:
       repository: high-quality
       tag: "68a05839"
@@ -193,6 +249,7 @@ services:
 
   ocr:
     enabled: true
+    useStandardEnv: true
     image:
       repository: ocr
       tag: "68a05839"
@@ -205,6 +262,7 @@ services:
 
   postprocess:
     enabled: true
+    useStandardEnv: true
     image:
       repository: postprocess
       tag: "68a05839"
@@ -217,6 +275,7 @@ services:
 
   preprocess:
     enabled: true
+    useStandardEnv: true
     image:
       repository: preprocess
       tag: "68a05839"
@@ -229,6 +288,7 @@ services:
 
   structured-extraction:
     enabled: true
+    useStandardEnv: true
     image:
       repository: structured-extraction
       tag: "68a05839"
@@ -319,7 +379,6 @@ services:
       - name: JCLOUDS_PROVIDER
         value: "azureblob"
       - name: JCLOUDS_CREDENTIAL
-        valueFrom:
-          secretKeyRef:
-            name: s3proxy-secret
-            key: azure_storage_key
+    envFrom:
+      - secretRef:
+          name: s3proxy-secret
