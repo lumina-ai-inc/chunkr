@@ -6,7 +6,7 @@ import Badge from "../Badge";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "./SegmentChunk.css";
-import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from "sanitize-html";
 
 import ReactMarkdown from "react-markdown";
 import ReactJson from "react-json-view";
@@ -241,13 +241,22 @@ export const SegmentChunk = forwardRef<
                 <div
                   dangerouslySetInnerHTML={{
                     __html: sanitizeHtml(combinedHtml, {
-                      allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+                      allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+                        "img",
+                        "table",
+                        "tbody",
+                        "tr",
+                        "td",
+                        "th",
+                      ]),
                       allowedAttributes: {
                         ...sanitizeHtml.defaults.allowedAttributes,
-                        '*': ['class', 'style'],
-                        'img': ['src']
-                      }
-                    })
+                        "*": ["class", "style"],
+                        img: ["src"],
+                        td: ["colspan", "rowspan"],
+                        th: ["colspan", "rowspan"],
+                      },
+                    }),
                   }}
                 />
               )}

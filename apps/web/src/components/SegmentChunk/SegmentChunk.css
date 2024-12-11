@@ -222,8 +222,12 @@ ol {
 }
 
 .segment-badge {
+  display: flex;
+  flex-direction: row;
   border-width: 1px;
   border-style: solid;
+  align-items: center;
+  justify-content: center;
 }
 
 .segment-badge.text {
