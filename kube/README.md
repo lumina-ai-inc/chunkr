@@ -34,6 +34,36 @@ kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.
 kubectl get pods -n kube-system | grep nvidia-device-plugin
 ```
 
+### Cloudflare SSL Certificate Setup [Optional]
+If you're using Cloudflare for DNS and want to enable TLS:
+
+1. Log in to Cloudflare Dashboard:
+   - Navigate to your domain in the Cloudflare dashboard.
+
+2. Access Origin Certificates:
+   - Go to the SSL/TLS tab.
+   - Click on Origin Server in the sub-menu.
+
+3. Create a Certificate:
+   - Click on Create Certificate.
+   - Choose "Let Cloudflare generate a private key and CSR".
+   - Under Hostnames, add your domain and any necessary subdomains (e.g., example.com, *.example.com).
+   - Select Key Type: RSA (2048) is standard.
+   - Set Certificate Validity as desired (default is 15 years).
+
+4. Download Certificate and Key:
+   - After creation, download the Origin Certificate and Private Key.
+   - Save them as `origin.crt` and `origin.key` respectively.
+
+5. Create the TLS secret in Kubernetes (we need both namespaces):
+```bash
+kubectl create secret tls tls-secret --cert=origin.crt --key=origin.key
+kubectl create secret tls tls-secret --cert=origin.crt --key=origin.key -n chunkr
+```
+
+### Cloudflare Tunnel Setup [Optional]
+Follow the setup instructions at: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/
+
 ## Installation
 
 ### 1. Setup Secrets
@@ -54,6 +84,12 @@ If using Azure Storage:
 ```bash
 # Additional secret needed for Azure
 cp secrets/s3proxy-secret.example.yaml secrets/local/s3proxy-secret.yaml
+```
+
+If using Cloudflare Tunnels:
+```bash
+# Additional secret needed for Cloudflare Tunnels
+cp secrets/cloudflare-secret.example.yaml secrets/local/cloudflare-secret.yaml
 ```
 
 Edit and apply your secrets:
@@ -85,22 +121,65 @@ helm install chunkr ./chunkr-chart \
   --namespace chunkr \
   --create-namespace \
   --set ingress.domain=example.com \
+  --set ingress.subdomains.root=false \
+  --set "services.web.ingress.subdomain=chunkr" \
   --set "services.chunkr.ingress.subdomain=chunkr-api" \
   --set "services.keycloak.ingress.subdomain=chunkr-auth" \
   --set "services.rrq.ingress.subdomain=chunkr-rrq-api" \
   --set "services.rrq-analytics.ingress.subdomain=chunkr-rrq"
 ```
 
-**Azure Installation with custom domain:**
+**Azure Installation:**
 ```bash
 helm install chunkr ./chunkr-chart \
   --namespace chunkr \
   --create-namespace \
-  --set global.provider=azure \
-  --set "services.chunkr.ingress.subdomain=chunkr-api" \
-  --set "services.keycloak.ingress.subdomain=chunkr-auth" \
-  --set "services.rrq.ingress.subdomain=chunkr-rrq-api" \
-  --set "services.rrq-analytics.ingress.subdomain=chunkr-rrq"
+  --set global.provider=azure
+```
+
+**Installation with TLS (Cloudflare):**
+```bash
+helm install chunkr ./chunkr-chart \
+  --namespace chunkr \
+  --create-namespace \
+  --set ingress.tls.enabled=true \
+  --set ingress.tls.secretName=tls-secret
+```
+
+**Cloudflare Tunnel Installation:**
+```bash
+helm install chunkr ./chunkr-chart \
+  --namespace chunkr \
+  --create-namespace \
+  --set ingress.type=cloudflare \
+  --set cloudflared.enabled=true
+```
+
+## Update
+
+To update the deployment, use one of the following methods:
+
+**Basic Update:**
+```bash
+helm upgrade chunkr ./chunkr-chart \
+  --namespace chunkr \
+  --create-namespace
+```
+
+**Update with Configuration Changes:**
+```bash
+# Example: Update provider to Azure
+helm upgrade chunkr ./chunkr-chart \
+  --namespace chunkr \
+  --create-namespace \
+  --set global.provider=azure
+
+# Example: Update domain settings
+helm upgrade chunkr ./chunkr-chart \
+  --namespace chunkr \
+  --create-namespace \
+  --set ingress.domain=new-domain.com \
+  --set "services.web.ingress.subdomain=new-chunkr"
 ```
 
 ## Uninstall
@@ -111,19 +190,12 @@ helm uninstall chunkr --namespace chunkr
 
 ### GPU Compatibility
 
-The embeddings service supports different GPU architectures through specific Docker images. Choose the appropriate image tag in your `values.yaml` based on your GPU:
+The embeddings service supports different GPU architectures through specific Docker images. By default, it uses the Turing architecture (T4, RTX 2000 series, etc) with image `ghcr.io/huggingface/text-embeddings-inference:turing-1.5` (experimental).
 
-| Architecture | Image Tag | Notes |
-|--------------|-----------|--------|
-| CPU | `cpu-1.5` | For non-GPU deployments |
-| Volta | Not Supported | V100, Titan V, GTX 1000 series not supported |
-| Turing | `turing-1.5` | For T4, RTX 2000 series (experimental) |
-| Ampere 80 | `1.5` | For A100, A30 |
-| Ampere 86 | `86-1.5` | For A10, A40 |
-| Ada Lovelace | `89-1.5` | For RTX 4000 series |
-| Hopper | `hopper-1.5` | For H100 (experimental) |
+For the most up-to-date information about supported GPU architectures and their corresponding image tags, please refer to [Text Embeddings Inference Supported Models Documentation](https://huggingface.co/docs/text-embeddings-inference/supported_models#supported-hardware)
 
 Example installation with GPU-specific image tag:
+
 ```bash
 helm install chunkr ./chunkr-chart \
   --namespace chunkr \
@@ -132,3 +204,26 @@ helm install chunkr ./chunkr-chart \
 ```
 
 
+kubectl create secret generic tunnel-credentials \
+--from-file=credentials.json=/home/akhilesh/.cloudflared/7330d78f-5d5a-4821-920f-7196843cee60.json
+
+
+cloudflared tunnel route dns chunkr chunkr.chunkr.ai
+cloudflared tunnel route dns chunkr chunkr-api.chunkr.ai
+cloudflared tunnel route dns chunkr chunkr-auth.chunkr.ai
+cloudflared tunnel route dns chunkr chunkr-rrq-api.chunkr.ai
+cloudflared tunnel route dns chunkr chunkr-rrq.chunkr.ai
+
+
+helm upgrade chunkr ./chunkr-chart \
+  --namespace chunkr \
+  --create-namespace \
+  --set ingress.type=cloudflare \
+  --set ingress.cloudflare.enabled=true \
+  --set ingress.subdomains.root=false \
+  --set "services.web.ingress.subdomain=chunkr" \
+  --set "services.chunkr.ingress.subdomain=chunkr-api" \
+  --set "services.keycloak.ingress.subdomain=chunkr-auth" \
+  --set "services.rrq.ingress.subdomain=chunkr-rrq-api" \
+  --set "services.rrq-analytics.ingress.subdomain=chunkr-rrq" \
+  --set global.provider=azure
