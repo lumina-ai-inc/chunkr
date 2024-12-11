@@ -294,13 +294,22 @@ output "postgres_server_name" {
   value = azurerm_postgresql_flexible_server.postgres.name
 }
 
+output "postgres_server_username" {
+  value = var.postgres_username
+}
+
+output "postgres_server_password" {
+  value     = var.postgres_password
+  sensitive = true
+}
+
 output "postgres_connection_string" {
   value     = "postgresql://${var.postgres_username}:${var.postgres_password}@${azurerm_postgresql_flexible_server.postgres.fqdn}:5432/${var.chunkr_db}"
   sensitive = true
 }
 
 output "keycloak_connection_string" {
-  value     = "postgresql://${azurerm_postgresql_flexible_server.postgres.fqdn}:5432/${var.keycloak_db}"
+  value     = "jdbc:postgresql://${azurerm_postgresql_flexible_server.postgres.fqdn}:5432/${var.keycloak_db}"
   sensitive = true
 }
 
