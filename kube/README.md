@@ -9,14 +9,32 @@
 Ensure the NVIDIA device plugin is installed:
 
 ```bash
-# Check if NVIDIA device plugin is running
-kubectl get pods -n kube-system | grep nvidia-device-plugin
+# Add the NVIDIA helm repository
+helm repo add nvidia https://nvidia.github.io/k8s-device-plugin
+helm repo update
 
-# If no pods are found, install the plugin
-kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.1/nvidia-device-plugin.yml
+# Install the plugin with the configuration
+helm install nvidia-device-plugin nvidia/nvidia-device-plugin \
+  --namespace kube-system \
+  -f nvidia-values.yaml
 
-# Verify installation after a minute
-kubectl get pods -n kube-system | grep nvidia-device-plugin
+helm upgrade -i nvdp nvdp/nvidia-device-plugin \
+  --namespace nvidia-device-plugin \
+  --create-namespace \
+  -f nvidia-values.yaml
+```
+
+You can change the number of replicas in the `nvidia-values.yaml` file.
+```bash
+# Increase to share with 8 pods
+helm upgrade nvidia-device-plugin nvidia/nvidia-device-plugin \
+  --namespace kube-system \
+  --set "config.flags.timeSlicing.resources[0].replicas=8"
+
+# Or decrease to share with 3 pods
+helm upgrade nvidia-device-plugin nvidia/nvidia-device-plugin \
+  --namespace kube-system \
+  --set "config.flags.timeSlicing.resources[0].replicas=3"
 ```
 
 ### Ingress Setup [Required]
@@ -25,7 +43,7 @@ Choose ONE of the following ingress methods:
 #### Option 1: Cloudflare Tunnel [Recommended]
 This option uses Cloudflare Tunnels for both ingress and SSL termination. This is recommended for simpler setup and better security.
 
-Follow the setup instructions at: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/
+Follow the setup instructions at: https://developers.cloudflare.com/cloudflare-one/tutorials/many-cfd-one-tunnel/
 
 #### Option 2: NGINX Ingress Controller + Cloudflare SSL [In Development - Not Recommended]
 This option uses NGINX for ingress and Cloudflare for SSL termination.
@@ -137,7 +155,7 @@ helm install chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
   --set ingress.type=cloudflare \
-  --set cloudflared.enabled=true
+  --set ingress.cloudflare.enabled=true
 ```
 
 **Installation with TLS (Cloudflare):**

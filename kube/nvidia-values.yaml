@@ -1,0 +1,8 @@
+config:
+  name: "default"
+  flags:
+    timeSlicing:
+      enabled: true
+      resources:
+        - name: "nvidia.com/gpu"
+          replicas: 5 
