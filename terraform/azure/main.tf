@@ -101,14 +101,14 @@ resource "azurerm_subnet" "aks_subnet" {
   name                 = "${var.base_name}-aks-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.3.1.0/24"]
+  address_prefixes     = ["10.3.0.0/20"]
 }
 
 resource "azurerm_subnet" "services_subnet" {
   name                 = "${var.base_name}-services-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.3.2.0/24"]
+  address_prefixes     = ["10.3.16.0/22"]
 
   delegation {
     name = "fs"
@@ -246,6 +246,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "general" {
   node_labels = {
     "purpose" = "general-compute"
   }
+
+  max_pods = 250
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
@@ -265,6 +267,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
   node_taints = [
     "nvidia.com/gpu=present:NoSchedule"
   ]
+
+  max_pods = 250
 }
 
 ###############################################################
