@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rrq
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: rrq
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rrq
+  template:
+    metadata:
+      namespace: chunkmydocs
+      labels:
+        app.kubernetes.io/name: rrq
+    spec:
+      containers:
+      - name: rrq
+        image: luminainc/rrq:9326b10
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: rrq-secrets
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        ports:
+        - containerPort: 8000
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["SYS_ADMIN"]

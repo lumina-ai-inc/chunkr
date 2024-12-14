@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdla-fast
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: pdla-fast
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pdla-fast
+  template:
+    metadata:
+      namespace: chunkmydocs
+      labels:
+        app.kubernetes.io/name: pdla-fast
+    spec:
+      containers:
+      - name: pdla-fast
+        image: luminainc/pdla:8c4bfb6d
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000"]
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["SYS_ADMIN"]
