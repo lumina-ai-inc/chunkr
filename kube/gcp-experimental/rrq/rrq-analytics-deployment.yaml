@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rrq-analytics
+  namespace: chunkmydocs
+  labels:
+    app.kubernetes.io/name: rrq-analytics
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rrq-analytics
+  template:
+    metadata:
+      namespace: chunkmydocs
+      labels:
+        app.kubernetes.io/name: rrq-analytics
+    spec:
+      containers:
+      - name: rrq-analytics
+        image: luminainc/rrq-analytics:459b00d
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: rrq-secrets
