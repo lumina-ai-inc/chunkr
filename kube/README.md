@@ -69,7 +69,6 @@ mkdir -p secrets/local
 # Copy the example secrets
 cp secrets/chunkr-secret.example.yaml secrets/local/chunkr-secret.yaml
 cp secrets/rrq-secret.example.yaml secrets/local/rrq-secret.yaml
-cp secrets/keycloak-secret.example.yaml secrets/local/keycloak-secret.yaml
 cp secrets/web-secret.example.yaml secrets/local/web-secret.yaml
 ```
 
