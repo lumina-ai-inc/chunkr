@@ -191,7 +191,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:0c5f457a
+    image: luminainc/web:75423714
     ports:
       - "5173:8000"
     env_file:
