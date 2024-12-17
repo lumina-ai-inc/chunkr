@@ -472,10 +472,30 @@ services:
       limits:
         memory: "2Gi"
         cpu: "1000m"
+    initContainers:
+      - name: init-chmod-data
+        image: busybox
+        command: 
+          - /bin/sh
+          - -c
+          - |
+            mkdir -p /var/lib/postgresql/data /var/run/postgresql
+            chmod -R 700 /var/lib/postgresql/data /var/run/postgresql
+            chown -R 999:999 /var/lib/postgresql/data /var/run/postgresql
+        volumeMounts:
+          - name: data
+            mountPath: /var/lib/postgresql/data
+        securityContext:
+          runAsUser: 0
+          privileged: true
     persistence:
       enabled: true
       size: 10Gi
       storageClass: standard
+      accessModes:
+        - ReadWriteOnce
+      annotations:
+        "helm.sh/resource-policy": keep
     volumes:
       - name: postgres-init
         configMap:
@@ -485,8 +505,9 @@ services:
         mountPath: /docker-entrypoint-initdb.d/init.sql
         subPath: init.sql
     securityContext:
-      runAsNonRoot: true
-      runAsUser: 999
+      runAsUser: 0
+      fsGroup: 0
+      fsGroupChangePolicy: "OnRootMismatch"
     livenessProbe:
       tcpSocket:
         port: 5432
