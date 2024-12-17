@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-config
+data:
+  init.sql: |
+    CREATE DATABASE chunkr;
+    CREATE DATABASE keycloak;
+
+    GRANT ALL PRIVILEGES ON DATABASE chunkr TO postgres;
+    GRANT ALL PRIVILEGES ON DATABASE keycloak TO postgres; 
