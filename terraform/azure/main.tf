@@ -101,14 +101,14 @@ resource "azurerm_subnet" "aks_subnet" {
   name                 = "${var.base_name}-aks-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.3.1.0/24"]
+  address_prefixes     = ["10.3.0.0/20"]
 }
 
 resource "azurerm_subnet" "services_subnet" {
   name                 = "${var.base_name}-services-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.3.2.0/24"]
+  address_prefixes     = ["10.3.16.0/22"]
 
   delegation {
     name = "fs"
@@ -202,9 +202,10 @@ resource "azurerm_storage_account" "storage" {
 
 resource "azurerm_storage_container" "container" {
   name                  = var.container_name
-  storage_account_name  = azurerm_storage_account.storage.name
+  storage_account_id    = azurerm_storage_account.storage.id
   container_access_type = "private"
 }
+
 
 ###############################################################
 # AKS Cluster
@@ -220,7 +221,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_count          = 1
     vm_size             = "Standard_D2s_v3"
     vnet_subnet_id      = azurerm_subnet.aks_subnet.id
-    enable_auto_scaling = false
   }
 
   identity {
@@ -238,7 +238,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "general" {
   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
   vm_size               = var.general_vm_size
   node_count            = var.general_vm_count
-  enable_auto_scaling   = true
   min_count             = var.general_min_vm_count
   max_count             = var.general_max_vm_count
   vnet_subnet_id        = azurerm_subnet.aks_subnet.id
@@ -246,6 +245,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "general" {
   node_labels = {
     "purpose" = "general-compute"
   }
+
+  max_pods = 250
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
@@ -253,7 +254,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
   vm_size               = var.gpu_vm_size
   node_count            = var.gpu_vm_count
-  enable_auto_scaling   = true
   min_count             = var.gpu_min_vm_count
   max_count             = var.gpu_max_vm_count
   vnet_subnet_id        = azurerm_subnet.aks_subnet.id
@@ -265,6 +265,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
   node_taints = [
     "nvidia.com/gpu=present:NoSchedule"
   ]
+
+  max_pods = 250
 }
 
 ###############################################################
