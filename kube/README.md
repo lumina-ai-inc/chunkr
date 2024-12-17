@@ -69,14 +69,10 @@ mkdir -p secrets/local
 # Copy the example secrets
 cp secrets/chunkr-secret.example.yaml secrets/local/chunkr-secret.yaml
 cp secrets/rrq-secret.example.yaml secrets/local/rrq-secret.yaml
-cp secrets/web-secret.example.yaml secrets/local/web-secret.yaml
 ```
 
-If using Azure Storage:
-```bash
-# Additional secret needed for Azure
-cp secrets/s3proxy-secret.example.yaml secrets/local/s3proxy-secret.yaml
-```
+> **Note:**
+> By default, filesystem is used for storage. Optionally, you can use AWS S3, GCP Storage, or Azure Storage.
 
 If using Cloudflare Tunnels:
 ```bash
@@ -120,14 +116,6 @@ helm install chunkr ./charts/chunkr \
   --set "services.rrq.ingress.subdomain=chunkr-rrq-api" \
   --set "services.rrq-analytics.ingress.subdomain=chunkr-rrq" \
   --set "services.s3proxy.ingress.subdomain=chunkr-s3"
-```
-
-**Azure Installation:**
-```bash
-helm install chunkr ./charts/chunkr \
-  --namespace chunkr \
-  --create-namespace \
-  --set global.provider=azure
 ```
 
 **Cloudflare Tunnel Installation:**
@@ -179,6 +167,69 @@ helm upgrade chunkr ./charts/chunkr \
 
 ```bash
 helm uninstall chunkr --namespace chunkr
+```
+
+## External providers
+
+### S3 provider
+You must set the credentials for the external S3 provider in the chunkr-secret.yaml file.
+
+**AWS S3:**
+
+```bash
+helm upgrade chunkr ./charts/chunkr \
+  --namespace chunkr \
+  --create-namespace \
+  --set global.s3-provider=aws
+```
+
+**GCP Storage (with Interoperability):**
+
+```bash
+helm upgrade chunkr ./charts/chunkr \
+  --namespace chunkr \
+  --create-namespace \
+  --set global.s3-provider=gcp
+```
+
+**Azure Blob Storage:**
+
+```bash
+# Additional secret needed for Azure
+cp secrets/azure-s3proxy-secret.example.yaml secrets/local/azure-s3proxy-secret.yaml
+
+# Edit the secret file with your values
+vim secrets/local/azure-s3proxy-secret.yaml
+
+# Apply the secret
+kubectl apply -f secrets/local/azure-s3proxy-secret.yaml -n chunkr
+
+helm upgrade chunkr ./charts/chunkr \
+  --namespace chunkr \
+  --create-namespace \
+  --set global.s3-provider=azure
+```
+
+### Postgres
+
+```bash
+helm upgrade chunkr ./charts/chunkr \
+  --namespace chunkr \
+  --create-namespace \
+  --set services.postgres.enabled=false \
+  --set "common.standardEnv[4].name=PG__URL" \
+  --set "common.standardEnv[4].value=postgresql://user:password@your-external-postgres:5432/dbname"
+```
+
+### Redis
+
+```bash
+helm upgrade chunkr ./charts/chunkr \
+  --namespace chunkr \
+  --create-namespace \
+  --set services.redis.enabled=false \
+  --set "common.standardEnv[6].name=REDIS__URL" \
+  --set "common.standardEnv[6].value=redis://your-external-redis:6379"
 ```
 
 ### GPU Compatibility
