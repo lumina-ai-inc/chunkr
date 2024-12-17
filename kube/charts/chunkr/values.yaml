@@ -22,7 +22,6 @@ ingress:
       services:
         - name: "chunkr"
         - name: "keycloak"
-        - name: "rrq-analytics"
         - name: "web"
         - name: "s3proxy"
 
@@ -34,6 +33,8 @@ common:
       value: '{{ if eq .Values.global.provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: AWS__REGION
       value: "auto"
+    - name: PG__URL
+      value: "postgresql://{{ .Values.services.postgres.env.POSTGRES_USER }}:{{ .Values.services.postgres.env.POSTGRES_PASSWORD }}@{{- .Release.Name }}-postgres:5432/chunkr"
     - name: RRQ__URL
       value: "http://{{- .Release.Name }}-rrq:8000"
     - name: REDIS__URL
@@ -48,7 +49,6 @@ common:
       value: "https://{{ .Values.services.chunkr.ingress.subdomain }}.{{ .Values.ingress.domain }}"
     - name: WORKER__TABLE_OCR_MODEL
       value: "LLM"
-
 
 global:
   image:
@@ -89,6 +89,7 @@ global:
         mountPath: /dev/shm
 
 services:
+  # Servers
   chunkr:
     enabled: true
     useStandardEnv: true
@@ -103,84 +104,6 @@ services:
     envFrom:
       - secretRef:
           name: chunkr-secret
-
-  keycloak:
-    enabled: true
-    image:
-      repository: keycloak
-      tag: "25.0.2"
-      registry: quay.io/keycloak
-    port: 8080
-    targetPort: 8080
-    ingress:
-      enabled: true
-      subdomain: "auth"
-    args: ["start-dev", "--import-realm"]
-    envFrom:
-      - secretRef:
-          name: keycloak-secret
-    readinessProbe:
-      httpGet:
-        path: /realms/master
-        port: 8080
-    volumes:
-      - name: realm-config
-        configMap:
-          name: keycloak-realm-config
-    volumeMounts:
-      - name: realm-config
-        mountPath: /opt/keycloak/data/import/realm-export.json
-        subPath: realm-export.json
-
-  redis:
-    enabled: true
-    image:
-      repository: redis
-      tag: "7.2-alpine"
-      registry: docker.io
-    port: 6379
-    targetPort: 6379
-    resources:
-      requests:
-        memory: "512Mi"
-        cpu: "200m"
-      limits:
-        memory: "1Gi"
-        cpu: "500m"
-    persistence:
-      enabled: true
-      size: 10Gi
-      storageClass: standard
-    args:
-      - "redis-server"
-      - "--appendonly"
-      - "yes"
-      - "--maxmemory"
-      - "900mb"
-      - "--maxmemory-policy"
-      - "allkeys-lru"
-      - "--save"
-      - "900"
-      - "1"
-      - "--save"
-      - "300"
-      - "10"
-      - "--save"
-      - "60"
-      - "10000"
-    securityContext:
-      runAsNonRoot: true
-      runAsUser: 999
-    livenessProbe:
-      tcpSocket:
-        port: 6379
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    readinessProbe:
-      tcpSocket:
-        port: 6379
-      initialDelaySeconds: 5
-      periodSeconds: 5
 
   rrq:
     enabled: true
@@ -365,6 +288,103 @@ services:
     targetPort: 8000
     useGPU: true
 
+ # Supporting services
+  keycloak:
+    enabled: true
+    image:
+      repository: keycloak
+      tag: "25.0.2"
+      registry: quay.io/keycloak
+    port: 8080
+    targetPort: 8080
+    ingress:
+      enabled: true
+      subdomain: "auth"
+    args: ["start-dev", "--import-realm"]
+    env:
+      - name: KEYCLOAK_ADMIN
+        value: "admin"
+      - name: KEYCLOAK_ADMIN_PASSWORD
+        value: "admin"
+      - name: KC_PROXY
+        value: "edge"
+      - name: KC_HOSTNAME
+        value: "auth.chunkr.ai"
+      - name: KC_FEATURES
+        value: "hostname:v2"
+      - name: KC_HOSTNAME_DEBUG
+        value: "true"
+      - name: KC_DB
+        value: "postgres"
+      - name: KC_DB_URL
+        value: "jdbc:postgresql://{{ .Values.services.postgres.env.POSTGRES_USER }}:{{ .Values.services.postgres.env.POSTGRES_PASSWORD }}@{{- .Release.Name }}-postgres:5432/keycloak"
+      - name: KC_DB_USERNAME
+        value: "postgres"
+      - name: KC_DB_PASSWORD
+        value: "postgres"
+    readinessProbe:
+      httpGet:
+        path: /realms/master
+        port: 8080
+    volumes:
+      - name: realm-config
+        configMap:
+          name: keycloak-realm-config
+    volumeMounts:
+      - name: realm-config
+        mountPath: /opt/keycloak/data/import/realm-export.json
+        subPath: realm-export.json
+
+  redis:
+    enabled: true
+    image:
+      repository: redis
+      tag: "7.2-alpine"
+      registry: docker.io
+    port: 6379
+    targetPort: 6379
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "200m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: standard
+    args:
+      - "redis-server"
+      - "--appendonly"
+      - "yes"
+      - "--maxmemory"
+      - "900mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+      - "--save"
+      - "900"
+      - "1"
+      - "--save"
+      - "300"
+      - "10"
+      - "--save"
+      - "60"
+      - "10000"
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 999
+    livenessProbe:
+      tcpSocket:
+        port: 6379
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      tcpSocket:
+        port: 6379
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
   # S3 proxy for azure blob storage
   s3proxy:
     enabled: '{{ if eq .Values.global.provider "azure" }}true{{ else }}false{{ end }}'
@@ -411,9 +431,11 @@ services:
       enabled: true
       size: 10Gi
       storageClass: standard
-    envFrom:
-      - secretRef:
-          name: postgres-secret
+    env:
+      - name: POSTGRES_USER
+        value: postgres
+      - name: POSTGRES_PASSWORD
+        value: postgres
     volumes:
       - name: postgres-init
         configMap:
