@@ -103,14 +103,14 @@ Choose one of the following installation methods:
 
 **Basic Installation:**
 ```bash
-helm install chunkr ./chunkr-chart \
+helm install chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace
 ```
 
 **Custom Domain Installation:**
 ```bash
-helm install chunkr ./chunkr-chart \
+helm install chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
   --set ingress.domain=example.com \
@@ -125,7 +125,7 @@ helm install chunkr ./chunkr-chart \
 
 **Azure Installation:**
 ```bash
-helm install chunkr ./chunkr-chart \
+helm install chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
   --set global.provider=azure
@@ -133,7 +133,7 @@ helm install chunkr ./chunkr-chart \
 
 **Cloudflare Tunnel Installation:**
 ```bash
-helm install chunkr ./chunkr-chart \
+helm install chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
   --set ingress.type=cloudflare \
@@ -142,7 +142,7 @@ helm install chunkr ./chunkr-chart \
 
 **Installation with TLS (Cloudflare):**
 ```bash
-helm install chunkr ./chunkr-chart \
+helm install chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
   --set ingress.tls.enabled=true \
@@ -155,7 +155,7 @@ To update the deployment, use one of the following methods:
 
 **Basic Update:**
 ```bash
-helm upgrade chunkr ./chunkr-chart \
+helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace
 ```
@@ -163,13 +163,13 @@ helm upgrade chunkr ./chunkr-chart \
 **Update with Configuration Changes:**
 ```bash
 # Example: Update provider to Azure
-helm upgrade chunkr ./chunkr-chart \
+helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
   --set global.provider=azure
 
 # Example: Update domain settings
-helm upgrade chunkr ./chunkr-chart \
+helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
   --set ingress.domain=new-domain.com \
@@ -191,7 +191,7 @@ For the most up-to-date information about supported GPU architectures and their 
 Example installation with GPU-specific image tag:
 
 ```bash
-helm install chunkr ./chunkr-chart \
+helm install chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
   --set services.embeddings.image.tag=1.5  # Replace with your GPU-specific tag
