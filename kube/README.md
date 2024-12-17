@@ -59,6 +59,10 @@ helm install nginx-ingress ingress-nginx/ingress-nginx
 
 ## Installation
 
+> **Note:**
+> By default postgres, redis, and S3 use the filesystem. Optionally, you can use your own external providers. Click here to learn more about [external providers](#external-providers)
+
+
 ### 1. Setup Secrets
 
 Create and configure your secrets:
@@ -66,13 +70,9 @@ Create and configure your secrets:
 # Create a secrets directory 
 mkdir -p secrets/local
 
-# Copy the example secrets
+# Copy the example secret
 cp secrets/chunkr-secret.example.yaml secrets/local/chunkr-secret.yaml
-cp secrets/rrq-secret.example.yaml secrets/local/rrq-secret.yaml
 ```
-
-> **Note:**
-> By default, filesystem is used for storage. Optionally, you can use AWS S3, GCP Storage, or Azure Storage.
 
 If using Cloudflare Tunnels:
 ```bash
@@ -142,23 +142,19 @@ To update the deployment, use one of the following methods:
 
 **Basic Update:**
 ```bash
-helm upgrade chunkr ./charts/chunkr \
-  --namespace chunkr \
-  --create-namespace
+helm upgrade chunkr ./charts/chunkr --namespace chunkr
 ```
 
 **Update with Configuration Changes:**
 ```bash
-# Example: Update provider to Azure
+# Example: Update s3 provider to Azure
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --create-namespace \
-  --set global.provider=azure
+  --set global.s3provider=azure
 
 # Example: Update domain settings
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --create-namespace \
   --set ingress.domain=new-domain.com \
   --set "services.web.ingress.subdomain=new-chunkr"
 ```
@@ -179,7 +175,6 @@ You must set the credentials for the external S3 provider in the chunkr-secret.y
 ```bash
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --create-namespace \
   --set global.s3provider=aws
 ```
 
@@ -188,7 +183,6 @@ helm upgrade chunkr ./charts/chunkr \
 ```bash
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --create-namespace \
   --set global.s3provider=gcp
 ```
 
@@ -206,7 +200,6 @@ kubectl apply -f secrets/local/azure-s3proxy-secret.yaml -n chunkr
 
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --create-namespace \
   --set global.s3provider=azure
 ```
 
@@ -215,7 +208,6 @@ helm upgrade chunkr ./charts/chunkr \
 ```bash
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --create-namespace \
   --set services.postgres.enabled=false \
   --set "common.standardEnv[4].name=PG__URL" \
   --set "common.standardEnv[4].value=postgresql://user:password@your-external-postgres:5432/dbname"
@@ -226,7 +218,6 @@ helm upgrade chunkr ./charts/chunkr \
 ```bash
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --create-namespace \
   --set services.redis.enabled=false \
   --set "common.standardEnv[6].name=REDIS__URL" \
   --set "common.standardEnv[6].value=redis://your-external-redis:6379"
@@ -238,11 +229,10 @@ The embeddings service supports different GPU architectures through specific Doc
 
 For the most up-to-date information about supported GPU architectures and their corresponding image tags, please refer to [Text Embeddings Inference Supported Models Documentation](https://huggingface.co/docs/text-embeddings-inference/supported_models#supported-hardware)
 
-Example installation with GPU-specific image tag:
+Example upgrade with GPU-specific image tag:
 
 ```bash
-helm install chunkr ./charts/chunkr \
+helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --create-namespace \
   --set services.embeddings.image.tag=1.5  # Replace with your GPU-specific tag
 ```
