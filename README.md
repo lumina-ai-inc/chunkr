@@ -29,12 +29,10 @@
 </div>
 
 ## Table of Contents
-- [About](#chunkr)
-- [Documentation](#docs)
-- [Quick Start](#super-quick-start)
-- [Deployment](#self-hosted-deployment-options)
-  - [Docker Compose](#quick-start-with-docker-compose)
-  - [Kubernetes](#production-deployment-with-kubernetes)
+- [Table of Contents](#table-of-contents)
+- [Docs](#docs)
+- [(Super) Quick Start](#super-quick-start)
+  - [Production Deployment with Kubernetes](#production-deployment-with-kubernetes)
 - [Licensing](#licensing)
 - [Connect With Us](#connect-with-us)
 
@@ -69,23 +67,36 @@ https://docs.chunkr.ai
    - [Docker and Docker Compose](https://docs.docker.com/get-docker/)
    - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) (for GPU support)
 
-2. Deploy:
+2. Clone the repo:
+    ```bash
+    git clone https://github.com/lumina-ai-inc/chunkr
+    cd chunkr
+    ```
+
+3. Copy the example env file
    ```bash
-   git clone https://github.com/lumina-ai-inc/chunkr
-   cd chunkr
    cp .env.example .env
+   ```
+
+4. Start the services
+   ```bash
    docker compose up -d
    ```
 
-3. Access the services:
+5. Access the services:
    - Web UI: `http://localhost:5173`
    - API: `http://localhost:8000`
 
 > **Note**: Requires an NVIDIA CUDA GPU to run.
 
+6. Stop the services
+   ```bash
+   docker compose down
+   ```
+
 ### Production Deployment with Kubernetes
-For production environments, we provide Kubernetes manifests and deployment instructions:
-1. See our detailed guide at [`self-deployment.md`](self-deployment.md)
+For production environments, we provide a Helm chart and detailed deployment instructions:
+1. See our detailed guide at [`kube/README.md`](kube/README.md)
 2. Includes configurations for high availability and scaling
 
 For enterprise support and deployment assistance, [contact us](mailto:mehul@lumina.sh).
