@@ -180,7 +180,7 @@ You must set the credentials for the external S3 provider in the chunkr-secret.y
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
-  --set global.s3-provider=aws
+  --set global.s3provider=aws
 ```
 
 **GCP Storage (with Interoperability):**
@@ -189,7 +189,7 @@ helm upgrade chunkr ./charts/chunkr \
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
-  --set global.s3-provider=gcp
+  --set global.s3provider=gcp
 ```
 
 **Azure Blob Storage:**
@@ -207,7 +207,7 @@ kubectl apply -f secrets/local/azure-s3proxy-secret.yaml -n chunkr
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
-  --set global.s3-provider=azure
+  --set global.s3provider=azure
 ```
 
 ### Postgres
