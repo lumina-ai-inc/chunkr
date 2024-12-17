@@ -30,13 +30,13 @@ common:
     - name: AUTH__KEYCLOAK_URL
       value: "https://{{- .Release.Name }}-keycloak:8080"
     - name: AWS__ENDPOINT
-      value: '{{ if eq .Values.global.s3-provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+      value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: AWS__PRESIGNED_URL_ENDPOINT
-      value: '{{ if eq .Values.global.s3-provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+      value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: AWS__REGION
       value: "auto"
     - name: PG__URL
-      value: "postgresql://{{ .Values.services.postgres.env.POSTGRES_USER }}:{{ .Values.services.postgres.env.POSTGRES_PASSWORD }}@{{- .Release.Name }}-postgres:5432/chunkr"
+      value: "postgresql://{{ .Values.services.postgres.credentials.username }}:{{ .Values.services.postgres.credentials.password }}@{{- .Release.Name }}-postgres:5432/chunkr"
     - name: RRQ__URL
       value: "http://{{- .Release.Name }}-rrq:8000"
     - name: REDIS__URL
@@ -56,7 +56,7 @@ global:
   image:
     registry: luminainc
     pullPolicy: Always
-  s3-provider: "filesystem"
+  s3provider: "filesystem"
 
   # Shared GPU configuration
   gpuWorkload:
@@ -401,7 +401,7 @@ services:
 
   # S3 proxy for azure blob storage
   s3proxy:
-    enabled: {{ or (eq .Values.global.s3-provider "azure") (eq .Values.global.s3-provider "filesystem") }}
+    enabled: "{{ or (eq .Values.global.s3provider \"azure\") (eq .Values.global.s3provider \"filesystem\") }}"
     image:
       repository: s3proxy
       tag: "latest"
@@ -429,11 +429,11 @@ services:
             name: chunkr-secret
             key: AWS__SECRET_KEY
       - name: JCLOUDS_PROVIDER
-        value: '{{ if eq .Values.global.s3-provider "azure" }}azureblob{{ else }}filesystem{{ end }}'
+        value: '{{ if eq .Values.global.s3provider "azure" }}azureblob{{ else }}filesystem{{ end }}'
       - name: JCLOUDS_FILESYSTEM_BASEDIR
-        value: '{{ if eq .Values.global.s3-provider "filesystem" }}/data{{ end }}'
+        value: '{{ if eq .Values.global.s3provider "filesystem" }}/data{{ end }}'
       - name: JCLOUDS_AZUREBLOB_AUTH
-        value: '{{ if eq .Values.global.s3-provider "azure" }}azureKey{{ end }}'
+        value: '{{ if eq .Values.global.s3provider "azure" }}azureKey{{ end }}'
     envFrom:
       - secretRef:
           name: s3proxy-secret
@@ -457,6 +457,14 @@ services:
       registry: docker.io
     port: 5432
     targetPort: 5432
+    credentials:
+      username: postgres
+      password: postgres
+    env:
+      - name: POSTGRES_USER
+        value: "{{ .Values.services.postgres.credentials.username }}"
+      - name: POSTGRES_PASSWORD
+        value: "{{ .Values.services.postgres.credentials.password }}"
     resources:
       requests:
         memory: "1Gi"
@@ -468,11 +476,6 @@ services:
       enabled: true
       size: 10Gi
       storageClass: standard
-    env:
-      - name: POSTGRES_USER
-        value: postgres
-      - name: POSTGRES_PASSWORD
-        value: postgres
     volumes:
       - name: postgres-init
         configMap:
