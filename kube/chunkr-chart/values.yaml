@@ -391,3 +391,47 @@ services:
     envFrom:
       - secretRef:
           name: s3proxy-secret
+
+  postgres:
+    enabled: true
+    image:
+      repository: postgres
+      tag: "15-alpine"
+      registry: docker.io
+    port: 5432
+    targetPort: 5432
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: standard
+    envFrom:
+      - secretRef:
+          name: postgres-secret
+    volumes:
+      - name: postgres-init
+        configMap:
+          name: postgres-init-config
+    volumeMounts:
+      - name: postgres-init
+        mountPath: /docker-entrypoint-initdb.d/init.sql
+        subPath: init.sql
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 999
+    livenessProbe:
+      tcpSocket:
+        port: 5432
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      tcpSocket:
+        port: 5432
+      initialDelaySeconds: 5
+      periodSeconds: 5
