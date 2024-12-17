@@ -31,6 +31,10 @@ spec:
       affinity:
         {{- toYaml $service.affinity | nindent 8 }}
       {{- end }}
+      {{- if $service.securityContext }}
+      securityContext:
+        {{- toYaml $service.securityContext | nindent 8 }}
+      {{- end }}
       {{- if and (not $service.useGPU) $service.tolerations }}
       tolerations:
         {{- toYaml $service.tolerations | nindent 8 }}
@@ -39,10 +43,6 @@ spec:
       - name: {{ $name }}
         image: "{{ default $.Values.global.image.registry $service.image.registry }}/{{ $service.image.repository }}:{{ $service.image.tag }}"
         imagePullPolicy: {{ $.Values.global.image.pullPolicy }}
-        {{- if $service.securityContext }}
-        securityContext:
-          {{- toYaml $service.securityContext | nindent 10 }}
-        {{- end }}
         {{- if $service.livenessProbe }}
         livenessProbe:
           {{- toYaml $service.livenessProbe | nindent 10 }}
