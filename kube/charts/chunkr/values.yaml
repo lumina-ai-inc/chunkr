@@ -27,10 +27,12 @@ ingress:
 
 common:
   standardEnv:
+    - name: AUTH__KEYCLOAK_URL
+      value: "https://{{- .Release.Name }}-keycloak:8080"
     - name: AWS__ENDPOINT
-      value: '{{ if eq .Values.global.provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+      value: '{{ if eq .Values.global.s3-provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: AWS__PRESIGNED_URL_ENDPOINT
-      value: '{{ if eq .Values.global.provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+      value: '{{ if eq .Values.global.s3-provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: AWS__REGION
       value: "auto"
     - name: PG__URL
@@ -54,7 +56,7 @@ global:
   image:
     registry: luminainc
     pullPolicy: Always
-  provider: "gcp"
+  s3-provider: "filesystem"
 
   # Shared GPU configuration
   gpuWorkload:
@@ -114,11 +116,13 @@ services:
     port: 8000
     targetPort: 8000
     ingress:
-      enabled: true
+      enabled: false
       subdomain: "rrq-api"
-    envFrom:
-      - secretRef:
-          name: rrq-secret
+    env:
+      - name: API_KEY
+        value: "1234567890"
+      - name: VERSION
+        value: "1.0.5"
 
   rrq-analytics:
     enabled: true
@@ -128,11 +132,11 @@ services:
     port: 8000
     targetPort: 8000
     ingress:
-      enabled: true
+      enabled: false
       subdomain: "rrq"
-    envFrom:
-      - secretRef:
-          name: rrq-secret
+    env:
+      - name: VITE_API_URL
+        value: https://{{ .Values.services.rrq.ingress.subdomain }}.{{ .Values.ingress.domain }}
 
   web:
     enabled: true
@@ -144,9 +148,19 @@ services:
     ingress:
       enabled: true
       subdomain: "www"
-    envFrom:
-      - secretRef:
-          name: web-secrets
+    env:
+      - name: VITE_API_URL
+        value: https://{{ .Values.services.chunkr.ingress.subdomain }}.{{ .Values.ingress.domain }}
+      - name: VITE_KEYCLOAK_CLIENT_ID
+        value: chunkr
+      - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
+        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}
+      - name: VITE_KEYCLOAK_REALM
+        value: chunkr
+      - name: VITE_KEYCLOAK_REDIRECT_URI
+        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}
+      - name: VITE_KEYCLOAK_URL
+        value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
 
   # Workers
   fast:
@@ -387,7 +401,7 @@ services:
 
   # S3 proxy for azure blob storage
   s3proxy:
-    enabled: '{{ if eq .Values.global.provider "azure" }}true{{ else }}false{{ end }}'
+    enabled: {{ or (eq .Values.global.s3-provider "azure") (eq .Values.global.s3-provider "filesystem") }}
     image:
       repository: s3proxy
       tag: "latest"
@@ -404,13 +418,36 @@ services:
         value: "true"
       - name: S3PROXY_ENDPOINT
         value: "http://0.0.0.0:8080"
-      - name: JCLOUDS_AZUREBLOB_AUTH
-        value: "azureKey"
+      - name: S3PROXY_IDENTITY
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__ACCESS_KEY
+      - name: S3PROXY_CREDENTIAL
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__SECRET_KEY
       - name: JCLOUDS_PROVIDER
-        value: "azureblob"
+        value: '{{ if eq .Values.global.s3-provider "azure" }}azureblob{{ else }}filesystem{{ end }}'
+      - name: JCLOUDS_FILESYSTEM_BASEDIR
+        value: '{{ if eq .Values.global.s3-provider "filesystem" }}/data{{ end }}'
+      - name: JCLOUDS_AZUREBLOB_AUTH
+        value: '{{ if eq .Values.global.s3-provider "azure" }}azureKey{{ end }}'
     envFrom:
       - secretRef:
           name: s3proxy-secret
+    volumes:
+      - name: s3proxy-data
+        persistentVolumeClaim:
+          claimName: s3proxy-data
+    volumeMounts:
+      - name: s3proxy-data
+        mountPath: /data
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: standard
 
   postgres:
     enabled: true
