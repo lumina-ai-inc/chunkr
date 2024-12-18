@@ -1,7 +1,7 @@
 ingress:
   enabled: true
-  type: "nginx" # can be "nginx" or "cloudflare"
-  className: "nginx"
+  type: "cloudflare" # can be "cloudflare" or "nginx"
+  className: "cloudflare"
   annotations:
     kubernetes.io/ingress.class: nginx
   domain: "chunkr.ai"
@@ -11,7 +11,7 @@ ingress:
     enabled: false
     secretName: "tls-secret"
   cloudflare:
-    enabled: false
+    enabled: true
     replicas: 2
     image:
       repository: cloudflare/cloudflared
@@ -28,13 +28,13 @@ ingress:
 common:
   standardEnv:
     - name: AUTH__KEYCLOAK_URL
-      value: "https://{{- .Release.Name }}-keycloak:8080"
+      value: "https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
     - name: AWS__ENDPOINT
       value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: AWS__PRESIGNED_URL_ENDPOINT
       value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
     - name: AWS__REGION
-      value: "auto"
+      value: "us-east-1"
     - name: PG__URL
       value: "postgresql://{{ .Values.services.postgres.credentials.username }}:{{ .Values.services.postgres.credentials.password }}@{{- .Release.Name }}-postgres:5432/chunkr"
     - name: RRQ__URL
@@ -323,7 +323,7 @@ services:
       - name: KC_PROXY
         value: "edge"
       - name: KC_HOSTNAME
-        value: "auth.chunkr.ai"
+        value: "{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
       - name: KC_FEATURES
         value: "hostname:v2"
       - name: KC_HOSTNAME_DEBUG
@@ -331,11 +331,11 @@ services:
       - name: KC_DB
         value: "postgres"
       - name: KC_DB_URL
-        value: "jdbc:postgresql://{{ .Values.services.postgres.credentials.username }}:{{ .Values.services.postgres.credentials.password }}@{{- .Release.Name }}-postgres:5432/keycloak"
+        value: "jdbc:postgresql://{{- .Release.Name }}-postgres:5432/keycloak"
       - name: KC_DB_USERNAME
-        value: "postgres"
+        value: "{{ .Values.services.postgres.credentials.username }}"
       - name: KC_DB_PASSWORD
-        value: "postgres"
+        value: "{{ .Values.services.postgres.credentials.password }}"
     readinessProbe:
       httpGet:
         path: /realms/master
@@ -448,9 +448,21 @@ services:
         value: '{{ if eq .Values.global.s3provider "filesystem" }}/data{{ end }}'
       - name: JCLOUDS_AZUREBLOB_AUTH
         value: '{{ if eq .Values.global.s3provider "azure" }}azureKey{{ end }}'
-    envFrom:
-      - secretRef:
-          name: s3proxy-secret
+      - name: JCLOUDS_ENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: JCLOUDS_ENDPOINT
+      - name: JCLOUDS_IDENTITY
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__ACCESS_KEY
+      - name: JCLOUDS_CREDENTIAL
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__SECRET_KEY
     persistence:
       name: s3proxy-data
       enabled: true
