@@ -22,12 +22,14 @@ variable "location" {
 variable "postgres_username" {
   type        = string
   description = "The username for the PostgreSQL database"
+  default     = "postgres"
 }
 
 variable "postgres_password" {
   type        = string
   description = "The password for the PostgreSQL database"
   sensitive   = true
+  default     = "postgres"
 }
 
 variable "chunkr_db" {
@@ -72,6 +74,18 @@ variable "gpu_vm_size" {
 
 variable "container_name" {
   default = "chunkr"
+}
+
+variable "create_postgres" {
+  description = "Whether to create PostgreSQL resources"
+  type        = bool
+  default     = false
+}
+
+variable "create_storage" {
+  description = "Whether to create Storage Account resources"
+  type        = bool
+  default     = true
 }
 
 provider "azurerm" {
@@ -177,13 +191,15 @@ resource "azurerm_subnet_network_security_group_association" "services_nsg_assoc
 # Storage Account 
 ###############################################################
 resource "random_string" "storage_suffix" {
+  count   = var.create_storage ? 1 : 0
   length  = 8
   special = false
   upper   = false
 }
 
 resource "azurerm_storage_account" "storage" {
-  name                     = "${replace(lower(var.base_name), "-", "")}${random_string.storage_suffix.result}"
+  count                    = var.create_storage ? 1 : 0
+  name                     = "${replace(lower(var.base_name), "-", "")}${random_string.storage_suffix[0].result}"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
@@ -201,8 +217,9 @@ resource "azurerm_storage_account" "storage" {
 }
 
 resource "azurerm_storage_container" "container" {
+  count                 = var.create_storage ? 1 : 0
   name                  = var.container_name
-  storage_account_id    = azurerm_storage_account.storage.id
+  storage_account_name  = azurerm_storage_account.storage[0].name
   container_access_type = "private"
 }
 
@@ -217,10 +234,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dns_prefix          = var.base_name
 
   default_node_pool {
-    name                = "system"
-    node_count          = 1
-    vm_size             = "Standard_D2s_v3"
-    vnet_subnet_id      = azurerm_subnet.aks_subnet.id
+    name           = "system"
+    node_count     = 1
+    vm_size        = "Standard_D2s_v3"
+    vnet_subnet_id = azurerm_subnet.aks_subnet.id
   }
 
   identity {
@@ -273,12 +290,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
 # PostgreSQL
 ###############################################################
 resource "azurerm_postgresql_flexible_server" "postgres" {
+  count                         = var.create_postgres ? 1 : 0
   name                          = "${var.base_name}-postgres"
   resource_group_name           = azurerm_resource_group.rg.name
   location                      = azurerm_resource_group.rg.location
   version                       = "14"
   delegated_subnet_id           = azurerm_subnet.services_subnet.id
-  private_dns_zone_id           = azurerm_private_dns_zone.postgres.id
+  private_dns_zone_id           = azurerm_private_dns_zone.postgres[0].id
   administrator_login           = var.postgres_username
   administrator_password        = var.postgres_password
   zone                          = "1"
@@ -290,34 +308,39 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
 }
 
 resource "azurerm_private_dns_zone" "postgres" {
+  count               = var.create_postgres ? 1 : 0
   name                = "${var.base_name}-postgres.private.postgres.database.azure.com"
   resource_group_name = azurerm_resource_group.rg.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
+  count                 = var.create_postgres ? 1 : 0
   name                  = "${var.base_name}-postgres-vnet-link"
-  private_dns_zone_name = azurerm_private_dns_zone.postgres.name
+  private_dns_zone_name = azurerm_private_dns_zone.postgres[0].name
   resource_group_name   = azurerm_resource_group.rg.name
   virtual_network_id    = azurerm_virtual_network.vnet.id
 }
 
 resource "azurerm_postgresql_flexible_server_database" "chunkr" {
+  count     = var.create_postgres ? 1 : 0
   name      = var.chunkr_db
-  server_id = azurerm_postgresql_flexible_server.postgres.id
+  server_id = azurerm_postgresql_flexible_server.postgres[0].id
 
   depends_on = [azurerm_postgresql_flexible_server.postgres]
 }
 
 resource "azurerm_postgresql_flexible_server_database" "keycloak" {
+  count     = var.create_postgres ? 1 : 0
   name      = var.keycloak_db
-  server_id = azurerm_postgresql_flexible_server.postgres.id
+  server_id = azurerm_postgresql_flexible_server.postgres[0].id
 
   depends_on = [azurerm_postgresql_flexible_server.postgres]
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "uuid_ossp" {
+  count     = var.create_postgres ? 1 : 0
   name      = "azure.extensions"
-  server_id = azurerm_postgresql_flexible_server.postgres.id
+  server_id = azurerm_postgresql_flexible_server.postgres[0].id
   value     = "UUID-OSSP"
 }
 
@@ -325,38 +348,38 @@ resource "azurerm_postgresql_flexible_server_configuration" "uuid_ossp" {
 # Outputs
 ###############################################################
 output "storage_account_name" {
-  value = azurerm_storage_account.storage.name
+  value = var.create_storage ? azurerm_storage_account.storage[0].name : null
 }
 
 output "storage_account_key" {
-  value     = azurerm_storage_account.storage.primary_access_key
+  value     = var.create_storage ? azurerm_storage_account.storage[0].primary_access_key : null
   sensitive = true
 }
 
 output "storage_account_endpoint" {
-  value = "https://${azurerm_storage_account.storage.name}.blob.core.windows.net"
+  value = var.create_storage ? "https://${azurerm_storage_account.storage[0].name}.blob.core.windows.net" : null
 }
 
 output "postgres_server_name" {
-  value = azurerm_postgresql_flexible_server.postgres.name
+  value = var.create_postgres ? azurerm_postgresql_flexible_server.postgres[0].name : null
 }
 
 output "postgres_server_username" {
-  value = var.postgres_username
+  value = var.create_postgres ? var.postgres_username : null
 }
 
 output "postgres_server_password" {
-  value     = var.postgres_password
+  value     = var.create_postgres ? var.postgres_password : null
   sensitive = true
 }
 
 output "postgres_connection_string" {
-  value     = "postgresql://${var.postgres_username}:${var.postgres_password}@${azurerm_postgresql_flexible_server.postgres.fqdn}:5432/${var.chunkr_db}"
+  value     = var.create_postgres ? "postgresql://${var.postgres_username}:${var.postgres_password}@${azurerm_postgresql_flexible_server.postgres[0].fqdn}:5432/${var.chunkr_db}" : null
   sensitive = true
 }
 
 output "keycloak_connection_string" {
-  value     = "jdbc:postgresql://${azurerm_postgresql_flexible_server.postgres.fqdn}:5432/${var.keycloak_db}"
+  value     = var.create_postgres ? "jdbc:postgresql://${azurerm_postgresql_flexible_server.postgres[0].fqdn}:5432/${var.keycloak_db}" : null
   sensitive = true
 }
 
