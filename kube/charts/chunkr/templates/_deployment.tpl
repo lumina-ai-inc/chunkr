@@ -39,6 +39,10 @@ spec:
       tolerations:
         {{- toYaml $service.tolerations | nindent 8 }}
       {{- end }}
+      {{- if $service.volumes }}
+      volumes:
+        {{- toYaml $service.volumes | nindent 8 }}
+      {{- end }}
       containers:
       - name: {{ $name }}
         image: "{{ default $.Values.global.image.registry $service.image.registry }}/{{ $service.image.repository }}:{{ $service.image.tag }}"
@@ -72,7 +76,7 @@ spec:
         {{- end }}
         {{- end }}
         {{- if $service.env }}
-        {{- toYaml $service.env | nindent 8 }}
+        {{- tpl (toYaml $service.env) $ | nindent 8 }}
         {{- end }}
         {{- end }}
         {{- if $service.port }}
@@ -86,12 +90,12 @@ spec:
         resources:
           {{- toYaml $service.resources | nindent 10 }}
         {{- end }}
-        {{- if $service.useGPU }}
+        {{- if or (and $service.persistence $service.persistence.enabled) $service.volumeMounts }}
         volumeMounts:
-          {{- toYaml $.Values.global.gpuWorkload.volumeMounts | nindent 10 }}
-      volumes:
-        {{- toYaml $.Values.global.gpuWorkload.volumes | nindent 8 }}
+          {{- if $service.volumeMounts }}
+          {{- toYaml $service.volumeMounts | nindent 10 }}
+          {{- end }}
         {{- end }}
-{{- end }}
+      {{- end }}
 {{- end }}
 {{- end -}}

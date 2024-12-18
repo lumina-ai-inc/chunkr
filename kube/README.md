@@ -25,7 +25,7 @@ Choose ONE of the following ingress methods:
 #### Option 1: Cloudflare Tunnel [Recommended]
 This option uses Cloudflare Tunnels for both ingress and SSL termination. This is recommended for simpler setup and better security.
 
-Follow the setup instructions at: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/
+Follow the setup instructions at: https://developers.cloudflare.com/cloudflare-one/tutorials/many-cfd-one-tunnel/
 
 #### Option 2: NGINX Ingress Controller + Cloudflare SSL [In Development - Not Recommended]
 This option uses NGINX for ingress and Cloudflare for SSL termination.
@@ -103,7 +103,7 @@ helm install chunkr ./charts/chunkr \
   --create-namespace
 ```
 
-**Custom Domain Installation:**
+**Custom Domain Installation with Cloudflare Tunnel:**
 ```bash
 helm install chunkr ./charts/chunkr \
   --namespace chunkr \
@@ -113,16 +113,7 @@ helm install chunkr ./charts/chunkr \
   --set "services.web.ingress.subdomain=chunkr" \
   --set "services.chunkr.ingress.subdomain=chunkr-api" \
   --set "services.keycloak.ingress.subdomain=chunkr-auth" \
-  --set "services.rrq.ingress.subdomain=chunkr-rrq-api" \
-  --set "services.rrq-analytics.ingress.subdomain=chunkr-rrq" \
-  --set "services.s3proxy.ingress.subdomain=chunkr-s3"
-```
-
-**Cloudflare Tunnel Installation:**
-```bash
-helm install chunkr ./charts/chunkr \
-  --namespace chunkr \
-  --create-namespace \
+  --set "services.s3proxy.ingress.subdomain=chunkr-s3" \
   --set ingress.type=cloudflare \
   --set cloudflared.enabled=true
 ```
