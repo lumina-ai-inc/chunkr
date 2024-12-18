@@ -139,8 +139,8 @@ score.py
 *.tfstate.*
 *.tfvars
 *.tfvars.json
-backend.tf
-backend.*.tf
+backend.hcl
+backend.*.hcl
 override.tf
 override.tf.json
 *_override.tf
@@ -152,5 +152,5 @@ crash.*.log
 
 # Exclude example files
 !*.example.tfvars
-!backend.example.tf
-!backend.tf.example
+!backend.example.hcl
+!backend.hcl.example
