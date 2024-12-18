@@ -131,3 +131,26 @@ microsoft/table-transformer-structure-recognition-v1.1-all
 score.py
 # ui_table_test.py
 # table_test.py
+
+
+# Terraform files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+backend.tf
+backend.*.tf
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+crash.log
+crash.*.log
+
+# Exclude example files
+!*.example.tfvars
+!backend.example.tf
+!backend.tf.example
