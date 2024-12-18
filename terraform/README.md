@@ -58,6 +58,8 @@
 
 4. Set the following variables:
 
+### GCP
+
    #### Required Variables
    | Variable | Description |
    |----------|-------------|
@@ -69,6 +71,35 @@
    |----------|-------------|---------|
    | `base_name` | Base name for resources | chunkr |
    | `location` | Azure region | eastus2 |
+
+### Azure
+
+4. Set the following variables:
+
+   #### Required Variables
+   | Variable | Description |
+   |----------|-------------|
+   | `base_name` | The base name for the resources |
+
+   #### Optional Variables
+   | Variable | Description | Default |
+   |----------|-------------|---------|
+   | `location` | Azure region | eastus2 |
+   | `postgres_username` | Username for PostgreSQL | postgres |
+   | `postgres_password` | Password for PostgreSQL | postgres |
+   | `chunkr_db` | Name of the Chunkr database | chunkr |
+   | `keycloak_db` | Name of the Keycloak database | keycloak |
+   | `general_vm_count` | Number of general VMs | 1 |
+   | `general_min_vm_count` | Minimum number of general VMs | 1 |
+   | `general_max_vm_count` | Maximum number of general VMs | 1 |
+   | `general_vm_size` | Size of general VMs | Standard_F8s_v2 |
+   | `gpu_vm_count` | Number of GPU VMs | 1 |
+   | `gpu_min_vm_count` | Minimum number of GPU VMs | 1 |
+   | `gpu_max_vm_count` | Maximum number of GPU VMs | 1 |
+   | `gpu_vm_size` | Size of GPU VMs | Standard_NC8as_T4_v3 |
+   | `container_name` | Name of the storage container | chunkr |
+   | `create_postgres` | Whether to create PostgreSQL resources | false |
+   | `create_storage` | Whether to create Storage Account resources | true |
 
 ## Deployment Steps (Both Providers)
 
