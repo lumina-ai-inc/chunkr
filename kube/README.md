@@ -24,6 +24,7 @@ kubectl create -f time-slicing-config-all.yaml -n gpu-operator
 
 kubectl patch clusterpolicy/cluster-policy \
     -n gpu-operator \
+    --type merge \
     -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config-all", "default": "any"}}}}'
 ```
 
@@ -117,7 +118,6 @@ helm install chunkr ./charts/chunkr \
 helm install chunkr ./charts/chunkr \
   --namespace chunkr \
   --create-namespace \
-  --set ingress.domain=example.com \
   --set ingress.subdomains.root=false \
   --set "services.web.ingress.subdomain=chunkr" \
   --set "services.chunkr.ingress.subdomain=chunkr-api" \
