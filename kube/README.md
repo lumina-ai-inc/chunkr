@@ -6,17 +6,25 @@
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
 ### GPU Setup [Required]
-Ensure the NVIDIA device plugin is installed:
 
+1. Install NVIDIA operator with time-slicing following the instructions at: https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-sharing.html#time-slicing-cluster-wide-config
 ```bash
-# Check if NVIDIA device plugin is running
-kubectl get pods -n kube-system | grep nvidia-device-plugin
+kubectl create namespace gpu-operator
 
-# If no pods are found, install the plugin
-kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.1/nvidia-device-plugin.yml
+# Add the NVIDIA Helm repository
+helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+helm repo update
 
-# Verify installation after a minute
-kubectl get pods -n kube-system | grep nvidia-device-plugin
+# Install the GPU Operator
+helm install --wait --generate-name \
+     -n gpu-operator --create-namespace \
+     nvidia/gpu-operator
+
+kubectl create -f time-slicing-config-all.yaml -n gpu-operator
+
+kubectl patch clusterpolicy/cluster-policy \
+    -n gpu-operator \
+    -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config-all", "default": "any"}}}}'
 ```
 
 ### Ingress Setup [Required]
