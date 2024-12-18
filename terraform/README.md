@@ -101,3 +101,21 @@ terraform destroy
 ```
 
 > **Warning**: This will permanently delete all resources created by Terraform.
+
+## Backend Configuration (Optional)
+
+1. Copy the backend configuration example from terraform/{provider}:
+   ```bash
+   cp ../backend/backend.example.tf ../backend/backend.tf
+   ```
+
+2. Update the backend.tf file with your S3 bucket details:
+   - bucket: Your S3 bucket name
+   - region: Your AWS region
+   - dynamodb_table: Your DynamoDB table name
+   - key: Update path if needed (defaults to provider/terraform.tfstate)
+
+3. Initialize Terraform with your backend:
+   ```bash
+   terraform init -backend-config=/path/to/backend.tf
+   ```
