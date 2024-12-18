@@ -331,7 +331,7 @@ services:
       - name: KC_DB
         value: "postgres"
       - name: KC_DB_URL
-        value: "jdbc:postgresql://{{ .Values.services.postgres.env.POSTGRES_USER }}:{{ .Values.services.postgres.env.POSTGRES_PASSWORD }}@{{- .Release.Name }}-postgres:5432/keycloak"
+        value: "jdbc:postgresql://{{ .Values.services.postgres.credentials.username }}:{{ .Values.services.postgres.credentials.password }}@{{- .Release.Name }}-postgres:5432/keycloak"
       - name: KC_DB_USERNAME
         value: "postgres"
       - name: KC_DB_PASSWORD
@@ -364,10 +364,6 @@ services:
       limits:
         memory: "1Gi"
         cpu: "500m"
-    persistence:
-      enabled: true
-      size: 10Gi
-      storageClass: standard
     args:
       - "redis-server"
       - "--appendonly"
@@ -388,6 +384,24 @@ services:
     securityContext:
       runAsNonRoot: true
       runAsUser: 999
+      fsGroup: 999
+      fsGroupChangePolicy: "OnRootMismatch"
+    persistence:
+      name: redis-data
+      enabled: true
+      size: 1Gi
+      storageClassName: "default" 
+      accessModes:
+        - ReadWriteOnce
+      annotations:
+        "helm.sh/resource-policy": keep
+    volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-data
+    volumeMounts:
+      - name: redis-data
+        mountPath: /data
     livenessProbe:
       tcpSocket:
         port: 6379
@@ -437,6 +451,15 @@ services:
     envFrom:
       - secretRef:
           name: s3proxy-secret
+    persistence:
+      name: s3proxy-data
+      enabled: true
+      size: 100Gi
+      storageClassName: "default" 
+      accessModes:
+        - ReadWriteOnce
+      annotations:
+        "helm.sh/resource-policy": keep
     volumes:
       - name: s3proxy-data
         persistentVolumeClaim:
@@ -444,10 +467,6 @@ services:
     volumeMounts:
       - name: s3proxy-data
         mountPath: /data
-    persistence:
-      enabled: true
-      size: 10Gi
-      storageClass: standard
 
   postgres:
     enabled: true
@@ -465,6 +484,8 @@ services:
         value: "{{ .Values.services.postgres.credentials.username }}"
       - name: POSTGRES_PASSWORD
         value: "{{ .Values.services.postgres.credentials.password }}"
+      - name: PGDATA
+        value: "/var/lib/postgresql/data/pgdata"
     resources:
       requests:
         memory: "1Gi"
@@ -479,9 +500,9 @@ services:
           - /bin/sh
           - -c
           - |
-            mkdir -p /var/lib/postgresql/data /var/run/postgresql
-            chmod -R 700 /var/lib/postgresql/data /var/run/postgresql
-            chown -R 999:999 /var/lib/postgresql/data /var/run/postgresql
+            mkdir -p /var/lib/postgresql/data/pgdata /var/run/postgresql
+            chmod -R 700 /var/lib/postgresql/data/pgdata /var/run/postgresql
+            chown -R 999:999 /var/lib/postgresql/data/pgdata /var/run/postgresql
         volumeMounts:
           - name: data
             mountPath: /var/lib/postgresql/data
@@ -489,18 +510,24 @@ services:
           runAsUser: 0
           privileged: true
     persistence:
+      name: postgres-data
       enabled: true
       size: 10Gi
-      storageClass: standard
+      storageClassName: "default" 
       accessModes:
         - ReadWriteOnce
       annotations:
         "helm.sh/resource-policy": keep
     volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-data
       - name: postgres-init
         configMap:
           name: postgres-init-config
     volumeMounts:
+      - name: postgres-data
+        mountPath: /var/lib/postgresql/data
       - name: postgres-init
         mountPath: /docker-entrypoint-initdb.d/init.sql
         subPath: init.sql
