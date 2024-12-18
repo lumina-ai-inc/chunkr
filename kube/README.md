@@ -70,8 +70,9 @@ Create and configure your secrets:
 # Create a secrets directory 
 mkdir -p secrets/local
 
-# Copy the example secret
+# Copy the example secrets
 cp secrets/chunkr-secret.example.yaml secrets/local/chunkr-secret.yaml
+cp secrets/s3proxy-secret.example.yaml secrets/local/s3proxy-secret.yaml
 ```
 
 If using Cloudflare Tunnels:
@@ -138,11 +139,6 @@ helm upgrade chunkr ./charts/chunkr --namespace chunkr
 
 **Update with Configuration Changes:**
 ```bash
-# Example: Update s3 provider to Azure
-helm upgrade chunkr ./charts/chunkr \
-  --namespace chunkr \
-  --set global.s3provider=azure
-
 # Example: Update domain settings
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
@@ -166,7 +162,8 @@ You must set the credentials for the external S3 provider in the chunkr-secret.y
 ```bash
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --set global.s3provider=aws
+  --set global.s3provider=aws \
+  --set services.s3proxy.enabled=false
 ```
 
 **GCP Storage (with Interoperability):**
@@ -174,24 +171,19 @@ helm upgrade chunkr ./charts/chunkr \
 ```bash
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --set global.s3provider=gcp
+  --set global.s3provider=gcp \
+  --set services.s3proxy.enabled=false
 ```
 
 **Azure Blob Storage:**
 
 ```bash
-# Additional secret needed for Azure
-cp secrets/azure-s3proxy-secret.example.yaml secrets/local/azure-s3proxy-secret.yaml
-
-# Edit the secret file with your values
-vim secrets/local/azure-s3proxy-secret.yaml
-
-# Apply the secret
-kubectl apply -f secrets/local/azure-s3proxy-secret.yaml -n chunkr
+# Set the JCLOUDS_ENDPOINT in the chunkr-secret.yaml file
 
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --set global.s3provider=azure
+  --set global.s3provider=azure \
+  --set services.s3proxy.persistence.enabled=false
 ```
 
 ### Postgres
