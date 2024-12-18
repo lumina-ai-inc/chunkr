@@ -90,6 +90,12 @@ global:
       - name: dshm
         mountPath: /dev/shm
 
+nvidia:
+  timeSlicing:
+    enabled: true
+    replicas: 8
+    timeSlice: "2ms"
+
 services:
   # Servers
   chunkr:
@@ -557,3 +563,4 @@ services:
         port: 5432
       initialDelaySeconds: 5
       periodSeconds: 5
+
