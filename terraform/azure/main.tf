@@ -260,6 +260,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "general" {
   min_count             = var.general_min_vm_count
   max_count             = var.general_max_vm_count
   vnet_subnet_id        = azurerm_subnet.aks_subnet.id
+  enable_auto_scaling   = true
 
   node_labels = {
     "purpose" = "general-compute"
@@ -276,6 +277,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
   min_count             = var.gpu_min_vm_count
   max_count             = var.gpu_max_vm_count
   vnet_subnet_id        = azurerm_subnet.aks_subnet.id
+  enable_auto_scaling   = true
 
   node_labels = {
     "purpose" = "gpu-compute"
@@ -350,16 +352,16 @@ resource "azurerm_postgresql_flexible_server_configuration" "uuid_ossp" {
 # Outputs
 ###############################################################
 output "storage_account_name" {
-  value = var.create_storage ? azurerm_storage_account.storage[0].name : null
+  value = length(azurerm_storage_account.storage) > 0 ? azurerm_storage_account.storage[0].name : null
 }
 
 output "storage_account_key" {
-  value     = var.create_storage ? azurerm_storage_account.storage[0].primary_access_key : null
+  value     = length(azurerm_storage_account.storage) > 0 ? azurerm_storage_account.storage[0].primary_access_key : null
   sensitive = true
 }
 
 output "storage_account_endpoint" {
-  value = var.create_storage ? "https://${azurerm_storage_account.storage[0].name}.blob.core.windows.net" : null
+  value = length(azurerm_storage_account.storage) > 0 ? "https://${azurerm_storage_account.storage[0].name}.blob.core.windows.net" : null
 }
 
 output "postgres_server_name" {
