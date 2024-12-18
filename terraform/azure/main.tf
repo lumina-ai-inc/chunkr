@@ -12,7 +12,8 @@ terraform {
 }
 
 variable "base_name" {
-  default = "chunkr"
+  type        = string
+  description = "The base name for the resources"
 }
 
 variable "location" {
@@ -85,7 +86,7 @@ variable "create_postgres" {
 variable "create_storage" {
   description = "Whether to create Storage Account resources"
   type        = bool
-  default     = true
+  default     = false
 }
 
 provider "azurerm" {
