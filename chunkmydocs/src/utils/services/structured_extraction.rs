@@ -1,8 +1,10 @@
 use crate::models::server::segment::{Chunk, Segment};
+use crate::models::server::segment::SegmentType;
 use crate::models::workers::open_ai::MessageContent;
 use crate::utils::services::embeddings::EmbeddingCache;
 use crate::utils::services::llm::{get_basic_message, open_ai_call};
 use crate::utils::services::search::search_embeddings;
+
 use bytes::BytesMut;
 use itertools::Itertools;
 use postgres_types::{FromSql, IsNull, ToSql, Type};
@@ -216,6 +218,18 @@ pub async fn perform_structured_extraction(
                 })
                 .join("\n");
 
+            let title_segment = if search_results
+                .iter()
+                .any(|s| s.segment.segment_type == SegmentType::Title) {
+                search_results
+                    .iter()
+                    .find(|s| s.segment.segment_type == SegmentType::Title)
+                    .map(|s| format!("\n\nTitle: {}", s.segment.content))
+                    .unwrap_or_default()
+            } else {
+                String::new()
+            };
+
             let tag_instruction = match field_type.as_str() {
                 "obj" | "object" | "dict" => "Output JSON within <json></json> tags.",
                 "list" => "Output a list within <list></list> tags.",
@@ -224,9 +238,13 @@ pub async fn perform_structured_extraction(
             };
 
             let prompt = format!(
-                    "Field Name: {}\nField Description: {}\nField Type: {}\n\nContext:\n{}\n\nExtract the information for the field. {} Ensure the output adheres to the schema without nesting.
-                    You must accurately find the information for the field based on the name and description. Report the information in the type requested directly. Be intelligent.",
-                    field_name, field_description, field_type, context, tag_instruction,
+                    "Field Name: {}\nField Description: {}\nField Type: {}{} 
+                    
+                    CONTEXT: {}
+                    
+                    \n\nExtract the information for the field from the context provided. {} Ensure the output adheres to the schema without nesting.
+                    You must accurately find the information for the field based on the name and description. Report the information in the type requested directly. Be intelligent. If the information you are looking for is not in the context provided, or is unrelated to the field, respond with a single <NA> tag. It is better to give a <NA> response rather than ambiously guessing.",
+                    field_name, field_description, field_type, title_segment, context, tag_instruction,
                 );
 
             let messages = get_basic_message(prompt).map_err(|e| {
@@ -253,7 +271,13 @@ pub async fn perform_structured_extraction(
             })?;
 
             let content: String = match &extracted.choices.first().unwrap().message.content {
-                MessageContent::String { content } => content.clone(),
+                MessageContent::String { content } => {
+                    if content.trim() == "<NA>" {
+                        String::new()
+                    } else {
+                        content.clone()
+                    }
+                }
                 _ => {
                     return Err(std::io::Error::new(
                         std::io::ErrorKind::Other,
@@ -353,7 +377,7 @@ mod tests {
     use tokio;
 
     #[tokio::test]
-    async fn test_perform_structured_extraction() -> Result<(), Box<dyn Error + Send + Sync>> {
+    async fn st_extraction() -> Result<(), Box<dyn Error + Send + Sync>> {
         let embedding_url = "http://127.0.0.1:8085/embed".to_string();
         let worker_config = WorkerConfig::from_env().expect("Failed to load WorkerConfig");
         let llm_config = LlmConfig::from_env().expect("Failed to load LlmConfig");
@@ -476,7 +500,14 @@ mod tests {
                     name: "greenest_vegetables".to_string(),
                     title: Some("greenest vegetables".to_string()),
                     prop_type: "string".to_string(),
-                    description: Some("A summary of the greenest vegetables".to_string()),
+                    description: Some("The greenest vegetable in the list".to_string()),
+                    default: None,
+                },
+                Property {
+                    name: "cars".to_string(),
+                    title: Some("cars".to_string()),
+                    prop_type: "list".to_string(),
+                    description: Some("A list of cars".to_string()),
                     default: None,
                 },
             ],
