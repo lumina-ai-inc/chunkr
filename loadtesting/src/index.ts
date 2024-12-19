@@ -35,7 +35,7 @@ if (!API_KEY || !API_URL) {
 
 const eventEmitter = new EventEmitter();
 
-const MAX_FILES_TO_PROCESS = 20; // Adjust this value as needed
+const MAX_FILES_TO_PROCESS = 100; // Adjust this value as needed
 const CONCURRENT_REQUESTS_PER_WORKER = 20; // You can adjust this value
 const WORKERS_PER_CONFIG = 1; // Adjust this number as needed
 const INPUT_FOLDER = path.join(__dirname, "..", "input");
@@ -462,7 +462,7 @@ Total failed files: ${failureTypes.startTaskFailed + failureTypes.pollTaskFailed
 }
 
 // Add these new variables and functions
-const AGGREGATE_LOG_INTERVAL = 5000; // 5 seconds
+const AGGREGATE_LOG_INTERVAL = 1000; // 5 seconds
 const aggregateLogPath = path.join(RUN_FOLDER, "aggregate_log.txt");
 let totalProcessedPages = 0;
 let runStartTime: number;
