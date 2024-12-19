@@ -29,12 +29,12 @@ common:
   standardEnv:
     - name: AUTH__KEYCLOAK_URL
       value: "https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
-    - name: AWS__ENDPOINT
-      value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
-    - name: AWS__PRESIGNED_URL_ENDPOINT
-      value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
-    - name: AWS__REGION
-      value: "us-east-1"
+    # - name: AWS__ENDPOINT
+    #   value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+    # - name: AWS__PRESIGNED_URL_ENDPOINT
+    #   value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+    # - name: AWS__REGION
+    #   value: "us-east-1"
     - name: PG__URL
       value: "postgresql://{{ .Values.services.postgres.credentials.username }}:{{ .Values.services.postgres.credentials.password }}@{{- .Release.Name }}-postgres:5432/chunkr"
     - name: RRQ__URL
@@ -42,7 +42,7 @@ common:
     - name: REDIS__URL
       value: "redis://{{- .Release.Name }}-redis:6379"
     - name: SEARCH__DENSE_VECTOR_URL
-      value: "http://{{- .Release.Name }}-embeddings:80"
+      value: "http://{{- .Release.Name }}-embeddings:8000"
     - name: WORKER__GENERAL_OCR_URL
       value: "http://{{- .Release.Name }}-doctr:8000"
     - name: WORKER__PDLA_URL
@@ -67,10 +67,10 @@ global:
             podAffinityTerm:
               labelSelector:
                 matchExpressions:
-                  - key: app.kubernetes.io/name
+                  - key: workload-type
                     operator: In
                     values:
-                      - ${SERVICE_NAME}
+                      - chunkr-gpu
               topologyKey: "kubernetes.io/hostname"
     tolerations:
       - key: "nvidia.com/gpu"
@@ -131,7 +131,7 @@ services:
         value: "1.0.5"
 
   rrq-analytics:
-    enabled: true
+    enabled: false
     image:
       repository: rrq-analytics
       tag: "459b00d"
@@ -256,6 +256,11 @@ services:
     port: 8000
     targetPort: 8000
     useGPU: true
+    env:
+      - name: max_batch_size
+        value: "20"
+    labels:
+      workload-type: chunkr-gpu
 
   embeddings:
     enabled: true
@@ -267,6 +272,8 @@ services:
     targetPort: 80
     args: ["--model-id", "BAAI/bge-m3"]
     useGPU: true
+    labels:
+      workload-type: chunkr-gpu
 
   paddle-ocr:
     enabled: false
@@ -276,6 +283,8 @@ services:
     port: 8000
     targetPort: 8000
     useGPU: true
+    labels:
+      workload-type: chunkr-gpu
 
   pdla:
     enabled: true
@@ -298,6 +307,8 @@ services:
         "--timeout",
         "10000",
       ]
+    labels:
+      workload-type: chunkr-gpu
 
   table-ocr:
     enabled: false
@@ -307,6 +318,8 @@ services:
     port: 8000
     targetPort: 8000
     useGPU: true
+    labels:
+      workload-type: chunkr-gpu
 
  # Supporting services
   keycloak:
@@ -431,6 +444,8 @@ services:
     ingress:
       enabled: true
       subdomain: "s3"
+    strategy:
+      type: Recreate   
     env:
       - name: S3PROXY_AUTHORIZATION
         value: none
@@ -507,10 +522,10 @@ services:
     resources:
       requests:
         memory: "1Gi"
-        cpu: "500m"
-      limits:
-        memory: "2Gi"
         cpu: "1000m"
+      limits:
+        memory: "4Gi"
+        cpu: "6000m"
     initContainers:
       - name: init-chmod-data
         image: busybox

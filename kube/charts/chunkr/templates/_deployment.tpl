@@ -10,6 +10,10 @@ metadata:
     app.kubernetes.io/name: {{ $name }}
     {{- include "chunkr.labels" $ | nindent 4 }}
 spec:
+  {{- if $service.strategy }}
+  strategy:
+    {{- toYaml $service.strategy | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ $name }}
@@ -20,11 +24,7 @@ spec:
     spec:
       {{- if $service.useGPU }}
       affinity:
-        {{- $gpuAffinity := deepCopy $.Values.global.gpuWorkload.affinity }}
-        {{- $matchExpr := index $gpuAffinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution 0 -}}
-        {{- $matchExpressions := $matchExpr.podAffinityTerm.labelSelector.matchExpressions }}
-        {{- $_ := set (index $matchExpressions 0) "values" (list $name) }}
-        {{- toYaml $gpuAffinity | nindent 8 }}
+        {{- toYaml $.Values.global.gpuWorkload.affinity | nindent 8 }}
       tolerations:
         {{- toYaml $.Values.global.gpuWorkload.tolerations | nindent 8 }}
       {{- else if $service.affinity }}
