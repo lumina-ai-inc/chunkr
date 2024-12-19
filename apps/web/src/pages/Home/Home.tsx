@@ -347,11 +347,31 @@ const Home = () => {
                   gap="8px"
                   className="feature-left-box-item"
                 >
-                  <Text size="6" weight="medium">
+                  <Text
+                    size="6"
+                    weight="medium"
+                    style={{
+                      background:
+                        "linear-gradient(to right, #fff, rgba(255, 255, 255, 0.8))",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
                     Document Ingestion
                   </Text>
-                  <Text size="4" weight="regular">
-                    Semantic extraction for text, tables, images and formulas
+                  <Text
+                    size="4"
+                    weight="regular"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.7)",
+                      lineHeight: "1.5",
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    Semantic extraction for text, tables,
+                    <br />
+                    images and formulas
                   </Text>
                 </Flex>
                 <Flex
@@ -361,18 +381,6 @@ const Home = () => {
                 >
                   <Text size="6" weight="medium">
                     Structured Extraction
-                  </Text>
-                  <Text size="4" weight="regular">
-                    Custom schemas to extract specific values
-                  </Text>
-                </Flex>
-                <Flex
-                  direction="column"
-                  gap="8px"
-                  className="feature-left-box-item"
-                >
-                  <Text size="6" weight="medium">
-                    Pure VLM parsing
                   </Text>
                   <Text size="4" weight="regular">
                     Custom schemas to extract specific values
