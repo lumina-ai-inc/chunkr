@@ -8,24 +8,24 @@
 ### GPU Setup [Required]
 
 1. Install NVIDIA operator with time-slicing following the instructions at: https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-sharing.html#time-slicing-cluster-wide-config
-```bash
-kubectl create namespace gpu-operator
 
+```bash
 # Add the NVIDIA Helm repository
-helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
-helm repo update
+helm repo add nvidia https://helm.ngc.nvidia.com/nvidia \
+  && helm repo update
 
 # Install the GPU Operator
 helm install --wait --generate-name \
-     -n gpu-operator --create-namespace \
-     nvidia/gpu-operator
+  -n gpu-operator --create-namespace \
+  nvidia/gpu-operator \
+  --version=v24.9.1
 
 kubectl create -f time-slicing-config-all.yaml -n gpu-operator
 
 kubectl patch clusterpolicy/cluster-policy \
-    -n gpu-operator \
-    --type merge \
-    -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config-all", "default": "any"}}}}'
+  -n gpu-operator \
+  --type merge \
+  -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config-all", "default": "any"}}}}'
 ```
 
 ### Ingress Setup [Required]
@@ -81,13 +81,6 @@ mkdir -p secrets/local
 
 # Copy the example secrets
 cp secrets/chunkr-secret.example.yaml secrets/local/chunkr-secret.yaml
-cp secrets/s3proxy-secret.example.yaml secrets/local/s3proxy-secret.yaml
-```
-
-If using Cloudflare Tunnels:
-```bash
-# Additional secret needed for Cloudflare Tunnels
-cp secrets/cloudflare-secret.example.yaml secrets/local/cloudflare-secret.yaml
 ```
 
 Edit and apply your secrets:
@@ -124,7 +117,8 @@ helm install chunkr ./charts/chunkr \
   --set "services.keycloak.ingress.subdomain=chunkr-auth" \
   --set "services.s3proxy.ingress.subdomain=chunkr-s3" \
   --set ingress.type=cloudflare \
-  --set cloudflared.enabled=true
+  --set cloudflared.enabled=true \
+  --set cloudflared.config.tunnelName=YOUR_TUNNEL_NAME
 ```
 
 **Installation with TLS (Cloudflare):**
