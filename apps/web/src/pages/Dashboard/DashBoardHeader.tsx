@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import PaymentSetup from "../../components/Payments/PaymentSetup";
 import "./DashboardHeader.css";
-import ApiKeyDialog from "../../components/ApiDialog.tsx/ApiKeyDialog";
+import ApiKeyDialog from "../../components/ApiDialog/ApiKeyDialog";
 import { useState } from "react";
 
 interface DashBoardHeaderProps extends User {
