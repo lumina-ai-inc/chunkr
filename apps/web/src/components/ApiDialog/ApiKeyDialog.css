@@ -1,0 +1,9 @@
+.nav-item {
+  transition: color 0.2s ease-in-out;
+  cursor: pointer;
+  color: hsl(0, 0%, 100%, 0.9);
+}
+
+.nav-item:hover {
+  color: hsl(0, 0%, 100%);
+}
