@@ -16,12 +16,19 @@ import bargraphAnimation from "../../assets/animations/bargraph.json";
 import codeAnimation from "../../assets/animations/code.json";
 import secureAnimation from "../../assets/animations/secure.json";
 import rustAnimation from "../../assets/animations/rust.json";
+import curlAnimation from "../../assets/animations/curl.json";
 import segmentationAnimation from "../../assets/animations/segment.json";
 import ocrAnimation from "../../assets/animations/ocr.json";
 import stackingAnimation from "../../assets/animations/stacking.json";
 import extractAnimation from "../../assets/animations/extract.json";
 import PricingCard from "../../components/PricingCard/PricingCard";
-import { ChunkrClient } from "@chunkr/node";
+import CodeBlock from "../../components/CodeBlock/CodeBlock";
+import BetterButton from "../../components/BetterButton/BetterButton";
+import {
+  curlExample,
+  nodeExample,
+  pythonExample,
+} from "../../components/CodeBlock/exampleScripts";
 
 const Home = () => {
   const auth = useAuth();
@@ -42,7 +49,9 @@ const Home = () => {
   const ocrLottieRef = useRef<LottieRefCurrentProps>(null);
   const stackingLottieRef = useRef<LottieRefCurrentProps>(null);
   const extractLottieRef = useRef<LottieRefCurrentProps>(null);
+  const curlLottieRef = useRef<LottieRefCurrentProps>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [selectedScript, setSelectedScript] = useState("curl");
 
   useEffect(() => {
     if (lottieRef.current) {
@@ -78,6 +87,9 @@ const Home = () => {
     if (extractLottieRef.current) {
       extractLottieRef.current.pause();
     }
+    if (curlLottieRef.current) {
+      curlLottieRef.current.pause();
+    }
   }, []);
 
   useEffect(() => {
@@ -110,13 +122,21 @@ const Home = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const curlCommand = `$ <span class="command">curl</span> <span class="flag">-X</span> <span class="flag">POST</span> ${import.meta.env.VITE_API_URL}/api/v1/task <span class="dim">\\</span>
-  <span class="flag">-H</span> <span class="string">"Content-Type: multipart/form-data"</span> <span class="dim">\\</span>
-  <span class="flag">-H</span> <span class="string">"Authorization: "</span> <span class="dim">\\</span>
-  <span class="flag">-F</span> <span class="string">"file=@/path/to/your/file.pdf"</span> <span class="dim">\\</span>
-  <span class="flag">-F</span> <span class="string">"model=HighQuality"</span> <span class="dim">\\</span>
-  <span class="flag">-F</span> <span class="string">"target_chunk_length=512"</span> <span class="dim">\\</span>
-  <span class="flag">-F</span> <span class="string">"ocr_strategy=Auto"</span>`;
+  const handleScriptSwitch = (script: string) => {
+    setSelectedScript(script);
+  };
+
+  const scripts = {
+    curl: curlExample,
+    node: nodeExample,
+    python: pythonExample,
+  };
+
+  const languageMap = {
+    curl: "bash",
+    node: "javascript",
+    python: "python",
+  };
 
   const startTyping = () => {
     const textElement = terminalRef.current?.querySelector(".typed-text");
@@ -127,8 +147,9 @@ const Home = () => {
     let i = 0;
 
     const typeChar = () => {
-      if (i < curlCommand.length) {
-        displayText += curlCommand.charAt(i);
+      if (i < scripts[selectedScript as keyof typeof scripts].length) {
+        displayText +=
+          scripts[selectedScript as keyof typeof scripts].charAt(i);
         textElement.innerHTML = displayText + '<span class="cursor">▋</span>';
         i++;
         setTimeout(typeChar, 5);
@@ -291,6 +312,8 @@ const Home = () => {
           <div className="features-gradient-background" />
           <Flex
             direction="row"
+            align="center"
+            justify="between"
             style={{
               maxWidth: "1386px",
               height: "100%",
@@ -302,18 +325,14 @@ const Home = () => {
               zIndex: 1,
             }}
           >
-            <Flex className="features-left-box">
-              <Text
-                size="9"
-                weight="medium"
-                className="features-left-box-title"
-              >
+            <Flex className="feature-left-box">
+              <Text size="9" weight="medium" className="feature-left-box-title">
                 A modular pipeline <br></br> for your AI infrastructure
               </Text>
               <Text
                 size="7"
                 weight="medium"
-                className="features-left-box-subtitle"
+                className="feature-left-box-subtitle"
               >
                 Ingestion use-cases can vary quite a bit. <br></br>
                 <br></br>
@@ -322,11 +341,59 @@ const Home = () => {
                 <span style={{ color: "#ffffff9b" }}>that can cater to </span>{" "}
                 solo-devs, startups and enterprises.
               </Text>
-
-              <div className="feature-left-box-image" ref={terminalRef}>
-                <div className="terminal-header">
-                  <div className="terminal-title">
-                    <svg
+              <Flex direction="row" gap="24px" width="100%" justify="between">
+                <Flex
+                  direction="column"
+                  gap="8px"
+                  className="feature-left-box-item"
+                >
+                  <Text size="6" weight="medium">
+                    Document Ingestion
+                  </Text>
+                  <Text size="4" weight="regular">
+                    Semantic extraction for text, tables, images and formulas
+                  </Text>
+                </Flex>
+                <Flex
+                  direction="column"
+                  gap="8px"
+                  className="feature-left-box-item"
+                >
+                  <Text size="6" weight="medium">
+                    Structured Extraction
+                  </Text>
+                  <Text size="4" weight="regular">
+                    Custom schemas to extract specific values
+                  </Text>
+                </Flex>
+                <Flex
+                  direction="column"
+                  gap="8px"
+                  className="feature-left-box-item"
+                >
+                  <Text size="6" weight="medium">
+                    Pure VLM parsing
+                  </Text>
+                  <Text size="4" weight="regular">
+                    Custom schemas to extract specific values
+                  </Text>
+                </Flex>
+              </Flex>
+            </Flex>
+            <Flex direction="column" gap="32px" className="feature-right-box">
+              <div className="feature-right-box-image" ref={terminalRef}>
+                <Flex
+                  className="terminal-header"
+                  align="center"
+                  justify="center"
+                  mb="16px"
+                >
+                  <Flex
+                    className="terminal-title"
+                    align="center"
+                    justify="center"
+                  >
+                    {/* <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
                       height="16"
@@ -370,132 +437,54 @@ const Home = () => {
                         />
                       </g>
                     </svg>
-                    chunkr API
-                  </div>
-                  <div className="terminal-button-row">
+                    chunkr API */}
+                    <Flex gap="16px">
+                      <BetterButton
+                        onClick={() => handleScriptSwitch("curl")}
+                        active={selectedScript === "curl"}
+                      >
+                        <Text size="1" weight="bold" className="default-font">
+                          curl
+                        </Text>
+                      </BetterButton>
+                      <BetterButton
+                        onClick={() => handleScriptSwitch("node")}
+                        active={selectedScript === "node"}
+                      >
+                        <Text size="1" weight="bold" className="default-font">
+                          Node.js
+                        </Text>
+                      </BetterButton>
+                      <BetterButton
+                        onClick={() => handleScriptSwitch("python")}
+                        active={selectedScript === "python"}
+                      >
+                        <Text size="1" weight="bold" className="default-font">
+                          Python
+                        </Text>
+                      </BetterButton>
+                    </Flex>
+                  </Flex>
+                  <Flex className="terminal-button-row">
                     <div className="terminal-button close"></div>
                     <div className="terminal-button minimize"></div>
                     <div className="terminal-button maximize"></div>
-                  </div>
-                </div>
+                  </Flex>
+                </Flex>
                 <div className="curl-command">
-                  <span className="typed-text"></span>
+                  <CodeBlock
+                    code={scripts[selectedScript as keyof typeof scripts]}
+                    language={
+                      languageMap[selectedScript as keyof typeof languageMap]
+                    }
+                    showLineNumbers={false}
+                  />
                 </div>
               </div>
-            </Flex>
 
-            <Flex
-              direction="column"
-              gap="32px"
-              style={{ flex: 1, height: "100%" }}
-            >
-              <Flex direction="column" className="code-container">
-                <div className="code-editor-header">
-                  <div className="tab-list">
-                    <button className="tab-item active">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M8 13.1L3.6 9.4L5 8.2L7.9 10.6L10.8 8.3L12.2 9.5L8 13.1ZM8 9.7L3.6 6L8 2.3L12.4 6L8 9.7Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      Node.js
-                    </button>
-                    <button className="tab-item">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M7.9 13.5C4.3 13.5 1.4 10.6 1.4 7C1.4 3.4 4.3 0.5 7.9 0.5C11.5 0.5 14.4 3.4 14.4 7C14.4 10.6 11.5 13.5 7.9 13.5ZM7.9 11.5C10.4 11.5 12.4 9.5 12.4 7C12.4 4.5 10.4 2.5 7.9 2.5C5.4 2.5 3.4 4.5 3.4 7C3.4 9.5 5.4 11.5 7.9 11.5Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      Python
-                    </button>
-                    <button className="tab-item">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M8 0.5L14.5 4V12L8 15.5L1.5 12V4L8 0.5Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      cURL
-                    </button>
-                  </div>
-                  <div className="action-buttons">
-                    <button className="action-button">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M13 4H3V3H13V4ZM13 7H3V6H13V7ZM13 10H3V9H13V10Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-                    <button className="action-button">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M8 12L3 7H13L8 12Z" fill="currentColor" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="code-editor-content">
-                  <div className="line-numbers">
-                    <span>1</span>
-                    <span>2</span>
-                    <span>3</span>
-                    <span>4</span>
-                    <span>5</span>
-                  </div>
-                  <pre className="code-content">
-                    <code>{`import { ChunkrClient } from '@chunkr/node';
-
-const client = new ChunkrClient({ 
-  apiKey: 'YOUR_API_KEY'
-});
-
-// Process a document
-const result = await client.process({
-  file: './document.pdf',
-  model: 'HighQuality',
-  chunkLength: 512
-});
-
-console.log(result.chunks);`}</code>
-                  </pre>
-                </div>
-              </Flex>
-
-              <Flex
+              {/* <Flex
                 direction="column"
-                className="feature-right-box feature-right-box-segmentation-image "
+                className="functionality-box functionality-box-segmentation-image "
                 onMouseEnter={() => handleLottieHover(segmentationLottieRef)}
               >
                 <Flex className="tag-container">
@@ -525,7 +514,7 @@ console.log(result.chunks);`}</code>
               </Flex>
               <Flex
                 direction="column"
-                className="feature-right-box feature-right-box-ocr-image "
+                className="functionality-box functionality-box-ocr-image "
                 onMouseEnter={() => handleLottieHover(ocrLottieRef)}
               >
                 <Flex className="tag-container">
@@ -556,7 +545,7 @@ console.log(result.chunks);`}</code>
               </Flex>
               <Flex
                 direction="column"
-                className="feature-right-box feature-right-box-outputs-image "
+                className="functionality-box functionality-box-outputs-image "
                 onMouseEnter={() => handleLottieHover(stackingLottieRef)}
               >
                 <Flex className="tag-container">
@@ -588,7 +577,7 @@ console.log(result.chunks);`}</code>
               </Flex>
               <Flex
                 direction="column"
-                className="feature-right-box feature-right-box-structuredextraction-image "
+                className="functionality-box functionality-box-structuredextraction-image "
                 onMouseEnter={() => handleLottieHover(extractLottieRef)}
               >
                 <Flex direction="row" gap="8px">
@@ -632,7 +621,7 @@ console.log(result.chunks);`}</code>
                     autoplay={false}
                   />
                 </Flex>
-              </Flex>
+              </Flex> */}
             </Flex>
           </Flex>
         </div>

@@ -1,0 +1,38 @@
+.code-content {
+  margin: 0;
+  overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+}
+
+.code-content code {
+  font-family: "Fira Code", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre;
+  display: inline-block;
+  min-width: 100%;
+}
+
+.code-content::-webkit-scrollbar {
+  width: 4px; /* Adjust width as needed */
+  height: 4px; /* Adjust height as needed */
+}
+
+.code-content::-webkit-scrollbar-track {
+  background: transparent; /* No track color */
+}
+
+.code-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2); /* Semi-transparent thumb */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.code-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5); /* Slightly darker on hover */
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth; /* Smooth scrolling */
+}

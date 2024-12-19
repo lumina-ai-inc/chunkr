@@ -5,7 +5,7 @@ import "./Header.css";
 import Dashboard from "../../pages/Dashboard/Dashboard";
 import { useAuth } from "react-oidc-context";
 // import { downloadJSON } from "../../utils/utils";
-import ApiKeyDialog from "../ApiDialog.tsx/ApiKeyDialog";
+import ApiKeyDialog from "../ApiDialog/ApiKeyDialog";
 // import { useTaskQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
 import { User } from "../../models/user.model";
