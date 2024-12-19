@@ -35,9 +35,9 @@ if (!API_KEY || !API_URL) {
 
 const eventEmitter = new EventEmitter();
 
-const MAX_FILES_TO_PROCESS = 100; // Adjust this value as needed
-const CONCURRENT_REQUESTS_PER_WORKER = 10; // You can adjust this value
-const WORKERS_PER_CONFIG = 2; // Adjust this number as needed
+const MAX_FILES_TO_PROCESS = 20; // Adjust this value as needed
+const CONCURRENT_REQUESTS_PER_WORKER = 20; // You can adjust this value
+const WORKERS_PER_CONFIG = 1; // Adjust this number as needed
 const INPUT_FOLDER = path.join(__dirname, "..", "input");
 const OUTPUT_FOLDER = path.join(__dirname, "..", "output");
 const RUN_ID = `${new Date().toISOString().replace(/[:.]/g, "-")}_${uuidv4().slice(0, 8)}`;
@@ -53,7 +53,7 @@ const MODEL_CONFIGS: (ModelConfig & { workers: number })[] = [
   {
     model: "HighQuality",
     ocrStrategy: "Auto",
-    percentage: 70,
+    percentage: 60,
     workers: WORKERS_PER_CONFIG,
     segmentationStrategy: "LayoutAnalysis",
     testType: "standard",
@@ -61,7 +61,7 @@ const MODEL_CONFIGS: (ModelConfig & { workers: number })[] = [
   {
     model: "HighQuality",
     ocrStrategy: "All",
-    percentage: 20,
+    percentage: 30,
     workers: WORKERS_PER_CONFIG,
     segmentationStrategy: "LayoutAnalysis",
     testType: "standard",
@@ -367,6 +367,9 @@ function distributeFiles(
   configs: (ModelConfig & { workers: number })[]
 ): Map<string, string[]> {
   const distribution = new Map<string, string[]>();
+
+  // Create a copy of files array and shuffle it
+  const shuffledFiles = [...files].sort(() => Math.random() - 0.5);
   let fileIndex = 0;
 
   configs.forEach((config) => {
@@ -376,8 +379,12 @@ function distributeFiles(
     );
     distribution.set(configKey, []);
 
-    for (let i = 0; i < filesToProcess && fileIndex < files.length; i++) {
-      distribution.get(configKey)!.push(files[fileIndex]);
+    for (
+      let i = 0;
+      i < filesToProcess && fileIndex < shuffledFiles.length;
+      i++
+    ) {
+      distribution.get(configKey)!.push(shuffledFiles[fileIndex]);
       fileIndex++;
     }
   });
