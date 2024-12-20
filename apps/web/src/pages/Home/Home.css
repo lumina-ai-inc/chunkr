@@ -436,26 +436,47 @@
 /* ... existing code ... */
 
 :root {
-  --primary-color-rgb: 121, 147, 88; /* Adjusted to a greener color */
+  --primary-color-rgb: 142, 236, 245; /* Ethereal turquoise from clouds */
+  --secondary-color-rgb: 255, 225, 155; /* Warm moonlight */
 }
 
 .features-gradient-background {
   position: absolute;
-  top: 0%;
-  left: 0%;
-  width: 100vw;
-
-  background: linear-gradient(
-    to top left,
-    rgba(var(--primary-color-rgb), 0.15) 0%,
-    rgba(var(--primary-color-rgb), 0.1) 25%,
-    rgba(var(--primary-color-rgb), 0.05) 50%,
-    transparent 70%
+  top: -30%;
+  left: -90%;
+  width: 200vw;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at top,
+    rgba(var(--primary-color-rgb), 0.12) 0%,
+    rgba(var(--primary-color-rgb), 0.08) 25%,
+    rgba(var(--primary-color-rgb), 0.03) 50%,
+    transparent 75%
   );
   pointer-events: none;
-  z-index: 0;
   filter: blur(80px);
-  opacity: 0.8;
+  opacity: 0.6;
+  z-index: 0;
+  animation: gradientFloat 12s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+@keyframes gradientFloat {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  25% {
+    transform: scale(1.1) translate(5%, -2.5%);
+  }
+  50% {
+    transform: scale(0.95) translate(-2%, 4%);
+  }
+  75% {
+    transform: scale(1.05) translate(-5%, -2.5%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
 }
 
 .feature-left-box {
@@ -467,6 +488,7 @@
   padding-top: 48px;
   padding-right: 0px;
   padding-left: 24px;
+  z-index: 1;
 }
 
 .feature-left-box-title {
@@ -485,15 +507,16 @@
 }
 
 .feature-left-box-item {
-  flex-grow: 1;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: calc(50% - 12px);
   border-radius: 12px;
   padding: 24px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(28, 54, 105, 0.03);
   backdrop-filter: blur(12px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .feature-left-box-item::before {
@@ -523,12 +546,30 @@
 
 .feature-left-box-item:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(28, 54, 105, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.1),
     0 8px 20px rgba(0, 0, 0, 0.35),
-    0 2px 4px rgba(0, 0, 0, 0.1),
-    0 0 40px rgba(255, 255, 255, 0.02);
+    0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.feature-left-box-item:hover::after {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 40px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(28, 54, 105, 0.15) 0%,
+    rgba(28, 54, 105, 0) 70%
+  );
+  pointer-events: none;
+  transition: all 0.3s ease;
 }
 
 .feature-right-box-image {
@@ -828,9 +869,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  padding-left: 24px;
   gap: 24px;
   flex: 1;
   height: 100%;
+  z-index: 1;
 }
 
 .code-editor-content {
