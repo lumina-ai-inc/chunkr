@@ -22,6 +22,7 @@ import ocrAnimation from "../../assets/animations/ocr.json";
 import stackingAnimation from "../../assets/animations/stacking.json";
 import extractAnimation from "../../assets/animations/extract.json";
 import parsingAnimation from "../../assets/animations/parsing.json";
+import notesAnimation from "../../assets/animations/notes.json";
 import PricingCard from "../../components/PricingCard/PricingCard";
 import CodeBlock from "../../components/CodeBlock/CodeBlock";
 import BetterButton from "../../components/BetterButton/BetterButton";
@@ -51,6 +52,7 @@ const Home = () => {
   const stackingLottieRef = useRef<LottieRefCurrentProps>(null);
   const extractLottieRef = useRef<LottieRefCurrentProps>(null);
   const parsingLottieRef = useRef<LottieRefCurrentProps>(null);
+  const notesLottieRef = useRef<LottieRefCurrentProps>(null);
   const curlLottieRef = useRef<LottieRefCurrentProps>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedScript, setSelectedScript] = useState("curl");
@@ -94,6 +96,9 @@ const Home = () => {
     }
     if (parsingLottieRef.current) {
       parsingLottieRef.current.pause();
+    }
+    if (notesLottieRef.current) {
+      notesLottieRef.current.pause();
     }
   }, []);
 
@@ -357,16 +362,17 @@ const Home = () => {
                     lottieRef={parsingLottieRef}
                     animationData={parsingAnimation}
                     style={{
-                      width: "56px",
-                      height: "56px",
+                      width: "48px",
+                      height: "48px",
                       marginLeft: "-6px",
                     }}
                     loop={false}
                     autoplay={false}
                   />
                   <Text
-                    size="6"
+                    size="5"
                     weight="medium"
+                    mb="4px"
                     style={{
                       background:
                         "linear-gradient(to right, #fff, rgba(255, 255, 255, 0.8))",
@@ -378,7 +384,7 @@ const Home = () => {
                     Document Parsing
                   </Text>
                   <Text
-                    size="4"
+                    size="3"
                     weight="regular"
                     style={{
                       color: "rgba(255, 255, 255, 0.7)",
@@ -393,10 +399,23 @@ const Home = () => {
                   direction="column"
                   gap="8px"
                   className="feature-left-box-item"
+                  onMouseEnter={() => handleLottieHover(notesLottieRef)}
                 >
+                  <Lottie
+                    lottieRef={notesLottieRef}
+                    animationData={notesAnimation}
+                    style={{
+                      width: "48px",
+                      height: "48px",
+                      marginLeft: "-6px",
+                    }}
+                    loop={false}
+                    autoplay={false}
+                  />
                   <Text
-                    size="6"
+                    size="5"
                     weight="medium"
+                    mb="4px"
                     style={{
                       background:
                         "linear-gradient(to right, #fff, rgba(255, 255, 255, 0.8))",
@@ -408,7 +427,7 @@ const Home = () => {
                     Structured Extraction
                   </Text>
                   <Text
-                    size="4"
+                    size="3"
                     weight="regular"
                     style={{
                       color: "rgba(255, 255, 255, 0.7)",
