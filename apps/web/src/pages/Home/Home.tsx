@@ -21,6 +21,7 @@ import segmentationAnimation from "../../assets/animations/segment.json";
 import ocrAnimation from "../../assets/animations/ocr.json";
 import stackingAnimation from "../../assets/animations/stacking.json";
 import extractAnimation from "../../assets/animations/extract.json";
+import parsingAnimation from "../../assets/animations/parsing.json";
 import PricingCard from "../../components/PricingCard/PricingCard";
 import CodeBlock from "../../components/CodeBlock/CodeBlock";
 import BetterButton from "../../components/BetterButton/BetterButton";
@@ -49,6 +50,7 @@ const Home = () => {
   const ocrLottieRef = useRef<LottieRefCurrentProps>(null);
   const stackingLottieRef = useRef<LottieRefCurrentProps>(null);
   const extractLottieRef = useRef<LottieRefCurrentProps>(null);
+  const parsingLottieRef = useRef<LottieRefCurrentProps>(null);
   const curlLottieRef = useRef<LottieRefCurrentProps>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedScript, setSelectedScript] = useState("curl");
@@ -89,6 +91,9 @@ const Home = () => {
     }
     if (curlLottieRef.current) {
       curlLottieRef.current.pause();
+    }
+    if (parsingLottieRef.current) {
+      parsingLottieRef.current.pause();
     }
   }, []);
 
@@ -341,7 +346,49 @@ const Home = () => {
                 <span style={{ color: "#ffffff9b" }}>that can cater to </span>{" "}
                 solo-devs, startups and enterprises.
               </Text>
-              <Flex direction="row" gap="24px" width="100%" justify="between">
+              <Flex direction="row" gap="32px" width="100%" justify="between">
+                <Flex
+                  direction="column"
+                  gap="8px"
+                  className="feature-left-box-item"
+                  onMouseEnter={() => handleLottieHover(parsingLottieRef)}
+                >
+                  <Lottie
+                    lottieRef={parsingLottieRef}
+                    animationData={parsingAnimation}
+                    style={{
+                      width: "56px",
+                      height: "56px",
+                      marginLeft: "-6px",
+                    }}
+                    loop={false}
+                    autoplay={false}
+                  />
+                  <Text
+                    size="6"
+                    weight="medium"
+                    style={{
+                      background:
+                        "linear-gradient(to right, #fff, rgba(255, 255, 255, 0.8))",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    Document Parsing
+                  </Text>
+                  <Text
+                    size="4"
+                    weight="regular"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.7)",
+                      lineHeight: "1.5",
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    Extract text, tables, images and formulas
+                  </Text>
+                </Flex>
                 <Flex
                   direction="column"
                   gap="8px"
@@ -358,7 +405,7 @@ const Home = () => {
                       letterSpacing: "-0.02em",
                     }}
                   >
-                    Document Ingestion
+                    Structured Extraction
                   </Text>
                   <Text
                     size="4"
@@ -369,20 +416,6 @@ const Home = () => {
                       letterSpacing: "-0.01em",
                     }}
                   >
-                    Semantic extraction for text, tables,
-                    <br />
-                    images and formulas
-                  </Text>
-                </Flex>
-                <Flex
-                  direction="column"
-                  gap="8px"
-                  className="feature-left-box-item"
-                >
-                  <Text size="6" weight="medium">
-                    Structured Extraction
-                  </Text>
-                  <Text size="4" weight="regular">
                     Custom schemas to extract specific values
                   </Text>
                 </Flex>
@@ -452,7 +485,7 @@ const Home = () => {
                         active={selectedScript === "curl"}
                       >
                         <Text size="1" weight="bold" className="default-font">
-                          curl
+                          Default
                         </Text>
                       </BetterButton>
                       <BetterButton
@@ -460,7 +493,7 @@ const Home = () => {
                         active={selectedScript === "node"}
                       >
                         <Text size="1" weight="bold" className="default-font">
-                          Node.js
+                          DLA | OCR | VLM
                         </Text>
                       </BetterButton>
                       <BetterButton
@@ -468,7 +501,7 @@ const Home = () => {
                         active={selectedScript === "python"}
                       >
                         <Text size="1" weight="bold" className="default-font">
-                          Python
+                          Page | VLM
                         </Text>
                       </BetterButton>
                     </Flex>
