@@ -133,7 +133,9 @@ terraform destroy
 
 > **Warning**: This will permanently delete all resources created by Terraform.
 
-## S3 Backend Configuration (Optional)
+## Multiple Environments
+
+### S3 Backend Configuration (Optional)
 
 Install AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 
@@ -141,7 +143,7 @@ Install AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-starte
 
 2. Copy the backend configuration example from terraform/{provider}:
    ```bash
-   cp ../backends/backend.example.hcl ../backends/backend.hcl
+   cp ../backend.example.hcl ./backend.hcl
    ```
 
 3. Update the backend.hcl file with your S3 bucket details:
@@ -152,6 +154,28 @@ Install AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-starte
 
 4. Initialize Terraform with your backend:
    ```bash
-   terraform init -backend-config=../backends/backend.hcl
+   terraform init -backend-config=./backend.hcl
    ```
 
+**Other options:**
+
+Migrate local state to backend:
+   ```bash
+   terraform init -backend-config=./backend.hcl -migrate-state
+   ```
+
+Use existing state from s3:
+   ```bash
+   terraform init -backend-config=./backend.hcl -reconfigure
+   ```
+
+### Multiple Environments
+
+1. Create a new terraform.tfvars file
+
+2. Plan and apply the Terraform configuration:
+
+```bash
+terraform plan -var-file="path/to/terraform.tfvars"
+terraform apply -var-file="path/to/terraform.tfvars"
+```

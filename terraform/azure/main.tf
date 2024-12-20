@@ -4,10 +4,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.0"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.0"
-    }
   }
   backend "s3" {}
 }
@@ -72,6 +68,12 @@ variable "gpu_max_vm_count" {
 
 variable "gpu_vm_size" {
   default = "Standard_NC8as_T4_v3"
+}
+
+variable "storage_account_name" {
+  type        = string
+  description = "The name for the storage account"
+  default     = null
 }
 
 variable "container_name" {
@@ -192,16 +194,9 @@ resource "azurerm_subnet_network_security_group_association" "services_nsg_assoc
 ###############################################################
 # Storage Account 
 ###############################################################
-resource "random_string" "storage_suffix" {
-  count   = var.create_storage ? 1 : 0
-  length  = 8
-  special = false
-  upper   = false
-}
-
 resource "azurerm_storage_account" "storage" {
   count                    = var.create_storage ? 1 : 0
-  name                     = "${replace(lower(var.base_name), "-", "")}${random_string.storage_suffix[0].result}"
+  name                     = var.storage_account_name
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
