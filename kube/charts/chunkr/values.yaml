@@ -29,14 +29,14 @@ common:
   standardEnv:
     - name: AUTH__KEYCLOAK_URL
       value: "https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
-    # - name: AWS__ENDPOINT
-    #   value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
-    # - name: AWS__PRESIGNED_URL_ENDPOINT
-    #   value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
-    # - name: AWS__REGION
-    #   value: "us-east-1"
-    # - name: PG__URL
-    #   value: "postgresql://{{ .Values.services.postgres.credentials.username }}:{{ .Values.services.postgres.credentials.password }}@{{- .Release.Name }}-postgres:5432/chunkr"
+    - name: AWS__ENDPOINT
+      value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+    - name: AWS__PRESIGNED_URL_ENDPOINT
+      value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+    - name: AWS__REGION
+      value: "us-east-1"
+    - name: PG__URL
+      value: "postgresql://{{ .Values.services.postgres.credentials.username }}:{{ .Values.services.postgres.credentials.password }}@{{- .Release.Name }}-postgres:5432/chunkr"
     - name: RRQ__URL
       value: "http://{{- .Release.Name }}-rrq:8000"
     - name: REDIS__URL
@@ -334,27 +334,11 @@ services:
       enabled: true
       subdomain: "auth"
     args: ["start-dev", "--import-realm"]
-    env:
-      - name: KEYCLOAK_ADMIN
-        value: "admin"
-      - name: KEYCLOAK_ADMIN_PASSWORD
-        value: "admin"
-      - name: KC_PROXY
-        value: "edge"
-      - name: KC_HOSTNAME
-        value: "{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
-      - name: KC_FEATURES
-        value: "hostname:v2"
-      - name: KC_HOSTNAME_DEBUG
-        value: "true"
-      - name: KC_DB
-        value: "postgres"
-      - name: KC_DB_URL
-        value: "jdbc:postgresql://{{- .Release.Name }}-postgres:5432/keycloak"
-      - name: KC_DB_USERNAME
-        value: "{{ .Values.services.postgres.credentials.username }}"
-      - name: KC_DB_PASSWORD
-        value: "{{ .Values.services.postgres.credentials.password }}"
+    envFrom:
+      - configMapRef:
+          name: keycloak-config
+      - secretRef:
+          name: chunkr-secret
     readinessProbe:
       httpGet:
         path: /realms/master
