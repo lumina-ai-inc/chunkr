@@ -53,7 +53,7 @@ const MODEL_CONFIGS: (ModelConfig & { workers: number })[] = [
   {
     model: "HighQuality",
     ocrStrategy: "Auto",
-    percentage: 60,
+    percentage: 70,
     workers: WORKERS_PER_CONFIG,
     segmentationStrategy: "LayoutAnalysis",
     testType: "standard",
@@ -61,7 +61,7 @@ const MODEL_CONFIGS: (ModelConfig & { workers: number })[] = [
   {
     model: "HighQuality",
     ocrStrategy: "All",
-    percentage: 30,
+    percentage: 20,
     workers: WORKERS_PER_CONFIG,
     segmentationStrategy: "LayoutAnalysis",
     testType: "standard",
