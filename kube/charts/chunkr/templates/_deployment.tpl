@@ -63,21 +63,19 @@ spec:
         args:
         {{- toYaml $service.args | nindent 8 }}
         {{- end }}
-        {{- if or $service.env $service.envFrom (and $service.useStandardEnv $.Values.common.standardEnv) }}
-        {{- if $service.envFrom }}
+        {{- if or $service.useStandardEnv $service.envFrom }}
         envFrom:
-        {{- toYaml $service.envFrom | nindent 8 }}
+        {{- if $service.useStandardEnv }}
+        - configMapRef:
+            name: {{ $.Release.Name }}-standard-env
         {{- end }}
-        env:
-        {{- if and $service.useStandardEnv $.Values.common.standardEnv }}
-        {{- range $.Values.common.standardEnv }}
-        - name: {{ .name }}
-          value: {{ tpl .value $ }}
+        {{- if $service.envFrom }}
+        {{- toYaml $service.envFrom | nindent 8 }}
         {{- end }}
         {{- end }}
         {{- if $service.env }}
+        env:
         {{- tpl (toYaml $service.env) $ | nindent 8 }}
-        {{- end }}
         {{- end }}
         {{- if $service.port }}
         ports:
