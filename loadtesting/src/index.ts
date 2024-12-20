@@ -35,8 +35,8 @@ if (!API_KEY || !API_URL) {
 
 const eventEmitter = new EventEmitter();
 
-const MAX_FILES_TO_PROCESS = 100; // Adjust this value as needed
-const CONCURRENT_REQUESTS_PER_WORKER = 20; // You can adjust this value
+const MAX_FILES_TO_PROCESS = 200; // Adjust this value as needed
+const CONCURRENT_REQUESTS_PER_WORKER = 50; // You can adjust this value
 const WORKERS_PER_CONFIG = 1; // Adjust this number as needed
 const INPUT_FOLDER = path.join(__dirname, "..", "input");
 const OUTPUT_FOLDER = path.join(__dirname, "..", "output");
@@ -53,35 +53,35 @@ const MODEL_CONFIGS: (ModelConfig & { workers: number })[] = [
   {
     model: "HighQuality",
     ocrStrategy: "Auto",
-    percentage: 70,
+    percentage: 100,
     workers: WORKERS_PER_CONFIG,
     segmentationStrategy: "LayoutAnalysis",
     testType: "standard",
   },
-  {
-    model: "HighQuality",
-    ocrStrategy: "All",
-    percentage: 20,
-    workers: WORKERS_PER_CONFIG,
-    segmentationStrategy: "LayoutAnalysis",
-    testType: "standard",
-  },
-  {
-    model: "HighQuality",
-    ocrStrategy: "Auto",
-    percentage: 5,
-    workers: WORKERS_PER_CONFIG,
-    segmentationStrategy: "LayoutAnalysis",
-    testType: "structured",
-  },
-  {
-    model: "HighQuality",
-    ocrStrategy: "Auto",
-    percentage: 5,
-    workers: WORKERS_PER_CONFIG,
-    segmentationStrategy: "Page",
-    testType: "structured",
-  },
+  // {
+  //   model: "HighQuality",
+  //   ocrStrategy: "All",
+  //   percentage: 0,
+  //   workers: WORKERS_PER_CONFIG,
+  //   segmentationStrategy: "LayoutAnalysis",
+  //   testType: "standard",
+  // },
+  // {
+  //   model: "HighQuality",
+  //   ocrStrategy: "Auto",
+  //   percentage: 0,
+  //   workers: WORKERS_PER_CONFIG,
+  //   segmentationStrategy: "LayoutAnalysis",
+  //   testType: "structured",
+  // },
+  // {
+  //   model: "HighQuality",
+  //   ocrStrategy: "Auto",
+  //   percentage: 0,
+  //   workers: WORKERS_PER_CONFIG,
+  //   segmentationStrategy: "Page",
+  //   testType: "structured",
+  // },
 ];
 
 // Save configurations to a txt file
@@ -270,7 +270,11 @@ async function pollTask(
         messageStartTime = currentTime;
       }
 
-      if (task.status === "Succeeded") {
+      if (
+        task.status === "Succeeded" &&
+        task?.output?.chunks &&
+        task.output.chunks.length > 0
+      ) {
         console.log(
           `[DEBUG] Task ${taskId} succeeded. Checking structured conditions:`,
           {
