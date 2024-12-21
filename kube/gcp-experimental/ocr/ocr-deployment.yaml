@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: ocr
-        image: luminainc/ocr:68a05839 
+        image: luminainc/ocr:28f39e26 
         imagePullPolicy: Always
         envFrom:
         - secretRef:
