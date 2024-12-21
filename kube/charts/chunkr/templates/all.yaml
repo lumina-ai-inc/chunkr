@@ -1,3 +1,4 @@
 {{- include "chunkr.deployment" . -}}
 {{- include "chunkr.service" . -}}
 {{- include "chunkr.pvc" . -}}
+{{- include "chunkr.job" . -}}

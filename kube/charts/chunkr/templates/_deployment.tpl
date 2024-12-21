@@ -1,6 +1,6 @@
 {{- define "chunkr.deployment" -}}
 {{- range $name, $service := .Values.services }}
-{{- if $service.enabled }}
+{{- if and $service.enabled (eq ($service.type | default "deployment") "deployment") }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -47,6 +47,11 @@ spec:
       - name: {{ $name }}
         image: "{{ default $.Values.global.image.registry $service.image.registry }}/{{ $service.image.repository }}:{{ $service.image.tag }}"
         imagePullPolicy: {{ $.Values.global.image.pullPolicy }}
+        {{- if $service.lifecycle }}
+        lifecycle:
+          preStop:
+            {{- toYaml $service.lifecycle.preStop | nindent 12 }}
+        {{- end }}
         {{- if $service.livenessProbe }}
         livenessProbe:
           {{- toYaml $service.livenessProbe | nindent 10 }}
