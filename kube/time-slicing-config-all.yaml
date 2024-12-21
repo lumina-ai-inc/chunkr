@@ -11,4 +11,4 @@ data:
       timeSlicing:
         resources:
         - name: nvidia.com/gpu
-          replicas: 3
+          replicas: 20
