@@ -23,16 +23,16 @@ ingress:
         - name: "chunkr"
         - name: "keycloak"
         - name: "web"
-        - name: "s3proxy"
+        - name: "minio"
 
 common:
   standardEnv:
     - name: AUTH__KEYCLOAK_URL
       value: "https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}"
     - name: AWS__ENDPOINT
-      value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+      value: 'http://{{- .Release.Name }}-minio:9000'
     - name: AWS__PRESIGNED_URL_ENDPOINT
-      value: '{{ if eq .Values.global.s3provider "azure" }}https://{{ .Values.services.s3proxy.ingress.subdomain }}.{{ .Values.ingress.domain }}{{ else }}https://s3.amazonaws.com{{ end }}'
+      value: 'https://{{ .Values.services.minio.ingress.subdomain }}.{{ .Values.ingress.domain }}'
     - name: AWS__REGION
       value: "us-east-1"
     - name: PG__URL
@@ -56,8 +56,7 @@ global:
   image:
     registry: luminainc
     pullPolicy: Always
-  s3provider: "filesystem"
-
+    
   # Shared GPU configuration
   gpuWorkload:
     affinity:
@@ -416,60 +415,32 @@ services:
       initialDelaySeconds: 5
       periodSeconds: 5
 
-  # S3 proxy for azure blob storage
-  s3proxy:
-    enabled: "{{ or (eq .Values.global.s3provider \"azure\") (eq .Values.global.s3provider \"filesystem\") }}"
+  minio:
+    enabled: true
     image:
-      repository: s3proxy
+      repository: minio/minio
       tag: "latest"
-      registry: andrewgaul
-    port: 8080
-    targetPort: 8080
+      registry: docker.io
+    port: 9000
+    consolePort: 9001
+    targetPort: 9000
     ingress:
       enabled: true
       subdomain: "s3"
-    strategy:
-      type: Recreate   
     env:
-      - name: S3PROXY_AUTHORIZATION
-        value: none
-      - name: S3_PROXY_CORS_ALLOW_ALL
-        value: "true"
-      - name: S3PROXY_ENDPOINT
-        value: "http://0.0.0.0:8080"
-      - name: S3PROXY_IDENTITY
+      - name: MINIO_ROOT_USER
         valueFrom:
           secretKeyRef:
             name: chunkr-secret
             key: AWS__ACCESS_KEY
-      - name: S3PROXY_CREDENTIAL
+      - name: MINIO_ROOT_PASSWORD
         valueFrom:
           secretKeyRef:
             name: chunkr-secret
             key: AWS__SECRET_KEY
-      - name: JCLOUDS_PROVIDER
-        value: '{{ if eq .Values.global.s3provider "azure" }}azureblob{{ else }}filesystem{{ end }}'
-      - name: JCLOUDS_FILESYSTEM_BASEDIR
-        value: '{{ if eq .Values.global.s3provider "filesystem" }}/data{{ end }}'
-      - name: JCLOUDS_AZUREBLOB_AUTH
-        value: '{{ if eq .Values.global.s3provider "azure" }}azureKey{{ end }}'
-      - name: JCLOUDS_ENDPOINT
-        valueFrom:
-          secretKeyRef:
-            name: chunkr-secret
-            key: JCLOUDS_ENDPOINT
-      - name: JCLOUDS_IDENTITY
-        valueFrom:
-          secretKeyRef:
-            name: chunkr-secret
-            key: AWS__ACCESS_KEY
-      - name: JCLOUDS_CREDENTIAL
-        valueFrom:
-          secretKeyRef:
-            name: chunkr-secret
-            key: AWS__SECRET_KEY
+    args: ["server", "/data", "--console-address", ":9001"]
     persistence:
-      name: s3proxy-data
+      name: minio-data
       enabled: true
       size: 100Gi
       storageClassName: "default" 
@@ -478,12 +449,54 @@ services:
       annotations:
         "helm.sh/resource-policy": keep
     volumes:
-      - name: s3proxy-data
+      - name: minio-data
         persistentVolumeClaim:
-          claimName: s3proxy-data
+          claimName: minio-data
     volumeMounts:
-      - name: s3proxy-data
+      - name: minio-data
         mountPath: /data
+    livenessProbe:
+      httpGet:
+        path: /minio/health/live
+        port: 9000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /minio/health/live
+        port: 9000
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
+  minio-init:
+    enabled: true
+    type: job
+    backoffLimit: 4
+    image:
+      repository: minio/mc
+      tag: "latest"
+      registry: docker.io
+    command: ["/bin/sh", "/config/init.sh"]
+    env:
+      - name: MINIO_ROOT_USER
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__ACCESS_KEY
+      - name: MINIO_ROOT_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: AWS__SECRET_KEY
+    volumes:
+      - name: init-script
+        configMap:
+          name: minio-init-config
+    volumeMounts:
+      - name: init-script
+        mountPath: /config
+    podSpec:
+      restartPolicy: OnFailure
 
   postgres:
     enabled: true
@@ -510,22 +523,6 @@ services:
       limits:
         memory: "4Gi"
         cpu: "6000m"
-    initContainers:
-      - name: init-chmod-data
-        image: busybox
-        command: 
-          - /bin/sh
-          - -c
-          - |
-            mkdir -p /var/lib/postgresql/data/pgdata /var/run/postgresql
-            chmod -R 700 /var/lib/postgresql/data/pgdata /var/run/postgresql
-            chown -R 999:999 /var/lib/postgresql/data/pgdata /var/run/postgresql
-        volumeMounts:
-          - name: data
-            mountPath: /var/lib/postgresql/data
-        securityContext:
-          runAsUser: 0
-          privileged: true
     persistence:
       name: postgres-data
       enabled: true
@@ -562,4 +559,11 @@ services:
         port: 5432
       initialDelaySeconds: 5
       periodSeconds: 5
+    lifecycle:
+      preStop:
+        exec:
+          command: 
+            - "/bin/sh"
+            - "-c"
+            - "pg_ctl -D /var/lib/postgresql/data -w -t 60 -m fast stop"
 

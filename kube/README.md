@@ -115,7 +115,7 @@ helm install chunkr ./charts/chunkr \
   --set "services.web.ingress.subdomain=chunkr" \
   --set "services.chunkr.ingress.subdomain=chunkr-api" \
   --set "services.keycloak.ingress.subdomain=chunkr-auth" \
-  --set "services.s3proxy.ingress.subdomain=chunkr-s3" \
+  --set "services.minio.ingress.subdomain=chunkr-s3" \
   --set ingress.type=cloudflare \
   --set cloudflared.enabled=true \
   --set cloudflared.config.tunnelName=YOUR_TUNNEL_NAME
@@ -157,35 +157,19 @@ helm uninstall chunkr --namespace chunkr
 ## External providers
 
 ### S3 provider
+By default, the S3 provider is set to MinIO. 
 You must set the credentials for the external S3 provider in the chunkr-secret.yaml file.
 
-**AWS S3:**
-
 ```bash
+# Update the chunkr-secret.yaml file with the credentials for the external S3 provider
+AWS__ACCESS_KEY=
+AWS__SECRET_KEY=
+AWS__ENDPOINT=
+
+# Disable MinIO
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --set global.s3provider=aws \
-  --set services.s3proxy.enabled=false
-```
-
-**GCP Storage (with Interoperability):**
-
-```bash
-helm upgrade chunkr ./charts/chunkr \
-  --namespace chunkr \
-  --set global.s3provider=gcp \
-  --set services.s3proxy.enabled=false
-```
-
-**Azure Blob Storage:**
-
-```bash
-# Set the JCLOUDS_ENDPOINT in the chunkr-secret.yaml file
-
-helm upgrade chunkr ./charts/chunkr \
-  --namespace chunkr \
-  --set global.s3provider=azure \
-  --set services.s3proxy.persistence.enabled=false
+  --set services.minio.enabled=false
 ```
 
 ### Postgres
