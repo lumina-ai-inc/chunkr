@@ -192,9 +192,9 @@ helm upgrade chunkr ./charts/chunkr \
   --set "common.standardEnv[6].value=redis://your-external-redis:6379"
 ```
 
-### GPU Compatibility
+## GPU Compatibility
 
-The embeddings service supports different GPU architectures through specific Docker images. By default, it uses the Turing architecture (T4, RTX 2000 series, etc) with image `ghcr.io/huggingface/text-embeddings-inference:turing-1.5` (experimental).
+The embeddings service supports different GPU architectures through specific Docker images. By default, it uses the Ampere 80 architecture (A100, A30, etc) with image `ghcr.io/huggingface/text-embeddings-inference:1.5`.
 
 For the most up-to-date information about supported GPU architectures and their corresponding image tags, please refer to [Text Embeddings Inference Supported Models Documentation](https://huggingface.co/docs/text-embeddings-inference/supported_models#supported-hardware)
 
@@ -203,5 +203,5 @@ Example upgrade with GPU-specific image tag:
 ```bash
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-  --set services.embeddings.image.tag=1.5  # Replace with your GPU-specific tag
+  --set services.embeddings.image.tag=turing-1.6  # Replace with your GPU-specific tag
 ```

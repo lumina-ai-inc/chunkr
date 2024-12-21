@@ -265,7 +265,7 @@ services:
     enabled: true
     image:
       repository: text-embeddings-inference
-      tag: "turing-1.5"
+      tag: "1.6"
       registry: ghcr.io/huggingface
     port: 8000
     targetPort: 80
