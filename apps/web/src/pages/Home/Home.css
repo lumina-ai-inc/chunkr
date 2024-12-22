@@ -437,10 +437,10 @@
 
 :root {
   --primary-color-rgb: 142, 236, 245; /* Ethereal turquoise from clouds */
-  --secondary-color-rgb: 255, 225, 155; /* Warm moonlight */
+  --secondary-color-rgb: 47, 201, 126; /* Green color */
 }
 
-.features-gradient-background {
+/* .features-gradient-background {
   position: absolute;
   top: -30%;
   left: -90%;
@@ -455,11 +455,11 @@
   );
   pointer-events: none;
   filter: blur(80px);
-  opacity: 0.6;
+  opacity: 0.8;
   z-index: 0;
   animation: gradientFloat 12s ease-in-out infinite;
   transform-origin: center center;
-}
+} */
 
 @keyframes gradientFloat {
   0% {
@@ -507,11 +507,9 @@
 }
 
 .feature-left-box-item {
-  border: 1px solid rgba(255, 255, 255, 0.2);
   width: calc(50% - 12px);
-  border-radius: 12px;
+  border-radius: 0px;
   padding: 24px;
-  background: rgba(28, 54, 105, 0.03);
   backdrop-filter: blur(12px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -526,12 +524,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  border-radius: 11px;
-  padding: 1px;
+  border-radius: 0px;
+  padding: 6px;
   background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.3),
-    rgba(255, 255, 255, 0.05)
+    90deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0) 1%
   );
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
@@ -542,16 +540,15 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
+  transition: all 0.1s ease;
+}
+
+.feature-left-box-item:hover::before {
+  padding: 1.5px;
 }
 
 .feature-left-box-item:hover {
   transform: translateY(-2px);
-  background: rgba(28, 54, 105, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 8px 20px rgba(0, 0, 0, 0.35),
-    0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
@@ -565,8 +562,8 @@
   height: 40px;
   background: radial-gradient(
     ellipse at center,
-    rgba(28, 54, 105, 0.15) 0%,
-    rgba(28, 54, 105, 0) 70%
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0) 70%
   );
   pointer-events: none;
   transition: all 0.3s ease;
@@ -601,11 +598,12 @@
   right: 0;
   bottom: 0;
   border-radius: 8px;
-  padding: 2px;
+  padding: 1px;
   background: linear-gradient(
     to bottom,
-    hsla(0, 0%, 100%, 1),
-    hsla(128, 13%, 88%, 0)
+    hsla(0, 0%, 100%, 1) 0%,
+    hsla(0, 0%, 100%, 0.6) 50%,
+    hsla(0, 0%, 100%, 0.4) 100%
   );
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
@@ -741,22 +739,50 @@
 .functionality-box {
   background-color: #050609;
   border-radius: 8px;
-  overflow: hidden;
-  -webkit-mask-image: -webkit-radial-gradient(white, black);
-  mask-image: radial-gradient(white, black);
-  backface-visibility: hidden;
-  height: 25%;
+  height: fit-content; /* Fixed height */
   position: relative;
   overflow: hidden;
-  display: flex;
-  padding: 16px;
-  -webkit-backface-visibility: hidden;
-  -moz-backface-visibility: hidden;
-  backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-  perspective: 1000;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+.functionality-box-content {
+  position: relative;
+  z-index: 2;
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.functionality-box-animation {
+  position: absolute;
+  bottom: -42px;
+  right: 16px;
+  transition: all 0.3s ease;
+}
+
+.functionality-box:hover .functionality-box-animation {
+  bottom: 50%;
+  transform: translateY(50%);
+  right: 16px;
+}
+
+/* Update existing styles */
+.functionality-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to right,
+    hsla(225, 29%, 3%, 1),
+    hsla(0, 0%, 0%, 0.5)
+  );
+  z-index: 1;
+  transition: opacity 0.3s ease;
 }
 
 .code-container {
@@ -1291,4 +1317,24 @@
   appearance: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+.features-grid {
+  width: 100%;
+}
+
+.features-grid .functionality-box {
+  flex: 1;
+  min-width: 0; /* Prevents flex items from overflowing */
+}
+
+/* Add responsive styling */
+@media (max-width: 768px) {
+  .features-grid {
+    flex-direction: column !important;
+  }
+
+  .features-grid .functionality-box {
+    width: 100%;
+  }
 }
