@@ -1,4 +1,5 @@
 pub mod auth_config;
+pub mod expiration_config;
 pub mod github_config;
 pub mod llm_config;
 pub mod pdfium_config;

@@ -3,7 +3,8 @@ use crate::models::{
     server::extract::{Configuration, ExtractionPayload},
     server::task::{Status, TaskResponse},
 };
-use crate::utils::configs::worker_config::Config;
+use crate::utils::configs::expiration_config::Config as ExpirationConfig;
+use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::services::payload::produce_extraction_payloads;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
@@ -25,7 +26,6 @@ pub async fn create_task(
     configuration: &Configuration,
 ) -> Result<TaskResponse, Box<dyn Error>> {
     let start_time = Instant::now();
-
     let task_id = Uuid::new_v4().to_string();
     let user_id = user_info.user_id.clone();
     let api_key = user_info.api_key.clone();
@@ -34,15 +34,17 @@ pub async fn create_task(
     let target_chunk_length = configuration.target_chunk_length.unwrap_or(512);
     let created_at = Utc::now();
     let client: Client = pool.get().await?;
-    let config = Config::from_env()?;
-    let expiration = config.task_expiration;
-    let expiration_time: Option<DateTime<Utc>> = expiration.map(|exp| Utc::now() + exp);
-    let bucket_name = config.s3_bucket;
-    let ingest_batch_size = config.batch_size;
-    let base_url = config.server_url;
+    let worker_config = WorkerConfig::from_env()?;
+    let expiration_config = ExpirationConfig::from_env()?;
+    let expires_in: Option<i32> = configuration.expires_in.or(expiration_config.time);
+    let expiration_time: Option<DateTime<Utc>> =
+        expires_in.map(|seconds| Utc::now() + chrono::Duration::seconds(seconds as i64));
+    let bucket_name = worker_config.s3_bucket;
+    let ingest_batch_size = worker_config.batch_size;
+    let base_url = worker_config.server_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
-    let final_output_path: PathBuf = PathBuf::from(file.file.path());
+    let file_path: PathBuf = PathBuf::from(file.file.path());
 
     let page_count: i32 = 0;
     let file_size = file.size;
@@ -72,7 +74,7 @@ pub async fn create_task(
 
     let message = "Task queued".to_string();
 
-    match upload_to_s3(s3_client, &input_location, &final_output_path).await {
+    match upload_to_s3(s3_client, &input_location, &file_path).await {
         Ok(_) => {
             let configuration_json = serde_json::to_string(configuration)?;
 
@@ -133,7 +135,6 @@ pub async fn create_task(
                 pdf_location: pdf_location.clone(),
                 output_location,
                 image_folder_location,
-                expiration: None,
                 batch_size: Some(ingest_batch_size),
                 task_id: task_id.clone(),
                 target_chunk_length: Some(target_chunk_length),
@@ -142,7 +143,9 @@ pub async fn create_task(
                 page_count: Some(page_count),
             };
 
-            match produce_extraction_payloads(config.queue_preprocess, extraction_payload).await {
+            match produce_extraction_payloads(worker_config.queue_preprocess, extraction_payload)
+                .await
+            {
                 Ok(_) => {
                     println!(
                         "Time taken to produce extraction payloads: {:?}",
