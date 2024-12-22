@@ -6,8 +6,6 @@ import "./Home.css";
 import Header from "../../components/Header/Header";
 // import UploadMain from "../../components/Upload/UploadMain";
 import Footer from "../../components/Footer/Footer";
-// import heroImageWebp from "../../assets/hero/hero-image.webp";
-// import heroImageJpg from "../../assets/hero/hero-image-85-p.jpg";
 import Lottie from "lottie-react";
 import { LottieRefCurrentProps } from "lottie-react";
 import timerAnimation from "../../assets/animations/timer.json";
@@ -16,7 +14,6 @@ import bargraphAnimation from "../../assets/animations/bargraph.json";
 import codeAnimation from "../../assets/animations/code.json";
 import secureAnimation from "../../assets/animations/secure.json";
 import rustAnimation from "../../assets/animations/rust.json";
-import curlAnimation from "../../assets/animations/curl.json";
 import segmentationAnimation from "../../assets/animations/segment.json";
 import ocrAnimation from "../../assets/animations/ocr.json";
 import stackingAnimation from "../../assets/animations/stacking.json";
@@ -328,14 +325,17 @@ const Home = () => {
               maxWidth: "1386px",
               height: "100%",
               margin: "0 auto",
+              marginTop: "24px",
               padding: "24px",
-              paddingTop: "72px",
-              paddingBottom: "72px",
               position: "relative",
               zIndex: 1,
             }}
           >
-            <Flex direction="row" gap="32px" className="features-grid">
+            <Flex
+              direction="row"
+              gap="32px"
+              className="features-grid features-grid-up"
+            >
               <Flex
                 direction="column"
                 className="functionality-box functionality-box-segmentation-image"
@@ -422,7 +422,7 @@ const Home = () => {
               direction="row"
               gap="32px"
               mt="32px"
-              className="features-grid"
+              className="features-grid features-grid-down"
             >
               <Flex
                 direction="column"
@@ -528,6 +528,7 @@ const Home = () => {
               maxWidth: "1386px",
               height: "100%",
               margin: "0 auto",
+              marginTop: "160px",
               padding: "72px 24px",
               position: "relative",
               zIndex: 1,
@@ -752,6 +753,7 @@ const Home = () => {
               height: "100%",
               margin: "0 auto",
               padding: "24px",
+              marginTop: "160px",
             }}
           >
             <Flex direction="column" px="24px" align="center" justify="center">
