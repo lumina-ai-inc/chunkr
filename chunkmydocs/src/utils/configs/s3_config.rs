@@ -10,7 +10,6 @@ pub struct Config {
     access_key: String,
     #[serde(default = "default_endpoint")]
     pub endpoint: String,
-    #[serde(default = "default_presigned_url_endpoint")]
     pub presigned_url_endpoint: Option<String>,
     region: String,
     secret_key: String,
@@ -20,10 +19,6 @@ pub struct ExternalS3Client(pub Client);
 
 fn default_endpoint() -> String {
     "https://s3.amazonaws.com".to_string()
-}
-
-fn default_presigned_url_endpoint() -> Option<String> {
-    None
 }
 
 impl Config {
