@@ -318,6 +318,206 @@ const Home = () => {
             </div>
           </div>
         </Flex>
+        <Flex className="features-container" direction="column" gap="24px">
+          <Flex
+            direction="column"
+            align="center"
+            justify="between"
+            style={{
+              width: "100%",
+              maxWidth: "1386px",
+              height: "100%",
+              margin: "0 auto",
+              padding: "24px",
+              paddingTop: "72px",
+              paddingBottom: "72px",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <Flex direction="row" gap="32px" className="features-grid">
+              <Flex
+                direction="column"
+                className="functionality-box functionality-box-segmentation-image"
+                onMouseEnter={() => handleLottieHover(segmentationLottieRef)}
+              >
+                <div className="functionality-box-content">
+                  <Flex className="tag-container">
+                    <Text
+                      size="1"
+                      weight="regular"
+                      style={{ color: "#ffffff" }}
+                    >
+                      Semantic Segmentation
+                    </Text>
+                  </Flex>
+
+                  <Text
+                    size="8"
+                    mt="16px"
+                    weight="medium"
+                    className="white"
+                    style={{ maxWidth: "380px" }}
+                  >
+                    Bounding boxes + tagging{" "}
+                    <span style={{ color: "#ffffff9b" }}>
+                      for 11 categories
+                    </span>
+                  </Text>
+
+                  <div className="functionality-box-animation">
+                    <Lottie
+                      lottieRef={segmentationLottieRef}
+                      animationData={segmentationAnimation}
+                      style={{ width: "160px", height: "160px" }}
+                      loop={false}
+                      autoplay={false}
+                    />
+                  </div>
+                </div>
+              </Flex>
+
+              <Flex
+                direction="column"
+                className="functionality-box functionality-box-ocr-image"
+                onMouseEnter={() => handleLottieHover(ocrLottieRef)}
+              >
+                <div className="functionality-box-content">
+                  <Flex className="tag-container">
+                    <Text
+                      size="1"
+                      weight="regular"
+                      style={{ color: "#ffffff" }}
+                    >
+                      Intelligent Post-processing
+                    </Text>
+                  </Flex>
+
+                  <Text
+                    size="8"
+                    mt="16px"
+                    weight="medium"
+                    className="white"
+                    style={{ maxWidth: "360px" }}
+                  >
+                    VLMs{" "}
+                    <span style={{ color: "#ffffff9b" }}>& specialized </span>
+                    OCR models
+                  </Text>
+
+                  <div className="functionality-box-animation">
+                    <Lottie
+                      lottieRef={ocrLottieRef}
+                      animationData={ocrAnimation}
+                      style={{ width: "160px", height: "160px" }}
+                      loop={false}
+                      autoplay={false}
+                    />
+                  </div>
+                </div>
+              </Flex>
+            </Flex>
+
+            <Flex
+              direction="row"
+              gap="32px"
+              mt="32px"
+              className="features-grid"
+            >
+              <Flex
+                direction="column"
+                className="functionality-box functionality-box-outputs-image"
+                onMouseEnter={() => handleLottieHover(stackingLottieRef)}
+              >
+                <div className="functionality-box-content">
+                  <Flex className="tag-container">
+                    <Text
+                      size="1"
+                      weight="regular"
+                      style={{ color: "#ffffff" }}
+                    >
+                      Ready-to-go chunks
+                    </Text>
+                  </Flex>
+
+                  <Text
+                    size="8"
+                    mt="16px"
+                    weight="medium"
+                    className="white"
+                    style={{ maxWidth: "360px" }}
+                  >
+                    HTML <span style={{ color: "#ffffff9b" }}> | </span>
+                    Markdown <span style={{ color: "#ffffff9b" }}> | </span>
+                    OCR <span style={{ color: "#ffffff9b" }}> | </span>
+                    Segment Images
+                  </Text>
+
+                  <div className="functionality-box-animation">
+                    <Lottie
+                      lottieRef={stackingLottieRef}
+                      animationData={stackingAnimation}
+                      style={{ width: "160px", height: "160px" }}
+                      loop={false}
+                      autoplay={false}
+                    />
+                  </div>
+                </div>
+              </Flex>
+
+              <Flex
+                direction="column"
+                className="functionality-box functionality-box-structuredextraction-image"
+                onMouseEnter={() => handleLottieHover(extractLottieRef)}
+              >
+                <div className="functionality-box-content">
+                  <Flex direction="row" gap="8px">
+                    <Flex className="tag-container">
+                      <Text
+                        size="1"
+                        weight="regular"
+                        style={{ color: "#ffffff" }}
+                      >
+                        Structured Extraction
+                      </Text>
+                    </Flex>
+                    <Flex className="tag-container">
+                      <Text
+                        size="1"
+                        weight="regular"
+                        style={{ color: "#ffffff" }}
+                      >
+                        New!
+                      </Text>
+                    </Flex>
+                  </Flex>
+
+                  <Text
+                    size="8"
+                    mt="16px"
+                    weight="medium"
+                    className="white"
+                    style={{ maxWidth: "360px" }}
+                  >
+                    Custom schemas
+                    <span style={{ color: "#ffffff9b" }}> to extract </span>
+                    specific values
+                  </Text>
+
+                  <div className="functionality-box-animation">
+                    <Lottie
+                      lottieRef={extractLottieRef}
+                      animationData={extractAnimation}
+                      style={{ width: "160px", height: "160px" }}
+                      loop={false}
+                      autoplay={false}
+                    />
+                  </div>
+                </div>
+              </Flex>
+            </Flex>
+          </Flex>
+        </Flex>
         <div className="features-container">
           <div className="features-gradient-background" />
           <Flex
@@ -328,9 +528,7 @@ const Home = () => {
               maxWidth: "1386px",
               height: "100%",
               margin: "0 auto",
-              padding: "24px",
-              paddingTop: "72px",
-              paddingBottom: "72px",
+              padding: "72px 24px",
               position: "relative",
               zIndex: 1,
             }}
@@ -541,150 +739,10 @@ const Home = () => {
                   />
                 </div>
               </div>
-
-              {/* <Flex
-                direction="column"
-                className="functionality-box functionality-box-segmentation-image "
-                onMouseEnter={() => handleLottieHover(segmentationLottieRef)}
-              >
-                <Flex className="tag-container">
-                  <Text size="1" weight="regular" style={{ color: "#ffffff" }}>
-                    Semantic Segmentation
-                  </Text>
-                </Flex>
-                <Text
-                  size="6"
-                  mt="16px"
-                  weight="medium"
-                  className="white"
-                  style={{ maxWidth: "280px" }}
-                >
-                  Bounding boxes + tagging{" "}
-                  <span style={{ color: "#ffffff9b" }}>for 11 categories</span>
-                </Text>
-                <Flex className="feature-right-box-image">
-                  <Lottie
-                    lottieRef={segmentationLottieRef}
-                    animationData={segmentationAnimation}
-                    style={{ width: "112px", height: "112px" }}
-                    loop={false}
-                    autoplay={false}
-                  />
-                </Flex>
-              </Flex>
-              <Flex
-                direction="column"
-                className="functionality-box functionality-box-ocr-image "
-                onMouseEnter={() => handleLottieHover(ocrLottieRef)}
-              >
-                <Flex className="tag-container">
-                  <Text size="1" weight="regular" style={{ color: "#ffffff" }}>
-                    Intelligent Post-processing
-                  </Text>
-                </Flex>
-                <Text
-                  size="6"
-                  mt="16px"
-                  weight="medium"
-                  className="white"
-                  style={{ maxWidth: "250px" }}
-                >
-                  VLMs{" "}
-                  <span style={{ color: "#ffffff9b" }}>& specialized </span>
-                  OCR models
-                </Text>
-                <Flex className="feature-right-box-image">
-                  <Lottie
-                    lottieRef={ocrLottieRef}
-                    animationData={ocrAnimation}
-                    style={{ width: "112px", height: "112px" }}
-                    loop={false}
-                    autoplay={false}
-                  />
-                </Flex>
-              </Flex>
-              <Flex
-                direction="column"
-                className="functionality-box functionality-box-outputs-image "
-                onMouseEnter={() => handleLottieHover(stackingLottieRef)}
-              >
-                <Flex className="tag-container">
-                  <Text size="1" weight="regular" style={{ color: "#ffffff" }}>
-                    Ready-to-go chunks
-                  </Text>
-                </Flex>
-                <Text
-                  size="6"
-                  mt="16px"
-                  weight="medium"
-                  className="white"
-                  style={{ maxWidth: "250px" }}
-                >
-                  HTML <span style={{ color: "#ffffff9b" }}> | </span>
-                  Markdown <span style={{ color: "#ffffff9b" }}> | </span>
-                  OCR <span style={{ color: "#ffffff9b" }}> | </span>
-                  Segment Images
-                </Text>
-                <Flex className="feature-right-box-image">
-                  <Lottie
-                    lottieRef={stackingLottieRef}
-                    animationData={stackingAnimation}
-                    style={{ width: "112px", height: "112px" }}
-                    loop={false}
-                    autoplay={false}
-                  />
-                </Flex>
-              </Flex>
-              <Flex
-                direction="column"
-                className="functionality-box functionality-box-structuredextraction-image "
-                onMouseEnter={() => handleLottieHover(extractLottieRef)}
-              >
-                <Flex direction="row" gap="8px">
-                  <Flex className="tag-container">
-                    <Text
-                      size="1"
-                      weight="regular"
-                      style={{ color: "#ffffff" }}
-                    >
-                      Structured Extraction
-                    </Text>
-                  </Flex>
-                  <Flex className="tag-container">
-                    <Text
-                      size="1"
-                      weight="regular"
-                      style={{ color: "#ffffff" }}
-                    >
-                      New!
-                    </Text>
-                  </Flex>
-                </Flex>
-
-                <Text
-                  size="6"
-                  mt="16px"
-                  weight="medium"
-                  className="white"
-                  style={{ maxWidth: "250px" }}
-                >
-                  Custom schemas
-                  <span style={{ color: "#ffffff9b" }}> to extract </span>
-                  specific values
-                </Text>
-                <Flex className="feature-right-box-image">
-                  <Lottie
-                    lottieRef={extractLottieRef}
-                    animationData={extractAnimation}
-                    style={{ width: "112px", height: "112px" }}
-                    loop={false}
-                    autoplay={false}
-                  />
-                </Flex>
-              </Flex> */}
             </Flex>
           </Flex>
         </div>
+
         <div className="features-container">
           <Flex
             direction="column"
