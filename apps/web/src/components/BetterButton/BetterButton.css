@@ -1,25 +1,24 @@
 .button-resting {
+  box-sizing: border-box;
   width: fit-content;
   height: fit-content;
-  border: 1px solid hsla(0, 0%, 100%, 0.2);
-  background-color: #05060900;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
   color: inherit;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  border-radius: 4px;
   cursor: pointer;
   padding: 4px 10px;
-  transition:
-    background-color 0.2s ease-in-out,
-    border 0.2s ease-in-out,
-    color 0.2s ease-in-out;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
 .button-resting:hover {
-  background-color: hsla(0, 0%, 100%, 0.1);
-  border: 1px solid hsla(0, 0%, 100%, 0.5);
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .button-resting:hover > span {
@@ -27,17 +26,16 @@
 }
 
 .button-active {
-  /* You can decide how to style the active state */
-  background: #050609;
-  border: 1px solid var(--cyan-2);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.02);
 }
 
 .button-active:hover {
-  background: #050609;
-  border: 1px solid var(--cyan-2);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.02);
 }
 
-/* Remove unused styles */
 .button-resting:focus {
   outline: none;
 }
