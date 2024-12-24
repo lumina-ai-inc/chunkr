@@ -1157,7 +1157,7 @@ const Home = () => {
               />
 
               <PricingCard
-                title="Hobby"
+                title="Dev"
                 credits={10000}
                 price={49}
                 period="month"
@@ -1170,7 +1170,7 @@ const Home = () => {
               />
 
               <PricingCard
-                title="Dev"
+                title="Startup"
                 credits={150000}
                 price={249}
                 period="month"
@@ -1183,7 +1183,7 @@ const Home = () => {
               />
 
               <PricingCard
-                title="Startup"
+                title="Enterprise"
                 credits={500000}
                 price={449}
                 period="month"
