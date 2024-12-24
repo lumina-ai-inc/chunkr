@@ -27,6 +27,7 @@ import {
   curlExample,
   nodeExample,
   pythonExample,
+  rustExample,
 } from "../../components/CodeBlock/exampleScripts";
 
 const Home = () => {
@@ -137,12 +138,14 @@ const Home = () => {
     curl: curlExample,
     node: nodeExample,
     python: pythonExample,
+    rust: rustExample,
   };
 
   const languageMap = {
     curl: "bash",
     node: "javascript",
     python: "python",
+    rust: "rust",
   };
 
   const startTyping = () => {
@@ -213,6 +216,59 @@ const Home = () => {
     }
   };
 
+  const FeatureBox = ({
+    icon,
+    title,
+    description,
+    onMouseEnter,
+  }: {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    onMouseEnter?: () => void;
+  }) => {
+    return (
+      <Flex
+        direction="column"
+        className="feature-bottom-box"
+        onMouseEnter={onMouseEnter}
+      >
+        <Flex
+          align="center"
+          justify="center"
+          className="feature-bottom-box-icon"
+        >
+          {icon}
+        </Flex>
+
+        <Text
+          size="6"
+          weight="bold"
+          style={{
+            color: "white",
+            marginTop: "28px",
+            transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+          className="feature-box-title"
+        >
+          {title}
+        </Text>
+        <Text
+          size="3"
+          weight="medium"
+          style={{
+            color: "rgba(255, 255, 255, 0.7)",
+            marginTop: "12px",
+            transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+          className="feature-box-description"
+        >
+          {description}
+        </Text>
+      </Flex>
+    );
+  };
+
   return (
     <Flex
       direction="column"
@@ -259,7 +315,7 @@ const Home = () => {
                 mb="16px"
                 align="center"
               >
-                Open Source Document Ingestion
+                Open Source AI Document Intelligence
               </Text>
               <Text
                 weight="medium"
@@ -267,7 +323,7 @@ const Home = () => {
                 className="hero-description"
                 align="center"
               >
-                API service to turn complex documents into RAG/LLM-ready data
+                API service to turn complex documents into machine-readable data
               </Text>
 
               <Flex
@@ -296,12 +352,51 @@ const Home = () => {
             <div className="hero-content">
               <div className="placeholder-window">
                 <div className="window-header">
-                  <div className="window-controls">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                  <div className="window-title">Document Processing</div>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Finance
+                    </Text>
+                  </BetterButton>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Legal
+                    </Text>
+                  </BetterButton>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Scientific
+                    </Text>
+                  </BetterButton>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Healthcare
+                    </Text>
+                  </BetterButton>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Manufacturing
+                    </Text>
+                  </BetterButton>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Government
+                    </Text>
+                  </BetterButton>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Magazines
+                    </Text>
+                  </BetterButton>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Textbooks
+                    </Text>
+                  </BetterButton>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Newspapers
+                    </Text>
+                  </BetterButton>
                 </div>
                 <div className="window-content">
                   <div className="loading-animation">
@@ -355,12 +450,11 @@ const Home = () => {
                   <Text
                     size="8"
                     mt="16px"
-                    weight="medium"
                     className="white"
-                    style={{ maxWidth: "380px" }}
+                    style={{ maxWidth: "380px", fontWeight: "600" }}
                   >
                     Bounding boxes + tagging{" "}
-                    <span style={{ color: "#ffffff9b" }}>
+                    <span style={{ color: "#ffffffcd" }}>
                       for 11 categories
                     </span>
                   </Text>
@@ -374,6 +468,12 @@ const Home = () => {
                       autoplay={false}
                     />
                   </div>
+
+                  <Flex className="learn-more-tag">
+                    <Text size="2" weight="medium" style={{ color: "#ffffff" }}>
+                      Learn More →
+                    </Text>
+                  </Flex>
                 </div>
               </Flex>
 
@@ -389,19 +489,18 @@ const Home = () => {
                       weight="regular"
                       style={{ color: "#ffffff" }}
                     >
-                      Intelligent Post-processing
+                      AI Powered Processing
                     </Text>
                   </Flex>
 
                   <Text
                     size="8"
                     mt="16px"
-                    weight="medium"
                     className="white"
-                    style={{ maxWidth: "360px" }}
+                    style={{ maxWidth: "360px", fontWeight: "600" }}
                   >
                     VLMs{" "}
-                    <span style={{ color: "#ffffff9b" }}>& specialized </span>
+                    <span style={{ color: "#ffffffcd" }}>& specialized </span>
                     OCR models
                   </Text>
 
@@ -414,6 +513,12 @@ const Home = () => {
                       autoplay={false}
                     />
                   </div>
+
+                  <Flex className="learn-more-tag">
+                    <Text size="2" weight="medium" style={{ color: "#ffffff" }}>
+                      Learn More →
+                    </Text>
+                  </Flex>
                 </div>
               </Flex>
             </Flex>
@@ -436,20 +541,19 @@ const Home = () => {
                       weight="regular"
                       style={{ color: "#ffffff" }}
                     >
-                      Ready-to-go chunks
+                      Ready-to-go Chunks
                     </Text>
                   </Flex>
 
                   <Text
                     size="8"
                     mt="16px"
-                    weight="medium"
                     className="white"
-                    style={{ maxWidth: "360px" }}
+                    style={{ maxWidth: "360px", fontWeight: "600" }}
                   >
-                    HTML <span style={{ color: "#ffffff9b" }}> | </span>
-                    Markdown <span style={{ color: "#ffffff9b" }}> | </span>
-                    OCR <span style={{ color: "#ffffff9b" }}> | </span>
+                    HTML <span style={{ color: "#ffffffcd" }}> | </span>
+                    Markdown <span style={{ color: "#ffffffcd" }}> | </span>
+                    OCR <span style={{ color: "#ffffffcd" }}> | </span>
                     Segment Images
                   </Text>
 
@@ -462,6 +566,11 @@ const Home = () => {
                       autoplay={false}
                     />
                   </div>
+                  <Flex className="learn-more-tag">
+                    <Text size="2" weight="medium" style={{ color: "#ffffff" }}>
+                      Learn More →
+                    </Text>
+                  </Flex>
                 </div>
               </Flex>
 
@@ -495,12 +604,11 @@ const Home = () => {
                   <Text
                     size="8"
                     mt="16px"
-                    weight="medium"
                     className="white"
-                    style={{ maxWidth: "360px" }}
+                    style={{ maxWidth: "360px", fontWeight: "600" }}
                   >
                     Custom schemas
-                    <span style={{ color: "#ffffff9b" }}> to extract </span>
+                    <span style={{ color: "#ffffffcd" }}> to extract </span>
                     specific values
                   </Text>
 
@@ -513,6 +621,11 @@ const Home = () => {
                       autoplay={false}
                     />
                   </div>
+                  <Flex className="learn-more-tag">
+                    <Text size="2" weight="medium" style={{ color: "#ffffff" }}>
+                      Learn More →
+                    </Text>
+                  </Flex>
                 </div>
               </Flex>
             </Flex>
@@ -521,36 +634,45 @@ const Home = () => {
         <div className="features-container">
           <div className="features-gradient-background" />
           <Flex
-            direction="row"
+            direction="column"
             align="center"
             justify="between"
             style={{
               maxWidth: "1386px",
               height: "100%",
               margin: "0 auto",
-              marginTop: "160px",
-              padding: "72px 24px",
+              padding: "96px 24px",
               position: "relative",
               zIndex: 1,
             }}
           >
             <Flex className="feature-left-box">
-              <Text size="9" weight="medium" className="feature-left-box-title">
-                A modular pipeline <br></br> for your AI infrastructure
-              </Text>
-              <Text
-                size="7"
-                weight="medium"
-                className="feature-left-box-subtitle"
+              <Flex
+                direction="column"
+                gap="16px"
+                flexGrow="2"
+                style={{ maxWidth: "600px" }}
               >
-                Ingestion use-cases can vary quite a bit. <br></br>
-                <br></br>
-                <span style={{ color: "#ffffff9b" }}>So we built an</span>{" "}
-                end-to-end system{" "}
-                <span style={{ color: "#ffffff9b" }}>that can cater to </span>{" "}
-                solo-devs, startups and enterprises.
-              </Text>
-              <Flex direction="row" gap="32px" width="100%" justify="between">
+                <Text className="feature-left-box-title">
+                  A modular pipeline <br></br> for your AI infrastructure
+                </Text>
+                <Text
+                  size="6"
+                  weight="medium"
+                  className="feature-left-box-subtitle"
+                >
+                  Ingestion use-cases can vary quite a bit. <br></br>
+                  <br></br>
+                  <span style={{ color: "#ffffffbc" }}>
+                    So we built an
+                  </span>{" "}
+                  end-to-end system{" "}
+                  <span style={{ color: "#ffffffbc" }}>that can cater to </span>{" "}
+                  solo-devs, startups and enterprises.
+                </Text>
+              </Flex>
+
+              {/* <Flex direction="row" gap="32px" width="100%" justify="between">
                 <Flex
                   direction="column"
                   gap="8px"
@@ -637,7 +759,7 @@ const Home = () => {
                     Custom schemas to extract specific values
                   </Text>
                 </Flex>
-              </Flex>
+              </Flex> */}
             </Flex>
             <Flex direction="column" gap="32px" className="feature-right-box">
               <div className="feature-right-box-image" ref={terminalRef}>
@@ -645,7 +767,6 @@ const Home = () => {
                   className="terminal-header"
                   align="center"
                   justify="center"
-                  mb="16px"
                 >
                   <Flex
                     className="terminal-title"
@@ -702,32 +823,106 @@ const Home = () => {
                         onClick={() => handleScriptSwitch("curl")}
                         active={selectedScript === "curl"}
                       >
+                        <svg
+                          width="20px"
+                          height="20px"
+                          viewBox="0 0 16 16"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          stroke="#ffffff"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1"
+                        >
+                          <rect height="10.5" width="12.5" y="2.75" x="1.75" />
+                          <path d="m8.75 10.25h2.5m-6.5-4.5 2.5 2.25-2.5 2.25" />
+                        </svg>
                         <Text size="1" weight="bold" className="default-font">
-                          Default
+                          curl
                         </Text>
                       </BetterButton>
                       <BetterButton
                         onClick={() => handleScriptSwitch("node")}
                         active={selectedScript === "node"}
                       >
+                        <svg
+                          fill="#F7DF1E"
+                          version="1.1"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20px"
+                          height="20px"
+                          viewBox="0 0 512 512"
+                        >
+                          <path
+                            display="inline"
+                            d="M482.585,147.869v216.113c0,14.025-7.546,27.084-19.672,34.143L275.665,506.241
+		c-5.989,3.474-12.782,5.259-19.719,5.259c-6.838,0-13.649-1.785-19.639-5.259l-62.521-36.99c-9.326-5.207-4.775-7.059-1.692-8.128
+		c12.454-4.322,14.973-5.318,28.268-12.863c1.387-0.793,3.216-0.483,4.647,0.343l48.031,28.519c1.741,0.981,4.2,0.981,5.801,0
+		l187.263-108.086c1.744-0.996,2.862-2.983,2.862-5.053V147.869c0-2.117-1.118-4.094-2.906-5.163L258.874,34.716
+		c-1.726-1.01-4.03-1.01-5.768,0L65.962,142.736c-1.818,1.04-2.965,3.079-2.965,5.133v216.113c0,2.069,1.146,4.009,2.954,4.99
+		l51.299,29.654c27.829,13.903,44.875-2.485,44.875-18.956V166.309c0-3.017,2.423-5.396,5.439-5.396h23.747
+		c2.969,0,5.429,2.378,5.429,5.396v213.362c0,37.146-20.236,58.454-55.452,58.454c-10.816,0-19.347,0-43.138-11.713l-49.098-28.287
+		c-12.133-6.995-19.638-20.117-19.638-34.143V147.869c0-14.043,7.505-27.15,19.638-34.135L236.308,5.526
+		c11.85-6.701,27.608-6.701,39.357,0l187.248,108.208C475.039,120.748,482.585,133.826,482.585,147.869z M321.171,343.367
+		c-55.88,0-68.175-14.048-72.294-41.836c-0.477-2.966-3.018-5.175-6.063-5.175h-27.306c-3.382,0-6.096,2.703-6.096,6.104
+		c0,35.56,19.354,77.971,111.759,77.971c66.906,0,105.269-26.339,105.269-72.343c0-45.623-30.827-57.76-95.709-66.35
+		c-65.579-8.678-72.243-13.147-72.243-28.508c0-12.661,5.643-29.581,54.216-29.581c43.374,0,59.365,9.349,65.94,38.576
+		c0.579,2.755,3.083,4.765,5.923,4.765h27.409c1.7,0,3.315-0.73,4.47-1.943c1.158-1.28,1.773-2.947,1.611-4.695
+		c-4.241-50.377-37.713-73.844-105.354-73.844c-60.209,0-96.118,25.414-96.118,68.002c0,46.217,35.729,59,93.5,64.702
+		c69.138,6.782,74.504,16.883,74.504,30.488C384.589,333.299,365.655,343.367,321.171,343.367z"
+                          ></path>
+                        </svg>
                         <Text size="1" weight="bold" className="default-font">
-                          DLA | OCR | VLM
+                          Node
                         </Text>
                       </BetterButton>
                       <BetterButton
                         onClick={() => handleScriptSwitch("python")}
                         active={selectedScript === "python"}
                       >
+                        <svg
+                          width="20px"
+                          height="20px"
+                          viewBox="0 0 15 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M6 2.5H7M4.5 4V1.5C4.5 0.947715 4.94772 0.5 5.5 0.5H9.5C10.0523 0.5 10.5 0.947715 10.5 1.5V6.5C10.5 7.05228 10.0523 7.5 9.5 7.5H5.5C4.94772 7.5 4.5 7.94772 4.5 8.5V13.5C4.5 14.0523 4.94772 14.5 5.5 14.5H9.5C10.0523 14.5 10.5 14.0523 10.5 13.5V11M8 4.5H1.5C0.947715 4.5 0.5 4.94772 0.5 5.5V10.5C0.5 11.0523 0.947715 11.5 1.5 11.5H4.5M7 10.5H13.5C14.0523 10.5 14.5 10.0523 14.5 9.5V4.5C14.5 3.94772 14.0523 3.5 13.5 3.5H10.5M8 12.5H9"
+                            stroke="#4B8BBE"
+                          />
+                        </svg>
                         <Text size="1" weight="bold" className="default-font">
-                          Page | VLM
+                          Python
+                        </Text>
+                      </BetterButton>
+                      <BetterButton
+                        onClick={() => handleScriptSwitch("rust")}
+                        active={selectedScript === "rust"}
+                      >
+                        <svg
+                          width="20px"
+                          height="20px"
+                          viewBox="0 0 15 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M1.99997 10.5H6.99997M2.49997 4.5H8.99997C9.8284 4.5 10.5 5.17157 10.5 6C10.5 6.82843 9.8284 7.5 8.99997 7.5H4.49997M4.49997 4.5V10.5M7.49997 7.5H8.49997C9.60454 7.5 10.5 8.39543 10.5 9.5C10.5 10.0523 10.9477 10.5 11.5 10.5H13M7.49997 0.5L8.84422 1.61046L10.5372 1.19322L11.2665 2.77696L12.9728 3.13557L12.9427 4.87891L14.3245 5.94235L13.541 7.5L14.3245 9.05765L12.9427 10.1211L12.9728 11.8644L11.2665 12.223L10.5372 13.8068L8.84422 13.3895L7.49997 14.5L6.15572 13.3895L4.46279 13.8068L3.73347 12.223L2.02715 11.8644L2.05722 10.1211L0.675476 9.05765L1.45897 7.5L0.675476 5.94235L2.05722 4.87891L2.02715 3.13557L3.73347 2.77696L4.46279 1.19322L6.15572 1.61046L7.49997 0.5Z"
+                            stroke="#CE422B"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                        <Text size="1" weight="bold" className="default-font">
+                          Rust
                         </Text>
                       </BetterButton>
                     </Flex>
                   </Flex>
                   <Flex className="terminal-button-row">
-                    <div className="terminal-button close"></div>
                     <div className="terminal-button minimize"></div>
                     <div className="terminal-button maximize"></div>
+                    <div className="terminal-button close"></div>
                   </Flex>
                 </Flex>
                 <div className="curl-command">
@@ -751,9 +946,8 @@ const Home = () => {
             style={{
               maxWidth: "1424px",
               height: "100%",
-              margin: "0 auto",
-              padding: "24px",
-              marginTop: "160px",
+              margin: "0px auto 0px",
+              padding: "96px 24px",
             }}
           >
             <Flex direction="column" px="24px" align="center" justify="center">
@@ -774,232 +968,133 @@ const Home = () => {
                 size="9"
                 weight="medium"
                 align="center"
-                className="features-bottom-box-title"
+                className="feature-bottom-box-title"
               >
                 Fast by default<br></br>Powerful by design
               </Text>
               <Flex className="feature-bottom-box-wrapper" direction="column">
                 <Flex
                   direction="row"
-                  gap="32px"
                   className="features-bottom-box-container"
                   style={{
                     width: "100%",
                     marginTop: "56px",
                   }}
                 >
-                  <Flex
-                    direction="column"
-                    className="feature-bottom-box"
+                  <FeatureBox
+                    icon={
+                      <Lottie
+                        lottieRef={rustLottieRef}
+                        animationData={rustAnimation}
+                        loop={false}
+                        autoplay={false}
+                        style={{
+                          width: 32,
+                          height: 32,
+                        }}
+                      />
+                    }
+                    title="Connected via Rust"
+                    description="Process multiple documents simultaneously with efficient resource utilization"
                     onMouseEnter={() => handleLottieHover(rustLottieRef)}
-                  >
-                    <Lottie
-                      lottieRef={rustLottieRef}
-                      animationData={rustAnimation}
-                      loop={false}
-                      autoplay={false}
-                      style={{
-                        width: 32,
-                        height: 32,
-                      }}
-                    />
-                    <Text
-                      size="6"
-                      weight="medium"
-                      style={{ color: "white", marginTop: "24px" }}
-                    >
-                      Connected via Rust
-                    </Text>
-                    <Text
-                      size="3"
-                      style={{
-                        color: "rgba(255, 255, 255, 0.6)",
-                        marginTop: "8px",
-                      }}
-                    >
-                      Process multiple documents simultaneously with efficient
-                      resource utilization
-                    </Text>
-                  </Flex>
+                  />
 
-                  <Flex
-                    direction="column"
-                    className="feature-bottom-box"
+                  <FeatureBox
+                    icon={
+                      <Lottie
+                        lottieRef={fileuploadLottieRef}
+                        animationData={fileuploadAnimation}
+                        loop={false}
+                        autoplay={false}
+                        style={{
+                          width: 32,
+                          height: 32,
+                        }}
+                      />
+                    }
+                    title="Support for multiple file types"
+                    description="Minimize memory overhead with efficient data handling and processing"
                     onMouseEnter={() => handleLottieHover(fileuploadLottieRef)}
-                  >
-                    <Lottie
-                      lottieRef={fileuploadLottieRef}
-                      animationData={fileuploadAnimation}
-                      loop={false}
-                      autoplay={false}
-                      style={{
-                        width: 32,
-                        height: 32,
-                      }}
-                    />
-                    <Text
-                      size="6"
-                      weight="medium"
-                      style={{ color: "white", marginTop: "24px" }}
-                    >
-                      Support for multiple file types
-                    </Text>
-                    <Text
-                      size="3"
-                      style={{
-                        color: "rgba(255, 255, 255, 0.6)",
-                        marginTop: "8px",
-                      }}
-                    >
-                      Minimize memory overhead with efficient data handling and
-                      processing
-                    </Text>
-                  </Flex>
+                  />
 
-                  <Flex
-                    direction="column"
-                    className="feature-bottom-box"
+                  <FeatureBox
+                    icon={
+                      <Lottie
+                        lottieRef={timerLottieRef}
+                        animationData={timerAnimation}
+                        loop={false}
+                        autoplay={false}
+                        style={{
+                          width: 32,
+                          height: 32,
+                        }}
+                      />
+                    }
+                    title="Optimized last-mile"
+                    description="Leverage Rust's native performance for lightning-fast document processing"
                     onMouseEnter={() => handleLottieHover(timerLottieRef)}
-                  >
-                    <Lottie
-                      lottieRef={timerLottieRef}
-                      animationData={timerAnimation}
-                      loop={false}
-                      autoplay={false}
-                      style={{
-                        width: 32,
-                        height: 32,
-                      }}
-                    />
-                    <Text
-                      size="6"
-                      weight="medium"
-                      style={{ color: "white", marginTop: "24px" }}
-                    >
-                      Optimized last-mile
-                    </Text>
-                    <Text
-                      size="3"
-                      style={{
-                        color: "rgba(255, 255, 255, 0.6)",
-                        marginTop: "8px",
-                      }}
-                    >
-                      Leverage Rust's native performance for lightning-fast
-                      document processing
-                    </Text>
-                  </Flex>
+                  />
                 </Flex>
                 <Flex
                   direction="row"
-                  gap="32px"
                   className="features-bottom-box-container"
                   style={{
                     width: "100%",
-                    marginTop: "48px",
                   }}
                 >
-                  <Flex
-                    direction="column"
-                    className="feature-bottom-box"
+                  <FeatureBox
+                    icon={
+                      <Lottie
+                        lottieRef={bargraphLottieRef}
+                        animationData={bargraphAnimation}
+                        loop={false}
+                        autoplay={false}
+                        style={{
+                          width: 32,
+                          height: 32,
+                        }}
+                      />
+                    }
+                    title="Built-in visibility"
+                    description="Process multiple documents simultaneously with efficient resource utilization"
                     onMouseEnter={() => handleLottieHover(bargraphLottieRef)}
-                  >
-                    <Lottie
-                      lottieRef={bargraphLottieRef}
-                      animationData={bargraphAnimation}
-                      loop={false}
-                      autoplay={false}
-                      style={{
-                        width: 32,
-                        height: 32,
-                      }}
-                    />
-                    <Text
-                      size="6"
-                      weight="medium"
-                      style={{ color: "white", marginTop: "24px" }}
-                    >
-                      Built-in visibility
-                    </Text>
-                    <Text
-                      size="3"
-                      style={{
-                        color: "rgba(255, 255, 255, 0.6)",
-                        marginTop: "8px",
-                      }}
-                    >
-                      Process multiple documents simultaneously with efficient
-                      resource utilization
-                    </Text>
-                  </Flex>
+                  />
 
-                  <Flex
-                    direction="column"
-                    className="feature-bottom-box"
+                  <FeatureBox
+                    icon={
+                      <Lottie
+                        lottieRef={codeLottieRef}
+                        animationData={codeAnimation}
+                        loop={false}
+                        autoplay={false}
+                        style={{
+                          width: 32,
+                          height: 32,
+                        }}
+                      />
+                    }
+                    title="Simple API / Cloud-Ready"
+                    description="Start in seconds with our API, or deploy on your infrastructure for complete control"
                     onMouseEnter={() => handleLottieHover(codeLottieRef)}
-                  >
-                    <Lottie
-                      lottieRef={codeLottieRef}
-                      animationData={codeAnimation}
-                      loop={false}
-                      autoplay={false}
-                      style={{
-                        width: 32,
-                        height: 32,
-                      }}
-                    />
-                    <Text
-                      size="6"
-                      weight="medium"
-                      style={{ color: "white", marginTop: "24px" }}
-                    >
-                      Simple API / Cloud-Ready
-                    </Text>
-                    <Text
-                      size="3"
-                      style={{
-                        color: "rgba(255, 255, 255, 0.6)",
-                        marginTop: "8px",
-                      }}
-                    >
-                      Start in seconds with our API, or deploy on your
-                      infrastructure for complete control
-                    </Text>
-                  </Flex>
+                  />
 
-                  <Flex
-                    direction="column"
-                    className="feature-bottom-box"
+                  <FeatureBox
+                    icon={
+                      <Lottie
+                        lottieRef={secureLottieRef}
+                        animationData={secureAnimation}
+                        loop={false}
+                        autoplay={false}
+                        style={{
+                          width: 32,
+                          height: 32,
+                        }}
+                      />
+                    }
+                    title="Secure in every way"
+                    description="Leverage Rust's native performance for lightning-fast document processing"
                     onMouseEnter={() => handleLottieHover(secureLottieRef)}
-                  >
-                    <Lottie
-                      lottieRef={secureLottieRef}
-                      animationData={secureAnimation}
-                      loop={false}
-                      autoplay={false}
-                      style={{
-                        width: 32,
-                        height: 32,
-                      }}
-                    />
-                    <Text
-                      size="6"
-                      weight="medium"
-                      style={{ color: "white", marginTop: "24px" }}
-                    >
-                      Secure in every way
-                    </Text>
-                    <Text
-                      size="3"
-                      style={{
-                        color: "rgba(255, 255, 255, 0.6)",
-                        marginTop: "8px",
-                      }}
-                    >
-                      Leverage Rust's native performance for lightning-fast
-                      document processing
-                    </Text>
-                  </Flex>
+                  />
                 </Flex>
               </Flex>
             </Flex>
@@ -1009,11 +1104,11 @@ const Home = () => {
           <Flex
             direction="column"
             align="center"
+            justify="center"
             style={{
               maxWidth: "1424px",
               height: "100%",
               margin: "0 auto",
-              padding: "24px",
               position: "relative",
               zIndex: 2,
             }}
@@ -1031,12 +1126,7 @@ const Home = () => {
                 Plans & Pricing
               </Text>
             </Flex>
-            <Text
-              size="9"
-              weight="medium"
-              align="center"
-              className="features-bottom-box-title"
-            >
+            <Text align="center" className="feature-bottom-box-title">
               Simple, transparent plans for every stage
             </Text>
 
@@ -1106,7 +1196,7 @@ const Home = () => {
               />
             </Flex>
 
-            <Text
+            {/* <Text
               size="6"
               weight="medium"
               style={{
@@ -1116,12 +1206,12 @@ const Home = () => {
               }}
             >
               Enterprise Solutions
-            </Text>
+            </Text> */}
 
             <Flex
               direction="row"
               justify="center"
-              gap="48px"
+              mt="48px"
               className="pricing-container"
               style={{
                 width: "100%",
@@ -1130,33 +1220,20 @@ const Home = () => {
                 zIndex: 2,
               }}
             >
-              <PricingCard
-                title="Enterprise"
-                credits={0}
-                price={0}
-                period=""
-                features={[
-                  "Compute cost + 20%",
-                  "One-time setup fee",
-                  "99.9% SLA",
-                  "Dedicated support team",
-                ]}
-                buttonText="Contact Sales"
-              />
-
-              <PricingCard
-                title="Self-hosted"
-                credits={0}
-                price={0}
-                period=""
-                features={[
-                  "Full source code access",
-                  "Custom license terms",
-                  "Implementation support",
-                  "Security reviews",
-                ]}
-                buttonText="Contact Sales"
-              />
+              <Flex direction="column" className="pricing-enterprise-container">
+                <Text size="6" weight="medium" style={{ color: "white" }}>
+                  On-prem
+                </Text>
+                <Text size="8" weight="bold" mt="6" style={{ color: "white" }}>
+                  Talk to a founder
+                </Text>
+                <Text
+                  size="4"
+                  weight="medium"
+                  mt="4"
+                  style={{ color: "white" }}
+                ></Text>
+              </Flex>
             </Flex>
           </Flex>
         </div>
