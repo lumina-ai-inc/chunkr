@@ -2,7 +2,6 @@
   flex: 1;
   padding: 32px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.01);
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -12,7 +11,7 @@
 
 .pricing-card:hover {
   transform: translateY(-8px);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.08);
   box-shadow:
     0 4px 24px -4px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -25,6 +24,11 @@
 
 .pricing-card-highlighted:hover {
   border-color: rgba(255, 255, 255, 0.25);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    transparent 100%
+  );
   box-shadow:
     0 4px 24px -4px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(255, 255, 255, 0.2);
@@ -34,7 +38,6 @@
   font-size: 24px;
   color: inherit;
   font-weight: 500;
-  margin-bottom: 8px;
 }
 
 .popular-tag {
@@ -46,12 +49,6 @@
   position: absolute;
   right: 24px;
   top: 24px;
-}
-
-.credits {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 16px;
-  margin-bottom: 16px;
 }
 
 .pricing-amount {
@@ -111,23 +108,20 @@
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none;
 }
 
 .pricing-button:hover {
   background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .pricing-card-highlighted .pricing-button {
   background: #d86d3e;
-  border-color: transparent;
 }
 
 .pricing-card-highlighted .pricing-button:hover {
   background: #e27b4c;
 }
-
 /* Gradient overlay */
 .pricing-card::before {
   content: "";
@@ -136,11 +130,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    transparent 100%
-  );
   border-radius: 16px;
   pointer-events: none;
+}
+
+.feature-checkmark-container {
+  width: 22px;
+  height: 22px;
+  border-radius: 100%;
+  background: #ffffff18;
 }
