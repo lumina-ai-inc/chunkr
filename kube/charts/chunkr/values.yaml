@@ -102,7 +102,7 @@ services:
     useStandardEnv: true
     image:
       repository: chunkmydocs
-      tag: "28f39e26"
+      tag: "3c8cc0be"
     port: 8000
     targetPort: 8000
     ingress:
@@ -147,7 +147,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: "28f39e26"
+      tag: "3c8cc0be"
     port: 8000
     targetPort: 8000
     ingress:
@@ -173,7 +173,7 @@ services:
     useStandardEnv: true
     image:
       repository: fast
-      tag: "28f39e26"
+      tag: "3c8cc0be"
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -186,7 +186,7 @@ services:
     useStandardEnv: true
     image:
       repository: high-quality
-      tag: "28f39e26"
+      tag: "3c8cc0be"
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -199,7 +199,7 @@ services:
     useStandardEnv: true
     image:
       repository: ocr
-      tag: "28f39e26"
+      tag: "3c8cc0be"
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -212,7 +212,7 @@ services:
     useStandardEnv: true
     image:
       repository: postprocess
-      tag: "28f39e26"
+      tag: "3c8cc0be"
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -225,7 +225,7 @@ services:
     useStandardEnv: true
     image:
       repository: preprocess
-      tag: "28f39e26"
+      tag: "3c8cc0be"
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -238,7 +238,7 @@ services:
     useStandardEnv: true
     image:
       repository: structured-extraction
-      tag: "28f39e26"
+      tag: "3c8cc0be"
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -313,7 +313,7 @@ services:
     enabled: false
     image:
       repository: table-ocr
-      tag: "28f39e26"
+      tag: "3c8cc0be"
     port: 8000
     targetPort: 8000
     useGPU: true
