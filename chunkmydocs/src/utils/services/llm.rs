@@ -96,8 +96,8 @@ mod tests {
         fs::create_dir_all(output_dir)?;
 
         let llm_config = LlmConfig::from_env().unwrap();
-        let url = "https://generativelanguage.googleapis.com/v1beta/chat/completions".to_string();
-        let key = "AIzaSyDwsabcSrMMiuf-ZFB1X56Wv8dLb78hEJo".to_string();
+        let url = llm_config.url;
+        let key = llm_config.key;
 
         let models = HashMap::from([("geminipro", "gemini-1.5-flash")]);
 
