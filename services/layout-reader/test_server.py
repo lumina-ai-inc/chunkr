@@ -1,5 +1,6 @@
 import requests
 import json
+import time
 
 def test_layout_reader(url="http://localhost:8000"):
     # Sample input data
@@ -15,11 +16,14 @@ def test_layout_reader(url="http://localhost:8000"):
 
     # Send POST request to /predict endpoint
     try:
+        start_time = time.time()
         response = requests.post(
             f"{url}/predict",
             json=payload,
             headers={"Content-Type": "application/json"}
         )
+        request_time = time.time() - start_time
+        print(f"Request took {request_time:.3f} seconds")
         
         try:
             response.raise_for_status()
