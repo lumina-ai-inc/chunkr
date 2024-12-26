@@ -17,11 +17,11 @@ app = FastAPI()
 MODEL_PATH = os.getenv('MODEL_PATH') or "models/layoutreader-base-readingbank"
 CONFIG_PATH = os.getenv('CONFIG_PATH') or os.path.join(MODEL_PATH, "config.json")
 TOKENIZER_NAME = os.getenv('TOKENIZER_NAME') or "bert-base-uncased"
-MAX_SEQ_LENGTH = int(os.getenv('MAX_SEQ_LENGTH') or 512)
-MAX_TGT_LENGTH = int(os.getenv('MAX_TGT_LENGTH') or 128)
+MAX_SEQ_LENGTH = int(os.getenv('MAX_SEQ_LENGTH') or 1024)
+MAX_TGT_LENGTH = int(os.getenv('MAX_TGT_LENGTH') or 511)
 USE_FP16 = os.getenv('USE_FP16', '').lower() in ('true', '1', 't')
 USE_MULTI_GPU = os.getenv('USE_MULTI_GPU', '').lower() in ('true', '1', 't')
-LAYOUTLM_ONLY_LAYOUT = os.getenv('LAYOUTLM_ONLY_LAYOUT', '').lower() in ('true', '1', 't')  # Add this
+LAYOUTLM_ONLY_LAYOUT = os.getenv('LAYOUTLM_ONLY_LAYOUT', '').lower() in ('true', '1', 't')  
 
 class LayoutInput(BaseModel):
     text: str  
@@ -31,32 +31,27 @@ class PredictionResponse(BaseModel):
     reading_order: List[int]
 
 def load_model():
-    # Initialize device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     n_gpu = torch.cuda.device_count() if USE_MULTI_GPU else 1
     
-    # Load tokenizer
     tokenizer = BertTokenizer.from_pretrained(
         TOKENIZER_NAME,
         do_lower_case=True,
         max_len=MAX_SEQ_LENGTH
     )
     
-    # Load config
     config = BertConfig.from_json_file(CONFIG_PATH)
     config.layoutlm_only_layout_flag = LAYOUTLM_ONLY_LAYOUT 
     
-    # Setup model parameters
     mask_word_id = tokenizer.convert_tokens_to_ids([tokenizer.mask_token])[0]
     eos_word_ids = tokenizer.convert_tokens_to_ids([tokenizer.sep_token])[0]
     sos_word_id = tokenizer.convert_tokens_to_ids([tokenizer.sep_token])[0]
     
-    # Load model
     model = LayoutlmForSeq2SeqDecoder.from_pretrained(
         MODEL_PATH,
         config=config,
         mask_word_id=mask_word_id,
-        search_beam_size=5,
+        search_beam_size=1,
         length_penalty=0,
         eos_id=eos_word_ids,
         sos_id=sos_word_id,
@@ -69,13 +64,11 @@ def load_model():
         pos_shift=False,
     )
     
-    # Enable FP16 if requested
     if USE_FP16:
         model.half()
     
     model.to(device)
     
-    # Enable multi-GPU if requested and available
     if USE_MULTI_GPU and n_gpu > 1:
         model = torch.nn.DataParallel(model)
     
@@ -83,13 +76,11 @@ def load_model():
     
     return model, tokenizer, device, config
 
-# Load model at startup
 model, tokenizer, device, config = load_model()
 
 @app.post("/predict", response_model=PredictionResponse)
 async def predict_reading_order(input_data: LayoutInput):
     try:
-        # Validate input
         words = input_data.text.split()
         if len(words) != len(input_data.bboxes):
             raise HTTPException(
@@ -97,13 +88,11 @@ async def predict_reading_order(input_data: LayoutInput):
                 detail=f"Number of words ({len(words)}) doesn't match number of bounding boxes ({len(input_data.bboxes)})"
             )
 
-        # Prepare input data
         max_src_length = MAX_SEQ_LENGTH - 2 - MAX_TGT_LENGTH
         
-        # Tokenize words and combine with bboxes
         source_ids = []
         index_split = {}
-        new_token_index = 1  # Start from 1 as per example function
+        new_token_index = 1  
         
         for i, (word, bbox) in enumerate(zip(words, input_data.bboxes)):
             if not (bbox[2] >= bbox[0] and bbox[3] >= bbox[1]):
@@ -157,14 +146,6 @@ async def predict_reading_order(input_data: LayoutInput):
         
         with torch.no_grad():
             input_ids, token_type_ids, position_ids, input_mask, mask_qkv, task_idx = batch
-            print('Debug shapes:')
-            print(f'input_ids: {input_ids.shape}')
-            print(f'token_type_ids: {token_type_ids.shape}')
-            print(f'position_ids: {position_ids.shape}')
-            print(f'input_mask: {input_mask.shape}')
-            print(f'mask_qkv: {mask_qkv}')
-            print(f'task_idx: {task_idx}')
-                
             traces = model(
                 input_ids, 
                 token_type_ids, 
@@ -174,17 +155,13 @@ async def predict_reading_order(input_data: LayoutInput):
                 mask_qkv=mask_qkv
             )
             
-            # Handle beam search output
             if isinstance(traces, dict):
-                # Get the predicted sequence from beam search
                 output_ids = traces['pred_seq'].tolist()[0]
             else:
-                # Handle regular output
                 output_ids = traces.tolist()[0]
                 
             print('output_ids', output_ids)
             
-            # Filter out padding and special tokens
             reading_order = [idx - 1 for idx in output_ids if idx > 0]  
             reading_order = reading_order[:len(input_data.bboxes)]  
             

@@ -105,9 +105,7 @@ class Preprocess4Seq2seqDecoder(Pipeline):
 
         self.cc = 0
 
-    def __call__(self, tokens_a):
-        
-        max_a_len = self.max_len - 2 
+    def __call__(self, tokens_a, max_a_len=511):
         
         padded_tokens_a = [self.cls_token] + tokens_a + [self.sep_token]
         assert len(padded_tokens_a) <= max_a_len + 2
