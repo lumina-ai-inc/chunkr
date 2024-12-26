@@ -24,7 +24,7 @@ setup(
                                     "tests.*", "tests"]),
     install_requires=['numpy',
                       'boto3',
-                      'requests',
+                      'requests<2.32.0',
                       'tqdm',
                       'regex != 2019.12.17',
                       'sentencepiece',

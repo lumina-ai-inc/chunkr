@@ -1166,13 +1166,6 @@ class LayoutlmForSeq2SeqDecoder(PreTrainedBertModel):
         self.pos_shift = pos_shift
 
     def forward(self, input_ids, token_type_ids, position_ids, attention_mask, task_idx=None, mask_qkv=None):
-        print("Starting forward pass with shapes:")
-        print(f"input_ids: {input_ids.shape}")
-        print(f"token_type_ids: {token_type_ids.shape}")
-        print(f"position_ids: {position_ids.shape}")
-        print(f"attention_mask: {attention_mask.shape}")
-        print(f"search_beam_size: {self.search_beam_size}")
-        
         if self.search_beam_size > 1:
             return self.beam_search(input_ids, token_type_ids, position_ids, attention_mask, task_idx=task_idx,
                                     mask_qkv=mask_qkv)
@@ -1182,8 +1175,6 @@ class LayoutlmForSeq2SeqDecoder(PreTrainedBertModel):
         input_length = input_shape[1]
         output_shape = list(token_type_ids.size())
         output_length = output_shape[1]
-        
-        print(f"\ninput_length: {input_length}, output_length: {output_length}")
         
         output_ids = []
         prev_embedding = None
@@ -1198,8 +1189,6 @@ class LayoutlmForSeq2SeqDecoder(PreTrainedBertModel):
 
         next_pos = input_length
         
-        print(f"next_pos: {next_pos}")
-        
         if self.pos_shift:
             if not self.layout_flag:
                 sos_ids = input_ids.new(batch_size, 1).fill_(self.sos_id)
@@ -1210,8 +1199,6 @@ class LayoutlmForSeq2SeqDecoder(PreTrainedBertModel):
         src_embedding = None
 
         while next_pos < output_length:
-            print(f"Processing position {next_pos}, output_ids len: {len(output_ids)}")
-
             curr_length = list(curr_ids.size())[1]
 
             if self.pos_shift:
@@ -1246,7 +1233,6 @@ class LayoutlmForSeq2SeqDecoder(PreTrainedBertModel):
             prediction_scores, _ = self.cls(last_hidden, None, src_embedding, task_idx=task_idx)
             _, max_ids = torch.max(prediction_scores, dim=-1)
             
-            print(f"max_ids shape: {max_ids.shape}, values: {max_ids}")
             if max_ids.numel() == 0:
                 print("Warning: max_ids is empty!")
                 continue
@@ -1310,7 +1296,6 @@ class LayoutlmForSeq2SeqDecoder(PreTrainedBertModel):
             # curr_ids = max_ids
             next_pos += 1
             
-        print(f"Final output_ids length: {len(output_ids)}")
         if len(output_ids) == 0:
             print("Warning: No outputs generated!")
             return torch.tensor([], device=input_ids.device)

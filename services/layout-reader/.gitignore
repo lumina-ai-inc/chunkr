@@ -76,3 +76,5 @@ data/
 outputs/
 logs/
 .env.*
+
+apex

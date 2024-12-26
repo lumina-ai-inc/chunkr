@@ -6,8 +6,8 @@ def test_layout_reader(url="http://localhost:8000"):
     payload = {
         "text": "Hello World Example Text",
         "bboxes": [
-            [0, 0, 100, 50],    # Hello
             [120, 0, 200, 50],  # World
+            [0, 0, 100, 50],    # Hello
             [220, 0, 300, 50],  # Example
             [320, 0, 400, 50]   # Text
         ]

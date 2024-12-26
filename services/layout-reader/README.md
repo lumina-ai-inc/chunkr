@@ -149,13 +149,19 @@ mkdir -p /workspace/models && cd /workspace/models && \
 wget https://huggingface.co/LuminaInc/layoutreader-base-readingbank/resolve/main/config.json && \
 wget https://huggingface.co/LuminaInc/layoutreader-base-readingbank/resolve/main/pytorch_model.bin
 
-git clone https://github.com/NVIDIA/apex.git && \
-cd apex && \
-pip install -v --disable-pip-version-check --no-cache-dir --no-build-isolation --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" ./ && \
-cd .. && \
-rm -rf apex
-
+# Clone APEX with a specific older commit
+git clone https://github.com/NVIDIA/apex.git
+cd apex
+git checkout 4ef930c1c884fdca5f472ab2ce7cb9b505d26c1a  # This is a known stable commit
+# Set CUDA architectures
+export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0"
+# Install with minimal requirements
+pip install -v --disable-pip-version-check --no-cache-dir \
+    --global-option="--cpp_ext" \
+    --global-option="--cuda_ext" ./
 python -c "import apex; print('Apex installation successful')" || (echo 'Apex installation failed' && exit 1)
+cd ..
+rm -rf apex
 
 pip install -e .
 
