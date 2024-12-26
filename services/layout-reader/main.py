@@ -64,6 +64,20 @@ def load_model():
         pos_shift=False,
     )
     
+    preprocess = seq2seq_loader.Preprocess4Seq2seqDecoder(
+        list(tokenizer.vocab.keys()),
+        tokenizer.convert_tokens_to_ids,
+        MAX_SEQ_LENGTH,
+        max_tgt_length=MAX_TGT_LENGTH,
+        pos_shift=False,
+        source_type_id=config.source_type_id,
+        target_type_id=config.target_type_id,
+        cls_token=tokenizer.cls_token,
+        sep_token=tokenizer.sep_token,
+        pad_token=tokenizer.pad_token,
+        layout_flag=True
+    )
+    
     if USE_FP16:
         model.half()
     
@@ -74,9 +88,9 @@ def load_model():
     
     model.eval()
     
-    return model, tokenizer, device, config
+    return model, tokenizer, device, config, preprocess
 
-model, tokenizer, device, config = load_model()
+model, tokenizer, device, config, preprocess = load_model()
 
 @app.post("/predict", response_model=PredictionResponse)
 async def predict_reading_order(input_data: LayoutInput):
@@ -125,20 +139,6 @@ async def predict_reading_order(input_data: LayoutInput):
         instances_with_tokens = sorted(list(enumerate(instances_with_tokens)), key=lambda x: -len(x[1]))
         buf = [x[1] for x in instances_with_tokens]
         
-        preprocess = seq2seq_loader.Preprocess4Seq2seqDecoder(
-            list(tokenizer.vocab.keys()),
-            tokenizer.convert_tokens_to_ids,
-            MAX_SEQ_LENGTH,
-            max_tgt_length=MAX_TGT_LENGTH,
-            pos_shift=False,
-            source_type_id=config.source_type_id,
-            target_type_id=config.target_type_id,
-            cls_token=tokenizer.cls_token,
-            sep_token=tokenizer.sep_token,
-            pad_token=tokenizer.pad_token,
-            layout_flag=True
-        )
-        
         processed = preprocess(buf[0])
         
         batch = seq2seq_loader.batch_list_to_batch_tensors([processed])
@@ -160,8 +160,6 @@ async def predict_reading_order(input_data: LayoutInput):
             else:
                 output_ids = traces.tolist()[0]
                 
-            print('output_ids', output_ids)
-            
             reading_order = [idx - 1 for idx in output_ids if idx > 0]  
             reading_order = reading_order[:len(input_data.bboxes)]  
             

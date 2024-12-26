@@ -8,6 +8,7 @@ import os
 from PIL import Image, ImageDraw
 import time
 import torch
+from shutil import copy2
 
 torch.multiprocessing.set_start_method('spawn', force=True) 
 
@@ -306,6 +307,58 @@ def kie_process():
         
         draw_image.save(f"{output_dir}/{os.path.basename(image_paths[page_idx])}_kie.png")
 
+def ocr_images_organized_batch(input_dir, output_dir):
+    """Process all images in batch and save results in separate folders per image."""
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    # Get sorted list of image paths
+    image_paths = [os.path.join(input_dir, f) for f in sorted(os.listdir(input_dir))]
+    
+    # Create output directories for each image
+    for image_path in image_paths:
+        file_name = os.path.splitext(os.path.basename(image_path))[0]
+        image_output_dir = os.path.join(output_dir, file_name)
+        os.makedirs(image_output_dir, exist_ok=True)
+        # Copy original images
+        copy2(image_path, os.path.join(image_output_dir, "base.jpg"))
+    
+    # Process all images in batch
+    start_time = time.time()
+    predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, 
+                            export_as_straight_boxes=True, det_bs=16, reco_bs=8192).cuda()
+    doc = DocumentFile.from_images(image_paths)
+    result = predictor(doc)
+    end_time = time.time()
+    print(f"Time taken to process {len(image_paths)} images: {end_time - start_time} seconds")
+    print(f"Images per second: {len(image_paths) / (end_time - start_time)}")
+    
+    # Save results for each image
+    json_output = result.export()
+    synthetic_pages = result.synthesize()
+    
+    for i, image_path in enumerate(image_paths):
+        file_name = os.path.splitext(os.path.basename(image_path))[0]
+        image_output_dir = os.path.join(output_dir, file_name)
+        
+        # Save JSON results for this page
+        page_result = {
+            "pages": [json_output["pages"][i]]  # Extract just this page's results
+        }
+        with open(os.path.join(image_output_dir, "results.json"), "w") as f:
+            json.dump(page_result, f, indent=2)
+        
+        # Save visualization
+        plt.figure()
+        plt.imshow(synthetic_pages[i])
+        plt.axis('off')
+        plt.savefig(os.path.join(image_output_dir, "visualization.png"),
+            dpi=500,
+            bbox_inches='tight',
+            pad_inches=0
+        )
+        plt.close()
+
 if __name__ == "__main__":
     print(f"CUDA available: {torch.cuda.is_available()}")
     if torch.cuda.is_available():
@@ -317,4 +370,5 @@ if __name__ == "__main__":
     # ocr_images_parallel()
     # ocr_images()
     # ocr_and_draw_boxes()
-    kie_process()
+    # kie_process()
+    ocr_images_organized_batch("input/TMM.2018.2872898", "output/organized")
