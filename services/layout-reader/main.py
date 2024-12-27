@@ -23,9 +23,11 @@ USE_FP16 = os.getenv('USE_FP16', '').lower() in ('true', '1', 't')
 USE_MULTI_GPU = os.getenv('USE_MULTI_GPU', '').lower() in ('true', '1', 't')
 LAYOUTLM_ONLY_LAYOUT = os.getenv('LAYOUTLM_ONLY_LAYOUT', '').lower() in ('true', '1', 't')  
 
+print(f"MAX_SEQ_LENGTH: {MAX_SEQ_LENGTH}")
+print(f"MAX_TGT_LENGTH: {MAX_TGT_LENGTH}")
+
 class LayoutInput(BaseModel):
-    text: str  
-    bboxes: List[List[int]] 
+    pairs: List[Dict[str, Any]]  # Each dict should have 'text' and 'bbox' keys
 
 class PredictionResponse(BaseModel):
     reading_order: List[int]
@@ -95,38 +97,44 @@ model, tokenizer, device, config, preprocess = load_model()
 @app.post("/predict", response_model=PredictionResponse)
 async def predict_reading_order(input_data: LayoutInput):
     try:
-        words = input_data.text.split()
-        if len(words) != len(input_data.bboxes):
-            raise HTTPException(
-                status_code=400,
-                detail=f"Number of words ({len(words)}) doesn't match number of bounding boxes ({len(input_data.bboxes)})"
-            )
+        for pair in input_data.pairs:
+            if 'text' not in pair or 'bbox' not in pair:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Each pair must contain 'text' and 'bbox' keys"
+                )
+            if len(pair['bbox']) != 4:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid bbox format: {pair['bbox']}"
+                )
 
         max_src_length = MAX_SEQ_LENGTH - 2 - MAX_TGT_LENGTH
         
         source_ids = []
-        index_split = {}
-        new_token_index = 1  
+        token_to_word_map = {}
+        current_word_idx = 0
         
-        for i, (word, bbox) in enumerate(zip(words, input_data.bboxes)):
-            if not (bbox[2] >= bbox[0] and bbox[3] >= bbox[1]):
-                continue
-                
-            tokens = tokenizer.tokenize(word)
+        # Process each text-bbox pair
+        for pair in input_data.pairs:
+            text = pair['text']
+            bbox = pair['bbox']
+            
+            # Tokenize the text
+            tokens = tokenizer.tokenize(text)
             token_ids = tokenizer.convert_tokens_to_ids(tokens)
             
-            new_token_ids = []
             for token in token_ids:
-                source_ids.append([token] + bbox)  
-                new_token_ids.append(new_token_index)
-                new_token_index += 1
-            index_split[i] = new_token_ids
-        
+                source_ids.append([token] + bbox)
+                token_to_word_map[len(source_ids)] = current_word_idx
+            
+            current_word_idx += 1
+
         instance = {
-            "source_ids": source_ids,  
-            "target_ids": [], 
-            "target_index": [],  
-            "bleu": 0 
+            "source_ids": source_ids,
+            "target_ids": [],
+            "target_index": [],
+            "bleu": 0
         }
         
         instances_with_tokens = convert_src_layout_inputs_to_tokens(
@@ -139,7 +147,7 @@ async def predict_reading_order(input_data: LayoutInput):
         instances_with_tokens = sorted(list(enumerate(instances_with_tokens)), key=lambda x: -len(x[1]))
         buf = [x[1] for x in instances_with_tokens]
         
-        processed = preprocess(buf[0])
+        processed = preprocess(buf[0], MAX_TGT_LENGTH)
         
         batch = seq2seq_loader.batch_list_to_batch_tensors([processed])
         batch = [t.to(device) if t is not None else None for t in batch]
@@ -155,13 +163,23 @@ async def predict_reading_order(input_data: LayoutInput):
                 mask_qkv=mask_qkv
             )
             
-            if isinstance(traces, dict):
-                output_ids = traces['pred_seq'].tolist()[0]
-            else:
-                output_ids = traces.tolist()[0]
-                
-            reading_order = [idx - 1 for idx in output_ids if idx > 0]  
-            reading_order = reading_order[:len(input_data.bboxes)]  
+            output_ids = traces.tolist()[0]
+
+            # Convert output token indices to word indices using our mapping
+            reading_order = []
+            seen_words = set()
+            
+            for idx in output_ids:
+                if idx <= 0:
+                    continue
+                word_idx = token_to_word_map.get(idx)
+                if word_idx is not None and word_idx not in seen_words:
+                    reading_order.append(word_idx)
+                    seen_words.add(word_idx)
+            
+            # Ensure all words are included
+            # missing_words = set(range(len(words))) - seen_words
+            # reading_order.extend(sorted(missing_words))
             
             return PredictionResponse(
                 reading_order=reading_order
