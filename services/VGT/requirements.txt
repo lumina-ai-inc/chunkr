@@ -20,4 +20,5 @@ huggingface_hub==0.24.3
 setuptools==72.1.0
 roman==4.2
 hydra-core==1.3.2
-modal
+
+
