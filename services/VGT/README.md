@@ -10,4 +10,11 @@ VGT is a two-stream multi-modal Vision Grid Transformer for document layout anal
 
 ![VGT Model](figures/VGT_model.jpg)
 
-To use the service, simply docker compose up. If you would like to hit the server, refer to `services/tests/hit_server.py`.
+If you would like to hit the server, refer to `services/tests/hit_server.py`.
+
+```bash
+sudo docker compose build
+sudo docker compose up
+```
+
+
