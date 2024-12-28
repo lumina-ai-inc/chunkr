@@ -49,17 +49,13 @@ class MemoryPredictor:
                 batch_inputs = []
                 
                 for original_image, grid_dict in zip(original_images, grid_dicts):
-                    # Get image dimensions
                     height, width = original_image.shape[:2]
                     
-                    # Apply transforms
                     image, transforms = T.apply_transform_gens([self.aug], original_image)
                     image_shape = image.shape[:2]  # h, w
                     
-                    # Convert to tensor
                     image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
 
-                    # Transform bbox coordinates if they exist
                     bbox = []
                     if len(grid_dict["bbox_subword_list"]) > 0:
                         for bbox_per_subword in grid_dict["bbox_subword_list"]:
@@ -70,7 +66,6 @@ class MemoryPredictor:
                             utils.transform_instance_annotations(text_word, transforms, image_shape)
                             bbox.append(text_word['bbox'])
 
-                    # Prepare input dictionary
                     dataset_dict = {
                         "input_ids": grid_dict["input_ids"],
                         "bbox": bbox,
@@ -80,7 +75,6 @@ class MemoryPredictor:
                     }
                     batch_inputs.append(dataset_dict)
 
-                # Run inference on batch
                 predictions = self.model(batch_inputs)
                 return predictions
 
@@ -97,28 +91,15 @@ def process_image_batch(predictor, images, dataset_name="doclaynet", grid_dicts=
     Returns:
         tuple: (predictions, visualization_images)
     """
-    # Get predictions for batch
     predictions = predictor(images, grid_dicts)
 
-    # Set up metadata based on dataset
     md = MetadataCatalog.get(predictor.cfg.DATASETS.TEST[0])
     if dataset_name == 'doclaynet':
         md.set(thing_classes=["Caption","Footnote","Formula","List-item","Page-footer", 
                             "Page-header", "Picture", "Section-header", "Table", "Text", "Title"])
-    # ... other dataset configurations ...
 
-    # Create visualizations for each image
     visualizations = []
-    # for image, pred in zip(images, predictions):
-    #     v = Visualizer(
-    #         image[:, :, ::-1],
-    #         metadata=md,
-    #         scale=1.0,
-    #         instance_mode=ColorMode.SEGMENTATION
-    #     )
-    #     result = v.draw_instance_predictions(pred["instances"].to("cpu"))
-    #     visualization = result.get_image()[:, :, ::-1]
-    #     visualizations.append(visualization)
+
 
     return predictions, visualizations
 def setup_cfg(config_file, weights_path, opts=None):
@@ -132,10 +113,8 @@ def setup_cfg(config_file, weights_path, opts=None):
     if opts:
         cfg.merge_from_list(opts)
     
-    # Set weights path
     cfg.MODEL.WEIGHTS = weights_path
     
-    # Set device
     cfg.MODEL.DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     
     cfg.freeze()
@@ -160,10 +139,8 @@ def process_image(predictor, image, dataset_name="doclaynet", grid_dict=None):
     Returns:
         tuple: (predictions, visualization_image)
     """
-    # Get predictions
     predictions = predictor(image, grid_dict)
 
-    # Set up metadata based on dataset
     md = MetadataCatalog.get(predictor.cfg.DATASETS.TEST[0])
     if dataset_name == 'publaynet':
         md.set(thing_classes=["text","title","list","table","figure"])
@@ -174,7 +151,6 @@ def process_image(predictor, image, dataset_name="doclaynet", grid_dict=None):
     elif dataset_name == 'doclaynet':
         md.set(thing_classes=["Caption","Footnote","Formula","List-item","Page-footer", "Page-header", "Picture", "Section-header", "Table", "Text", "Title"])
 
-    # Create visualization
     v = Visualizer(
         image[:, :, ::-1],
         metadata=md,
