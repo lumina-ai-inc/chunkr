@@ -177,10 +177,6 @@ async def predict_reading_order(input_data: LayoutInput):
                     reading_order.append(word_idx)
                     seen_words.add(word_idx)
             
-            # Ensure all words are included
-            # missing_words = set(range(len(words))) - seen_words
-            # reading_order.extend(sorted(missing_words))
-            
             return PredictionResponse(
                 reading_order=reading_order
             )
