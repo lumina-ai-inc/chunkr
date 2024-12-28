@@ -42,7 +42,7 @@ pub async fn update_invoice_status(
 }
 pub async fn create_stripe_setup_intent(
     customer_id: &str,
-    stripe_config: &StripeConfig,
+    stripe_config: &StripeConfig,   
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 

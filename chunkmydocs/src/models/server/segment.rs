@@ -5,11 +5,17 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 use uuid::Uuid;
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+/// Bounding box for an item. It is used for both segments and OCR results.
 pub struct BoundingBox {
+    /// The left coordinate of the bounding box.
     pub left: f32,
+    /// The top coordinate of the bounding box.
     pub top: f32,
+    /// The width of the bounding box.
     pub width: f32,
+    /// The height of the bounding box.
     pub height: f32,
 }
 
@@ -20,35 +26,55 @@ impl BoundingBox {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+/// OCR results for a segment
 pub struct OCRResult {
     pub bbox: BoundingBox,
+    /// The recognized text of the OCR result.
     pub text: String,
+    /// The confidence score of the recognized text.
     pub confidence: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Segment {
+    /// Unique identifier for the segment.
     pub segment_id: String,
     pub bbox: BoundingBox,
+    /// Page number of the segment.
     pub page_number: u32,
+    /// Width of the page containing the segment.
     pub page_width: f32,
+    /// Height of the page containing the segment.
     pub page_height: f32,
+    /// Text content of the segment.
     pub content: String,
     pub segment_type: SegmentType,
+    /// OCR results for the segment.
     pub ocr: Option<Vec<OCRResult>>,
+    /// Presigned URL to the image of the segment.
     pub image: Option<String>,
+    /// HTML representation of the segment.
     pub html: Option<String>,
+    /// Markdown representation of the segment.
     pub markdown: Option<String>,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
+    /// Collection of document segments that form this chunk.
+    /// When target_chunk_length > 0, contains the maximum number of segments
+    /// that fit within that length (segments remain intact).
+    /// Otherwise, contains exactly one segment.
     pub segments: Vec<Segment>,
+    /// The total number of words in the chunk.
     pub chunk_length: i32,
 }
 
 // TODO: Move to models/server/task.rs
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+/// The processed results of a document analysis task
 pub struct OutputResponse {
+    /// Collection of document chunks, where each chunk contains one or more segments
     pub chunks: Vec<Chunk>,
     pub extracted_json: Option<ExtractedJson>,
 }
@@ -56,6 +82,7 @@ pub struct OutputResponse {
 #[derive(
     Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema, ToSql, FromSql,
 )]
+/// The type a segment is classified as.
 pub enum SegmentType {
     Title,
     #[serde(rename = "Section header")]

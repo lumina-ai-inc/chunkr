@@ -94,7 +94,7 @@ https://docs.chunkr.ai
    docker compose down
    ```
 
-### Production Deployment with Kubernetes
+### Deployment with Kubernetes
 For production environments, we provide a Helm chart and detailed deployment instructions:
 1. See our detailed guide at [`kube/README.md`](kube/README.md)
 2. Includes configurations for high availability and scaling

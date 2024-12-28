@@ -1,5 +1,3 @@
-use aws_sdk_s3::error::SdkError;
-use aws_sdk_s3::operation::head_object::HeadObjectError;
 use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream, Client as S3Client};
 use bytes::Bytes;
 use once_cell::sync::Lazy;
@@ -39,54 +37,17 @@ pub async fn generate_presigned_url(
 
     let (bucket, key) = extract_bucket_and_key(location)?;
 
-    let is_pdf = key.to_lowercase().ends_with(".pdf");
-
     let mut get_object = s3_client.get_object().bucket(bucket).key(key);
 
-    if is_pdf {
-        get_object = get_object
-            .response_content_disposition("inline")
-            .response_content_type("application/pdf")
-            .response_content_encoding("utf-8");
-    }
+    get_object = get_object
+        .response_content_disposition("inline")
+        .response_content_encoding("utf-8");
 
     let presigned_request = get_object
         .presigned(PresigningConfig::expires_in(expiration)?)
         .await?;
 
     Ok(presigned_request.uri().to_string())
-}
-pub async fn generate_presigned_url_if_exists(
-    s3_client: &S3Client,
-    location: &str,
-    expires_in: Option<Duration>,
-) -> Result<String, Box<dyn std::error::Error>> {
-    let expiration = expires_in.unwrap_or(Duration::from_secs(3600));
-
-    let (bucket, key) = extract_bucket_and_key(location)?;
-
-    match s3_client
-        .head_object()
-        .bucket(&bucket)
-        .key(&key)
-        .send()
-        .await
-    {
-        Ok(_) => {
-            let presigned_request = s3_client
-                .get_object()
-                .bucket(bucket)
-                .key(key)
-                .presigned(PresigningConfig::expires_in(expiration)?)
-                .await?;
-
-            Ok(presigned_request.uri().to_string())
-        }
-        Err(SdkError::ServiceError(err)) if matches!(err.err(), HeadObjectError::NotFound(_)) => {
-            Err(format!("Object does not exist: {}", location).into())
-        }
-        Err(err) => Err(format!("Error checking object existence: {}", err).into()),
-    }
 }
 
 pub async fn upload_to_s3_from_memory(
@@ -170,5 +131,42 @@ pub async fn download_to_given_tempfile(
         .await?;
     copy(&mut content.as_ref(), &mut temp_file)?;
 
+    Ok(())
+}
+
+pub async fn delete_folder(
+    s3_client: &S3Client,
+    location: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let (bucket, prefix) = extract_bucket_and_key(location)?;
+    let objects = s3_client
+        .list_objects_v2()
+        .bucket(&bucket)
+        .prefix(&prefix)
+        .send()
+        .await?;
+
+    let futures = objects.contents().iter().map(|object| {
+        let bucket = bucket.clone();
+        let key = object.key().unwrap().to_string();
+        let s3_client = s3_client.clone();
+
+        async move {
+            s3_client
+                .delete_object()
+                .bucket(bucket)
+                .key(key)
+                .send()
+                .await
+        }
+    });
+
+    let results = futures::future::join_all(futures).await;
+    for result in results {
+        match result {
+            Ok(_) => (),
+            Err(e) => println!("Error deleting object: {:?}", e),
+        }
+    }
     Ok(())
 }

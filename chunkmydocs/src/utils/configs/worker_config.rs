@@ -1,7 +1,6 @@
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum GeneralOcrModel {
@@ -67,8 +66,6 @@ pub struct Config {
     pub table_ocr_model: TableOcrModel,
     #[serde(default = "default_table_ocr_url")]
     pub table_ocr_url: Option<String>,
-    #[serde(with = "duration_seconds", default = "default_task_expiration")]
-    pub task_expiration: Option<Duration>,
     #[serde(default = "default_version")]
     pub version: String,
     #[serde(default = "default_page_ocr_model")]
@@ -167,41 +164,8 @@ fn default_table_ocr_url() -> Option<String> {
     Some("http://localhost:8004".to_string())
 }
 
-fn default_task_expiration() -> Option<Duration> {
-    None
-}
-
 fn default_version() -> String {
     "1.0.3".to_string()
-}
-
-mod duration_seconds {
-    use serde::{Deserialize, Deserializer, Serializer};
-    use std::time::Duration;
-
-    pub fn serialize<S>(duration: &Option<Duration>, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        match duration {
-            Some(d) => serializer.serialize_u64(d.as_secs()),
-            None => serializer.serialize_none(),
-        }
-    }
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Duration>, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let value: Option<String> = Option::deserialize(deserializer)?;
-        match value {
-            Some(s) if !s.is_empty() => s
-                .parse::<u64>()
-                .map(|secs| Some(Duration::from_secs(secs)))
-                .map_err(serde::de::Error::custom),
-            _ => Ok(None),
-        }
-    }
 }
 
 impl Config {
