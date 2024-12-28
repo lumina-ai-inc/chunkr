@@ -51,8 +51,14 @@ class Grid(BaseModel):
 class GridDicts(BaseModel):
     grid_dicts: List[Grid]
 
+class BoundingBox(BaseModel):
+    x1: float  # Left edge
+    y1: float  # Top edge
+    x2: float  # Right edge
+    y2: float  # Bottom edge
+
 class Instance(BaseModel):
-    boxes: List[List[float]]
+    boxes: List[BoundingBox]  # List of bounding boxes
     scores: List[float]
     classes: List[int]
     image_size: Tuple[int, int]
@@ -99,8 +105,8 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
         vertical_threshold = 50
         def sort_key(segment):
             box, _, _ = segment
-            y = box[1]
-            x = box[0]
+            y = box.y1
+            x = box.x1
             return (y // vertical_threshold, x)
         return sorted(segments_data, key=sort_key)
 
@@ -111,8 +117,8 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
         main_segments = []
         footer_segments = []
         for box, score, cls in zip(pred.instances.boxes, 
-                                   pred.instances.scores, 
-                                   pred.instances.classes):
+                                 pred.instances.scores, 
+                                 pred.instances.classes):
             segment_type = get_segment_type(cls)
             segment_data = (box, score, cls)
             if segment_type == "Page-header":
@@ -145,7 +151,7 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
     
     return updated_predictions
 
-def merge_colliding_predictions(boxes: List[List[float]], scores: List[float], classes: List[int]) -> tuple[List[List[float]], List[float], List[int]]:
+def merge_colliding_predictions(boxes: List[BoundingBox], scores: List[float], classes: List[int]) -> tuple[List[BoundingBox], List[float], List[int]]:
     valid_indices = [i for i, score in enumerate(scores) if score >= 0.2]
     if not valid_indices:
         return boxes, scores, classes
@@ -166,11 +172,11 @@ def merge_colliding_predictions(boxes: List[List[float]], scores: List[float], c
             to_merge_indices = []
             for i, box2 in enumerate(filtered_boxes):
                 intersection = (
-                    max(0, min(box1[2], box2[2]) - max(box1[0], box2[0])) *
-                    max(0, min(box1[3], box2[3]) - max(box1[1], box2[1]))
+                    max(0, min(box1.x2, box2.x2) - max(box1.x1, box2.x1)) *
+                    max(0, min(box1.y2, box2.y2) - max(box1.y1, box2.y1))
                 )
-                area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
-                area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+                area1 = (box1.x2 - box1.x1) * (box1.y2 - box1.y1)
+                area2 = (box2.x2 - box2.x1) * (box2.y2 - box2.y1)
                 min_area = min(area1, area2)
                 
                 if min_area > 0 and (intersection / min_area) > 0.1:
@@ -187,10 +193,10 @@ def merge_colliding_predictions(boxes: List[List[float]], scores: List[float], c
                     filtered_scores.pop(i)
                     filtered_classes.pop(i)
                 
-                x1 = min(box[0] for box in merge_boxes)
-                y1 = min(box[1] for box in merge_boxes)
-                x2 = max(box[2] for box in merge_boxes)
-                y2 = max(box[3] for box in merge_boxes)
+                x1 = min(box.x1 for box in merge_boxes)
+                y1 = min(box.y1 for box in merge_boxes)
+                x2 = max(box.x2 for box in merge_boxes)
+                y2 = max(box.y2 for box in merge_boxes)
                 
                 # If any of them is table => class 8
                 if 8 in merge_classes:
@@ -199,7 +205,7 @@ def merge_colliding_predictions(boxes: List[List[float]], scores: List[float], c
                     max_score_idx = merge_scores.index(max(merge_scores))
                     final_class = merge_classes[max_score_idx]
                 
-                new_boxes.append([x1, y1, x2, y2])
+                new_boxes.append(BoundingBox(x1=x1, y1=y1, x2=x2, y2=y2))
                 new_scores.append(max(merge_scores))
                 new_classes.append(final_class)
             else:
@@ -230,18 +236,18 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
         
         for text, bbox in zip(grid.texts, grid.bbox_texts_list):
             x, y, w, h = bbox
-            text_box = [x, y, x + w, y + h]
+            text_box = BoundingBox(x1=x, y1=y, x2=x+w, y2=y+h)
             
             best_score = 0
             best_class = 9  # default to "Text"
             
             for box, score, cls in zip(boxes, scores, classes):
                 intersection = (
-                    max(0, min(text_box[2], box[2]) - max(text_box[0], box[0])) *
-                    max(0, min(text_box[3], box[3]) - max(text_box[1], box[1]))
+                    max(0, min(text_box.x2, box.x2) - max(text_box.x1, box.x1)) *
+                    max(0, min(text_box.y2, box.y2) - max(text_box.y1, box.y1))
                 )
-                text_area = (text_box[2] - text_box[0]) * (text_box[3] - text_box[1])
-                pred_area = (box[2] - box[0]) * (box[3] - box[1])
+                text_area = (text_box.x2 - text_box.x1) * (text_box.y2 - text_box.y1)
+                pred_area = (box.x2 - box.x1) * (box.y2 - box.y1)
                 min_area = min(text_area, pred_area)
                 
                 if min_area > 0 and intersection / min_area > 0.1 and score > best_score:
@@ -257,8 +263,8 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
             has_overlap = False
             for text_box in text_boxes:
                 intersection = (
-                    max(0, min(text_box[2], box[2]) - max(text_box[0], box[0])) *
-                    max(0, min(text_box[3], box[3]) - max(text_box[1], box[1]))
+                    max(0, min(text_box.x2, box.x2) - max(text_box.x1, box.x1)) *
+                    max(0, min(text_box.y2, box.y2) - max(text_box.y1, box.y1))
                 )
                 if intersection > 0:
                     has_overlap = True
@@ -311,7 +317,8 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
     for pred in raw_predictions:
         serializable_pred = SerializablePrediction(
             instances=Instance(
-                boxes=pred["instances"].pred_boxes.tensor.tolist(),
+                boxes=[BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) 
+                       for box in pred["instances"].pred_boxes.tensor.tolist()],
                 scores=pred["instances"].scores.tolist(),
                 classes=pred["instances"].pred_classes.tolist(),
                 image_size=[
@@ -446,9 +453,11 @@ async def process_image_batch_endpoint(
     
     predictions = []
     for pred in raw_predictions:
+        boxes = pred["instances"].pred_boxes.tensor.tolist()
         serializable_pred = SerializablePrediction(
             instances=Instance(
-                boxes=pred["instances"].pred_boxes.tensor.tolist(),
+                boxes=[BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) 
+                      for box in boxes],
                 scores=pred["instances"].scores.tolist(),
                 classes=pred["instances"].pred_classes.tolist(),
                 image_size=[
@@ -485,9 +494,11 @@ async def process_single_image_endpoint(
     )
     
     pred = raw_predictions[0]
+    boxes = pred["instances"].pred_boxes.tensor.tolist()
     serializable_pred = SerializablePrediction(
         instances=Instance(
-            boxes=pred["instances"].pred_boxes.tensor.tolist(),
+            boxes=[BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) 
+                  for box in boxes],
             scores=pred["instances"].scores.tolist(),
             classes=pred["instances"].pred_classes.tolist(),
             image_size=[
