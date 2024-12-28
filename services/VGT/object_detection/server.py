@@ -1,37 +1,24 @@
 import os
-import time
 import asyncio
 from collections import deque
 from contextlib import asynccontextmanager
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Tuple
 import json
-
 import cv2
 import numpy as np
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, Form
 from pydantic import BaseModel
-
-# -------------
-# Imports from your existing code
-# -------------
-
 from memory_inference import create_predictor, process_image_batch
-from typing import Tuple
+from fastapi.responses import JSONResponse
 
-app = FastAPI()  # This will be changed below to a lifespan-based app for dynamic batching
+app = FastAPI()  
 
-# ------------------------------------------------
-# Original global predictor (as in your code)
-# ------------------------------------------------
 predictor = None
 
 CONFIG_FILE = "object_detection/configs/cascade/doclaynet_VGT_cascade_PTM.yaml"
 WEIGHTS_PATH = "object_detection/weights/doclaynet_VGT_model.pth"
 
-# ------------------------------------------------
-# Dynamic batching config
-# ------------------------------------------------
 batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.5))
 max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
 
@@ -39,9 +26,6 @@ processing_lock = asyncio.Lock()
 batch_event = asyncio.Event()
 pending_tasks = deque()
 
-# ------------------------------------------------
-# Pydantic models for dynamic batching
-# ------------------------------------------------
 class Grid(BaseModel):
     input_ids: List[int]
     bbox_subword_list: List[List[float]]
@@ -52,13 +36,13 @@ class GridDicts(BaseModel):
     grid_dicts: List[Grid]
 
 class BoundingBox(BaseModel):
-    x1: float  # Left edge
-    y1: float  # Top edge
-    x2: float  # Right edge
-    y2: float  # Bottom edge
+    x1: float
+    y1: float
+    x2: float
+    y2: float
 
 class Instance(BaseModel):
-    boxes: List[BoundingBox]  # List of bounding boxes
+    boxes: List[BoundingBox]
     scores: List[float]
     classes: List[int]
     image_size: Tuple[int, int]
@@ -66,22 +50,17 @@ class Instance(BaseModel):
 class SerializablePrediction(BaseModel):
     instances: Instance
 
-# Task object to store everything needed for the batch
 class ODTask(BaseModel):
-    file_data: bytes       # The raw bytes of the image
-    grid_dict: dict        # The grid dict object
-    future: asyncio.Future # Will hold the result once processed
+    file_data: bytes
+    grid_dict: dict
+    future: asyncio.Future
 
     class Config:
         arbitrary_types_allowed = True
 
-# A convenience model for returning the result or any custom shape
 class ODResponse(BaseModel):
     predictions: List[SerializablePrediction]
 
-# ------------------------------------------------
-# Helper functions (copied from your existing code)
-# ------------------------------------------------
 
 def get_reading_order(predictions: List[SerializablePrediction]) -> List[SerializablePrediction]:
     type_mapping = {
@@ -286,25 +265,19 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
     
     return updated_predictions
 
-# ------------------------------------------------
-# Dynamic Batching Logic
-# ------------------------------------------------
+
 async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePrediction]]:
     """
     Processes a list of ODTask in a single batch. This merges all images & grid dicts
     and keeps track of each in order to properly split the results back out.
     """
-    # Flatten out all images from tasks:
     images = []
     grid_dicts_data = []
     for t in tasks:
         image = cv2.imdecode(np.frombuffer(t.file_data, np.uint8), cv2.IMREAD_COLOR)
         images.append(image)
-        grid_dicts_data.append(t.grid_dict)  # Each task presumably has one
+        grid_dicts_data.append(t.grid_dict)  
 
-    # The process_image_batch from your existing code
-    # Here, we pass a list of grid_dicts. If each task has exactly 1, you pass them individually.
-    # If each task can have multiple, you'll need to flatten them differently.
     raw_predictions, _ = process_image_batch(
         predictor, 
         images, 
@@ -329,15 +302,12 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
         )
         predictions_list.append(serializable_pred)
 
-    # For each input in tasks, find the best segments -> reading order
-    # Because tasks and predictions_list are in the same order, pair them up:
     results_for_tasks = []
     for i, t in enumerate(tasks):
-        # Wrap the single grid_dict as a GridDicts object
         grid_dicts_obj = GridDicts(grid_dicts=[t.grid_dict])
         final_predictions = find_best_segments([predictions_list[i]], grid_dicts_obj)
         ordered_predictions = get_reading_order(final_predictions)
-        results_for_tasks.append(ordered_predictions)  # Each task yields a list of predictions
+        results_for_tasks.append(ordered_predictions)  
 
     return results_for_tasks
 
@@ -350,7 +320,6 @@ async def batch_processor():
         await batch_event.wait()
         batch_event.clear()
         
-        # Wait for any straggler tasks to come in
         await asyncio.sleep(batch_wait_time)
 
         async with processing_lock:
@@ -364,13 +333,11 @@ async def batch_processor():
             if max_batch_size is None or max_batch_size <= 0:
                 results.extend(await process_od_batch(current_batch))
             else:
-                # If you want to break them up by max_batch_size
                 for i in range(0, len(current_batch), max_batch_size):
                     chunk = current_batch[i:i+max_batch_size]
                     chunk_results = await process_od_batch(chunk)
                     results.extend(chunk_results)
 
-            # Assign each result to the future in its corresponding task
             for task, result in zip(current_batch, results):
                 task.future.set_result(result)
         except Exception as e:
@@ -385,7 +352,6 @@ async def lifespan(app: FastAPI):
     """
     global predictor
     
-    # Create predictor if not already created
     if predictor is None:
         predictor = create_predictor(CONFIG_FILE, WEIGHTS_PATH)
         print("Model loaded successfully!")
@@ -395,12 +361,9 @@ async def lifespan(app: FastAPI):
     # On shutdown
     batch_processor_task.cancel()
 
-# Create a new FastAPI app with a lifespan that starts the background processor
 app = FastAPI(lifespan=lifespan)
 
-# ------------------------------------------------
-# Dynamic Batching Endpoint
-# ------------------------------------------------
+
 @app.post("/batch_async", response_model=SerializablePrediction)
 async def create_od_task(
     file: UploadFile = File(...),
@@ -412,21 +375,15 @@ async def create_od_task(
     image_data = await file.read()
     grid_dict_data = json.loads(grid_dict)
 
-    # Create the task and attach a Future
     future = asyncio.Future()
     task = ODTask(file_data=image_data, grid_dict=grid_dict_data, future=future)
 
     pending_tasks.append(task)
     batch_event.set()
 
-    # Wait until the batch is processed
-    result = await future  # This will be a list of predictions
-    # Return just the first prediction (since this is a single-image endpoint)
-    return result[0] # Changed from result[0]
+    result = await future  
+    return result[0] 
 
-# ------------------------------------------------
-# (Optional) Keep your old endpoints or adapt them
-# ------------------------------------------------
 @app.post("/batch/")
 async def process_image_batch_endpoint(
     files: List[UploadFile] = File(...),
@@ -481,7 +438,6 @@ async def process_single_image_endpoint(
     """
     Your existing single-image endpoint. 
     """
-    from fastapi.responses import JSONResponse
 
     grid_dict_data = json.loads(grid_dict)
     grid_dicts_obj = GridDicts(grid_dicts=[grid_dict_data])
@@ -517,6 +473,5 @@ async def process_single_image_endpoint(
 async def root():
     return {"message": "Hello World"}
 
-# In main mode, run uvicorn
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
