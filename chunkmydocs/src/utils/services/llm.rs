@@ -99,7 +99,7 @@ mod tests {
         let url = llm_config.url;
         let key = llm_config.key;
 
-        let models = HashMap::from([("geminipro", "google/gemini-pro-1.5")]);
+        let models = HashMap::from([("geminipro", "gemini-1.5-flash")]);
 
         let prompts = HashMap::from([
             ("prompt1", "Analyze this image and convert the table to HTML format maintaining the original structure. If the image provided is not a table (for example if it is a image, formula, chart, etc), then represent the information (maintain all the text exactly as it is) but structure it gracefully into html.
@@ -307,6 +307,7 @@ mod tests {
         println!("test_ocr_llm_with_image completed successfully");
         Ok(())
     }
+
     #[tokio::test]
     async fn test_mkd_ocr_llm() -> Result<(), Box<dyn Error + Send + Sync>> {
         println!("Starting test_ocr_llm_with_image");

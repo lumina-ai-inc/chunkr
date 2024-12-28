@@ -5,6 +5,7 @@ terraform {
       version = "5.30.0"
     }
   }
+  backend "s3" {}
 }
 
 variable "project" {
@@ -130,15 +131,15 @@ provider "google" {
 # Redis (Cloud Memorystore)
 ###############################################################
 resource "google_redis_instance" "cache" {
-  name           = "${var.base_name}-redis"
-  tier           = "BASIC"
-  memory_size_gb = 6
-  region = var.region
-  authorized_network = google_compute_network.vpc_network.id
-  connect_mode = "PRIVATE_SERVICE_ACCESS"
+  name                    = "${var.base_name}-redis"
+  tier                    = "BASIC"
+  memory_size_gb          = 6
+  region                  = var.region
+  authorized_network      = google_compute_network.vpc_network.id
+  connect_mode            = "PRIVATE_SERVICE_ACCESS"
   transit_encryption_mode = "DISABLED"
-  display_name = "${var.base_name} redis cache"
-  depends_on = [google_service_networking_connection.private_service_connection]
+  display_name            = "${var.base_name} redis cache"
+  depends_on              = [google_service_networking_connection.private_service_connection]
 }
 
 ###############################################################
@@ -258,8 +259,8 @@ resource "google_compute_global_address" "private_ip_address" {
 }
 
 resource "google_project_service" "servicenetworking" {
-  project = var.project
-  service = "servicenetworking.googleapis.com"
+  project            = var.project
+  service            = "servicenetworking.googleapis.com"
   disable_on_destroy = false
 }
 

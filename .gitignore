@@ -133,3 +133,26 @@ score.py
 figures
 images
 input_pdfs
+
+
+# Terraform files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+backend.hcl
+backend.*.hcl
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+crash.log
+crash.*.log
+
+# Exclude example files
+!*.example.tfvars
+!backend.example.hcl
+!backend.hcl.example
