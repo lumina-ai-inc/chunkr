@@ -1,13 +1,14 @@
 import io
-import json
 import time
 import requests
 from PIL import Image, ImageDraw, ImageFont
 import os
 from pathlib import Path
 import concurrent.futures
-
-# Create directories for saving annotated images
+from pdf2image import convert_from_path
+import numpy as np
+import json
+from tokenization import BrosTokenizer
 ANNOTATED_IMAGES_DIR = Path("annotated_images")
 os.makedirs(ANNOTATED_IMAGES_DIR, exist_ok=True)
 
@@ -22,17 +23,14 @@ def send_word_grids_to_server(grid_data_list: list[dict],
     server_url: the endpoint accepting a POST with 'files' and 'grid_dicts'
     """
 
-    # Prepare data for the server
     batch_files = []
     batch_grid_data = []
 
     for i, (img, grid_data) in enumerate(zip(images, grid_data_list)):
-        # Convert PIL image to bytes
         img_byte_arr = io.BytesIO()
         img.save(img_byte_arr, format='JPEG')
         img_bytes = img_byte_arr.getvalue()
 
-        # Convert numpy arrays in grid_data to lists (for JSON serialization)
         serializable_data = {
             "input_ids": grid_data["input_ids"].tolist(),
             "bbox_subword_list": grid_data["bbox_subword_list"].tolist(),
@@ -40,11 +38,9 @@ def send_word_grids_to_server(grid_data_list: list[dict],
             "bbox_texts_list": grid_data["bbox_texts_list"].tolist()
         }
 
-        # Add each file as part of a "files" tuple
         batch_files.append(("files", (f"image_page_{i}.jpg", img_bytes, "image/jpeg")))
         batch_grid_data.append(serializable_data)
 
-    # Convert entire grid data to JSON
     grid_data_json = json.dumps(batch_grid_data)
 
     print(f"Sending {len(batch_files)} images to {server_url}")
@@ -64,12 +60,9 @@ def send_word_grids_to_server(grid_data_list: list[dict],
             print(f"Response: {response.text}")
             return
 
-        # Process the JSON response
-        response_data = response.json()  # expected format: list of predictions
+        response_data = response.json()  
         print("Server response format:", response_data)
 
-        # Optional: If we want to visualize bounding boxes returned by the server
-        # We'll assume server returns predictions[i]['instances'] ... with boxes, scores, classes
         visualize_predictions(images, response_data)
 
     except Exception as e:
@@ -88,13 +81,7 @@ def visualize_predictions(images: list[Image.Image], predictions: list[dict]) ->
     ]
 
     for i, (image, pred_dict) in enumerate(zip(images, predictions)):
-        # We assume pred_dict has the structure: {
-        #   "instances": {
-        #       "boxes": [{"x1": float, "y1": float, "x2": float, "y2": float}, ...],
-        #       "scores": [...],
-        #       "classes": [...]
-        #   }
-        # }
+
         image_resized = image.resize((image.width * 2, image.height * 2))
         draw = ImageDraw.Draw(image_resized)
 
@@ -106,9 +93,8 @@ def visualize_predictions(images: list[Image.Image], predictions: list[dict]) ->
         try:
             for order, (box, score, cls_idx) in enumerate(zip(boxes, scores, classes), start=1):
                 if score <= 0:
-                    continue  # skip invalid or dummy predictions
+                    continue  
                 
-                # Handle box coordinates from BoundingBox object
                 scaled_box = [
                     box["x1"] * 2,
                     box["y1"] * 2,
@@ -117,11 +103,9 @@ def visualize_predictions(images: list[Image.Image], predictions: list[dict]) ->
                 ]
                 draw.rectangle(scaled_box, outline="red", width=3)
 
-                # Prepare label text
                 class_label = class_labels[cls_idx] if cls_idx < len(class_labels) else "Unknown"
                 label_text = f"{order}: {score:.2f} ({class_label})"
 
-                # Draw background for label
                 text_position = (scaled_box[0], max(0, scaled_box[1] - 35))
                 text_width = len(label_text) * 10
                 text_height = 30
@@ -133,7 +117,6 @@ def visualize_predictions(images: list[Image.Image], predictions: list[dict]) ->
                 ]
                 draw.rectangle(label_bbox, fill="red")
 
-                # Draw label text
                 try:
                     font = ImageFont.truetype("DejaVuSans", 100)
                 except OSError:
@@ -149,7 +132,6 @@ def visualize_predictions(images: list[Image.Image], predictions: list[dict]) ->
             print(f"Error drawing predictions on image {i}: {ex}")
             continue
 
-        # Save annotated image to directory
         annotated_name = ANNOTATED_IMAGES_DIR / f"annotated_page_{i}.jpg"
         image_resized.save(annotated_name)
         print(f"Annotated image saved as: {annotated_name}")
@@ -167,19 +149,11 @@ def post_image(server_url, img_bytes, grid_data_json):
 
 
 if __name__ == "__main__":
-    import os
-    from pathlib import Path
-    from PIL import Image
-    from pdf2image import convert_from_path
-    import numpy as np
-    import json
-    from tokenization import BrosTokenizer
 
-    # Initialize tokenizer
+
     tokenizer = BrosTokenizer.from_pretrained("naver-clova-ocr/bros-base-uncased")
 
-    # Convert PDF to images and create word grid
-    pdf_path = "figures/0a8c1d78-1e43-4893-ac26-1078c63c4952.pdf"
+    pdf_path = "figures/test_batch.pdf"
     batch = False
     print("Converting PDF to images...")
     pdf_images = convert_from_path(str(pdf_path), dpi=300, fmt="jpg")
@@ -187,28 +161,21 @@ if __name__ == "__main__":
         batch_files = []
         batch_grid_data = []
 
-        # Convert PDF pages to images
 
-
-        # Create empty grid data for each page
         grid_list = []
         for i, image in enumerate(pdf_images):
-            # Create a minimal grid structure similar to test_server.py
-            # but without relying on PdfFeatures/PdfTokens
             grid_data = {
-                "input_ids": np.array([]),  # Empty array for input IDs
-                "bbox_subword_list": np.array([]),  # Empty array for subword bboxes
-                "texts": [],  # Empty list for texts
-                "bbox_texts_list": np.array([])  # Empty array for text bboxes
+                "input_ids": np.array([]),
+                "bbox_subword_list": np.array([]),
+                "texts": [],
+                "bbox_texts_list": np.array([])
             }
             grid_list.append(grid_data)
 
-            # Convert image to bytes for sending
             img_byte_arr = io.BytesIO()
             image.save(img_byte_arr, format='JPEG')
             img_byte_arr = img_byte_arr.getvalue()
             
-            # Prepare serializable grid data
             grid_data_serializable = {
                 "input_ids": grid_data["input_ids"].tolist(),
                 "bbox_subword_list": grid_data["bbox_subword_list"].tolist(),
@@ -219,7 +186,6 @@ if __name__ == "__main__":
             batch_files.append(("files", ("image.jpg", img_byte_arr, "image/jpeg")))
             batch_grid_data.append(grid_data_serializable)
 
-        # Send to server
         server_url = "http://localhost:8000/batch/"
         print(f"Sending batch request with {len(batch_files)} images")
         
@@ -245,29 +211,24 @@ if __name__ == "__main__":
             print(f"Error sending data to server: {str(e)}")
             
     else:
-        # Process a single image
         server_url = "http://localhost:8000/batch_async/"
         
-        # Process all images in parallel
         request_futures = []
         request_times = []
         
         with concurrent.futures.ProcessPoolExecutor() as executor:
             for image in pdf_images:
-                # Convert image to bytes
                 img_byte_arr = io.BytesIO()
                 image.save(img_byte_arr, format='JPEG')
                 img_bytes = img_byte_arr.getvalue()
                 
-                # Create grid data for image
                 grid_data = {
-                    "input_ids": np.array([]),  # Empty array for input IDs
-                    "bbox_subword_list": np.array([]),  # Empty array for subword bboxes 
-                    "texts": [],  # Empty list for texts
-                    "bbox_texts_list": np.array([])  # Empty array for text bboxes
+                    "input_ids": np.array([]),
+                    "bbox_subword_list": np.array([]),
+                    "texts": [],
+                    "bbox_texts_list": np.array([])
                 }
                 
-                # Prepare serializable grid data
                 grid_data_serializable = {
                     "input_ids": grid_data["input_ids"].tolist(),
                     "bbox_subword_list": grid_data["bbox_subword_list"].tolist(), 
@@ -277,12 +238,10 @@ if __name__ == "__main__":
                 
                 grid_data_json = json.dumps(grid_data_serializable)
                 
-                # Now call our helper
                 future = executor.submit(post_image, server_url, img_bytes, grid_data_json)
                 request_futures.append(future)
         
         try:
-            # Process responses
             all_predictions = []
             for i, future in enumerate(request_futures):
                 try:
