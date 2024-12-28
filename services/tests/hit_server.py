@@ -90,7 +90,7 @@ def visualize_predictions(images: list[Image.Image], predictions: list[dict]) ->
     for i, (image, pred_dict) in enumerate(zip(images, predictions)):
         # We assume pred_dict has the structure: {
         #   "instances": {
-        #       "boxes": [[x1,y1,x2,y2], ...],
+        #       "boxes": [{"x1": float, "y1": float, "x2": float, "y2": float}, ...],
         #       "scores": [...],
         #       "classes": [...]
         #   }
@@ -107,7 +107,14 @@ def visualize_predictions(images: list[Image.Image], predictions: list[dict]) ->
             for order, (box, score, cls_idx) in enumerate(zip(boxes, scores, classes), start=1):
                 if score <= 0:
                     continue  # skip invalid or dummy predictions
-                scaled_box = [coord * 2 for coord in box]
+                
+                # Handle box coordinates from BoundingBox object
+                scaled_box = [
+                    box["x1"] * 2,
+                    box["y1"] * 2,
+                    box["x2"] * 2,
+                    box["y2"] * 2
+                ]
                 draw.rectangle(scaled_box, outline="red", width=3)
 
                 # Prepare label text
@@ -172,7 +179,7 @@ if __name__ == "__main__":
     tokenizer = BrosTokenizer.from_pretrained("naver-clova-ocr/bros-base-uncased")
 
     # Convert PDF to images and create word grid
-    pdf_path = "figures/test_batch.pdf"
+    pdf_path = "figures/0a8c1d78-1e43-4893-ac26-1078c63c4952.pdf"
     batch = False
     print("Converting PDF to images...")
     pdf_images = convert_from_path(str(pdf_path), dpi=300, fmt="jpg")

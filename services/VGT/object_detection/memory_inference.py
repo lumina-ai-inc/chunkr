@@ -8,7 +8,6 @@ from detectron2.data import MetadataCatalog
 from detectron2.modeling import build_model
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.data import detection_utils as utils
-from detectron2.data.detection_utils import transform_instance_annotations
 from detectron2.structures import BoxMode
 import detectron2.data.transforms as T
 from transformers import AutoTokenizer
