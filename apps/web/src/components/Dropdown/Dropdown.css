@@ -1,0 +1,71 @@
+.model-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: fit-content;
+  min-width: 100%;
+  max-height: 240px; /* Add max height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  z-index: 10;
+  animation: dropdownFadeIn 0.2s ease;
+
+  /* Firefox scrollbar styling */
+  scrollbar-width: 8px;
+  scrollbar-color: rgba(255, 255, 255, 0.3) #050609;
+}
+
+/* WebKit scrollbar styling */
+.model-dropdown::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.model-dropdown::-webkit-scrollbar-track {
+  background: #050609;
+}
+
+.model-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 0px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.model-dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.model-option {
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.model-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.model-option.selected {
+  background: #ffffff;
+  color: #050609;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

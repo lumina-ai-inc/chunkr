@@ -1,3 +1,31 @@
+button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none !important; /* Added !important */
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Update focus styles to prevent any outline */
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Optional: Add custom focus styles for keyboard navigation */
+button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .header-container {
   position: fixed !important;
   justify-content: center;
@@ -70,6 +98,7 @@
 .hero-content-container {
   position: relative;
   width: 100%;
+  height: calc(100vh - 128px);
   max-width: 1388px;
   margin-top: 64px;
   padding-left: 24px;
@@ -292,6 +321,10 @@
   appearance: none;
 }
 
+.signup-button:hover {
+  outline: 2px solid #fff !important;
+}
+
 /* Create base particle styles */
 .signup-button::before,
 .signup-button::after,
@@ -482,20 +515,30 @@
 
 .feature-left-box {
   flex: 1;
-  flex-direction: row;
-  gap: 32px;
+  flex-direction: column;
+  gap: 80px;
   height: 100%;
   width: 100%;
   position: relative;
   padding-top: 48px;
-  z-index: 1;
+  z-index: 2;
+  display: flex;
+}
+
+.feature-left-box > *:first-child {
+  flex: 1;
+}
+
+.feature-left-box > *:last-child {
+  flex: 2;
 }
 
 .feature-left-box-title {
   line-height: 1.2;
   font-weight: 600;
   font-size: 54px;
-  max-width: 600px;
+  width: 100%;
+  max-width: 624px;
   background: linear-gradient(90deg, #fff 0%, #dce4dd 80%);
   background-clip: text;
   -webkit-background-clip: text;
@@ -574,6 +617,89 @@
   transition: all 0.3s ease;
 }
 
+/* Layout Analysis - First instance */
+.feature-left-box > *:last-child > *:nth-child(1) .feature-left-box-lottie {
+  width: fit-content;
+  height: fit-content;
+  padding: 16px;
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05),
+    0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* OCR - Second instance */
+.feature-left-box > *:last-child > *:nth-child(2) .feature-left-box-lottie {
+  width: fit-content;
+  height: fit-content;
+  padding: 16px;
+  border-radius: 8px;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05),
+    0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Schema Extract - Third instance */
+.feature-left-box > *:last-child > *:nth-child(3) .feature-left-box-lottie {
+  width: fit-content;
+  height: fit-content;
+  padding: 16px;
+  border-radius: 8px;
+  background: linear-gradient(
+    195deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05),
+    0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-left-box > *:last-child > *:nth-child(4) .feature-left-box-lottie {
+  width: fit-content;
+  height: fit-content;
+  padding: 16px;
+  border-radius: 8px;
+  background: linear-gradient(
+    225deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05),
+    0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .feature-right-box-image {
   font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 16px;
@@ -582,7 +708,7 @@
   line-height: 1.6;
   height: calc(100vh - 208px);
   width: 100%;
-  max-width: 924px;
+  max-width: 944px;
   padding-top: 0px;
   margin-top: 48px;
   margin-left: 48px;
@@ -1384,17 +1510,13 @@
   padding: 8px;
   border-radius: 8px;
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.06) 50%,
-    rgba(255, 255, 255, 0.02) 100%
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.01) 100%
   );
+  border: 1px solid rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(6px);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 4px 8px -2px rgba(0, 0, 0, 0.05),
-    0 8px 16px -4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1474,9 +1596,128 @@
 .pricing-enterprise-container {
   background: #050609;
   border-radius: 8px;
-  padding: 24px;
-  width: calc(100% - 128px);
+  padding: 40px;
+  width: fit-content;
   background-image: url("../../assets/hero/hero_05.webp");
   background-size: cover;
   background-position: center;
+}
+
+.layout-analysis-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.control-switches {
+  display: flex;
+  gap: 2px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 100px;
+  width: max-content;
+}
+
+.control-switch {
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.control-switch.active {
+  background: #ffffff;
+  color: #050609;
+}
+
+.model-selector {
+  display: flex;
+  position: relative;
+  z-index: 5;
+  width: 100%;
+}
+
+.model-selector-button {
+  width: 100%;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 100px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.model-selector-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Add these styles to make the flex children take equal width */
+.feature-left-box > *:last-child {
+  display: flex;
+  gap: 96px;
+  justify-content: between;
+}
+
+.feature-left-box > *:last-child > * {
+  flex: 1;
+  min-width: 0; /* Prevents flex items from overflowing */
+  width: 0; /* Forces equal width distribution */
+}
+
+.bottom-cta-icon {
+  position: relative;
+  background: rgba(255, 255, 255, 0.02); /* Reduced opacity for dark bg */
+  border-radius: 12px;
+  padding: 24px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 32px -4px rgba(0, 0, 0, 0.8),
+    0 8px 40px -4px rgba(255, 255, 255, 0.05),
+    inset 0 1px 1px rgba(255, 255, 255, 0.02); /* More subtle inner highlight */
+  backdrop-filter: blur(12px);
+}
+
+.bottom-cta-icon::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 12px;
+  padding: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.2),
+    /* Reduced glow intensity */ rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.02)
+  );
+  background-size: 200% 100%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderGlow 4s linear infinite;
+}
+
+@keyframes borderGlow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
 }
