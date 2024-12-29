@@ -14,12 +14,15 @@ import bargraphAnimation from "../../assets/animations/bargraph.json";
 import codeAnimation from "../../assets/animations/code.json";
 import secureAnimation from "../../assets/animations/secure.json";
 import rustAnimation from "../../assets/animations/rust.json";
-import segmentationAnimation from "../../assets/animations/segment.json";
+// import segmentationAnimation from "../../assets/animations/segment.json";
 import ocrAnimation from "../../assets/animations/ocr.json";
-import stackingAnimation from "../../assets/animations/stacking.json";
-import extractAnimation from "../../assets/animations/extract.json";
-import parsingAnimation from "../../assets/animations/parsing.json";
-import notesAnimation from "../../assets/animations/notes.json";
+// import stackingAnimation from "../../assets/animations/stacking.json";
+// import extractAnimation from "../../assets/animations/extract.json";
+// import parsingAnimation from "../../assets/animations/parsing.json";
+// import notesAnimation from "../../assets/animations/notes.json";
+import chunkingAnimation from "../../assets/animations/chunking.json";
+import vlmAnimation from "../../assets/animations/vlm.json";
+import layoutAnimation from "../../assets/animations/layout.json";
 import PricingCard from "../../components/PricingCard/PricingCard";
 import CodeBlock from "../../components/CodeBlock/CodeBlock";
 import BetterButton from "../../components/BetterButton/BetterButton";
@@ -29,6 +32,7 @@ import {
   pythonExample,
   rustExample,
 } from "../../components/CodeBlock/exampleScripts";
+import Dropdown from "../../components/Dropdown/Dropdown";
 
 const Home = () => {
   const auth = useAuth();
@@ -52,8 +56,41 @@ const Home = () => {
   const parsingLottieRef = useRef<LottieRefCurrentProps>(null);
   const notesLottieRef = useRef<LottieRefCurrentProps>(null);
   const curlLottieRef = useRef<LottieRefCurrentProps>(null);
+  const vlmLottieRef = useRef<LottieRefCurrentProps>(null);
+  const chunkingLottieRef = useRef<LottieRefCurrentProps>(null);
+  const layoutLottieRef = useRef<LottieRefCurrentProps>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedScript, setSelectedScript] = useState("curl");
+  const [segmentationStrategy, setSegmentationStrategy] = useState<
+    "LayoutAnalysis" | "Page"
+  >("LayoutAnalysis");
+  const [selectedModel, setSelectedModel] = useState<
+    "ChunkrVGT" | "AzureDocIntelligence"
+  >("ChunkrVGT");
+  const [ocrMode, setOcrMode] = useState<"ALL" | "OFF">("ALL");
+  const [vlmMode, setVlmMode] = useState<"SegmentType" | "ALL" | "OFF">(
+    "SegmentType"
+  );
+  const [schemaMode, setSchemaMode] = useState<"JSON" | "OFF">("JSON");
+  const [selectedSegmentTypes, setSelectedSegmentTypes] = useState<string[]>([
+    "Formula",
+    "Picture",
+    "Table",
+  ]);
+
+  const allSegmentTypes = [
+    "Caption",
+    "Formula",
+    "Footnote",
+    "List item",
+    "Page footer",
+    "Page header",
+    "Picture",
+    "Section header",
+    "Table",
+    "Text",
+    "Title",
+  ];
 
   useEffect(() => {
     if (lottieRef.current) {
@@ -97,6 +134,15 @@ const Home = () => {
     }
     if (notesLottieRef.current) {
       notesLottieRef.current.pause();
+    }
+    if (vlmLottieRef.current) {
+      vlmLottieRef.current.pause();
+    }
+    if (layoutLottieRef.current) {
+      layoutLottieRef.current.pause();
+    }
+    if (chunkingLottieRef.current) {
+      chunkingLottieRef.current.pause();
     }
   }, []);
 
@@ -246,7 +292,7 @@ const Home = () => {
           weight="bold"
           style={{
             color: "white",
-            marginTop: "28px",
+            marginTop: "32px",
             transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
           className="feature-box-title"
@@ -315,7 +361,7 @@ const Home = () => {
                 mb="16px"
                 align="center"
               >
-                Open Source AI Document Intelligence
+                Open Source Document Intelligence
               </Text>
               <Text
                 weight="medium"
@@ -379,6 +425,11 @@ const Home = () => {
                   </BetterButton>
                   <BetterButton radius="16px" padding="8px 24px">
                     <Text size="1" weight="medium" style={{ color: "white" }}>
+                      Technical Reports
+                    </Text>
+                  </BetterButton>
+                  <BetterButton radius="16px" padding="8px 24px">
+                    <Text size="1" weight="medium" style={{ color: "white" }}>
                       Government
                     </Text>
                   </BetterButton>
@@ -410,7 +461,7 @@ const Home = () => {
             </div>
           </div>
         </Flex>
-        <Flex className="features-container" direction="column" gap="24px">
+        {/* <Flex className="features-container" direction="column" gap="24px">
           <Flex
             direction="column"
             align="center"
@@ -630,7 +681,7 @@ const Home = () => {
               </Flex>
             </Flex>
           </Flex>
-        </Flex>
+        </Flex> */}
         <div className="features-container">
           <div className="features-gradient-background" />
           <Flex
@@ -647,120 +698,269 @@ const Home = () => {
             }}
           >
             <Flex className="feature-left-box">
-              <Flex
-                direction="column"
-                gap="16px"
-                flexGrow="2"
-                style={{ maxWidth: "600px" }}
-              >
+              <Flex direction="column" gap="16px">
                 <Text className="feature-left-box-title">
-                  A modular pipeline <br></br> for your AI infrastructure
+                  A modular pipeline <br></br> for your AI products
                 </Text>
                 <Text
                   size="6"
                   weight="medium"
                   className="feature-left-box-subtitle"
                 >
-                  Ingestion use-cases can vary quite a bit. <br></br>
-                  <br></br>
+                  Ingestion use-cases can vary quite a bit.
                   <span style={{ color: "#ffffffbc" }}>
+                    {" "}
                     So we built an
                   </span>{" "}
                   end-to-end system{" "}
-                  <span style={{ color: "#ffffffbc" }}>that can cater to </span>{" "}
+                  <span style={{ color: "#ffffffbc" }}>
+                    that can cater to{" "}
+                  </span>{" "}
                   solo-devs, startups and enterprises.
                 </Text>
               </Flex>
+              <Flex direction="row" gap="96px" justify="between">
+                <Flex
+                  direction="column"
+                  gap="32px"
+                  flexGrow="1"
+                  style={{ zIndex: 5 }}
+                  onMouseEnter={() => handleLottieHover(layoutLottieRef)}
+                >
+                  <Flex
+                    direction="column"
+                    className="feature-left-box-lottie"
+                    gap="8px"
+                  >
+                    <Lottie
+                      lottieRef={layoutLottieRef}
+                      animationData={layoutAnimation}
+                      style={{ width: "48px", height: "48px" }}
+                      loop={false}
+                      autoplay={false}
+                    />
+                  </Flex>
+                  <Text
+                    size="8"
+                    mt="16px"
+                    weight="bold"
+                    style={{ color: "#ffffff" }}
+                  >
+                    Segmentation
+                  </Text>
+                  <Text size="4" weight="light" style={{ color: "#ffffff" }}>
+                    We've built a modular pipeline that can be used as
+                  </Text>
+                  <Flex direction="column" gap="16px">
+                    <Flex className="control-switches">
+                      <button
+                        className={`control-switch ${segmentationStrategy === "LayoutAnalysis" ? "active" : ""}`}
+                        onClick={() =>
+                          setSegmentationStrategy("LayoutAnalysis")
+                        }
+                      >
+                        <Text size="2" weight="bold">
+                          Layout Analysis
+                        </Text>
+                      </button>
+                      <button
+                        className={`control-switch ${segmentationStrategy === "Page" ? "active" : ""}`}
+                        onClick={() => setSegmentationStrategy("Page")}
+                      >
+                        <Text size="2" weight="bold">
+                          Page
+                        </Text>
+                      </button>
+                    </Flex>
+                    {segmentationStrategy === "LayoutAnalysis" && (
+                      <Dropdown
+                        value={selectedModel}
+                        options={["ChunkrVGT", "AzureDocIntelligence"]}
+                        onChange={(value) =>
+                          setSelectedModel(
+                            value as "AzureDocIntelligence" | "ChunkrVGT"
+                          )
+                        }
+                      />
+                    )}
+                  </Flex>
+                </Flex>
 
-              {/* <Flex direction="row" gap="32px" width="100%" justify="between">
                 <Flex
                   direction="column"
-                  gap="8px"
-                  className="feature-left-box-item"
-                  onMouseEnter={() => handleLottieHover(parsingLottieRef)}
+                  gap="32px"
+                  flexGrow="1"
+                  onMouseEnter={() => handleLottieHover(ocrLottieRef)}
                 >
-                  <Lottie
-                    lottieRef={parsingLottieRef}
-                    animationData={parsingAnimation}
-                    style={{
-                      width: "48px",
-                      height: "48px",
-                      marginLeft: "-6px",
-                    }}
-                    loop={false}
-                    autoplay={false}
-                  />
-                  <Text
-                    size="5"
-                    weight="medium"
-                    mb="4px"
-                    style={{
-                      background:
-                        "linear-gradient(to right, #fff, rgba(255, 255, 255, 0.8))",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      letterSpacing: "-0.02em",
-                    }}
+                  <Flex
+                    direction="column"
+                    className="feature-left-box-lottie"
+                    gap="8px"
                   >
-                    Document Parsing
-                  </Text>
+                    <Lottie
+                      lottieRef={ocrLottieRef}
+                      animationData={ocrAnimation}
+                      style={{ width: "48px", height: "48px" }}
+                      loop={false}
+                      autoplay={false}
+                    />
+                  </Flex>
                   <Text
-                    size="3"
-                    weight="regular"
-                    style={{
-                      color: "rgba(255, 255, 255, 0.7)",
-                      lineHeight: "1.5",
-                      letterSpacing: "-0.01em",
-                    }}
+                    size="8"
+                    mt="16px"
+                    weight="bold"
+                    style={{ color: "#ffffff" }}
                   >
-                    Extract text, tables, images and formulas
+                    OCR
                   </Text>
+                  <Text size="4" weight="light" style={{ color: "#ffffff" }}>
+                    We've built a modular pipeline that can be used as
+                  </Text>
+                  <Flex className="control-switches">
+                    <button
+                      className={`control-switch ${ocrMode === "ALL" ? "active" : ""}`}
+                      onClick={() => setOcrMode("ALL")}
+                    >
+                      <Text size="2" weight="bold">
+                        ALL
+                      </Text>
+                    </button>
+                    <button
+                      className={`control-switch ${ocrMode === "OFF" ? "active" : ""}`}
+                      onClick={() => setOcrMode("OFF")}
+                    >
+                      <Text size="2" weight="bold">
+                        OFF
+                      </Text>
+                    </button>
+                  </Flex>
                 </Flex>
                 <Flex
                   direction="column"
-                  gap="8px"
-                  className="feature-left-box-item"
-                  onMouseEnter={() => handleLottieHover(notesLottieRef)}
+                  gap="32px"
+                  flexGrow="1"
+                  onMouseEnter={() => handleLottieHover(vlmLottieRef)}
                 >
-                  <Lottie
-                    lottieRef={notesLottieRef}
-                    animationData={notesAnimation}
-                    style={{
-                      width: "48px",
-                      height: "48px",
-                      marginLeft: "-6px",
-                    }}
-                    loop={false}
-                    autoplay={false}
-                  />
-                  <Text
-                    size="5"
-                    weight="medium"
-                    mb="4px"
-                    style={{
-                      background:
-                        "linear-gradient(to right, #fff, rgba(255, 255, 255, 0.8))",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      letterSpacing: "-0.02em",
-                    }}
+                  <Flex
+                    direction="column"
+                    className="feature-left-box-lottie"
+                    gap="8px"
                   >
-                    Structured Extraction
-                  </Text>
+                    <Lottie
+                      lottieRef={vlmLottieRef}
+                      animationData={vlmAnimation}
+                      style={{ width: "48px", height: "48px" }}
+                      loop={false}
+                      autoplay={false}
+                    />
+                  </Flex>
                   <Text
-                    size="3"
-                    weight="regular"
-                    style={{
-                      color: "rgba(255, 255, 255, 0.7)",
-                      lineHeight: "1.5",
-                      letterSpacing: "-0.01em",
-                    }}
+                    size="8"
+                    mt="16px"
+                    weight="bold"
+                    style={{ color: "#ffffff" }}
                   >
-                    Custom schemas to extract specific values
+                    VLM Processing
                   </Text>
+                  <Text size="4" weight="light" style={{ color: "#ffffff" }}>
+                    We've built a modular pipeline that can be used as a
+                  </Text>
+                  <Flex direction="column" gap="16px">
+                    <Flex className="control-switches">
+                      <button
+                        className={`control-switch ${vlmMode === "SegmentType" ? "active" : ""}`}
+                        onClick={() => setVlmMode("SegmentType")}
+                      >
+                        <Text size="2" weight="bold">
+                          Segment Type
+                        </Text>
+                      </button>
+                      <button
+                        className={`control-switch ${vlmMode === "ALL" ? "active" : ""}`}
+                        onClick={() => setVlmMode("ALL")}
+                      >
+                        <Text size="2" weight="bold">
+                          ALL
+                        </Text>
+                      </button>
+                      <button
+                        className={`control-switch ${vlmMode === "OFF" ? "active" : ""}`}
+                        onClick={() => setVlmMode("OFF")}
+                      >
+                        <Text size="2" weight="bold">
+                          OFF
+                        </Text>
+                      </button>
+                    </Flex>
+                    {vlmMode === "SegmentType" && (
+                      <Dropdown
+                        value=""
+                        options={allSegmentTypes}
+                        onChange={(type) => {
+                          setSelectedSegmentTypes((prev) =>
+                            prev.includes(type)
+                              ? prev.filter((t) => t !== type)
+                              : [...prev, type]
+                          );
+                        }}
+                        multiple={true}
+                        selectedValues={selectedSegmentTypes}
+                      />
+                    )}
+                  </Flex>
                 </Flex>
-              </Flex> */}
+                <Flex
+                  direction="column"
+                  gap="32px"
+                  flexGrow="1"
+                  onMouseEnter={() => handleLottieHover(chunkingLottieRef)}
+                >
+                  <Flex
+                    direction="column"
+                    className="feature-left-box-lottie"
+                    gap="8px"
+                  >
+                    <Lottie
+                      lottieRef={chunkingLottieRef}
+                      animationData={chunkingAnimation}
+                      style={{ width: "48px", height: "48px" }}
+                      loop={false}
+                      autoplay={false}
+                    />
+                  </Flex>
+                  <Text
+                    size="8"
+                    mt="16px"
+                    weight="bold"
+                    style={{ color: "#ffffff" }}
+                  >
+                    Schema Extract
+                  </Text>
+                  <Text size="4" weight="light" style={{ color: "#ffffff" }}>
+                    We've built a modular pipeline that can be used as a
+                  </Text>
+                  <Flex className="control-switches">
+                    <button
+                      className={`control-switch ${schemaMode === "JSON" ? "active" : ""}`}
+                      onClick={() => setSchemaMode("JSON")}
+                    >
+                      <Text size="2" weight="bold">
+                        JSON Schema
+                      </Text>
+                    </button>
+                    <button
+                      className={`control-switch ${schemaMode === "OFF" ? "active" : ""}`}
+                      onClick={() => setSchemaMode("OFF")}
+                    >
+                      <Text size="2" weight="bold">
+                        OFF
+                      </Text>
+                    </button>
+                  </Flex>
+                </Flex>
+              </Flex>
             </Flex>
+
             <Flex direction="column" gap="32px" className="feature-right-box">
               <div className="feature-right-box-image" ref={terminalRef}>
                 <Flex
@@ -773,51 +973,6 @@ const Home = () => {
                     align="center"
                     justify="center"
                   >
-                    {/* <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <rect
-                        width="16"
-                        height="16"
-                        fill="white"
-                        fill-opacity="0.01"
-                      />
-                      <g className="rotating-globe">
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M7.99898 1.92002C4.64109 1.92002 1.91898 4.64213 1.91898 8.00002C1.91898 11.3579 4.64109 14.08 7.99898 14.08C11.3569 14.08 14.079 11.3579 14.079 8.00002C14.079 4.64213 11.3569 1.92002 7.99898 1.92002ZM0.958984 8.00002C0.958984 4.11193 4.1109 0.960022 7.99898 0.960022C11.887 0.960022 15.039 4.11193 15.039 8.00002C15.039 11.8881 11.887 15.04 7.99898 15.04C4.1109 15.04 0.958984 11.8881 0.958984 8.00002Z"
-                          fill="white"
-                          fill-opacity="0.9"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M14.3996 8.42664H1.59961V7.5733H14.3996V8.42664Z"
-                          fill="white"
-                          fill-opacity="0.9"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M7.57253 14.4V1.59999H8.42586V14.4H7.57253ZM11.066 7.99997C11.066 5.68238 10.2325 3.38962 8.59857 1.87365L9.10641 1.32629C10.9215 3.01032 11.8126 5.51757 11.8126 7.99997C11.8126 10.4824 10.9215 12.9896 9.10641 14.6737L8.59857 14.1263C10.2325 12.6103 11.066 10.3176 11.066 7.99997ZM4.26562 7.99999C4.26562 5.52117 5.12767 3.01522 6.88748 1.33033L7.40384 1.86965C5.82137 3.38477 5.01229 5.67881 5.01229 7.99999C5.0123 10.3212 5.82139 12.6152 7.40387 14.1303L6.88749 14.6696C5.12769 12.9847 4.26564 10.4788 4.26562 7.99999Z"
-                          fill="white"
-                          fill-opacity="0.9"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M8.00028 4.22186C10.3142 4.22186 12.6673 4.64975 14.2623 5.54076C14.4424 5.64132 14.5068 5.86875 14.4062 6.04876C14.3057 6.22876 14.0782 6.29318 13.8982 6.19263C12.4584 5.38831 10.2488 4.96853 8.00028 4.96853C5.75171 4.96853 3.54221 5.38831 2.10234 6.19263C1.92233 6.29318 1.6949 6.22876 1.59434 6.04876C1.4938 5.86875 1.5582 5.64132 1.73821 5.54076C3.3333 4.64975 5.68633 4.22186 8.00028 4.22186ZM8.00028 11.5733C10.3142 11.5733 12.6673 11.1454 14.2623 10.2544C14.4424 10.1538 14.5068 9.9264 14.4062 9.7464C14.3057 9.56639 14.0782 9.50198 13.8982 9.60252C12.4584 10.4068 10.2488 10.8267 8.00028 10.8267C5.75171 10.8267 3.54221 10.4068 2.10234 9.60253C1.92233 9.50198 1.6949 9.56639 1.59434 9.7464C1.4938 9.9264 1.5582 10.1538 1.73821 10.2544C3.3333 11.1454 5.68633 11.5733 8.00028 11.5733Z"
-                          fill="white"
-                          fill-opacity="0.9"
-                        />
-                      </g>
-                    </svg>
-                    chunkr API */}
                     <Flex gap="16px">
                       <BetterButton
                         onClick={() => handleScriptSwitch("curl")}
@@ -1220,19 +1375,359 @@ const Home = () => {
                 zIndex: 2,
               }}
             >
-              <Flex direction="column" className="pricing-enterprise-container">
-                <Text size="6" weight="medium" style={{ color: "white" }}>
-                  On-prem
+              <Flex
+                direction="row"
+                gap="96px"
+                className="pricing-enterprise-container"
+              >
+                <Flex direction="column" justify="center">
+                  <Text size="6" weight="medium" style={{ color: "white" }}>
+                    On-prem
+                  </Text>
+                  <Text
+                    size="8"
+                    mb="24px"
+                    weight="bold"
+                    mt="6"
+                    style={{ color: "white" }}
+                  >
+                    Custom Plans
+                  </Text>
+
+                  <button className="signup-button">
+                    <Text size="5" weight="bold">
+                      Book a call
+                    </Text>
+                  </button>
+                </Flex>
+                <Flex direction="column" justify="center" height="100%">
+                  <Flex direction="row" gap="48px">
+                    <Flex direction="column" gap="24px">
+                      <Flex align="center" gap="12px" className="feature-item">
+                        <Flex
+                          align="center"
+                          justify="center"
+                          className="feature-checkmark-container"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
+                              fill="#ffffffd0"
+                              stroke="#ffffffd0"
+                            />
+                          </svg>
+                        </Flex>
+                        <Text
+                          size="2"
+                          style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        >
+                          Self-hosted deployment
+                        </Text>
+                      </Flex>
+                      <Flex align="center" gap="12px" className="feature-item">
+                        <Flex
+                          align="center"
+                          justify="center"
+                          className="feature-checkmark-container"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
+                              fill="#ffffffd0"
+                              stroke="#ffffffd0"
+                            />
+                          </svg>
+                        </Flex>
+                        <Text
+                          size="2"
+                          style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        >
+                          Unlimited processing
+                        </Text>
+                      </Flex>
+                      <Flex align="center" gap="12px" className="feature-item">
+                        <Flex
+                          align="center"
+                          justify="center"
+                          className="feature-checkmark-container"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
+                              fill="#ffffffd0"
+                              stroke="#ffffffd0"
+                            />
+                          </svg>
+                        </Flex>
+                        <Text
+                          size="2"
+                          style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        >
+                          Custom SLAs
+                        </Text>
+                      </Flex>
+                    </Flex>
+
+                    <Flex direction="column" gap="24px">
+                      <Flex align="center" gap="12px" className="feature-item">
+                        <Flex
+                          align="center"
+                          justify="center"
+                          className="feature-checkmark-container"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
+                              fill="#ffffffd0"
+                              stroke="#ffffffd0"
+                            />
+                          </svg>
+                        </Flex>
+                        <Text
+                          size="2"
+                          style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        >
+                          Dedicated support
+                        </Text>
+                      </Flex>
+                      <Flex align="center" gap="12px" className="feature-item">
+                        <Flex
+                          align="center"
+                          justify="center"
+                          className="feature-checkmark-container"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
+                              fill="#ffffffd0"
+                              stroke="#ffffffd0"
+                            />
+                          </svg>
+                        </Flex>
+                        <Text
+                          size="2"
+                          style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        >
+                          Custom integrations
+                        </Text>
+                      </Flex>
+                      <Flex align="center" gap="12px" className="feature-item">
+                        <Flex
+                          align="center"
+                          justify="center"
+                          className="feature-checkmark-container"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
+                              fill="#ffffffd0"
+                              stroke="#ffffffd0"
+                            />
+                          </svg>
+                        </Flex>
+                        <Text
+                          size="2"
+                          style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        >
+                          Priority features
+                        </Text>
+                      </Flex>
+                    </Flex>
+
+                    <Flex direction="column" gap="24px">
+                      <Flex align="center" gap="12px" className="feature-item">
+                        <Flex
+                          align="center"
+                          justify="center"
+                          className="feature-checkmark-container"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
+                              fill="#ffffffd0"
+                              stroke="#ffffffd0"
+                            />
+                          </svg>
+                        </Flex>
+                        <Text
+                          size="2"
+                          style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        >
+                          Air-gapped deployment
+                        </Text>
+                      </Flex>
+                      <Flex align="center" gap="12px" className="feature-item">
+                        <Flex
+                          align="center"
+                          justify="center"
+                          className="feature-checkmark-container"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
+                              fill="#ffffffd0"
+                              stroke="#ffffffd0"
+                            />
+                          </svg>
+                        </Flex>
+                        <Text
+                          size="2"
+                          style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        >
+                          24/7 support
+                        </Text>
+                      </Flex>
+                    </Flex>
+                  </Flex>
+                </Flex>
+              </Flex>
+            </Flex>
+
+            <Flex
+              direction="column"
+              align="center"
+              gap="24px"
+              mt="208px"
+              className="pricing-container"
+            >
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                className="bottom-cta-icon"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 30 30"
+                  fill="none"
+                  style={{
+                    filter: "drop-shadow(0 0 4px rgba(255, 255, 255, 0.15))",
+                  }}
+                >
+                  <defs>
+                    <linearGradient
+                      id="paint0_linear_236_740"
+                      x1="15"
+                      y1="3.75"
+                      x2="15"
+                      y2="26.25"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stop-color="white" />
+                      <stop offset="1" stop-color="rgba(220, 228, 221, 0.9)" />
+                    </linearGradient>
+                    <filter id="glow">
+                      <feGaussianBlur stdDeviation="0.5" result="coloredBlur" />
+                      <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <path
+                    d="M7.35 12.225C8.03148 12.4978 8.77803 12.5646 9.4971 12.4171C10.2162 12.2695 10.8761 11.9142 11.3952 11.3952C11.9142 10.8761 12.2695 10.2162 12.4171 9.4971C12.5646 8.77803 12.4978 8.03148 12.225 7.35C13.0179 7.13652 13.7188 6.6687 14.2201 6.01836C14.7214 5.36802 14.9954 4.57111 15 3.75C17.225 3.75 19.4001 4.4098 21.2502 5.64597C23.1002 6.88213 24.5422 8.63914 25.3936 10.6948C26.2451 12.7505 26.4679 15.0125 26.0338 17.1948C25.5998 19.3771 24.5283 21.3816 22.955 22.955C21.3816 24.5283 19.3771 25.5998 17.1948 26.0338C15.0125 26.4679 12.7505 26.2451 10.6948 25.3936C8.63914 24.5422 6.88213 23.1002 5.64597 21.2502C4.4098 19.4001 3.75 17.225 3.75 15C4.57111 14.9954 5.36802 14.7214 6.01836 14.2201C6.6687 13.7188 7.13652 13.0179 7.35 12.225Z"
+                    stroke="url(#paint0_linear_236_740)"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    filter="url(#glow)"
+                  />
+                </svg>
+              </Flex>
+              <Text size="9" weight="bold" mt="16px" style={{ color: "white" }}>
+                Start Building
+              </Text>
+              <Text
+                size="4"
+                mb="16px"
+                weight="bold"
+                style={{ color: "rgba(255, 255, 255, 0.9)" }}
+              >
+                Convert documents into LLM/RAG-ready data
+              </Text>
+              <button className="signup-button">
+                <Text size="5" weight="bold">
+                  Get started for free
                 </Text>
-                <Text size="8" weight="bold" mt="6" style={{ color: "white" }}>
-                  Talk to a founder
+              </button>
+            </Flex>
+            <Flex
+              direction="row"
+              justify="center"
+              className="pricing-container"
+              style={{
+                width: "100%",
+                padding: "192px 24px",
+                position: "relative",
+                zIndex: 2,
+              }}
+            >
+              <Flex direction="column" gap="24px" flexGrow="1"></Flex>
+              <Flex direction="column" gap="24px" flexGrow="1"></Flex>
+              <Flex direction="column" gap="24px" flexGrow="1"></Flex>
+            </Flex>
+
+            <Flex
+              direction="row"
+              justify="center"
+              className="pricing-container"
+              style={{
+                width: "100%",
+                padding: "192px 24px",
+                position: "relative",
+                zIndex: 2,
+              }}
+            >
+              <Flex direction="column" gap="24px" flexGrow="1">
+                <Text size="8" weight="bold" style={{ color: "white" }}>
+                  Frequently Asked Questions
                 </Text>
-                <Text
-                  size="4"
-                  weight="medium"
-                  mt="4"
-                  style={{ color: "white" }}
-                ></Text>
+                <Text size="2" style={{ color: "rgba(255, 255, 255, 0.8)" }}>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </Text>
               </Flex>
             </Flex>
           </Flex>
