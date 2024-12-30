@@ -1,5 +1,5 @@
 use crate::models::rrq::queue::QueuePayload;
-use crate::models::chunkr::upload::{ExtractionPayload, SegmentationStrategy};
+use crate::models::chunkr::upload::{TaskPayload, SegmentationStrategy};
 use crate::models::chunkr::segment::{BoundingBox, SegmentType};
 use crate::models::chunkr::segment::{PdlaSegment, Segment};
 use crate::models::chunkr::task::Status;
@@ -25,7 +25,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     println!("Processing task");
     let s3_client = create_client().await?;
     let reqwest_client = reqwest::Client::new();
-    let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
+    let extraction_payload: TaskPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
     let extraction_config = WorkerConfig::from_env().unwrap();

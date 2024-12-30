@@ -80,6 +80,10 @@ pkg-config = "0.3.19"
 postgresql = { version = "14", lib_dir = "/opt/homebrew/opt/postgresql@14/lib" }
 
 [[bin]]
+name = "task"
+path = "src/workers/task.rs"
+
+[[bin]]
 name = "fast"
 path = "src/workers/fast.rs"
 

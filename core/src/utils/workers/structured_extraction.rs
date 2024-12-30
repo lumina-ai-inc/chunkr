@@ -1,5 +1,5 @@
 use crate::models::rrq::queue::QueuePayload;
-use crate::models::chunkr::upload::ExtractionPayload;
+use crate::models::chunkr::upload::TaskPayload;
 use crate::models::chunkr::segment::OutputResponse;
 use crate::models::chunkr::task::Status;
 use crate::utils::configs::llm_config::Config as LlmConfig;
@@ -19,7 +19,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     println!("Processing task");
     let s3_client = create_client().await?;
     let reqwest_client = reqwest::Client::new();
-    let extraction_payload: ExtractionPayload = serde_json::from_value(payload.payload)?;
+    let extraction_payload: TaskPayload = serde_json::from_value(payload.payload)?;
     let task_id = extraction_payload.task_id.clone();
     let pg_pool = create_pool();
     let worker_config = WorkerConfig::from_env().expect("Failed to load WorkerConfig");
