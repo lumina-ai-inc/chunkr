@@ -38,7 +38,7 @@ pub struct UploadForm {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct ExtractionPayload {
+pub struct TaskPayload {
     pub user_id: String,
     pub model: PdlaModel,
     pub input_location: String,

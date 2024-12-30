@@ -1,5 +1,5 @@
 use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::upload::{Configuration, ExtractionPayload};
+use crate::models::chunkr::upload::{Configuration, TaskPayload};
 use crate::models::chunkr::task::{Status, TaskResponse};
 use crate::utils::configs::expiration_config::Config as ExpirationConfig;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
@@ -126,7 +126,7 @@ pub async fn create_task(
                 }
             }
 
-            let extraction_payload = ExtractionPayload {
+            let extraction_payload = TaskPayload {
                 user_id: user_id.clone(),
                 model: model_internal,
                 input_location: input_location.clone(),

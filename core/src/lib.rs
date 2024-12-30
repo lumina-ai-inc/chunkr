@@ -14,6 +14,7 @@ use utoipa::{
 };
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
+
 pub mod jobs;
 pub mod middleware;
 pub mod models;

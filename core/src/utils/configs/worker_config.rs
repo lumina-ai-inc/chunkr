@@ -42,6 +42,8 @@ pub struct Config {
     pub pdf_density: f32,
     #[serde(default = "default_queue_fast")]
     pub queue_fast: String,
+    #[serde(default = "default_queue_task")]
+    pub queue_task: String,
     #[serde(default = "default_queue_high_quality")]
     pub queue_high_quality: String,
     #[serde(default = "default_queue_ocr")]
@@ -114,6 +116,10 @@ fn default_pdf_density() -> f32 {
 
 fn default_queue_fast() -> String {
     "fast".to_string()
+}
+
+fn default_queue_task() -> String {
+    "task".to_string()
 }
 
 fn default_queue_high_quality() -> String {
