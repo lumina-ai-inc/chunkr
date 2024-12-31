@@ -1,3 +1,11 @@
+import warnings
+
+# Suppress all warnings
+warnings.filterwarnings("ignore")
+
+# Or suppress specific warnings
+# warnings.filterwarnings("ignore", category=UserWarning, module='torch')
+
 import io
 import time
 import requests
@@ -8,7 +16,6 @@ import concurrent.futures
 from pdf2image import convert_from_path
 import numpy as np
 import json
-from tokenization import BrosTokenizer
 ANNOTATED_IMAGES_DIR = Path("annotated_images")
 os.makedirs(ANNOTATED_IMAGES_DIR, exist_ok=True)
 
@@ -134,7 +141,7 @@ def visualize_predictions(images: list[Image.Image], predictions: list[dict]) ->
 
         annotated_name = ANNOTATED_IMAGES_DIR / f"annotated_page_{i}.jpg"
         image_resized.save(annotated_name)
-        print(f"Annotated image saved as: {annotated_name}")
+        # print(f"Annotated image saved as: {annotated_name}")
 
 
 def post_image(server_url, img_bytes, grid_data_json):
@@ -151,12 +158,14 @@ def post_image(server_url, img_bytes, grid_data_json):
 if __name__ == "__main__":
 
 
-    tokenizer = BrosTokenizer.from_pretrained("naver-clova-ocr/bros-base-uncased")
 
-    pdf_path = "figures/test_batch.pdf"
+    pdf_path = "figures/test_batch3.pdf"
     batch = False
+    start_time = time.time()
     print("Converting PDF to images...")
     pdf_images = convert_from_path(str(pdf_path), dpi=300, fmt="jpg")
+    end_time = time.time()
+    print(f"Conversion completed in {end_time - start_time:.2f} seconds")
     if batch==True:
         batch_files = []
         batch_grid_data = []
@@ -211,37 +220,52 @@ if __name__ == "__main__":
             print(f"Error sending data to server: {str(e)}")
             
     else:
-        server_url = "http://localhost:8000/batch_async/"
+        server_url = "http://localhost:8000/batch_async"
         
         request_futures = []
         request_times = []
         
+        request_data_list = []
+        # Collect all request data
+        total_preparing_data_start_time = time.time()
+        for image in pdf_images:
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format='JPEG')
+            img_bytes = img_byte_arr.getvalue()
+
+            grid_data = {
+                "input_ids": np.array([]),
+                "bbox_subword_list": np.array([]),
+                "texts": [],
+                "bbox_texts_list": np.array([])
+            }
+
+            grid_data_serializable = {
+                "input_ids": grid_data["input_ids"].tolist(),
+                "bbox_subword_list": grid_data["bbox_subword_list"].tolist(),
+                "texts": grid_data["texts"],
+                "bbox_texts_list": grid_data["bbox_texts_list"].tolist()
+            }
+
+            grid_data_json = json.dumps(grid_data_serializable)
+
+            request_data_list.append((img_bytes, grid_data_json))
+        total_preparing_data_end_time = time.time()
+        total_preparing_data_duration = total_preparing_data_end_time - total_preparing_data_start_time
+        print(f"Total time for preparing data: {total_preparing_data_duration:.2f} seconds")
+
+        # Outside in vectorized format, submit futures
+        total_start_time = time.time()
+        print("hitting server")
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            for image in pdf_images:
-                img_byte_arr = io.BytesIO()
-                image.save(img_byte_arr, format='JPEG')
-                img_bytes = img_byte_arr.getvalue()
-                
-                grid_data = {
-                    "input_ids": np.array([]),
-                    "bbox_subword_list": np.array([]),
-                    "texts": [],
-                    "bbox_texts_list": np.array([])
-                }
-                
-                grid_data_serializable = {
-                    "input_ids": grid_data["input_ids"].tolist(),
-                    "bbox_subword_list": grid_data["bbox_subword_list"].tolist(), 
-                    "texts": grid_data["texts"],
-                    "bbox_texts_list": grid_data["bbox_texts_list"].tolist()
-                }
-                
-                grid_data_json = json.dumps(grid_data_serializable)
-                
-                future = executor.submit(post_image, server_url, img_bytes, grid_data_json)
-                request_futures.append(future)
+            futures = [
+                executor.submit(post_image, server_url, data[0], data[1])
+                for data in request_data_list
+            ]
+            request_futures.extend(futures)
         
         try:
+            import time
             all_predictions = []
             for i, future in enumerate(request_futures):
                 try:
@@ -249,7 +273,7 @@ if __name__ == "__main__":
                     request_times.append(request_time)
                     
                     if response.status_code == 200:
-                        print(f"Successfully processed image {i} in {request_time:.2f} seconds")
+                        # print(f"Successfully processed image {i} in {request_time:.2f} seconds")
                         all_predictions.append(response.json())
                     else:
                         print(f"Error processing image {i}: {response.status_code}")
@@ -258,10 +282,13 @@ if __name__ == "__main__":
                 except Exception as e:
                     print(f"Error processing image {i}: {str(e)}")
             
+            total_end_time = time.time()
+            total_duration = total_end_time - total_start_time
             print(f"Average request time: {sum(request_times)/len(request_times):.2f} seconds")
             print(f"Min request time: {min(request_times):.2f} seconds")
             print(f"Max request time: {max(request_times):.2f} seconds")
-            
+            print(f"Total time to get all predictions: {total_duration:.2f} seconds")
+            # print(f"Total time to get all predictions: {total_duration:.2f} seconds")
             if all_predictions:
                 print("Visualizing predictions for all successful responses")
                 visualize_predictions(pdf_images, all_predictions)

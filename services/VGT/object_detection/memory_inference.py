@@ -1,4 +1,5 @@
 import torch
+import torch.cuda.amp
 import cv2
 import numpy as np
 from pathlib import Path
@@ -75,7 +76,12 @@ class MemoryPredictor:
                     }
                     batch_inputs.append(dataset_dict)
 
+                # Use mixed precision autocast context here
+                # with torch.amp.autocast(device_type="cuda"):
+                #     predictions = self.model(batch_inputs)
+
                 predictions = self.model(batch_inputs)
+
                 return predictions
 
 def process_image_batch(predictor, images, dataset_name="doclaynet", grid_dicts=None):
