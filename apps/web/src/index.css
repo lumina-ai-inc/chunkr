@@ -9,7 +9,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #020809;
+  background-color: #050609;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -124,8 +124,4 @@ button:focus-visible {
 
 .cyan-12 {
   color: var(--cyan-12);
-}
-
-.rt-ScrollAreaThumb {
-  background-color: rgba(142, 142, 147, 0.5) !important;
 }
