@@ -32,6 +32,11 @@
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.5",
     "clsx": "^2.1.1",
+<<<<<<< HEAD
+=======
+    "dompurify": "^3.1.6",
+    "framer-motion": "^11.15.0",
+>>>>>>> 4ef43771 (Added MomentumScroll for homepage)
     "i": "^0.3.7",
     "install": "^0.13.0",
     "katex": "^0.16.11",
@@ -59,7 +64,11 @@
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
+<<<<<<< HEAD
     "sanitize-html": "^2.13.1",
+=======
+    "resize-observer-polyfill": "^1.5.1",
+>>>>>>> 4ef43771 (Added MomentumScroll for homepage)
     "styled-components": "^6.1.12",
     "tailwind-merge": "^2.5.2"
   },
