@@ -55,10 +55,22 @@ button:focus-visible {
   background-color: #ffffff8b;
 } */
 
+.scroll-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  will-change: transform;
+  z-index: 1;
+}
+
 .background {
   background: #050609;
   position: relative;
   isolation: isolate;
+  min-height: 100vh;
+  width: 100%;
 }
 
 .hero-main-container {
@@ -101,6 +113,7 @@ button:focus-visible {
   position: relative;
   width: 100%;
   height: calc(100vh - 128px);
+  max-height: 869px;
   max-width: 1388px;
   margin-top: 64px;
   padding-left: 24px;

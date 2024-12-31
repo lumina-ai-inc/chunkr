@@ -33,6 +33,7 @@
     "axios": "^1.7.5",
     "clsx": "^2.1.1",
     "dompurify": "^3.1.6",
+    "framer-motion": "^11.15.0",
     "i": "^0.3.7",
     "install": "^0.13.0",
     "keycloak-js": "^25.0.4",
@@ -59,6 +60,7 @@
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
+    "resize-observer-polyfill": "^1.5.1",
     "styled-components": "^6.1.12",
     "tailwind-merge": "^2.5.2"
   },
