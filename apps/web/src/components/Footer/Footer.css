@@ -9,7 +9,9 @@
 
 .footer-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1386px;
+  padding: 24px;
+  border-top: 1px solid hsla(0, 0%, 100%, 0.1);
 }
 
 .footer-link {
@@ -32,8 +34,12 @@
 }
 
 .footer-icon {
-  width: 24px;
-  height: 24px;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid hsla(0, 0%, 100%, 0.1);
+  border-radius: 8px;
 }
 
 .footer-logo {

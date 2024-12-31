@@ -57,6 +57,8 @@ button:focus-visible {
 
 .background {
   background: #050609;
+  position: relative;
+  isolation: isolate;
 }
 
 .hero-main-container {
@@ -77,7 +79,7 @@ button:focus-visible {
   width: 100%;
   gap: 124px;
   flex-direction: column;
-  margin-top: 112px;
+  margin-top: 128px;
   z-index: 2;
 }
 
@@ -121,6 +123,7 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  padding-bottom: 0px;
 }
 
 .placeholder-window {
@@ -625,7 +628,7 @@ button:focus-visible {
   border-radius: 8px;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.1) 0%,
     rgba(255, 255, 255, 0.06) 50%,
     rgba(255, 255, 255, 0.02) 100%
   );
@@ -646,7 +649,7 @@ button:focus-visible {
   border-radius: 8px;
   background: linear-gradient(
     165deg,
-    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.1) 0%,
     rgba(255, 255, 255, 0.06) 50%,
     rgba(255, 255, 255, 0.02) 100%
   );
@@ -667,7 +670,7 @@ button:focus-visible {
   border-radius: 8px;
   background: linear-gradient(
     195deg,
-    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.1) 0%,
     rgba(255, 255, 255, 0.06) 50%,
     rgba(255, 255, 255, 0.02) 100%
   );
@@ -687,7 +690,7 @@ button:focus-visible {
   border-radius: 8px;
   background: linear-gradient(
     225deg,
-    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.1) 0%,
     rgba(255, 255, 255, 0.06) 50%,
     rgba(255, 255, 255, 0.02) 100%
   );
@@ -1266,7 +1269,7 @@ button:focus-visible {
 .pricing-section {
   width: 100%;
   max-width: 1424px;
-  padding: 96px 24px;
+  padding: 128px 24px;
 }
 
 /* Adjust Footer positioning */
@@ -1674,16 +1677,30 @@ button:focus-visible {
   width: 0; /* Forces equal width distribution */
 }
 
+.bottom-cta-container {
+  width: 100%;
+  max-width: 1424px;
+  padding: 128px 24px;
+  padding-bottom: 256px;
+}
+
 .bottom-cta-icon {
   position: relative;
-  background: rgba(255, 255, 255, 0.02); /* Reduced opacity for dark bg */
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 45%,
+    rgba(255, 255, 255, 0.01) 65%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
   border-radius: 12px;
   padding: 24px;
   overflow: hidden;
   box-shadow:
-    0 4px 32px -4px rgba(0, 0, 0, 0.8),
+    0 4px 32px -4px rgba(0, 0, 0, 0.6),
     0 8px 40px -4px rgba(255, 255, 255, 0.05),
-    inset 0 1px 1px rgba(255, 255, 255, 0.02); /* More subtle inner highlight */
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    inset 0 0 8px rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(12px);
 }
 
@@ -1720,4 +1737,54 @@ button:focus-visible {
   100% {
     background-position: 200% 0%;
   }
+}
+
+.bottom-nav-card {
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.02)
+  );
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 4px 16px -6px rgba(0, 0, 0, 0.05),
+    0 8px 24px -12px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.bottom-nav-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transform: skewX(-15deg);
+  transition: 0.8s;
+  pointer-events: none;
+}
+
+.bottom-nav-card:hover {
+  box-shadow:
+    0 6px 24px -8px rgba(0, 0, 0, 0.1),
+    0 8px 32px -12px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  transform: translateY(-0.5px);
+}
+
+.bottom-nav-card:hover::before {
+  left: 100%;
+  transition: 0.6s ease-in-out;
 }
