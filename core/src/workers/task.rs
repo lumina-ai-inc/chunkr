@@ -1,15 +1,15 @@
-use core::models::rrq::queue::QueuePayload;
-use core::models::chunkr::upload::TaskPayload;
+use chrono::Utc;
 use core::models::chunkr::task::Status;
-use core::utils::rrq::consumer::consumer;
-use core::utils::configs::worker_config::Config as WorkerConfig;
+use core::models::chunkr::task::TaskPayload;
+use core::models::rrq::queue::QueuePayload;
 use core::utils::configs::s3_config::create_client;
+use core::utils::configs::worker_config::Config as WorkerConfig;
 use core::utils::db::deadpool_postgres::{create_pool, Client};
+use core::utils::rrq::consumer::consumer;
 use core::utils::services::log::log_task;
 use core::utils::storage::services::download_to_given_tempfile;
-use chrono::Utc;
-use tempfile::{ NamedTempFile, TempDir };
 use serde_json::Value;
+use tempfile::{NamedTempFile, TempDir};
 
 // TODO: save outputs from each step so that future steps can use them
 // TODO: or save the input for a step in a Hashmap so that future steps can use them
@@ -23,14 +23,11 @@ async fn execute_step(
     match step {
         // "function1" => execute_function1(config).await,
         // "function2" => execute_function2(config).await,
-        _ => Err(format!("Unknown function: {}", step).into())
+        _ => Err(format!("Unknown function: {}", step).into()),
     }
 }
 
-fn orchestrate_task(
-    task_payload: TaskPayload,
-    client: &Client
-) -> Vec<String> {
+fn orchestrate_task(task_payload: TaskPayload, client: &Client) -> Vec<String> {
     unimplemented!()
 }
 
@@ -49,8 +46,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             Status::Processing,
             Some("Task started".to_string()),
             None,
-            &pg_pool
-        ).await?;
+            &pg_pool,
+        )
+        .await?;
 
         let mut input_file = NamedTempFile::new_in(&temp_dir)?;
         download_to_given_tempfile(
@@ -58,12 +56,14 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             &s3_client,
             &reqwest_client,
             &task_payload.input_location,
-            None
-        ).await.map_err(|e| {
+            None,
+        )
+        .await
+        .map_err(|e| {
             println!("Failed to download input file: {:?}", e);
             e
         })?;
-        
+
         let steps = orchestrate_task(task_payload, &client);
 
         let mut config: Value = Value::Null;
@@ -72,7 +72,8 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
 
         Ok((Status::Succeeded, Some("Task succeeded".to_string())))
-    }).await;
+    })
+    .await;
 
     match result {
         Ok(value) => {
@@ -85,19 +86,20 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             )
             .await?;
             Ok(())
-        },
+        }
         Err(e) => {
             let message = match payload.attempt >= payload.max_attempts {
                 true => "Task failed".to_string(),
-                false => format!("Retrying task {}/{}", payload.attempt, payload.max_attempts)
+                false => format!("Retrying task {}/{}", payload.attempt, payload.max_attempts),
             };
             log_task(
                 task_id.clone(),
                 Status::Failed,
                 Some(message),
                 Some(Utc::now()),
-                &pg_pool
-            ).await?;
+                &pg_pool,
+            )
+            .await?;
             Err(e)
         }
     }
