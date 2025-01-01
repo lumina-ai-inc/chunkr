@@ -1,14 +1,13 @@
+use crate::models::chunkr::task::TaskPayload;
 use crate::models::rrq::produce::ProducePayload;
-use crate::models::chunkr::upload::TaskPayload;
 use crate::utils::rrq::service::produce;
 use std::error::Error;
 use uuid::Uuid;
 
 pub async fn produce_extraction_payloads(
     queue_name: String,
-    extraction_payload: TaskPayload
+    extraction_payload: TaskPayload,
 ) -> Result<(), Box<dyn Error>> {
-
     let produce_payload = ProducePayload {
         queue_name: queue_name.clone(),
         publish_channel: None,

@@ -1,4 +1,4 @@
-use crate::models::chunkr::segment::{Chunk, Segment, SegmentType};
+use crate::models::chunkr::output::{Chunk, Segment, SegmentType};
 
 pub async fn hierarchical_chunking(
     segments: Vec<Segment>,

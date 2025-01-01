@@ -1,7 +1,7 @@
-use crate::models::rrq::queue::QueuePayload;
-use crate::models::chunkr::upload::TaskPayload;
-use crate::models::chunkr::segment::OutputResponse;
+use crate::models::chunkr::output::OutputResponse;
 use crate::models::chunkr::task::Status;
+use crate::models::chunkr::upload::TaskPayload;
+use crate::models::rrq::queue::QueuePayload;
 use crate::utils::configs::llm_config::Config as LlmConfig;
 use crate::utils::configs::s3_config::create_client;
 use crate::utils::configs::search_config::Config as SearchConfig;

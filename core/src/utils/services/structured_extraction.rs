@@ -1,159 +1,17 @@
-use crate::models::chunkr::segment::{Chunk, Segment};
-use crate::models::chunkr::segment::SegmentType;
 use crate::models::chunkr::open_ai::MessageContent;
+use crate::models::chunkr::output::SegmentType;
+use crate::models::chunkr::output::{Chunk, Segment};
+use crate::models::chunkr::structured_extraction::{ExtractedField, ExtractedJson, JsonSchema};
 use crate::utils::services::embeddings::EmbeddingCache;
 use crate::utils::services::llm::{get_basic_message, open_ai_call};
 use crate::utils::services::search::search_embeddings;
 
-use bytes::BytesMut;
 use itertools::Itertools;
-use postgres_types::{FromSql, IsNull, ToSql, Type};
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::HashMap;
 use std::error::Error;
 use tokio::task::JoinHandle;
-use utoipa::ToSchema;
-
-#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
-pub struct JsonSchema {
-    /// The title of the JSON schema. This can be used to identify the schema.
-    pub title: String,
-    /// The type of the JSON schema. [being deprecated]
-    #[serde(rename = "type")]
-    pub schema_type: String,
-    /// The properties of the JSON schema. Each property is a field to be extracted from the document.
-    pub properties: Vec<Property>,
-}
-
-impl std::str::FromStr for JsonSchema {
-    type Err = serde_json::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_json::from_str(s)
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
-/// A property of the JSON schema.
-pub struct Property {
-    /// The identifier for the property in the extracted data.
-    pub name: String,
-    /// A human-readable title for the property.
-    /// This is optional and can be used to increase the accuracy of the extraction.
-    pub title: Option<String>,
-    #[serde(rename = "type")]
-    /// The data type of the property
-    pub prop_type: String,
-    /// A description of what the property represents.
-    /// This is optional and can be used increase the accuracy of the extraction.
-    /// Available for string, int, float, bool, list, object.
-    pub description: Option<String>,
-    /// The default value for the property if no data is extracted.
-    pub default: Option<String>,
-}
-
-#[derive(Debug)]
-pub struct Field {
-    pub name: String,
-    pub description: String,
-    pub field_type: String,
-    pub default: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
-/// Structured data extracted from the document using an LLM. It adheres to the JSON schema provided.
-pub struct ExtractedJson {
-    /// The title of the extracted JSON.
-    pub title: String,
-    /// The type of the extracted JSON.
-    pub schema_type: String,
-    /// The extracted fields. Each field is a key in the json schema provided.
-    pub extracted_fields: Vec<ExtractedField>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
-pub struct ExtractedField {
-    /// The identifier for the field in the extracted data.
-    pub name: String,
-    /// The data type of the field
-    pub field_type: String,
-    /// The value of the field extracted from the document.
-    #[serde(
-        serialize_with = "serialize_value",
-        deserialize_with = "deserialize_value"
-    )]
-    pub value: serde_json::Value,
-}
-
-impl ToSql for ExtractedField {
-    fn to_sql(
-        &self,
-        ty: &Type,
-        out: &mut BytesMut,
-    ) -> Result<IsNull, Box<dyn Error + Sync + Send>> {
-        let json_str = serde_json::to_string(&self.value)?;
-        json_str.to_sql(ty, out)
-    }
-
-    fn accepts(ty: &Type) -> bool {
-        <String as ToSql>::accepts(ty)
-    }
-
-    fn to_sql_checked(
-        &self,
-        ty: &Type,
-        out: &mut BytesMut,
-    ) -> Result<IsNull, Box<dyn Error + Sync + Send>> {
-        let json_str = serde_json::to_string(&self.value)?;
-        json_str.to_sql_checked(ty, out)
-    }
-}
-
-impl<'a> FromSql<'a> for ExtractedField {
-    fn from_sql(ty: &Type, raw: &'a [u8]) -> Result<Self, Box<dyn Error + Sync + Send>> {
-        let json_str = <String as FromSql>::from_sql(ty, raw)?;
-        let value = serde_json::from_str(&json_str)?;
-        Ok(ExtractedField {
-            name: String::new(),
-            field_type: String::new(),
-            value,
-        })
-    }
-
-    fn accepts(ty: &Type) -> bool {
-        <String as FromSql>::accepts(ty)
-    }
-}
-
-fn serialize_value<S>(value: &serde_json::Value, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    value.serialize(serializer)
-}
-
-fn deserialize_value<'de, D>(deserializer: D) -> Result<serde_json::Value, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    serde_json::Value::deserialize(deserializer)
-}
-
-impl JsonSchema {
-    pub fn to_fields(&self) -> Vec<Field> {
-        self.properties
-            .iter()
-            .map(|prop| Field {
-                name: prop.name.clone(),
-                description: prop.description.clone().unwrap_or_default(),
-                field_type: prop.prop_type.clone(),
-                default: prop.default.clone(),
-            })
-            .collect()
-    }
-}
 
 pub async fn perform_structured_extraction(
     json_schema: JsonSchema,
@@ -239,7 +97,8 @@ pub async fn perform_structured_extraction(
 
             let title_segment = if search_results
                 .iter()
-                .any(|s| s.segment.segment_type == SegmentType::Title) {
+                .any(|s| s.segment.segment_type == SegmentType::Title)
+            {
                 search_results
                     .iter()
                     .find(|s| s.segment.segment_type == SegmentType::Title)
@@ -382,7 +241,6 @@ pub async fn perform_structured_extraction(
     }
     Ok(ExtractedJson {
         title: json_schema.title,
-        schema_type: json_schema.schema_type,
         extracted_fields,
     })
 }
@@ -390,7 +248,8 @@ pub async fn perform_structured_extraction(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::segment::{BoundingBox, Segment, SegmentType};
+    use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
+    use crate::models::chunkr::structured_extraction::Property;
     use crate::utils::configs::llm_config::Config as LlmConfig;
     use crate::utils::configs::worker_config::Config as WorkerConfig;
     use tokio;
@@ -506,7 +365,6 @@ mod tests {
 
         let json_schema = JsonSchema {
             title: "Basket".to_string(),
-            schema_type: "object".to_string(),
             properties: vec![
                 Property {
                     name: "fruits".to_string(),

@@ -95,7 +95,7 @@ services:
       - postgres
     restart: always
 
-  chunkmydocs:
+  server:
     image: luminainc/chunkmydocs:3c8cc0be
     ports:
       - "8000:8000"
@@ -107,87 +107,6 @@ services:
       - .env
     deploy:
       replicas: 0
-    restart: always
-
-  preprocess:
-    image: luminainc/preprocess:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  fast:
-    image: luminainc/fast:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-      - pdla
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  high-quality:
-    image: luminainc/high-quality:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-      - pdla
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  postprocess:
-    image: luminainc/postprocess:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  ocr:
-    image: luminainc/ocr:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  structured-extraction:
-    image: luminainc/structured-extraction:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-      - dense-vector
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
     restart: always
 
   web:

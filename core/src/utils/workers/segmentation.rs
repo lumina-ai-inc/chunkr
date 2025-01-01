@@ -1,8 +1,8 @@
-use crate::models::rrq::queue::QueuePayload;
-use crate::models::chunkr::upload::{TaskPayload, SegmentationStrategy};
-use crate::models::chunkr::segment::{BoundingBox, SegmentType};
-use crate::models::chunkr::segment::{PdlaSegment, Segment};
+use crate::models::chunkr::output::{BoundingBox, SegmentType};
+use crate::models::chunkr::output::{PdlaSegment, Segment};
 use crate::models::chunkr::task::Status;
+use crate::models::chunkr::upload::{SegmentationStrategy, TaskPayload};
+use crate::models::rrq::queue::QueuePayload;
 use crate::utils::configs::s3_config::create_client;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::create_pool;

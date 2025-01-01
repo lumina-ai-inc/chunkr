@@ -1,5 +1,7 @@
-use super::upload::Configuration;
-use crate::models::chunkr::segment::OutputResponse;
+use crate::models::chunkr::output::OutputResponse;
+use crate::models::chunkr::structured_extraction::JsonSchema;
+use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
+
 use chrono::{DateTime, Utc};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
@@ -54,4 +56,26 @@ pub enum Status {
     Succeeded,
     Failed,
     Canceled,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
+/// The configuration used for the task.
+pub struct Configuration {
+    pub ocr_strategy: OcrStrategy,
+    pub target_chunk_length: Option<i32>,
+    pub json_schema: Option<JsonSchema>,
+    pub segmentation_strategy: Option<SegmentationStrategy>,
+    pub expires_in: Option<i32>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct TaskPayload {
+    pub user_id: String,
+    pub file_name: String,
+    pub input_location: String,
+    pub pdf_location: String,
+    pub output_location: String,
+    pub image_folder_location: String,
+    pub task_id: String,
+    pub configuration: Configuration,
 }

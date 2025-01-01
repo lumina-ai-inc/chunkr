@@ -86,33 +86,7 @@
    |----------|-------------|---------|
    | `location` | Azure region | eastus2 |
    | `postgres_username` | Username for PostgreSQL | postgres |
-   | `postgres_password` | Password for PostgreSQL | postgres |
-   | `chunkr_db` | Name of the Chunkr database | chunkr |
-   | `keycloak_db` | Name of the Keycloak database | keycloak |
-   | `general_vm_count` | Number of general VMs | 1 |
-   | `general_min_vm_count` | Minimum number of general VMs | 1 |
-   | `general_max_vm_count` | Maximum number of general VMs | 1 |
-   | `general_vm_size` | Size of general VMs | Standard_F8s_v2 |
-   | `gpu_vm_count` | Number of GPU VMs | 1 |
-   | `gpu_min_vm_count` | Minimum number of GPU VMs | 1 |
-   | `gpu_max_vm_count` | Maximum number of GPU VMs | 1 |
-   | `gpu_vm_size` | Size of GPU VMs | Standard_NC8as_T4_v3 |
-   | `container_name` | Name of the storage container | chunkr |
-   | `create_postgres` | Whether to create PostgreSQL resources | false |
-   | `create_storage` | Whether to create Storage Account resources | true |
-
-## Deployment Steps (Both Providers)
-
-1. Initialize Terraform:
-   ```bash
-   terraform init
-   ```
-
-2. Review the planned changes:
-   ```bash
-   terraform plan
-   ```
-
+   | `postgres_password` | Password for PostgreSQL | postgres |terraform
 3. Apply the Terraform configuration:
    ```bash
    terraform apply
@@ -123,15 +97,6 @@
    terraform output -json | jq -r 'to_entries[] | "echo \"\(.key): $(terraform output -raw \(.key))\"" ' | bash
    ```
    > **Note**: The output will contain sensitive information. Make sure to keep it secure.
-
-## Cleanup
-
-To destroy all created resources:
-```bash
-terraform destroy
-```
-
-> **Warning**: This will permanently delete all resources created by Terraform.
 
 ## Multiple Environments
 
@@ -169,7 +134,7 @@ Use existing state from s3:
    terraform init -backend-config=./backend.hcl -reconfigure
    ```
 
-### Multiple Environments
+### Environment Specific Configuration
 
 1. Create a new terraform.tfvars file
 
@@ -179,3 +144,17 @@ Use existing state from s3:
 terraform plan -var-file="path/to/terraform.tfvars"
 terraform apply -var-file="path/to/terraform.tfvars"
 ```
+
+### Cleanup
+
+To destroy resources from a specific backend:
+```bash
+# First reinitialize with the correct backend
+terraform init -backend-config=path/to/backend.hcl -reconfigure
+
+# Then destroy
+terraform destroy -var-file="path/to/terraform.tfvars"
+```
+
+> **Warning**: This will permanently delete all resources created by Terraform.
+
