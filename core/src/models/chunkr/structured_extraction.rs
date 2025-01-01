@@ -6,6 +6,7 @@ use std::error::Error;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
+/// The JSON schema to be used for structured extraction.
 pub struct JsonSchema {
     /// The title of the JSON schema. This can be used to identify the schema.
     pub title: String,
