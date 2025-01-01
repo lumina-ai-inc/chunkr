@@ -88,6 +88,7 @@ pub async fn create_extraction_task(
             .map(|t| t.into_inner())
             .unwrap_or(OcrStrategy::default()),
         json_schema: form.json_schema.map(|js| js.into_inner()),
+        segment_processing: form.segment_processing.map(|sp| sp.into_inner()),
         segmentation_strategy: form.segmentation_strategy.map(|ss| ss.into_inner()),
         expires_in: form.expires_in.map(|e| e.into_inner()),
     };

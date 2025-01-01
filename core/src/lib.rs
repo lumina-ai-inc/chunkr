@@ -18,6 +18,7 @@ use utoipa_swagger_ui::SwaggerUi;
 pub mod jobs;
 pub mod middleware;
 pub mod models;
+pub mod pipeline;
 pub mod routes;
 pub mod utils;
 
@@ -73,6 +74,7 @@ fn run_migrations(url: &str) {
             models::chunkr::output::SegmentType,
             models::chunkr::segment_processing::AutoGenerationConfig,
             models::chunkr::segment_processing::GenerationStrategy,
+            models::chunkr::segment_processing::LlmConfig,
             models::chunkr::segment_processing::LlmGenerationConfig,
             models::chunkr::segment_processing::SegmentProcessing,
             models::chunkr::structured_extraction::ExtractedField,
