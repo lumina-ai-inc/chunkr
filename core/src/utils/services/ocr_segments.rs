@@ -1,4 +1,4 @@
-use crate::models::chunkr::segment::{OCRResult, SegmentType};
+use crate::models::chunkr::output::{OCRResult, SegmentType};
 use crate::utils::services::ocr::{
     perform_formula_ocr, perform_general_ocr, perform_page_ocr, perform_table_ocr,
 };
@@ -19,9 +19,7 @@ pub async fn ocr_segments(
         SegmentType::Table => {
             download_and_table_ocr(s3_client, reqwest_client, image_location).await
         }
-        SegmentType::Page => {
-            download_and_ocr_page(s3_client, reqwest_client, image_location).await
-        }
+        SegmentType::Page => download_and_ocr_page(s3_client, reqwest_client, image_location).await,
         _ => download_and_ocr(s3_client, reqwest_client, image_location).await,
     }
 }

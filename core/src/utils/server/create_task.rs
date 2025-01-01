@@ -1,6 +1,5 @@
 use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::upload::{Configuration, TaskPayload};
-use crate::models::chunkr::task::{Status, TaskResponse};
+use crate::models::chunkr::task::{Configuration, Status, TaskPayload, TaskResponse};
 use crate::utils::configs::expiration_config::Config as ExpirationConfig;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
@@ -27,9 +26,6 @@ pub async fn create_task(
     let task_id = Uuid::new_v4().to_string();
     let user_id = user_info.user_id.clone();
     let api_key = user_info.api_key.clone();
-    let model = configuration.model.clone();
-    let model_internal = model.to_internal();
-    let target_chunk_length = configuration.target_chunk_length.unwrap_or(512);
     let created_at = Utc::now();
     let client: Client = pool.get().await?;
     let worker_config = WorkerConfig::from_env()?;
@@ -38,7 +34,6 @@ pub async fn create_task(
     let expiration_time: Option<DateTime<Utc>> =
         expires_in.map(|seconds| Utc::now() + chrono::Duration::seconds(seconds as i64));
     let bucket_name = worker_config.s3_bucket;
-    let ingest_batch_size = worker_config.batch_size;
     let base_url = worker_config.server_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
@@ -61,10 +56,9 @@ pub async fn create_task(
         "s3://{}/{}/{}/{}.pdf",
         bucket_name, user_id, task_id, file_stem
     );
-    let output_extension = model_internal.get_extension();
     let output_location = format!(
         "s3://{}/{}/{}/{}.{}",
-        bucket_name, user_id, task_id, file_stem, output_extension
+        bucket_name, user_id, task_id, file_stem, "json"
     );
 
     let image_folder_location =
@@ -128,17 +122,13 @@ pub async fn create_task(
 
             let extraction_payload = TaskPayload {
                 user_id: user_id.clone(),
-                model: model_internal,
                 input_location: input_location.clone(),
                 pdf_location: pdf_location.clone(),
                 output_location,
                 image_folder_location,
-                batch_size: Some(ingest_batch_size),
                 task_id: task_id.clone(),
-                target_chunk_length: Some(target_chunk_length),
                 configuration: configuration.clone(),
                 file_name: file_name.to_string(),
-                page_count: Some(page_count),
             };
 
             match produce_extraction_payloads(worker_config.queue_preprocess, extraction_payload)

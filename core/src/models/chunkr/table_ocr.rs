@@ -1,5 +1,5 @@
-use crate::models::chunkr::segment::BoundingBox;
-use serde::{ Deserialize, Serialize };
+use crate::models::chunkr::output::BoundingBox;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Cell {

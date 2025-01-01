@@ -1,4 +1,3 @@
-use crate::models::chunkr::upload::PdlaModel;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
 use reqwest::{multipart, Client as ReqwestClient};
 use std::{fs, path::Path};

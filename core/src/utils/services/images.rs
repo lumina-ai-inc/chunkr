@@ -1,4 +1,4 @@
-use crate::models::chunkr::segment::Segment;
+use crate::models::chunkr::output::Segment;
 use crate::models::chunkr::table_ocr::TableStructure;
 use image::*;
 use imageproc::{drawing::draw_hollow_rect_mut, rect::Rect};

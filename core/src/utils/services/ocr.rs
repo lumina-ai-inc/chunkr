@@ -1,12 +1,10 @@
 use crate::{
-    models::chunkr::segment::OCRResult,
     models::chunkr::general_ocr::{DoctrResponse, PaddleOCRResponse},
     models::chunkr::open_ai::MessageContent,
+    models::chunkr::output::OCRResult,
     models::chunkr::table_ocr::{PaddleTableRecognitionResponse, PaddleTableRecognitionResult},
     utils::configs::llm_config::{get_prompt, Config as LlmConfig},
-    utils::configs::worker_config::{
-        Config as WorkerConfig, GeneralOcrModel, TableOcrModel,
-    },
+    utils::configs::worker_config::{Config as WorkerConfig, GeneralOcrModel, TableOcrModel},
     utils::db::deadpool_redis::{create_pool as create_redis_pool, Pool},
     utils::rate_limit::{create_general_ocr_rate_limiter, create_llm_rate_limiter, RateLimiter},
     utils::services::html::clean_img_tags,
@@ -333,9 +331,6 @@ pub async fn perform_page_ocr(
     let markdown = get_markdown_from_llm_page_ocr(markdown_response)?;
     Ok((html, markdown))
 }
-
-
-
 
 pub async fn perform_formula_ocr(file_path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
     init_throttle();

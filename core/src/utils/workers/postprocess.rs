@@ -1,6 +1,6 @@
 use crate::models::rrq::queue::QueuePayload;
 use crate::models::chunkr::upload::{TaskPayload, OcrStrategy};
-use crate::models::chunkr::segment::{Chunk, OutputResponse, Segment};
+use crate::models::chunkr::output::{Chunk, OutputResponse, Segment};
 use crate::models::chunkr::task::Status;
 use crate::utils::configs::s3_config::create_client;
 use crate::utils::configs::worker_config::Config as WorkerConfig;

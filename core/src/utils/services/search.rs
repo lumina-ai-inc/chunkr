@@ -1,4 +1,4 @@
-use crate::models::chunkr::segment::Segment;
+use crate::models::chunkr::output::Segment;
 
 pub struct SearchResult {
     pub segment: Segment,
@@ -43,7 +43,7 @@ pub fn search_embeddings(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::segment::{BoundingBox, SegmentType};
+    use crate::models::chunkr::output::{BoundingBox, SegmentType};
     use crate::utils::configs::search_config::Config as SearchConfig;
     use crate::utils::services::embeddings::EmbeddingCache;
     use std::error::Error;

@@ -8,6 +8,5 @@ pub mod ocr;
 pub mod ocr_segments;
 pub mod payload;
 pub mod pdf;
-pub mod pdla;
 pub mod search;
 pub mod structured_extraction;

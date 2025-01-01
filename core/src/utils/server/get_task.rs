@@ -1,6 +1,5 @@
-use crate::models::chunkr::upload::Configuration;
-use crate::models::chunkr::segment::{OutputResponse, SegmentType};
-use crate::models::chunkr::task::{Status, TaskResponse};
+use crate::models::chunkr::output::{OutputResponse, SegmentType};
+use crate::models::chunkr::task::{Configuration, Status, TaskResponse};
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use crate::utils::storage::services::{download_to_tempfile, generate_presigned_url};
 use aws_sdk_s3::Client as S3Client;

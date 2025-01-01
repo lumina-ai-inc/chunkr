@@ -47,17 +47,17 @@ impl EmbeddingCache {
             let response = response?;
             let status = response.status();
             let response_text = response.text().await?;
-            
+
             if !status.is_success() {
                 println!("Error: Embedding server returned status {}", status);
                 return Err(format!("Embedding server error: {}", status).into());
             }
-            
+
             if response_text.trim().is_empty() {
                 println!("Error: Empty response from embedding server");
                 return Err("Empty response from embedding server".into());
             }
-    
+
             match serde_json::from_str::<Vec<Vec<f32>>>(&response_text) {
                 Ok(embeddings) => {
                     all_embeddings.extend(embeddings);
@@ -91,7 +91,10 @@ impl EmbeddingCache {
         }
 
         if !texts_to_generate.is_empty() {
-            println!("Generating embeddings for {} texts", texts_to_generate.len());
+            println!(
+                "Generating embeddings for {} texts",
+                texts_to_generate.len()
+            );
             let new_embeddings = self
                 .generate_embeddings(client, embedding_url, texts_to_generate, batch_size)
                 .await?;
@@ -106,7 +109,7 @@ impl EmbeddingCache {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::segment::{BoundingBox, Segment, SegmentType};
+    use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
     use crate::utils::configs::search_config::Config as SearchConfig;
     use tokio;
     #[tokio::test]

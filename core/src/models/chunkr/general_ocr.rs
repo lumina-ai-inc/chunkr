@@ -1,4 +1,4 @@
-use crate::models::chunkr::segment::{BoundingBox, OCRResult};
+use crate::models::chunkr::output::{BoundingBox, OCRResult};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

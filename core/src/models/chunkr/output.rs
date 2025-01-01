@@ -1,38 +1,34 @@
+use crate::models::chunkr::structured_extraction::ExtractedJson;
 use crate::utils::configs::worker_config;
-use crate::utils::services::structured_extraction::ExtractedJson;
+
+use lazy_static::lazy_static;
 use postgres_types::{FromSql, ToSql};
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
-use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-/// Bounding box for an item. It is used for both segments and OCR results.
-pub struct BoundingBox {
-    /// The left coordinate of the bounding box.
-    pub left: f32,
-    /// The top coordinate of the bounding box.
-    pub top: f32,
-    /// The width of the bounding box.
-    pub width: f32,
-    /// The height of the bounding box.
-    pub height: f32,
-}
-
-impl BoundingBox {
-    pub fn get_center(&self) -> (f32, f32) {
-        (self.left + self.width / 2.0, self.top + self.height / 2.0)
-    }
+lazy_static! {
+    static ref NUMBERED_LIST_REGEX: Regex = Regex::new(r"^(\d+)\.\s+(.+)$").unwrap();
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-/// OCR results for a segment
-pub struct OCRResult {
-    pub bbox: BoundingBox,
-    /// The recognized text of the OCR result.
-    pub text: String,
-    /// The confidence score of the recognized text.
-    pub confidence: Option<f32>,
+/// The processed results of a document analysis task
+pub struct OutputResponse {
+    /// Collection of document chunks, where each chunk contains one or more segments
+    pub chunks: Vec<Chunk>,
+    pub extracted_json: Option<ExtractedJson>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct Chunk {
+    /// Collection of document segments that form this chunk.
+    /// When target_chunk_length > 0, contains the maximum number of segments
+    /// that fit within that length (segments remain intact).
+    /// Otherwise, contains exactly one segment.
+    pub segments: Vec<Segment>,
+    /// The total number of words in the chunk.
+    pub chunk_length: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -59,86 +55,6 @@ pub struct Segment {
     pub markdown: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct Chunk {
-    /// Collection of document segments that form this chunk.
-    /// When target_chunk_length > 0, contains the maximum number of segments
-    /// that fit within that length (segments remain intact).
-    /// Otherwise, contains exactly one segment.
-    pub segments: Vec<Segment>,
-    /// The total number of words in the chunk.
-    pub chunk_length: i32,
-}
-
-// TODO: Move to models/server/task.rs
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-/// The processed results of a document analysis task
-pub struct OutputResponse {
-    /// Collection of document chunks, where each chunk contains one or more segments
-    pub chunks: Vec<Chunk>,
-    pub extracted_json: Option<ExtractedJson>,
-}
-
-#[derive(
-    Serialize, Deserialize, Debug, Clone, PartialEq, EnumString, Display, ToSchema, ToSql, FromSql,
-)]
-/// The type a segment is classified as.
-pub enum SegmentType {
-    Title,
-    #[serde(rename = "Section header")]
-    SectionHeader,
-    Text,
-    #[serde(rename = "List item")]
-    ListItem,
-    Table,
-    Picture,
-    Caption,
-    Formula,
-    Footnote,
-    #[serde(rename = "Page header")]
-    PageHeader,
-    #[serde(rename = "Page footer")]
-    PageFooter,
-    Page,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-pub struct PdlaSegment {
-    pub left: f32,
-    pub top: f32,
-    pub width: f32,
-    pub height: f32,
-    pub page_number: u32,
-    pub page_width: f32,
-    pub page_height: f32,
-    pub text: String,
-    #[serde(rename = "type")]
-    pub segment_type: SegmentType,
-}
-
-impl PdlaSegment {
-    pub fn to_segment(&self) -> Segment {
-        Segment {
-            segment_id: Uuid::new_v4().to_string(),
-            bbox: BoundingBox {
-                left: self.left,
-                top: self.top,
-                width: self.width,
-                height: self.height,
-            },
-            page_number: self.page_number,
-            page_width: self.page_width,
-            page_height: self.page_height,
-            content: self.text.clone(),
-            segment_type: self.segment_type.clone(),
-            ocr: None,
-            image: None,
-            html: None,
-            markdown: None,
-        }
-    }
-}
-
 impl Segment {
     fn to_html(&self) -> String {
         match self.segment_type {
@@ -146,10 +62,9 @@ impl Segment {
             SegmentType::SectionHeader => format!("<h2>{}</h2>", self.content),
             SegmentType::Text => format!("<p>{}</p>", self.content),
             SegmentType::ListItem => {
-                let parts = self.content.trim().split('.').collect::<Vec<&str>>();
-                if parts[0].parse::<i32>().is_ok() {
-                    let start_number = parts[0].parse::<i32>().unwrap();
-                    let item = parts[1..].join(".").trim().to_string();
+                if let Some(captures) = NUMBERED_LIST_REGEX.captures(self.content.trim()) {
+                    let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
+                    let item = captures.get(2).unwrap().as_str();
                     format!("<ol start='{}'><li>{}</li></ol>", start_number, item)
                 } else {
                     let cleaned_content = self
@@ -176,11 +91,10 @@ impl Segment {
             SegmentType::Title => format!("# {}\n\n", self.content),
             SegmentType::SectionHeader => format!("## {}\n\n", self.content),
             SegmentType::ListItem => {
-                let parts = self.content.trim().split('.').collect::<Vec<&str>>();
-                if parts[0].parse::<i32>().is_ok() {
-                    let start_number = parts[0].parse::<i32>().unwrap();
-                    let item: String = parts[1..].join(".").trim().to_string();
-                    format!("{}. {}", start_number, item)
+                if let Some(captures) = NUMBERED_LIST_REGEX.captures(self.content.trim()) {
+                    let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
+                    let item = captures.get(2).unwrap().as_str();
+                    format!("{}. {}\n\n", start_number, item)
                 } else {
                     let cleaned_content = self
                         .content
@@ -223,4 +137,69 @@ impl Segment {
         self.html = Some(self.to_html());
         self.markdown = Some(self.to_markdown());
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+/// Bounding box for an item. It is used for both segments and OCR results.
+pub struct BoundingBox {
+    /// The left coordinate of the bounding box.
+    pub left: f32,
+    /// The top coordinate of the bounding box.
+    pub top: f32,
+    /// The width of the bounding box.
+    pub width: f32,
+    /// The height of the bounding box.
+    pub height: f32,
+}
+
+impl BoundingBox {
+    pub fn get_center(&self) -> (f32, f32) {
+        (self.left + self.width / 2.0, self.top + self.height / 2.0)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+/// OCR results for a segment
+pub struct OCRResult {
+    pub bbox: BoundingBox,
+    /// The recognized text of the OCR result.
+    pub text: String,
+    /// The confidence score of the recognized text.
+    pub confidence: Option<f32>,
+}
+
+#[derive(
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    EnumString,
+    Display,
+    ToSchema,
+    ToSql,
+    FromSql,
+    Eq,
+    Hash,
+)]
+/// All the possible types for a segment.
+/// Note: Different configurations will produce different types.
+/// Please refer to the documentation for more information.
+pub enum SegmentType {
+    Title,
+    #[serde(alias = "Section header")]
+    SectionHeader,
+    Text,
+    #[serde(alias = "List item")]
+    ListItem,
+    Table,
+    Picture,
+    Caption,
+    Formula,
+    Footnote,
+    #[serde(alias = "Page header")]
+    PageHeader,
+    #[serde(alias = "Page footer")]
+    PageFooter,
+    Page,
 }

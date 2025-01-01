@@ -1,6 +1,6 @@
 use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::upload::Model;
-use crate::models::chunkr::upload::{Configuration, OcrStrategy, UploadForm};
+use crate::models::chunkr::task::Configuration;
+use crate::models::chunkr::upload::{OcrStrategy, UploadForm};
 use crate::utils::configs::s3_config::ExternalS3Client;
 use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::server::create_task::create_task;
@@ -82,10 +82,6 @@ pub async fn create_extraction_task(
     let s3_client = req.app_data::<web::Data<S3Client>>().unwrap();
     let file_data = &form.file;
     let configuration = Configuration {
-        model: form
-            .model
-            .map(|m| m.into_inner())
-            .unwrap_or(Model::HighQuality),
         target_chunk_length: form.target_chunk_length.map(|t| t.into_inner()),
         ocr_strategy: form
             .ocr_strategy
