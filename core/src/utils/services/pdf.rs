@@ -7,8 +7,10 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
+use tempfile::NamedTempFile;
 use uuid::Uuid;
 
+// Prob is not requried anymore
 pub fn split_pdf(
     file_path: &Path,
     pages_per_split: usize,
@@ -49,55 +51,37 @@ pub fn split_pdf(
     Ok(split_files)
 }
 
-pub async fn pdf_2_images(
-    pdf_path: &Path,
-    temp_dir: &Path,
-) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
-    let config = PdfiumConfig::from_env()?;
-    let dir_path = config.get_binary().await?;
+pub fn pages_as_images(
+    pdf_file: &NamedTempFile,
+) -> Result<Vec<NamedTempFile>, Box<dyn std::error::Error>> {
     let extraction_config = WorkerConfig::from_env()?;
-
-    let pdfium = Pdfium::new(
-        Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&dir_path))?,
-    );
-
-    let document = pdfium.load_pdf_from_file(pdf_path, None)?;
+    let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
+    let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
     let render_config = PdfRenderConfig::new()
         .scale_page_by_factor(extraction_config.page_image_density / extraction_config.pdf_density);
-    let mut image_paths = Vec::new();
-    for (page_index, page) in document.pages().iter().enumerate() {
-        let output_path = temp_dir.join(format!("page_{}.jpg", page_index + 1));
+    let mut image_files = Vec::new();
+    for page in document.pages().iter() {
+        let temp_file = NamedTempFile::new()?;
 
         page.render_with_config(&render_config)?
             .as_image()
             .into_rgb8()
-            .save_with_format(output_path.clone(), ImageFormat::Jpeg)
+            .save_with_format(temp_file.path(), ImageFormat::Jpeg)
             .map_err(|_| PdfiumError::ImageError)?;
 
-        image_paths.push(output_path);
+        image_files.push(temp_file);
     }
-
-    Ok(image_paths)
+    Ok(image_files)
 }
 
-
-    pub async fn extract_text_pdf(
-        pdf_path: &Path,
-    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-        let config = PdfiumConfig::from_env()?;
-        let dir_path = config.get_binary().await?;
-        
-        let pdfium = Pdfium::new(
-            Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&dir_path))?,
-        );
-
-        let document = pdfium.load_pdf_from_file(pdf_path, None)?;
-        let mut page_texts = Vec::new();
-        for page in document.pages().iter() {
-            let text = page.text().unwrap().all();
-            page_texts.push(text);
-        }
-
-        Ok(page_texts)
+pub fn extract_text(pdf_file: &NamedTempFile) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
+    let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
+    let mut page_texts = Vec::new();
+    for page in document.pages().iter() {
+        let text = page.text().unwrap().all();
+        page_texts.push(text);
     }
 
+    Ok(page_texts)
+}

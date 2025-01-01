@@ -1,4 +1,5 @@
 use crate::models::chunkr::output::OutputResponse;
+use crate::models::chunkr::segment_processing::SegmentProcessing;
 use crate::models::chunkr::structured_extraction::JsonSchema;
 use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 
@@ -48,7 +49,7 @@ pub struct TaskResponse {
     Display,
     ToSchema,
 )]
-/// The status of the task. 'Cancelled' has not yet been implemented.
+/// The status of the task. `Cancelled` has not yet been implemented.
 
 pub enum Status {
     Starting,
@@ -64,6 +65,7 @@ pub struct Configuration {
     pub ocr_strategy: OcrStrategy,
     pub target_chunk_length: Option<i32>,
     pub json_schema: Option<JsonSchema>,
+    pub segment_processing: Option<SegmentProcessing>,
     pub segmentation_strategy: Option<SegmentationStrategy>,
     pub expires_in: Option<i32>,
 }

@@ -1,6 +1,7 @@
 use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
 use flate2::read::GzDecoder;
+use pdfium_render::prelude::*;
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -12,6 +13,8 @@ use thiserror::Error;
 pub struct Config {
     #[serde(default = "default_path")]
     pub dir_path: PathBuf,
+    #[serde(skip)]
+    binary_path: Option<String>,
 }
 
 fn default_path() -> PathBuf {
@@ -55,8 +58,8 @@ impl Config {
         }
     }
 
-    pub async fn get_binary(&self) -> Result<String, PdfiumError> {
-        let path = self.dir_path.clone();
+    pub async fn ensure_binary(&mut self) -> Result<(), PdfiumError> {
+        let path: PathBuf = self.dir_path.clone();
         let binary_name = self.os_binary_name()?;
 
         if !path.clone().exists() {
@@ -75,7 +78,16 @@ impl Config {
             self.download_binary(&target_path).await?;
         }
 
-        Ok(target_path)
+        self.binary_path = Some(target_path);
+        Ok(())
+    }
+
+    fn get_binary_path(&self) -> Result<String, PdfiumError> {
+        self.binary_path.clone().ok_or_else(|| {
+            PdfiumError::BinaryNotFound(
+                "Binary path not set. Call ensure_binary() first".to_string(),
+            )
+        })
     }
 
     async fn download_binary(&self, target_path: &str) -> Result<(), PdfiumError> {
@@ -113,5 +125,12 @@ impl Config {
             .map_err(|e| PdfiumError::DownloadError(format!("Failed to copy binary: {}", e)))?;
 
         Ok(())
+    }
+
+    pub fn get_pdfium(&self) -> Result<Pdfium, Box<dyn std::error::Error>> {
+        let binary_path = self.get_binary_path()?;
+        Ok(Pdfium::new(
+            Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&binary_path))?,
+        ))
     }
 }

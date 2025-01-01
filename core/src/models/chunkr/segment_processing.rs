@@ -1,8 +1,9 @@
+use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 /// Controls the post-processing of each segment type.
 /// Allows you to generate HTML and Markdown from chunkr models for each segment type.
 /// By default, the HTML and Markdown are generated manually using the segmentation information except for `Table` and `Formula`.
@@ -54,7 +55,11 @@ impl Default for SegmentProcessing {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
+/// Controls the generation for the `html`, `llm` and `markdown` fields for the segment.
+/// - `html` is the HTML output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
+/// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
+/// - `markdown` is the Markdown output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 pub struct AutoGenerationConfig {
     #[serde(default = "default_auto_generation_strategy")]
     #[schema(default = "Auto")]
@@ -65,7 +70,11 @@ pub struct AutoGenerationConfig {
     pub markdown: GenerationStrategy,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
+/// Controls the generation for the `html`, `llm` and `markdown` fields for the segment.
+/// - `html` is the HTML output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
+/// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
+/// - `markdown` is the Markdown output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 pub struct LlmGenerationConfig {
     #[serde(default = "default_llm_generation_strategy")]
     #[schema(default = "LLM")]
@@ -104,13 +113,13 @@ impl Default for LlmGenerationConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, Display, EnumString)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, Display, EnumString, ToSql, FromSql)]
 pub enum GenerationStrategy {
     LLM,
     Auto,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
 pub struct LlmConfig {
     pub model: String,
     pub prompt: String,

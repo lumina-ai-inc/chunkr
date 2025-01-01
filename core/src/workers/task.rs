@@ -1,58 +1,61 @@
 use chrono::Utc;
+use core::models::chunkr::pipeline::Pipeline;
 use core::models::chunkr::task::Status;
 use core::models::chunkr::task::TaskPayload;
 use core::models::rrq::queue::QueuePayload;
+use core::pipeline::convert_to_images;
+use core::utils::configs::pdfium_config::Config as PdfiumConfig;
 use core::utils::configs::s3_config::create_client;
 use core::utils::configs::worker_config::Config as WorkerConfig;
-use core::utils::db::deadpool_postgres::{create_pool, Client};
+use core::utils::db::deadpool_postgres::{create_pool, Pool};
 use core::utils::rrq::consumer::consumer;
 use core::utils::services::log::log_task;
-use core::utils::storage::services::download_to_given_tempfile;
-use serde_json::Value;
-use tempfile::{NamedTempFile, TempDir};
+use core::utils::storage::services::download_to_tempfile;
 
-// TODO: save outputs from each step so that future steps can use them
-// TODO: or save the input for a step in a Hashmap so that future steps can use them
 async fn execute_step(
-    step: String,
-    config: &mut Value,
-    s3_client: &aws_sdk_s3::Client,
-    reqwest_client: &reqwest::Client,
-    temp_dir: &TempDir,
-) -> Result<Value, Box<dyn std::error::Error>> {
-    match step {
-        // "function1" => execute_function1(config).await,
-        // "function2" => execute_function2(config).await,
+    step: &str,
+    pipeline: &mut Pipeline,
+    task_id: &str,
+    pg_pool: &Pool,
+) -> Result<(Status, Option<String>), Box<dyn std::error::Error>> {
+    let result = match step {
+        "convert_to_images" => convert_to_images::process(pipeline).await,
         _ => Err(format!("Unknown function: {}", step).into()),
-    }
+    }?;
+    log_task(
+        &task_id,
+        result.0.clone(),
+        Some(&result.1.clone().unwrap_or_default()),
+        None,
+        &pg_pool,
+    )
+    .await?;
+    Ok(result)
 }
 
-fn orchestrate_task(task_payload: TaskPayload, client: &Client) -> Vec<String> {
+fn orchestrate_task(_task_payload: TaskPayload) -> Vec<&'static str> {
     unimplemented!()
 }
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
     let pg_pool = create_pool();
-    let client: Client = pg_pool.get().await?;
     let reqwest_client = reqwest::Client::new();
     let s3_client: aws_sdk_s3::Client = create_client().await?;
     let task_payload: TaskPayload = serde_json::from_value(payload.payload)?;
     let task_id = task_payload.task_id.clone();
-    let temp_dir = TempDir::new().unwrap();
+    let mut pipeline = Pipeline::new();
 
-    let result: Result<(Status, Option<String>), Box<dyn std::error::Error>> = (async {
+    let result: Result<(), Box<dyn std::error::Error>> = (async {
         log_task(
-            task_id.clone(),
+            &task_id,
             Status::Processing,
-            Some("Task started".to_string()),
+            Some("Task started"),
             None,
             &pg_pool,
         )
         .await?;
 
-        let mut input_file = NamedTempFile::new_in(&temp_dir)?;
-        download_to_given_tempfile(
-            &mut input_file,
+        let input_file = download_to_tempfile(
             &s3_client,
             &reqwest_client,
             &task_payload.input_location,
@@ -64,38 +67,40 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             e
         })?;
 
-        let steps = orchestrate_task(task_payload, &client);
+        pipeline.set_input_file(input_file)?;
 
-        let mut config: Value = Value::Null;
-        for step in steps {
-            let _ = execute_step(step, &mut config, &s3_client, &reqwest_client, &temp_dir).await?;
+        for step in orchestrate_task(task_payload) {
+            let result: (Status, Option<String>) =
+                execute_step(step, &mut pipeline, &task_id, &pg_pool).await?;
+            if result.0 == Status::Failed {
+                return Ok(());
+            }
         }
 
-        Ok((Status::Succeeded, Some("Task succeeded".to_string())))
+        log_task(
+            &task_id,
+            Status::Succeeded,
+            Some(&"Task succeeded".to_string()),
+            Some(Utc::now()),
+            &pg_pool,
+        )
+        .await?;
+
+        Ok(())
     })
     .await;
 
     match result {
-        Ok(value) => {
-            log_task(
-                task_id.clone(),
-                value.0,
-                value.1,
-                Some(Utc::now()),
-                &pg_pool,
-            )
-            .await?;
-            Ok(())
-        }
+        Ok(_) => Ok(()),
         Err(e) => {
             let message = match payload.attempt >= payload.max_attempts {
                 true => "Task failed".to_string(),
                 false => format!("Retrying task {}/{}", payload.attempt, payload.max_attempts),
             };
             log_task(
-                task_id.clone(),
+                &task_id,
                 Status::Failed,
-                Some(message),
+                Some(&message),
                 Some(Utc::now()),
                 &pg_pool,
             )
@@ -109,6 +114,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Starting task processor");
     let config = WorkerConfig::from_env()?;
+    PdfiumConfig::from_env()?.ensure_binary().await?;
     consumer(process, config.queue_task, 1, 2400).await?;
     Ok(())
 }

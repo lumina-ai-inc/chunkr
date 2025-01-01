@@ -1,11 +1,11 @@
-use chrono::{DateTime, Utc};
 use crate::models::chunkr::task::Status;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
+use chrono::{DateTime, Utc};
 
 pub async fn log_task(
-    task_id: String,
+    task_id: &str,
     status: Status,
-    message: Option<String>,
+    message: Option<&str>,
     finished_at: Option<DateTime<Utc>>,
     pool: &Pool,
 ) -> Result<(), Box<dyn std::error::Error>> {
