@@ -69,7 +69,23 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             e
         })?;
 
-        let mut pipeline = Pipeline::new(task_id.clone(), input_file, task_payload.current_configuration, task_payload.previous_configuration)?;
+        let mut pipeline = match Pipeline::new(task_id.clone(), input_file, task_payload.current_configuration, task_payload.previous_configuration) {
+            Ok(pipeline) => pipeline,
+            Err(e) => {
+                if e.to_string().contains("Unsupported file type") {
+                    log_task(
+                        &task_id,
+                        Status::Failed,
+                        Some(&e.to_string()),
+                        Some(Utc::now()),
+                        &pg_pool,
+                    )
+                    .await?;
+                    return Ok(())
+                }
+                return Err(e.into());
+            }
+        };
 
         for step in orchestrate_task() {
             let result: (Status, Option<String>) =
