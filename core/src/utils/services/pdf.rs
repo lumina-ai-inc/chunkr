@@ -4,6 +4,7 @@ use image::ImageFormat;
 use lopdf::Document;
 use pdfium_render::prelude::*;
 use std::{
+    error::Error,
     fs,
     path::{Path, PathBuf},
 };
@@ -15,7 +16,7 @@ pub fn split_pdf(
     file_path: &Path,
     pages_per_split: usize,
     output_dir: &Path,
-) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+) -> Result<Vec<PathBuf>, Box<dyn Error>> {
     let doc = match Document::load(file_path) {
         Ok(doc) => doc,
         Err(e) => {
@@ -51,9 +52,7 @@ pub fn split_pdf(
     Ok(split_files)
 }
 
-pub fn pages_as_images(
-    pdf_file: &NamedTempFile,
-) -> Result<Vec<NamedTempFile>, Box<dyn std::error::Error>> {
+pub fn pages_as_images(pdf_file: &NamedTempFile) -> Result<Vec<NamedTempFile>, Box<dyn Error>> {
     let extraction_config = WorkerConfig::from_env()?;
     let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
     let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
@@ -74,7 +73,7 @@ pub fn pages_as_images(
     Ok(image_files)
 }
 
-pub fn extract_text(pdf_file: &NamedTempFile) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+pub fn extract_text(pdf_file: &NamedTempFile) -> Result<Vec<String>, Box<dyn Error>> {
     let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
     let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
     let mut page_texts = Vec::new();
@@ -84,4 +83,10 @@ pub fn extract_text(pdf_file: &NamedTempFile) -> Result<Vec<String>, Box<dyn std
     }
 
     Ok(page_texts)
+}
+
+pub fn count_pages(pdf_file: &NamedTempFile) -> Result<i32, Box<dyn std::error::Error>> {
+    let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
+    let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
+    Ok(document.pages().len() as i32)
 }

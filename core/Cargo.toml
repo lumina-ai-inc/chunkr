@@ -83,26 +83,3 @@ postgresql = { version = "14", lib_dir = "/opt/homebrew/opt/postgresql@14/lib" }
 name = "task"
 path = "src/workers/task.rs"
 
-[[bin]]
-name = "fast"
-path = "src/workers/fast.rs"
-
-[[bin]]
-name = "high-quality"
-path = "src/workers/high_quality.rs"
-
-[[bin]]
-name = "ocr"
-path = "src/workers/ocr.rs"
-
-[[bin]]
-name = "preprocess"
-path = "src/workers/preprocess.rs"
-
-[[bin]]
-name = "postprocess"
-path = "src/workers/postprocess.rs"
-
-[[bin]]
-name = "structured-extraction"
-path = "src/workers/structured_extraction.rs"

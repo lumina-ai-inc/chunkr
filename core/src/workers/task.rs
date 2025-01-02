@@ -4,6 +4,7 @@ use core::models::chunkr::task::Status;
 use core::models::chunkr::task::TaskPayload;
 use core::models::rrq::queue::QueuePayload;
 use core::pipeline::convert_to_images;
+use core::pipeline::update_page_count;
 use core::utils::configs::pdfium_config::Config as PdfiumConfig;
 use core::utils::configs::s3_config::create_client;
 use core::utils::configs::worker_config::Config as WorkerConfig;
@@ -20,6 +21,7 @@ async fn execute_step(
 ) -> Result<(Status, Option<String>), Box<dyn std::error::Error>> {
     let result = match step {
         "convert_to_images" => convert_to_images::process(pipeline).await,
+        "update_page_count" => update_page_count::process(pipeline, pg_pool).await,
         _ => Err(format!("Unknown function: {}", step).into()),
     }?;
     log_task(
@@ -34,7 +36,7 @@ async fn execute_step(
 }
 
 fn orchestrate_task(_task_payload: TaskPayload) -> Vec<&'static str> {
-    unimplemented!()
+    vec!["update_page_count", "convert_to_images"]
 }
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
@@ -43,7 +45,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let s3_client: aws_sdk_s3::Client = create_client().await?;
     let task_payload: TaskPayload = serde_json::from_value(payload.payload)?;
     let task_id = task_payload.task_id.clone();
-    let mut pipeline = Pipeline::new();
+    let mut pipeline = Pipeline::new(task_id.clone());
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         log_task(

@@ -91,6 +91,7 @@ pub async fn create_extraction_task(
         segment_processing: form.segment_processing.map(|sp| sp.into_inner()),
         segmentation_strategy: form.segmentation_strategy.map(|ss| ss.into_inner()),
         expires_in: form.expires_in.map(|e| e.into_inner()),
+        model: None,
     };
 
     let result = create_task(pool, s3_client, file_data, &user_info, &configuration).await;

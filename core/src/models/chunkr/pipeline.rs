@@ -6,6 +6,7 @@ use crate::utils::services::file_operations::{check_file_type, convert_to_pdf};
 
 #[derive(Debug, Clone)]
 pub struct Pipeline {
+    pub task_id: String,
     pub tempdir: Arc<TempDir>,
     pub input_file: Option<Arc<NamedTempFile>>,
     pub pdf_file: Option<Arc<NamedTempFile>>,
@@ -13,8 +14,9 @@ pub struct Pipeline {
 }
 
 impl Pipeline {
-    pub fn new() -> Self {
+    pub fn new(task_id: String) -> Self {
         Self {
+            task_id,
             tempdir: Arc::new(TempDir::new().unwrap()),
             input_file: None,
             pdf_file: None,

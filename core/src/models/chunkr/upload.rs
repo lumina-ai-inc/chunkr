@@ -14,7 +14,7 @@ pub struct UploadForm {
     #[param(style = Form, value_type = Option<i32>)]
     #[schema(value_type = Option<i32>)]
     /// The number of seconds until task is deleted.
-    /// Expried tasks can not be updated, polled or accessed via web interface.
+    /// Expried tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<Text<i32>>,
     #[param(style = Form, value_type = String, format = "binary")]
     #[schema(value_type = String, format = "binary")]
