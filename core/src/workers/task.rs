@@ -43,7 +43,7 @@ fn orchestrate_task() -> Vec<&'static str> {
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
     let pg_pool = create_pool();
     let reqwest_client = reqwest::Client::new();
-    let s3_client: aws_sdk_s3::Client = create_client().await?;
+    let s3_client = create_client().await?;
     let task_payload: TaskPayload = serde_json::from_value(payload.payload)?;
     let task_id = task_payload.task_id.clone();
 
@@ -69,7 +69,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             e
         })?;
 
-        let mut pipeline = Pipeline::new(task_id.clone(), input_file, task_payload.current_configuration, task_payload.previous_configurations)?;
+        let mut pipeline = Pipeline::new(task_id.clone(), input_file, task_payload.current_configuration, task_payload.previous_configuration)?;
 
         for step in orchestrate_task() {
             let result: (Status, Option<String>) =
