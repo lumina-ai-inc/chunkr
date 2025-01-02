@@ -1,0 +1,9 @@
+pub mod auth;
+pub mod upload;
+pub mod segment;
+pub mod task;
+pub mod tasks;
+pub mod user;
+pub mod general_ocr;
+pub mod open_ai;
+pub mod table_ocr;

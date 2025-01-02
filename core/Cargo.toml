@@ -1,0 +1,104 @@
+[package]
+name = "core"
+version = "0.0.0"
+edition = "2021"
+default-run = "core"
+
+[dependencies]
+actix-cors = "0.7.0"
+actix-multipart = "0.7.2"
+actix-web = "4.8.0"
+anyhow = "1.0.86"
+async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] }
+aws-credential-types = { version = "1.2.0", features = ["hardcoded-credentials"] }
+aws-sdk-s3 = { version = "1.29.0", features = ["behavior-version-latest"] }
+base64 = "0.22.1"
+bytes = "1.4.0"
+chrono = { version = "0.4.31", features = ["serde"] }
+config = "0.14.0"
+deadpool-postgres = { version = "0.14.0", features = ["serde"] }
+deadpool-redis = { version = "0.18.0", features = ["serde"] }
+diesel = { version = "2.2.3", features = [
+  "uuid",
+  "chrono",
+  "serde_json",
+  "postgres",
+] }
+diesel_migrations = { version = "2.2.0", features = ["postgres"] }
+dotenvy = "=0.15.7"
+env_logger = "0.11.5"
+flate2 = "1.0.34"
+futures = "0.3.31"
+futures-util = "0.3.30"
+image = { version = "0.25.4", features = ["png"] }
+image-base64 = "0.1.0"
+imageproc = "0.25.0"
+jsonwebtoken = "9.3.0"
+lazy_static = "1.5.0"
+log = "0.4.22"
+lopdf = "0.34.0"
+mime = "0.3.17"
+mime_guess = "2.0.4"
+once_cell = "1.19.0"
+openssl = "0.10.66"
+pdfium-render = "=0.8.25"
+postgres-openssl = "0.5.0"
+postgres-types = { version = "0.2.7", features = ["derive"] }
+prefixed-api-key = { version = "0.3.0", features = ["sha2"] }
+quick-xml = "0.36.1"
+rand = "0.8.5"
+rayon = "1.10.0"
+regex = "1.10.5"
+reqwest = { version = "0.12.5", features = ["blocking", "json", "multipart"] }
+router = { version = "0.6.0" }
+serde = { version = "1.0.204", features = ["derive"] }
+serde_json = "1.0.68"
+serde_yaml = "0.9.34"
+strum = "0.26.3"
+strum_macros = "0.26.4"
+tar = "0.4.42"
+tempdir = "0.3.7"
+tempfile = "3.10.1"
+thiserror = "1.0.64"
+tokio = { version = "1.28.0", features = ["full"] }
+tokio-postgres = { version = "0.7", features = ["with-chrono-0_4"] }
+utoipa = { version = "4.2", features = [
+  "actix_extras",
+  "uuid",
+  "chrono",
+  "debug",
+] }
+utoipa-redoc = { version = "4.0", features = ["actix-web"] }
+utoipa-swagger-ui = { version = "7.1.0", features = ["actix-web", "vendored"] }
+uuid = { version = "1.8.0", features = ["v4", "v5"] }
+itertools = "0.13.0"
+redis = "0.27.5"
+[build-dependencies]
+pkg-config = "0.3.19"
+
+[package.metadata.pkg-config]
+postgresql = { version = "14", lib_dir = "/opt/homebrew/opt/postgresql@14/lib" }
+
+[[bin]]
+name = "fast"
+path = "src/workers/fast.rs"
+
+[[bin]]
+name = "high-quality"
+path = "src/workers/high_quality.rs"
+
+[[bin]]
+name = "ocr"
+path = "src/workers/ocr.rs"
+
+[[bin]]
+name = "preprocess"
+path = "src/workers/preprocess.rs"
+
+[[bin]]
+name = "postprocess"
+path = "src/workers/postprocess.rs"
+
+[[bin]]
+name = "structured-extraction"
+path = "src/workers/structured_extraction.rs"
