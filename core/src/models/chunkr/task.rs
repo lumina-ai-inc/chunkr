@@ -82,12 +82,13 @@ pub enum Model {
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct TaskPayload {
-    pub user_id: String,
-    pub file_name: String,
-    pub input_location: String,
-    pub pdf_location: String,
-    pub output_location: String,
-    pub image_folder_location: String,
-    pub task_id: String,
     pub configuration: Configuration,
+    pub file_name: String,
+    pub image_folder_location: String,
+    pub input_location: String,
+    pub output_location: String,
+    pub pdf_location: String,
+    pub previous_configuration: Option<Configuration>,
+    pub task_id: String,
+    pub user_id: String,
 }
