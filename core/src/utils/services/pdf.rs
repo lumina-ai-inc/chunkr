@@ -58,10 +58,12 @@ pub fn pages_as_images(pdf_file: &NamedTempFile) -> Result<Vec<NamedTempFile>, B
     let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
     let render_config = PdfRenderConfig::new()
         .scale_page_by_factor(extraction_config.page_image_density / extraction_config.pdf_density);
-    let mut image_files = Vec::new();
-    for page in document.pages().iter() {
-        let temp_file = NamedTempFile::new()?;
 
+    let page_count = document.pages().len();
+    let mut image_files = Vec::with_capacity(page_count.into());
+
+    document.pages().iter().try_for_each(|page| {
+        let temp_file = NamedTempFile::new()?;
         page.render_with_config(&render_config)?
             .as_image()
             .into_rgb8()
@@ -69,7 +71,9 @@ pub fn pages_as_images(pdf_file: &NamedTempFile) -> Result<Vec<NamedTempFile>, B
             .map_err(|_| PdfiumError::ImageError)?;
 
         image_files.push(temp_file);
-    }
+        Ok::<_, Box<dyn Error>>(())
+    })?;
+
     Ok(image_files)
 }
 

@@ -35,17 +35,6 @@ impl From<Text> for OCRResult {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PaddleOCRResponse {
-    #[serde(rename = "logId")]
-    pub log_id: String,
-    #[serde(rename = "errorCode")]
-    pub error_code: i32,
-    #[serde(rename = "errorMsg")]
-    pub error_msg: String,
-    pub result: GeneralOcrResult,
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DoctrResponse {
     pub page_content: PageContent,

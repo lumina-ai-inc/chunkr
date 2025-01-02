@@ -1,23 +1,21 @@
 use crate::{
-    models::chunkr::general_ocr::{DoctrResponse, PaddleOCRResponse},
+    models::chunkr::general_ocr::DoctrResponse,
     models::chunkr::open_ai::MessageContent,
     models::chunkr::output::OCRResult,
-    models::chunkr::table_ocr::{PaddleTableRecognitionResponse, PaddleTableRecognitionResult},
     utils::configs::llm_config::{get_prompt, Config as LlmConfig},
-    utils::configs::worker_config::{Config as WorkerConfig, GeneralOcrModel, TableOcrModel},
+    utils::configs::worker_config::Config as WorkerConfig,
     utils::db::deadpool_redis::{create_pool as create_redis_pool, Pool},
     utils::rate_limit::{create_general_ocr_rate_limiter, create_llm_rate_limiter, RateLimiter},
     utils::services::html::clean_img_tags,
     utils::services::llm::{get_basic_image_message, open_ai_call},
 };
-use image_base64;
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
 use std::path::Path;
-
-use crate::utils::services::html::convert_table_to_markdown;
+use std::sync::Arc;
+use tempfile::NamedTempFile;
 
 static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 static LLM_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
@@ -59,7 +57,9 @@ impl fmt::Display for OcrError {
 
 impl Error for OcrError {}
 
-pub async fn doctr_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
+pub async fn doctr_ocr(
+    temp_file: Arc<NamedTempFile>,
+) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
     let worker_config = WorkerConfig::from_env()
         .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
@@ -70,13 +70,14 @@ pub async fn doctr_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Error
 
     let url = format!("{}/ocr", &general_ocr_url);
 
-    let file_content = tokio::fs::read(file_path).await?;
+    let file_content = tokio::fs::read(temp_file.path()).await?;
 
     let form = reqwest::multipart::Form::new().part(
         "file",
         reqwest::multipart::Part::bytes(file_content)
             .file_name(
-                file_path
+                temp_file
+                    .path()
                     .file_name()
                     .unwrap_or_default()
                     .to_string_lossy()
@@ -97,81 +98,6 @@ pub async fn doctr_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Error
 
     let doctr_response: DoctrResponse = response.json().await?;
     Ok(Vec::from(doctr_response))
-}
-
-pub async fn paddle_ocr(file_path: &Path) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
-    let client = reqwest::Client::new();
-    let worker_config = WorkerConfig::from_env()
-        .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
-
-    let general_ocr_url = worker_config
-        .general_ocr_url
-        .ok_or_else(|| "General OCR URL is not set in config".to_string())?;
-
-    let url = format!("{}/ocr", &general_ocr_url);
-
-    let mut b64 = image_base64::to_base64(file_path.to_str().unwrap());
-    if let Some(index) = b64.find(";base64,") {
-        b64 = b64[index + 8..].to_string();
-    }
-    let payload = serde_json::json!({ "image": b64 });
-
-    let response = client
-        .post(&url)
-        .json(&payload)
-        .timeout(std::time::Duration::from_secs(
-            *GENERAL_OCR_TIMEOUT.get().unwrap(),
-        ))
-        .send()
-        .await?
-        .error_for_status()?;
-
-    let paddle_ocr_result: PaddleOCRResponse = response.json().await?;
-    let ocr_results: Vec<OCRResult> = paddle_ocr_result
-        .result
-        .texts
-        .into_iter()
-        .map(|text| OCRResult::from(text))
-        .collect();
-    Ok(ocr_results)
-}
-
-pub async fn paddle_table_ocr(
-    file_path: &Path,
-) -> Result<PaddleTableRecognitionResult, Box<dyn Error + Send + Sync>> {
-    let client = reqwest::Client::new();
-    let worker_config = WorkerConfig::from_env()
-        .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
-
-    let paddle_table_ocr_url = worker_config
-        .table_ocr_url
-        .ok_or_else(|| "Paddle table OCR URL is not set in config".to_string())?;
-
-    let url = format!("{}/table-recognition", &paddle_table_ocr_url);
-
-    let mut b64 = image_base64::to_base64(file_path.to_str().unwrap());
-    if let Some(index) = b64.find(";base64,") {
-        b64 = b64[index + 8..].to_string();
-    }
-    let payload = serde_json::json!({ "image": b64 });
-
-    let response = client
-        .post(&url)
-        .json(&payload)
-        .timeout(std::time::Duration::from_secs(
-            *GENERAL_OCR_TIMEOUT.get().unwrap(),
-        ))
-        .send()
-        .await?
-        .error_for_status()?;
-
-    let paddle_table_response: PaddleTableRecognitionResponse = match response.json().await {
-        Ok(response) => response,
-        Err(e) => {
-            return Err(format!("Error parsing table OCR response: {}", e).into());
-        }
-    };
-    Ok(paddle_table_response.result)
 }
 
 pub async fn llm_ocr(
@@ -195,16 +121,6 @@ pub async fn llm_ocr(
         Ok(content)
     } else {
         Err("Invalid content type".into())
-    }
-}
-
-fn get_html_from_paddle_table_ocr(
-    table_ocr_result: PaddleTableRecognitionResult,
-) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let first_table = table_ocr_result.tables.first().cloned();
-    match first_table {
-        Some(table) => Ok(table.html),
-        None => Err("No table structure found".to_string().into()),
     }
 }
 
@@ -256,7 +172,7 @@ pub fn get_latex_from_llm_formula_ocr(
 }
 
 pub async fn perform_general_ocr(
-    file_path: &Path,
+    temp_file: Arc<NamedTempFile>,
 ) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     init_throttle();
     let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
@@ -265,57 +181,35 @@ pub async fn perform_general_ocr(
             *TOKEN_TIMEOUT.get().unwrap(),
         ))
         .await?;
-    let worker_config = WorkerConfig::from_env().unwrap();
-    match worker_config.general_ocr_model {
-        GeneralOcrModel::Doctr => doctr_ocr(file_path).await,
-        GeneralOcrModel::Paddle => paddle_ocr(file_path).await,
-    }
+    doctr_ocr(temp_file).await
 }
 
 pub async fn perform_table_ocr(
     file_path: &Path,
 ) -> Result<(String, String), Box<dyn Error + Send + Sync>> {
     init_throttle();
-    let worker_config = WorkerConfig::from_env().unwrap();
-    match worker_config.table_ocr_model {
-        TableOcrModel::Paddle => {
-            let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
-            rate_limiter
-                .acquire_token_with_timeout(std::time::Duration::from_secs(
-                    *TOKEN_TIMEOUT.get().unwrap(),
-                ))
-                .await?;
-            let result = paddle_table_ocr(file_path).await?;
-            let html = get_html_from_paddle_table_ocr(result)?;
-            let markdown = convert_table_to_markdown(html.clone());
-            Ok((html, markdown))
-        }
-        TableOcrModel::LLM => {
-            let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
-            rate_limiter
-                .acquire_token_with_timeout(std::time::Duration::from_secs(
-                    *TOKEN_TIMEOUT.get().unwrap(),
-                ))
-                .await?;
-            let html_prompt = get_prompt("html_table", &HashMap::new())?;
-            let md_prompt = get_prompt("md_table", &HashMap::new())?;
-            let html_task = llm_ocr(file_path, html_prompt);
-            let markdown_task = llm_ocr(file_path, md_prompt);
-            let (html_response, markdown_response) = tokio::try_join!(html_task, markdown_task)?;
-            let html = get_html_from_llm_table_ocr(html_response)
-                .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
-            let markdown = get_markdown_from_llm_table_ocr(markdown_response)
-                .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
-            Ok((html, markdown))
-        }
-    }
+    let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
+    rate_limiter
+        .acquire_token_with_timeout(std::time::Duration::from_secs(
+            *TOKEN_TIMEOUT.get().unwrap(),
+        ))
+        .await?;
+    let html_prompt = get_prompt("html_table", &HashMap::new())?;
+    let md_prompt = get_prompt("md_table", &HashMap::new())?;
+    let html_task = llm_ocr(file_path, html_prompt);
+    let markdown_task = llm_ocr(file_path, md_prompt);
+    let (html_response, markdown_response) = tokio::try_join!(html_task, markdown_task)?;
+    let html = get_html_from_llm_table_ocr(html_response)
+        .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
+    let markdown = get_markdown_from_llm_table_ocr(markdown_response)
+        .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
+    Ok((html, markdown))
 }
 
 pub async fn perform_page_ocr(
     file_path: &Path,
 ) -> Result<(String, String), Box<dyn Error + Send + Sync>> {
     init_throttle();
-
     let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
     rate_limiter
         .acquire_token_with_timeout(std::time::Duration::from_secs(
@@ -352,7 +246,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
-        doctr_ocr(Path::new("input/test.jpg")).await?;
+        let temp_file = NamedTempFile::new()?;
+        std::fs::copy("input/test.jpg", temp_file.path())?;
+        doctr_ocr(Arc::new(temp_file)).await?;
         Ok(())
     }
 
@@ -381,8 +277,10 @@ mod tests {
         let count = 1000;
         for _ in 0..count {
             let input_file = first_image.clone();
+            let temp_file = NamedTempFile::new()?;
+            std::fs::copy(&input_file, temp_file.path())?;
             let task = tokio::spawn(async move {
-                match perform_general_ocr(&input_file).await {
+                match perform_general_ocr(Arc::new(temp_file)).await {
                     Ok(_) => Ok(()),
                     Err(e) => {
                         println!("Error processing {:?}: {:?}", input_file, e);
