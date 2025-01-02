@@ -6,6 +6,8 @@ services:
     ports:
       - "8000:8000"
     entrypoint: [ "python", "object_detection/server.py" ]
+    env_file:
+      - .env
     deploy:
       resources:
         reservations:
