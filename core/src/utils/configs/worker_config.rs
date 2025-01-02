@@ -3,21 +3,7 @@ use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum GeneralOcrModel {
-    Doctr,
-    Paddle,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum TableOcrModel {
-    LLM,
-    Paddle,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
-    #[serde(default = "default_general_ocr_model")]
-    pub general_ocr_model: GeneralOcrModel,
     #[serde(default = "default_general_ocr_url")]
     pub general_ocr_url: Option<String>,
     #[serde(default = "default_ocr_confidence_threshold")]
@@ -44,16 +30,8 @@ pub struct Config {
     pub structured_extraction_batch_size: i32,
     #[serde(default = "default_structured_extraction_top_k")]
     pub structured_extraction_top_k: i32,
-    #[serde(default = "default_table_ocr_model")]
-    pub table_ocr_model: TableOcrModel,
-    #[serde(default = "default_table_ocr_url")]
-    pub table_ocr_url: Option<String>,
     #[serde(default = "default_version")]
     pub version: String,
-}
-
-fn default_general_ocr_model() -> GeneralOcrModel {
-    GeneralOcrModel::Doctr
 }
 
 fn default_general_ocr_url() -> Option<String> {
@@ -106,14 +84,6 @@ fn default_structured_extraction_batch_size() -> i32 {
 
 fn default_structured_extraction_top_k() -> i32 {
     45
-}
-
-fn default_table_ocr_model() -> TableOcrModel {
-    TableOcrModel::Paddle
-}
-
-fn default_table_ocr_url() -> Option<String> {
-    Some("http://localhost:8004".to_string())
 }
 
 fn default_version() -> String {

@@ -30,7 +30,7 @@ pub async fn create_user(
     let user_config = UserConfig::from_env().unwrap();
 
     let controller = PrefixedApiKeyController::configure()
-        .prefix("lu".to_owned())
+        .prefix("ch".to_owned())
         .seam_defaults()
         .finalize()?;
 

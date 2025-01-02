@@ -4,6 +4,7 @@ use core::models::chunkr::task::Status;
 use core::models::chunkr::task::TaskPayload;
 use core::models::rrq::queue::QueuePayload;
 use core::pipeline::convert_to_images;
+use core::pipeline::page;
 use core::pipeline::update_metadata;
 use core::utils::configs::pdfium_config::Config as PdfiumConfig;
 use core::utils::configs::s3_config::create_client;
@@ -20,11 +21,20 @@ async fn execute_step(
     pg_pool: &Pool,
 ) -> Result<(Status, Option<String>), Box<dyn std::error::Error>> {
     println!("Executing step: {}", step);
+    let start = std::time::Instant::now();
     let result = match step {
         "convert_to_images" => convert_to_images::process(pipeline).await,
+        "page" => page::process(pipeline).await,
         "update_metadata" => update_metadata::process(pipeline, pg_pool).await,
         _ => Err(format!("Unknown function: {}", step).into()),
     }?;
+    let duration = start.elapsed();
+    println!(
+        "Step {} took {:?} with page count {:?}",
+        step,
+        duration,
+        pipeline.page_count.unwrap_or(0)
+    );
     log_task(
         &task_id,
         result.0.clone(),
@@ -37,7 +47,7 @@ async fn execute_step(
 }
 
 fn orchestrate_task() -> Vec<&'static str> {
-    vec!["update_metadata", "convert_to_images"]
+    vec!["update_metadata", "convert_to_images", "page"]
 }
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
@@ -69,7 +79,12 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             e
         })?;
 
-        let mut pipeline = match Pipeline::new(task_id.clone(), input_file, task_payload.current_configuration, task_payload.previous_configuration) {
+        let mut pipeline = match Pipeline::new(
+            task_id.clone(),
+            input_file,
+            task_payload.current_configuration,
+            task_payload.previous_configuration,
+        ) {
             Ok(pipeline) => pipeline,
             Err(e) => {
                 if e.to_string().contains("Unsupported file type") {
@@ -81,7 +96,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                         &pg_pool,
                     )
                     .await?;
-                    return Ok(())
+                    return Ok(());
                 }
                 return Err(e.into());
             }
@@ -95,9 +110,10 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             }
         }
 
+        // TODO: Change status to succeeded after development
         log_task(
             &task_id,
-            Status::Succeeded,
+            Status::Failed,
             Some(&"Task succeeded".to_string()),
             Some(Utc::now()),
             &pg_pool,
