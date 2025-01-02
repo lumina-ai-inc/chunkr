@@ -131,9 +131,7 @@ pub async fn create_task(
                 file_name: file_name.to_string(),
             };
 
-            match produce_extraction_payloads(worker_config.queue_preprocess, extraction_payload)
-                .await
-            {
+            match produce_extraction_payloads(worker_config.queue_task, extraction_payload).await {
                 Ok(_) => {
                     println!(
                         "Time taken to produce extraction payloads: {:?}",

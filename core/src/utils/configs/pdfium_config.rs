@@ -13,8 +13,6 @@ use thiserror::Error;
 pub struct Config {
     #[serde(default = "default_path")]
     pub dir_path: PathBuf,
-    #[serde(skip)]
-    binary_path: Option<String>,
 }
 
 fn default_path() -> PathBuf {
@@ -58,7 +56,7 @@ impl Config {
         }
     }
 
-    pub async fn ensure_binary(&mut self) -> Result<(), PdfiumError> {
+    fn get_target_path(&self) -> Result<PathBuf, PdfiumError> {
         let path: PathBuf = self.dir_path.clone();
         let binary_name = self.os_binary_name()?;
 
@@ -67,30 +65,27 @@ impl Config {
                 .map_err(|e: std::io::Error| PdfiumError::DirError(e.to_string()))?;
         }
 
-        let target_path = path
-            .clone()
-            .join(&binary_name)
-            .to_string_lossy()
-            .to_string();
+        let target_path = path.clone().join(&binary_name);
+        Ok(target_path)
+    }
 
-        if !Path::new(&target_path).exists() {
-            println!("PDFium binary not found, downloading to {}...", target_path);
+    pub async fn ensure_binary(&mut self) -> Result<(), PdfiumError> {
+        let target_path = self.get_target_path()?;
+
+        if !target_path.exists() {
+            println!(
+                "PDFium binary not found, downloading to {}...",
+                target_path.display()
+            );
             self.download_binary(&target_path).await?;
+        } else {
+            println!("PDFium binary found at {}", target_path.display());
         }
 
-        self.binary_path = Some(target_path);
         Ok(())
     }
 
-    fn get_binary_path(&self) -> Result<String, PdfiumError> {
-        self.binary_path.clone().ok_or_else(|| {
-            PdfiumError::BinaryNotFound(
-                "Binary path not set. Call ensure_binary() first".to_string(),
-            )
-        })
-    }
-
-    async fn download_binary(&self, target_path: &str) -> Result<(), PdfiumError> {
+    async fn download_binary(&self, target_path: &Path) -> Result<(), PdfiumError> {
         let download_url = match std::env::consts::OS {
             "windows" => "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-windows-x64.tgz",
             "linux" => "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-linux-x64.tgz",
@@ -128,9 +123,9 @@ impl Config {
     }
 
     pub fn get_pdfium(&self) -> Result<Pdfium, Box<dyn std::error::Error>> {
-        let binary_path = self.get_binary_path()?;
+        let target_path = self.get_target_path()?;
         Ok(Pdfium::new(
-            Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&binary_path))?,
+            Pdfium::bind_to_system_library().or_else(|_| Pdfium::bind_to_library(&target_path))?,
         ))
     }
 }

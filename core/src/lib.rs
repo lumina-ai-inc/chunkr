@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use actix_cors::Cors;
 use actix_multipart::form::MultipartFormConfig;
 use actix_multipart::MultipartError;
@@ -82,6 +84,7 @@ fn run_migrations(url: &str) {
             models::chunkr::structured_extraction::JsonSchema,
             models::chunkr::structured_extraction::Property,
             models::chunkr::task::Configuration,
+            models::chunkr::task::Model,
             models::chunkr::task::Status,
             models::chunkr::task::TaskResponse,
             models::chunkr::upload::OcrStrategy,

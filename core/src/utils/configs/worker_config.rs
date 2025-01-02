@@ -32,20 +32,8 @@ pub struct Config {
     pub pdla_url: String,
     #[serde(default = "default_pdf_density")]
     pub pdf_density: f32,
-    #[serde(default = "default_queue_fast")]
-    pub queue_fast: String,
     #[serde(default = "default_queue_task")]
     pub queue_task: String,
-    #[serde(default = "default_queue_high_quality")]
-    pub queue_high_quality: String,
-    #[serde(default = "default_queue_ocr")]
-    pub queue_ocr: String,
-    #[serde(default = "default_queue_postprocess")]
-    pub queue_postprocess: String,
-    #[serde(default = "default_queue_preprocess")]
-    pub queue_preprocess: String,
-    #[serde(default = "default_queue_structured_extraction")]
-    pub queue_structured_extraction: String,
     #[serde(default = "default_s3_bucket")]
     pub s3_bucket: String,
     #[serde(default = "default_segment_bbox_offset")]
@@ -96,32 +84,8 @@ fn default_pdf_density() -> f32 {
     72.0
 }
 
-fn default_queue_fast() -> String {
-    "fast".to_string()
-}
-
 fn default_queue_task() -> String {
     "task".to_string()
-}
-
-fn default_queue_high_quality() -> String {
-    "high-quality".to_string()
-}
-
-fn default_queue_ocr() -> String {
-    "ocr".to_string()
-}
-
-fn default_queue_postprocess() -> String {
-    "postprocess".to_string()
-}
-
-fn default_queue_preprocess() -> String {
-    "preprocess".to_string()
-}
-
-fn default_queue_structured_extraction() -> String {
-    "structured-extraction".to_string()
 }
 
 fn default_s3_bucket() -> String {

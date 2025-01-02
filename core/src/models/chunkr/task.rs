@@ -62,12 +62,22 @@ pub enum Status {
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 /// The configuration used for the task.
 pub struct Configuration {
-    pub ocr_strategy: OcrStrategy,
-    pub target_chunk_length: Option<i32>,
+    pub expires_in: Option<i32>,
     pub json_schema: Option<JsonSchema>,
+    pub ocr_strategy: OcrStrategy,
     pub segment_processing: Option<SegmentProcessing>,
     pub segmentation_strategy: Option<SegmentationStrategy>,
-    pub expires_in: Option<i32>,
+    pub target_chunk_length: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated]
+    pub model: Option<Model>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
+#[deprecated]
+pub enum Model {
+    Fast,
+    HighQuality,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
