@@ -4,6 +4,7 @@ from os.path import join, exists
 from huggingface_hub import snapshot_download
 from urllib.request import urlretrieve
 from configuration import MODELS_PATH
+
 def monitor_download_progress(downloaded_chunks, chunk_size, file_size):
     total_chunks = file_size // chunk_size
     progress_step = total_chunks // 5
