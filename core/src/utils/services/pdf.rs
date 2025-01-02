@@ -85,8 +85,8 @@ pub fn extract_text(pdf_file: &NamedTempFile) -> Result<Vec<String>, Box<dyn Err
     Ok(page_texts)
 }
 
-pub fn count_pages(pdf_file: &NamedTempFile) -> Result<i32, Box<dyn std::error::Error>> {
+pub fn count_pages(pdf_file: &NamedTempFile) -> Result<u32, Box<dyn std::error::Error>> {
     let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
     let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
-    Ok(document.pages().len() as i32)
+    Ok(document.pages().len() as u32)
 }

@@ -36,7 +36,7 @@ async fn execute_step(
     Ok(result)
 }
 
-fn orchestrate_task(_task_payload: TaskPayload) -> Vec<&'static str> {
+fn orchestrate_task() -> Vec<&'static str> {
     vec!["update_page_count", "convert_to_images"]
 }
 
@@ -46,7 +46,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let s3_client: aws_sdk_s3::Client = create_client().await?;
     let task_payload: TaskPayload = serde_json::from_value(payload.payload)?;
     let task_id = task_payload.task_id.clone();
-    let mut pipeline = Pipeline::new(task_id.clone());
 
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         log_task(
@@ -70,9 +69,9 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             e
         })?;
 
-        pipeline.set_input_file(input_file)?;
+        let mut pipeline = Pipeline::new(task_id.clone(), input_file, task_payload.configuration, None)?;
 
-        for step in orchestrate_task(task_payload) {
+        for step in orchestrate_task() {
             let result: (Status, Option<String>) =
                 execute_step(step, &mut pipeline, &task_id, &pg_pool).await?;
             if result.0 == Status::Failed {

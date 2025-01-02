@@ -6,6 +6,7 @@ use crate::models::rrq::{
 use crate::utils::rrq::service::{complete, consume, health};
 use tokio::time::Duration;
 
+/// This function is a consumer for the rrq queue. It will consume the queue, process the item, and then complete the item.
 pub async fn consumer<F, Fut>(
     process_fn: F,
     queue_name: String,
