@@ -82,7 +82,7 @@ pub enum Model {
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct TaskPayload {
-    pub configuration: Configuration,
+    pub current_configuration: Configuration,
     pub file_name: String,
     pub image_folder_location: String,
     pub input_location: String,
