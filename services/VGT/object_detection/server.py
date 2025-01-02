@@ -1,5 +1,5 @@
 import os
-import warnings  # Import warnings to ignore PyTorch warnings
+import warnings
 from pathlib import Path
 from dotenv import load_dotenv
 import asyncio
@@ -19,21 +19,18 @@ import torch
 import signal
 import psutil
 
-# Ignore all PyTorch warnings
+from transformers import AutoTokenizer
+
 warnings.filterwarnings("ignore", category=UserWarning, module='torch')
 
-# Determine the path to the .env file
-BASE_DIR = Path(__file__).resolve().parent.parent  # Points to services/VGT/
+BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR / '.env'
 
-# Load the environment variables from .env
 load_dotenv(dotenv_path=ENV_PATH)
 
-# Now you can access the environment variables
 batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.5))
-max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
+max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 8))
 
-# Print the batch size on server startup
 print(f"Max batch size: {max_batch_size}")
 
 app = FastAPI()  
@@ -47,8 +44,9 @@ processing_lock = asyncio.Lock()
 batch_event = asyncio.Event()
 pending_tasks = deque()
 
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+
 def kill_server():
-    """Kill the server process and all child processes"""
     current_process = psutil.Process()
     children = current_process.children(recursive=True)
     for child in children:
@@ -93,6 +91,59 @@ class ODTask(BaseModel):
 class ODResponse(BaseModel):
     predictions: List[SerializablePrediction]
 
+class OcrWord(BaseModel):
+    left: float
+    top: float
+    width: float
+    height: float
+    text: str
+    confidence: float = 1.0
+
+def tokenize_texts(text_body: List[str]) -> List[List[int]]:
+    tokenized = tokenizer.batch_encode_plus(
+        text_body,
+        return_token_type_ids=False,
+        return_attention_mask=False,
+        add_special_tokens=False
+    )
+    return tokenized["input_ids"]
+
+def readjust_bbox_coords(bounding_boxes: List[Tuple[float,float,float,float]], tokens: List[List[int]]) -> List[Tuple[float,float,float,float]]:
+    adjusted = []
+    for box, sub_tokens in zip(bounding_boxes, tokens):
+        if len(sub_tokens) > 1:
+            new_width = box[2] / len(sub_tokens)
+            for i in range(len(sub_tokens)):
+                adjusted.append((box[0] + i * new_width, box[1], new_width, box[3]))
+        else:
+            adjusted.append(box)
+    return adjusted
+
+def create_grid_dict_from_ocr(ocr_words: List[OcrWord]) -> dict:
+    if not ocr_words:
+        return {
+            "input_ids": [],
+            "bbox_subword_list": [],
+            "texts": [],
+            "bbox_texts_list": []
+        }
+    texts = []
+    boxes = []
+    for w in ocr_words:
+        texts.append(w.text)
+        boxes.append((w.left, w.top, w.width, w.height))
+    sub_tokens = tokenize_texts(texts)
+    input_ids = []
+    for st in sub_tokens:
+        input_ids.extend(st)
+    subword_bboxes = readjust_bbox_coords(boxes, sub_tokens)
+    return {
+        "input_ids": input_ids,
+        "bbox_subword_list": subword_bboxes,
+        "texts": texts,
+        "bbox_texts_list": boxes
+    }
+
 def get_reading_order(predictions: List[SerializablePrediction]) -> List[SerializablePrediction]:
     type_mapping = {
         0: "Caption", 
@@ -112,35 +163,23 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
         return type_mapping.get(class_id, "Text")
 
     def columns_layout_sort(segments_data: List[tuple]) -> List[tuple]:
-        """
-        A more advanced sorting that attempts to infer columns.
-        segments_data is a list of (BoundingBox, score, class).
-        Returns a single list of segments ordered top-to-bottom, left-to-right by columns.
-        """
-
         if not segments_data:
             return []
 
-        # A simple threshold for deciding if two boxes belong to the same column.
-        # You can tune this threshold or make it dynamic based on page width, etc.
         horizontal_threshold = 100
 
-        # Step 1: sort by x1 (rough left-to-right)
         segments_data = sorted(segments_data, key=lambda seg: seg[0].x1)
 
-        # Step 2: Group into columns by checking horizontal proximity
         columns = []
         for seg in segments_data:
             box, score, cls = seg
             placed = False
             for col_index, col_items in enumerate(columns):
-                # Compare the box's x1 with the existing column's average x1 or bounding region
                 col_x1s = [item[0].x1 for item in col_items]
                 col_x2s = [item[0].x2 for item in col_items]
                 col_min_x = min(col_x1s)
                 col_max_x = max(col_x2s)
 
-                # If horizontally close to our existing column range, treat it as the same column
                 if abs(box.x1 - col_min_x) < horizontal_threshold or abs(box.x1 - col_max_x) < horizontal_threshold:
                     columns[col_index].append(seg)
                     placed = True
@@ -149,15 +188,12 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
             if not placed:
                 columns.append([seg])
 
-        # Step 3: Sort each column top-to-bottom
-        # Also compute an average "left" coordinate so we can sort columns left-to-right eventually
         column_positions = []
         for col_index, col_items in enumerate(columns):
             col_items.sort(key=lambda item: (item[0].y1, item[0].x1))
             avg_x_positions = [it[0].x1 for it in col_items]
             column_positions.append((col_index, sum(avg_x_positions) / len(avg_x_positions)))
 
-        # Step 4: Sort the columns themselves by their average x position (left-to-right)
         column_positions.sort(key=lambda cp: cp[1])
         sorted_columns = []
         for col_index, _ in column_positions:
@@ -172,7 +208,6 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
         main_segments = []
         footer_segments = []
 
-        # Separate into header, footer, or main
         for box, score, cls in zip(pred.instances.boxes, 
                                    pred.instances.scores, 
                                    pred.instances.classes):
@@ -185,16 +220,11 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
             else:
                 main_segments.append(segment_data)
      
-        # Sort each group 
-        # Headers and footers might only need top-to-bottom sorting,
-        # but typically there's only one row of them. You can optionally keep them as-is.
         header_segments.sort(key=lambda seg: (seg[0].y1, seg[0].x1))
         footer_segments.sort(key=lambda seg: (seg[0].y1, seg[0].x1))
 
-        # Sort main segments in a column-aware way
         main_segments = columns_layout_sort(main_segments)
 
-        # Combine them: headers first, then main, then footers
         ordered_segments = header_segments + main_segments + footer_segments
 
         if ordered_segments:
@@ -261,7 +291,6 @@ def merge_colliding_predictions(boxes: List[BoundingBox], scores: List[float], c
                 x2 = max(box.x2 for box in merge_boxes)
                 y2 = max(box.y2 for box in merge_boxes)
                 
-                # If any of them is table => class 8
                 if 8 in merge_classes:
                     final_class = 8
                 else:
@@ -302,7 +331,7 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
             text_box = BoundingBox(x1=x, y1=y, x2=x+w, y2=y+h)
             
             best_score = 0
-            best_class = 9  # default to "Text"
+            best_class = 9
             
             for box, score, cls in zip(boxes, scores, classes):
                 intersection = (
@@ -321,7 +350,6 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
             text_scores.append(best_score)
             text_classes.append(best_class)
         
-        # Include predictions without associated text
         for box, score, cls in zip(boxes, scores, classes):
             has_overlap = False
             for text_box in text_boxes:
@@ -351,10 +379,6 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
 
 
 async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePrediction]]:
-    """
-    Processes a list of ODTask in a single batch. This merges all images & grid dicts
-    and keeps track of each in order to properly split the results back out.
-    """
     print(f"Processing batch of {len(tasks)} tasks | {time.time()}")
     try:
         images = []
@@ -378,10 +402,9 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
                 return
             raise e
 
-        # Convert raw predictions to serializable form and move to CPU immediately
         predictions_list = []
         for pred in raw_predictions:
-            instances = pred["instances"].to("cpu")  # Move to CPU right away
+            instances = pred["instances"].to("cpu")
             serializable_pred = SerializablePrediction(
                 instances=Instance(
                     boxes=[BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) 
@@ -409,17 +432,12 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
         return results_for_tasks
 
     finally:
-        # Force cleanup of any remaining CUDA memory
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         import gc
         gc.collect()
 
 async def batch_processor():
-    """
-    The background task that waits for new items in the queue
-    and processes them in a batch after a short wait.
-    """
     while True:
         await batch_event.wait()
         batch_event.clear()
@@ -450,10 +468,6 @@ async def batch_processor():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Startup and shutdown code. We also load the model here 
-    and start the background batch_processor.
-    """
     global predictor
     
     if predictor is None:
@@ -462,7 +476,6 @@ async def lifespan(app: FastAPI):
     
     batch_processor_task = asyncio.create_task(batch_processor())    
     yield
-    # On shutdown
     batch_processor_task.cancel()
 
 app = FastAPI(lifespan=lifespan)
@@ -471,120 +484,21 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/batch_async", response_model=SerializablePrediction)
 async def create_od_task(
     file: UploadFile = File(...),
-    grid_dict: str = Form(...)
+    ocr_data: str = Form(...)
 ):
-    """
-    A single-image endpoint that will queue up tasks for dynamic batching.
-    """
     image_data = await file.read()
-    grid_dict_data = json.loads(grid_dict)
-
+    if not ocr_data:
+        ocr_words = []
+    else:
+        ocr_words = [OcrWord(**x) for x in json.loads(ocr_data)]
+    grid_dict = create_grid_dict_from_ocr(ocr_words)
     future = asyncio.Future()
-    task = ODTask(file_data=image_data, grid_dict=grid_dict_data, future=future)
-
+    task = ODTask(file_data=image_data, grid_dict=grid_dict, future=future)
     pending_tasks.append(task)
     batch_event.set()
-
     result = await future  
 
     return result[0] 
-
-@app.post("/batch")
-async def process_image_batch_endpoint(
-    files: List[UploadFile] = File(...),
-    grid_dicts: str = Form(...)
-):
-    """
-    Your existing endpoint. You may keep it or remove it. 
-    In a pure dynamic batching scenario, you'd rely on /batch_async or a loop of single calls.
-    """
-    from fastapi.responses import JSONResponse
-
-    grid_dicts_data = json.loads(grid_dicts)
-    grid_dicts_obj = GridDicts(grid_dicts=grid_dicts_data)
-
-    images = []
-    image_data_list = await asyncio.gather(*[file.read() for file in files])
-    images = [cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR) for data in image_data_list]
-    
-    try:
-        raw_predictions = process_image_batch(
-            predictor, images, dataset_name="doclaynet", grid_dicts=grid_dicts_data
-        )
-    except RuntimeError as e:
-        if "out of memory" in str(e):
-            print("CUDA out of memory error detected - killing server")
-            kill_server()
-            return
-        raise e
-    
-    predictions = []
-    for pred in raw_predictions:
-        boxes = pred["instances"].pred_boxes.tensor.tolist()
-        serializable_pred = SerializablePrediction(
-            instances=Instance(
-                boxes=[BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) 
-                      for box in boxes],
-                scores=pred["instances"].scores.tolist(),
-                classes=pred["instances"].pred_classes.tolist(),
-                image_size=[
-                    pred["instances"].image_size[0],
-                    pred["instances"].image_size[1]
-                ]
-            )
-        )
-        predictions.append(serializable_pred)
-    
-    final_predictions = find_best_segments(predictions, grid_dicts_obj)
-    ordered_predictions = get_reading_order(final_predictions)
-    
-    return JSONResponse(content=[p.dict() for p in ordered_predictions])
-
-@app.post("/single")
-async def process_single_image_endpoint(
-    file: UploadFile = File(...),
-    grid_dict: str = Form(...)
-):
-    """
-    Your existing single-image endpoint. 
-    """
-
-    grid_dict_data = json.loads(grid_dict)
-    grid_dicts_obj = GridDicts(grid_dicts=[grid_dict_data])
-
-    image_data = await file.read()
-    image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
-
-    try:
-        raw_predictions= process_image_batch(
-            predictor, [image], dataset_name="doclaynet", grid_dicts=[grid_dict_data]
-        )
-    except RuntimeError as e:
-        if "out of memory" in str(e):
-            print("CUDA out of memory error detected - killing server")
-            kill_server()
-            return
-        raise e
-    
-    pred = raw_predictions[0]
-    boxes = pred["instances"].pred_boxes.tensor.tolist()
-    serializable_pred = SerializablePrediction(
-        instances=Instance(
-            boxes=[BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) 
-                  for box in boxes],
-            scores=pred["instances"].scores.tolist(),
-            classes=pred["instances"].pred_classes.tolist(),
-            image_size=[
-                pred["instances"].image_size[0],
-                pred["instances"].image_size[1]
-            ]
-        )
-    )
-
-    final_predictions = find_best_segments([serializable_pred], grid_dicts_obj)
-    ordered_predictions = get_reading_order(final_predictions)
-    
-    return JSONResponse(content=ordered_predictions[0].dict())
 
 @app.get("/")
 async def root():
