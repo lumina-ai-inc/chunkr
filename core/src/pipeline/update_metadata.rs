@@ -4,9 +4,9 @@ use crate::utils::db::deadpool_postgres::Pool;
 use crate::utils::services::pdf::count_pages;
 use std::error::Error;
 
-/// Update the page count for the task
+/// Update the page count and input file mime type for the task
 /// 
-/// This function calculates the page count for the task and updates the database
+/// This function calculates the page count for the task and updates the database with the page count and input file mime type
 pub async fn process(
     pipeline: &mut Pipeline,
     pool: &Pool,
@@ -17,8 +17,9 @@ pub async fn process(
     let task_id = pipeline.task_id.clone();
 
     let task_query = format!(
-        "UPDATE tasks SET page_count = {} WHERE task_id = '{}'",
+        "UPDATE tasks SET page_count = {}, input_file_type = {} WHERE task_id = '{}'",
         pipeline.page_count.unwrap(),
+        pipeline.mime_type,
         task_id
     );
 

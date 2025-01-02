@@ -121,14 +121,15 @@ pub async fn create_task(
             }
 
             let extraction_payload = TaskPayload {
-                user_id: user_id.clone(),
-                input_location: input_location.clone(),
-                pdf_location: pdf_location.clone(),
-                output_location,
-                image_folder_location,
-                task_id: task_id.clone(),
                 current_configuration: configuration.clone(),
                 file_name: file_name.to_string(),
+                image_folder_location,
+                input_location: input_location.clone(),
+                output_location,
+                pdf_location: pdf_location.clone(),
+                previous_configuration: None,
+                task_id: task_id.clone(),
+                user_id: user_id.clone(),
             };
 
             match produce_extraction_payloads(worker_config.queue_task, extraction_payload).await {
