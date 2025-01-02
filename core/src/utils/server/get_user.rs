@@ -159,7 +159,7 @@ pub async fn get_monthly_usage_count(
     let query = r#"
         SELECT
             to_char(created_at, 'YYYY-MM') AS month,
-            configuration::JSONB->>'model' AS usage_type,
+            'Page' AS usage_type,
             SUM(page_count) AS total_pages
         FROM
             tasks
@@ -285,8 +285,8 @@ pub async fn get_invoices(
         } else {
             invoices.push(InvoiceDetail {
                 invoice_id,
-                stripe_invoice_id, 
-                invoice_status,   
+                stripe_invoice_id,
+                invoice_status,
                 tasks: vec![task_invoice],
             });
         }

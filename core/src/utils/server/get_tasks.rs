@@ -2,6 +2,7 @@ use super::get_task::create_task_from_row;
 use crate::models::chunkr::task::TaskResponse;
 use crate::utils::db::deadpool_postgres::{Client, Pool};
 use aws_sdk_s3::Client as S3Client;
+use futures::future::join_all;
 
 pub async fn get_tasks(
     pool: &Pool,
@@ -18,14 +19,21 @@ pub async fn get_tasks(
         &[&user_id, &offset, &limit]
     ).await?;
 
-    let mut task_responses = Vec::new();
+    let futures = tasks
+        .iter()
+        .map(|row| create_task_from_row(row, s3_client, external_s3_client));
 
-    for row in tasks {
-        match create_task_from_row(&row, s3_client, external_s3_client).await {
-            Ok(task_response) => task_responses.push(task_response),
-            Err(e) => eprintln!("Error processing task row: {}", e),
-        }
-    }
+    let results = join_all(futures).await;
+    let task_responses: Vec<TaskResponse> = results
+        .into_iter()
+        .filter_map(|result| match result {
+            Ok(task_response) => Some(task_response),
+            Err(e) => {
+                eprintln!("Error processing task row: {}", e);
+                None
+            }
+        })
+        .collect();
 
     Ok(task_responses)
 }
