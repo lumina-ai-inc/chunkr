@@ -2,9 +2,8 @@ import math
 from os import makedirs
 from os.path import join, exists
 from huggingface_hub import snapshot_download
-
-MODELS_PATH="models"
-
+from urllib.request import urlretrieve
+from configuration import MODELS_PATH
 def monitor_download_progress(downloaded_chunks, chunk_size, file_size):
     total_chunks = file_size // chunk_size
     progress_step = total_chunks // 5
@@ -15,6 +14,7 @@ def monitor_download_progress(downloaded_chunks, chunk_size, file_size):
 def download_required_models(model_id: str):
     makedirs(MODELS_PATH, exist_ok=True) 
     acquire_text_model()
+    download_vgt_model(model_id)
 
 
 def acquire_text_model():
@@ -25,6 +25,12 @@ def acquire_text_model():
     print("Embedding model is being downloaded")
     snapshot_download(repo_id="microsoft/layoutlm-base-uncased", local_dir=target_path, local_dir_use_symlinks=False)
 
-
+def download_vgt_model(model_name: str):
+    model_path = join(MODELS_PATH, f"{model_name}_VGT_model.pth")
+    if exists(model_path):
+        return
+    download_link = f"https://github.com/AlibabaResearch/AdvancedLiterateMachinery/releases/download/v1.3.0-VGT-release/{model_name}_VGT_model.pth"
+    urlretrieve(download_link, model_path, reporthook=monitor_download_progress)
+    
 if __name__ == "__main__":
     download_required_models("doclaynet")
