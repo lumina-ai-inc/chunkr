@@ -42,8 +42,8 @@ pub struct UploadForm {
     Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString,
 )]
 /// Controls the Optical Character Recognition (OCR) strategy.
-/// - `All`: Processes all pages with OCR.
-/// - `Auto`: Selectively applies OCR only to pages with missing or low-quality text. This works for most documents and is faster.
+/// - `All`: Processes all pages with OCR. (Latency penalty: ~0.5 seconds per page)
+/// - `Auto`: Selectively applies OCR only to pages with missing or low-quality text. When text layer is present the bounding boxes from the text layer are used.
 pub enum OcrStrategy {
     All,
     #[serde(alias = "Off")]
@@ -52,7 +52,7 @@ pub enum OcrStrategy {
 
 impl Default for OcrStrategy {
     fn default() -> Self {
-        OcrStrategy::Auto
+        OcrStrategy::All
     }
 }
 

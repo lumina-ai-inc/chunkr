@@ -17,7 +17,6 @@ use core::utils::storage::services::download_to_tempfile;
 async fn execute_step(
     step: &str,
     pipeline: &mut Pipeline,
-    task_id: &str,
     pg_pool: &Pool,
 ) -> Result<(Status, Option<String>), Box<dyn std::error::Error>> {
     println!("Executing step: {}", step);
@@ -36,7 +35,7 @@ async fn execute_step(
         pipeline.page_count.unwrap_or(0)
     );
     log_task(
-        &task_id,
+        &pipeline.task_payload.task_id,
         result.0.clone(),
         Some(&result.1.clone().unwrap_or_default()),
         None,
@@ -79,12 +78,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             e
         })?;
 
-        let mut pipeline = match Pipeline::new(
-            task_id.clone(),
-            input_file,
-            task_payload.current_configuration,
-            task_payload.previous_configuration,
-        ) {
+        let mut pipeline = match Pipeline::new(input_file, task_payload) {
             Ok(pipeline) => pipeline,
             Err(e) => {
                 if e.to_string().contains("Unsupported file type") {
@@ -104,7 +98,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         for step in orchestrate_task() {
             let result: (Status, Option<String>) =
-                execute_step(step, &mut pipeline, &task_id, &pg_pool).await?;
+                execute_step(step, &mut pipeline, &pg_pool).await?;
             if result.0 == Status::Failed {
                 return Ok(());
             }
