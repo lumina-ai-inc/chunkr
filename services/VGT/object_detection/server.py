@@ -386,7 +386,7 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
         for t in tasks:
             image = cv2.imdecode(np.frombuffer(t.file_data, np.uint8), cv2.IMREAD_COLOR)
             images.append(image)
-            grid_dicts_data.append(t.grid_dict)  
+            grid_dicts_data.append(t.grid_dict)
 
         try:
             raw_predictions = process_image_batch(
@@ -399,7 +399,8 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
             if "out of memory" in str(e).lower():
                 print("Detected 'out of memory' error - killing server.")
                 kill_server()
-                return
+                import sys
+                sys.exit(1)
             raise e
 
         predictions_list = []
@@ -424,8 +425,7 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
             grid_dicts_obj = GridDicts(grid_dicts=[t.grid_dict])
             final_predictions = find_best_segments([predictions_list[i]], grid_dicts_obj)
             ordered_predictions = get_reading_order(final_predictions)
-            results_for_tasks.append(ordered_predictions)  
-
+            results_for_tasks.append(ordered_predictions)
         return results_for_tasks
 
     finally:
@@ -502,4 +502,5 @@ async def root():
     return {"message": "Hello World"}
 
 if __name__ == "__main__":
+    print("Starting server... Max batch size: ", max_batch_size)
     uvicorn.run(app, host="0.0.0.0", port=8000)
