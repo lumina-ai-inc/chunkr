@@ -136,44 +136,12 @@ services:
       - /dev/shm:/dev/shm
     restart: always
 
-  paddle-ocr:
-    image: luminainc/paddle-ocr:3c8cc0be
-    ports:
-      - "8003:8080"
-    deploy:
-      replicas: 0
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    volumes:
-      - /dev/shm:/dev/shm
-    restart: always
-
   doctr:
     image: luminainc/doctr:3c8cc0be
     ports:
       - "8003:8000"
     deploy:
       replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    volumes:
-      - /dev/shm:/dev/shm
-    restart: always
-
-  table-ocr:
-    image: luminainc/table-ocr:3c8cc0be
-    ports:
-      - "8004:8000"
-    deploy:
-      replicas: 0
       resources:
         reservations:
           devices:
