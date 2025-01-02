@@ -7,9 +7,6 @@ VGT is a two-stream multi-modal Vision Grid Transformer for document layout anal
 * [ICCV 2023]
 * [Arxiv](https://arxiv.org/abs/2308.14978)
 
-
-![VGT Model](figures/VGT_model.jpg)
-
 If you would like to hit the server, refer to `services/tests/hit_vgt_server.py`.
 
 ```bash
