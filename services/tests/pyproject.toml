@@ -7,6 +7,7 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy>=2.2.1",
     "pdf2image>=1.17.0",
+    "pdfplumber>=0.11.5",
     "pillow>=11.0.0",
     "requests>=2.32.3",
     "tokenization>=1.0.7",

@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 from pathlib import Path
 from detectron2.config import get_cfg
-from detectron2.utils.visualizer import ColorMode, Visualizer
 from detectron2.data import MetadataCatalog
 from detectron2.modeling import build_model
 from detectron2.checkpoint import DetectionCheckpointer
@@ -34,8 +33,6 @@ class MemoryPredictor:
         self.input_format = cfg.INPUT.FORMAT
         assert self.input_format in ["RGB", "BGR"], self.input_format
 
-        # Initialize tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-uncased")
 
     def __call__(self, original_images, grid_dicts):
             """
@@ -76,38 +73,22 @@ class MemoryPredictor:
                     }
                     batch_inputs.append(dataset_dict)
 
-                # Use mixed precision autocast context here
-                # with torch.amp.autocast(device_type="cuda"):
-                #     predictions = self.model(batch_inputs)
-
                 predictions = self.model(batch_inputs)
 
                 return predictions
 
 def process_image_batch(predictor, images, dataset_name="doclaynet", grid_dicts=None):
     """
-    Process a batch of images using the predictor and return predictions and visualizations.
-    
-    Args:
-        predictor (MemoryPredictor): Initialized predictor
-        images (list[np.ndarray]): List of input images in BGR format
-        dataset_name (str): Name of the dataset to use for metadata
-        grid_dicts (list[dict]): List of grid dictionaries, one for each image
-
-    Returns:
-        tuple: (predictions, visualization_images)
+    Process a batch of images using the predictor and return predictions.
     """
     predictions = predictor(images, grid_dicts)
 
     md = MetadataCatalog.get(predictor.cfg.DATASETS.TEST[0])
     if dataset_name == 'doclaynet':
-        md.set(thing_classes=["Caption","Footnote","Formula","List-item","Page-footer", 
-                            "Page-header", "Picture", "Section-header", "Table", "Text", "Title"])
+        md.set(thing_classes=["Caption","Footnote","Formula","ListItem","PageFooter", 
+                            "PageHeader", "Picture", "SectionHeader", "Table", "Text", "Title"])
+    return predictions
 
-    visualizations = []
-
-
-    return predictions, visualizations
 def setup_cfg(config_file, weights_path, opts=None):
     """
     Create configs and perform basic setups.
@@ -133,37 +114,3 @@ def create_predictor(config_file, weights_path, opts=None):
     cfg = setup_cfg(config_file, weights_path, opts)
     return MemoryPredictor(cfg)
 
-def process_image(predictor, image, dataset_name="doclaynet", grid_dict=None):
-    """
-    Process an image using the predictor and return both predictions and visualization.
-    
-    Args:
-        predictor (MemoryPredictor): Initialized predictor
-        image (np.ndarray): Input image in BGR format
-        dataset_name (str): Name of the dataset to use for metadata
-
-    Returns:
-        tuple: (predictions, visualization_image)
-    """
-    predictions = predictor(image, grid_dict)
-
-    md = MetadataCatalog.get(predictor.cfg.DATASETS.TEST[0])
-    if dataset_name == 'publaynet':
-        md.set(thing_classes=["text","title","list","table","figure"])
-    elif dataset_name == 'docbank':
-        md.set(thing_classes=["abstract","author","caption","date","equation", "figure", "footer", "list", "paragraph", "reference", "section", "table", "title"])
-    elif dataset_name == 'D4LA':
-        md.set(thing_classes=["DocTitle","ParaTitle","ParaText","ListText","RegionTitle", "Date", "LetterHead", "LetterDear", "LetterSign", "Question", "OtherText", "RegionKV", "Regionlist", "Abstract", "Author", "TableName", "Table", "Figure", "FigureName", "Equation", "Reference", "Footnote", "PageHeader", "PageFooter", "Number", "Catalog", "PageNumber"])
-    elif dataset_name == 'doclaynet':
-        md.set(thing_classes=["Caption","Footnote","Formula","List-item","Page-footer", "Page-header", "Picture", "Section-header", "Table", "Text", "Title"])
-
-    v = Visualizer(
-        image[:, :, ::-1],
-        metadata=md,
-        scale=1.0,
-        instance_mode=ColorMode.SEGMENTATION
-    )
-    result = v.draw_instance_predictions(predictions["instances"].to("cpu"))
-    visualization = result.get_image()[:, :, ::-1]
-
-    return predictions, visualization

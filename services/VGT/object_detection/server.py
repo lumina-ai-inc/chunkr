@@ -1,4 +1,7 @@
 import os
+import warnings  # Import warnings to ignore PyTorch warnings
+from pathlib import Path
+from dotenv import load_dotenv
 import asyncio
 from collections import deque
 from contextlib import asynccontextmanager
@@ -13,6 +16,25 @@ from pydantic import BaseModel
 from memory_inference import create_predictor, process_image_batch
 from fastapi.responses import JSONResponse
 import torch
+import signal
+import psutil
+
+# Ignore all PyTorch warnings
+warnings.filterwarnings("ignore", category=UserWarning, module='torch')
+
+# Determine the path to the .env file
+BASE_DIR = Path(__file__).resolve().parent.parent  # Points to services/VGT/
+ENV_PATH = BASE_DIR / '.env'
+
+# Load the environment variables from .env
+load_dotenv(dotenv_path=ENV_PATH)
+
+# Now you can access the environment variables
+batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.5))
+max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
+
+# Print the batch size on server startup
+print(f"Max batch size: {max_batch_size}")
 
 app = FastAPI()  
 
@@ -21,12 +43,20 @@ predictor = None
 CONFIG_FILE = "object_detection/configs/cascade/doclaynet_VGT_cascade_PTM.yaml"
 WEIGHTS_PATH = "object_detection/weights/doclaynet_VGT_model.pth"
 
-batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.5))
-max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
-
 processing_lock = asyncio.Lock()
 batch_event = asyncio.Event()
 pending_tasks = deque()
+
+def kill_server():
+    """Kill the server process and all child processes"""
+    current_process = psutil.Process()
+    children = current_process.children(recursive=True)
+    for child in children:
+        try:
+            child.kill()
+        except psutil.NoSuchProcess:
+            pass
+    current_process.kill()
 
 class Grid(BaseModel):
     input_ids: List[int]
@@ -63,17 +93,16 @@ class ODTask(BaseModel):
 class ODResponse(BaseModel):
     predictions: List[SerializablePrediction]
 
-
 def get_reading_order(predictions: List[SerializablePrediction]) -> List[SerializablePrediction]:
     type_mapping = {
         0: "Caption", 
         1: "Footnote", 
         2: "Formula", 
-        3: "List-item", 
-        4: "Page-footer", 
-        5: "Page-header", 
+        3: "ListItem", 
+        4: "PageFooter", 
+        5: "PageHeader", 
         6: "Picture", 
-        7: "Section-header", 
+        7: "SectionHeader", 
         8: "Table", 
         9: "Text", 
         10: "Title"
@@ -149,9 +178,9 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
                                    pred.instances.classes):
             segment_type = get_segment_type(cls)
             segment_data = (box, score, cls)
-            if segment_type == "Page-header":
+            if segment_type == "PageHeader":
                 header_segments.append(segment_data)
-            elif segment_type == "Page-footer":
+            elif segment_type == "PageFooter":
                 footer_segments.append(segment_data)
             else:
                 main_segments.append(segment_data)
@@ -335,12 +364,19 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
             images.append(image)
             grid_dicts_data.append(t.grid_dict)  
 
-        raw_predictions, _ = process_image_batch(
-            predictor, 
-            images, 
-            dataset_name="doclaynet", 
-            grid_dicts=grid_dicts_data
-        )
+        try:
+            raw_predictions= process_image_batch(
+                predictor, 
+                images, 
+                dataset_name="doclaynet", 
+                grid_dicts=grid_dicts_data
+            )
+        except RuntimeError as e:
+            if "out of memory" in str(e):
+                print("CUDA out of memory error detected - killing server")
+                kill_server()
+                return
+            raise e
 
         # Convert raw predictions to serializable form and move to CPU immediately
         predictions_list = []
@@ -468,14 +504,19 @@ async def process_image_batch_endpoint(
     grid_dicts_obj = GridDicts(grid_dicts=grid_dicts_data)
 
     images = []
-    for file in files:
-        image_data = await file.read()
-        image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
-        images.append(image)
+    image_data_list = await asyncio.gather(*[file.read() for file in files])
+    images = [cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR) for data in image_data_list]
     
-    raw_predictions, _ = process_image_batch(
-        predictor, images, dataset_name="doclaynet", grid_dicts=grid_dicts_data
-    )
+    try:
+        raw_predictions = process_image_batch(
+            predictor, images, dataset_name="doclaynet", grid_dicts=grid_dicts_data
+        )
+    except RuntimeError as e:
+        if "out of memory" in str(e):
+            print("CUDA out of memory error detected - killing server")
+            kill_server()
+            return
+        raise e
     
     predictions = []
     for pred in raw_predictions:
@@ -514,9 +555,16 @@ async def process_single_image_endpoint(
     image_data = await file.read()
     image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
 
-    raw_predictions, _ = process_image_batch(
-        predictor, [image], dataset_name="doclaynet", grid_dicts=[grid_dict_data]
-    )
+    try:
+        raw_predictions= process_image_batch(
+            predictor, [image], dataset_name="doclaynet", grid_dicts=[grid_dict_data]
+        )
+    except RuntimeError as e:
+        if "out of memory" in str(e):
+            print("CUDA out of memory error detected - killing server")
+            kill_server()
+            return
+        raise e
     
     pred = raw_predictions[0]
     boxes = pred["instances"].pred_boxes.tensor.tolist()

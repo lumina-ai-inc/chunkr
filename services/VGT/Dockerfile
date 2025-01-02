@@ -19,6 +19,9 @@ ENV VIRTUAL_ENV=/app/.venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# Copy environment variables
+COPY .env .env
+
 COPY requirements.txt requirements.txt
 
 WORKDIR /app
