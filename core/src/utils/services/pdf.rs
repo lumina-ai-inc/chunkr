@@ -1,3 +1,4 @@
+use crate::models::chunkr::output::{BoundingBox, OCRResult};
 use crate::utils::configs::pdfium_config::Config as PdfiumConfig;
 use crate::utils::configs::worker_config::Config as WorkerConfig;
 use image::ImageFormat;
@@ -93,4 +94,35 @@ pub fn count_pages(pdf_file: &NamedTempFile) -> Result<u32, Box<dyn std::error::
     let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
     let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
     Ok(document.pages().len() as u32)
+}
+
+pub fn extract_ocr_results(
+    pdf_file: &NamedTempFile,
+) -> Result<Vec<Vec<OCRResult>>, Box<dyn Error>> {
+    let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
+    let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
+    let mut page_results = Vec::new();
+
+    for page in document.pages().iter() {
+        let text_page = page.text()?;
+        let mut page_ocr = Vec::new();
+
+        for segment in text_page.segments().iter() {
+            let rect = segment.bounds();
+            page_ocr.push(OCRResult {
+                bbox: BoundingBox {
+                    left: rect.left.value,
+                    top: rect.top.value,
+                    width: rect.right.value - rect.left.value,
+                    height: rect.bottom.value - rect.top.value,
+                },
+                text: segment.text(),
+                confidence: None,
+            });
+        }
+
+        page_results.push(page_ocr);
+    }
+
+    Ok(page_results)
 }

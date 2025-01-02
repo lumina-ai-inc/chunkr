@@ -14,7 +14,7 @@ pub async fn process(
     let client = pool.get().await?;
     let pdf_file = pipeline.pdf_file.as_ref();
     pipeline.page_count = Some(count_pages(pdf_file)?);
-    let task_id = pipeline.task_id.clone();
+    let task_id = pipeline.task_payload.task_id.clone();
 
     let task_query = format!(
         "UPDATE tasks SET page_count = {}, input_file_type = '{}' WHERE task_id = '{}'",
