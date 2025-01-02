@@ -127,7 +127,7 @@ pub async fn create_task(
                 output_location,
                 image_folder_location,
                 task_id: task_id.clone(),
-                configuration: configuration.clone(),
+                current_configuration: configuration.clone(),
                 file_name: file_name.to_string(),
             };
 

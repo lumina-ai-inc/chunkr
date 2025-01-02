@@ -69,7 +69,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             e
         })?;
 
-        let mut pipeline = Pipeline::new(task_id.clone(), input_file, task_payload.configuration, None)?;
+        let mut pipeline = Pipeline::new(task_id.clone(), input_file, task_payload.current_configuration, task_payload.previous_configurations)?;
 
         for step in orchestrate_task() {
             let result: (Status, Option<String>) =
