@@ -12,7 +12,6 @@ pub async fn process(
     pipeline: &mut Pipeline,
 ) -> Result<(Status, Option<String>), Box<dyn std::error::Error>> {
     // TODO: Implement OCR, segmentation and chunking
-
     try_join_all(
         pipeline
             .pages
