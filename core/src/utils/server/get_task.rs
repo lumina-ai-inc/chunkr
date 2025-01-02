@@ -96,7 +96,17 @@ async fn process_output(
     let temp_file =
         download_to_tempfile(s3_client, &reqwest::Client::new(), output_location, None).await?;
     let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
-    let mut output_response: OutputResponse = serde_json::from_str(&json_content)?;
+
+    let mut output_response: OutputResponse = match serde_json::from_str(&json_content) {
+        Ok(response) => response,
+        Err(e) => {
+            return Err(format!(
+                "Invalid `output` JSON format for location {}: {}",
+                output_location, e
+            )
+            .into());
+        }
+    };
 
     for chunk in &mut output_response.chunks {
         for segment in &mut chunk.segments {

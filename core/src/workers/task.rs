@@ -19,6 +19,7 @@ async fn execute_step(
     task_id: &str,
     pg_pool: &Pool,
 ) -> Result<(Status, Option<String>), Box<dyn std::error::Error>> {
+    println!("Executing step: {}", step);
     let result = match step {
         "convert_to_images" => convert_to_images::process(pipeline).await,
         "update_page_count" => update_page_count::process(pipeline, pg_pool).await,
