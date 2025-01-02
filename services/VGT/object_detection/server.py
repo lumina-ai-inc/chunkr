@@ -29,7 +29,7 @@ ENV_PATH = BASE_DIR / '.env'
 load_dotenv(dotenv_path=ENV_PATH)
 
 batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.5))
-max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 8))
+max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
 
 print(f"Max batch size: {max_batch_size}")
 
@@ -389,15 +389,15 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
             grid_dicts_data.append(t.grid_dict)  
 
         try:
-            raw_predictions= process_image_batch(
+            raw_predictions = process_image_batch(
                 predictor, 
                 images, 
                 dataset_name="doclaynet", 
                 grid_dicts=grid_dicts_data
             )
-        except RuntimeError as e:
-            if "out of memory" in str(e):
-                print("CUDA out of memory error detected - killing server")
+        except Exception as e:
+            if "out of memory" in str(e).lower():
+                print("Detected 'out of memory' error - killing server.")
                 kill_server()
                 return
             raise e
@@ -411,10 +411,7 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
                            for box in instances.pred_boxes.tensor.tolist()],
                     scores=instances.scores.tolist(),
                     classes=instances.pred_classes.tolist(),
-                    image_size=[
-                        instances.image_size[0],
-                        instances.image_size[1]
-                    ]
+                    image_size=[instances.image_size[0], instances.image_size[1]]
                 )
             )
             predictions_list.append(serializable_pred)
