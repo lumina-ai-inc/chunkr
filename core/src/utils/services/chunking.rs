@@ -1,6 +1,6 @@
 use crate::models::chunkr::output::{Chunk, Segment, SegmentType};
 
-pub async fn hierarchical_chunking(
+pub fn hierarchical_chunking(
     segments: Vec<Segment>,
     target_length: Option<i32>,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
@@ -96,7 +96,7 @@ pub async fn process_bounding_boxes(
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let file_content = tokio::fs::read_to_string(file_path).await?;
     let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
-    hierarchical_chunking(segments, Some(target_size as i32)).await
+    Ok(hierarchical_chunking(segments, Some(target_size as i32))?)
 }
 
 #[cfg(test)]

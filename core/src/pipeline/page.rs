@@ -1,13 +1,16 @@
-use crate::models::chunkr::output::OCRResult;
+use crate::models::chunkr::output::{OCRResult, OutputResponse, Segment};
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::task::Status;
 use crate::models::chunkr::upload::OcrStrategy;
+use crate::utils::services::chunking;
 use crate::utils::services::ocr;
 use crate::utils::services::pdf;
+use crate::utils::services::segmentation;
 use futures::future::try_join_all;
 use std::io::Error;
+use tap::Pipe;
 
-async fn perform_ocr_all(
+async fn ocr_pages_all(
     pipeline: &mut Pipeline,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error>> {
     let ocr_results = try_join_all(
@@ -26,7 +29,7 @@ async fn perform_ocr_all(
     Ok(ocr_results)
 }
 
-async fn perform_ocr_auto(
+async fn ocr_pages_auto(
     pipeline: &mut Pipeline,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error>> {
     let pages = pipeline.pages.as_ref().unwrap();
@@ -60,16 +63,76 @@ async fn perform_ocr_auto(
     Ok(ocr_results)
 }
 
+async fn segment_pages(
+    pipeline: &mut Pipeline,
+) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error>> {
+    let futures = pipeline
+        .pages
+        .as_ref()
+        .unwrap()
+        .iter()
+        .map(|page| segmentation::perform_segmentation(page.clone()));
+
+    let segments = try_join_all(futures).await?;
+    Ok(segments)
+}
+
+fn merge_segments_with_ocr(
+    segments: Vec<Vec<Segment>>,
+    ocr_results: Vec<Vec<OCRResult>>,
+) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error>> {
+    segments
+        .iter()
+        .enumerate()
+        .map(|(page_idx, page_segments)| {
+            page_segments
+                .iter()
+                .map(|segment| {
+                    let mut segment = segment.clone();
+                    let empty_vec = vec![];
+                    let page_ocr = ocr_results.get(page_idx).unwrap_or(&empty_vec);
+                    let segment_ocr: Vec<OCRResult> = page_ocr
+                        .iter()
+                        .filter(|ocr| ocr.bbox.intersects(&segment.bbox))
+                        .map(|ocr| {
+                            let mut ocr = ocr.clone();
+                            ocr.bbox.left -= segment.bbox.left;
+                            ocr.bbox.top -= segment.bbox.top;
+                            ocr
+                        })
+                        .collect();
+
+                    segment.ocr = Some(segment_ocr);
+                    segment
+                })
+                .collect()
+        })
+        .collect::<Vec<Vec<Segment>>>()
+        .pipe(Ok)
+}
+
 /// Process the pages
 ///
 /// This function will perform OCR, segmentation and chunking on the pages
 pub async fn process(
     pipeline: &mut Pipeline,
 ) -> Result<(Status, Option<String>), Box<dyn std::error::Error>> {
-    // TODO: Implement OCR, segmentation and chunking
     let ocr_results = match pipeline.task_payload.current_configuration.ocr_strategy {
-        OcrStrategy::All => perform_ocr_all(pipeline).await?,
-        OcrStrategy::Auto => perform_ocr_auto(pipeline).await?,
+        OcrStrategy::All => ocr_pages_all(pipeline).await?,
+        OcrStrategy::Auto => ocr_pages_auto(pipeline).await?,
     };
+    let segments = segment_pages(pipeline).await?;
+    let segments_with_ocr = merge_segments_with_ocr(segments, ocr_results)?;
+    let chunks = chunking::hierarchical_chunking(
+        segments_with_ocr.into_iter().flatten().collect(),
+        pipeline
+            .task_payload
+            .current_configuration
+            .target_chunk_length,
+    )?;
+    pipeline.output = Some(OutputResponse {
+        chunks,
+        extracted_json: None,
+    });
     Ok((Status::Processing, Some("Pages processed".to_string())))
 }
