@@ -67,14 +67,14 @@ const Table = () => {
         palette: {
           mode: "dark",
           primary: {
-            main: "rgba(255, 255, 255, 0.8)",
+            main: "#ffffff",
           },
           info: {
             main: "#67e8f9",
           },
           background: {
-            default: "rgba(0, 0, 0, 0)",
-            paper: "rgba(0, 0, 0, 0)",
+            default: "rgb(2, 8, 9)",
+            paper: "rgb(2, 8, 9)",
           },
         },
         typography: {
@@ -89,10 +89,11 @@ const Table = () => {
             styleOverrides: {
               root: {
                 backgroundImage: "none",
-                backgroundColor: "rgba(0, 0, 0)",
-                border: "1px solid rgba(255, 255, 255, 0.03)",
+                backgroundColor: "rgb(2, 8, 9)",
                 boxShadow: "none",
                 backdropFilter: "none",
+                height: "100%",
+                zIndex: 1000,
               },
             },
           },
@@ -100,12 +101,13 @@ const Table = () => {
             styleOverrides: {
               root: {
                 "& .MuiTableCell-head": {
-                  color: "rgba(255, 255, 255, 0.8)",
-                  fontSize: "14px",
-                  fontWeight: 500,
+                  color: "rgb(255, 255, 255, 0.9)",
+                  fontSize: "16px",
+                  fontWeight: 600,
                   borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-                  padding: "24px",
-                  backgroundColor: "rgba(0,0,0)",
+                  padding: "14px",
+                  paddingBottom: "16px",
+                  paddingTop: "16px",
                 },
               },
             },
@@ -113,10 +115,10 @@ const Table = () => {
           MuiTableBody: {
             styleOverrides: {
               root: {
-                overflow: "auto",
                 "& .MuiTableRow-root": {
+                  backgroundColor: "rgb(2, 8, 9) !important",
                   "&:hover": {
-                    backgroundColor: "rgba(0, 0, 0, 0)",
+                    backgroundColor: "rgb(2, 8, 9) !important",
                     backdropFilter: "blur(8px)",
                   },
                   transition: "all 0.2s ease",
@@ -124,7 +126,7 @@ const Table = () => {
                 "& .MuiTableCell-body": {
                   color: "rgba(255, 255, 255, 0.8)",
                   fontSize: "14px",
-                  padding: "16px 24px",
+                  padding: "16px 14px",
                   borderBottom: "1px solid rgba(255, 255, 255, 0.03)",
                 },
               },
@@ -135,10 +137,18 @@ const Table = () => {
               root: {
                 color: "rgba(255, 255, 255, 0.8)",
                 padding: "8px",
+                borderRadius: "6px",
                 "&:hover": {
                   backgroundColor: "rgba(255, 255, 255, 0.05)",
                 },
                 transition: "all 0.2s ease",
+              },
+            },
+          },
+          MuiTableContainer: {
+            styleOverrides: {
+              root: {
+                backgroundColor: "rgb(2, 8, 9)",
               },
             },
           },
@@ -159,10 +169,11 @@ const Table = () => {
             styleOverrides: {
               tooltip: {
                 fontSize: "14px",
-                background: "rgba(0, 0, 0, 0)",
+                background: "rgb(2, 8, 9)",
                 backdropFilter: "blur(8px)",
                 padding: "8px 12px",
                 borderRadius: "6px",
+                height: "fit-content",
               },
             },
           },
@@ -170,6 +181,31 @@ const Table = () => {
             styleOverrides: {
               root: {
                 padding: "24px",
+              },
+            },
+          },
+          MuiCheckbox: {
+            styleOverrides: {
+              root: {
+                borderRadius: "6px",
+              },
+            },
+          },
+          MuiList: {
+            styleOverrides: {
+              root: {
+                padding: "4px 8px",
+              },
+            },
+          },
+          MuiMenuItem: {
+            styleOverrides: {
+              root: {
+                fontSize: "14px !important",
+                color: "rgba(255, 255, 255, 0.9) !important",
+                padding: "8px 12px !important",
+                borderRadius: "6px",
+                margin: "4px 0px !important",
               },
             },
           },
@@ -190,8 +226,14 @@ const Table = () => {
         manualPagination
         enableStickyHeader
         enableStickyFooter
+        muiPaginationProps={{
+          rowsPerPageOptions: [10, 20, 50, 100],
+        }}
         muiTableContainerProps={{
-          sx: { height: "calc(100% - 120px)", width: "100%" },
+          sx: {
+            height: "calc(100% - 116px)",
+            width: "100%",
+          },
         }}
         onPaginationChange={setPagination}
         rowCount={totalTasks}
