@@ -107,7 +107,7 @@ class ODResponse(BaseModel):
 class OCRInput(BaseModel):
     bbox: BoundingBoxOutput
     text: str
-    confidence: float = 1.0
+    confidence: float | None = None
 
 
 def tokenize_texts(text_body: List[str]) -> List[List[int]]:
@@ -503,7 +503,7 @@ async def create_od_task(
     if not ocr_data:
         ocr_words = []
     else:
-        ocr_words = [OCRInput(**x) for x in json.loads(ocr_data)]
+        ocr_words = [OCRInput(**x) for x in json.loads(ocr_data).data]
         
     grid_dict = create_grid_dict_from_ocr(ocr_words)
     future = asyncio.Future()

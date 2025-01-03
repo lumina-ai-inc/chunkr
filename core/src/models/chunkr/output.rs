@@ -1,6 +1,4 @@
-use crate::configs::worker_config;
 use crate::models::chunkr::structured_extraction::ExtractedJson;
-
 use lazy_static::lazy_static;
 use postgres_types::{FromSql, ToSql};
 use regex::Regex;
@@ -46,38 +44,43 @@ impl Chunk {
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Segment {
-    /// Unique identifier for the segment.
-    pub segment_id: String,
     pub bbox: BoundingBox,
+    /// Text content of the segment.
+    pub content: String,
+    /// Height of the page containing the segment.
+    pub page_height: f32,
+    /// HTML representation of the segment.
+    pub html: Option<String>,
+    /// Presigned URL to the image of the segment.
+    pub image: Option<String>,
+    /// Markdown representation of the segment.
+    pub markdown: Option<String>,
+    /// OCR results for the segment.
+    pub ocr: Vec<OCRResult>,
     /// Page number of the segment.
     pub page_number: u32,
     /// Width of the page containing the segment.
     pub page_width: f32,
-    /// Height of the page containing the segment.
-    pub page_height: f32,
-    /// Text content of the segment.
-    pub content: String,
+    /// Unique identifier for the segment.
+    pub segment_id: String,
     pub segment_type: SegmentType,
-    /// OCR results for the segment.
-    pub ocr: Option<Vec<OCRResult>>,
-    /// Presigned URL to the image of the segment.
-    pub image: Option<String>,
-    /// HTML representation of the segment.
-    pub html: Option<String>,
-    /// Markdown representation of the segment.
-    pub markdown: Option<String>,
 }
 
 impl Segment {
-    pub fn new(
+    fn new(
         bbox: BoundingBox,
+        ocr_results: Vec<OCRResult>,
+        page_height: f32,
         page_number: u32,
         page_width: f32,
-        page_height: f32,
-        content: String,
         segment_type: SegmentType,
     ) -> Self {
         let segment_id = uuid::Uuid::new_v4().to_string();
+        let content = ocr_results
+            .iter()
+            .map(|ocr_result| ocr_result.text.clone())
+            .collect::<Vec<String>>()
+            .join(" ");
         Self {
             segment_id,
             bbox,
@@ -86,11 +89,39 @@ impl Segment {
             page_height,
             content,
             segment_type,
-            ocr: None,
+            ocr: ocr_results,
             image: None,
             html: None,
             markdown: None,
         }
+    }
+
+    pub fn new_from_page_ocr(
+        bbox: BoundingBox,
+        ocr_results: Vec<OCRResult>,
+        page_height: f32,
+        page_number: u32,
+        page_width: f32,
+        segment_type: SegmentType,
+    ) -> Self {
+        let segment_ocr: Vec<OCRResult> = ocr_results
+            .into_iter()
+            .filter(|ocr| ocr.bbox.intersects(&bbox))
+            .map(|mut ocr| {
+                ocr.bbox.left -= bbox.left;
+                ocr.bbox.top -= bbox.top;
+                ocr
+            })
+            .collect();
+
+        Self::new(
+            bbox,
+            segment_ocr,
+            page_height,
+            page_number,
+            page_width,
+            segment_type,
+        )
     }
 
     fn to_html(&self) -> String {
@@ -145,32 +176,7 @@ impl Segment {
         }
     }
 
-    fn update_content(&mut self) {
-        if let Some(ocr) = &self.ocr {
-            let config = match worker_config::Config::from_env() {
-                Ok(config) => config,
-                Err(e) => {
-                    eprintln!("Error getting extraction config: {}", e);
-                    return;
-                }
-            };
-            let avg_confidence = ocr
-                .iter()
-                .map(|ocr_result| ocr_result.confidence.unwrap_or(0.0))
-                .sum::<f32>()
-                / ocr.len() as f32;
-            if avg_confidence >= config.ocr_confidence_threshold {
-                self.content = ocr
-                    .iter()
-                    .map(|ocr_result| ocr_result.text.clone())
-                    .collect::<Vec<String>>()
-                    .join(" ");
-            }
-        }
-    }
-
     pub fn finalize(&mut self) {
-        self.update_content();
         self.html = Some(self.to_html());
         self.markdown = Some(self.to_markdown());
     }

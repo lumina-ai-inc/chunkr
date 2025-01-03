@@ -1,14 +1,12 @@
 use crate::configs::worker_config::Config as WorkerConfig;
-use tokio::time::sleep;
 use std::time::Duration;
+use tokio::time::sleep;
 
 /// Retry a function with exponential backoff.
 ///
 /// If the function returns an error, it will retry the function up to `max_retries` times.
 /// The delay between retries is exponential, starting at 1 seconds and capped at 10 seconds.
-pub async fn retry_with_backoff<T, E, Fut, F>(
-    f: F,
-) -> Result<T, E>
+pub async fn retry_with_backoff<T, E, Fut, F>(f: F) -> Result<T, E>
 where
     F: Fn() -> Fut,
     Fut: std::future::Future<Output = Result<T, E>>,

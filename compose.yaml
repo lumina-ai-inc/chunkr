@@ -119,10 +119,10 @@ services:
       replicas: 1
     restart: always
 
-  vgt:
-    image: luminainc/vgt:4a27b2f7
+  segmentation:
+    image: luminainc/segmentation:05cc9d74
     ports:
-      - "8002:8000"
+      - "8001:8000"
     deploy:
       replicas: 1
       resources:
@@ -138,7 +138,7 @@ services:
   doctr:
     image: luminainc/doctr:3c8cc0be
     ports:
-      - "8003:8000"
+      - "8002:8000"
     deploy:
       replicas: 1
       resources:
@@ -154,7 +154,7 @@ services:
   dense-vector:
     image: ghcr.io/huggingface/text-embeddings-inference:1.5
     ports:
-      - "8007:80"
+      - "8003:80"
     command: [ "--model-id", "BAAI/bge-m3", "--auto-truncate", "--payload-limit", "100000000" ]
     deploy:
       replicas: 1
@@ -169,7 +169,7 @@ services:
   vllm:
     image: vllm/vllm-openai:latest
     ports:
-      - "8008:8000"
+      - "8004:8000"
     command: [ "--model", "Qwen/Qwen2-VL-7B-Instruct-GPTQ-Int4" ]
     env_file:
       - .env
@@ -197,16 +197,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    deploy:
-      replicas: 1
-    restart: always
-
-  rrq-analytics:
-    image: luminainc/rrq-analytics:459b00d
-    ports:
-      - "8006:8000"
-    environment:
-      - VITE_API_URL=http://localhost:8005
     deploy:
       replicas: 1
     restart: always

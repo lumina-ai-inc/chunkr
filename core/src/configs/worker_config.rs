@@ -12,10 +12,6 @@ pub struct Config {
     pub page_image_density: f32,
     #[serde(default = "default_page_limit")]
     pub page_limit: i32,
-    #[serde(default = "default_pdla_fast_url")]
-    pub pdla_fast_url: String,
-    #[serde(default = "default_pdla_url")]
-    pub pdla_url: String,
     #[serde(default = "default_pdf_density")]
     pub pdf_density: f32,
     #[serde(default = "default_queue_task")]
@@ -26,6 +22,8 @@ pub struct Config {
     pub s3_bucket: String,
     #[serde(default = "default_segment_bbox_offset")]
     pub segment_bbox_offset: f32,
+    #[serde(default = "default_segmentation_url")]
+    pub segmentation_url: String,
     #[serde(default = "default_server_url")]
     pub server_url: String,
     #[serde(default = "default_structured_extraction_batch_size")]
@@ -37,7 +35,7 @@ pub struct Config {
 }
 
 fn default_general_ocr_url() -> Option<String> {
-    Some("http://localhost:8003".to_string())
+    Some("http://localhost:8002".to_string())
 }
 
 fn default_ocr_confidence_threshold() -> f32 {
@@ -49,15 +47,7 @@ fn default_page_image_density() -> f32 {
 }
 
 fn default_page_limit() -> i32 {
-    500
-}
-
-fn default_pdla_fast_url() -> String {
-    "http://localhost:8002".to_string()
-}
-
-fn default_pdla_url() -> String {
-    "http://localhost:8002".to_string()
+    10000
 }
 
 fn default_pdf_density() -> f32 {
@@ -78,6 +68,10 @@ fn default_s3_bucket() -> String {
 
 fn default_segment_bbox_offset() -> f32 {
     1.0
+}
+
+fn default_segmentation_url() -> String {
+    "http://localhost:8001".to_string()
 }
 
 fn default_server_url() -> String {

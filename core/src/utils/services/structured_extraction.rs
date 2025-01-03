@@ -248,10 +248,10 @@ pub async fn perform_structured_extraction(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
-    use crate::models::chunkr::structured_extraction::Property;
     use crate::configs::llm_config::Config as LlmConfig;
     use crate::configs::worker_config::Config as WorkerConfig;
+    use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
+    use crate::models::chunkr::structured_extraction::Property;
     use tokio;
 
     #[tokio::test]
@@ -284,7 +284,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("**Apple**: A sweet, edible fruit produced by an apple tree (Malus domestica). Rich in fiber and vitamin C.".to_string()),
@@ -302,7 +302,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("**Banana**: A long curved fruit with a thick yellow peel. High in potassium and carbohydrates.".to_string()),
@@ -320,7 +320,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("**Carrot**: An orange root vegetable. Excellent source of beta carotene and fiber.".to_string()),
@@ -338,7 +338,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("**Broccoli**: A green vegetable with dense clusters of flower buds. High in vitamins C and K.".to_string()),
@@ -356,7 +356,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("**Orange**: A citrus fruit with a bright orange peel. Excellent source of vitamin C.".to_string()),
