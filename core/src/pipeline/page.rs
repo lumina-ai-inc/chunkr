@@ -30,7 +30,13 @@ async fn perform_ocr_auto(
     pipeline: &mut Pipeline,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error>> {
     let pages = pipeline.pages.as_ref().unwrap();
-    let pdf_ocr_results = pdf::extract_ocr_results(pipeline.pdf_file.as_ref())?;
+    let pdf_ocr_results = match pdf::extract_ocr_results(pipeline.pdf_file.as_ref()) {
+        Ok(ocr_results) => ocr_results,
+        Err(e) => {
+            println!("Error getting pdf ocr results: {:?}", e);
+            vec![vec![]; pipeline.page_count.unwrap_or(0) as usize]
+        }
+    };
     let pdf_ocr_results = &pdf_ocr_results;
 
     let futures = pages.iter().enumerate().map(|(index, page)| async move {
@@ -40,7 +46,10 @@ async fn perform_ocr_auto(
         {
             match ocr::perform_general_ocr(page.clone()).await {
                 Ok(ocr_results) => Ok(ocr_results),
-                Err(e) => Err(e.to_string()),
+                Err(e) => {
+                    println!("Error in performing OCR: {:?}", e);
+                    Err(e.to_string())
+                }
             }
         } else {
             Ok(pdf_ocr_results[index].clone())
