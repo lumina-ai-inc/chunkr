@@ -1,15 +1,18 @@
 import { Flex, Text } from "@radix-ui/themes";
 import "./newDashboard.css";
 import BetterButton from "../../components/BetterButton/BetterButton";
-import TableWrapper from "../../components/Table/Table";
+import Table from "../../components/Table/Table";
 import { useAuth } from "react-oidc-context";
 import useUser from "../../hooks/useUser";
 export default function NewDashboard() {
   const auth = useAuth();
   const user = useUser();
 
+  console.log(auth);
+  console.log(user);
+
   return (
-    <Flex direction="row" width="100%" height="100vh">
+    <Flex direction="row" width="100%">
       <Flex
         className="dashboard-nav-container"
         align="start"
@@ -339,9 +342,7 @@ export default function NewDashboard() {
             </BetterButton>
           </Flex>
         </Flex>
-        <Flex className="main-body" p="24px">
-          {auth && user && <TableWrapper auth={auth} />}
-        </Flex>
+        <Flex className="main-body">{auth && user && <Table />}</Flex>
       </Flex>
     </Flex>
   );

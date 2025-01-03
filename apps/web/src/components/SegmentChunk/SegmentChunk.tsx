@@ -51,7 +51,10 @@ export const SegmentChunk = forwardRef<
     return chunk.segments
       .map((segment) => {
         const textContent = segment.content || "";
-        if (segment.segment_type === "Table"  && segment.html?.startsWith("<span class=")) {
+        if (
+          segment.segment_type === "Table" &&
+          segment.html?.startsWith("<span class=")
+        ) {
           return `![Image](${segment.image})`;
         }
         return segment.markdown ? segment.markdown : textContent;
@@ -64,7 +67,10 @@ export const SegmentChunk = forwardRef<
   const combinedHtml = useMemo(() => {
     return chunk.segments
       .map((segment) => {
-        if (segment.segment_type === "Table" && segment.html?.startsWith("<span class=")) {
+        if (
+          segment.segment_type === "Table" &&
+          segment.html?.startsWith("<span class=")
+        ) {
           return `<br><img src="${segment.image}" />`;
         }
         return segment.html || "";
@@ -93,7 +99,7 @@ export const SegmentChunk = forwardRef<
   };
 
   return (
-    <div ref={ref}>
+    <div className="segment-chunk-wrapper" ref={ref}>
       <Accordion.Root
         className="AccordionRoot"
         type="single"

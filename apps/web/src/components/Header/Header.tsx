@@ -182,7 +182,7 @@ export default function Header({
 
           {isAuthenticated ? (
             <Link
-              to="/dashboard"
+              to="/newDashboard"
               style={{ textDecoration: "none" }}
               className="nav-item"
             >
