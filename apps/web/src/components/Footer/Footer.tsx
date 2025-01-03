@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <Flex className="footer-wrapper">
       <Flex direction="column" className="footer-container">
-        <Flex direction="row" justify="between" align="start" mb="5">
+        <Flex direction="row" justify="between" align="center" mb="5">
           <Flex direction="column" gap="2" className="footer-icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"

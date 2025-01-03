@@ -37,7 +37,8 @@ button:focus-visible {
 }
 
 .header-container.scrolled {
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(8px);
 }
 
@@ -268,9 +269,10 @@ button:focus-visible {
 }
 
 .hero-title {
-  max-width: 748px;
-  font-size: 72px !important;
-  line-height: 80px !important;
+  width: 100%;
+  max-width: 848px;
+  font-size: 80px !important;
+  line-height: 96px !important;
   letter-spacing: -0.01em !important;
   background: linear-gradient(180deg, #fff 0%, #fff 88%, #87ceeb 100%);
   background-clip: text;
@@ -552,7 +554,7 @@ button:focus-visible {
 .feature-left-box-title {
   line-height: 1.2;
   font-weight: 600;
-  font-size: 54px;
+  font-size: 60px;
   width: 100%;
   max-width: 624px;
   background: linear-gradient(90deg, #fff 0%, #dce4dd 80%);
@@ -565,9 +567,10 @@ button:focus-visible {
 }
 
 .feature-left-box-subtitle {
-  letter-spacing: -0.6px;
+  letter-spacing: -0.2px;
+  line-height: 1.4;
   color: #fff;
-  max-width: 660px;
+  max-width: 720px;
 }
 
 .feature-left-box-item {
@@ -1268,7 +1271,7 @@ button:focus-visible {
 .feature-bottom-box-title {
   line-height: 1.2;
   font-weight: 600;
-  font-size: 54px;
+  font-size: 60px;
   max-width: 600px;
   background: linear-gradient(90deg, #fff 0%, #dce4dd 80%);
   background-clip: text;
@@ -1741,6 +1744,20 @@ button:focus-visible {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   animation: borderGlow 4s linear infinite;
+}
+
+.bottom-cta-title {
+  font-size: 80px !important;
+  line-height: 96px !important;
+  letter-spacing: -0.01em !important;
+  font-weight: 700;
+  background: linear-gradient(180deg, #fff 0%, #fff 88%, #87ceeb 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3))
+    drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))
+    drop-shadow(0 0 24px rgba(135, 206, 235, 0.2));
 }
 
 @keyframes borderGlow {
