@@ -1,56 +1,70 @@
+use crate::configs::auth_config::Config;
+use crate::configs::postgres_config::Pool;
 use crate::models::chunkr::auth::UserInfo;
-use crate::utils::configs::auth_config::Config;
-use crate::utils::db::deadpool_postgres::Pool;
 use actix_web::{
-    dev::{ forward_ready, Service, ServiceRequest, ServiceResponse, Transform },
-    web,
-    Error,
-    HttpMessage,
+    dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
+    web, Error, HttpMessage,
 };
 use futures_util::future::LocalBoxFuture;
-use std::future::{ ready, Ready };
-use std::rc::Rc;
-use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use lazy_static::lazy_static;
 use reqwest::Client;
-use tokio::sync::OnceCell;
-use std::sync::Arc;
 use serde_json::Value;
+use std::future::{ready, Ready};
+use std::rc::Rc;
+use std::sync::Arc;
+use tokio::sync::OnceCell;
 
 lazy_static! {
     static ref DECODING_KEY: Arc<OnceCell<DecodingKey>> = Arc::new(OnceCell::new());
 }
 
 async fn get_decoding_key() -> &'static DecodingKey {
-    DECODING_KEY.get_or_init(|| async {
-        let config = Config::from_env().expect("Failed to load auth config");
-        let client = Client::new();
-        let url = format!("{}/realms/{}/protocol/openid-connect/certs", config.keycloak_url, config.keycloak_realm);
-        
-        let response = client.get(url).send().await.expect("Failed to fetch JWKS")
-            .json::<Value>().await.expect("Failed to parse JWKS response");
+    DECODING_KEY
+        .get_or_init(|| async {
+            let config = Config::from_env().expect("Failed to load auth config");
+            let client = Client::new();
+            let url = format!(
+                "{}/realms/{}/protocol/openid-connect/certs",
+                config.keycloak_url, config.keycloak_realm
+            );
 
-        let rs256_key = response["keys"].as_array()
-            .expect("JWKS keys should be an array")
-            .iter()
-            .find(|key| key["alg"] == "RS256")
-            .expect("No RS256 key found in JWKS");
+            let response = client
+                .get(url)
+                .send()
+                .await
+                .expect("Failed to fetch JWKS")
+                .json::<Value>()
+                .await
+                .expect("Failed to parse JWKS response");
 
-        DecodingKey::from_rsa_components(
-            rs256_key["n"].as_str().expect("Missing 'n' component in RSA key"),
-            rs256_key["e"].as_str().expect("Missing 'e' component in RSA key")
-        ).expect("Invalid RSA public key")
-    }).await
+            let rs256_key = response["keys"]
+                .as_array()
+                .expect("JWKS keys should be an array")
+                .iter()
+                .find(|key| key["alg"] == "RS256")
+                .expect("No RS256 key found in JWKS");
+
+            DecodingKey::from_rsa_components(
+                rs256_key["n"]
+                    .as_str()
+                    .expect("Missing 'n' component in RSA key"),
+                rs256_key["e"]
+                    .as_str()
+                    .expect("Missing 'e' component in RSA key"),
+            )
+            .expect("Invalid RSA public key")
+        })
+        .await
 }
 
 pub struct AuthMiddlewareFactory;
 
-impl<S, B> Transform<S, ServiceRequest>
-    for AuthMiddlewareFactory
-    where
-        S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
-        S::Future: 'static,
-        B: 'static
+impl<S, B> Transform<S, ServiceRequest> for AuthMiddlewareFactory
+where
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    S::Future: 'static,
+    B: 'static,
 {
     type Response = ServiceResponse<B>;
     type Error = Error;
@@ -59,11 +73,9 @@ impl<S, B> Transform<S, ServiceRequest>
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
-        ready(
-            Ok(AuthMiddleware {
-                service: Rc::new(service),
-            })
-        )
+        ready(Ok(AuthMiddleware {
+            service: Rc::new(service),
+        }))
     }
 }
 
@@ -71,12 +83,11 @@ pub struct AuthMiddleware<S> {
     service: Rc<S>,
 }
 
-impl<S, B> Service<ServiceRequest>
-    for AuthMiddleware<S>
-    where
-        S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
-        S::Future: 'static,
-        B: 'static
+impl<S, B> Service<ServiceRequest> for AuthMiddleware<S>
+where
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    S::Future: 'static,
+    B: 'static,
 {
     type Response = ServiceResponse<B>;
     type Error = Error;
@@ -99,7 +110,9 @@ impl<S, B> Service<ServiceRequest>
                 .and_then(|value| value.to_str().ok());
 
             if authorization.is_none() {
-                return Err(actix_web::error::ErrorUnauthorized("Authorization header is missing"));
+                return Err(actix_web::error::ErrorUnauthorized(
+                    "Authorization header is missing",
+                ));
             }
 
             if authorization.unwrap().starts_with("Bearer ") {
@@ -126,7 +139,6 @@ impl<S, B> Service<ServiceRequest>
     }
 }
 
-
 async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
     let mut validation = Validation::new(Algorithm::RS256);
     validation.validate_aud = false;
@@ -143,11 +155,11 @@ async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
                 last_name: data.claims["family_name"].as_str().map(|s| s.to_string()),
             };
             Ok(user_info)
-        },
+        }
         Err(err) => {
             eprintln!("Token validation error: {:?}", err);
             Err(actix_web::error::ErrorUnauthorized("Invalid token payload"))
-        },
+        }
     }
 }
 
@@ -160,14 +172,18 @@ async fn api_key_validator(api_key: &str, req: &ServiceRequest) -> Result<UserIn
         Some(pool) => pool.clone(),
         None => {
             println!("Database pool not found");
-            return Err(actix_web::error::ErrorInternalServerError("Database pool not found"));
+            return Err(actix_web::error::ErrorInternalServerError(
+                "Database pool not found",
+            ));
         }
     };
     let client = match pool.get().await {
         Ok(client) => client,
         Err(e) => {
             eprintln!("Error getting Postgres client from pool: {:?}", e);
-            return Err(actix_web::error::ErrorInternalServerError("Failed to get client"));
+            return Err(actix_web::error::ErrorInternalServerError(
+                "Failed to get client",
+            ));
         }
     };
 
@@ -190,7 +206,9 @@ async fn api_key_validator(api_key: &str, req: &ServiceRequest) -> Result<UserIn
         Some(row) => row,
         None => {
             eprintln!("Error: Invalid or inactive API key");
-            return Err(actix_web::error::ErrorUnauthorized("Invalid or inactive API key"));
+            return Err(actix_web::error::ErrorUnauthorized(
+                "Invalid or inactive API key",
+            ));
         }
     };
 

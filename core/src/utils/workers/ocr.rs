@@ -2,9 +2,9 @@ use crate::models::chunkr::output::{OutputResponse, Segment, SegmentType};
 use crate::models::chunkr::task::Status;
 use crate::models::chunkr::upload::{OcrStrategy, TaskPayload};
 use crate::models::rrq::queue::QueuePayload;
-use crate::utils::configs::s3_config::create_client;
-use crate::utils::configs::worker_config;
-use crate::utils::db::deadpool_postgres::create_pool;
+use crate::configs::s3_config::create_client;
+use crate::configs::worker_config;
+use crate::configs::postgres_config::create_pool;
 
 use crate::utils::services::{
     log::log_task, ocr_segments::ocr_segments, payload::produce_extraction_payloads,

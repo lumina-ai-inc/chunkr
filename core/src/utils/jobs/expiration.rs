@@ -1,5 +1,5 @@
-use crate::utils::configs::worker_config::Config as WorkerConfig;
-use crate::utils::db::deadpool_postgres::Pool;
+use crate::configs::worker_config::Config as WorkerConfig;
+use crate::configs::postgres_config::Pool;
 use crate::utils::storage::services::delete_folder;
 use aws_sdk_s3::Client as S3Client;
 use futures::future::try_join_all;

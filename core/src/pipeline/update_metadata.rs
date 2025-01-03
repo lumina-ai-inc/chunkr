@@ -1,6 +1,6 @@
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::task::Status;
-use crate::utils::db::deadpool_postgres::Pool;
+use crate::configs::postgres_config::Pool;
 use crate::utils::services::pdf::count_pages;
 use std::error::Error;
 

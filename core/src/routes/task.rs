@@ -1,8 +1,8 @@
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::task::Configuration;
 use crate::models::chunkr::upload::{OcrStrategy, UploadForm};
-use crate::utils::configs::s3_config::ExternalS3Client;
-use crate::utils::db::deadpool_postgres::Pool;
+use crate::configs::s3_config::ExternalS3Client;
+use crate::configs::postgres_config::Pool;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
 use actix_multipart::form::MultipartForm;

@@ -1,8 +1,8 @@
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::task::{Configuration, Status, TaskPayload, TaskResponse};
-use crate::utils::configs::expiration_config::Config as ExpirationConfig;
-use crate::utils::configs::worker_config::Config as WorkerConfig;
-use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::configs::expiration_config::Config as ExpirationConfig;
+use crate::configs::worker_config::Config as WorkerConfig;
+use crate::configs::postgres_config::{Client, Pool};
 use crate::utils::services::payload::produce_extraction_payloads;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use actix_multipart::form::tempfile::TempFile;

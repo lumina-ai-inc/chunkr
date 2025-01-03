@@ -1,6 +1,6 @@
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::user::User;
-use crate::utils::db::deadpool_postgres::Pool;
+use crate::configs::postgres_config::Pool;
 use super::{ get_user::get_user, create_user::create_user };
 
 pub async fn get_or_create_admin_user(pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {

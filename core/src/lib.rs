@@ -17,6 +17,7 @@ use utoipa::{
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
 
+pub mod configs;
 pub mod jobs;
 pub mod middleware;
 pub mod models;
@@ -24,6 +25,8 @@ pub mod pipeline;
 pub mod routes;
 pub mod utils;
 
+use configs::postgres_config;
+use configs::s3_config::{create_client, create_external_client, ExternalS3Client};
 use jobs::init::init_jobs;
 use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
@@ -36,8 +39,6 @@ use routes::task::{create_extraction_task, get_task_status};
 use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
-use utils::configs::s3_config::{create_client, create_external_client, ExternalS3Client};
-use utils::db::deadpool_postgres;
 use utils::server::admin_user::get_or_create_admin_user;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
@@ -123,7 +124,7 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
         env_logger::init_from_env(Env::default().default_filter_or("info"));
-        let pg_pool = deadpool_postgres::create_pool();
+        let pg_pool = postgres_config::create_pool();
         let s3_client = create_client().await.expect("Failed to create S3 client");
         let s3_external_client = create_external_client()
             .await

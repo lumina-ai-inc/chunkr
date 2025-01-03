@@ -1,7 +1,7 @@
 use crate::models::chunkr::task::TaskPayload;
 use crate::models::rrq::produce::ProducePayload;
 use crate::utils::rrq::service::produce;
-use crate::utils::configs::worker_config::Config as WorkerConfig;
+use crate::configs::worker_config::Config as WorkerConfig;
 use std::error::Error;
 use uuid::Uuid;
 

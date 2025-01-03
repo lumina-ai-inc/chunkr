@@ -1,5 +1,5 @@
-use crate::utils::configs::throttle_config::Config as ThrottleConfig;
-use crate::utils::db::deadpool_redis::{Pool, RedisError, RedisResult};
+use crate::configs::redis_config::{Pool, RedisError, RedisResult};
+use crate::configs::throttle_config::Config as ThrottleConfig;
 use std::time::Duration;
 
 pub struct RateLimiter {
@@ -102,9 +102,9 @@ pub fn create_llm_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::configs::llm_config::Config as LlmConfig;
+    use crate::configs::redis_config::create_pool;
     use crate::models::chunkr::open_ai::{ContentPart, Message, MessageContent};
-    use crate::utils::configs::llm_config::Config as LlmConfig;
-    use crate::utils::db::deadpool_redis::create_pool;
     use crate::utils::services::llm::open_ai_call;
     use rand::Rng;
     use std::error::Error;

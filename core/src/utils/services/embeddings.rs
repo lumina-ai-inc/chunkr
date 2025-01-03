@@ -110,7 +110,7 @@ impl EmbeddingCache {
 mod tests {
     use super::*;
     use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
-    use crate::utils::configs::search_config::Config as SearchConfig;
+    use crate::configs::search_config::Config as SearchConfig;
     use tokio;
     #[tokio::test]
     async fn embeddings() {

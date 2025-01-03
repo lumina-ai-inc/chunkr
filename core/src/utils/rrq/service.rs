@@ -3,7 +3,7 @@ use crate::models::rrq::{
     produce::ProducePayload,
     status::{StatusPayload, StatusResult},
 };
-use crate::utils::configs::rrq_config::Config;
+use crate::configs::rrq_config::Config;
 use lazy_static::lazy_static;
 use reqwest::Client;
 use std::time::{Duration, Instant};

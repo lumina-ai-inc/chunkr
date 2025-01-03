@@ -1,6 +1,6 @@
 use super::get_task::create_task_from_row;
 use crate::models::chunkr::task::TaskResponse;
-use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::configs::postgres_config::{Client, Pool};
 use aws_sdk_s3::Client as S3Client;
 use futures::future::join_all;
 

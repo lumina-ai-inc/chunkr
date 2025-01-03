@@ -119,11 +119,10 @@ services:
       replicas: 1
     restart: always
 
-  pdla:
-    image: luminainc/pdla:8c4bfb6d
+  vgt:
+    image: luminainc/vgt:4a27b2f7
     ports:
       - "8002:8000"
-    command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000" ]
     deploy:
       replicas: 1
       resources:

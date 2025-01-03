@@ -5,7 +5,7 @@ use crate::models::server::task::Status;
 use crate::task::pdf::split_pdf;
 use crate::task::pdla::pdla_extraction;
 use crate::task::process::process_segments;
-use crate::utils::db::deadpool_postgres::{create_pool, Client, Pool};
+use crate::configs::postgres_config::{create_pool, Client, Pool};
 use crate::utils::json2mkd::json_2_mkd::hierarchical_chunking;
 use crate::utils::storage::config_s3::create_client;
 use crate::utils::storage::services::{download_to_tempfile, upload_to_s3};

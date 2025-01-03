@@ -1,4 +1,4 @@
-use crate::utils::configs::worker_config::Config as WorkerConfig;
+use crate::configs::worker_config::Config as WorkerConfig;
 use reqwest::{multipart, Client as ReqwestClient};
 use std::{fs, path::Path};
 use tokio::sync::OnceCell;

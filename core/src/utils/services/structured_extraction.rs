@@ -250,8 +250,8 @@ mod tests {
     use super::*;
     use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
     use crate::models::chunkr::structured_extraction::Property;
-    use crate::utils::configs::llm_config::Config as LlmConfig;
-    use crate::utils::configs::worker_config::Config as WorkerConfig;
+    use crate::configs::llm_config::Config as LlmConfig;
+    use crate::configs::worker_config::Config as WorkerConfig;
     use tokio;
 
     #[tokio::test]
