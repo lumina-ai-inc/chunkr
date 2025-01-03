@@ -82,6 +82,7 @@ class InstanceOutput(BaseModel):
     scores: list[float]
     classes: list[int]
     image_size: tuple[int, int]
+    
 class Instance(BaseModel):
     boxes: List[BoundingBox]
     scores: List[float]
@@ -106,6 +107,7 @@ class OCRInput(BaseModel):
     bbox: BoundingBox
     text: str
     confidence: float = 1.0
+    
 class OCRInput(BaseModel):
     bbox: BoundingBoxOutput
     text: str

@@ -69,7 +69,7 @@ pub struct Segment {
 }
 
 impl Segment {
-    fn new(
+    pub fn new(
         bbox: BoundingBox,
         page_number: u32,
         page_width: f32,
