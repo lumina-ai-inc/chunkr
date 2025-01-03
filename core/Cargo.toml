@@ -73,6 +73,7 @@ utoipa-swagger-ui = { version = "7.1.0", features = ["actix-web", "vendored"] }
 uuid = { version = "1.8.0", features = ["v4", "v5"] }
 itertools = "0.13.0"
 redis = "0.27.5"
+tap = "1.0.1"
 [build-dependencies]
 pkg-config = "0.3.19"
 

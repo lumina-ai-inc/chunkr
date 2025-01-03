@@ -156,6 +156,18 @@ impl BoundingBox {
     pub fn get_center(&self) -> (f32, f32) {
         (self.left + self.width / 2.0, self.top + self.height / 2.0)
     }
+
+    pub fn intersects(&self, other: &BoundingBox) -> bool {
+        if self.left + self.width < other.left || other.left + other.width < self.left {
+            return false;
+        }
+
+        if self.top + self.height < other.top || other.top + other.height < self.top {
+            return false;
+        }
+
+        true
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
