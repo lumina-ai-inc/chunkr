@@ -82,7 +82,10 @@ pub async fn create_extraction_task(
     let s3_client = req.app_data::<web::Data<S3Client>>().unwrap();
     let file_data = &form.file;
     let configuration = Configuration {
-        target_chunk_length: form.target_chunk_length.map(|t| t.into_inner()),
+        target_chunk_length: form
+            .target_chunk_length
+            .map(|t| t.into_inner())
+            .unwrap_or(512),
         ocr_strategy: form
             .ocr_strategy
             .map(|t| t.into_inner())

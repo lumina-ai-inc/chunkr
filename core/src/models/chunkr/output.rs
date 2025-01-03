@@ -23,12 +23,25 @@ pub struct OutputResponse {
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
     /// Collection of document segments that form this chunk.
-    /// When target_chunk_length > 0, contains the maximum number of segments
+    /// When `target_chunk_length` > 0, contains the maximum number of segments
     /// that fit within that length (segments remain intact).
     /// Otherwise, contains exactly one segment.
     pub segments: Vec<Segment>,
     /// The total number of words in the chunk.
     pub chunk_length: i32,
+}
+
+impl Chunk {
+    pub fn new(segments: Vec<Segment>) -> Self {
+        let chunk_length = segments
+            .iter()
+            .map(|s| s.content.split_whitespace().count())
+            .sum::<usize>() as i32;
+        Self {
+            segments,
+            chunk_length,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -56,6 +69,30 @@ pub struct Segment {
 }
 
 impl Segment {
+    fn new(
+        bbox: BoundingBox,
+        page_number: u32,
+        page_width: f32,
+        page_height: f32,
+        content: String,
+        segment_type: SegmentType,
+    ) -> Self {
+        let segment_id = uuid::Uuid::new_v4().to_string();
+        Self {
+            segment_id,
+            bbox,
+            page_number,
+            page_width,
+            page_height,
+            content,
+            segment_type,
+            ocr: None,
+            image: None,
+            html: None,
+            markdown: None,
+        }
+    }
+
     fn to_html(&self) -> String {
         match self.segment_type {
             SegmentType::Title => format!("<h1>{}</h1>", self.content),

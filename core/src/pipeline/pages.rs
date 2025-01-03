@@ -78,10 +78,10 @@ async fn segment_pages(
 }
 
 fn merge_segments_with_ocr(
-    segments: Vec<Vec<Segment>>,
-    ocr_results: Vec<Vec<OCRResult>>,
+    page_segments: Vec<Vec<Segment>>,
+    page_ocr_results: Vec<Vec<OCRResult>>,
 ) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error>> {
-    segments
+    page_segments
         .iter()
         .enumerate()
         .map(|(page_idx, page_segments)| {
@@ -90,7 +90,7 @@ fn merge_segments_with_ocr(
                 .map(|segment| {
                     let mut segment = segment.clone();
                     let empty_vec = vec![];
-                    let page_ocr = ocr_results.get(page_idx).unwrap_or(&empty_vec);
+                    let page_ocr = page_ocr_results.get(page_idx).unwrap_or(&empty_vec);
                     let segment_ocr: Vec<OCRResult> = page_ocr
                         .iter()
                         .filter(|ocr| ocr.bbox.intersects(&segment.bbox))
@@ -117,12 +117,12 @@ fn merge_segments_with_ocr(
 pub async fn process(
     pipeline: &mut Pipeline,
 ) -> Result<(Status, Option<String>), Box<dyn std::error::Error>> {
-    let ocr_results = match pipeline.task_payload.current_configuration.ocr_strategy {
+    let page_ocr_results = match pipeline.task_payload.current_configuration.ocr_strategy {
         OcrStrategy::All => ocr_pages_all(pipeline).await?,
         OcrStrategy::Auto => ocr_pages_auto(pipeline).await?,
     };
-    let segments = segment_pages(pipeline).await?;
-    let segments_with_ocr = merge_segments_with_ocr(segments, ocr_results)?;
+    let page_segments = segment_pages(pipeline).await?;
+    let segments_with_ocr = merge_segments_with_ocr(page_segments, page_ocr_results)?;
     let chunks = chunking::hierarchical_chunking(
         segments_with_ocr.into_iter().flatten().collect(),
         pipeline
