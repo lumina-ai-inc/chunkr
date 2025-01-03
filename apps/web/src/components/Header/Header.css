@@ -2,8 +2,7 @@
   width: 100%;
   height: fit-content;
   z-index: 1;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding: 12px 24px;
   align-items: center;
 }
 
