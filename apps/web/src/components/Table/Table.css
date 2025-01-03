@@ -1,0 +1,7 @@
+.MuiPaper-root > :first-child {
+  padding: 0px 10px;
+}
+
+.MuiPaper-root > :last-child {
+  padding: 0px 10px;
+}
