@@ -53,6 +53,7 @@ export const SegmentChunk = forwardRef<
     return chunk.segments
       .map((segment) => {
         const textContent = segment.content || "";
+<<<<<<< HEAD
 
         const normalizedContent = textContent.replace(/[\s\n${}\\]/g, "");
         const normalizedLast = lastContent.replace(/[\s\n${}\\]/g, "");
@@ -62,6 +63,8 @@ export const SegmentChunk = forwardRef<
 
         lastContent = textContent;
 
+=======
+>>>>>>> 28f7f665 (Adding table for dashboard)
         if (
           segment.segment_type === "Table" &&
           segment.html?.startsWith("<span class=")
@@ -150,7 +153,7 @@ export const SegmentChunk = forwardRef<
   };
 
   return (
-    <div ref={ref}>
+    <div className="segment-chunk-wrapper" ref={ref}>
       <Accordion.Root
         className="AccordionRoot"
         type="single"
