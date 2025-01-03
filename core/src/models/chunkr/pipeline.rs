@@ -10,7 +10,7 @@ use crate::utils::services::file_operations::{check_file_type, convert_to_pdf};
 pub struct Pipeline {
     pub input_file: Arc<NamedTempFile>,
     pub mime_type: String,
-    pub output: Option<Vec<OutputResponse>>,
+    pub output: Option<OutputResponse>,
     pub page_count: Option<u32>,
     pub pages: Option<Vec<Arc<NamedTempFile>>>,
     pub pdf_file: Arc<NamedTempFile>,
