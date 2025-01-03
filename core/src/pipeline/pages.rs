@@ -65,13 +65,15 @@ async fn ocr_pages_auto(
 
 async fn segment_pages(
     pipeline: &mut Pipeline,
+    page_ocr_results: Vec<Vec<OCRResult>>,
 ) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error>> {
     let futures = pipeline
         .pages
         .as_ref()
         .unwrap()
         .iter()
-        .map(|page| segmentation::perform_segmentation(page.clone()));
+        .enumerate()
+        .map(|(page_idx, page)| segmentation::perform_segmentation(page.clone(), page_ocr_results[page_idx].clone(),  ((page_idx + 1)).try_into().unwrap()));
 
     let segments = try_join_all(futures).await?;
     Ok(segments)
@@ -121,8 +123,10 @@ pub async fn process(
         OcrStrategy::All => ocr_pages_all(pipeline).await?,
         OcrStrategy::Auto => ocr_pages_auto(pipeline).await?,
     };
-    let page_segments = segment_pages(pipeline).await?;
-    let segments_with_ocr = merge_segments_with_ocr(page_segments, page_ocr_results)?;
+
+    // TODO: Move ocr merge logic to a method in segment and call it in Instance to Segment method
+    let page_segments = segment_pages(pipeline, page_ocr_results.clone()).await?;
+    let segments_with_ocr = merge_segments_with_ocr(page_segments, page_ocr_results.clone())?;
     let chunks = chunking::hierarchical_chunking(
         segments_with_ocr.into_iter().flatten().collect(),
         pipeline
