@@ -1,7 +1,8 @@
+use crate::configs::postgres_config::Client;
+use crate::configs::user_config::Config as UserConfig;
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::user::{Tier, UsageLimit, UsageType, User};
-use crate::configs::user_config::Config as UserConfig;
-use crate::configs::postgres_config::{Client, Pool};
+use crate::utils::clients::get_pg_client;
 use prefixed_api_key::PrefixedApiKeyController;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -22,11 +23,8 @@ impl From<tokio_postgres::Row> for PreAppliedPages {
     }
 }
 
-pub async fn create_user(
-    user_info: UserInfo,
-    pool: &Pool,
-) -> Result<User, Box<dyn std::error::Error>> {
-    let mut client: Client = pool.get().await?;
+pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error::Error>> {
+    let mut client: Client = get_pg_client().await?;
     let user_config = UserConfig::from_env().unwrap();
 
     let controller = PrefixedApiKeyController::configure()

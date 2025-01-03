@@ -1,17 +1,15 @@
+use crate::configs::postgres_config::Client;
+use crate::configs::stripe_config::Config as StripeConfig;
+use crate::utils::clients::get_pg_client;
 use chrono::Datelike;
 use chrono::NaiveDate;
 use chrono::Utc;
-use crate::configs::stripe_config::Config as StripeConfig;
-use crate::configs::postgres_config::{Client, Pool};
 use reqwest::Client as ReqwestClient;
 use serde_json::json;
 use tokio_postgres::Row;
 
-pub async fn invoice(
-    pool: &Pool,
-    end_of_month: Option<NaiveDate>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let client: Client = pool.get().await?;
+pub async fn invoice(end_of_month: Option<NaiveDate>) -> Result<(), Box<dyn std::error::Error>> {
+    let client: Client = get_pg_client().await?;
     // Determine the end of the month date
     let today = Utc::now().naive_utc();
     let end_of_month_date = match end_of_month {
@@ -61,18 +59,15 @@ pub async fn invoice(
                 "creating and sending invoice for invoice id {:?}",
                 invoice_id
             );
-            create_and_send_invoice(&pool, &invoice_id).await?;
+            create_and_send_invoice(&invoice_id).await?;
         }
     }
 
     Ok(())
 }
 
-pub async fn create_and_send_invoice(
-    db_pool: &Pool,
-    invoice_id: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let client: Client = db_pool.get().await?;
+pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let client: Client = get_pg_client().await?;
 
     // Query to get invoice details, customer info, and usage
     let query = "

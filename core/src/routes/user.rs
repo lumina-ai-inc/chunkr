@@ -1,20 +1,16 @@
 use crate::models::chunkr::auth::UserInfo;
-use crate::configs::postgres_config::Pool;
-use crate::utils::server::{ get_user::get_user, create_user::create_user };
-use actix_web::{ web, HttpResponse, Error };
+use crate::utils::server::{create_user::create_user, get_user::get_user};
+use actix_web::{web, Error, HttpResponse};
 
-pub async fn get_or_create_user(
-    user_info: web::ReqData<UserInfo>,
-    pool: web::Data<Pool>
-) -> Result<HttpResponse, Error> {
+pub async fn get_or_create_user(user_info: web::ReqData<UserInfo>) -> Result<HttpResponse, Error> {
     let user_info = user_info.into_inner();
     let user_id = user_info.clone().user_id;
 
-    let user = match get_user(user_id, &pool).await {
+    let user = match get_user(user_id).await {
         Ok(user) => user,
         Err(e) => {
             if e.to_string().contains("not found") {
-                let user = create_user(user_info, &pool).await?;
+                let user = create_user(user_info).await?;
                 return Ok(HttpResponse::Ok().json(user));
             } else {
                 return Err(e.into());
@@ -24,5 +20,3 @@ pub async fn get_or_create_user(
 
     Ok(HttpResponse::Ok().json(user))
 }
-
-

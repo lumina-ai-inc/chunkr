@@ -1,10 +1,10 @@
+use crate::configs::postgres_config::Client;
 use crate::models::chunkr::user::{Discount, InvoiceStatus, Tier, UsageLimit, UsageType, User};
-use crate::configs::postgres_config::{Client, Pool};
+use crate::utils::clients::get_pg_client;
 use serde_json::Value;
 use std::str::FromStr;
-pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {
-    let client: Client = pool.get().await?;
-
+pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error>> {
+    let client: Client = get_pg_client().await?;
     let query = r#"
     SELECT 
         u.user_id,
@@ -149,9 +149,8 @@ pub struct UsageDetail {
 
 pub async fn get_monthly_usage_count(
     user_id: String,
-    pool: &Pool,
 ) -> Result<Vec<MonthlyUsage>, Box<dyn std::error::Error>> {
-    let client: Client = pool.get().await?;
+    let client: Client = get_pg_client().await?;
 
     // Check user tier
     let tier_query = "SELECT tier FROM users WHERE user_id = $1";
@@ -241,9 +240,8 @@ pub struct InvoiceDetail {
 
 pub async fn get_invoices(
     user_id: String,
-    pool: &Pool,
 ) -> Result<Vec<InvoiceDetail>, Box<dyn std::error::Error>> {
-    let client: Client = pool.get().await?;
+    let client: Client = get_pg_client().await?;
 
     let query = r#"
     SELECT 
@@ -297,9 +295,8 @@ pub async fn get_invoices(
 
 pub async fn get_invoice_information(
     invoice_id: String,
-    pool: &Pool,
 ) -> Result<InvoiceDetail, Box<dyn std::error::Error>> {
-    let client: Client = pool.get().await?;
+    let client: Client = get_pg_client().await?;
 
     let query = r#"
     SELECT 

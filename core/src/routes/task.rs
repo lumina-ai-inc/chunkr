@@ -1,13 +1,10 @@
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::task::Configuration;
 use crate::models::chunkr::upload::{OcrStrategy, UploadForm};
-use crate::configs::s3_config::ExternalS3Client;
-use crate::configs::postgres_config::Pool;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
-use aws_sdk_s3::Client as S3Client;
 use uuid::Uuid;
 
 /// Get Task
@@ -30,9 +27,6 @@ use uuid::Uuid;
     )
 )]
 pub async fn get_task_status(
-    pool: web::Data<Pool>,
-    s3_client: web::Data<S3Client>,
-    s3_external_client: web::Data<ExternalS3Client>,
     task_id: web::Path<String>,
     user_info: web::ReqData<UserInfo>,
     _req: HttpRequest,
@@ -46,7 +40,7 @@ pub async fn get_task_status(
 
     let user_id = user_info.user_id.clone();
 
-    match get_task(&pool, &s3_client, &s3_external_client.0, task_id, user_id).await {
+    match get_task(task_id, user_id).await {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
             eprintln!("Error getting task status: {:?}", e);
@@ -73,13 +67,10 @@ pub async fn get_task_status(
     )
 )]
 pub async fn create_extraction_task(
-    req: HttpRequest,
     form: MultipartForm<UploadForm>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let form = form.into_inner();
-    let pool = req.app_data::<web::Data<Pool>>().unwrap();
-    let s3_client = req.app_data::<web::Data<S3Client>>().unwrap();
     let file_data = &form.file;
     let configuration = Configuration {
         target_chunk_length: form
@@ -97,7 +88,7 @@ pub async fn create_extraction_task(
         model: None,
     };
 
-    let result = create_task(pool, s3_client, file_data, &user_info, &configuration).await;
+    let result = create_task(file_data, &user_info, &configuration).await;
 
     if let Ok(metadata) = std::fs::metadata(file_data.file.path()) {
         if metadata.is_file() {

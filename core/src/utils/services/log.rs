@@ -1,5 +1,6 @@
+use crate::configs::postgres_config::Client;
 use crate::models::chunkr::task::Status;
-use crate::configs::postgres_config::{Client, Pool};
+use crate::utils::clients::get_pg_client;
 use chrono::{DateTime, Utc};
 
 pub async fn log_task(
@@ -7,9 +8,8 @@ pub async fn log_task(
     status: Status,
     message: Option<&str>,
     finished_at: Option<DateTime<Utc>>,
-    pool: &Pool,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let client: Client = pool.get().await?;
+    let client: Client = get_pg_client().await?;
 
     let task_query = format!(
         "UPDATE tasks SET status = '{:?}', message = '{}', finished_at = '{:?}' WHERE task_id = '{}'",
