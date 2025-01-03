@@ -78,18 +78,18 @@ export default function Dashboard() {
   }
 
   const calculateTotalUsage = (usageType: string, tier: string) => {
+    if (!monthlyUsage) return 0;
+
     if (tier === "Free") {
-      return (
-        monthlyUsage?.reduce((total, month) => {
-          const usage = month.usage_details.find(
-            (u) => u.usage_type === usageType
-          );
-          return total + (usage?.count || 0);
-        }, 0) || 0
-      );
+      return monthlyUsage.reduce((total, month) => {
+        const usage = month.usage_details.find(
+          (u) => u.usage_type === usageType
+        );
+        return total + (usage?.count || 0);
+      }, 0);
     } else {
       return (
-        monthlyUsage?.[0]?.usage_details.find(
+        monthlyUsage[0]?.usage_details.find(
           (usage) => usage.usage_type === usageType
         )?.count || 0
       );

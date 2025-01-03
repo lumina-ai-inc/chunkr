@@ -3,7 +3,6 @@ import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
 import "./Header.css";
 import Dashboard from "../../pages/Dashboard/Dashboard";
-import { useAuth } from "react-oidc-context";
 // import { downloadJSON } from "../../utils/utils";
 import ApiKeyDialog from "../ApiDialog/ApiKeyDialog";
 // import { useTaskQuery } from "../../hooks/useTaskQuery";
@@ -11,21 +10,23 @@ import useUser from "../../hooks/useUser";
 import { User } from "../../models/user.model";
 import { getRepoStats } from "../../services/githubApi";
 // import BetterButton from "../BetterButton/BetterButton";
+import { AuthContextProps } from "react-oidc-context";
+
 interface HeaderProps {
-  py?: string;
-  px?: string;
   download?: boolean;
   home?: boolean;
+  auth?: AuthContextProps;
 }
 
 export default function Header({
   download = false,
   home = false,
+  auth,
 }: HeaderProps) {
   const [showAccount, setShowAccount] = useState(false);
-  const [showApiKey, setShowApiKey] = useState(false);
-  const auth = useAuth();
-  const isAuthenticated = auth.isAuthenticated;
+  // const [showApiKey, setShowApiKey] = useState(false);
+  console.log(auth);
+  const isAuthenticated = auth?.isAuthenticated;
   // const { taskId } = useParams<{ taskId: string }>();
   // const { data: taskResponse } = useTaskQuery(taskId);
   const { data: user } = useUser();
@@ -53,7 +54,7 @@ export default function Header({
   // };
 
   return (
-    <Flex direction="row" justify="between" py="12px" className="header">
+    <Flex direction="row" justify="between" className="header">
       <Link to="/" style={{ textDecoration: "none" }}>
         <div className="header-logo-container">
           <svg
@@ -96,15 +97,9 @@ export default function Header({
         </div>
       </Link>
 
-      <Flex className="nav" direction="row" gap="24px" align="center">
-        <Flex
-          direction="row"
-          gap="4"
-          align="center"
-          className="auth-container"
-          justify="end"
-        >
-          <Flex direction="row" gap="2" px="16px" mt="2px" align="center">
+      <Flex className="nav" direction="row" align="center">
+        <Flex direction="row" gap="20px" align="center" justify="end">
+          <Flex direction="row" gap="2" mt="2px" align="center">
             <svg
               width="18"
               height="18"
@@ -133,7 +128,7 @@ export default function Header({
             </Text>
           </Flex>
 
-          <Flex direction="row" gap="2" py="12px" px="16px" align="center">
+          <Flex direction="row" gap="2" py="12px" px="12px" align="center">
             <a
               href="https://cal.com/mehulc/30min"
               target="_blank"
@@ -173,23 +168,18 @@ export default function Header({
             </Link>
           </Flex>
 
-          <Flex direction="row" gap="2" py="12px" px="16px" align="center">
-            <Link to="/pricing" style={{ textDecoration: "none" }}>
-              <Text size="2" weight="medium" className="nav-item">
-                API Keys
-              </Text>
-            </Link>
-          </Flex>
+          {isAuthenticated && user && (
+            <Flex direction="row" gap="2" py="12px" px="16px" align="center">
+              <Link to="/pricing" style={{ textDecoration: "none" }}>
+                <Text size="2" weight="medium" className="nav-item">
+                  API Keys
+                </Text>
+              </Link>
+            </Flex>
+          )}
 
           {/* <BetterButton onClick={handleGithubRedirect}></BetterButton> */}
 
-          {isAuthenticated && user && (
-            <ApiKeyDialog
-              user={user}
-              showApiKey={showApiKey}
-              setShowApiKey={setShowApiKey}
-            />
-          )}
           {isAuthenticated ? (
             <Link
               to="/dashboard"
@@ -216,7 +206,7 @@ export default function Header({
               py="12px"
               px="16px"
               align="center"
-              onClick={() => auth.signinRedirect()}
+              onClick={() => auth?.signinRedirect()}
               style={{ paddingRight: "0px" }}
             >
               <Text
@@ -279,12 +269,12 @@ export default function Header({
               </DropdownMenu.Item>
               {isAuthenticated && (
                 <DropdownMenu.Item>
-                  <ApiKeyDialog
+                  {/* <ApiKeyDialog
                     user={user as User}
                     showApiKey={showApiKey}
                     setShowApiKey={setShowApiKey}
                     phone={true}
-                  />
+                  /> */}
                 </DropdownMenu.Item>
               )}
               <DropdownMenu.Item>
@@ -309,7 +299,7 @@ export default function Header({
               ) : (
                 <DropdownMenu.Item
                   className="signup-button-dropdown"
-                  onSelect={() => auth.signinRedirect()}
+                  onSelect={() => auth?.signinRedirect()}
                 >
                   <Text
                     weight="regular"

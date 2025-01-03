@@ -1,26 +1,27 @@
-.nav-container {
+.dashboard-nav-container {
   width: 100%;
-  max-width: 324px;
-
+  height: 100%;
+  max-width: 256px;
+  gap: 24px;
+  padding: 24px 16px;
+  padding-top: 16px;
   box-shadow:
     1px 0 0 0 rgba(255, 255, 255, 0.05),
     4px 0 16px -8px rgba(0, 0, 0, 0.2),
     2px 0 8px -4px rgba(0, 0, 0, 0.1);
 }
 
-.nav-header {
+.dashboard-nav-header {
   width: 100%;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0px 8px;
 }
 
-.nav-body {
+.dashboard-nav-body {
   width: 100%;
-  height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
+  flex: 1 1 0%;
 }
 
 .logo-container {
@@ -28,7 +29,6 @@
   justify-content: center;
   height: fit-content;
   border-radius: var(--Radius-4-max, 8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.05);
   padding: 8px;
   gap: 6px;
@@ -36,10 +36,6 @@
     0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
     0px 3px 12px -4px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
     0px 2px 3px -2px var(--Colors-Neutral-Neutral-Alpha-3, rgba(0, 0, 51, 0.06));
-}
-
-.nav-container-toggle {
-  padding: 16px;
 }
 
 .profile-name {
@@ -109,33 +105,45 @@
   );
 }
 
-.nav-items {
-  padding: 24px 16px;
+.dashboard-nav-items {
+  width: 100%;
+  gap: 6px;
   overflow-y: auto;
-  max-height: calc(100vh - 364px);
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
-.nav-items::-webkit-scrollbar {
+.dashboard-nav-items::-webkit-scrollbar {
   width: 6px;
 }
 
-.nav-items::-webkit-scrollbar-track {
+.dashboard-nav-items::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.nav-items::-webkit-scrollbar-thumb {
+.dashboard-nav-items::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   transition: background-color 0.2s ease;
 }
 
-.nav-items:hover::-webkit-scrollbar-thumb {
+.dashboard-nav-items:hover::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Main body */
+.dashboard-nav-item {
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dashboard-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
 
 .main-container {
   width: 100%;
@@ -144,14 +152,13 @@
 
 .main-header {
   width: 100%;
-  padding: 23px 24px;
+  padding: 16px 24px;
   height: fit-content;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   justify-content: space-between;
 }
 
 .profile-section {
-  padding: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   gap: 16px;
 }
@@ -198,129 +205,6 @@
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Usage Cards */
-.usage-card {
-  padding: 16px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.usage-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-}
-
-.usage-card:active {
-  transform: translateY(0);
-}
-
-/* Warning State */
-.usage-card-warning {
-  background: rgba(234, 179, 8, 0.03);
-  border-color: rgba(234, 179, 8, 0.15);
-}
-
-.usage-card-warning:hover {
-  background: rgba(234, 179, 8, 0.05);
-  border-color: rgba(234, 179, 8, 0.2);
-}
-
-/* Error State */
-.usage-card-error {
-  background: rgba(239, 68, 68, 0.03);
-  border-color: rgba(239, 68, 68, 0.15);
-}
-
-.usage-card-error:hover {
-  background: rgba(239, 68, 68, 0.05);
-  border-color: rgba(239, 68, 68, 0.2);
-}
-
-/* Progress Bars */
-.progress-container {
-  width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  background: #fff;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
-
-.usage-card:hover .progress-bar {
-  background: #3b82f6;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
-}
-
-.progress-bar-warning {
-  background: #eab308;
-  box-shadow: 0 0 12px rgba(234, 179, 8, 0.3);
-}
-
-/* Badges */
-.warning-badge,
-.error-badge {
-  padding: 2px 6px;
-  border-radius: 4px;
-  height: 18px;
-  align-items: center;
-  justify-content: center;
-}
-
-.warning-badge {
-  background: rgba(234, 179, 8, 0.15);
-  border: 1px solid rgba(234, 179, 8, 0.3);
-}
-
-.warning-badge Text {
-  color: #facc15;
-}
-
-.error-badge {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.error-badge Text {
-  color: #ef4444;
-}
-
-/* Error Action Button */
-.error-action-button {
-  margin-top: 4px;
-  padding: 8px 16px;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  align-items: center;
-  justify-content: center;
-}
-
-.error-action-button:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
-}
-
-.error-action-button:active {
-  background: rgba(239, 68, 68, 0.25);
-}
-
-.error-action-button Text {
-  color: #fff;
 }
 
 .main-body {
