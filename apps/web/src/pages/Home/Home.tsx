@@ -1,28 +1,17 @@
+// React Imports
 import { useEffect, useRef, useState } from "react";
-import { Flex, Text } from "@radix-ui/themes";
+
+// OIDC Imports
 import { useAuth } from "react-oidc-context";
 import { useNavigate } from "react-router-dom";
+
+// Radix Imports
+import { Flex, Text } from "@radix-ui/themes";
+
+// CSS Imports
 import "./Home.css";
-import Header from "../../components/Header/Header";
-// import UploadMain from "../../components/Upload/UploadMain";
-import Footer from "../../components/Footer/Footer";
-import Lottie from "lottie-react";
-import { LottieRefCurrentProps } from "lottie-react";
-import timerAnimation from "../../assets/animations/timer.json";
-import fileuploadAnimation from "../../assets/animations/fileupload.json";
-import bargraphAnimation from "../../assets/animations/bargraph.json";
-import codeAnimation from "../../assets/animations/code.json";
-import secureAnimation from "../../assets/animations/secure.json";
-import rustAnimation from "../../assets/animations/rust.json";
-// import segmentationAnimation from "../../assets/animations/segment.json";
-import ocrAnimation from "../../assets/animations/ocr.json";
-// import stackingAnimation from "../../assets/animations/stacking.json";
-// import extractAnimation from "../../assets/animations/extract.json";
-// import parsingAnimation from "../../assets/animations/parsing.json";
-// import notesAnimation from "../../assets/animations/notes.json";
-import chunkingAnimation from "../../assets/animations/chunking.json";
-import vlmAnimation from "../../assets/animations/vlm.json";
-import layoutAnimation from "../../assets/animations/layout.json";
+
+// Component Imports
 import PricingCard from "../../components/PricingCard/PricingCard";
 import CodeBlock from "../../components/CodeBlock/CodeBlock";
 import BetterButton from "../../components/BetterButton/BetterButton";
@@ -34,13 +23,29 @@ import {
 } from "../../components/CodeBlock/exampleScripts";
 import Dropdown from "../../components/Dropdown/Dropdown";
 import MomentumScroll from "../../components/MomentumScroll/MomentumScroll";
+import Header from "../../components/Header/Header";
+// import UploadMain from "../../components/Upload/UploadMain";
+import Footer from "../../components/Footer/Footer";
+
+// Animation Imports
+import Lottie from "lottie-react";
+import { LottieRefCurrentProps } from "lottie-react";
+import timerAnimation from "../../assets/animations/timer.json";
+import fileuploadAnimation from "../../assets/animations/fileupload.json";
+import bargraphAnimation from "../../assets/animations/bargraph.json";
+import codeAnimation from "../../assets/animations/code.json";
+import secureAnimation from "../../assets/animations/secure.json";
+import rustAnimation from "../../assets/animations/rust.json";
+import ocrAnimation from "../../assets/animations/ocr.json";
+import chunkingAnimation from "../../assets/animations/chunking.json";
+import vlmAnimation from "../../assets/animations/vlm.json";
+import layoutAnimation from "../../assets/animations/layout.json";
 
 const Home = () => {
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
   const navigate = useNavigate();
 
-  const hasAnimatedRef = useRef(false);
   const terminalRef = useRef<HTMLDivElement>(null);
 
   const lottieRef = useRef<LottieRefCurrentProps>(null);
@@ -148,27 +153,6 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          // Only start typing if it hasn't animated before
-          if (entry.isIntersecting && !hasAnimatedRef.current) {
-            hasAnimatedRef.current = true;
-            startTyping();
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    if (terminalRef.current) {
-      observer.observe(terminalRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
     };
@@ -193,30 +177,6 @@ const Home = () => {
     node: "javascript",
     python: "python",
     rust: "rust",
-  };
-
-  const startTyping = () => {
-    const textElement = terminalRef.current?.querySelector(".typed-text");
-    if (!textElement) return;
-
-    textElement.innerHTML = "";
-    let displayText = "";
-    let i = 0;
-
-    const typeChar = () => {
-      if (i < scripts[selectedScript as keyof typeof scripts].length) {
-        displayText +=
-          scripts[selectedScript as keyof typeof scripts].charAt(i);
-        textElement.innerHTML = displayText + '<span class="cursor">▋</span>';
-        i++;
-        setTimeout(typeChar, 5);
-      } else {
-        textElement.innerHTML =
-          displayText + '<span class="cursor blink">▋</span>';
-      }
-    };
-
-    typeChar();
   };
 
   const handleGetStarted = () => {
@@ -321,12 +281,12 @@ const Home = () => {
       <Flex className={`header-container ${isScrolled ? "scrolled" : ""}`}>
         <div
           style={{
-            maxWidth: "1424px",
+            maxWidth: "1386px",
             width: "100%",
             height: "fit-content",
           }}
         >
-          <Header px="0px" home={true} />
+          <Header home={true} auth={auth} />
         </div>
       </Flex>
       <MomentumScroll>
@@ -510,227 +470,6 @@ const Home = () => {
                 </div>
               </div>
             </Flex>
-            {/* <Flex className="features-container" direction="column" gap="24px">
-          <Flex
-            direction="column"
-            align="center"
-            justify="between"
-            style={{
-              width: "100%",
-              maxWidth: "1386px",
-              height: "100%",
-              margin: "0 auto",
-              marginTop: "24px",
-              padding: "24px",
-              position: "relative",
-              zIndex: 1,
-            }}
-          >
-            <Flex
-              direction="row"
-              gap="32px"
-              className="features-grid features-grid-up"
-            >
-              <Flex
-                direction="column"
-                className="functionality-box functionality-box-segmentation-image"
-                onMouseEnter={() => handleLottieHover(segmentationLottieRef)}
-              >
-                <div className="functionality-box-content">
-                  <Flex className="tag-container">
-                    <Text
-                      size="1"
-                      weight="regular"
-                      style={{ color: "#ffffff" }}
-                    >
-                      Semantic Segmentation
-                    </Text>
-                  </Flex>
-
-                  <Text
-                    size="8"
-                    mt="16px"
-                    className="white"
-                    style={{ maxWidth: "380px", fontWeight: "600" }}
-                  >
-                    Bounding boxes + tagging{" "}
-                    <span style={{ color: "#ffffffcd" }}>
-                      for 11 categories
-                    </span>
-                  </Text>
-
-                  <div className="functionality-box-animation">
-                    <Lottie
-                      lottieRef={segmentationLottieRef}
-                      animationData={segmentationAnimation}
-                      style={{ width: "160px", height: "160px" }}
-                      loop={false}
-                      autoplay={false}
-                    />
-                  </div>
-
-                  <Flex className="learn-more-tag">
-                    <Text size="2" weight="medium" style={{ color: "#ffffff" }}>
-                      Learn More →
-                    </Text>
-                  </Flex>
-                </div>
-              </Flex>
-
-              <Flex
-                direction="column"
-                className="functionality-box functionality-box-ocr-image"
-                onMouseEnter={() => handleLottieHover(ocrLottieRef)}
-              >
-                <div className="functionality-box-content">
-                  <Flex className="tag-container">
-                    <Text
-                      size="1"
-                      weight="regular"
-                      style={{ color: "#ffffff" }}
-                    >
-                      AI Powered Processing
-                    </Text>
-                  </Flex>
-
-                  <Text
-                    size="8"
-                    mt="16px"
-                    className="white"
-                    style={{ maxWidth: "360px", fontWeight: "600" }}
-                  >
-                    VLMs{" "}
-                    <span style={{ color: "#ffffffcd" }}>& specialized </span>
-                    OCR models
-                  </Text>
-
-                  <div className="functionality-box-animation">
-                    <Lottie
-                      lottieRef={ocrLottieRef}
-                      animationData={ocrAnimation}
-                      style={{ width: "160px", height: "160px" }}
-                      loop={false}
-                      autoplay={false}
-                    />
-                  </div>
-
-                  <Flex className="learn-more-tag">
-                    <Text size="2" weight="medium" style={{ color: "#ffffff" }}>
-                      Learn More →
-                    </Text>
-                  </Flex>
-                </div>
-              </Flex>
-            </Flex>
-
-            <Flex
-              direction="row"
-              gap="32px"
-              mt="32px"
-              className="features-grid features-grid-down"
-            >
-              <Flex
-                direction="column"
-                className="functionality-box functionality-box-outputs-image"
-                onMouseEnter={() => handleLottieHover(stackingLottieRef)}
-              >
-                <div className="functionality-box-content">
-                  <Flex className="tag-container">
-                    <Text
-                      size="1"
-                      weight="regular"
-                      style={{ color: "#ffffff" }}
-                    >
-                      Ready-to-go Chunks
-                    </Text>
-                  </Flex>
-
-                  <Text
-                    size="8"
-                    mt="16px"
-                    className="white"
-                    style={{ maxWidth: "360px", fontWeight: "600" }}
-                  >
-                    HTML <span style={{ color: "#ffffffcd" }}> | </span>
-                    Markdown <span style={{ color: "#ffffffcd" }}> | </span>
-                    OCR <span style={{ color: "#ffffffcd" }}> | </span>
-                    Segment Images
-                  </Text>
-
-                  <div className="functionality-box-animation">
-                    <Lottie
-                      lottieRef={stackingLottieRef}
-                      animationData={stackingAnimation}
-                      style={{ width: "160px", height: "160px" }}
-                      loop={false}
-                      autoplay={false}
-                    />
-                  </div>
-                  <Flex className="learn-more-tag">
-                    <Text size="2" weight="medium" style={{ color: "#ffffff" }}>
-                      Learn More →
-                    </Text>
-                  </Flex>
-                </div>
-              </Flex>
-
-              <Flex
-                direction="column"
-                className="functionality-box functionality-box-structuredextraction-image"
-                onMouseEnter={() => handleLottieHover(extractLottieRef)}
-              >
-                <div className="functionality-box-content">
-                  <Flex direction="row" gap="8px">
-                    <Flex className="tag-container">
-                      <Text
-                        size="1"
-                        weight="regular"
-                        style={{ color: "#ffffff" }}
-                      >
-                        Structured Extraction
-                      </Text>
-                    </Flex>
-                    <Flex className="tag-container">
-                      <Text
-                        size="1"
-                        weight="regular"
-                        style={{ color: "#ffffff" }}
-                      >
-                        New!
-                      </Text>
-                    </Flex>
-                  </Flex>
-
-                  <Text
-                    size="8"
-                    mt="16px"
-                    className="white"
-                    style={{ maxWidth: "360px", fontWeight: "600" }}
-                  >
-                    Custom schemas
-                    <span style={{ color: "#ffffffcd" }}> to extract </span>
-                    specific values
-                  </Text>
-
-                  <div className="functionality-box-animation">
-                    <Lottie
-                      lottieRef={extractLottieRef}
-                      animationData={extractAnimation}
-                      style={{ width: "160px", height: "160px" }}
-                      loop={false}
-                      autoplay={false}
-                    />
-                  </div>
-                  <Flex className="learn-more-tag">
-                    <Text size="2" weight="medium" style={{ color: "#ffffff" }}>
-                      Learn More →
-                    </Text>
-                  </Flex>
-                </div>
-              </Flex>
-            </Flex>
-          </Flex>
-        </Flex> */}
             <div className="features-container">
               <div className="features-gradient-background" />
               <Flex
@@ -1455,18 +1194,6 @@ const Home = () => {
                   />
                 </Flex>
 
-                {/* <Text
-              size="6"
-              weight="medium"
-              style={{
-                color: "white",
-                marginTop: "64px",
-                marginBottom: "32px",
-              }}
-            >
-              Enterprise Solutions
-            </Text> */}
-
                 <Flex
                   direction="row"
                   justify="center"
@@ -1812,16 +1539,15 @@ const Home = () => {
                   />
                 </svg>
               </Flex>
-              <Text size="9" weight="bold" mt="16px" style={{ color: "white" }}>
-                Start Building
-              </Text>
+              <Text className="bottom-cta-title">What will you build?</Text>
               <Text
                 size="4"
                 mb="16px"
                 weight="bold"
                 style={{ color: "rgba(255, 255, 255, 0.9)" }}
               >
-                Convert documents into LLM/RAG-ready data
+                Leverage our document ingestion infrastructure to build SOTA AI
+                applications
               </Text>
               <button className="signup-button">
                 <Text size="5" weight="bold">
