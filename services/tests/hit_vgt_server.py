@@ -3,9 +3,6 @@ import warnings
 # Suppress all warnings
 warnings.filterwarnings("ignore")
 
-# Or suppress specific warnings
-# warnings.filterwarnings("ignore", category=UserWarning, module='torch')
-
 import io
 import time
 import requests
@@ -18,10 +15,6 @@ import numpy as np
 import json
 from tabulate import tabulate
 
-# If you have Tesseract installed and want real OCR:
-#   pip install pytesseract
-#   Make sure Tesseract is installed at the system level.
-# Otherwise, replace with your actual OCR steps or skip if you're only testing empties.
 try:
     import pytesseract
 except ImportError:
@@ -32,16 +25,9 @@ os.makedirs(ANNOTATED_IMAGES_DIR, exist_ok=True)
 
 
 def get_tesseract_ocr_data(pil_image):
-    """
-    Demonstration of how to collect bounding-box word data from pytesseract.
-    Returns a JSON string that matches the server's OcrWord[] interface.
-    If pytesseract is not installed or you want to skip OCR, return "[]" or something custom.
-    """
     if not pytesseract:
-        # Return empty if we don't have Tesseract for this example.
         return "[]"
 
-    # Convert PIL image to something Tesseract can read
     data = pytesseract.image_to_data(pil_image, output_type=pytesseract.Output.DICT)
 
     ocr_words = []
@@ -49,20 +35,19 @@ def get_tesseract_ocr_data(pil_image):
         text = data["text"][i].strip()
         if not text:
             continue
-        # Tesseract corners are top-left based
         left = float(data["left"][i])
         top = float(data["top"][i])
         width = float(data["width"][i])
         height = float(data["height"][i])
-        # Confidence from Tesseract is an int
         confidence = float(data["conf"][i]) if data["conf"][i].isdigit() else 0.0
 
-        # The server expects: left / top / width / height / text / confidence
         ocr_words.append({
-            "left": left,
-            "top": top,
-            "width": width,
-            "height": height,
+            "bbox": {
+                "left": left,
+                "top": top,
+                "width": width,
+                "height": height
+            },
             "text": text,
             "confidence": confidence
         })
@@ -71,18 +56,12 @@ def get_tesseract_ocr_data(pil_image):
 
 
 def visualize_predictions(images, predictions, subfolder_path):
-    """
-    Basic example that draws bounding boxes for each prediction.
-    Adjust as needed to match your server’s response shape.
-    """
     class_labels = [
         "Caption", "Footnote", "Formula", "ListItem", "PageFooter",
         "PageHeader", "Picture", "SectionHeader", "Table", "Text", "Title"
     ]
 
     for i, (image, pred_dict) in enumerate(zip(images, predictions)):
-        # The server returns a list of predictions, but we only take the first
-        # for each item if you are using /batch_async for single images:
         pred_dict = pred_dict.get("instances", {})
 
         image_resized = image.resize((image.width * 2, image.height * 2))
@@ -97,10 +76,10 @@ def visualize_predictions(images, predictions, subfolder_path):
                 if score <= 0:
                     continue
                 scaled_box = [
-                    box["x1"] * 2,
-                    box["y1"] * 2,
-                    box["x2"] * 2,
-                    box["y2"] * 2
+                    box["left"] * 2,
+                    box["top"] * 2,
+                    (box["left"] + box["width"]) * 2,
+                    (box["top"] + box["height"]) * 2
                 ]
                 draw.rectangle(scaled_box, outline="red", width=3)
 
@@ -137,10 +116,6 @@ def visualize_predictions(images, predictions, subfolder_path):
 
 
 def post_image_to_async(server_url, img_bytes, ocr_data_json):
-    """
-    Posts a single image and matching OCR data to the /batch_async endpoint.
-    The server will queue this request in memory and process it in a batch.
-    """
     start_time = time.time()
     response = requests.post(
         server_url,
@@ -153,7 +128,6 @@ def post_image_to_async(server_url, img_bytes, ocr_data_json):
 
 if __name__ == "__main__":
 
-    # Modify these as needed:
     pdf_path = "figures/test_batch3.pdf"
     server_url = "http://localhost:8000/batch_async"
 
@@ -168,7 +142,6 @@ if __name__ == "__main__":
         end_time = time.time()
         print(f"Conversion completed in {end_time - start_time:.2f} seconds")
 
-        # Prepare data for requests:
         request_data_list = []
         for image_idx, pil_img in enumerate(pdf_images):
             img_byte_arr = io.BytesIO()
@@ -182,7 +155,6 @@ if __name__ == "__main__":
 
             request_data_list.append((img_bytes, ocr_data_json))
 
-        # Send requests concurrently:
         all_predictions = []
         request_times = []
         print(f"Sending {len(request_data_list)} requests to: {server_url}")
@@ -193,7 +165,6 @@ if __name__ == "__main__":
                 for data in request_data_list
             ]
 
-        # Gather results:
         for i, fut in enumerate(futures):
             try:
                 response, req_time = fut.result()
