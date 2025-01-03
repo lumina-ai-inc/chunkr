@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* reset */
 .math-display {
   overflow-x: auto;
@@ -6,10 +7,14 @@
 
 button,
 h3 {
+=======
+.segment-chunk-wrapper button,
+.segment-chunk-wrapper h3 {
+>>>>>>> 28f7f665 (Adding table for dashboard)
   all: unset;
 }
 
-h1 {
+.segment-chunk-wrapper h1 {
   font-size: 28px !important;
   line-height: 36px !important;
   color: hsl(0, 0%, 100%, 0.98);
@@ -17,7 +22,7 @@ h1 {
   font-weight: 700 !important;
 }
 
-h2 {
+.segment-chunk-wrapper h2 {
   font-size: 24px !important;
   line-height: 32px !important;
   color: hsl(0, 0%, 100%, 0.95);
@@ -25,38 +30,38 @@ h2 {
   font-weight: 600 !important;
 }
 
-h3 {
+.segment-chunk-wrapper h3 {
   font-size: 20px !important;
   line-height: 28px !important;
   color: hsl(0, 0%, 100%, 0.9);
 }
 
-h4 {
+.segment-chunk-wrapper h4 {
   font-size: 16px !important;
   line-height: 24px !important;
   color: hsl(0, 0%, 100%, 0.98);
 }
 
-h5 {
+.segment-chunk-wrapper h5 {
   font-size: 14px !important;
   line-height: 20px !important;
   color: hsl(0, 0%, 100%, 0.98);
 }
 
-h6 {
+.segment-chunk-wrapper h6 {
   font-size: 12px !important;
   line-height: 16px !important;
   color: hsl(0, 0%, 100%, 0.98);
 }
 
-p {
+.segment-chunk-wrapper p {
   font-size: 16px !important;
   line-height: 24px !important;
   color: hsl(0, 0%, 100%, 0.98);
   margin-bottom: 16px !important;
 }
 
-table {
+.segment-chunk-wrapper table {
   background-color: unset !important;
   border: none !important;
   box-shadow: none !important;
@@ -64,21 +69,21 @@ table {
   width: 100% !important;
 }
 
-thead {
+.segment-chunk-wrapper thead {
   margin-bottom: 32px !important;
   background-color: hsl(0, 0%, 100%, 0.3) !important;
 }
 
-tr {
+.segment-chunk-wrapper tr {
   background-color: hsla(0, 0%, 100%, 0.03) !important;
   color: #fff !important;
 }
 
-tr:nth-child(even) {
+.segment-chunk-wrapper tr:nth-child(even) {
   background-color: hsla(0, 0%, 100%, 0.1) !important;
 }
 
-th {
+.segment-chunk-wrapper th {
   font-weight: 500 !important;
   font-size: 16px !important;
   align-content: center !important;
@@ -88,7 +93,7 @@ th {
   padding: 8px 12px !important;
 }
 
-td {
+.segment-chunk-wrapper td {
   font-size: 14px !important;
   font-weight: 300 !important;
   border: 1px solid hsl(0, 0%, 100%, 0.4) !important;
@@ -99,8 +104,8 @@ td {
   text-align: center !important;
 }
 
-ul,
-ol {
+.segment-chunk-wrapper ul,
+.segment-chunk-wrapper ol {
   margin-bottom: 16px !important;
   padding-left: 24px !important;
   color: hsl(0, 0%, 100%, 0.8) !important;
@@ -111,7 +116,7 @@ ol {
   border-radius: 4px !important;
 }
 
-li {
+.segment-chunk-wrapper li {
   font-size: 16px !important;
   line-height: 24px !important;
   color: hsl(0, 0%, 100%, 0.98);
@@ -119,20 +124,19 @@ li {
 }
 
 /* Last list item shouldn't have a bottom margin */
-li:last-child {
+.segment-chunk-wrapper li:last-child {
   margin-bottom: 0 !important;
 }
 
 /* Ensure bullet points are visible for unordered lists */
-ul {
+.segment-chunk-wrapper ul {
   list-style-type: disc !important;
 }
 
 /* Ensure numbers are visible for ordered lists */
-ol {
+.segment-chunk-wrapper ol {
   list-style-type: decimal !important;
 }
-
 .AccordionItem {
   overflow: hidden;
   margin-top: 1px;
@@ -201,7 +205,6 @@ ol {
   background-color: rgba(142, 142, 147, 0.5) !important;
   border-radius: 1px;
 }
-
 .AccordionContent[data-state="open"] {
   animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
 }

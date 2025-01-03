@@ -29,8 +29,8 @@ export function useTasksQuery(page: number, limit: number) {
     [`tasks-${page}-${limit}`],
     () => getTasks(page, limit),
     {
-      staleTime: 5000,
-      refetchInterval: 5000,
+      staleTime: 50000,
+      refetchInterval: 50000,
       refetchIntervalInBackground: false,
     }
   );
