@@ -20,6 +20,8 @@ pub struct Config {
     pub pdf_density: f32,
     #[serde(default = "default_queue_task")]
     pub queue_task: String,
+    #[serde(default = "default_max_retries")]
+    pub max_retries: u32,
     #[serde(default = "default_s3_bucket")]
     pub s3_bucket: String,
     #[serde(default = "default_segment_bbox_offset")]
@@ -64,6 +66,10 @@ fn default_pdf_density() -> f32 {
 
 fn default_queue_task() -> String {
     "task".to_string()
+}
+
+fn default_max_retries() -> u32 {
+    3
 }
 
 fn default_s3_bucket() -> String {

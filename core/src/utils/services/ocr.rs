@@ -6,6 +6,7 @@ use crate::{
     utils::configs::worker_config::Config as WorkerConfig,
     utils::db::deadpool_redis::{create_pool as create_redis_pool, Pool},
     utils::rate_limit::{create_general_ocr_rate_limiter, create_llm_rate_limiter, RateLimiter},
+    utils::retry::retry_with_backoff,
     utils::services::html::clean_img_tags,
     utils::services::llm::{get_basic_image_message, open_ai_call},
 };
@@ -176,12 +177,17 @@ pub async fn perform_general_ocr(
 ) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     init_throttle();
     let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
-    rate_limiter
-        .acquire_token_with_timeout(std::time::Duration::from_secs(
-            *TOKEN_TIMEOUT.get().unwrap(),
-        ))
-        .await?;
-    doctr_ocr(temp_file).await
+    Ok(retry_with_backoff(
+        || async {
+            rate_limiter
+                .acquire_token_with_timeout(std::time::Duration::from_secs(
+                    *TOKEN_TIMEOUT.get().unwrap(),
+                ))
+                .await?;
+            doctr_ocr(Arc::clone(&temp_file)).await
+        },
+    )
+    .await?)
 }
 
 pub async fn perform_table_ocr(
