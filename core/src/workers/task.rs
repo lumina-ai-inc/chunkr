@@ -4,7 +4,7 @@ use core::models::chunkr::task::Status;
 use core::models::chunkr::task::TaskPayload;
 use core::models::rrq::queue::QueuePayload;
 use core::pipeline::convert_to_images;
-use core::pipeline::page;
+use core::pipeline::pages;
 use core::pipeline::update_metadata;
 use core::utils::configs::pdfium_config::Config as PdfiumConfig;
 use core::utils::configs::s3_config::create_client;
@@ -23,7 +23,7 @@ async fn execute_step(
     let start = std::time::Instant::now();
     let result = match step {
         "convert_to_images" => convert_to_images::process(pipeline).await,
-        "page" => page::process(pipeline).await,
+        "pages" => pages::process(pipeline).await,
         "update_metadata" => update_metadata::process(pipeline, pg_pool).await,
         _ => Err(format!("Unknown function: {}", step).into()),
     }?;
@@ -46,7 +46,7 @@ async fn execute_step(
 }
 
 fn orchestrate_task() -> Vec<&'static str> {
-    vec!["update_metadata", "convert_to_images", "page"]
+    vec!["update_metadata", "convert_to_images", "pages"]
 }
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
