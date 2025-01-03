@@ -1,5 +1,5 @@
 use crate::models::chunkr::task::Status;
-use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::configs::postgres_config::{Client, Pool};
 use chrono::{DateTime, Utc};
 
 pub async fn log_task(

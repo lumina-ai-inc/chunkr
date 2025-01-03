@@ -1,4 +1,4 @@
-use crate::utils::configs::github_config::Config;
+use crate::configs::github_config::Config;
 use actix_web::HttpResponse;
 use reqwest::Client;
 use serde_json::Value;

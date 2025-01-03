@@ -1,4 +1,4 @@
-use crate::utils::configs::worker_config::Config as WorkerConfig;
+use crate::configs::worker_config::Config as WorkerConfig;
 use tokio::time::sleep;
 use std::time::Duration;
 

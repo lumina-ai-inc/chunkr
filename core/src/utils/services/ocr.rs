@@ -1,10 +1,10 @@
 use crate::{
+    configs::llm_config::{get_prompt, Config as LlmConfig},
+    configs::redis_config::{create_pool as create_redis_pool, Pool},
+    configs::worker_config::Config as WorkerConfig,
     models::chunkr::general_ocr::DoctrResponse,
     models::chunkr::open_ai::MessageContent,
     models::chunkr::output::OCRResult,
-    utils::configs::llm_config::{get_prompt, Config as LlmConfig},
-    utils::configs::worker_config::Config as WorkerConfig,
-    utils::db::deadpool_redis::{create_pool as create_redis_pool, Pool},
     utils::rate_limit::{create_general_ocr_rate_limiter, create_llm_rate_limiter, RateLimiter},
     utils::retry::retry_with_backoff,
     utils::services::html::clean_img_tags,
@@ -177,16 +177,14 @@ pub async fn perform_general_ocr(
 ) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     init_throttle();
     let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
-    Ok(retry_with_backoff(
-        || async {
-            rate_limiter
-                .acquire_token_with_timeout(std::time::Duration::from_secs(
-                    *TOKEN_TIMEOUT.get().unwrap(),
-                ))
-                .await?;
-            doctr_ocr(Arc::clone(&temp_file)).await
-        },
-    )
+    Ok(retry_with_backoff(|| async {
+        rate_limiter
+            .acquire_token_with_timeout(std::time::Duration::from_secs(
+                *TOKEN_TIMEOUT.get().unwrap(),
+            ))
+            .await?;
+        doctr_ocr(Arc::clone(&temp_file)).await
+    })
     .await?)
 }
 
@@ -248,7 +246,7 @@ pub async fn perform_formula_ocr(file_path: &Path) -> Result<String, Box<dyn Err
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::configs::throttle_config::Config as ThrottleConfig;
+    use crate::configs::throttle_config::Config as ThrottleConfig;
 
     #[tokio::test]
     async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {

@@ -1,8 +1,8 @@
 use chrono::Datelike;
 use chrono::NaiveDate;
 use chrono::Utc;
-use crate::utils::configs::stripe_config::Config as StripeConfig;
-use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::configs::stripe_config::Config as StripeConfig;
+use crate::configs::postgres_config::{Client, Pool};
 use reqwest::Client as ReqwestClient;
 use serde_json::json;
 use tokio_postgres::Row;

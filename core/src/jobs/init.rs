@@ -1,6 +1,6 @@
-use crate::utils::configs::expiration_config::Config as ExpirationConfig;
-use crate::utils::configs::stripe_config::Config as StripeConfig;
-use crate::utils::db::deadpool_postgres::Pool;
+use crate::configs::expiration_config::Config as ExpirationConfig;
+use crate::configs::postgres_config::Pool;
+use crate::configs::stripe_config::Config as StripeConfig;
 use crate::utils::jobs::expiration::expire;
 use crate::utils::stripe::invoicer::invoice;
 use aws_sdk_s3::Client as S3Client;

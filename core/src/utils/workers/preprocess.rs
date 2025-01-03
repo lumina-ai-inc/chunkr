@@ -1,9 +1,9 @@
 use crate::models::rrq::queue::QueuePayload;
 use crate::models::chunkr::upload::{ TaskPayload, PdlaModel };
 use crate::models::chunkr::task::Status;
-use crate::utils::configs::worker_config::Config;
-use crate::utils::configs::s3_config::create_client;
-use crate::utils::db::deadpool_postgres::{create_pool, Client};
+use crate::configs::worker_config::Config;
+use crate::configs::s3_config::create_client;
+use crate::configs::postgres_config::{create_pool, Client};
 use crate::utils::services::{
     log::log_task,
     payload::produce_extraction_payloads,

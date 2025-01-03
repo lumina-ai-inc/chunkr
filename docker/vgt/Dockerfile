@@ -6,7 +6,6 @@ RUN apt-get update --fix-missing
 
 WORKDIR /app
 
-# Create all necessary directories first
 RUN mkdir -p /app/src \
     && mkdir -p /app/models \
     && mkdir -p /app/object_detection \
@@ -27,9 +26,12 @@ COPY services/vgt/requirements.txt requirements.txt
 
 RUN pip install --upgrade pip
 RUN pip install huggingface_hub==0.24.3
+RUN pip install wheel setuptools
 
-# Install detectron2 from source
-RUN pip install 'git+https://github.com/facebookresearch/detectron2.git@70f454304e1a38378200459dd2dbca0f0f4a5ab4'
+RUN pip install torch torchvision torchaudio
+
+RUN . $VIRTUAL_ENV/bin/activate && \
+    pip install --no-build-isolation 'git+https://github.com/facebookresearch/detectron2.git@70f454304e1a38378200459dd2dbca0f0f4a5ab4'
 
 RUN pip --default-timeout=1000 install -r requirements.txt
 

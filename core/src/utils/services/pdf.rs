@@ -1,6 +1,6 @@
 use crate::models::chunkr::output::{BoundingBox, OCRResult};
-use crate::utils::configs::pdfium_config::Config as PdfiumConfig;
-use crate::utils::configs::worker_config::Config as WorkerConfig;
+use crate::configs::pdfium_config::Config as PdfiumConfig;
+use crate::configs::worker_config::Config as WorkerConfig;
 use image::ImageFormat;
 use lopdf::Document;
 use pdfium_render::prelude::*;

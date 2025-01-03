@@ -31,8 +31,6 @@ fn default_key() -> String {
     "".to_string()
 }
 
-
-
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
         dotenv_override().ok();
@@ -45,12 +43,30 @@ impl Config {
 
 fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
     let content = match prompt_name {
-        "formula" => include_str!("../prompts/formula.txt"),
-        "structured_extraction" => include_str!("../prompts/structured_extraction.txt"),
-        "html_table" => include_str!("../prompts/html_table.txt"),
-        "md_table" => include_str!("../prompts/md_table.txt"),
-        "html_page" => include_str!("../prompts/html_page.txt"),
-        "md_page" => include_str!("../prompts/md_page.txt"),
+        "formula" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/formula.txt"
+        )),
+        "structured_extraction" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/structured_extraction.txt"
+        )),
+        "html_table" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/html_table.txt"
+        )),
+        "md_table" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_table.txt"
+        )),
+        "html_page" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/html_page.txt"
+        )),
+        "md_page" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_page.txt"
+        )),
         _ => {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::NotFound,

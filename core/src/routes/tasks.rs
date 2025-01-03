@@ -1,7 +1,7 @@
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::tasks::TasksQuery;
-use crate::utils::configs::s3_config::ExternalS3Client;
-use crate::utils::db::deadpool_postgres::Pool;
+use crate::configs::s3_config::ExternalS3Client;
+use crate::configs::postgres_config::Pool;
 use crate::utils::server::get_tasks::get_tasks;
 use actix_web::{web, Error, HttpResponse};
 use aws_sdk_s3::Client as S3Client;

@@ -1,7 +1,7 @@
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::user::{Tier, UsageLimit, UsageType, User};
-use crate::utils::configs::user_config::Config as UserConfig;
-use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::configs::user_config::Config as UserConfig;
+use crate::configs::postgres_config::{Client, Pool};
 use prefixed_api_key::PrefixedApiKeyController;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

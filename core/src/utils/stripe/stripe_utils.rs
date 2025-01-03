@@ -1,5 +1,5 @@
-use crate::utils::configs::stripe_config::Config as StripeConfig;
-use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::configs::stripe_config::Config as StripeConfig;
+use crate::configs::postgres_config::{Client, Pool};
 use reqwest::Client as ReqwestClient;
 
 pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::error::Error>> {

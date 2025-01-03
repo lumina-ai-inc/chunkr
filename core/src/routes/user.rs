@@ -1,5 +1,5 @@
 use crate::models::chunkr::auth::UserInfo;
-use crate::utils::db::deadpool_postgres::Pool;
+use crate::configs::postgres_config::Pool;
 use crate::utils::server::{ get_user::get_user, create_user::create_user };
 use actix_web::{ web, HttpResponse, Error };
 

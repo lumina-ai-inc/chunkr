@@ -44,7 +44,7 @@ pub fn search_embeddings(
 mod tests {
     use super::*;
     use crate::models::chunkr::output::{BoundingBox, SegmentType};
-    use crate::utils::configs::search_config::Config as SearchConfig;
+    use crate::configs::search_config::Config as SearchConfig;
     use crate::utils::services::embeddings::EmbeddingCache;
     use std::error::Error;
     use tokio;

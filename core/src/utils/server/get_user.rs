@@ -1,5 +1,5 @@
 use crate::models::chunkr::user::{Discount, InvoiceStatus, Tier, UsageLimit, UsageType, User};
-use crate::utils::db::deadpool_postgres::{Client, Pool};
+use crate::configs::postgres_config::{Client, Pool};
 use serde_json::Value;
 use std::str::FromStr;
 pub async fn get_user(user_id: String, pool: &Pool) -> Result<User, Box<dyn std::error::Error>> {

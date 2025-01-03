@@ -49,14 +49,13 @@ pub struct TaskResponse {
     Display,
     ToSchema,
 )]
-/// The status of the task. `Cancelled` has not yet been implemented.
+/// The status of the task.
 
 pub enum Status {
     Starting,
     Processing,
     Succeeded,
     Failed,
-    Canceled,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]

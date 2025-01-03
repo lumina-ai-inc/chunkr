@@ -1,5 +1,5 @@
+use crate::configs::worker_config;
 use crate::models::chunkr::structured_extraction::ExtractedJson;
-use crate::utils::configs::worker_config;
 
 use lazy_static::lazy_static;
 use postgres_types::{FromSql, ToSql};
