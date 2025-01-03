@@ -1,7 +1,51 @@
-.MuiPaper-root > :first-child {
-  padding: 0px 10px;
+.Mui-Paper-root > :first-child > .MuiBox-root > .MuiBox-root > .MuiBox-root {
+  gap: 8px;
 }
 
-.MuiPaper-root > :last-child {
-  padding: 0px 10px;
+.MuiBox-root > .MuiBox-root {
+  gap: 8px;
+}
+
+.Mui-TableHeadCell-Content-Actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.Mui-TableHeadCell-Content {
+  gap: 8px;
+}
+
+.MuiPopover-paper {
+  height: unset !important;
+  background-color: rgb(30, 36, 37) !important;
+}
+
+.MuiTableContainer-root {
+  background-color: rgb(30, 36, 37) !important;
+
+  /* Webkit browsers (Chrome, Safari, newer Edge) */
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
