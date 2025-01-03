@@ -1,7 +1,7 @@
+use crate::configs::postgres_config::Pool;
+use crate::configs::stripe_config::Config;
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::user::{InvoiceStatus, Tier, UsageType};
-use crate::configs::stripe_config::Config;
-use crate::configs::postgres_config::Pool;
 use crate::utils::server::get_user::get_monthly_usage_count;
 use crate::utils::server::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe_utils::{
@@ -438,26 +438,23 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
 // Define a route to get invoices for a user
 pub async fn get_user_invoices(
     user_info: web::ReqData<UserInfo>,
-    pool: web::Data<Pool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let user_id = user_info.user_id.clone();
-    let invoices = get_invoices(user_id, &pool).await?;
+    let invoices = get_invoices(user_id).await?;
     Ok(HttpResponse::Ok().json(invoices))
 }
 
 // Define a route to get detailed information for a specific invoice
 pub async fn get_invoice_detail(
     invoice_id: web::Path<String>,
-    pool: web::Data<Pool>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let invoice_detail = get_invoice_information(invoice_id.into_inner(), &pool).await?;
+    let invoice_detail = get_invoice_information(invoice_id.into_inner()).await?;
     Ok(HttpResponse::Ok().json(invoice_detail))
 }
 pub async fn get_monthly_usage(
     user_info: web::ReqData<UserInfo>,
-    pool: web::Data<Pool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let user_id = user_info.user_id.clone();
-    let monthly_usage = get_monthly_usage_count(user_id, &pool).await?;
+    let monthly_usage = get_monthly_usage_count(user_id).await?;
     Ok(HttpResponse::Ok().json(monthly_usage))
 }

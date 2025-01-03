@@ -25,8 +25,6 @@ pub mod pipeline;
 pub mod routes;
 pub mod utils;
 
-use configs::postgres_config;
-use configs::s3_config::{create_client, create_external_client, ExternalS3Client};
 use jobs::init::init_jobs;
 use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
@@ -39,6 +37,7 @@ use routes::task::{create_extraction_task, get_task_status};
 use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
+use utils::clients::initialize_clients;
 use utils::server::admin_user::get_or_create_admin_user;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
@@ -124,16 +123,12 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
         env_logger::init_from_env(Env::default().default_filter_or("info"));
-        let pg_pool = postgres_config::create_pool();
-        let s3_client = create_client().await.expect("Failed to create S3 client");
-        let s3_external_client = create_external_client()
-            .await
-            .expect("Failed to create external S3 client");
+        initialize_clients().await;
         run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
-        get_or_create_admin_user(&pg_pool)
+        get_or_create_admin_user()
             .await
             .expect("Failed to create admin user");
-        init_jobs(pg_pool.clone(), s3_client.clone());
+        init_jobs();
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
             println!("Multipart error: {}", err);
             Error::from(err)
@@ -157,9 +152,6 @@ pub fn main() -> std::io::Result<()> {
                 .wrap(Cors::permissive())
                 .wrap(Logger::default())
                 .wrap(Logger::new("%a %{User-Agent}i"))
-                .app_data(web::Data::new(pg_pool.clone()))
-                .app_data(web::Data::new(s3_client.clone()))
-                .app_data(web::Data::new(ExternalS3Client(s3_external_client.clone())))
                 .app_data(
                     MultipartFormConfig::default()
                         .total_limit(max_size)

@@ -1,12 +1,11 @@
-use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::task::{Configuration, Status, TaskPayload, TaskResponse};
 use crate::configs::expiration_config::Config as ExpirationConfig;
 use crate::configs::worker_config::Config as WorkerConfig;
-use crate::configs::postgres_config::{Client, Pool};
+use crate::models::chunkr::auth::UserInfo;
+use crate::models::chunkr::task::{Configuration, Status, TaskPayload, TaskResponse};
+use crate::utils::clients;
 use crate::utils::services::payload::produce_extraction_payloads;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use actix_multipart::form::tempfile::TempFile;
-use aws_sdk_s3::Client as S3Client;
 use chrono::{DateTime, Utc};
 use std::{
     error::Error,
@@ -16,8 +15,6 @@ use std::{
 use uuid::Uuid;
 
 pub async fn create_task(
-    pool: &Pool,
-    s3_client: &S3Client,
     file: &TempFile,
     user_info: &UserInfo,
     configuration: &Configuration,
@@ -27,7 +24,7 @@ pub async fn create_task(
     let user_id = user_info.user_id.clone();
     let api_key = user_info.api_key.clone();
     let created_at = Utc::now();
-    let client: Client = pool.get().await?;
+    let client = clients::get_pg_client().await?;
     let worker_config = WorkerConfig::from_env()?;
     let expiration_config = ExpirationConfig::from_env()?;
     let expires_in: Option<i32> = configuration.expires_in.or(expiration_config.time);
@@ -66,7 +63,7 @@ pub async fn create_task(
 
     let message = "Task queued".to_string();
 
-    match upload_to_s3(s3_client, &input_location, &file_path).await {
+    match upload_to_s3(&input_location, &file_path).await {
         Ok(_) => {
             let configuration_json = serde_json::to_string(configuration)?;
 
@@ -163,13 +160,12 @@ pub async fn create_task(
                 start_time.elapsed().as_secs_f32()
             );
 
-            let input_file_url =
-                match generate_presigned_url(s3_client, &input_location, None).await {
-                    Ok(response) => Some(response),
-                    Err(_e) => {
-                        return Err("Error getting input file url".into());
-                    }
-                };
+            let input_file_url = match generate_presigned_url(&input_location, true, None).await {
+                Ok(response) => Some(response),
+                Err(_e) => {
+                    return Err("Error getting input file url".into());
+                }
+            };
 
             println!(
                 "Time taken to generate presigned url: {:?}",

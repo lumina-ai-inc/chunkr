@@ -1,14 +1,10 @@
 use crate::configs::worker_config::Config as WorkerConfig;
-use crate::configs::postgres_config::Pool;
+use crate::utils::clients;
 use crate::utils::storage::services::delete_folder;
-use aws_sdk_s3::Client as S3Client;
 use futures::future::try_join_all;
 
-pub async fn expire(
-    pg_pool: &Pool,
-    s3_client: &S3Client,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let client = pg_pool.get().await?;
+pub async fn expire() -> Result<(), Box<dyn std::error::Error>> {
+    let client = clients::get_pg_client().await?;
     let worker_config = WorkerConfig::from_env()?;
     let bucket_name = worker_config.s3_bucket;
 
@@ -23,10 +19,8 @@ pub async fn expire(
         let user_id: &str = row.get("user_id");
         let task_id: &str = row.get("task_id");
         let folder_location = format!("s3://{}/{}/{}", bucket_name, user_id, task_id);
-        let s3_client = s3_client.clone();
-
         async move {
-            if let Err(e) = delete_folder(&s3_client, &folder_location).await {
+            if let Err(e) = delete_folder(&folder_location).await {
                 println!("Error deleting S3 folder {}: {:?}", folder_location, e);
             }
             Ok::<_, Box<dyn std::error::Error>>(())

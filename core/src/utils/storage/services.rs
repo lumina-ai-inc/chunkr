@@ -1,8 +1,8 @@
-use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream, Client as S3Client};
+use crate::utils::clients;
+use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream};
 use bytes::Bytes;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use reqwest::Client;
 use std::io::copy;
 use std::path::Path;
 use std::time::Duration;
@@ -29,32 +29,32 @@ pub fn validate_s3_path(s3_path: &str) -> Result<(), Box<dyn std::error::Error>>
 }
 
 pub async fn generate_presigned_url(
-    s3_client: &S3Client,
     location: &str,
+    external: bool,
     expires_in: Option<Duration>,
 ) -> Result<String, Box<dyn std::error::Error>> {
+    let s3_client = if external {
+        clients::get_external_s3_client()
+    } else {
+        clients::get_s3_client()
+    };
     let expiration = expires_in.unwrap_or(Duration::from_secs(3600));
-
     let (bucket, key) = extract_bucket_and_key(location)?;
-
     let mut get_object = s3_client.get_object().bucket(bucket).key(key);
-
     get_object = get_object
         .response_content_disposition("inline")
         .response_content_encoding("utf-8");
-
     let presigned_request = get_object
         .presigned(PresigningConfig::expires_in(expiration)?)
         .await?;
-
     Ok(presigned_request.uri().to_string())
 }
 
 pub async fn upload_to_s3_from_memory(
-    s3_client: &S3Client,
     s3_path: &str,
     content: &[u8],
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let s3_client = clients::get_s3_client();
     let (bucket, key) = parse_s3_path(s3_path)?;
     s3_client
         .put_object()
@@ -76,12 +76,11 @@ fn parse_s3_path(s3_path: &str) -> Result<(String, String), Box<dyn std::error::
 }
 
 pub async fn upload_to_s3(
-    s3_client: &S3Client,
     s3_location: &str,
     file_path: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let s3_client = clients::get_s3_client();
     let file_content = tokio::fs::read(file_path).await?;
-
     let (bucket, key) = extract_bucket_and_key(s3_location)?;
     s3_client
         .put_object()
@@ -95,13 +94,11 @@ pub async fn upload_to_s3(
 }
 
 pub async fn download_to_tempfile(
-    s3_client: &S3Client,
-    reqwest_client: &Client,
     location: &str,
     expires_in: Option<Duration>,
 ) -> Result<NamedTempFile, Box<dyn std::error::Error>> {
-    let unsigned_url = generate_presigned_url(s3_client, location, expires_in).await?;
-
+    let reqwest_client = clients::get_reqwest_client();
+    let unsigned_url = generate_presigned_url(location, false, expires_in).await?;
     let mut temp_file = NamedTempFile::new()?;
     let content = reqwest_client
         .get(&unsigned_url)
@@ -116,13 +113,11 @@ pub async fn download_to_tempfile(
 
 pub async fn download_to_given_tempfile(
     mut temp_file: &NamedTempFile,
-    s3_client: &S3Client,
-    reqwest_client: &Client,
     location: &str,
     expires_in: Option<Duration>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let unsigned_url = generate_presigned_url(s3_client, location, expires_in).await?;
-
+    let reqwest_client = clients::get_reqwest_client();
+    let unsigned_url = generate_presigned_url(location, false, expires_in).await?;
     let content = reqwest_client
         .get(&unsigned_url)
         .send()
@@ -134,10 +129,8 @@ pub async fn download_to_given_tempfile(
     Ok(())
 }
 
-pub async fn delete_folder(
-    s3_client: &S3Client,
-    location: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn delete_folder(location: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let s3_client = clients::get_s3_client();
     let (bucket, prefix) = extract_bucket_and_key(location)?;
     let objects = s3_client
         .list_objects_v2()
@@ -150,7 +143,6 @@ pub async fn delete_folder(
         let bucket = bucket.clone();
         let key = object.key().unwrap().to_string();
         let s3_client = s3_client.clone();
-
         async move {
             s3_client
                 .delete_object()

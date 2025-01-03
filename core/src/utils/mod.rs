@@ -1,3 +1,4 @@
+pub mod clients;
 pub mod jobs;
 pub mod rate_limit;
 pub mod retry;

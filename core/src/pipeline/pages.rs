@@ -33,7 +33,7 @@ async fn ocr_pages_auto(
     pipeline: &mut Pipeline,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error>> {
     let pages = pipeline.pages.as_ref().unwrap();
-    let pdf_ocr_results = match pdf::extract_ocr_results(pipeline.pdf_file.as_ref()) {
+    let pdf_ocr_results = match pdf::extract_ocr_results(pipeline.pdf_file.as_ref().unwrap()) {
         Ok(ocr_results) => ocr_results,
         Err(e) => {
             println!("Error getting pdf ocr results: {:?}", e);
@@ -67,16 +67,23 @@ async fn segment_pages(
     pipeline: &mut Pipeline,
     page_ocr_results: Vec<Vec<OCRResult>>,
 ) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error>> {
-    let futures = pipeline
-        .pages
-        .as_ref()
-        .unwrap()
-        .iter()
-        .enumerate()
-        .map(|(page_idx, page)| segmentation::perform_segmentation(page.clone(), page_ocr_results[page_idx].clone(),  ((page_idx + 1)).try_into().unwrap()));
+    // let futures = pipeline
+    //     .pages
+    //     .as_ref()
+    //     .unwrap()
+    //     .iter()
+    //     .enumerate()
+    //     .map(|(page_idx, page)| {
+    //         segmentation::create_segments(
+    //             page.clone(),
+    //             page_ocr_results[page_idx].clone(),
+    //             (page_idx + 1).try_into().unwrap(),
+    //         )
+    //     });
 
-    let segments = try_join_all(futures).await?;
-    Ok(segments)
+    // let segments = try_join_all(futures).await?;
+    todo!()
+    // Ok(segments)
 }
 
 fn merge_segments_with_ocr(
@@ -119,7 +126,13 @@ fn merge_segments_with_ocr(
 pub async fn process(
     pipeline: &mut Pipeline,
 ) -> Result<(Status, Option<String>), Box<dyn std::error::Error>> {
-    let page_ocr_results = match pipeline.task_payload.current_configuration.ocr_strategy {
+    let page_ocr_results = match pipeline
+        .task_payload
+        .as_ref()
+        .unwrap()
+        .current_configuration
+        .ocr_strategy
+    {
         OcrStrategy::All => ocr_pages_all(pipeline).await?,
         OcrStrategy::Auto => ocr_pages_auto(pipeline).await?,
     };
@@ -131,6 +144,8 @@ pub async fn process(
         segments_with_ocr.into_iter().flatten().collect(),
         pipeline
             .task_payload
+            .as_ref()
+            .unwrap()
             .current_configuration
             .target_chunk_length,
     )?;
