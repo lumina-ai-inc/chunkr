@@ -67,7 +67,7 @@ pub struct Configuration {
     pub ocr_strategy: OcrStrategy,
     pub segment_processing: Option<SegmentProcessing>,
     pub segmentation_strategy: Option<SegmentationStrategy>,
-    pub target_chunk_length: Option<i32>,
+    pub target_chunk_length: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated]
     pub model: Option<Model>,

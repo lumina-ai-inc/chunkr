@@ -2,101 +2,59 @@ use crate::models::chunkr::output::{Chunk, Segment, SegmentType};
 
 pub fn hierarchical_chunking(
     segments: Vec<Segment>,
-    target_length: Option<i32>,
+    target_length: i32,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let mut chunks: Vec<Chunk> = Vec::new();
-    let target_length = target_length.unwrap_or(512);
-
-    if target_length == 0 {
-        // If target_length is 0, create a chunk for each segment
+    if target_length == 0 || target_length == 1 {
         for segment in segments {
-            chunks.push(Chunk {
-                segments: vec![segment.clone()],
-                chunk_length: segment.content.split_whitespace().count() as i32,
-            });
+            chunks.push(Chunk::new(vec![segment.clone()]));
         }
     } else {
-        let mut current_chunk: Vec<Segment> = Vec::new();
+        let mut current_segments: Vec<Segment> = Vec::new();
         let mut current_word_count = 0;
 
-        fn finalize_chunk(chunk: &mut Vec<Segment>, chunks: &mut Vec<Chunk>) {
-            if !chunk.is_empty() {
-                let chunk_length = chunk
-                    .iter()
-                    .map(|s| s.content.split_whitespace().count())
-                    .sum::<usize>() as i32;
-                chunks.push(Chunk {
-                    segments: chunk.clone(),
-                    chunk_length,
-                });
-                chunk.clear();
+        fn finalize_and_start_new_chunk(chunks: &mut Vec<Chunk>, segments: &mut Vec<Segment>) {
+            if !segments.is_empty() {
+                chunks.push(Chunk::new(segments.clone()));
+                segments.clear();
             }
         }
 
         for segment in segments.iter() {
             let segment_word_count = segment.content.split_whitespace().count() as i32;
-
             match segment.segment_type {
-                SegmentType::Title => {
-                    finalize_chunk(&mut current_chunk, &mut chunks);
-                    chunks.push(Chunk {
-                        segments: vec![segment.clone()],
-                        chunk_length: segment_word_count,
-                    });
-                    current_word_count = 0;
-                }
-                SegmentType::SectionHeader => {
-                    if !current_chunk.is_empty()
-                        && current_chunk.last().unwrap().segment_type != SegmentType::SectionHeader
-                    {
-                        finalize_chunk(&mut current_chunk, &mut chunks);
-                        current_word_count = 0;
-                    }
-                    current_chunk.push(segment.clone());
-                    current_word_count += segment_word_count;
-                }
-                SegmentType::PageHeader | SegmentType::PageFooter => {
-                    // Ignore headers and footers
+                // titles and section headers must start a new chunk
+                SegmentType::Title | SegmentType::SectionHeader => {
+                    finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                    current_segments.push(segment.clone());
+                    current_word_count = segment_word_count;
                     continue;
                 }
-                _ => {
-                    if current_word_count + segment_word_count > target_length {
-                        finalize_chunk(&mut current_chunk, &mut chunks);
-                        current_word_count = 0;
-                    }
-                    current_chunk.push(segment.clone());
-                    current_word_count += segment_word_count;
+                // headers and footers are 1 chunk each
+                SegmentType::PageHeader | SegmentType::PageFooter => {
+                    finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                    current_segments.push(segment.clone());
+                    finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                    current_word_count = 0;
+                    continue;
                 }
+                _ => {}
             }
 
-            // If a single segment is greater than target_length, break it
-            if segment_word_count > target_length {
-                finalize_chunk(&mut current_chunk, &mut chunks);
-                chunks.push(Chunk {
-                    segments: vec![segment.clone()],
-                    chunk_length: segment_word_count,
-                });
-                current_word_count = 0;
+            if current_word_count + segment_word_count > target_length {
+                finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                current_segments.push(segment.clone());
+                current_word_count = segment_word_count;
+            } else {
+                current_segments.push(segment.clone());
+                current_word_count += segment_word_count;
             }
         }
 
-        // Add the last chunk if it's not empty
-        finalize_chunk(&mut current_chunk, &mut chunks);
+        finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
     }
 
-    // Remove any empty chunks (shouldn't be necessary, but just in case)
-    chunks.retain(|chunk| !chunk.segments.is_empty());
-
     Ok(chunks)
-}
-
-pub async fn process_bounding_boxes(
-    file_path: &str,
-    target_size: usize,
-) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
-    let file_content = tokio::fs::read_to_string(file_path).await?;
-    let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
-    Ok(hierarchical_chunking(segments, Some(target_size as i32))?)
 }
 
 #[cfg(test)]
@@ -107,6 +65,15 @@ mod tests {
 
     #[tokio::test]
     async fn test_process_bounding_boxes() -> Result<(), Box<dyn std::error::Error>> {
+        async fn process_bounding_boxes(
+            file_path: &str,
+            target_size: usize,
+        ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
+            let file_content = tokio::fs::read_to_string(file_path).await?;
+            let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
+            Ok(hierarchical_chunking(segments, target_size as i32)?)
+        }
+
         // Load the bounding_boxes.json file
         let mut input_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         input_path
