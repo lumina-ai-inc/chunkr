@@ -31,8 +31,15 @@ COPY --chown=python:python . .
 RUN pip install --upgrade pip
 RUN pip install huggingface_hub==0.24.3
 
-# Install detectron2 from source
-RUN pip install 'git+https://github.com/facebookresearch/detectron2.git@70f454304e1a38378200459dd2dbca0f0f4a5ab4'
+# Install build dependencies
+RUN pip install wheel setuptools
+
+# Install PyTorch first
+RUN pip install torch torchvision torchaudio
+
+# Install detectron2 from source with build dependencies
+RUN . $VIRTUAL_ENV/bin/activate && \
+    pip install --no-build-isolation 'git+https://github.com/facebookresearch/detectron2.git@70f454304e1a38378200459dd2dbca0f0f4a5ab4'
 
 RUN pip --default-timeout=1000 install -r requirements.txt
 

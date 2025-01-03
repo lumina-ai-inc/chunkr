@@ -71,6 +71,17 @@ class BoundingBox(BaseModel):
     x2: float
     y2: float
 
+class BoundingBoxOutput(BaseModel):
+    left: float
+    top: float
+    width: float 
+    height: float
+
+class InstanceOutput(BaseModel):
+    boxes: list[BoundingBoxOutput]
+    scores: list[float]
+    classes: list[int]
+    image_size: tuple[int, int]
 class Instance(BaseModel):
     boxes: List[BoundingBox]
     scores: List[float]
@@ -90,14 +101,28 @@ class ODTask(BaseModel):
 
 class ODResponse(BaseModel):
     predictions: List[SerializablePrediction]
-
-class OcrWord(BaseModel):
-    left: float
-    top: float
-    width: float
-    height: float
+    
+class OCRInput(BaseModel):
+    bbox: BoundingBox
     text: str
     confidence: float = 1.0
+class OCRInput(BaseModel):
+    bbox: BoundingBoxOutput
+    text: str
+    confidence: float = 1.0
+    
+    def to_ocr_input(self) -> OCRInput:
+        return OCRInput(
+            bbox=BoundingBox(
+                x1=self.bbox.left,
+                y1=self.bbox.top,
+                x2=self.bbox.left + self.bbox.width,
+                y2=self.bbox.top + self.bbox.height
+            ),
+            text=self.text,
+            confidence=self.confidence
+        )
+
 
 def tokenize_texts(text_body: List[str]) -> List[List[int]]:
     tokenized = tokenizer.batch_encode_plus(
@@ -119,8 +144,8 @@ def readjust_bbox_coords(bounding_boxes: List[Tuple[float,float,float,float]], t
             adjusted.append(box)
     return adjusted
 
-def create_grid_dict_from_ocr(ocr_words: List[OcrWord]) -> dict:
-    if not ocr_words:
+def create_grid_dict_from_ocr(ocr_results: List[OCRInput]) -> dict:
+    if not ocr_results:
         return {
             "input_ids": [],
             "bbox_subword_list": [],
@@ -129,9 +154,10 @@ def create_grid_dict_from_ocr(ocr_words: List[OcrWord]) -> dict:
         }
     texts = []
     boxes = []
-    for w in ocr_words:
-        texts.append(w.text)
-        boxes.append((w.left, w.top, w.width, w.height))
+    for result in ocr_results:
+        texts.append(result.text)
+        bbox = result.bbox
+        boxes.append((bbox["left"], bbox["top"], bbox["width"], bbox["height"]))
     sub_tokens = tokenize_texts(texts)
     input_ids = []
     for st in sub_tokens:
@@ -478,7 +504,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.post("/batch_async", response_model=SerializablePrediction)
+class FinalPrediction(BaseModel):
+    instances: InstanceOutput
+
+
+@app.post("/batch_async", response_model=FinalPrediction)
 async def create_od_task(
     file: UploadFile = File(...),
     ocr_data: str = Form(...)
@@ -487,15 +517,35 @@ async def create_od_task(
     if not ocr_data:
         ocr_words = []
     else:
-        ocr_words = [OcrWord(**x) for x in json.loads(ocr_data)]
+        ocr_words = [OCRInput(**x) for x in json.loads(ocr_data)]
+        
     grid_dict = create_grid_dict_from_ocr(ocr_words)
     future = asyncio.Future()
     task = ODTask(file_data=image_data, grid_dict=grid_dict, future=future)
     pending_tasks.append(task)
     batch_event.set()
-    result = await future  
-
-    return result[0] 
+    result = await future
+    
+    serializable_pred = result[0]
+    converted_boxes = []
+    for box in serializable_pred.instances.boxes:
+        converted_boxes.append(BoundingBoxOutput(
+            left=box.x1,
+            top=box.y1,
+            width=box.x2 - box.x1,
+            height=box.y2 - box.y1
+        ))
+        
+    final_pred = FinalPrediction(
+        instances=InstanceOutput(
+            boxes=converted_boxes,
+            scores=serializable_pred.instances.scores,
+            classes=serializable_pred.instances.classes,
+            image_size=serializable_pred.instances.image_size
+        )
+    )
+    
+    return final_pred
 
 @app.get("/")
 async def root():
