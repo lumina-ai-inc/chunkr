@@ -11,7 +11,7 @@ pub struct Config {
 }
 
 fn default_dense_vector_url() -> String {
-    "http://localhost:8007".to_string()
+    "http://localhost:8003".to_string()
 }
 
 fn default_dense_vector_api_key() -> String {

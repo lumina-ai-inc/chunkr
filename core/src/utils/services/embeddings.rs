@@ -109,8 +109,8 @@ impl EmbeddingCache {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
     use crate::configs::search_config::Config as SearchConfig;
+    use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
     use tokio;
     #[tokio::test]
     async fn embeddings() {
@@ -132,7 +132,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("**Today is a nice day**".to_string()),
@@ -150,7 +150,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("_I like you_".to_string()),

@@ -22,6 +22,7 @@ pub async fn initialize_clients() {
             .unwrap()
     });
     PG_POOL.get_or_init(|| create_pool());
+    println!("Clients initialized");
 }
 
 pub fn get_reqwest_client() -> &'static ReqwestClient {

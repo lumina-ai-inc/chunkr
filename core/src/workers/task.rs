@@ -1,4 +1,3 @@
-use chrono::Utc;
 use core::configs::pdfium_config::Config as PdfiumConfig;
 use core::configs::worker_config::Config as WorkerConfig;
 use core::models::chunkr::pipeline::Pipeline;
@@ -18,7 +17,7 @@ async fn execute_step(
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("Executing step: {}", step);
     let start = std::time::Instant::now();
-    let result = match step {
+    match step {
         "convert_to_images" => convert_to_images::process(pipeline).await,
         "pages" => pages::process(pipeline).await,
         "update_metadata" => update_metadata::process(pipeline).await,
@@ -31,9 +30,6 @@ async fn execute_step(
         duration,
         pipeline.page_count.unwrap_or(0)
     );
-    pipeline
-        .update_status(result.0.clone(), Some(result.1.clone().unwrap_or_default()))
-        .await?;
     Ok(())
 }
 

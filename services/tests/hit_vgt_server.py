@@ -120,7 +120,7 @@ def post_image_to_async(server_url, img_bytes, ocr_data_json):
     response = requests.post(
         server_url,
         files=[("file", ("image.jpg", img_bytes, "image/jpeg"))],
-        data={"ocr_data": ocr_data_json}
+        data={"ocr_data": {"data": ocr_data_json}}
     )
     elapsed = time.time() - start_time
     return response, elapsed
@@ -128,8 +128,8 @@ def post_image_to_async(server_url, img_bytes, ocr_data_json):
 
 if __name__ == "__main__":
 
-    pdf_path = "figures/test_batch3.pdf"
-    server_url = "http://localhost:8000/batch_async"
+    pdf_path = "figures/test_batch.pdf"
+    server_url = "http://localhost:8001/batch_async"
 
     for use_tesseract_ocr in [True, False]:
         ocr_mode = "with_ocr" if use_tesseract_ocr else "without_ocr"

@@ -43,8 +43,8 @@ pub fn search_embeddings(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::chunkr::output::{BoundingBox, SegmentType};
     use crate::configs::search_config::Config as SearchConfig;
+    use crate::models::chunkr::output::{BoundingBox, SegmentType};
     use crate::utils::services::embeddings::EmbeddingCache;
     use std::error::Error;
     use tokio;
@@ -68,7 +68,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("**Apple**".to_string()),
@@ -86,7 +86,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("_Orange_".to_string()),
@@ -104,7 +104,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("_Carrot_".to_string()),
@@ -122,7 +122,7 @@ mod tests {
                 page_width: 1000.0,
                 page_height: 1000.0,
                 segment_type: SegmentType::Text,
-                ocr: None,
+                ocr: vec![],
                 image: None,
                 html: None,
                 markdown: Some("_Lemon_".to_string()),
