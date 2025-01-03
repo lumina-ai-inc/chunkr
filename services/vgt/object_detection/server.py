@@ -102,28 +102,12 @@ class ODTask(BaseModel):
 
 class ODResponse(BaseModel):
     predictions: List[SerializablePrediction]
-    
-class OCRInput(BaseModel):
-    bbox: BoundingBox
-    text: str
-    confidence: float = 1.0
+
     
 class OCRInput(BaseModel):
     bbox: BoundingBoxOutput
     text: str
     confidence: float = 1.0
-    
-    def to_ocr_input(self) -> OCRInput:
-        return OCRInput(
-            bbox=BoundingBox(
-                x1=self.bbox.left,
-                y1=self.bbox.top,
-                x2=self.bbox.left + self.bbox.width,
-                y2=self.bbox.top + self.bbox.height
-            ),
-            text=self.text,
-            confidence=self.confidence
-        )
 
 
 def tokenize_texts(text_body: List[str]) -> List[List[int]]:
