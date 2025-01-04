@@ -1,3 +1,4 @@
+use crate::models::chunkr::cropping::CroppingStrategy;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
@@ -55,12 +56,19 @@ impl Default for SegmentProcessing {
     }
 }
 
+// TODO: Change to macro
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
-/// Controls the generation for the `html`, `llm` and `markdown` fields for the segment.
+/// Controls the processing and generation for the segment.
+/// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
+///   The cropped image will be stored in the segment's `image_url` field. Use `All` to always crop,
+///   or `Auto` to only crop when needed for post-processing.
 /// - `html` is the HTML output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 /// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
 /// - `markdown` is the Markdown output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 pub struct AutoGenerationConfig {
+    #[serde(default = "default_cropping_strategy")]
+    #[schema(value_type = CroppingStrategy, default = "Auto")]
+    pub crop_image: CroppingStrategy,
     #[serde(default = "default_auto_generation_strategy")]
     #[schema(default = "Auto")]
     pub html: GenerationStrategy,
@@ -71,11 +79,17 @@ pub struct AutoGenerationConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
-/// Controls the generation for the `html`, `llm` and `markdown` fields for the segment.
+/// Controls the processing and generation for the segment.
+/// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
+///   The cropped image will be stored in the segment's `image_url` field. Use `All` to always crop,
+///   or `Auto` to only crop when needed for post-processing.
 /// - `html` is the HTML output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 /// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
 /// - `markdown` is the Markdown output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 pub struct LlmGenerationConfig {
+    #[serde(default = "default_cropping_strategy")]
+    #[schema(value_type = CroppingStrategy, default = "Auto")]
+    pub crop_image: CroppingStrategy,
     #[serde(default = "default_llm_generation_strategy")]
     #[schema(default = "LLM")]
     pub html: GenerationStrategy,
@@ -83,6 +97,10 @@ pub struct LlmGenerationConfig {
     #[serde(default = "default_llm_generation_strategy")]
     #[schema(default = "LLM")]
     pub markdown: GenerationStrategy,
+}
+
+fn default_cropping_strategy() -> CroppingStrategy {
+    CroppingStrategy::Auto
 }
 
 fn default_auto_generation_strategy() -> GenerationStrategy {
@@ -99,6 +117,7 @@ impl Default for AutoGenerationConfig {
             html: GenerationStrategy::Auto,
             llm: None,
             markdown: GenerationStrategy::Auto,
+            crop_image: default_cropping_strategy(),
         }
     }
 }
@@ -109,6 +128,7 @@ impl Default for LlmGenerationConfig {
             html: GenerationStrategy::LLM,
             llm: None,
             markdown: GenerationStrategy::LLM,
+            crop_image: default_cropping_strategy(),
         }
     }
 }
@@ -120,6 +140,7 @@ pub enum GenerationStrategy {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
+/// Controls the LLM-generated output for the segment.
 pub struct LlmConfig {
     pub model: String,
     pub prompt: String,

@@ -73,19 +73,33 @@ pub async fn create_extraction_task(
     let form = form.into_inner();
     let file_data = &form.file;
     let configuration = Configuration {
-        target_chunk_length: form
-            .target_chunk_length
-            .map(|t| t.into_inner())
-            .unwrap_or(512),
+        chunk_processing: form
+            .chunk_processing
+            .map(|cp| cp.into_inner())
+            .unwrap_or_default(),
+        expires_in: form.expires_in.map(|e| e.into_inner()),
+        high_resolution: form
+            .high_resolution
+            .map(|hr| hr.into_inner())
+            .unwrap_or(false),
+        json_schema: form.json_schema.map(|js| js.into_inner()),
+        model: None,
         ocr_strategy: form
             .ocr_strategy
             .map(|t| t.into_inner())
             .unwrap_or(OcrStrategy::default()),
-        json_schema: form.json_schema.map(|js| js.into_inner()),
-        segment_processing: form.segment_processing.map(|sp| sp.into_inner()),
-        segmentation_strategy: form.segmentation_strategy.map(|ss| ss.into_inner()),
-        expires_in: form.expires_in.map(|e| e.into_inner()),
-        model: None,
+        segment_processing: form
+            .segment_processing
+            .map(|sp| sp.into_inner())
+            .unwrap_or_default(),
+        segmentation_strategy: form
+            .segmentation_strategy
+            .map(|ss| ss.into_inner())
+            .unwrap_or_default(),
+        target_chunk_length: form
+            .target_chunk_length
+            .map(|t| t.into_inner())
+            .or(Some(512)),
     };
 
     let result = create_task(file_data, &user_info, &configuration).await;
