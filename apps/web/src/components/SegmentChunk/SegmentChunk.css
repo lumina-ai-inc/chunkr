@@ -1,8 +1,7 @@
 .segment-chunk {
   width: 100%;
-  padding: 16px;
+  padding: 1rem 1rem 1.5rem;
   border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
-  background-color: hsla(0, 0%, 0%, 0.3);
 }
 
 .segment-chunk:last-child {
@@ -11,7 +10,7 @@
 
 .segment-content {
   color: hsla(0, 0%, 100%, 0.9);
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.6;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, sans-serif;
@@ -21,7 +20,7 @@
 /* Typography enhancements */
 .segment-chunk p {
   margin: 0 0 1.5em 0;
-  max-width: 70ch; /* Optimal reading length */
+  max-width: 70ch; /* Keep ch for readability */
 }
 
 .segment-chunk h1,
@@ -32,15 +31,15 @@
 .segment-chunk h6 {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   letter-spacing: -0.02em;
-  margin-top: 2em !important;
+  margin-top: 0.25rem !important;
 }
 
 /* Structured view styles */
 .structured-segment {
-  padding: 16px;
+  padding: 1rem;
   border: 1px solid hsla(0, 0%, 100%, 0.1);
-  border-radius: 4px;
-  margin-bottom: 16px;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
   background-color: hsla(0, 0%, 0%, 0.2);
 }
 
@@ -49,100 +48,109 @@
 }
 
 .segment-type {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: hsla(0, 0%, 100%, 0.6);
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 /* Preserve existing heading styles */
 .segment-chunk h1 {
-  font-size: 28px !important;
-  line-height: 36px !important;
+  font-size: 1.75rem !important;
+  line-height: 2.25rem !important;
   color: hsl(0, 0%, 100%, 0.98);
-  margin-bottom: 24px !important;
+  margin-bottom: 1.5rem !important;
   font-weight: 700 !important;
 }
 
 .segment-chunk h2 {
-  font-size: 24px !important;
-  line-height: 32px !important;
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
   color: hsl(0, 0%, 100%, 0.95);
-  margin-bottom: 16px !important;
+  margin-bottom: 1rem !important;
   font-weight: 600 !important;
 }
 
 .segment-chunk h3 {
-  font-size: 20px !important;
-  line-height: 28px !important;
+  font-size: 1.25rem !important;
+  line-height: 1.75rem !important;
   color: hsl(0, 0%, 100%, 0.9);
 }
 
 .segment-chunk h4 {
-  font-size: 16px !important;
-  line-height: 24px !important;
+  font-size: 1rem !important;
+  line-height: 1.5rem !important;
   color: hsl(0, 0%, 100%, 0.98);
 }
 
 .segment-chunk h5 {
-  font-size: 14px !important;
-  line-height: 20px !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
   color: hsl(0, 0%, 100%, 0.98);
 }
 
 .segment-chunk h6 {
-  font-size: 12px !important;
-  line-height: 16px !important;
+  font-size: 0.75rem !important;
+  line-height: 1rem !important;
   color: hsl(0, 0%, 100%, 0.98);
 }
 
 /* Table styles */
 .segment-chunk table {
   width: 100% !important;
-  margin-bottom: 16px !important;
-  border-collapse: collapse;
-  border-radius: 8px !important;
+  margin-bottom: 1rem !important;
+  border-collapse: collapse !important;
+  border-radius: 0.125rem !important;
   overflow: hidden !important;
-  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, 0.1) !important;
+  background: hsla(230, 15%, 15%, 0.2) !important;
+  outline: 1px solid hsla(0, 0%, 100%, 0.1) !important;
 }
 
 .segment-chunk thead {
-  background-color: hsla(230, 15%, 20%, 0.8) !important;
+  background-color: hsla(230, 15%, 18%, 0.8) !important;
 }
 
 .segment-chunk tr {
-  background-color: hsla(0, 0%, 100%, 0.03) !important;
+  border-bottom: 1px solid hsla(0, 0%, 100%, 0.1) !important;
 }
 
-.segment-chunk tr:nth-child(even) {
-  background-color: hsla(0, 0%, 100%, 0.1) !important;
+.segment-chunk tr:last-child {
+  border-bottom: none !important;
 }
 
 .segment-chunk th,
 .segment-chunk td {
-  padding: 8px 12px !important;
-  border: 1px solid hsla(0, 0%, 100%, 0.2) !important;
+  padding: 0.75rem 1rem !important;
+  text-align: left !important;
   color: hsla(0, 0%, 100%, 0.9) !important;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
+  border-right: 1px solid hsla(0, 0%, 100%, 0.1) !important;
+}
+
+.segment-chunk th:last-child,
+.segment-chunk td:last-child {
+  border-right: none !important;
 }
 
 .segment-chunk th {
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  font-size: 0.9em !important;
-  letter-spacing: 0.05em !important;
+  font-weight: 500 !important;
+  color: hsla(0, 0%, 100%, 0.7) !important;
+  font-size: 13px !important;
+  border-bottom: 1px solid hsla(0, 0%, 100%, 0.1) !important;
 }
 
 /* List styles */
 .segment-chunk ul,
 .segment-chunk ol {
-  margin: 16px 0 !important;
-  padding-left: 24px !important;
+  margin: 1rem 0 !important;
+  padding-left: 1.5rem !important;
 }
 
 .segment-chunk li {
-  margin-bottom: 8px !important;
+  margin-bottom: 0.5rem !important;
   color: hsla(0, 0%, 100%, 0.9) !important;
 }
 
@@ -178,8 +186,8 @@
 /* Code blocks and inline code */
 .segment-chunk pre {
   background: hsla(230, 15%, 15%, 0.8) !important;
-  border-radius: 8px !important;
-  padding: 16px 20px !important;
+  border-radius: 0.5rem !important;
+  padding: 1rem 1.25rem !important;
   overflow-x: auto !important;
   border: 1px solid hsla(0, 0%, 100%, 0.1) !important;
   margin: 1.5em 0 !important;
@@ -189,19 +197,19 @@
   font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace !important;
   font-size: 0.9em !important;
   padding: 0.2em 0.4em !important;
-  border-radius: 4px !important;
+  border-radius: 0.25rem !important;
   background: hsla(0, 0%, 100%, 0.1) !important;
   color: hsla(0, 0%, 100%, 0.95) !important;
 }
 
 /* Blockquotes */
 .segment-chunk blockquote {
-  border-left: 4px solid hsla(230, 100%, 70%, 0.5) !important;
+  border-left: 0.25rem solid hsla(230, 100%, 70%, 0.5) !important;
   margin: 1.5em 0 !important;
   padding: 0.5em 0 0.5em 1.5em !important;
   font-style: italic !important;
   background: hsla(230, 15%, 15%, 0.3) !important;
-  border-radius: 0 4px 4px 0 !important;
+  border-radius: 0 0.25rem 0.25rem 0 !important;
 }
 
 /* LaTeX/Math formatting */
@@ -221,6 +229,76 @@
 .segment-chunk img {
   max-width: 100% !important;
   height: auto !important;
-  border-radius: 8px !important;
+  border-radius: 2px !important;
   margin: 1.5em 0 !important;
+}
+
+.segment-item.active,
+.structured-segment.active {
+  border: 2px solid var(--accent-9);
+  background-color: var(--accent-3);
+  scroll-margin-top: 24px;
+}
+
+.loading-more-segments {
+  padding: 1rem;
+  text-align: center;
+  color: var(--gray-11);
+  font-size: 0.875rem;
+}
+
+.segment-content-wrapper {
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.segment-content-wrapper:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.segment-content-wrapper.active {
+  background: rgba(2, 5, 6, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.segment-item,
+.structured-segment {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(2, 5, 6, 0.95);
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.segment-item:hover,
+.structured-segment:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.segment-item.active,
+.structured-segment.active {
+  background: rgba(2, 5, 6, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  scroll-margin-top: 24px;
+}
+
+/* LaTeX/Math formatting */
+.latex-content .math-display {
+  margin: 1.5em 0 !important;
+  padding: 1em !important;
+  background: hsla(230, 15%, 15%, 0.3) !important;
+  border-radius: 8px !important;
+  overflow-x: auto !important;
+}
+
+.latex-content .math-inline {
+  padding: 0 0.2em !important;
 }

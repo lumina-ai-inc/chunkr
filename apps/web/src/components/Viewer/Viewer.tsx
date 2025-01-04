@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback, useMemo } from "react";
-import { Flex, ScrollArea, Text } from "@radix-ui/themes";
+import { useRef, useState, useCallback, useMemo, useEffect, memo } from "react";
+import { Flex, Text } from "@radix-ui/themes";
 import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
 import { Chunk } from "../../models/chunk.model";
@@ -10,13 +10,15 @@ import ReactJson from "react-json-view";
 import DOMPurify from "dompurify";
 import BetterButton from "../BetterButton/BetterButton";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import Dropdown from "../Dropdown/Dropdown";
 
 interface ViewerProps {
   output: Output;
   inputFileUrl: string;
   task: TaskResponse;
 }
+
+// Memoize the entire PDF component
+const MemoizedPDF = memo(PDF);
 
 export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
   const memoizedOutput = useMemo(() => output, [output]);
@@ -35,22 +37,32 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
     []
   );
 
-  const scrollToSegment = useCallback((chunkIndex: number) => {
-    const chunkElement = chunkRefs.current[chunkIndex];
-    if (chunkElement) {
-      const container = chunkElement.closest(".rt-ScrollAreaViewport");
-      if (container) {
-        const containerRect = container.getBoundingClientRect();
-        const chunkRect = chunkElement.getBoundingClientRect();
-        const scrollTop =
-          chunkRect.top - containerRect.top + container.scrollTop - 24;
-        container.scrollTo({
-          top: scrollTop,
-          behavior: "smooth",
-        });
+  const [activeSegment, setActiveSegment] = useState<{
+    chunkIndex: number;
+    segmentIndex: number;
+  } | null>(null);
+
+  const scrollToSegment = useCallback(
+    (chunkIndex: number, segmentIndex: number) => {
+      setActiveSegment({ chunkIndex, segmentIndex });
+
+      const chunkElement = chunkRefs.current[chunkIndex];
+      if (chunkElement) {
+        const container = chunkElement.closest(".scrollable-content");
+        if (container) {
+          const containerRect = container.getBoundingClientRect();
+          const chunkRect = chunkElement.getBoundingClientRect();
+          const scrollTop =
+            chunkRect.top - containerRect.top + container.scrollTop - 24;
+          container.scrollTo({
+            top: scrollTop,
+            behavior: "smooth",
+          });
+        }
       }
-    }
-  }, []);
+    },
+    []
+  );
 
   const handleMouseEnter = () => {
     if (hideTimeoutRef.current) {
@@ -191,16 +203,88 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
   }, [output, inputFileUrl]);
 
   const renderViewDropdown = () => (
-    <Dropdown
-      value={selectedView.charAt(0).toUpperCase() + selectedView.slice(1)}
-      options={viewOptions}
-      onChange={(value) =>
-        setSelectedView(
-          value.toLowerCase() as "html" | "markdown" | "json" | "structured"
-        )
-      }
-    />
+    <Flex
+      className="viewer-header-view-button"
+      gap="2"
+      onClick={() => setShowViewOptions(!showViewOptions)}
+      style={{ position: "relative" }}
+    >
+      <svg
+        width="20x"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9ZM11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12C13 12.5523 12.5523 13 12 13C11.4477 13 11 12.5523 11 12Z"
+          fill="white"
+        />
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M21.83 11.2807C19.542 7.15186 15.8122 5 12 5C8.18777 5 4.45796 7.15186 2.17003 11.2807C1.94637 11.6844 1.94361 12.1821 2.16029 12.5876C4.41183 16.8013 8.1628 19 12 19C15.8372 19 19.5882 16.8013 21.8397 12.5876C22.0564 12.1821 22.0536 11.6844 21.83 11.2807ZM12 17C9.06097 17 6.04052 15.3724 4.09173 11.9487C6.06862 8.59614 9.07319 7 12 7C14.9268 7 17.9314 8.59614 19.9083 11.9487C17.9595 15.3724 14.939 17 12 17Z"
+          fill="white"
+        />
+      </svg>
+      <Flex align="center" gap="2">
+        <Text
+          size="2"
+          weight="medium"
+          style={{ color: "rgba(255, 255, 255, 0.95)" }}
+        >
+          {selectedView.charAt(0).toUpperCase() + selectedView.slice(1)}
+        </Text>
+      </Flex>
+      {showViewOptions && (
+        <div className="view-options-popup">
+          <Flex className="view-options-menu" direction="column">
+            {viewOptions.map((option) => (
+              <Flex
+                key={option}
+                className="view-options-menu-item"
+                onClick={() =>
+                  setSelectedView(
+                    option.toLowerCase() as
+                      | "html"
+                      | "markdown"
+                      | "json"
+                      | "structured"
+                  )
+                }
+              >
+                <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                  {option}
+                </Text>
+              </Flex>
+            ))}
+          </Flex>
+        </div>
+      )}
+    </Flex>
   );
+
+  // Add state for view options dropdown
+  const [showViewOptions, setShowViewOptions] = useState(false);
+
+  // Add click outside handler
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        !event.target ||
+        !(event.target as Element).closest(".viewer-header-view-button")
+      ) {
+        setShowViewOptions(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   if (!output) {
     return <Loader />;
@@ -215,6 +299,70 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
         className="viewer-header"
       >
         <Flex className="viewer-header-left-buttons" gap="16px">
+          <Flex
+            className="viewer-header-config-button"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <Flex align="center" gap="2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g clip-path="url(#clip0_304_23691)">
+                  <path
+                    d="M20.6519 14.43L19.0419 13.5C19.1519 13.02 19.2019 12.51 19.2019 12C19.2019 11.49 19.1519 10.98 19.0419 10.5L20.6519 9.57C20.8919 9.44 20.9719 9.13 20.8419 8.89L19.0919 5.86C18.9519 5.62 18.6419 5.54 18.4019 5.68L16.7819 6.62C16.0419 5.94 15.1719 5.42 14.2019 5.12V3.25C14.2019 2.97 13.9819 2.75 13.7019 2.75H10.2019C9.92193 2.75 9.70193 2.97 9.70193 3.25V5.12C8.73193 5.42 7.86193 5.94 7.12193 6.62L5.50193 5.68C5.26193 5.54 4.95193 5.62 4.81193 5.86L3.06193 8.89C2.93193 9.13 3.01193 9.44 3.25193 9.57L4.86193 10.5C4.75193 10.98 4.70193 11.49 4.70193 12C4.70193 12.51 4.75193 13.02 4.86193 13.5L3.25193 14.43C3.01193 14.56 2.93193 14.87 3.06193 15.11L4.81193 18.14C4.95193 18.38 5.26193 18.46 5.50193 18.32L7.12193 17.38C7.86193 18.06 8.73193 18.58 9.70193 18.88V20.75C9.70193 21.03 9.92193 21.25 10.2019 21.25H13.7019C13.9819 21.25 14.2019 21.03 14.2019 20.75V18.88C15.1719 18.58 16.0419 18.06 16.7819 17.38L18.4019 18.32C18.6419 18.46 18.9519 18.38 19.0919 18.14L20.8419 15.11C20.9719 14.87 20.8919 14.56 20.6519 14.43ZM15.0919 12.84C15.0119 13.11 14.9119 13.38 14.7619 13.62C14.4819 14.12 14.0719 14.53 13.5719 14.81C13.3319 14.96 13.0619 15.06 12.7919 15.14C12.5219 15.21 12.2419 15.25 11.9519 15.25C11.6619 15.25 11.3819 15.21 11.1119 15.14C10.8419 15.06 10.5719 14.96 10.3319 14.81C9.83193 14.53 9.42193 14.12 9.14193 13.62C8.99193 13.38 8.89193 13.11 8.81193 12.84C8.74193 12.57 8.70193 12.29 8.70193 12C8.70193 11.71 8.74193 11.43 8.81193 11.16C8.89193 10.89 8.99193 10.62 9.14193 10.38C9.42193 9.88 9.83193 9.47 10.3319 9.19C10.5719 9.04 10.8419 8.94 11.1119 8.86C11.3819 8.79 11.6619 8.75 11.9519 8.75C12.2419 8.75 12.5219 8.79 12.7919 8.86C13.0619 8.94 13.3319 9.04 13.5719 9.19C14.0719 9.47 14.4819 9.88 14.7619 10.38C14.9119 10.62 15.0119 10.89 15.0919 11.16C15.1619 11.43 15.2019 11.71 15.2019 12C15.2019 12.29 15.1619 12.57 15.0919 12.84Z"
+                    stroke="#FFFFFF"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_304_23691">
+                    <rect width="24" height="24" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
+              <Text
+                size="2"
+                weight="medium"
+                style={{ color: "rgba(255, 255, 255, 0.95)" }}
+              >
+                Configuration
+              </Text>
+            </Flex>
+
+            {showConfig && (
+              <div className="config-popup">
+                <Flex
+                  className="config-popup-content"
+                  direction="column"
+                  height="100%"
+                  width="100%"
+                  overflow="auto"
+                >
+                  <ReactJson
+                    src={task.configuration}
+                    theme="monokai"
+                    displayDataTypes={false}
+                    enableClipboard={false}
+                    style={{
+                      backgroundColor: "#000000",
+                      padding: "12px",
+                      fontSize: "12px",
+                    }}
+                  />
+                </Flex>
+              </div>
+            )}
+          </Flex>
+          {renderViewDropdown()}
+        </Flex>
+        <Flex className="viewer-header-right-buttons" gap="16px">
           <BetterButton onClick={handleDownloadPDF}>
             <Flex align="center" gap="2">
               <svg
@@ -349,124 +497,71 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
               </Text>
             </Flex>
           </BetterButton>
-          {renderViewDropdown()}
-        </Flex>
-        <Flex className="viewer-header-right-buttons">
-          <Flex
-            className="viewer-header-config-button"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <Flex align="center" gap="2">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clip-path="url(#clip0_304_23691)">
-                  <path
-                    d="M20.6519 14.43L19.0419 13.5C19.1519 13.02 19.2019 12.51 19.2019 12C19.2019 11.49 19.1519 10.98 19.0419 10.5L20.6519 9.57C20.8919 9.44 20.9719 9.13 20.8419 8.89L19.0919 5.86C18.9519 5.62 18.6419 5.54 18.4019 5.68L16.7819 6.62C16.0419 5.94 15.1719 5.42 14.2019 5.12V3.25C14.2019 2.97 13.9819 2.75 13.7019 2.75H10.2019C9.92193 2.75 9.70193 2.97 9.70193 3.25V5.12C8.73193 5.42 7.86193 5.94 7.12193 6.62L5.50193 5.68C5.26193 5.54 4.95193 5.62 4.81193 5.86L3.06193 8.89C2.93193 9.13 3.01193 9.44 3.25193 9.57L4.86193 10.5C4.75193 10.98 4.70193 11.49 4.70193 12C4.70193 12.51 4.75193 13.02 4.86193 13.5L3.25193 14.43C3.01193 14.56 2.93193 14.87 3.06193 15.11L4.81193 18.14C4.95193 18.38 5.26193 18.46 5.50193 18.32L7.12193 17.38C7.86193 18.06 8.73193 18.58 9.70193 18.88V20.75C9.70193 21.03 9.92193 21.25 10.2019 21.25H13.7019C13.9819 21.25 14.2019 21.03 14.2019 20.75V18.88C15.1719 18.58 16.0419 18.06 16.7819 17.38L18.4019 18.32C18.6419 18.46 18.9519 18.38 19.0919 18.14L20.8419 15.11C20.9719 14.87 20.8919 14.56 20.6519 14.43ZM15.0919 12.84C15.0119 13.11 14.9119 13.38 14.7619 13.62C14.4819 14.12 14.0719 14.53 13.5719 14.81C13.3319 14.96 13.0619 15.06 12.7919 15.14C12.5219 15.21 12.2419 15.25 11.9519 15.25C11.6619 15.25 11.3819 15.21 11.1119 15.14C10.8419 15.06 10.5719 14.96 10.3319 14.81C9.83193 14.53 9.42193 14.12 9.14193 13.62C8.99193 13.38 8.89193 13.11 8.81193 12.84C8.74193 12.57 8.70193 12.29 8.70193 12C8.70193 11.71 8.74193 11.43 8.81193 11.16C8.89193 10.89 8.99193 10.62 9.14193 10.38C9.42193 9.88 9.83193 9.47 10.3319 9.19C10.5719 9.04 10.8419 8.94 11.1119 8.86C11.3819 8.79 11.6619 8.75 11.9519 8.75C12.2419 8.75 12.5219 8.79 12.7919 8.86C13.0619 8.94 13.3319 9.04 13.5719 9.19C14.0719 9.47 14.4819 9.88 14.7619 10.38C14.9119 10.62 15.0119 10.89 15.0919 11.16C15.1619 11.43 15.2019 11.71 15.2019 12C15.2019 12.29 15.1619 12.57 15.0919 12.84Z"
-                    stroke="#FFFFFF"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_304_23691">
-                    <rect width="24" height="24" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-              <Text
-                size="2"
-                weight="medium"
-                style={{ color: "rgba(255, 255, 255, 0.95)" }}
-              >
-                Configuration
-              </Text>
-            </Flex>
-
-            {showConfig && (
-              <div className="config-popup">
-                <ReactJson
-                  src={task.configuration}
-                  theme="monokai"
-                  displayDataTypes={false}
-                  enableClipboard={false}
-                  style={{
-                    backgroundColor: "#000000",
-                    padding: "12px",
-                    fontSize: "12px",
-                  }}
-                />
-              </div>
-            )}
-          </Flex>
         </Flex>
       </Flex>
-      <PanelGroup direction="horizontal">
+      <PanelGroup
+        direction="horizontal"
+        style={{ backgroundColor: "rgba(255, 255, 255, 0.00)" }}
+      >
         <Panel
           defaultSize={50}
           minSize={20}
           onResize={() => {
-            const panelElement = document.querySelector(
-              ".rt-ScrollAreaViewport"
-            );
+            const panelElement = document.querySelector(".scrollable-content");
             if (panelElement) {
               setLeftPanelWidth(panelElement.clientWidth);
             }
           }}
         >
-          <ScrollArea
-            scrollbars="vertical"
-            type="always"
-            style={{ height: "calc(100vh - 90px)" }}
+          <div
+            className="scrollable-content"
+            style={{
+              height: "calc(100vh - 132px)",
+              backgroundColor: "rgba(255, 255, 255, 0.03)",
+              overflow: "auto",
+              padding: "8px",
+            }}
           >
-            <Flex
-              width="100%"
-              height="100%"
-              direction="column"
-              p="16px"
-              align="center"
-              justify="center"
-            >
-              {output.chunks.length === 0 ? (
-                <Text
-                  size="4"
-                  weight="medium"
-                  style={{ color: "rgba(255, 255, 255, 0.8)" }}
-                >
-                  No content available for this PDF.
-                </Text>
-              ) : (
-                <>
-                  {output.chunks.map((chunk: Chunk, chunkIndex: number) => (
-                    <SegmentChunk
-                      key={chunkIndex}
-                      chunk={chunk}
-                      chunkIndex={chunkIndex}
-                      containerWidth={leftPanelWidth}
-                      selectedView={selectedView}
-                      ref={(el) => (chunkRefs.current[chunkIndex] = el)}
-                    />
-                  ))}
-                </>
-              )}
-            </Flex>
-          </ScrollArea>
+            {output.chunks.length === 0 ? (
+              <Text
+                size="4"
+                weight="medium"
+                style={{ color: "rgba(255, 255, 255, 0.8)" }}
+              >
+                No content available for this PDF.
+              </Text>
+            ) : (
+              <>
+                {output.chunks.map((chunk: Chunk, chunkIndex: number) => (
+                  <SegmentChunk
+                    key={chunkIndex}
+                    chunk={chunk}
+                    chunkIndex={chunkIndex}
+                    containerWidth={leftPanelWidth}
+                    selectedView={selectedView}
+                    ref={(el) => (chunkRefs.current[chunkIndex] = el)}
+                    onSegmentClick={scrollToSegment}
+                    activeSegment={activeSegment}
+                  />
+                ))}
+              </>
+            )}
+          </div>
         </Panel>
 
         <PanelResizeHandle className="resize-handle" />
 
-        <Panel defaultSize={50} minSize={20}>
+        <Panel
+          defaultSize={50}
+          minSize={20}
+          style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+        >
           {inputFileUrl && memoizedOutput && (
-            <PDF
+            <MemoizedPDF
               content={memoizedOutput.chunks}
               inputFileUrl={inputFileUrl}
               onSegmentClick={scrollToSegment}
+              activeSegment={activeSegment}
             />
           )}
         </Panel>

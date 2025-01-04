@@ -105,11 +105,6 @@
   border: 1px solid rgba(103, 232, 249, 0.2);
 }
 
-.profile-section {
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  gap: 16px;
-}
-
 .profile-menu {
   gap: 4px;
   padding: 8px 0;
@@ -128,8 +123,8 @@
 
 .profile-info {
   padding: 12px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  background: rgba(2, 5, 6, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
   cursor: pointer;
@@ -177,12 +172,12 @@
 
 .profile-popup {
   position: absolute;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 14px);
   left: 0;
   right: 0;
   background: rgba(2, 5, 6, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }

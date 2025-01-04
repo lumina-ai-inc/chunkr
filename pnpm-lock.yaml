@@ -83,6 +83,12 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: ^5.62.11
         version: 5.62.11(@tanstack/react-query@5.59.16(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-virtual':
+        specifier: ^3.11.2
+        version: 3.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/katex':
+        specifier: ^0.16.7
+        version: 0.16.7
       '@types/prismjs':
         specifier: ^1.26.5
         version: 1.26.5
@@ -113,9 +119,14 @@ importers:
       katex:
         specifier: ^0.16.11
         version: 0.16.11
+        specifier: ^0.16.19
+        version: 0.16.19
       keycloak-js:
         specifier: ^25.0.4
         version: 25.0.6
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       lottie-react:
         specifier: ^2.4.0
         version: 2.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -210,18 +221,18 @@ importers:
       '@eslint/js':
         specifier: ^9.9.0
         version: 9.13.0
-<<<<<<< HEAD
       '@types/katex':
         specifier: ^0.16.7
         version: 0.16.7
-=======
       '@types/dompurify':
         specifier: ^3.0.5
         version: 3.0.5
+      '@types/lodash':
+        specifier: ^4.17.14
+        version: 4.17.14
       '@types/node':
         specifier: ^22.10.5
         version: 22.10.5
->>>>>>> a0a07daa (Viewer adjustments for overhaul)
       '@types/pdfjs-dist':
         specifier: ^2.10.378
         version: 2.10.378
@@ -1862,6 +1873,9 @@ packages:
   '@types/katex@0.16.7':
     resolution: {integrity: sha512-HMwFiRujE5PjrgwHQ25+bsLJgowjGjm5Z8FVSf0N6PwgJrwxH0QxzHYDcKsTfV3wva0vzrpqMTJS2jXPr5BMEQ==}
 
+  '@types/lodash@4.17.14':
+    resolution: {integrity: sha512-jsxagdikDiDBeIRaPYtArcT8my4tN1og7MtMRquFT3XNA6axxyHDRUemqDz/taRDdOUn0GnGHRCuff4q48sW9A==}
+
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
 
@@ -2942,8 +2956,8 @@ packages:
     resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
     engines: {node: '>=18'}
 
-  katex@0.16.11:
-    resolution: {integrity: sha512-RQrI8rlHY92OLf3rho/Ts8i/XvjgguEjOkO1BEXcU3N8BqPpSzBNwV/G0Ukr+P/l3ivvJUE/Fa/CwbS6HesGNQ==}
+  katex@0.16.19:
+    resolution: {integrity: sha512-3IA6DYVhxhBabjSLTNO9S4+OliA3Qvb8pBQXMfC4WxXJgLwZgnfDl0BmB4z6nBMdznBsZ+CGM8DrGZ5hcguDZg==}
     hasBin: true
 
   keycloak-js@25.0.6:
@@ -6047,6 +6061,8 @@ snapshots:
 
   '@types/katex@0.16.7': {}
 
+  '@types/lodash@4.17.14': {}
+
   '@types/mdast@4.0.4':
     dependencies:
       '@types/unist': 3.0.3
@@ -7183,7 +7199,7 @@ snapshots:
 
   jwt-decode@4.0.0: {}
 
-  katex@0.16.11:
+  katex@0.16.19:
     dependencies:
       commander: 8.3.0
 
@@ -7560,7 +7576,7 @@ snapshots:
     dependencies:
       '@types/katex': 0.16.7
       devlop: 1.1.0
-      katex: 0.16.11
+      katex: 0.16.19
       micromark-factory-space: 2.0.0
       micromark-util-character: 2.1.0
       micromark-util-symbol: 2.0.0
@@ -8235,7 +8251,7 @@ snapshots:
       '@types/katex': 0.16.7
       hast-util-from-html-isomorphic: 2.0.0
       hast-util-to-text: 4.0.2
-      katex: 0.16.11
+      katex: 0.16.19
       unist-util-visit-parents: 6.0.1
       vfile: 6.0.3
 

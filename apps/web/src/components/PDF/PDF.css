@@ -1,29 +1,51 @@
 .segment {
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.segment:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.segment.active {
+  border: 1px solid var(--accent-6);
+  background-color: var(--accent-2);
+  opacity: 0.5;
+}
+
+.segment.active .segment-text-container {
+  opacity: 1 !important;
 }
 
 .segment-overlay {
-  display: none;
   position: absolute;
-  top: -34px;
-  left: -2px;
-  padding: 6px 12px;
-  width: max-content;
-  height: fit-content;
-  background-color: rgba(0, 0, 0, 0.5);
+  top: -24px;
+  left: 0;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background: rgb(2, 5, 6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+  color: var(--accent-11);
 }
 
 .segment:hover .segment-overlay {
-  display: block;
+  opacity: 1;
 }
 
 .pdf-container {
-  width: 100%;
-  height: 100%;
+  height: calc(100vh - 132px);
+  overflow: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 200px;
 }
 
 .react-pdf__Document {
@@ -31,6 +53,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 200px;
 }
 
 .react-pdf__Page {
@@ -38,5 +61,13 @@
   position: relative;
   margin: 8px 0;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
-  transition: width 0.2s ease; /* Smooth width transitions */
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+  min-width: 200px;
+}
+
+.react-pdf__Page canvas {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+  min-width: 200px;
 }
