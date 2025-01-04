@@ -15,6 +15,8 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, sans-serif;
   letter-spacing: 0.01em;
+  width: fit-content;
+  min-width: 100%;
 }
 
 /* Typography enhancements */
@@ -99,11 +101,12 @@
 
 /* Table styles */
 .segment-chunk table {
-  width: 100% !important;
+  width: auto !important;
+  min-width: 100% !important;
   margin-bottom: 1rem !important;
   border-collapse: collapse !important;
   border-radius: 0.125rem !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   background: hsla(230, 15%, 15%, 0.2) !important;
   outline: 1px solid hsla(0, 0%, 100%, 0.1) !important;
 }
@@ -253,6 +256,8 @@
   border-radius: 6px;
   border: 1px solid transparent;
   transition: all 0.2s ease;
+  width: fit-content;
+  min-width: 100%;
 }
 
 .segment-content-wrapper:hover {
@@ -301,4 +306,41 @@
 
 .latex-content .math-inline {
   padding: 0 0.2em !important;
+}
+
+/* Add scrollbar styles to match Viewer.css */
+.segment-chunk ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.segment-chunk::-webkit-scrollbar-track {
+  background: transparent;
+  border: unset !important;
+  outline: unset !important;
+}
+
+.segment-chunk ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  border: unset !important;
+  outline: unset !important;
+}
+
+.segment-chunk ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border: unset !important;
+  outline: unset !important;
+}
+
+.segment-chunk ::-webkit-scrollbar-corner {
+  background: transparent;
+  border: unset !important;
+  outline: unset !important;
+}
+
+/* Add Firefox scrollbar compatibility */
+.segment-chunk {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }

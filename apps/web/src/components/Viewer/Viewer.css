@@ -126,6 +126,15 @@
 
 /* Scrollbar styles for scrollable-content */
 
+.scrollable-content {
+  height: calc(100vh - 132px);
+  background-color: rgba(255, 255, 255, 0.03);
+  overflow: auto !important;
+  padding: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
 .scrollable-content::-webkit-scrollbar {
   width: 8px;
   height: 8px;
