@@ -22,11 +22,15 @@
 }
 
 .config-popup {
+  display: flex;
+  flex-direction: column;
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  left: 0;
+  padding: 4px;
   width: max-content;
   min-width: 300px;
+  max-height: 400px;
   background: rgba(2, 5, 6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
@@ -36,6 +40,8 @@
 
 .config-popup .react-json-view {
   background-color: transparent !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .resize-handle {
@@ -51,4 +57,93 @@
 /* Optional: Change cursor on hover */
 .resize-handle:hover {
   cursor: col-resize;
+}
+
+.viewer-header-view-button {
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+.viewer-header-view-button:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.view-options-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: rgba(2, 5, 6, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  min-width: 150px;
+}
+
+.view-options-menu {
+  width: 100%;
+  padding: 8px;
+}
+
+.view-options-menu-item {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-options-menu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Style scrollbars for the config popup Flex container */
+.config-popup-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.config-popup-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.config-popup-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.config-popup-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Scrollbar styles for scrollable-content */
+
+.scrollable-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.scrollable-content::-webkit-scrollbar-corner {
+  background: transparent;
 }
