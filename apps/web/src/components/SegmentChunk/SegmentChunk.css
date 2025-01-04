@@ -1,20 +1,64 @@
-<<<<<<< HEAD
-/* reset */
-.math-display {
-  overflow-x: auto;
-  margin: 1em 0;
+.segment-chunk {
+  width: 100%;
+  padding: 16px;
+  border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
+  background-color: hsla(0, 0%, 0%, 0.3);
 }
 
-button,
-h3 {
-=======
-.segment-chunk-wrapper button,
-.segment-chunk-wrapper h3 {
->>>>>>> 28f7f665 (Adding table for dashboard)
-  all: unset;
+.segment-chunk:last-child {
+  border-bottom: none;
 }
 
-.segment-chunk-wrapper h1 {
+.segment-content {
+  color: hsla(0, 0%, 100%, 0.9);
+  font-size: 16px;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* Typography enhancements */
+.segment-chunk p {
+  margin: 0 0 1.5em 0;
+  max-width: 70ch; /* Optimal reading length */
+}
+
+.segment-chunk h1,
+.segment-chunk h2,
+.segment-chunk h3,
+.segment-chunk h4,
+.segment-chunk h5,
+.segment-chunk h6 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.02em;
+  margin-top: 2em !important;
+}
+
+/* Structured view styles */
+.structured-segment {
+  padding: 16px;
+  border: 1px solid hsla(0, 0%, 100%, 0.1);
+  border-radius: 4px;
+  margin-bottom: 16px;
+  background-color: hsla(0, 0%, 0%, 0.2);
+}
+
+.structured-segment:last-child {
+  margin-bottom: 0;
+}
+
+.segment-type {
+  font-size: 12px;
+  font-weight: 500;
+  color: hsla(0, 0%, 100%, 0.6);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Preserve existing heading styles */
+.segment-chunk h1 {
   font-size: 28px !important;
   line-height: 36px !important;
   color: hsl(0, 0%, 100%, 0.98);
@@ -22,7 +66,7 @@ h3 {
   font-weight: 700 !important;
 }
 
-.segment-chunk-wrapper h2 {
+.segment-chunk h2 {
   font-size: 24px !important;
   line-height: 32px !important;
   color: hsl(0, 0%, 100%, 0.95);
@@ -30,257 +74,153 @@ h3 {
   font-weight: 600 !important;
 }
 
-.segment-chunk-wrapper h3 {
+.segment-chunk h3 {
   font-size: 20px !important;
   line-height: 28px !important;
   color: hsl(0, 0%, 100%, 0.9);
 }
 
-.segment-chunk-wrapper h4 {
+.segment-chunk h4 {
   font-size: 16px !important;
   line-height: 24px !important;
   color: hsl(0, 0%, 100%, 0.98);
 }
 
-.segment-chunk-wrapper h5 {
+.segment-chunk h5 {
   font-size: 14px !important;
   line-height: 20px !important;
   color: hsl(0, 0%, 100%, 0.98);
 }
 
-.segment-chunk-wrapper h6 {
+.segment-chunk h6 {
   font-size: 12px !important;
   line-height: 16px !important;
   color: hsl(0, 0%, 100%, 0.98);
 }
 
-.segment-chunk-wrapper p {
-  font-size: 16px !important;
-  line-height: 24px !important;
-  color: hsl(0, 0%, 100%, 0.98);
-  margin-bottom: 16px !important;
-}
-
-.segment-chunk-wrapper table {
-  background-color: unset !important;
-  border: none !important;
-  box-shadow: none !important;
-  margin-bottom: 16px !important;
+/* Table styles */
+.segment-chunk table {
   width: 100% !important;
+  margin-bottom: 16px !important;
+  border-collapse: collapse;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, 0.1) !important;
 }
 
-.segment-chunk-wrapper thead {
-  margin-bottom: 32px !important;
-  background-color: hsl(0, 0%, 100%, 0.3) !important;
+.segment-chunk thead {
+  background-color: hsla(230, 15%, 20%, 0.8) !important;
 }
 
-.segment-chunk-wrapper tr {
+.segment-chunk tr {
   background-color: hsla(0, 0%, 100%, 0.03) !important;
-  color: #fff !important;
 }
 
-.segment-chunk-wrapper tr:nth-child(even) {
+.segment-chunk tr:nth-child(even) {
   background-color: hsla(0, 0%, 100%, 0.1) !important;
 }
 
-.segment-chunk-wrapper th {
-  font-weight: 500 !important;
-  font-size: 16px !important;
-  align-content: center !important;
-  justify-content: center !important;
-  border: 1px solid hsl(0, 0%, 100%, 0.6) !important;
-  color: hsl(0, 0%, 100%) !important;
+.segment-chunk th,
+.segment-chunk td {
   padding: 8px 12px !important;
+  border: 1px solid hsla(0, 0%, 100%, 0.2) !important;
+  color: hsla(0, 0%, 100%, 0.9) !important;
 }
 
-.segment-chunk-wrapper td {
-  font-size: 14px !important;
-  font-weight: 300 !important;
-  border: 1px solid hsl(0, 0%, 100%, 0.4) !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 8px 12px !important;
-  color: hsl(0, 0%, 100%, 0.95) !important;
-  text-align: center !important;
+.segment-chunk th {
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.9em !important;
+  letter-spacing: 0.05em !important;
 }
 
-.segment-chunk-wrapper ul,
-.segment-chunk-wrapper ol {
-  margin-bottom: 16px !important;
+/* List styles */
+.segment-chunk ul,
+.segment-chunk ol {
+  margin: 16px 0 !important;
   padding-left: 24px !important;
-  color: hsl(0, 0%, 100%, 0.8) !important;
-  background-color: hsl(0, 0%, 100%, 0.05) !important;
-  padding-top: 12px !important;
-  padding-bottom: 12px !important;
-  padding-right: 12px !important;
-  border-radius: 4px !important;
 }
 
-.segment-chunk-wrapper li {
-  font-size: 16px !important;
-  line-height: 24px !important;
-  color: hsl(0, 0%, 100%, 0.98);
+.segment-chunk li {
   margin-bottom: 8px !important;
+  color: hsla(0, 0%, 100%, 0.9) !important;
 }
 
-/* Last list item shouldn't have a bottom margin */
-.segment-chunk-wrapper li:last-child {
+.segment-chunk li:last-child {
   margin-bottom: 0 !important;
 }
 
-/* Ensure bullet points are visible for unordered lists */
-.segment-chunk-wrapper ul {
-  list-style-type: disc !important;
+/* List refinements */
+.segment-chunk ul li {
+  position: relative !important;
 }
 
-/* Ensure numbers are visible for ordered lists */
-.segment-chunk-wrapper ol {
-  list-style-type: decimal !important;
-}
-.AccordionItem {
-  overflow: hidden;
-  margin-top: 1px;
+.segment-chunk ul li::before {
+  content: "•" !important;
+  position: absolute !important;
+  left: -1.2em !important;
+  color: hsla(230, 100%, 70%, 0.8) !important;
 }
 
-.AccordionItem:first-child {
-  margin-top: 0;
+/* Horizontal rule */
+.segment-chunk hr {
+  border: none !important;
+  height: 1px !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsla(0, 0%, 100%, 0.1) 50%,
+    transparent
+  ) !important;
+  margin: 2em 0 !important;
 }
 
-.AccordionItem:focus-within {
-  position: relative;
-  z-index: 1;
+/* Code blocks and inline code */
+.segment-chunk pre {
+  background: hsla(230, 15%, 15%, 0.8) !important;
+  border-radius: 8px !important;
+  padding: 16px 20px !important;
+  overflow-x: auto !important;
+  border: 1px solid hsla(0, 0%, 100%, 0.1) !important;
+  margin: 1.5em 0 !important;
 }
 
-.AccordionHeader {
-  display: flex;
-  background-color: hsla(0, 0%, 0%, 0.4);
-  border: 1px solid hsla(0, 0%, 100%, 0.2);
-  border-bottom: none;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+.segment-chunk code {
+  font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace !important;
+  font-size: 0.9em !important;
+  padding: 0.2em 0.4em !important;
+  border-radius: 4px !important;
+  background: hsla(0, 0%, 100%, 0.1) !important;
+  color: hsla(0, 0%, 100%, 0.95) !important;
 }
 
-.AccordionTrigger {
-  font-family: inherit;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  line-height: 1;
-  padding: 16px 18px;
-  border-bottom: 1px solid hsla(0, 0%, 100%, 0.2);
-  transition: background-color 0.2s;
-  gap: 16px;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+/* Blockquotes */
+.segment-chunk blockquote {
+  border-left: 4px solid hsla(230, 100%, 70%, 0.5) !important;
+  margin: 1.5em 0 !important;
+  padding: 0.5em 0 0.5em 1.5em !important;
+  font-style: italic !important;
+  background: hsla(230, 15%, 15%, 0.3) !important;
+  border-radius: 0 4px 4px 0 !important;
 }
 
-.AccordionTrigger:hover {
-  background-color: hsla(0, 0%, 100%, 0.05);
+/* LaTeX/Math formatting */
+.segment-chunk .math-inline {
+  padding: 0 0.2em !important;
 }
 
-.AccordionContent {
-  border: 1px solid hsla(0, 0%, 100%, 0.2);
-  border-top: none;
-  color: hsl(0, 0%, 100%, 0.9);
-  background-color: hsla(0, 0%, 0%, 0.5);
-  height: 100%;
-  max-height: 492px;
-  overflow-y: auto;
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(142, 142, 147, 0.5) transparent;
+.segment-chunk .math-display {
+  margin: 1.5em 0 !important;
+  padding: 1em !important;
+  background: hsla(230, 15%, 15%, 0.3) !important;
+  border-radius: 8px !important;
+  overflow-x: auto !important;
 }
 
-.AccordionContent::-webkit-scrollbar {
-  width: 2px;
-}
-
-.AccordionContent::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.AccordionContent::-webkit-scrollbar-thumb {
-  background-color: rgba(142, 142, 147, 0.5) !important;
-  border-radius: 1px;
-}
-.AccordionContent[data-state="open"] {
-  animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
-}
-.AccordionContent[data-state="closed"] {
-  animation: slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1);
-}
-
-.AccordionContentText {
-  padding: 32px 24px;
-}
-
-.AccordionChevron {
-  background-color: unset !important;
-  transition: transform 300ms cubic-bezier(0.87, 0, 0.13, 1);
-}
-.AccordionTrigger[data-state="open"] .AccordionChevron {
-  transform: rotate(180deg);
-}
-
-.segment-badge {
-  display: flex;
-  flex-direction: row;
-  border-width: 1px;
-  border-style: solid;
-  align-items: center;
-  justify-content: center;
-}
-
-.segment-badge.text {
-  border-color: var(--teal-10);
-}
-.segment-badge.table {
-  border-color: var(--orange-9);
-}
-.segment-badge.title {
-  border-color: var(--amber-8);
-}
-.segment-badge.picture {
-  border-color: var(--pink-10);
-}
-.segment-badge.formula {
-  border-color: var(--cyan-8);
-}
-.segment-badge.caption {
-  border-color: var(--jade-10);
-}
-.segment-badge.footnote {
-  border-color: var(--pink-10);
-}
-.segment-badge.list-item {
-  border-color: var(--bronze-10);
-}
-.segment-badge.page-footer {
-  border-color: var(--red-12);
-}
-.segment-badge.page-header {
-  border-color: var(--violet-8);
-}
-.segment-badge.section-header {
-  border-color: var(--yellow-7);
-}
-
-@keyframes slideDown {
-  from {
-    height: 0;
-  }
-  to {
-    height: var(--radix-accordion-content-height);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    height: var(--radix-accordion-content-height);
-  }
-  to {
-    height: 0;
-  }
+/* Images */
+.segment-chunk img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 8px !important;
+  margin: 1.5em 0 !important;
 }
