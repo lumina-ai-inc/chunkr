@@ -143,7 +143,7 @@ def create_grid_dict_from_ocr(ocr_results: List[OCRInput]) -> dict:
     for result in ocr_results:
         texts.append(result.text)
         bbox = result.bbox
-        boxes.append((bbox["left"], bbox["top"], bbox["width"], bbox["height"]))
+        boxes.append((bbox.left, bbox.top, bbox.width, bbox.height))
     sub_tokens = tokenize_texts(texts)
     input_ids = []
     for st in sub_tokens:
@@ -503,7 +503,7 @@ async def create_od_task(
     if not ocr_data:
         ocr_words = []
     else:
-        ocr_words = [OCRInput(**x) for x in json.loads(ocr_data).data]
+        ocr_words = [OCRInput(**x) for x in json.loads(ocr_data)["data"]]
         
     grid_dict = create_grid_dict_from_ocr(ocr_words)
     future = asyncio.Future()
