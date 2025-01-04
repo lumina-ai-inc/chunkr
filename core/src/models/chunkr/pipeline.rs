@@ -3,6 +3,7 @@ use crate::models::chunkr::structured_extraction::ExtractedJson;
 use crate::models::chunkr::task::{Status, TaskPayload};
 use crate::utils::services::file_operations::{check_file_type, convert_to_pdf};
 use crate::utils::services::log::log_task;
+use dashmap::DashMap;
 use std::error::Error;
 use std::sync::Arc;
 use tempfile::NamedTempFile;
@@ -14,8 +15,9 @@ pub struct Pipeline {
     pub input_file: Option<Arc<NamedTempFile>>,
     pub mime_type: Option<String>,
     pub page_count: Option<u32>,
-    pub pages: Option<Vec<Arc<NamedTempFile>>>,
+    pub page_images: Option<Vec<Arc<NamedTempFile>>>,
     pub pdf_file: Option<Arc<NamedTempFile>>,
+    pub segment_images: DashMap<String, Arc<NamedTempFile>>,
     pub status: Option<Status>,
     pub task_payload: Option<TaskPayload>,
 }
@@ -28,8 +30,9 @@ impl Pipeline {
             input_file: None,
             mime_type: None,
             page_count: None,
-            pages: None,
+            page_images: None,
             pdf_file: None,
+            segment_images: DashMap::new(),
             status: None,
             task_payload: None,
         }

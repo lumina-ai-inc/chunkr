@@ -20,24 +20,27 @@ pub struct OutputResponse {
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
+    pub chunk_id: String,
+    /// The total number of words in the chunk.
+    pub chunk_length: i32,
     /// Collection of document segments that form this chunk.
     /// When `target_chunk_length` > 0, contains the maximum number of segments
     /// that fit within that length (segments remain intact).
     /// Otherwise, contains exactly one segment.
     pub segments: Vec<Segment>,
-    /// The total number of words in the chunk.
-    pub chunk_length: i32,
 }
 
 impl Chunk {
     pub fn new(segments: Vec<Segment>) -> Self {
+        let chunk_id = uuid::Uuid::new_v4().to_string();
         let chunk_length = segments
             .iter()
             .map(|s| s.content.split_whitespace().count())
             .sum::<usize>() as i32;
         Self {
-            segments,
+            chunk_id,
             chunk_length,
+            segments,
         }
     }
 }
@@ -67,7 +70,7 @@ pub struct Segment {
 }
 
 impl Segment {
-    fn new(
+    pub fn new(
         bbox: BoundingBox,
         ocr_results: Vec<OCRResult>,
         page_height: f32,
@@ -183,7 +186,7 @@ impl Segment {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
-/// Bounding box for an item. It is used for both segments and OCR results.
+/// Bounding box for an item. It is used for chunks, segments and OCR results.
 pub struct BoundingBox {
     /// The left coordinate of the bounding box.
     pub left: f32,
@@ -196,6 +199,15 @@ pub struct BoundingBox {
 }
 
 impl BoundingBox {
+    pub fn new(left: f32, top: f32, width: f32, height: f32) -> Self {
+        Self {
+            left,
+            top,
+            width,
+            height,
+        }
+    }
+
     pub fn get_center(&self) -> (f32, f32) {
         (self.left + self.width / 2.0, self.top + self.height / 2.0)
     }

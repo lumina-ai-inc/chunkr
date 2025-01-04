@@ -1,5 +1,6 @@
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::task::Configuration;
+use crate::models::chunkr::task::TaskResponse;
 use crate::models::chunkr::upload::{OcrStrategy, UploadForm};
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;

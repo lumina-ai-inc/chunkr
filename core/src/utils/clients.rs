@@ -21,7 +21,7 @@ pub async fn initialize_clients() {
             .now_or_never()
             .unwrap()
     });
-    PG_POOL.get_or_init(|| create_pool());
+    PG_POOL.get_or_init(|| async { create_pool() }.now_or_never().unwrap());
     println!("Clients initialized");
 }
 

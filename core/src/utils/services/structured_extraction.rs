@@ -390,10 +390,7 @@ mod tests {
             ],
         };
         println!("JSON SCHEMA: {:?}", json_schema);
-        let chunks = vec![Chunk {
-            segments: segments.clone(),
-            chunk_length: 100,
-        }];
+        let chunks = vec![Chunk::new(segments.clone())];
 
         let results = perform_structured_extraction(
             json_schema,
