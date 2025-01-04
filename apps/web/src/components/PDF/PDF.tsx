@@ -1,8 +1,8 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo, memo } from "react";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import { ScrollArea, Box, Text } from "@radix-ui/themes";
+import { Box, Text, Flex } from "@radix-ui/themes";
 import {
   Chunk,
   Segment,
@@ -11,6 +11,7 @@ import {
   BoundingBox,
 } from "../../models/chunk.model";
 import "./PDF.css";
+import { debounce } from "lodash";
 
 declare global {
   interface PromiseConstructor {
@@ -67,94 +68,194 @@ const segmentLightColors: Record<SegmentType, string> = {
   "Section header": "--cyan-2",
 };
 
-export function PDF({
-  content,
-  inputFileUrl,
-  onSegmentClick,
-}: {
-  content: Chunk[];
-  inputFileUrl: string;
-  onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
-}) {
-  const [numPages, setNumPages] = useState<number>();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [pdfWidth, setPdfWidth] = useState(800);
+const MemoizedOCRBoundingBoxes = memo(OCRBoundingBoxes);
 
-  useEffect(() => {
-    if (!containerRef.current) return;
+const MemoizedSegmentOverlay = memo(SegmentOverlay);
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const width = Math.min(entry.contentRect.width - 32, 800);
-        setPdfWidth(width);
-      }
-    });
+const MemoizedCurrentPage = memo(CurrentPage);
 
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
-  }, []);
+const PAGE_CHUNK_SIZE = 20; // Number of pages to load at once
 
-  function onDocumentLoadSuccess(document: pdfjs.PDFDocumentProxy): void {
-    setNumPages(document.numPages);
-  }
+export const PDF = memo(
+  ({
+    content,
+    inputFileUrl,
+    onSegmentClick,
+    activeSegment,
+  }: {
+    content: Chunk[];
+    inputFileUrl: string;
+    onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
+    activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
+  }) => {
+    const [numPages, setNumPages] = useState<number>();
+    const [loadedPages, setLoadedPages] = useState<number>(PAGE_CHUNK_SIZE);
+    const [isDocumentLoaded, setIsDocumentLoaded] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [pdfWidth, setPdfWidth] = useState(800);
 
-  return (
-    <div ref={containerRef} className="pdf-container">
-      <Document
-        file={inputFileUrl}
-        onLoadSuccess={onDocumentLoadSuccess}
-        options={options}
-      >
-        <ScrollArea
-          scrollbars="both"
-          type="always"
-          style={{ height: "calc(100vh - 90px)" }}
+    const debouncedSetPdfWidth = useMemo(
+      () => debounce((width: number) => setPdfWidth(width), 80),
+      []
+    );
+
+    useEffect(() => {
+      if (!containerRef.current) return;
+
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const width = Math.max(
+            Math.min(Math.round(entry.contentRect.width - 32), 800),
+            200
+          );
+          debouncedSetPdfWidth(width);
+        }
+      });
+
+      resizeObserver.observe(containerRef.current);
+      return () => {
+        debouncedSetPdfWidth.cancel();
+        resizeObserver.disconnect();
+      };
+    }, [debouncedSetPdfWidth]);
+
+    // Handle scroll to load more pages
+    useEffect(() => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const handleScroll = debounce(() => {
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        const scrolledToBottom = scrollHeight - scrollTop <= clientHeight * 1.5;
+
+        if (scrolledToBottom && loadedPages < (numPages || 0)) {
+          setLoadedPages((prev) =>
+            Math.min(prev + PAGE_CHUNK_SIZE, numPages || 0)
+          );
+        }
+      }, 100);
+
+      container.addEventListener("scroll", handleScroll);
+      return () => {
+        container.removeEventListener("scroll", handleScroll);
+        handleScroll.cancel();
+      };
+    }, [loadedPages, numPages]);
+
+    useEffect(() => {
+      const handleScrollToPage = (e: CustomEvent) => {
+        const { pageNumber } = e.detail;
+        const container = containerRef.current;
+        if (container && pageNumber && isDocumentLoaded) {
+          const pageElement = container.querySelector(
+            `[data-page-number="${pageNumber}"]`
+          );
+          if (pageElement) {
+            pageElement.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      };
+
+      window.addEventListener(
+        "scroll-to-page",
+        handleScrollToPage as EventListener
+      );
+      return () => {
+        window.removeEventListener(
+          "scroll-to-page",
+          handleScrollToPage as EventListener
+        );
+      };
+    }, [isDocumentLoaded]);
+
+    // Memoize the page array with pagination
+    const pages = useMemo(
+      () =>
+        Array.from(
+          new Array(Math.min(loadedPages, numPages || 0)),
+          (_, index) => (
+            <MemoizedCurrentPage
+              key={index}
+              index={index}
+              segments={content}
+              onSegmentClick={onSegmentClick}
+              width={pdfWidth}
+              activeSegment={activeSegment}
+            />
+          )
+        ),
+      [loadedPages, numPages, content, onSegmentClick, pdfWidth, activeSegment]
+    );
+
+    return (
+      <div ref={containerRef} className="pdf-container">
+        <Document
+          file={inputFileUrl}
+          onLoadSuccess={(document: pdfjs.PDFDocumentProxy) => {
+            setNumPages(document.numPages);
+            setLoadedPages(Math.min(PAGE_CHUNK_SIZE, document.numPages));
+            setIsDocumentLoaded(true);
+          }}
+          loading={<div className="loading">Loading PDF...</div>}
+          error={<div className="error">Failed to load PDF</div>}
+          options={options}
         >
-          <div className="flex flex-col items-center space-y-2">
-            {Array.from(new Array(numPages), (_, index) => (
-              <CurrentPage
-                key={index}
-                index={index}
-                segments={content}
-                onSegmentClick={onSegmentClick}
-                width={pdfWidth}
-              />
-            ))}
-          </div>
-        </ScrollArea>
-      </Document>
-    </div>
-  );
-}
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            height="100%"
+            width="100%"
+          >
+            {pages}
+            {loadedPages < (numPages || 0) && (
+              <div className="loading-more-pages">Loading more pages...</div>
+            )}
+          </Flex>
+        </Document>
+      </div>
+    );
+  }
+);
 
 function CurrentPage({
   index,
   segments,
   onSegmentClick,
   width,
+  activeSegment,
 }: {
   index: number;
   segments: Chunk[];
   onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
   width: number;
+  activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
 }) {
   const pageNumber = index + 1;
+
+  const pageSegments = useMemo(
+    () =>
+      segments.flatMap((chunk, chunkIndex) =>
+        chunk.segments
+          .filter((segment) => segment.page_number === pageNumber)
+          .map((segment, segmentIndex) => (
+            <MemoizedSegmentOverlay
+              key={`${chunkIndex}-${segmentIndex}`}
+              segment={segment}
+              chunkIndex={chunkIndex}
+              segmentIndex={segmentIndex}
+              onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
+              isActive={activeSegment?.chunkIndex === chunkIndex}
+            />
+          ))
+      ),
+    [segments, pageNumber, onSegmentClick, activeSegment]
+  );
+
   return (
     <div className="flex relative items-center">
       <Page key={`page_${pageNumber}`} pageNumber={pageNumber} width={width}>
-        {segments.flatMap((chunk, chunkIndex) =>
-          chunk.segments
-            .filter((segment) => segment.page_number === pageNumber)
-            .map((segment, segmentIndex) => (
-              <SegmentOverlay
-                key={`${chunkIndex}-${segmentIndex}`}
-                segment={segment}
-                chunkIndex={chunkIndex}
-                segmentIndex={segmentIndex}
-                onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
-              />
-            ))
-        )}
+        {pageSegments}
       </Page>
     </div>
   );
@@ -163,34 +264,48 @@ function CurrentPage({
 function SegmentOverlay({
   segment,
   onClick,
+  chunkIndex,
+  segmentIndex,
+  isActive,
 }: {
   segment: Segment;
   onClick: () => void;
   chunkIndex: number;
   segmentIndex: number;
+  isActive?: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const scaledLeft = `${(segment.bbox.left / segment.page_width) * 100}%`;
-  const scaledTop = `${(segment.bbox.top / segment.page_height) * 100}%`;
-  const scaledHeight = `${(segment.bbox.height / segment.page_height) * 100}%`;
-  const scaledWidth = `${(segment.bbox.width / segment.page_width) * 100}%`;
 
-  const baseColor =
-    segmentColors[segment.segment_type as SegmentType] || "--border-black";
-  const lightColor =
-    segmentLightColors[segment.segment_type as SegmentType] || "--border-black";
+  const style = useMemo(
+    () => ({
+      width: `${(segment.bbox.width / segment.page_width) * 100}%`,
+      height: `${(segment.bbox.height / segment.page_height) * 100}%`,
+      left: `${(segment.bbox.left / segment.page_width) * 100}%`,
+      top: `${(segment.bbox.top / segment.page_height) * 100}%`,
+      borderColor: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"})`,
+      backgroundColor: isActive
+        ? `var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"})`
+        : "transparent",
+      opacity: isActive ? "0.25" : "1",
+    }),
+    [segment, isActive]
+  );
+
+  const handleClick = () => {
+    onClick();
+    // Dispatch event to highlight corresponding segment chunk
+    window.dispatchEvent(
+      new CustomEvent("highlight-segment", {
+        detail: { chunkIndex, segmentIndex },
+      })
+    );
+  };
 
   return (
     <div
-      className="segment visible absolute z-50 border-2"
-      style={{
-        width: scaledWidth,
-        height: "600px !important",
-        left: scaledLeft,
-        top: scaledTop,
-        borderColor: `var(${baseColor})`,
-      }}
-      onClick={onClick}
+      className={`segment visible absolute z-50 border-2 ${isActive ? "active" : ""}`}
+      style={style}
+      onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -198,16 +313,16 @@ function SegmentOverlay({
       <div
         className="segment-overlay"
         style={{
-          border: `2px solid var(${baseColor})`,
-          backgroundColor: `var(${lightColor})`,
-          color: `var(${baseColor})`,
+          border: `2px solid var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"})`,
+          backgroundColor: `var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"})`,
+          color: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"})`,
           fontSize: "12px",
         }}
       >
         {segment.segment_type}
       </div>
       {isHovered && segment.ocr && (
-        <OCRBoundingBoxes
+        <MemoizedOCRBoundingBoxes
           ocr={segment.ocr}
           segmentBBox={segment.bbox}
           segmentType={segment.segment_type as SegmentType}
@@ -228,37 +343,23 @@ function OCRBoundingBoxes({
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const segmentWidth = segmentBBox.width;
-  const segmentHeight = segmentBBox.height;
-
-  const baseColor = segmentColors[segmentType] || "--border-black";
-  const lightColor = segmentLightColors[segmentType] || "--border-black";
-
   return (
     <>
       {ocr.map((result, index) => {
-        const relativeLeft = result.bbox.left;
-        const relativeTop = result.bbox.top;
-        const width = result.bbox.width;
-        const height = result.bbox.height;
-
-        const scaledRelativeLeft = `${(relativeLeft / segmentWidth) * 100}%`;
-        const scaledRelativeTop = `${(relativeTop / segmentHeight) * 100}%`;
-        const scaledWidth = `${(width / segmentWidth) * 100}%`;
-        const scaledHeight = `${(height / segmentHeight) * 100}%`;
+        const style = {
+          position: "absolute" as const,
+          left: `${(result.bbox.left / segmentBBox.width) * 100}%`,
+          top: `${(result.bbox.top / segmentBBox.height) * 100}%`,
+          width: `${(result.bbox.width / segmentBBox.width) * 100}%`,
+          height: `${(result.bbox.height / segmentBBox.height) * 100}%`,
+          border: `1px solid var(${segmentColors[segmentType] || "--border-black"})`,
+          zIndex: 40,
+        };
 
         return (
           <Box
             key={index}
-            style={{
-              position: "absolute",
-              left: scaledRelativeLeft,
-              top: scaledRelativeTop,
-              width: scaledWidth,
-              height: scaledHeight,
-              border: `1px solid var(${baseColor})`,
-              zIndex: 40,
-            }}
+            style={style}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
           >
@@ -269,8 +370,8 @@ function OCRBoundingBoxes({
                   position: "absolute",
                   bottom: "100%",
                   left: "0",
-                  backgroundColor: `var(${lightColor})`,
-                  color: `var(${baseColor})`,
+                  backgroundColor: `var(${segmentLightColors[segmentType] || "--border-black"})`,
+                  color: `var(${segmentColors[segmentType] || "--border-black"})`,
                   padding: "2px 4px",
                   borderRadius: "2px",
                   zIndex: 50,
@@ -288,3 +389,5 @@ function OCRBoundingBoxes({
     </>
   );
 }
+
+PDF.displayName = "PDF";
