@@ -6,22 +6,18 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     #[serde(default = "default_general_ocr_url")]
     pub general_ocr_url: Option<String>,
+    #[serde(default = "default_high_res_scaling_factor")]
+    pub high_res_scaling_factor: f32,
     #[serde(default = "default_ocr_confidence_threshold")]
     pub ocr_confidence_threshold: f32,
-    #[serde(default = "default_page_image_density")]
-    pub page_image_density: f32,
     #[serde(default = "default_page_limit")]
     pub page_limit: i32,
-    #[serde(default = "default_pdf_density")]
-    pub pdf_density: f32,
     #[serde(default = "default_queue_task")]
     pub queue_task: String,
     #[serde(default = "default_max_retries")]
     pub max_retries: u32,
     #[serde(default = "default_s3_bucket")]
     pub s3_bucket: String,
-    #[serde(default = "default_segment_bbox_offset")]
-    pub segment_bbox_offset: f32,
     #[serde(default = "default_segmentation_url")]
     pub segmentation_url: String,
     #[serde(default = "default_server_url")]
@@ -38,20 +34,16 @@ fn default_general_ocr_url() -> Option<String> {
     Some("http://localhost:8002".to_string())
 }
 
+fn default_high_res_scaling_factor() -> f32 {
+    2.0
+}
+
 fn default_ocr_confidence_threshold() -> f32 {
     0.85
 }
 
-fn default_page_image_density() -> f32 {
-    150.0
-}
-
 fn default_page_limit() -> i32 {
     10000
-}
-
-fn default_pdf_density() -> f32 {
-    72.0
 }
 
 fn default_queue_task() -> String {
@@ -64,10 +56,6 @@ fn default_max_retries() -> u32 {
 
 fn default_s3_bucket() -> String {
     "chunkr".to_string()
-}
-
-fn default_segment_bbox_offset() -> f32 {
-    1.0
 }
 
 fn default_segmentation_url() -> String {
