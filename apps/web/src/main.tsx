@@ -61,7 +61,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/newDashboard",
-    element: <NewDashboard />,
+    element: (
+      <AuthGuard>
+        <NewDashboard />
+      </AuthGuard>
+    ),
   },
   {
     path: "*",

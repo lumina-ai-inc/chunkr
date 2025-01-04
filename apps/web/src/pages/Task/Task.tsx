@@ -2,7 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { Status } from "../../models/task.model";
 import Loader from "../Loader/Loader";
 import StatusView from "../../components/Status/StatusView";
-import { Viewer } from "../../components/Viewer/Viewer";
+import Viewer from "../../components/Viewer/Viewer";
 import { useTaskQuery } from "../../hooks/useTaskQuery";
 
 export default function Task() {

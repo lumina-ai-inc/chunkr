@@ -24,7 +24,7 @@
 }
 
 .MuiTableContainer-root {
-  background-color: rgb(30, 36, 37) !important;
+  background-color: rgb(2, 8, 9) !important;
 
   /* Webkit browsers (Chrome, Safari, newer Edge) */
   &::-webkit-scrollbar {

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
@@ -77,34 +77,53 @@ export function PDF({
   onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
 }) {
   const [numPages, setNumPages] = useState<number>();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [pdfWidth, setPdfWidth] = useState(800);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = Math.min(entry.contentRect.width - 32, 800);
+        setPdfWidth(width);
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
 
   function onDocumentLoadSuccess(document: pdfjs.PDFDocumentProxy): void {
     setNumPages(document.numPages);
   }
 
   return (
-    <Document
-      file={inputFileUrl}
-      onLoadSuccess={onDocumentLoadSuccess}
-      options={options}
-    >
-      <ScrollArea
-        scrollbars="both"
-        type="always"
-        style={{ height: "calc(100vh - 90px)" }}
+    <div ref={containerRef} className="pdf-container">
+      <Document
+        file={inputFileUrl}
+        onLoadSuccess={onDocumentLoadSuccess}
+        options={options}
       >
-        <div className="flex flex-col items-center space-y-2">
-          {Array.from(new Array(numPages), (_, index) => (
-            <CurrentPage
-              key={index}
-              index={index}
-              segments={content}
-              onSegmentClick={onSegmentClick}
-            />
-          ))}
-        </div>
-      </ScrollArea>
-    </Document>
+        <ScrollArea
+          scrollbars="both"
+          type="always"
+          style={{ height: "calc(100vh - 90px)" }}
+        >
+          <div className="flex flex-col items-center space-y-2">
+            {Array.from(new Array(numPages), (_, index) => (
+              <CurrentPage
+                key={index}
+                index={index}
+                segments={content}
+                onSegmentClick={onSegmentClick}
+                width={pdfWidth}
+              />
+            ))}
+          </div>
+        </ScrollArea>
+      </Document>
+    </div>
   );
 }
 
@@ -112,32 +131,30 @@ function CurrentPage({
   index,
   segments,
   onSegmentClick,
+  width,
 }: {
   index: number;
   segments: Chunk[];
   onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
+  width: number;
 }) {
   const pageNumber = index + 1;
-  const thingsToRender = segments.flatMap((chunk, chunkIndex) =>
-    chunk.segments
-      .filter((segment) => segment.page_number === pageNumber)
-      .map((segment, segmentIndex) => ({ segment, chunkIndex, segmentIndex }))
-  );
-
-  const pageRef = useRef<HTMLDivElement>(null);
-
   return (
-    <div ref={pageRef} className="flex relative items-center">
-      <Page key={`page_${pageNumber}`} pageNumber={pageNumber} width={800}>
-        {thingsToRender.map(({ segment, chunkIndex, segmentIndex }) => (
-          <SegmentOverlay
-            key={`${chunkIndex}-${segmentIndex}`}
-            segment={segment}
-            onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
-            chunkIndex={chunkIndex}
-            segmentIndex={segmentIndex}
-          />
-        ))}
+    <div className="flex relative items-center">
+      <Page key={`page_${pageNumber}`} pageNumber={pageNumber} width={width}>
+        {segments.flatMap((chunk, chunkIndex) =>
+          chunk.segments
+            .filter((segment) => segment.page_number === pageNumber)
+            .map((segment, segmentIndex) => (
+              <SegmentOverlay
+                key={`${chunkIndex}-${segmentIndex}`}
+                segment={segment}
+                chunkIndex={chunkIndex}
+                segmentIndex={segmentIndex}
+                onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
+              />
+            ))
+        )}
       </Page>
     </div>
   );

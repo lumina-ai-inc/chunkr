@@ -10,13 +10,17 @@ import { useNavigate } from "react-router-dom";
 import { TaskResponse } from "../../models/task.model";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
-import "./Table.css";
+import "./TaskTable.css";
 
-const Table = () => {
+const TaskTable = () => {
   const navigate = useNavigate();
+  const searchParams = new URLSearchParams(window.location.search);
+  const tablePageIndex = parseInt(searchParams.get("tablePageIndex") || "0");
+  const tablePageSize = parseInt(searchParams.get("tablePageSize") || "10");
+
   const [pagination, setPagination] = useState<MRT_PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
+    pageIndex: tablePageIndex,
+    pageSize: tablePageSize,
   });
 
   const { data: user } = useUser();
@@ -31,7 +35,9 @@ const Table = () => {
   } = useTasksQuery(pagination.pageIndex + 1, pagination.pageSize);
 
   const handleTaskClick = (task: TaskResponse) => {
-    navigate(`/task/${task.task_id}?pageCount=${task.page_count}`);
+    navigate(
+      `/newDashboard?taskId=${task.task_id}&pageCount=${task.page_count || 10}&tablePageIndex=${pagination.pageIndex}&tablePageSize=${pagination.pageSize}`
+    );
   };
 
   const columns = useMemo<MRT_ColumnDef<TaskResponse>[]>(
@@ -89,7 +95,6 @@ const Table = () => {
             styleOverrides: {
               root: {
                 backgroundImage: "none",
-                backgroundColor: "rgb(2, 8, 9)",
                 boxShadow: "none",
                 backdropFilter: "none",
                 height: "100%",
@@ -142,6 +147,15 @@ const Table = () => {
                   backgroundColor: "rgba(255, 255, 255, 0.05)",
                 },
                 transition: "all 0.2s ease",
+              },
+            },
+          },
+          MuiSvgIcon: {
+            styleOverrides: {
+              root: {
+                color: "rgba(255, 255, 255, 0.8)",
+                height: "20px",
+                width: "20px",
               },
             },
           },
@@ -228,6 +242,7 @@ const Table = () => {
         enableStickyFooter
         muiPaginationProps={{
           rowsPerPageOptions: [10, 20, 50, 100],
+          defaultValue: 20,
         }}
         muiTableContainerProps={{
           sx: {
@@ -267,4 +282,4 @@ const Table = () => {
   );
 };
 
-export default Table;
+export default TaskTable;

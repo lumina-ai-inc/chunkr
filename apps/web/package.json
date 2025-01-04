@@ -35,11 +35,8 @@
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.5",
     "clsx": "^2.1.1",
-<<<<<<< HEAD
-=======
     "dompurify": "^3.1.6",
     "framer-motion": "^11.15.0",
->>>>>>> 4ef43771 (Added MomentumScroll for homepage)
     "i": "^0.3.7",
     "install": "^0.13.0",
     "katex": "^0.16.11",
@@ -62,23 +59,23 @@
     "react-pdf": "^9.1.0",
     "react-query": "^3.39.3",
     "react-redux": "^9.1.2",
+    "react-resizable-panels": "^2.1.7",
     "react-router": "^6.26.1",
     "react-router-dom": "^6.26.1",
     "recharts": "^2.12.7",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
-<<<<<<< HEAD
     "sanitize-html": "^2.13.1",
-=======
     "resize-observer-polyfill": "^1.5.1",
->>>>>>> 4ef43771 (Added MomentumScroll for homepage)
     "styled-components": "^6.1.12",
     "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/katex": "^0.16.7",
+    "@types/dompurify": "^3.0.5",
+    "@types/node": "^22.10.5",
     "@types/pdfjs-dist": "^2.10.378",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Text, Flex, ScrollArea, Code } from "@radix-ui/themes";
 import "./Dashboard.css";
-import TaskCard from "../../components/TaskCard/TaskCard";
+
 import DashBoardHeader from "./DashBoardHeader";
 import Loader from "../Loader/Loader";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
-import { useNavigate } from "react-router-dom";
-import { TaskResponse } from "../../models/task.model";
 import {
   calculateBillingDueDate,
   calculateDiscountedBilling,
@@ -35,8 +33,6 @@ export default function Dashboard() {
 
   const auth = useAuth();
   const accessToken = auth.user?.access_token;
-
-  const navigate = useNavigate();
 
   const totalTasks = user?.task_count || 0;
   const totalPages = Math.ceil(totalTasks / itemsPerPage);
@@ -141,10 +137,6 @@ export default function Dashboard() {
   const billingDueDate = monthlyUsage?.[0]?.month
     ? calculateBillingDueDate(monthlyUsage[0].month)
     : null;
-
-  const handleTaskClick = (task: TaskResponse) => {
-    navigate(`/task/${task.task_id}?pageCount=${task.page_count}`);
-  };
 
   return (
     <div className="dashboard-container" style={{ width: "100%" }}>
@@ -745,15 +737,7 @@ export default function Dashboard() {
                     Error - try refreashing the page
                   </Text>
                 ) : (
-                  <Flex direction="column" width="100%" gap="6">
-                    {tasks?.map((task) => (
-                      <TaskCard
-                        key={task.task_id}
-                        {...task}
-                        onClick={() => handleTaskClick(task)}
-                      />
-                    ))}
-                  </Flex>
+                  <Flex direction="column" width="100%" gap="6"></Flex>
                 )}
               </Flex>
             </ScrollArea>

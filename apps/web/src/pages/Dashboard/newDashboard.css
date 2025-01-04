@@ -1,9 +1,9 @@
 .dashboard-nav-container {
   width: 100%;
   max-width: 256px;
-  gap: 24px;
-  padding: 24px 16px;
-  padding-top: 16px;
+  gap: 28px;
+  padding: 16px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
     1px 0 0 0 rgba(255, 255, 255, 0.05),
     4px 0 16px -8px rgba(0, 0, 0, 0.2),
@@ -13,7 +13,6 @@
 .dashboard-nav-header {
   width: 100%;
   align-items: center;
-  padding: 0px 8px;
 }
 
 .dashboard-nav-body {
@@ -44,7 +43,7 @@
 
 .dashboard-nav-items {
   width: 100%;
-  gap: 6px;
+  gap: 8px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
@@ -92,10 +91,18 @@
 
 .main-header {
   width: 100%;
-  padding: 16px 24px;
+  padding: 16px;
   height: fit-content;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   justify-content: space-between;
+  align-items: center;
+}
+
+.header-task-tag {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(103, 232, 249, 0.1);
+  border: 1px solid rgba(103, 232, 249, 0.2);
 }
 
 .profile-section {
@@ -156,42 +163,35 @@
   overflow: hidden;
 }
 
-.tasks-status-container {
-  background: rgba(255, 255, 255, 0.08);
+.dashboard-nav-item.selected {
+  background: #fff;
+}
+
+.dashboard-nav-item.selected svg path {
+  stroke: rgb(2, 5, 6);
+}
+
+.dashboard-nav-item:hover:not(.selected) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.profile-popup {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(2, 5, 6, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
 }
 
-.tasks-status-header {
-  cursor: pointer;
-  user-select: none;
+.profile-popup .profile-menu {
+  width: 100%;
+  padding: 8px;
 }
 
-.status-indicator {
-  width: 8px;
-  height: 8px;
-  background: #22c55e;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-.tasks-graph-container {
-  margin-top: 16px;
-  height: 200px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 16px;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-  }
+.profile-popup .profile-menu-item {
+  width: 100%;
 }

@@ -1,5 +1,6 @@
 .segment {
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .segment-overlay {
@@ -15,4 +16,27 @@
 
 .segment:hover .segment-overlay {
   display: block;
+}
+
+.pdf-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.react-pdf__Document {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.react-pdf__Page {
+  max-width: 100%;
+  position: relative;
+  margin: 8px 0;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  transition: width 0.2s ease; /* Smooth width transitions */
 }

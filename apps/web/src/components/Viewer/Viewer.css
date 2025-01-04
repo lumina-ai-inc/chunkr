@@ -1,8 +1,54 @@
-.download-json-button {
-  background-color: var(--cyan-12);
-  border-radius: 4px;
-  box-shadow:
-    0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
-    0px 3px 12px -4px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
-    0px 2px 3px -2px var(--Colors-Neutral-Neutral-Alpha-3, rgba(0, 0, 51, 0.04));
+.viewer-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 16px;
+}
+
+.viewer-header-config-button {
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+.viewer-header-config-button:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.config-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: max-content;
+  min-width: 300px;
+  background: rgba(2, 5, 6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.config-popup .react-json-view {
+  background-color: transparent !important;
+}
+
+.resize-handle {
+  width: 4px;
+  background-color: hsla(0, 0%, 0%, 0.4);
+  transition: background-color 0.2s;
+}
+
+.resize-handle:hover {
+  background-color: hsla(0, 0%, 100%, 0.2);
+}
+
+/* Optional: Change cursor on hover */
+.resize-handle:hover {
+  cursor: col-resize;
 }
