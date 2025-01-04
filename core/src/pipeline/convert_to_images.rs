@@ -18,6 +18,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         false => 1.0,
     };
     let pages = pages_as_images(pipeline.pdf_file.as_ref().unwrap(), scaling_factor)?;
-    pipeline.pages = Some(pages.into_iter().map(|p| Arc::new(p)).collect());
+    pipeline.page_images = Some(pages.into_iter().map(|p| Arc::new(p)).collect());
     Ok(())
 }

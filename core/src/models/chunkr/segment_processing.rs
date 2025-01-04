@@ -60,7 +60,7 @@ impl Default for SegmentProcessing {
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
 /// Controls the processing and generation for the segment.
 /// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
-///   The cropped image will be stored in the segment's `image_url` field. Use `All` to always crop,
+///   The cropped image will be stored in the segment's `image` field. Use `All` to always crop,
 ///   or `Auto` to only crop when needed for post-processing.
 /// - `html` is the HTML output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 /// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
@@ -81,7 +81,7 @@ pub struct AutoGenerationConfig {
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
 /// Controls the processing and generation for the segment.
 /// - `crop_image` controls whether to crop the file's images to the segment's bounding box.
-///   The cropped image will be stored in the segment's `image_url` field. Use `All` to always crop,
+///   The cropped image will be stored in the segment's `image` field. Use `All` to always crop,
 ///   or `Auto` to only crop when needed for post-processing.
 /// - `html` is the HTML output for the segment, generated either through huerstics (`Auto`) or using Chunkr fine-tuned models (`LLM`)
 /// - `llm` is the LLM-generated output for the segment, this uses off-the-shelf models to generate a custom output for the segment
@@ -133,7 +133,19 @@ impl Default for LlmGenerationConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, Display, EnumString, ToSql, FromSql)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    ToSchema,
+    Display,
+    EnumString,
+    ToSql,
+    FromSql,
+    PartialEq,
+    Eq,
+)]
 pub enum GenerationStrategy {
     LLM,
     Auto,

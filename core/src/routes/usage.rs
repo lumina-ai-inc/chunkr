@@ -1,9 +1,10 @@
-use crate::models::chunkr::auth::UserInfo;
 use crate::configs::postgres_config::{Client, Pool};
+use crate::models::chunkr::auth::UserInfo;
 use actix_web::{web, Error, HttpResponse};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, ToSchema)]
 struct UsageResponse {
     email: String,
     key: String,
@@ -11,7 +12,8 @@ struct UsageResponse {
     usage_limit: i32,
     usage_percentage: f64,
 }
-#[derive(Serialize, Deserialize)]
+
+#[derive(Serialize, Deserialize, ToSchema)]
 struct TaskCountResponse {
     task_count: i64,
 }

@@ -15,7 +15,6 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
 use std::path::Path;
-use std::sync::Arc;
 use tempfile::NamedTempFile;
 
 static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
@@ -59,7 +58,7 @@ impl fmt::Display for OcrError {
 impl Error for OcrError {}
 
 pub async fn doctr_ocr(
-    temp_file: Arc<NamedTempFile>,
+    temp_file: &NamedTempFile,
 ) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
     let worker_config = WorkerConfig::from_env()
@@ -173,7 +172,7 @@ pub fn get_latex_from_llm_formula_ocr(
 }
 
 pub async fn perform_general_ocr(
-    temp_file: Arc<NamedTempFile>,
+    temp_file: &NamedTempFile,
 ) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     init_throttle();
     let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
@@ -183,7 +182,7 @@ pub async fn perform_general_ocr(
                 *TOKEN_TIMEOUT.get().unwrap(),
             ))
             .await?;
-        doctr_ocr(Arc::clone(&temp_file)).await
+        doctr_ocr(temp_file).await
     })
     .await?)
 }
@@ -252,7 +251,7 @@ mod tests {
     async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
         let temp_file = NamedTempFile::new()?;
         std::fs::copy("input/test.jpg", temp_file.path())?;
-        doctr_ocr(Arc::new(temp_file)).await?;
+        doctr_ocr(&temp_file).await?;
         Ok(())
     }
 
@@ -284,7 +283,7 @@ mod tests {
             let temp_file = NamedTempFile::new()?;
             std::fs::copy(&input_file, temp_file.path())?;
             let task = tokio::spawn(async move {
-                match perform_general_ocr(Arc::new(temp_file)).await {
+                match perform_general_ocr(&temp_file).await {
                     Ok(_) => Ok(()),
                     Err(e) => {
                         println!("Error processing {:?}: {:?}", input_file, e);
