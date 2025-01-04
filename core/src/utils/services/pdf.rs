@@ -1,6 +1,5 @@
-use crate::models::chunkr::output::{BoundingBox, OCRResult};
 use crate::configs::pdfium_config::Config as PdfiumConfig;
-use crate::configs::worker_config::Config as WorkerConfig;
+use crate::models::chunkr::output::{BoundingBox, OCRResult};
 use image::ImageFormat;
 use lopdf::Document;
 use pdfium_render::prelude::*;
@@ -53,12 +52,13 @@ pub fn split_pdf(
     Ok(split_files)
 }
 
-pub fn pages_as_images(pdf_file: &NamedTempFile) -> Result<Vec<NamedTempFile>, Box<dyn Error>> {
-    let extraction_config = WorkerConfig::from_env()?;
+pub fn pages_as_images(
+    pdf_file: &NamedTempFile,
+    scaling_factor: f32,
+) -> Result<Vec<NamedTempFile>, Box<dyn Error>> {
     let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
     let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
-    let render_config = PdfRenderConfig::new()
-        .scale_page_by_factor(extraction_config.page_image_density / extraction_config.pdf_density);
+    let render_config = PdfRenderConfig::new().scale_page_by_factor(scaling_factor);
 
     let page_count = document.pages().len();
     let mut image_files = Vec::with_capacity(page_count.into());
