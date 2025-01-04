@@ -1,4 +1,6 @@
 pub mod auth;
+pub mod chunk_processing;
+pub mod cropping;
 pub mod general_ocr;
 pub mod open_ai;
 pub mod output;

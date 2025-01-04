@@ -68,6 +68,8 @@ fn run_migrations(url: &str) {
     ),
     components(
         schemas(
+            models::chunkr::chunk_processing::ChunkProcessing,
+            models::chunkr::cropping::CroppingStrategy,
             models::chunkr::output::BoundingBox,
             models::chunkr::output::Chunk,
             models::chunkr::output::OCRResult,

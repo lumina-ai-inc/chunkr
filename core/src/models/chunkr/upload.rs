@@ -1,3 +1,4 @@
+use crate::models::chunkr::chunk_processing::ChunkProcessing;
 use crate::models::chunkr::segment_processing::SegmentProcessing;
 use crate::models::chunkr::structured_extraction::JsonSchema;
 
@@ -8,9 +9,13 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::{IntoParams, ToSchema};
 
+// TODO: Add url and base_64 for file upload
 #[derive(Debug, MultipartForm, ToSchema, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub struct UploadForm {
+    #[param(style = Form, value_type = Option<ChunkProcessing>)]
+    #[schema(value_type = Option<ChunkProcessing>)]
+    pub chunk_processing: Option<MPJson<ChunkProcessing>>,
     #[param(style = Form, value_type = Option<i32>)]
     #[schema(value_type = Option<i32>)]
     /// The number of seconds until task is deleted.
@@ -20,6 +25,10 @@ pub struct UploadForm {
     #[schema(value_type = String, format = "binary")]
     /// The file to be uploaded.
     pub file: TempFile,
+    #[param(style = Form, value_type = Option<bool>)]
+    #[schema(value_type = Option<bool>, default = false)]
+    /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
+    pub high_resolution: Option<Text<bool>>,
     #[param(style = Form, value_type = Option<JsonSchema>)]
     #[schema(value_type = Option<JsonSchema>)]
     pub json_schema: Option<MPJson<JsonSchema>>,
@@ -34,6 +43,7 @@ pub struct UploadForm {
     pub segmentation_strategy: Option<Text<SegmentationStrategy>>,
     #[param(style = Form, value_type = Option<i32>)]
     #[schema(value_type = Option<i32>, default = 512)]
+    #[deprecated = "Use `chunk_processing` instead"]
     /// The target chunk length to be used for chunking.
     /// If 0, each chunk will contain a single segment.
     pub target_chunk_length: Option<Text<i32>>,
@@ -71,7 +81,7 @@ impl Default for OcrStrategy {
     ToSchema,
 )]
 /// Controls the segmentation strategy:
-/// - `LayoutAnalysis`: Analyzes pages for layout elements (e.g., `Table`, `Picture`, `Formula`, etc.) using bounding boxes. Provides fine-grained segmentation and better chunking, but with a latency penalty.
+/// - `LayoutAnalysis`: Analyzes pages for layout elements (e.g., `Table`, `Picture`, `Formula`, etc.) using bounding boxes. Provides fine-grained segmentation and better chunking. (Latency penalty: ~TBD seconds per page).
 /// - `Page`: Treats each page as a single segment. Faster processing, but without layout element detection and only simple chunking.
 pub enum SegmentationStrategy {
     LayoutAnalysis,
