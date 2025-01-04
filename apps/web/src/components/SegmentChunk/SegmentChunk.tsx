@@ -35,23 +35,19 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
       (match, content) => {
         try {
           // Handle display mode math ($$...$$)
-          content = content.replace(
-            /\$\$(.*?)\$\$/g,
-            (m: string, formula: string) =>
-              katex.renderToString(formula, {
-                displayMode: true,
-                throwOnError: false,
-              })
+          content = content.replace(/\$\$(.*?)\$\$/g, (formula: string) =>
+            katex.renderToString(formula, {
+              displayMode: true,
+              throwOnError: false,
+            })
           );
 
           // Handle inline math ($...$)
-          content = content.replace(
-            /\$(.*?)\$/g,
-            (m: string, formula: string) =>
-              katex.renderToString(formula, {
-                displayMode: false,
-                throwOnError: false,
-              })
+          content = content.replace(/\$(.*?)\$/g, (formula: string) =>
+            katex.renderToString(formula, {
+              displayMode: false,
+              throwOnError: false,
+            })
           );
 
           return `<span class="formula">${content}</span>`;
@@ -202,15 +198,55 @@ export const SegmentChunk = memo(
       const combinedHtml = useMemo(() => {
         return chunk.segments
           .map((segment) => {
+            // Handle table images
             if (
               segment.segment_type === "Table" &&
               segment.html?.startsWith("<span class=")
             ) {
               return `<br><img src="${segment.image}" />`;
             }
-            if (segment.segment_type === "Formula") {
-              return `<div class="math-display">${segment.html}</div>`;
+
+            // Handle formula segments with class="formula"
+            if (segment.html?.includes('class="formula"')) {
+              const formulaMatch = segment.html.match(
+                /<span class="formula">(.*?)<\/span>/s
+              );
+              if (formulaMatch) {
+                const formula = formulaMatch[1]
+                  .replace(/&gt;/g, ">")
+                  .replace(/&lt;/g, "<")
+                  .replace(/&amp;/g, "&")
+                  .trim();
+                try {
+                  return katex.renderToString(formula, {
+                    displayMode: true,
+                    throwOnError: false,
+                    strict: false,
+                    trust: true,
+                    macros: {
+                      "\\R": "\\mathbb{R}",
+                    },
+                  });
+                } catch (error) {
+                  console.error("KaTeX rendering error:", error);
+                  return `<div class="math math-display">$$\\begin{aligned}${formula}\\end{aligned}$$</div>`;
+                }
+              }
             }
+
+            // Handle content with LaTeX delimiters
+            if (segment.content && segment.content.includes("\\")) {
+              try {
+                return katex.renderToString(segment.content, {
+                  displayMode: true,
+                  throwOnError: false,
+                });
+              } catch (error) {
+                console.error("KaTeX rendering error:", error);
+                return `<div class="math math-display">$$${segment.content}$$</div>`;
+              }
+            }
+
             return segment.html || "";
           })
           .filter(Boolean)
@@ -236,14 +272,18 @@ export const SegmentChunk = memo(
             return (
               <div
                 className={`segment-content-wrapper ${activeSegment?.chunkIndex === chunkIndex ? "active" : ""}`}
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   if (firstPageNumber) {
                     onSegmentClick?.(chunkIndex, 0);
-                    window.dispatchEvent(
-                      new CustomEvent("scroll-to-page", {
-                        detail: { pageNumber: firstPageNumber },
-                      })
-                    );
+                    requestAnimationFrame(() => {
+                      window.dispatchEvent(
+                        new CustomEvent("scroll-to-page", {
+                          detail: { pageNumber: firstPageNumber },
+                        })
+                      );
+                    });
                   }
                 }}
               >
@@ -260,7 +300,11 @@ export const SegmentChunk = memo(
                 <div
                   key={segmentIndex}
                   className={`segment-item ${isSegmentActive(segmentIndex) ? "active" : ""}`}
-                  onClick={() => onSegmentClick?.(chunkIndex, segmentIndex)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onSegmentClick?.(chunkIndex, segmentIndex);
+                  }}
                 >
                   <MemoizedJson segment={segment} />
                 </div>
@@ -272,7 +316,11 @@ export const SegmentChunk = memo(
                 <div
                   key={segmentIndex}
                   className={`structured-segment ${isSegmentActive(segmentIndex) ? "active" : ""}`}
-                  onClick={() => onSegmentClick?.(chunkIndex, segmentIndex)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onSegmentClick?.(chunkIndex, segmentIndex);
+                  }}
                 >
                   <div className="segment-type">{segment.segment_type}</div>
                   <div className="segment-content">
@@ -288,7 +336,11 @@ export const SegmentChunk = memo(
         <div
           className="segment-chunk"
           ref={ref}
-          style={{ maxWidth: containerWidth }}
+          style={{
+            maxWidth: containerWidth,
+            position: "relative",
+            overflow: "auto",
+          }}
         >
           <div className="segment-content">
             {renderContent()}

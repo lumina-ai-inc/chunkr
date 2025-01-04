@@ -12,7 +12,6 @@
 .segment.active {
   border: 1px solid var(--accent-6);
   background-color: var(--accent-2);
-  opacity: 0.5;
 }
 
 .segment.active .segment-text-container {
@@ -21,18 +20,15 @@
 
 .segment-overlay {
   position: absolute;
-  top: -24px;
-  left: 0;
+  top: -30px;
+  left: -2px;
   padding: 3px 6px;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   opacity: 0;
   transition: opacity 0.2s ease;
-  background: rgb(2, 5, 6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
   pointer-events: none;
-  color: var(--accent-11);
 }
 
 .segment:hover .segment-overlay {
@@ -46,6 +42,29 @@
   flex-direction: column;
   align-items: center;
   min-width: 200px;
+}
+
+/* Add scrollbar styling */
+.pdf-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.pdf-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pdf-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.pdf-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.pdf-container::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .react-pdf__Document {
@@ -70,4 +89,9 @@
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: width;
   min-width: 200px;
+}
+
+.segment-overlay-background {
+  background-color: rgb(2, 5, 6);
+  opacity: 0.25;
 }

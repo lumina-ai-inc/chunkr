@@ -71,6 +71,7 @@
     "remark-math": "^6.0.0",
     "sanitize-html": "^2.13.1",
     "resize-observer-polyfill": "^1.5.1",
+    "sanitize-html": "^2.14.0",
     "styled-components": "^6.1.12",
     "tailwind-merge": "^2.5.2"
   },

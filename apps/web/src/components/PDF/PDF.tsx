@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useMemo, memo } from "react";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import { Box, Text, Flex } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
 import {
   Chunk,
   Segment,
@@ -283,12 +283,13 @@ function SegmentOverlay({
       left: `${(segment.bbox.left / segment.page_width) * 100}%`,
       top: `${(segment.bbox.top / segment.page_height) * 100}%`,
       borderColor: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"})`,
-      backgroundColor: isActive
-        ? `var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"})`
-        : "transparent",
-      opacity: isActive ? "0.25" : "1",
+      backgroundColor:
+        isActive || isHovered
+          ? `color-mix(in srgb, var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"}) 30%, transparent)`
+          : "transparent",
+      transition: "background-color 0.2s ease-in-out",
     }),
-    [segment, isActive]
+    [segment, isActive, isHovered]
   );
 
   const handleClick = () => {
@@ -313,10 +314,12 @@ function SegmentOverlay({
       <div
         className="segment-overlay"
         style={{
-          border: `2px solid var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"})`,
-          backgroundColor: `var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"})`,
-          color: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"})`,
-          fontSize: "12px",
+          borderColor: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"}) !important`,
+          color: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"}) !important`,
+          backgroundColor: isHovered
+            ? `color-mix(in srgb, var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"}) 100%, transparent)`
+            : "transparent",
+          opacity: "1 !important",
         }}
       >
         {segment.segment_type}
@@ -357,33 +360,35 @@ function OCRBoundingBoxes({
         };
 
         return (
-          <Box
+          <div
             key={index}
             style={style}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
           >
             {hoveredIndex === index && (
-              <Text
-                size="1"
+              <Flex
                 style={{
                   position: "absolute",
-                  bottom: "100%",
-                  left: "0",
-                  backgroundColor: `var(${segmentLightColors[segmentType] || "--border-black"})`,
-                  color: `var(${segmentColors[segmentType] || "--border-black"})`,
+                  zIndex: 9999,
+                  left: 0,
+                  top: 0,
+                  transform: "translateY(-100%)",
+                  backgroundColor: `var(${segmentColors[segmentType] || "--border-black"}) !important`,
+                  color: "white !important",
                   padding: "2px 4px",
                   borderRadius: "2px",
-                  zIndex: 50,
-                  width: "fit-content",
+                  fontSize: "12px",
+                  lineHeight: "1.2",
                   whiteSpace: "nowrap",
-                  marginBottom: "2px",
+                  pointerEvents: "none",
+                  isolation: "isolate",
                 }}
               >
                 {result.text}
-              </Text>
+              </Flex>
             )}
-          </Box>
+          </div>
         );
       })}
     </>
