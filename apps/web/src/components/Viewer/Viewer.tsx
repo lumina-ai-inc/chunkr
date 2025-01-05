@@ -35,7 +35,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
   >("html");
 
   const viewOptions = useMemo(
-    () => ["HTML", "Markdown", "JSON", "Structured Extraction"],
+    () => ["HTML", "Markdown", "Structured Extraction"],
     []
   );
 
