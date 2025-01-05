@@ -3,7 +3,7 @@ use crate::models::chunkr::output::SegmentType;
 use crate::models::chunkr::output::{Chunk, Segment};
 use crate::models::chunkr::structured_extraction::{ExtractedField, ExtractedJson, JsonSchema};
 use crate::utils::services::embeddings::EmbeddingCache;
-use crate::utils::services::llm::{get_basic_message, open_ai_call};
+use crate::utils::services::llm::{get_basic_message, process_openai_request};
 use crate::utils::services::search::search_embeddings;
 
 use itertools::Itertools;
@@ -132,7 +132,7 @@ pub async fn perform_structured_extraction(
                 )) as Box<dyn Error + Send + Sync>
             })?;
 
-            let extracted = open_ai_call(
+            let extracted = process_openai_request(
                 llm_url,
                 llm_key,
                 model_name,
@@ -140,13 +140,7 @@ pub async fn perform_structured_extraction(
                 Some(8000),
                 Some(0.0),
             )
-            .await
-            .map_err(|e| {
-                Box::new(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    e.to_string(),
-                )) as Box<dyn Error + Send + Sync>
-            })?;
+            .await?;
 
             let content: String = match &extracted.choices.first().unwrap().message.content {
                 MessageContent::String { content } => {

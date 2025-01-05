@@ -9,7 +9,6 @@ use crate::utils::services::pdf;
 use crate::utils::services::segmentation;
 use futures::future::try_join_all;
 use rayon::prelude::*;
-use std::sync::Arc;
 use tempfile::NamedTempFile;
 
 async fn ocr_page_all(page: &NamedTempFile) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
@@ -57,24 +56,22 @@ async fn page_segmentation(
 }
 
 async fn layout_analysis(
-    page: Arc<NamedTempFile>,
+    page: &NamedTempFile,
     ocr_results: Vec<OCRResult>,
     page_number: u32,
 ) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
-    let segments =
-        match segmentation::perform_segmentation(Arc::clone(&page), ocr_results, page_number).await
-        {
-            Ok(segments) => segments,
-            Err(e) => {
-                println!("Error in performing segmentation: {:?}", e);
-                return Err(e.to_string().into());
-            }
-        };
+    let segments = match segmentation::perform_segmentation(page, ocr_results, page_number).await {
+        Ok(segments) => segments,
+        Err(e) => {
+            println!("Error in performing segmentation: {:?}", e);
+            return Err(e.to_string().into());
+        }
+    };
     Ok(segments)
 }
 
 async fn process_page(
-    page: Arc<NamedTempFile>,
+    page: &NamedTempFile,
     task_payload: TaskPayload,
     extracted_ocr_result: Vec<OCRResult>,
     page_number: u32,
@@ -85,9 +82,9 @@ async fn process_page(
     };
     let segments = match task_payload.current_configuration.segmentation_strategy {
         SegmentationStrategy::LayoutAnalysis => {
-            layout_analysis(Arc::clone(&page), ocr_results, page_number).await?
+            layout_analysis(page, ocr_results, page_number).await?
         }
-        SegmentationStrategy::Page => page_segmentation(&page, ocr_results, page_number).await?,
+        SegmentationStrategy::Page => page_segmentation(page, ocr_results, page_number).await?,
     };
     Ok(segments)
 }
@@ -106,8 +103,9 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             vec![vec![]; pipeline.page_count.unwrap_or(0) as usize]
         }
     };
+    println!("pdf_ocr_results: {:?}", pdf_ocr_results);
 
-    let segments = try_join_all(
+    let page_segments = try_join_all(
         pipeline
             .page_images
             .as_ref()
@@ -116,7 +114,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             .enumerate()
             .map(|(page_idx, page)| {
                 process_page(
-                    page.clone(),
+                    page,
                     pipeline.task_payload.clone().unwrap(),
                     pdf_ocr_results[page_idx].clone(),
                     page_idx as u32 + 1,
@@ -131,7 +129,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .await?;
 
     let chunks = chunking::hierarchical_chunking(
-        segments.into_iter().flatten().collect(),
+        page_segments.into_iter().flatten().collect(),
         pipeline
             .task_payload
             .as_ref()

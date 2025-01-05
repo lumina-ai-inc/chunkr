@@ -127,8 +127,8 @@ impl Segment {
         )
     }
 
-    fn to_html(&self) -> String {
-        match self.segment_type {
+    pub fn generate_html(&mut self) -> String {
+        let html = match self.segment_type {
             SegmentType::Title => format!("<h1>{}</h1>", self.content),
             SegmentType::SectionHeader => format!("<h2>{}</h2>", self.content),
             SegmentType::Text => format!("<p>{}</p>", self.content),
@@ -154,11 +154,13 @@ impl Segment {
                     .replace(" ", "-"),
                 self.content
             ),
-        }
+        };
+        self.html = Some(html.clone());
+        html
     }
 
-    fn to_markdown(&self) -> String {
-        match self.segment_type {
+    pub fn generate_markdown(&mut self) -> String {
+        let markdown = match self.segment_type {
             SegmentType::Title => format!("# {}\n\n", self.content),
             SegmentType::SectionHeader => format!("## {}\n\n", self.content),
             SegmentType::ListItem => {
@@ -176,12 +178,9 @@ impl Segment {
             }
             SegmentType::Picture => format!("![{}]()", self.segment_id),
             _ => format!("{}\n\n", self.content),
-        }
-    }
-
-    pub fn finalize(&mut self) {
-        self.html = Some(self.to_html());
-        self.markdown = Some(self.to_markdown());
+        };
+        self.markdown = Some(markdown.clone());
+        markdown
     }
 }
 
@@ -253,20 +252,20 @@ pub struct OCRResult {
 /// Note: Different configurations will produce different types.
 /// Please refer to the documentation for more information.
 pub enum SegmentType {
-    Title,
-    #[serde(alias = "Section header")]
-    SectionHeader,
-    Text,
+    Caption,
+    Footnote,
+    Formula,
     #[serde(alias = "List item")]
     ListItem,
-    Table,
-    Picture,
-    Caption,
-    Formula,
-    Footnote,
-    #[serde(alias = "Page header")]
-    PageHeader,
+    Page,
     #[serde(alias = "Page footer")]
     PageFooter,
-    Page,
+    #[serde(alias = "Page header")]
+    PageHeader,
+    Picture,
+    #[serde(alias = "Section header")]
+    SectionHeader,
+    Table,
+    Text,
+    Title,
 }

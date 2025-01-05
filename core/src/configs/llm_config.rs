@@ -2,21 +2,41 @@ use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use strum_macros::Display;
+
+#[derive(Debug, Serialize, Deserialize, Display)]
+#[serde(rename_all = "snake_case")]
+pub enum ImageField {
+    #[serde(rename = "image")]
+    Image,
+    #[serde(rename = "image_url")]
+    ImageUrl,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    #[serde(default = "default_model")]
-    pub model: String,
-    #[serde(default = "default_url")]
-    pub url: String,
+    #[serde(default = "default_image_field")]
+    pub image_field: ImageField,
     #[serde(default = "default_key")]
     pub key: String,
+    #[serde(default = "default_model")]
+    pub model: String,
+    pub ocr_key: Option<String>,
     pub ocr_model: Option<String>,
     pub ocr_url: Option<String>,
-    pub ocr_key: Option<String>,
+    pub structured_extraction_key: Option<String>,
     pub structured_extraction_model: Option<String>,
     pub structured_extraction_url: Option<String>,
-    pub structured_extraction_key: Option<String>,
+    #[serde(default = "default_url")]
+    pub url: String,
+}
+
+fn default_image_field() -> ImageField {
+    ImageField::ImageUrl
+}
+
+fn default_key() -> String {
+    "".to_string()
 }
 
 fn default_model() -> String {
@@ -25,10 +45,6 @@ fn default_model() -> String {
 
 fn default_url() -> String {
     "https://api.openai.com/v1/chat/completions".to_string()
-}
-
-fn default_key() -> String {
-    "".to_string()
 }
 
 impl Config {
@@ -47,25 +63,61 @@ fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
             env!("CARGO_MANIFEST_DIR"),
             "/src/utils/prompts/formula.txt"
         )),
-        "structured_extraction" => include_str!(concat!(
+        "html_caption" => include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/structured_extraction.txt"
+            "/src/utils/prompts/html_caption.txt"
         )),
-        "html_table" => include_str!(concat!(
+        "html_footnote" => include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_table.txt"
+            "/src/utils/prompts/html_footnote.txt"
         )),
-        "md_table" => include_str!(concat!(
+        "html_list_item" => include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_table.txt"
+            "/src/utils/prompts/html_list_item.txt"
+        )),
+        "html_page_footer" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/html_page_footer.txt"
+        )),
+        "html_page_header" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/html_page_header.txt"
         )),
         "html_page" => include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/src/utils/prompts/html_page.txt"
         )),
+        "html_picture" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/html_picture.txt"
+        )),
+        "html_section_header" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/html_section_header.txt"
+        )),
+        "html_table" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/html_table.txt"
+        )),
+        "html_text" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/html_text.txt"
+        )),
+        "html_title" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/html_title.txt"
+        )),
         "md_page" => include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/src/utils/prompts/md_page.txt"
+        )),
+        "md_table" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_table.txt"
+        )),
+        "structured_extraction" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/structured_extraction.txt"
         )),
         _ => {
             return Err(std::io::Error::new(
