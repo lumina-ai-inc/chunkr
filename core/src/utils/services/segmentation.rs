@@ -9,7 +9,6 @@ use once_cell::sync::OnceCell;
 use reqwest::multipart;
 use std::error::Error;
 use std::fs;
-use std::sync::Arc;
 use tempfile::NamedTempFile;
 
 static SEGMENTATION_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
@@ -27,20 +26,14 @@ fn init_throttle() {
 }
 
 async fn vgt_segmentation(
-    temp_file: Arc<NamedTempFile>,
+    temp_file: &NamedTempFile,
     ocr_results: Vec<OCRResult>,
     page_number: u32,
 ) -> Result<Vec<Segment>, Box<dyn Error + Send + Sync>> {
     let worker_config = WorkerConfig::from_env()?;
     let client = clients::get_reqwest_client();
-    let temp_file_clone = Arc::clone(&temp_file);
-    let file_fs = fs::read(temp_file_clone.path()).expect("Failed to read file");
-    let file_name = temp_file_clone
-        .path()
-        .file_name()
-        .unwrap()
-        .to_str()
-        .unwrap();
+    let file_fs = fs::read(temp_file.path()).expect("Failed to read file");
+    let file_name = temp_file.path().file_name().unwrap().to_str().unwrap();
     let part = multipart::Part::bytes(file_fs).file_name(file_name.to_string());
     let form = multipart::Form::new().part("file", part).text(
         "ocr_data",
@@ -65,7 +58,7 @@ async fn vgt_segmentation(
 }
 
 pub async fn perform_segmentation(
-    temp_file: Arc<NamedTempFile>,
+    temp_file: &NamedTempFile,
     ocr_results: Vec<OCRResult>,
     page_number: u32,
 ) -> Result<Vec<Segment>, Box<dyn Error + Send + Sync>> {
@@ -77,7 +70,7 @@ pub async fn perform_segmentation(
                 *TOKEN_TIMEOUT.get().unwrap(),
             ))
             .await?;
-        vgt_segmentation(Arc::clone(&temp_file), ocr_results.clone(), page_number).await
+        vgt_segmentation(temp_file, ocr_results.clone(), page_number).await
     })
     .await?)
 }

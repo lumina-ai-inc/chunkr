@@ -103,9 +103,5 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
             });
         });
 
-    pipeline
-        .update_status(Status::Processing, Some("Cropping complete".to_string()))
-        .await?;
-
     Ok(())
 }

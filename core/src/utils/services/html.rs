@@ -25,6 +25,18 @@ pub fn extract_table_html(html: String) -> String {
     }
 }
 
+/// Cleans the image tags from the HTML
+///
+/// Replaces HTML image tags with their alt text (if available) or removes them entirely.
+/// Useful for converting HTML to plain text while preserving image descriptions.
+///
+/// # Examples
+///
+/// ```
+/// let html = r#"<p>Text <img src="pic.jpg" alt="A picture"> more text</p>"#;
+/// let cleaned = clean_img_tags(html);
+/// assert_eq!(cleaned, "<p>Text A picture more text</p>");
+/// ```
 pub fn clean_img_tags(html: &str) -> String {
     IMG_REGEX
         .replace_all(html, |caps: &regex::Captures| {

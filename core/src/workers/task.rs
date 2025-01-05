@@ -7,6 +7,7 @@ use core::models::rrq::queue::QueuePayload;
 use core::pipeline::convert_to_images;
 use core::pipeline::crop;
 use core::pipeline::pages;
+use core::pipeline::segment_processing;
 use core::pipeline::update_metadata;
 use core::utils::clients::initialize_clients;
 use core::utils::rrq::consumer::consumer;
@@ -23,6 +24,7 @@ async fn execute_step(
         "convert_to_images" => convert_to_images::process(pipeline).await,
         "crop" => crop::process(pipeline).await,
         "pages" => pages::process(pipeline).await,
+        "segment_processing" => segment_processing::process(pipeline).await,
         "update_metadata" => update_metadata::process(pipeline).await,
         _ => Err(format!("Unknown function: {}", step).into()),
     }?;
@@ -40,7 +42,13 @@ async fn execute_step(
 ///
 /// This function defines the order of the steps in the pipeline.
 fn orchestrate_task() -> Vec<&'static str> {
-    vec!["update_metadata", "convert_to_images", "pages", "crop"]
+    vec![
+        "update_metadata",
+        "convert_to_images",
+        "pages",
+        "crop",
+        "segment_processing",
+    ]
 }
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
