@@ -20,6 +20,8 @@ import signal
 import psutil
 
 from transformers import AutoTokenizer
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 
 warnings.filterwarnings("ignore", category=UserWarning, module='torch')
 
@@ -178,40 +180,69 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
         if not segments_data:
             return []
 
-        horizontal_threshold = 100
+        def find_num_columns(boxes):
+            x_centers = []
+            for box, _, _ in boxes:
+                center_x = (box.x1 + box.x2) / 2
+                x_centers.append(center_x)
+            
+            x_centers = np.array(x_centers).reshape(-1, 1)
+            
+            # Try different numbers of columns (1 to 4)
+            best_score = float('-inf')
+            best_n_clusters = 1
+            best_labels = None
+            best_centers = None
+            
+            for n_clusters in range(1, 5):
+                if len(x_centers) < n_clusters:
+                    continue
+                
+                kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+                labels = kmeans.fit_predict(x_centers)
+                score = silhouette_score(x_centers, labels) if n_clusters > 1 else -1
+                
+                if score > best_score:
+                    best_score = score
+                    best_n_clusters = n_clusters
+                    best_labels = labels
+                    best_centers = kmeans.cluster_centers_
+            
+            return best_n_clusters, best_centers, best_labels
 
-        segments_data = sorted(segments_data, key=lambda seg: seg[0].x1)
+        n_columns, column_centers, column_labels = find_num_columns(segments_data)
+        
+        # Group segments by their assigned column
+        columns = [[] for _ in range(n_columns)]
+        
+        for idx, (box, score, cls) in enumerate(segments_data):
+            center_x = (box.x1 + box.x2) / 2
+            
+            # For centered elements (like tables, figures, etc.), check if they span multiple columns
+            box_width = box.x2 - box.x1
+            page_width = max(seg[0].x2 for seg in segments_data)
+            is_wide_element = box_width > (page_width / n_columns) * 1.5
+            
+            if is_wide_element:
+                # Find the nearest column based on center position
+                distances = [abs(center_x - col_center) for col_center in column_centers]
+                nearest_col = distances.index(min(distances))
+                columns[nearest_col].append((box, score, cls))
+            else:
+                # Assign to column based on clustering results
+                col_idx = column_labels[idx]
+                columns[col_idx].append((box, score, cls))
 
-        columns = []
-        for seg in segments_data:
-            box, score, cls = seg
-            placed = False
-            for col_index, col_items in enumerate(columns):
-                col_x1s = [item[0].x1 for item in col_items]
-                col_x2s = [item[0].x2 for item in col_items]
-                col_min_x = min(col_x1s)
-                col_max_x = max(col_x2s)
+        # Sort segments within each column by y-coordinate
+        for col in columns:
+            col.sort(key=lambda item: (item[0].y1, item[0].x1))
 
-                if abs(box.x1 - col_min_x) < horizontal_threshold or abs(box.x1 - col_max_x) < horizontal_threshold:
-                    columns[col_index].append(seg)
-                    placed = True
-                    break
+        # Combine columns from left to right
+        sorted_segments = []
+        for col in columns:
+            sorted_segments.extend(col)
 
-            if not placed:
-                columns.append([seg])
-
-        column_positions = []
-        for col_index, col_items in enumerate(columns):
-            col_items.sort(key=lambda item: (item[0].y1, item[0].x1))
-            avg_x_positions = [it[0].x1 for it in col_items]
-            column_positions.append((col_index, sum(avg_x_positions) / len(avg_x_positions)))
-
-        column_positions.sort(key=lambda cp: cp[1])
-        sorted_columns = []
-        for col_index, _ in column_positions:
-            sorted_columns.extend(columns[col_index])
-
-        return sorted_columns
+        return sorted_segments
 
     updated_predictions = []
     
