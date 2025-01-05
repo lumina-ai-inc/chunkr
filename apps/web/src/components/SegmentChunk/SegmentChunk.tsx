@@ -1,11 +1,4 @@
-import {
-  useMemo,
-  forwardRef,
-  memo,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { forwardRef, memo, useCallback, useMemo } from "react";
 import { Chunk, Segment } from "../../models/chunk.model";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -13,11 +6,8 @@ import "./SegmentChunk.css";
 import DOMPurify from "dompurify";
 import ReactMarkdown from "react-markdown";
 import ReactJson from "react-json-view";
-import { debounce } from "lodash";
 import "katex/dist/katex.min.css";
 import katex from "katex";
-
-const SEGMENT_CHUNK_SIZE = 20;
 
 // Memoized content renderers
 const MemoizedHtml = memo(({ html }: { html: string }) => {
@@ -146,38 +136,6 @@ export const SegmentChunk = memo(
       },
       ref
     ) => {
-      const [loadedSegments, setLoadedSegments] = useState(SEGMENT_CHUNK_SIZE);
-
-      const handleScroll = useMemo(
-        () =>
-          debounce((e: Event) => {
-            const target = e.target as HTMLDivElement;
-            const { scrollTop, scrollHeight, clientHeight } = target;
-            const scrolledToBottom =
-              scrollHeight - scrollTop <= clientHeight * 1.5;
-
-            if (scrolledToBottom && loadedSegments < chunk.segments.length) {
-              setLoadedSegments((prev) =>
-                Math.min(prev + SEGMENT_CHUNK_SIZE, chunk.segments.length)
-              );
-            }
-          }, 100),
-        [loadedSegments, chunk.segments.length]
-      );
-
-      useEffect(() => {
-        const element = ref as React.MutableRefObject<HTMLDivElement | null>;
-        const currentElement = element?.current;
-
-        if (currentElement) {
-          currentElement.addEventListener("scroll", handleScroll);
-          return () => {
-            currentElement.removeEventListener("scroll", handleScroll);
-            handleScroll.cancel();
-          };
-        }
-      }, [ref, handleScroll]);
-
       const combinedMarkdown = useMemo(() => {
         return chunk.segments
           .map((segment) => {
@@ -342,14 +300,7 @@ export const SegmentChunk = memo(
             overflow: "auto",
           }}
         >
-          <div className="segment-content">
-            {renderContent()}
-            {loadedSegments < chunk.segments.length && (
-              <div className="loading-more-segments">
-                Loading more segments...
-              </div>
-            )}
-          </div>
+          <div className="segment-content">{renderContent()}</div>
         </div>
       );
     }
