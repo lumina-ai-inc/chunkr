@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import ReactJson from "react-json-view";
 import "katex/dist/katex.min.css";
 import katex from "katex";
+import { useHorizontalDragScroll } from "../../hooks/useHorizontalDragScroll";
 
 // Memoized content renderers
 const MemoizedHtml = memo(({ html }: { html: string }) => {
@@ -125,17 +126,14 @@ export const SegmentChunk = memo(
       activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
     }
   >(
-    (
-      {
-        chunk,
-        chunkIndex,
-        containerWidth,
-        selectedView,
-        onSegmentClick,
-        activeSegment,
-      },
-      ref
-    ) => {
+    ({
+      chunk,
+      chunkIndex,
+      containerWidth,
+      selectedView,
+      onSegmentClick,
+      activeSegment,
+    }) => {
       const combinedMarkdown = useMemo(() => {
         return chunk.segments
           .map((segment) => {
@@ -290,10 +288,12 @@ export const SegmentChunk = memo(
         }
       };
 
+      const scrollRef = useHorizontalDragScroll();
+
       return (
         <div
           className="segment-chunk"
-          ref={ref}
+          ref={scrollRef}
           style={{
             maxWidth: containerWidth,
             position: "relative",

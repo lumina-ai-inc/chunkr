@@ -355,3 +355,16 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
+
+/* Add grab scrolling for overflow content */
+.segment-chunk,
+.segment-chunk .katex-display,
+.segment-chunk .math-display {
+  cursor: grab !important;
+}
+
+.segment-chunk :active,
+.segment-chunk .katex-display:active,
+.segment-chunk .math-display:active {
+  cursor: grabbing !important;
+}
