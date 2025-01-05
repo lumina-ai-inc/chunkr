@@ -74,23 +74,23 @@ const MemoizedSegmentOverlay = memo(SegmentOverlay);
 
 const MemoizedCurrentPage = memo(CurrentPage);
 
-const PAGE_CHUNK_SIZE = 5; // Number of pages to load at once
-
 export const PDF = memo(
   ({
     content,
     inputFileUrl,
     onSegmentClick,
     activeSegment,
+    loadedPages,
+    onLoadSuccess,
   }: {
     content: Chunk[];
     inputFileUrl: string;
     onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
     activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
+    loadedPages: number;
+    onLoadSuccess?: (numPages: number) => void;
   }) => {
     const [numPages, setNumPages] = useState<number>();
-    const [loadedPages, setLoadedPages] = useState<number>(PAGE_CHUNK_SIZE);
-    const [isDocumentLoaded, setIsDocumentLoaded] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [pdfWidth, setPdfWidth] = useState(800);
 
@@ -119,82 +119,13 @@ export const PDF = memo(
       };
     }, [debouncedSetPdfWidth]);
 
-    // Handle scroll to load more pages
-    useEffect(() => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      const handleScroll = debounce(() => {
-        const { scrollTop, scrollHeight, clientHeight } = container;
-        const scrolledToBottom = scrollHeight - scrollTop <= clientHeight * 1.5;
-
-        if (scrolledToBottom && loadedPages < (numPages || 0)) {
-          setLoadedPages((prev) =>
-            Math.min(prev + PAGE_CHUNK_SIZE, numPages || 0)
-          );
-        }
-      }, 100);
-
-      container.addEventListener("scroll", handleScroll);
-      return () => {
-        container.removeEventListener("scroll", handleScroll);
-        handleScroll.cancel();
-      };
-    }, [loadedPages, numPages]);
-
-    useEffect(() => {
-      const handleScrollToPage = (e: CustomEvent) => {
-        const { pageNumber } = e.detail;
-        const container = containerRef.current;
-        if (container && pageNumber && isDocumentLoaded) {
-          const pageElement = container.querySelector(
-            `[data-page-number="${pageNumber}"]`
-          );
-          if (pageElement) {
-            pageElement.scrollIntoView({ behavior: "smooth" });
-          }
-        }
-      };
-
-      window.addEventListener(
-        "scroll-to-page",
-        handleScrollToPage as EventListener
-      );
-      return () => {
-        window.removeEventListener(
-          "scroll-to-page",
-          handleScrollToPage as EventListener
-        );
-      };
-    }, [isDocumentLoaded]);
-
-    // Memoize the page array with pagination
-    const pages = useMemo(
-      () =>
-        Array.from(
-          new Array(Math.min(loadedPages, numPages || 0)),
-          (_, index) => (
-            <MemoizedCurrentPage
-              key={index}
-              index={index}
-              segments={content}
-              onSegmentClick={onSegmentClick}
-              width={pdfWidth}
-              activeSegment={activeSegment}
-            />
-          )
-        ),
-      [loadedPages, numPages, content, onSegmentClick, pdfWidth, activeSegment]
-    );
-
     return (
       <div ref={containerRef} className="pdf-container">
         <Document
           file={inputFileUrl}
           onLoadSuccess={(document: pdfjs.PDFDocumentProxy) => {
             setNumPages(document.numPages);
-            setLoadedPages(Math.min(PAGE_CHUNK_SIZE, document.numPages));
-            setIsDocumentLoaded(true);
+            onLoadSuccess?.(document.numPages);
           }}
           loading={<div className="loading">Loading PDF...</div>}
           error={<div className="error">Failed to load PDF</div>}
@@ -207,7 +138,19 @@ export const PDF = memo(
             height="100%"
             width="100%"
           >
-            {pages}
+            {Array.from(
+              new Array(Math.min(loadedPages, numPages || 0)),
+              (_, index) => (
+                <MemoizedCurrentPage
+                  key={index}
+                  index={index}
+                  segments={content}
+                  onSegmentClick={onSegmentClick}
+                  width={pdfWidth}
+                  activeSegment={activeSegment}
+                />
+              )
+            )}
             {loadedPages < (numPages || 0) && (
               <div className="loading-more-pages">Loading more pages...</div>
             )}
@@ -253,7 +196,7 @@ function CurrentPage({
   );
 
   return (
-    <div className="flex relative items-center">
+    <div className="flex relative items-center" data-page-number={pageNumber}>
       <Page key={`page_${pageNumber}`} pageNumber={pageNumber} width={width}>
         {pageSegments}
       </Page>
