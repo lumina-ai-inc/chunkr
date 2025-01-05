@@ -235,9 +235,31 @@ function SegmentOverlay({
     [segment, isActive, isHovered]
   );
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     onClick();
-    // Dispatch event to highlight corresponding segment chunk
+
+    const chunkElement = document.querySelector(
+      `[data-chunk-index="${chunkIndex}"]`
+    );
+
+    if (chunkElement) {
+      const container = chunkElement.closest(".scrollable-content");
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const chunkRect = chunkElement.getBoundingClientRect();
+        const scrollTop =
+          chunkRect.top - containerRect.top + container.scrollTop - 24;
+
+        container.scrollTo({
+          top: scrollTop,
+          behavior: "smooth",
+        });
+      }
+    }
+
     window.dispatchEvent(
       new CustomEvent("highlight-segment", {
         detail: { chunkIndex, segmentIndex },

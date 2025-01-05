@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
 
 export const useHorizontalDragScroll = () => {
-  const elementRef = useRef<HTMLDivElement>(null);
+  const elementRef = useRef<HTMLDivElement | null>(
+    null
+  ) as React.MutableRefObject<HTMLDivElement | null>;
 
   useEffect(() => {
     const element = elementRef.current;
