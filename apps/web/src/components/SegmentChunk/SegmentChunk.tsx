@@ -126,14 +126,17 @@ export const SegmentChunk = memo(
       activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
     }
   >(
-    ({
-      chunk,
-      chunkIndex,
-      containerWidth,
-      selectedView,
-      onSegmentClick,
-      activeSegment,
-    }) => {
+    (
+      {
+        chunk,
+        chunkIndex,
+        containerWidth,
+        selectedView,
+        onSegmentClick,
+        activeSegment,
+      },
+      ref
+    ) => {
       const combinedMarkdown = useMemo(() => {
         return chunk.segments
           .map((segment) => {
@@ -288,12 +291,22 @@ export const SegmentChunk = memo(
         }
       };
 
-      const scrollRef = useHorizontalDragScroll();
+      const horizontalScrollRef = useHorizontalDragScroll();
 
       return (
         <div
           className="segment-chunk"
-          ref={scrollRef}
+          ref={(el) => {
+            if (typeof ref === "function") {
+              ref(el);
+            } else if (ref) {
+              ref.current = el;
+            }
+            if (horizontalScrollRef.current !== el) {
+              horizontalScrollRef.current = el;
+            }
+          }}
+          data-chunk-index={chunkIndex}
           style={{
             maxWidth: containerWidth,
             position: "relative",
