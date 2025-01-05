@@ -76,7 +76,7 @@ const TaskTable = () => {
             main: "#ffffff",
           },
           info: {
-            main: "#67e8f9",
+            main: "rgb(2, 8, 9)",
           },
           background: {
             default: "rgb(2, 8, 9)",
@@ -107,12 +107,13 @@ const TaskTable = () => {
               root: {
                 "& .MuiTableCell-head": {
                   color: "rgb(255, 255, 255, 0.9)",
+                  backgroundColor: "rgb(2, 8, 9, 0.7)",
                   fontSize: "16px",
                   fontWeight: 600,
                   borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
                   padding: "14px",
                   paddingBottom: "16px",
-                  paddingTop: "16px",
+                  paddingTop: "18px",
                 },
               },
             },
