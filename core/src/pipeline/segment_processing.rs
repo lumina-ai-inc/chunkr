@@ -15,203 +15,182 @@ lazy_static! {
     static ref NUMBERED_LIST_REGEX: Regex = Regex::new(r"^(\d+)\.\s+(.+)$").unwrap();
 }
 
-// TODO: Use static maps to make this easier to read and also allow markdown generation
+trait ContentGenerator {
+    fn clean_list_item(content: &str) -> String {
+        content.trim_start_matches(&['-', '*', '•', '●', ' '][..]).trim().to_string()
+    }
+    fn generate_auto(&self, content: &str) -> String;
+    fn prompt_key(&self) -> &'static str;
+    fn process_llm_result(&self, content: &str) -> String {
+        content.to_string()
+    }
+}
+
+struct HtmlGenerator {
+    segment_type: SegmentType,
+}
+
+impl ContentGenerator for HtmlGenerator {
+    fn generate_auto(&self, content: &str) -> String {
+        match self.segment_type {
+            SegmentType::Caption => format!("<span class='caption'>{}</span>", content),
+            SegmentType::Footnote => format!("<span class='footnote'>{}</span>", content),
+            SegmentType::Formula => format!("<span class='formula'>{}</span>", content),
+            SegmentType::ListItem => {
+                if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
+                    let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
+                    let item = captures.get(2).unwrap().as_str();
+                    format!("<ol start='{}'><li>{}</li></ol>", start_number, item)
+                } else {
+                    format!("<ul><li>{}</li></ul>", Self::clean_list_item(content))
+                }
+            },
+            SegmentType::Page => format!("<div class='page'>{}</div>", content),
+            SegmentType::PageFooter => format!("<div class='page-footer'>{}</div>", content),
+            SegmentType::PageHeader => format!("<div class='page-header'>{}</div>", content),
+            SegmentType::Picture => format!("<img src='' alt='{}' />", content),
+            SegmentType::SectionHeader => format!("<h2>{}</h2>", content),
+            SegmentType::Table => format!("<table><tr><td>{}</td></tr></table>", content),
+            SegmentType::Text => format!("<p>{}</p>", content),
+            SegmentType::Title => format!("<h1>{}</h1>", content),
+        }
+    }
+
+    fn prompt_key(&self) -> &'static str {
+        match self.segment_type {
+            SegmentType::Caption => "html_caption",
+            SegmentType::Footnote => "html_footnote",
+            SegmentType::Formula => "formula",
+            SegmentType::ListItem => "html_list_item",
+            SegmentType::Page => "html_page",
+            SegmentType::PageFooter => "html_page_footer",
+            SegmentType::PageHeader => "html_page_header",
+            SegmentType::Picture => "html_picture",
+            SegmentType::SectionHeader => "html_section_header",
+            SegmentType::Table => "html_table",
+            SegmentType::Text => "html_text",
+            SegmentType::Title => "html_title",
+        }
+    }
+}
+
+struct MarkdownGenerator {
+    segment_type: SegmentType,
+}
+
+impl ContentGenerator for MarkdownGenerator {
+    fn generate_auto(&self, content: &str) -> String {
+        match self.segment_type {
+            SegmentType::Caption => format!("_{}_", content),
+            SegmentType::Footnote => format!("[^{}]", content),
+            SegmentType::Formula => format!("${}$", content),
+            SegmentType::ListItem => {
+                if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
+                    format!("{}. {}", captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str())
+                } else {
+                    format!("- {}", Self::clean_list_item(content))
+                }
+            },
+            SegmentType::Page => format!("\n---\n{}\n---\n", content),
+            SegmentType::PageFooter | SegmentType::PageHeader => content.to_string(),
+            SegmentType::Picture => format!("![{}]()", content),
+            SegmentType::SectionHeader => format!("## {}", content),
+            SegmentType::Table => format!("| {} |", content),
+            SegmentType::Text => content.to_string(),
+            SegmentType::Title => format!("# {}", content),
+        }
+    }
+
+    fn prompt_key(&self) -> &'static str {
+        match self.segment_type {
+            SegmentType::Caption => "mkd_caption",
+            SegmentType::Footnote => "mkd_footnote",
+            SegmentType::Formula => "mkd_formula",
+            SegmentType::ListItem => "mkd_list_item",
+            SegmentType::Page => "mkd_page",
+            SegmentType::PageFooter => "mkd_page_footer",
+            SegmentType::PageHeader => "mkd_page_header",
+            SegmentType::Picture => "mkd_picture",
+            SegmentType::SectionHeader => "mkd_section_header",
+            SegmentType::Table => "mkd_table",
+            SegmentType::Text => "mkd_text",
+            SegmentType::Title => "mkd_title",
+        }
+    }
+}
+
+async fn call_llm<F, Fut>(
+    llm_fn: F,
+    segment_image: &NamedTempFile,
+    prompt: String,
+) -> Result<String, Box<dyn std::error::Error>>
+where
+    F: Fn(&NamedTempFile, String) -> Fut,
+    Fut: std::future::Future<Output = Result<String, Box<dyn std::error::Error>>>,
+{
+    match llm_fn(segment_image, prompt).await {
+        Ok(result) => Ok(result),
+        Err(e) => Err(e.to_string().into()),
+    }
+}
+
+async fn generate_content<T: ContentGenerator>(
+    generator: &T,
+    content: &str,
+    segment_image: Option<&NamedTempFile>,
+    generation_strategy: &GenerationStrategy,
+) -> Result<String, Box<dyn std::error::Error>> {
+    match generation_strategy {
+        GenerationStrategy::LLM => {
+            let prompt = get_prompt(generator.prompt_key(), &HashMap::new())?;
+            let result = match (generator.prompt_key(), generator.segment_type()) {
+                (_, SegmentType::Formula) => call_llm(llm::latex_ocr, segment_image.unwrap(), prompt).await?,
+                (key, _) if key.starts_with("markdown_") => call_llm(llm::markdown_ocr, segment_image.unwrap(), prompt).await?,
+                _ => call_llm(llm::html_ocr, segment_image.unwrap(), prompt).await?,
+            };
+            
+            Ok(generator.process_llm_result(&result))
+        }
+        GenerationStrategy::Auto => Ok(generator.generate_auto(content)),
+    }
+}
+
 async fn generate_html(
     segment_type: SegmentType,
     content: String,
     segment_image: Option<NamedTempFile>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let html = match segment_type {
-        SegmentType::Caption => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_caption", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<span class='caption'>{}</span>", content),
-        },
-        SegmentType::Footnote => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_footnote", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<span class='footnote'>{}</span>", content),
-        },
-        SegmentType::Formula => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("formula", &HashMap::new()).unwrap();
-                match llm::latex_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(latex) => format!("<span class='formula'>{}</span>", latex),
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<span class='formula'>{}</span>", content),
-        },
-        SegmentType::ListItem => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_list_item", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => {
-                if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
-                    let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
-                    let item = captures.get(2).unwrap().as_str();
-                    format!("<ol start='{}'><li>{}</li></ol>", start_number, item)
-                } else {
-                    let cleaned_content = content
-                        .trim_start_matches(&['-', '*', '•', '●', ' '][..])
-                        .trim();
-                    format!("<ul><li>{}</li></ul>", cleaned_content)
-                }
-            }
-        },
-        SegmentType::Page => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_page", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<div class='page'>{}</div>", content),
-        },
-        SegmentType::PageFooter => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_page_footer", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<div class='page-footer'>{}</div>", content),
-        },
-        SegmentType::PageHeader => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_page_header", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<div class='page-header'>{}</div>", content),
-        },
-        SegmentType::Picture => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_picture", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => "<img src='' alt='{}' />".to_string(),
-        },
-        SegmentType::SectionHeader => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_section_header", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<h2>{}</h2>", content),
-        },
-        SegmentType::Table => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_table", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<table><tr><td>{}</td></tr></table>", content),
-        },
-        SegmentType::Text => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_text", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<p>{}</p>", content),
-        },
-        SegmentType::Title => match generation_strategy {
-            GenerationStrategy::LLM => {
-                let prompt = get_prompt("html_title", &HashMap::new()).unwrap();
-                match llm::html_ocr(&segment_image.unwrap(), prompt).await {
-                    Ok(html) => html,
-                    Err(e) => {
-                        return Err(e.to_string().into());
-                    }
-                }
-            }
-            GenerationStrategy::Auto => format!("<h1>{}</h1>", content),
-        },
-    };
-    Ok(html)
+    let generator = HtmlGenerator { segment_type };
+    generate_content(&generator, &content, segment_image.as_ref(), generation_strategy).await
 }
 
+async fn generate_markdown(
+    segment_type: SegmentType,
+    content: String,
+    segment_image: Option<NamedTempFile>,
+    generation_strategy: &GenerationStrategy,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let generator = MarkdownGenerator { segment_type };
+    generate_content(&generator, &content, segment_image.as_ref(), generation_strategy).await
+}
+
+// TODO: Move getting config logic somewhere else so it can be reused
 async fn process_segment(
     segment: &mut Segment,
     configuration: &Configuration,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    match segment.segment_type {
+    let (html_strategy, markdown_strategy) = match segment.segment_type {
         SegmentType::Table | SegmentType::Formula => {
             let config: &LlmGenerationConfig = match segment.segment_type {
                 SegmentType::Table => &configuration.segment_processing.table,
                 SegmentType::Formula => &configuration.segment_processing.formula,
                 _ => unreachable!(),
             };
-            match config.html {
-                GenerationStrategy::LLM => {
-                    segment.generate_html();
-                }
-                GenerationStrategy::Auto => {
-                    segment.generate_html();
-                }
-            }
-            match config.markdown {
-                GenerationStrategy::LLM => {
-                    segment.generate_markdown();
-                }
-                GenerationStrategy::Auto => {
-                    segment.generate_markdown();
-                }
-            }
+            (&config.html, &config.markdown)
         }
-        _ => {
-            let config: &AutoGenerationConfig = match segment.segment_type {
+        segment_type => {
+            let config: &AutoGenerationConfig = match segment_type {
                 SegmentType::Title => &configuration.segment_processing.title,
                 SegmentType::SectionHeader => &configuration.segment_processing.section_header,
                 SegmentType::Text => &configuration.segment_processing.text,
@@ -224,31 +203,25 @@ async fn process_segment(
                 SegmentType::Page => &configuration.segment_processing.page,
                 _ => unreachable!(),
             };
-            match config.html {
-                GenerationStrategy::LLM => {
-                    segment.generate_html();
-                }
-                GenerationStrategy::Auto => {
-                    segment.generate_html();
-                }
-            }
-            match config.markdown {
-                GenerationStrategy::LLM => {
-                    segment.generate_markdown();
-                }
-                GenerationStrategy::Auto => {
-                    segment.generate_markdown();
-                }
-            }
+            (&config.html, &config.markdown)
         }
     };
+
+    let (html, markdown) = futures::try_join!(
+        generate_html(segment.segment_type, segment.content.clone(), segment.image.clone(), html_strategy),
+        generate_markdown(segment.segment_type, segment.content.clone(), segment.image.clone(), markdown_strategy)
+    )?;
+
+    segment.html = Some(html);
+    segment.markdown = Some(markdown);
+
     Ok(())
 }
 
-/// Process the segements and creates the html, llm and markdown fields
+/// Process the segments and creates the html, llm and markdown fields
 ///
 /// This function will generate the html, llm and markdown fields for all the segments in parallel.
-/// Depending on the configruation, each segment will either be processed using hueristic or by a LLM.
+/// Depending on the configuration, each segment will either be processed using heuristic or by a LLM.
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
     pipeline
         .update_status(Status::Processing, Some("Processing segments".to_string()))

@@ -107,13 +107,49 @@ fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
             env!("CARGO_MANIFEST_DIR"),
             "/src/utils/prompts/html_title.txt"
         )),
+        "md_caption" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_caption.txt"
+        )),
+        "md_footnote" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_footnote.txt"
+        )),
+        "md_list_item" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_list_item.txt"
+        )),
+        "md_page_footer" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_page_footer.txt"
+        )),
+        "md_page_header" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_page_header.txt"
+        )),
         "md_page" => include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/src/utils/prompts/md_page.txt"
         )),
+        "md_picture" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_picture.txt"
+        )),
+        "md_section_header" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_section_header.txt"
+        )),
         "md_table" => include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/src/utils/prompts/md_table.txt"
+        )),
+        "md_text" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_text.txt"
+        )),
+        "md_title" => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/utils/prompts/md_title.txt"
         )),
         "structured_extraction" => include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
