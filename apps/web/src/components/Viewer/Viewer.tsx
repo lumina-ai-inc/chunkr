@@ -679,7 +679,10 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
           </div>
         </Panel>
 
-        <PanelResizeHandle className="resize-handle" />
+        <PanelResizeHandle
+          className="resize-handle"
+          hitAreaMargins={{ coarse: 15, fine: 5 }}
+        />
 
         <Panel
           defaultSize={50}
