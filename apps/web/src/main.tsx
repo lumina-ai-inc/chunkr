@@ -97,6 +97,40 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </AuthProvider>
       </PostHogProvider>
     </QueryClientProvider>
-    <Toaster />
+    <Toaster
+      position="bottom-right"
+      toastOptions={{
+        style: {
+          background: "rgba(2, 5, 6, 0.95)",
+          color: "#fff",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          backdropFilter: "blur(8px)",
+          borderRadius: "8px",
+          padding: "16px",
+          fontSize: "14px",
+          boxShadow: "0 4px 24px rgba(0, 0, 0, 0.2)",
+          maxWidth: "380px",
+        },
+        success: {
+          iconTheme: {
+            primary: "#27c93f", // Matching your terminal button green
+            secondary: "rgba(2, 5, 6, 0.95)",
+          },
+        },
+        error: {
+          iconTheme: {
+            primary: "#ff5f56", // Matching your terminal button red
+            secondary: "rgba(2, 5, 6, 0.95)",
+          },
+        },
+        loading: {
+          iconTheme: {
+            primary: "#67e8f9", // Matching your cyan accent color
+            secondary: "rgba(2, 5, 6, 0.95)",
+          },
+        },
+        duration: 4000,
+      }}
+    />
   </Theme>
 );
