@@ -1,6 +1,6 @@
 .segment-chunk {
   width: 100%;
-  padding: 2rem;
+  padding: 1.5rem 1rem;
   border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
 }
 
@@ -262,7 +262,6 @@
 }
 
 .segment-content-wrapper {
-  cursor: pointer;
   padding: 16px;
   border-radius: 6px;
   border: 1px solid transparent;
@@ -354,19 +353,6 @@
 .segment-chunk {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
-/* Add grab scrolling for overflow content */
-.segment-chunk,
-.segment-chunk .katex-display,
-.segment-chunk .math-display {
-  cursor: grab !important;
-}
-
-.segment-chunk :active,
-.segment-chunk .katex-display:active,
-.segment-chunk .math-display:active {
-  cursor: grabbing !important;
 }
 
 /* JSON view styles */
