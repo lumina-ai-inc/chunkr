@@ -20,6 +20,7 @@ interface ViewerProps {
 const MemoizedPDF = memo(PDF);
 
 const CHUNK_LOAD_SIZE = 5; // Number of chunks to load at a time
+const PAGE_CHUNK_SIZE = 10; // Number of pages to load at a time
 
 export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
   const memoizedOutput = useMemo(() => output, [output]);
@@ -44,27 +45,86 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
   } | null>(null);
 
   const [loadedChunks, setLoadedChunks] = useState(CHUNK_LOAD_SIZE);
+  const [loadedPages, setLoadedPages] = useState(PAGE_CHUNK_SIZE);
+  const [numPages, setNumPages] = useState<number>();
 
   const scrollToSegment = useCallback(
     (chunkIndex: number, segmentIndex: number) => {
-      setActiveSegment({ chunkIndex, segmentIndex });
+      const targetPage =
+        output.chunks[chunkIndex].segments[segmentIndex].page_number;
 
-      const chunkElement = chunkRefs.current[chunkIndex];
-      if (chunkElement) {
-        const container = chunkElement.closest(".scrollable-content");
-        if (container) {
-          const containerRect = container.getBoundingClientRect();
-          const chunkRect = chunkElement.getBoundingClientRect();
-          const scrollTop =
-            chunkRect.top - containerRect.top + container.scrollTop - 24;
-          container.scrollTo({
-            top: scrollTop,
-            behavior: "smooth",
+      // First, ensure content is loaded
+      const needsMorePages = targetPage > loadedPages;
+      const needsMoreChunks = chunkIndex >= loadedChunks;
+
+      if (needsMorePages) {
+        setLoadedPages(
+          Math.ceil(targetPage / PAGE_CHUNK_SIZE) * PAGE_CHUNK_SIZE
+        );
+      }
+
+      if (needsMoreChunks) {
+        setLoadedChunks(
+          Math.ceil((chunkIndex + 1) / CHUNK_LOAD_SIZE) * CHUNK_LOAD_SIZE
+        );
+      }
+
+      // Wait for content to load before scrolling
+      setTimeout(
+        () => {
+          setActiveSegment({ chunkIndex, segmentIndex });
+
+          // Scroll PDF container to target page
+          const pdfContainer = document.querySelector(".pdf-container");
+          const targetPageElement = pdfContainer?.querySelector(
+            `[data-page-number="${targetPage}"]`
+          );
+          if (targetPageElement) {
+            targetPageElement.scrollIntoView({ behavior: "smooth" });
+          }
+
+          // Scroll chunk view
+          const chunkElement = chunkRefs.current[chunkIndex];
+          if (chunkElement) {
+            const container = chunkElement.closest(".scrollable-content");
+            if (container) {
+              const containerRect = container.getBoundingClientRect();
+              const chunkRect = chunkElement.getBoundingClientRect();
+              const scrollTop =
+                chunkRect.top - containerRect.top + container.scrollTop - 24;
+              container.scrollTo({
+                top: scrollTop,
+                behavior: "smooth",
+              });
+            }
+          }
+        },
+        needsMorePages || needsMoreChunks ? 100 : 0
+      );
+    },
+    [output.chunks, loadedPages, loadedChunks]
+  );
+
+  // Add a handler for PDF segment clicks that ensures chunks are loaded
+  const handlePDFSegmentClick = useCallback(
+    (chunkIndex: number, segmentIndex: number) => {
+      // Ensure we load enough chunks
+      if (chunkIndex >= loadedChunks) {
+        setLoadedChunks(
+          Math.ceil((chunkIndex + 1) / CHUNK_LOAD_SIZE) * CHUNK_LOAD_SIZE
+        );
+
+        // Wait for next render cycle when chunks are loaded
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            scrollToSegment(chunkIndex, segmentIndex);
           });
-        }
+        });
+      } else {
+        scrollToSegment(chunkIndex, segmentIndex);
       }
     },
-    []
+    [loadedChunks, scrollToSegment]
   );
 
   const handleMouseEnter = () => {
@@ -289,31 +349,52 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
     };
   }, []);
 
-  // Add scroll handler for lazy loading
+  // Unified scroll handler for both containers
   const handleScroll = useCallback(
     (e: Event) => {
       const target = e.target as HTMLDivElement;
       const { scrollTop, scrollHeight, clientHeight } = target;
       const scrolledToBottom = scrollHeight - scrollTop <= clientHeight * 1.5;
 
-      if (scrolledToBottom && loadedChunks < output.chunks.length) {
-        setLoadedChunks((prev) =>
-          Math.min(prev + CHUNK_LOAD_SIZE, output.chunks.length)
-        );
+      if (target.classList.contains("scrollable-content")) {
+        // Handle chunk loading
+        if (scrolledToBottom && loadedChunks < output.chunks.length) {
+          setLoadedChunks((prev) =>
+            Math.min(prev + CHUNK_LOAD_SIZE, output.chunks.length)
+          );
+        }
+      } else if (target.classList.contains("pdf-container")) {
+        // Handle page loading
+        if (scrolledToBottom && loadedPages < (numPages || 0)) {
+          setLoadedPages((prev) =>
+            Math.min(prev + PAGE_CHUNK_SIZE, numPages || 0)
+          );
+        }
       }
     },
-    [loadedChunks, output.chunks.length]
+    [loadedChunks, output.chunks.length, loadedPages, numPages]
   );
 
-  // Add scroll listener
+  // Add scroll listeners to both containers
   useEffect(() => {
     const scrollableContent = document.querySelector(".scrollable-content");
+    const pdfContainer = document.querySelector(".pdf-container");
+
     if (scrollableContent) {
       scrollableContent.addEventListener("scroll", handleScroll);
-      return () => {
-        scrollableContent.removeEventListener("scroll", handleScroll);
-      };
     }
+    if (pdfContainer) {
+      pdfContainer.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (scrollableContent) {
+        scrollableContent.removeEventListener("scroll", handleScroll);
+      }
+      if (pdfContainer) {
+        pdfContainer.removeEventListener("scroll", handleScroll);
+      }
+    };
   }, [handleScroll]);
 
   if (!output) {
@@ -604,8 +685,10 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
             <MemoizedPDF
               content={memoizedOutput.chunks}
               inputFileUrl={inputFileUrl}
-              onSegmentClick={scrollToSegment}
+              onSegmentClick={handlePDFSegmentClick}
               activeSegment={activeSegment}
+              loadedPages={loadedPages}
+              onLoadSuccess={(pages) => setNumPages(pages)}
             />
           )}
         </Panel>
