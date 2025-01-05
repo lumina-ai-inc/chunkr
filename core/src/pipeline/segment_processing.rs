@@ -105,7 +105,7 @@ impl ContentGenerator for MarkdownGenerator {
         match self.segment_type {
             SegmentType::Caption => "md_caption",
             SegmentType::Footnote => "md_footnote",
-            SegmentType::Formula => "md_formula",
+            SegmentType::Formula => "formula",
             SegmentType::ListItem => "md_list_item",
             SegmentType::Page => "md_page",
             SegmentType::PageFooter => "md_page_footer",
