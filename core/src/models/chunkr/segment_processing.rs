@@ -11,29 +11,29 @@ use utoipa::ToSchema;
 /// You can optionally configure custom LLM prompts and models to generate an additional `llm` field
 /// with LLM-processed content for each segment type.
 pub struct SegmentProcessing {
-    #[serde(rename = "Title", default)]
+    #[serde(rename = "Title", alias = "title", default)]
     pub title: AutoGenerationConfig,
-    #[serde(rename = "SectionHeader", default)]
+    #[serde(rename = "SectionHeader", alias = "section_header", default)]
     pub section_header: AutoGenerationConfig,
-    #[serde(rename = "Text", default)]
+    #[serde(rename = "Text", alias = "text", default)]
     pub text: AutoGenerationConfig,
-    #[serde(rename = "ListItem", default)]
+    #[serde(rename = "ListItem", alias = "list_item", default)]
     pub list_item: AutoGenerationConfig,
-    #[serde(rename = "Table", default)]
+    #[serde(rename = "Table", alias = "table", default)]
     pub table: LlmGenerationConfig,
-    #[serde(rename = "Picture", default)]
+    #[serde(rename = "Picture", alias = "picture", default)]
     pub picture: AutoGenerationConfig,
-    #[serde(rename = "Caption", default)]
+    #[serde(rename = "Caption", alias = "caption", default)]
     pub caption: AutoGenerationConfig,
-    #[serde(rename = "Formula", default)]
+    #[serde(rename = "Formula", alias = "formula", default)]
     pub formula: LlmGenerationConfig,
-    #[serde(rename = "Footnote", default)]
+    #[serde(rename = "Footnote", alias = "footnote", default)]
     pub footnote: AutoGenerationConfig,
-    #[serde(rename = "PageHeader", default)]
+    #[serde(rename = "PageHeader", alias = "page_header", default)]
     pub page_header: AutoGenerationConfig,
-    #[serde(rename = "PageFooter", default)]
+    #[serde(rename = "PageFooter", alias = "page_footer", default)]
     pub page_footer: AutoGenerationConfig,
-    #[serde(rename = "Page", default)]
+    #[serde(rename = "Page", alias = "page", default)]
     pub page: AutoGenerationConfig,
 }
 
