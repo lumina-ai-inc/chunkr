@@ -145,7 +145,7 @@ async fn generate_content<T: ContentGenerator>(
             let prompt = get_prompt(generator.prompt_key(), &HashMap::new())?;
             let result = match (generator.prompt_key(), generator.segment_type()) {
                 (_, SegmentType::Formula) => call_llm(llm::latex_ocr, segment_image.unwrap(), prompt).await?,
-                (key, _) if key.starts_with("markdown_") => call_llm(llm::markdown_ocr, segment_image.unwrap(), prompt).await?,
+                (key, _) if key.starts_with("md_") => call_llm(llm::markdown_ocr, segment_image.unwrap(), prompt).await?,
                 _ => call_llm(llm::html_ocr, segment_image.unwrap(), prompt).await?,
             };
             
