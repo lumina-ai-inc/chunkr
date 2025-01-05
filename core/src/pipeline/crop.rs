@@ -57,7 +57,6 @@ async fn crop_segment(
 
     if should_crop {
         let cropped_image = crop_image(page_image, &segment.bbox)?;
-        println!("Cropped image for segment type: {:?}", segment.segment_type);
         Ok(Some(cropped_image))
     } else {
         Ok(None)

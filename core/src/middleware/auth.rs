@@ -1,9 +1,9 @@
 use crate::configs::auth_config::Config;
-use crate::configs::postgres_config::Pool;
 use crate::models::chunkr::auth::UserInfo;
+use crate::utils::clients::get_pg_client;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    web, Error, HttpMessage,
+    Error, HttpMessage,
 };
 use futures_util::future::LocalBoxFuture;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
@@ -126,7 +126,7 @@ where
                     Err(e) => Err(e),
                 }
             } else {
-                match api_key_validator(authorization.unwrap_or_default(), &req).await {
+                match api_key_validator(authorization.unwrap_or_default()).await {
                     Ok(user_info) => {
                         req.extensions_mut().insert(user_info);
                         let res = srv.call(req).await?;
@@ -163,21 +163,12 @@ async fn bearer_token_validator(token: &str) -> Result<UserInfo, Error> {
     }
 }
 
-async fn api_key_validator(api_key: &str, req: &ServiceRequest) -> Result<UserInfo, Error> {
+async fn api_key_validator(api_key: &str) -> Result<UserInfo, Error> {
     if api_key.is_empty() {
         return Err(actix_web::error::ErrorUnauthorized("API key is missing"));
     }
 
-    let pool = match req.app_data::<web::Data<Pool>>() {
-        Some(pool) => pool.clone(),
-        None => {
-            println!("Database pool not found");
-            return Err(actix_web::error::ErrorInternalServerError(
-                "Database pool not found",
-            ));
-        }
-    };
-    let client = match pool.get().await {
+    let client = match get_pg_client().await {
         Ok(client) => client,
         Err(e) => {
             eprintln!("Error getting Postgres client from pool: {:?}", e);
