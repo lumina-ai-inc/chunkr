@@ -1,14 +1,8 @@
 use crate::models::chunkr::structured_extraction::ExtractedJson;
-use lazy_static::lazy_static;
 use postgres_types::{FromSql, ToSql};
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
-
-lazy_static! {
-    static ref NUMBERED_LIST_REGEX: Regex = Regex::new(r"^(\d+)\.\s+(.+)$").unwrap();
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 /// The processed results of a document analysis task
@@ -125,62 +119,6 @@ impl Segment {
             page_width,
             segment_type,
         )
-    }
-
-    pub fn generate_html(&mut self) -> String {
-        let html = match self.segment_type {
-            SegmentType::Title => format!("<h1>{}</h1>", self.content),
-            SegmentType::SectionHeader => format!("<h2>{}</h2>", self.content),
-            SegmentType::Text => format!("<p>{}</p>", self.content),
-            SegmentType::ListItem => {
-                if let Some(captures) = NUMBERED_LIST_REGEX.captures(self.content.trim()) {
-                    let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
-                    let item = captures.get(2).unwrap().as_str();
-                    format!("<ol start='{}'><li>{}</li></ol>", start_number, item)
-                } else {
-                    let cleaned_content = self
-                        .content
-                        .trim_start_matches(&['-', '*', '•', '●', ' '][..])
-                        .trim();
-                    format!("<ul><li>{}</li></ul>", cleaned_content)
-                }
-            }
-            SegmentType::Picture => "<img src='' alt='{}' />".to_string(),
-            _ => format!(
-                "<span class=\"{}\">{}</span>",
-                self.segment_type
-                    .to_string()
-                    .to_lowercase()
-                    .replace(" ", "-"),
-                self.content
-            ),
-        };
-        self.html = Some(html.clone());
-        html
-    }
-
-    pub fn generate_markdown(&mut self) -> String {
-        let markdown = match self.segment_type {
-            SegmentType::Title => format!("# {}\n\n", self.content),
-            SegmentType::SectionHeader => format!("## {}\n\n", self.content),
-            SegmentType::ListItem => {
-                if let Some(captures) = NUMBERED_LIST_REGEX.captures(self.content.trim()) {
-                    let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
-                    let item = captures.get(2).unwrap().as_str();
-                    format!("{}. {}\n\n", start_number, item)
-                } else {
-                    let cleaned_content = self
-                        .content
-                        .trim_start_matches(&['-', '*', '•', '●', ' '][..])
-                        .trim();
-                    format!("- {}\n\n", cleaned_content)
-                }
-            }
-            SegmentType::Picture => format!("![{}]()", self.segment_id),
-            _ => format!("{}\n\n", self.content),
-        };
-        self.markdown = Some(markdown.clone());
-        markdown
     }
 }
 
