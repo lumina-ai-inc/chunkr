@@ -103,18 +103,18 @@ impl ContentGenerator for MarkdownGenerator {
 
     fn prompt_key(&self) -> &'static str {
         match self.segment_type {
-            SegmentType::Caption => "mkd_caption",
-            SegmentType::Footnote => "mkd_footnote",
-            SegmentType::Formula => "mkd_formula",
-            SegmentType::ListItem => "mkd_list_item",
-            SegmentType::Page => "mkd_page",
-            SegmentType::PageFooter => "mkd_page_footer",
-            SegmentType::PageHeader => "mkd_page_header",
-            SegmentType::Picture => "mkd_picture",
-            SegmentType::SectionHeader => "mkd_section_header",
-            SegmentType::Table => "mkd_table",
-            SegmentType::Text => "mkd_text",
-            SegmentType::Title => "mkd_title",
+            SegmentType::Caption => "md_caption",
+            SegmentType::Footnote => "md_footnote",
+            SegmentType::Formula => "md_formula",
+            SegmentType::ListItem => "md_list_item",
+            SegmentType::Page => "md_page",
+            SegmentType::PageFooter => "md_page_footer",
+            SegmentType::PageHeader => "md_page_header",
+            SegmentType::Picture => "md_picture",
+            SegmentType::SectionHeader => "md_section_header",
+            SegmentType::Table => "md_table",
+            SegmentType::Text => "md_text",
+            SegmentType::Title => "md_title",
         }
     }
 }
