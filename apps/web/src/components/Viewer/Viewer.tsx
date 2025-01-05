@@ -17,8 +17,9 @@ interface ViewerProps {
   task: TaskResponse;
 }
 
-// Memoize the entire PDF component
 const MemoizedPDF = memo(PDF);
+
+const CHUNK_LOAD_SIZE = 5; // Number of chunks to load at a time
 
 export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
   const memoizedOutput = useMemo(() => output, [output]);
@@ -41,6 +42,8 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
     chunkIndex: number;
     segmentIndex: number;
   } | null>(null);
+
+  const [loadedChunks, setLoadedChunks] = useState(CHUNK_LOAD_SIZE);
 
   const scrollToSegment = useCallback(
     (chunkIndex: number, segmentIndex: number) => {
@@ -286,6 +289,33 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
     };
   }, []);
 
+  // Add scroll handler for lazy loading
+  const handleScroll = useCallback(
+    (e: Event) => {
+      const target = e.target as HTMLDivElement;
+      const { scrollTop, scrollHeight, clientHeight } = target;
+      const scrolledToBottom = scrollHeight - scrollTop <= clientHeight * 1.5;
+
+      if (scrolledToBottom && loadedChunks < output.chunks.length) {
+        setLoadedChunks((prev) =>
+          Math.min(prev + CHUNK_LOAD_SIZE, output.chunks.length)
+        );
+      }
+    },
+    [loadedChunks, output.chunks.length]
+  );
+
+  // Add scroll listener
+  useEffect(() => {
+    const scrollableContent = document.querySelector(".scrollable-content");
+    if (scrollableContent) {
+      scrollableContent.addEventListener("scroll", handleScroll);
+      return () => {
+        scrollableContent.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, [handleScroll]);
+
   if (!output) {
     return <Loader />;
   }
@@ -517,7 +547,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
             className="scrollable-content"
             style={{
               height: "calc(100vh - 132px)",
-              backgroundColor: "rgba(255, 255, 255, 0.03)",
+              backgroundColor: "rgba(255, 255, 255, 0.02)",
               overflow: "auto",
               padding: "8px",
             }}
@@ -532,18 +562,32 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
               </Text>
             ) : (
               <>
-                {output.chunks.map((chunk: Chunk, chunkIndex: number) => (
-                  <SegmentChunk
-                    key={chunkIndex}
-                    chunk={chunk}
-                    chunkIndex={chunkIndex}
-                    containerWidth={leftPanelWidth}
-                    selectedView={selectedView}
-                    ref={(el) => (chunkRefs.current[chunkIndex] = el)}
-                    onSegmentClick={scrollToSegment}
-                    activeSegment={activeSegment}
-                  />
-                ))}
+                {output.chunks
+                  .slice(0, loadedChunks)
+                  .map((chunk: Chunk, chunkIndex: number) => (
+                    <SegmentChunk
+                      key={chunkIndex}
+                      chunk={chunk}
+                      chunkIndex={chunkIndex}
+                      containerWidth={leftPanelWidth}
+                      selectedView={selectedView}
+                      ref={(el) => (chunkRefs.current[chunkIndex] = el)}
+                      onSegmentClick={scrollToSegment}
+                      activeSegment={activeSegment}
+                    />
+                  ))}
+                {loadedChunks < output.chunks.length && (
+                  <div
+                    className="loading-more-chunks"
+                    style={{
+                      textAlign: "center",
+                      padding: "20px",
+                      color: "rgba(255, 255, 255, 0.6)",
+                    }}
+                  >
+                    Loading more chunks...
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -554,7 +598,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
         <Panel
           defaultSize={50}
           minSize={20}
-          style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+          style={{ backgroundColor: "rgba(255, 255, 255, 0.03)" }}
         >
           {inputFileUrl && memoizedOutput && (
             <MemoizedPDF

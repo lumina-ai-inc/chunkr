@@ -74,7 +74,7 @@ const MemoizedSegmentOverlay = memo(SegmentOverlay);
 
 const MemoizedCurrentPage = memo(CurrentPage);
 
-const PAGE_CHUNK_SIZE = 20; // Number of pages to load at once
+const PAGE_CHUNK_SIZE = 5; // Number of pages to load at once
 
 export const PDF = memo(
   ({
@@ -371,11 +371,11 @@ function OCRBoundingBoxes({
                 style={{
                   position: "absolute",
                   zIndex: 9999,
-                  left: 0,
-                  top: 0,
+                  left: -1,
+                  top: -4,
                   transform: "translateY(-100%)",
-                  backgroundColor: `var(${segmentColors[segmentType] || "--border-black"}) !important`,
-                  color: "white !important",
+                  backgroundColor: `color-mix(in srgb, var(${segmentColors[segmentType] || "--border-black"}) 90%, transparent) !important`,
+                  color: `var(--color-background) !important`,
                   padding: "2px 4px",
                   borderRadius: "2px",
                   fontSize: "12px",
