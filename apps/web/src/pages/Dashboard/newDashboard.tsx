@@ -8,10 +8,10 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useTaskQuery } from "../../hooks/useTaskQuery";
 import { Suspense, lazy } from "react";
 import Loader from "../../pages/Loader/Loader";
+import { useLocation } from "react-router-dom";
 
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
-const StatusView = lazy(() => import("../../components/Status/StatusView"));
 
 export default function NewDashboard() {
   const auth = useAuth();
@@ -22,9 +22,10 @@ export default function NewDashboard() {
 
   const searchParams = new URLSearchParams(window.location.search);
   const taskId = searchParams.get("taskId");
-  const pageCount = searchParams.get("pageCount");
 
   const { data: taskResponse, isLoading } = useTaskQuery(taskId || "");
+
+  const location = useLocation();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -41,6 +42,19 @@ export default function NewDashboard() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (location.pathname === "/newDashboard") {
+      setSelectedNav("Tasks");
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (taskId) {
+      import("../../components/Viewer/Viewer");
+      import("../../components/Status/StatusView");
+    }
+  }, [taskId]);
 
   const navIcons = {
     Tasks: (
@@ -232,43 +246,19 @@ export default function NewDashboard() {
     switch (selectedNav) {
       case "Tasks":
         if (taskId) {
-          if (isLoading) {
-            return {
-              title: "Your Tasks > Loading...",
-              component: <Loader />,
-            };
-          }
-
-          if (!taskResponse) {
-            return {
-              title: "Your Tasks > Not Found",
-              component: <div>Task not found</div>,
-            };
-          }
-
-          if (taskResponse.output && taskResponse.pdf_url) {
-            return {
-              title: `Your Tasks > ${taskResponse.file_name || taskId}`,
-              component: (
-                <Suspense fallback={<Loader />}>
+          return {
+            title: `Your Tasks > ${taskResponse?.file_name || taskId}`,
+            component: (
+              <Suspense fallback={<Loader />}>
+                {isLoading ? (
+                  <Loader />
+                ) : taskResponse?.output && taskResponse?.pdf_url ? (
                   <Viewer
                     task={taskResponse}
                     output={taskResponse.output}
                     inputFileUrl={taskResponse.pdf_url}
                   />
-                </Suspense>
-              ),
-            };
-          }
-
-          return {
-            title: `Your Tasks > ${taskResponse.file_name || taskId}`,
-            component: (
-              <Suspense fallback={<Loader />}>
-                <StatusView
-                  task={taskResponse}
-                  pageCount={Number(pageCount) || 10}
-                />
+                ) : null}
               </Suspense>
             ),
           };
@@ -299,7 +289,7 @@ export default function NewDashboard() {
           component: <TaskTable />,
         };
     }
-  }, [selectedNav, taskId, taskResponse, isLoading, pageCount]);
+  }, [selectedNav, taskId, taskResponse, isLoading]);
 
   const userDisplayName =
     user?.data?.first_name && user?.data?.last_name
@@ -311,10 +301,10 @@ export default function NewDashboard() {
     const tablePageIndex = searchParams.get("tablePageIndex");
     const tablePageSize = searchParams.get("tablePageSize");
 
-    // Preserve table pagination when returning to task list
+    setSelectedNav("Tasks");
+
     const newUrl = `/newDashboard${tablePageIndex ? `?tablePageIndex=${tablePageIndex}&tablePageSize=${tablePageSize}` : ""}`;
     window.history.pushState({}, "", newUrl);
-    setSelectedNav("Tasks");
   };
 
   return (

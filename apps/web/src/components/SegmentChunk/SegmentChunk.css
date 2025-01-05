@@ -22,7 +22,7 @@
 /* Typography enhancements */
 .segment-chunk p {
   margin: 0 0 1em 0;
-  max-width: 75ch; /* Keep ch for readability */
+  /* max-width: 75ch;  */
 }
 
 .segment-chunk p:last-child {
