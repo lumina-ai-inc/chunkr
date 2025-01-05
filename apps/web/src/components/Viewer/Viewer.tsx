@@ -265,6 +265,19 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
     }
   }, [output, inputFileUrl]);
 
+  const getViewDisplayText = (view: string): string => {
+    switch (view.toLowerCase()) {
+      case "html":
+        return "HTML";
+      case "markdown":
+        return "Markdown";
+      case "structured":
+        return "Structured Extraction";
+      default:
+        return view;
+    }
+  };
+
   const renderViewDropdown = () => (
     <Flex
       className="viewer-header-view-button"
@@ -298,7 +311,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
           weight="medium"
           style={{ color: "rgba(255, 255, 255, 0.95)" }}
         >
-          {selectedView.charAt(0).toUpperCase() + selectedView.slice(1)}
+          {getViewDisplayText(selectedView)}
         </Text>
       </Flex>
       {showViewOptions && (
@@ -624,15 +637,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
             }
           }}
         >
-          <div
-            className="scrollable-content"
-            style={{
-              height: "calc(100vh - 132px)",
-              backgroundColor: "rgba(255, 255, 255, 0.02)",
-              overflow: "auto",
-              padding: "8px",
-            }}
-          >
+          <div className="scrollable-content">
             {output.chunks.length === 0 ? (
               <Text
                 size="4"

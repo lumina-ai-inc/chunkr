@@ -80,12 +80,13 @@
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  background: rgba(2, 5, 6, 0.95);
+  background: rgba(2, 5, 6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   min-width: 150px;
+  width: max-content;
 }
 
 .view-options-menu {
@@ -128,7 +129,7 @@
 
 .scrollable-content {
   height: calc(100vh - 132px);
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(255, 255, 255, 0.01);
   overflow: auto !important;
   padding: 8px;
   width: 100%;
