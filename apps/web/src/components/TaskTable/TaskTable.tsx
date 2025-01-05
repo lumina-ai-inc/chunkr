@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   MaterialReactTable,
   type MRT_ColumnDef,
@@ -15,13 +15,44 @@ import "./TaskTable.css";
 const TaskTable = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
+
+  // Set default values if params don't exist
+  if (!searchParams.has("tablePageIndex"))
+    searchParams.set("tablePageIndex", "0");
+  if (!searchParams.has("tablePageSize"))
+    searchParams.set("tablePageSize", "20");
+
+  // Update URL with default params if needed
+  if (!window.location.search) {
+    navigate(
+      {
+        search: searchParams.toString(),
+      },
+      { replace: true }
+    );
+  }
+
   const tablePageIndex = parseInt(searchParams.get("tablePageIndex") || "0");
-  const tablePageSize = parseInt(searchParams.get("tablePageSize") || "10");
+  const tablePageSize = parseInt(searchParams.get("tablePageSize") || "20");
 
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: tablePageIndex,
     pageSize: tablePageSize,
   });
+
+  // Add effect to update URL when pagination changes
+  useEffect(() => {
+    const newParams = new URLSearchParams(window.location.search);
+    newParams.set("tablePageIndex", pagination.pageIndex.toString());
+    newParams.set("tablePageSize", pagination.pageSize.toString());
+
+    navigate(
+      {
+        search: newParams.toString(),
+      },
+      { replace: true }
+    );
+  }, [pagination, navigate]);
 
   const { data: user } = useUser();
   const totalTasks = user?.task_count || 0;
