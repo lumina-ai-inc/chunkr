@@ -9,6 +9,7 @@ use crate::utils::services::llm;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
+use std::sync::Arc;
 use tempfile::NamedTempFile;
 
 lazy_static! {
@@ -24,6 +25,7 @@ trait ContentGenerator {
     fn process_llm_result(&self, content: &str) -> String {
         content.to_string()
     }
+    fn segment_type(&self) -> SegmentType;
 }
 
 struct HtmlGenerator {
@@ -72,6 +74,10 @@ impl ContentGenerator for HtmlGenerator {
             SegmentType::Title => "html_title",
         }
     }
+
+    fn segment_type(&self) -> SegmentType {
+        self.segment_type.clone()
+    }
 }
 
 struct MarkdownGenerator {
@@ -117,36 +123,25 @@ impl ContentGenerator for MarkdownGenerator {
             SegmentType::Title => "md_title",
         }
     }
-}
 
-async fn call_llm<F, Fut>(
-    llm_fn: F,
-    segment_image: &NamedTempFile,
-    prompt: String,
-) -> Result<String, Box<dyn std::error::Error>>
-where
-    F: Fn(&NamedTempFile, String) -> Fut,
-    Fut: std::future::Future<Output = Result<String, Box<dyn std::error::Error>>>,
-{
-    match llm_fn(segment_image, prompt).await {
-        Ok(result) => Ok(result),
-        Err(e) => Err(e.to_string().into()),
+    fn segment_type(&self) -> SegmentType {
+        self.segment_type.clone()
     }
 }
 
 async fn generate_content<T: ContentGenerator>(
     generator: &T,
     content: &str,
-    segment_image: Option<&NamedTempFile>,
+    segment_image: &Arc<NamedTempFile>,
     generation_strategy: &GenerationStrategy,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     match generation_strategy {
         GenerationStrategy::LLM => {
             let prompt = get_prompt(generator.prompt_key(), &HashMap::new())?;
             let result = match (generator.prompt_key(), generator.segment_type()) {
-                (_, SegmentType::Formula) => call_llm(llm::latex_ocr, segment_image.unwrap(), prompt).await?,
-                (key, _) if key.starts_with("md_") => call_llm(llm::markdown_ocr, segment_image.unwrap(), prompt).await?,
-                _ => call_llm(llm::html_ocr, segment_image.unwrap(), prompt).await?,
+                (_, SegmentType::Formula) => llm::latex_ocr(segment_image, prompt).await?,
+                (key, _) if key.starts_with("md_") => llm::markdown_ocr(segment_image, prompt).await?,
+                _ => llm::html_ocr(segment_image, prompt).await?,
             };
             
             Ok(generator.process_llm_result(&result))
@@ -158,29 +153,30 @@ async fn generate_content<T: ContentGenerator>(
 async fn generate_html(
     segment_type: SegmentType,
     content: String,
-    segment_image: Option<NamedTempFile>,
+    segment_image: Arc<NamedTempFile>,
     generation_strategy: &GenerationStrategy,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = HtmlGenerator { segment_type };
-    generate_content(&generator, &content, segment_image.as_ref(), generation_strategy).await
+    generate_content(&generator, &content, &segment_image, generation_strategy).await
 }
 
 async fn generate_markdown(
     segment_type: SegmentType,
     content: String,
-    segment_image: Option<NamedTempFile>,
+    segment_image: Arc<NamedTempFile>,
     generation_strategy: &GenerationStrategy,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = MarkdownGenerator { segment_type };
-    generate_content(&generator, &content, segment_image.as_ref(), generation_strategy).await
+    generate_content(&generator, &content, &segment_image, generation_strategy).await
 }
 
 // TODO: Move getting config logic somewhere else so it can be reused
 async fn process_segment(
     segment: &mut Segment,
     configuration: &Configuration,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let (html_strategy, markdown_strategy) = match segment.segment_type {
+    segment_image: Arc<NamedTempFile>,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let (html_strategy, markdown_strategy) = match segment.segment_type.clone() {
         SegmentType::Table | SegmentType::Formula => {
             let config: &LlmGenerationConfig = match segment.segment_type {
                 SegmentType::Table => &configuration.segment_processing.table,
@@ -208,8 +204,8 @@ async fn process_segment(
     };
 
     let (html, markdown) = futures::try_join!(
-        generate_html(segment.segment_type, segment.content.clone(), segment.image.clone(), html_strategy),
-        generate_markdown(segment.segment_type, segment.content.clone(), segment.image.clone(), markdown_strategy)
+        generate_html(segment.segment_type.clone(), segment.content.clone(), segment_image.clone(), html_strategy),
+        generate_markdown(segment.segment_type.clone(), segment.content.clone(), segment_image.clone(), markdown_strategy)
     )?;
 
     segment.html = Some(html);
@@ -234,6 +230,8 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .current_configuration
         .clone();
 
+    let segment_images = pipeline.segment_images.clone();
+
     let futures: Vec<_> = pipeline
         .chunks
         .as_mut()
@@ -243,11 +241,20 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             chunk
                 .segments
                 .iter_mut()
-                .map(|segment| process_segment(segment, &configuration))
+                .map(|segment| {
+                    let segment_image = segment_images.get(&segment.segment_id).unwrap().clone();
+                    process_segment(segment, &configuration, segment_image)
+                })
         })
         .collect();
 
-    futures::future::try_join_all(futures).await?;
+    match futures::future::try_join_all(futures).await {
+        Ok(_) => (),
+        Err(e) => {
+            eprintln!("Error processing segments: {:?}", e);
+            return Err(e.to_string().into());
+        }
+    }
 
     Ok(())
 }
