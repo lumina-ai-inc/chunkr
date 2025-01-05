@@ -57,112 +57,53 @@ impl Config {
     }
 }
 
-fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
-    let content = match prompt_name {
-        "formula" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/formula.txt"
-        )),
-        "html_caption" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_caption.txt"
-        )),
-        "html_footnote" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_footnote.txt"
-        )),
-        "html_list_item" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_list_item.txt"
-        )),
-        "html_page_footer" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_page_footer.txt"
-        )),
-        "html_page_header" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_page_header.txt"
-        )),
-        "html_page" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_page.txt"
-        )),
-        "html_picture" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_picture.txt"
-        )),
-        "html_section_header" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_section_header.txt"
-        )),
-        "html_table" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_table.txt"
-        )),
-        "html_text" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_text.txt"
-        )),
-        "html_title" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/html_title.txt"
-        )),
-        "md_caption" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_caption.txt"
-        )),
-        "md_footnote" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_footnote.txt"
-        )),
-        "md_list_item" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_list_item.txt"
-        )),
-        "md_page_footer" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_page_footer.txt"
-        )),
-        "md_page_header" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_page_header.txt"
-        )),
-        "md_page" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_page.txt"
-        )),
-        "md_picture" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_picture.txt"
-        )),
-        "md_section_header" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_section_header.txt"
-        )),
-        "md_table" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_table.txt"
-        )),
-        "md_text" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_text.txt"
-        )),
-        "md_title" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/md_title.txt"
-        )),
-        "structured_extraction" => include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/src/utils/prompts/structured_extraction.txt"
-        )),
-        _ => {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                format!("Prompt '{}' not found", prompt_name),
-            ))
-        }
+
+macro_rules! prompt_templates {
+    ($($name:expr),* $(,)?) => {
+        &[
+            $(
+                ($name, include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/utils/prompts/", $name, ".txt")))
+            ),*
+        ]
     };
-    Ok(content.to_string())
+}
+
+const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
+    "formula",
+    "html_caption",
+    "html_footnote",
+    "html_list_item",
+    "html_page_footer",
+    "html_page_header",
+    "html_page",
+    "html_picture",
+    "html_section_header",
+    "html_table",
+    "html_text",
+    "html_title",
+    "md_caption",
+    "md_footnote",
+    "md_list_item",
+    "md_page_footer",
+    "md_page_header",
+    "md_page",
+    "md_picture",
+    "md_section_header",
+    "md_table",
+    "md_text",
+    "md_title",
+    "structured_extraction"
+];
+
+fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
+    PROMPT_TEMPLATES
+        .iter()
+        .find(|&&(name, _)| name == prompt_name)
+        .map(|(_, content)| content.to_string())
+        .ok_or_else(|| std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("Prompt '{}' not found", prompt_name)
+        ))
 }
 
 fn fill_prompt(template: &str, values: &std::collections::HashMap<String, String>) -> String {
