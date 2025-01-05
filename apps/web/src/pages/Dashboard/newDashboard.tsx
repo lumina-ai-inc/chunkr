@@ -4,11 +4,11 @@ import BetterButton from "../../components/BetterButton/BetterButton";
 import TaskTable from "../../components/TaskTable/TaskTable";
 import { useAuth } from "react-oidc-context";
 import useUser from "../../hooks/useUser";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTaskQuery } from "../../hooks/useTaskQuery";
 import { Suspense, lazy } from "react";
 import Loader from "../../pages/Loader/Loader";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
@@ -20,12 +20,16 @@ export default function NewDashboard() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  const searchParams = new URLSearchParams(window.location.search);
+  const location = useLocation();
+  const searchParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search]
+  );
   const taskId = searchParams.get("taskId");
 
   const { data: taskResponse, isLoading } = useTaskQuery(taskId || "");
 
-  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -51,8 +55,9 @@ export default function NewDashboard() {
 
   useEffect(() => {
     if (taskId) {
-      import("../../components/Viewer/Viewer");
-      import("../../components/Status/StatusView");
+      // Remove these unnecessary dynamic imports
+      // import("../../components/Viewer/Viewer");
+      // import("../../components/Status/StatusView");
     }
   }, [taskId]);
 
@@ -242,6 +247,22 @@ export default function NewDashboard() {
     ),
   };
 
+  const handleReturnToTasks = useCallback(() => {
+    const tableParams = new URLSearchParams();
+    const tablePageIndex = searchParams.get("tablePageIndex");
+    const tablePageSize = searchParams.get("tablePageSize");
+
+    if (tablePageIndex) tableParams.set("tablePageIndex", tablePageIndex);
+    if (tablePageSize) tableParams.set("tablePageSize", tablePageSize);
+
+    navigate({
+      pathname: "/newDashboard",
+      search: tableParams.toString(),
+    });
+
+    setSelectedNav("Tasks");
+  }, [searchParams, navigate]);
+
   const content = useMemo(() => {
     switch (selectedNav) {
       case "Tasks":
@@ -254,6 +275,7 @@ export default function NewDashboard() {
                   <Loader />
                 ) : taskResponse?.output && taskResponse?.pdf_url ? (
                   <Viewer
+                    key={taskId}
                     task={taskResponse}
                     output={taskResponse.output}
                     inputFileUrl={taskResponse.pdf_url}
@@ -266,7 +288,7 @@ export default function NewDashboard() {
 
         return {
           title: "Your Tasks",
-          component: <TaskTable />,
+          component: <TaskTable key="task-table" />,
         };
       case "Usage":
         return {
@@ -295,17 +317,6 @@ export default function NewDashboard() {
     user?.data?.first_name && user?.data?.last_name
       ? `${user.data.first_name} ${user.data.last_name}`
       : user?.data?.email || "User";
-
-  const handleReturnToTasks = () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const tablePageIndex = searchParams.get("tablePageIndex");
-    const tablePageSize = searchParams.get("tablePageSize");
-
-    setSelectedNav("Tasks");
-
-    const newUrl = `/newDashboard${tablePageIndex ? `?tablePageIndex=${tablePageIndex}&tablePageSize=${tablePageSize}` : ""}`;
-    window.history.pushState({}, "", newUrl);
-  };
 
   return (
     <Flex direction="row" width="100%">
