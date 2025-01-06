@@ -67,3 +67,32 @@ pub fn extract_ocr_results(
 
     Ok(page_results)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use std::path::Path;
+
+    #[test]
+    fn test_count_pages() {
+        let path = Path::new("input/test.pdf");
+        let mut pdf_file = NamedTempFile::new().unwrap();
+        pdf_file
+            .write(std::fs::read(path).unwrap().as_slice())
+            .unwrap();
+        let count = count_pages(&pdf_file).unwrap();
+        println!("Page count: {}", count);
+    }
+
+    #[test]
+    fn test_extract_ocr_results() {
+        let path = Path::new("input/test.pdf");
+        let mut pdf_file = NamedTempFile::new().unwrap();
+        pdf_file
+            .write(std::fs::read(path).unwrap().as_slice())
+            .unwrap();
+        let ocr_results = extract_ocr_results(&pdf_file).unwrap();
+        println!("OCR results: {:?}", ocr_results);
+    }
+}

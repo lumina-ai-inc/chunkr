@@ -139,18 +139,24 @@ impl ContentGenerator for MarkdownGenerator {
 async fn generate_content<T: ContentGenerator>(
     generator: &T,
     content: &str,
-    segment_image: &Arc<NamedTempFile>,
+    segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    if segment_image.is_none() {
+        return Ok(generator.generate_auto(content));
+    }
+
     match generation_strategy {
         GenerationStrategy::LLM => {
             let prompt = get_prompt(generator.prompt_key(), &HashMap::new())?;
             let result = match (generator.prompt_key(), generator.segment_type()) {
-                (_, SegmentType::Formula) => llm::latex_ocr(segment_image, prompt).await?,
-                (key, _) if key.starts_with("md_") => {
-                    llm::markdown_ocr(segment_image, prompt).await?
+                (_, SegmentType::Formula) => {
+                    llm::latex_ocr(segment_image.as_ref().unwrap(), prompt).await?
                 }
-                _ => llm::html_ocr(segment_image, prompt).await?,
+                (key, _) if key.starts_with("md_") => {
+                    llm::markdown_ocr(segment_image.as_ref().unwrap(), prompt).await?
+                }
+                _ => llm::html_ocr(segment_image.as_ref().unwrap(), prompt).await?,
             };
 
             Ok(generator.process_llm_result(&result))
@@ -162,28 +168,28 @@ async fn generate_content<T: ContentGenerator>(
 async fn generate_html(
     segment_type: SegmentType,
     content: String,
-    segment_image: Arc<NamedTempFile>,
+    segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = HtmlGenerator { segment_type };
-    generate_content(&generator, &content, &segment_image, generation_strategy).await
+    generate_content(&generator, &content, segment_image, generation_strategy).await
 }
 
 async fn generate_markdown(
     segment_type: SegmentType,
     content: String,
-    segment_image: Arc<NamedTempFile>,
+    segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = MarkdownGenerator { segment_type };
-    generate_content(&generator, &content, &segment_image, generation_strategy).await
+    generate_content(&generator, &content, segment_image, generation_strategy).await
 }
 
-// TODO: Move getting config logic somewhere else so it can be reused
+// TODO: Maybe move getting config logic somewhere else so it can be reused?
 async fn process_segment(
     segment: &mut Segment,
     configuration: &Configuration,
-    segment_image: Arc<NamedTempFile>,
+    segment_image: Option<Arc<NamedTempFile>>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let (html_strategy, markdown_strategy) = match segment.segment_type.clone() {
         SegmentType::Table | SegmentType::Formula => {
@@ -211,6 +217,11 @@ async fn process_segment(
             (&config.html, &config.markdown)
         }
     };
+
+    println!(
+        "Processing segment {:?} with html {:?} and markdown {:?}",
+        segment.segment_id, html_strategy, markdown_strategy
+    );
 
     let (html, markdown) = futures::try_join!(
         generate_html(
@@ -255,12 +266,12 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .chunks
         .iter_mut()
         .flat_map(|chunk| {
-            chunk.segments.iter_mut().filter_map(|segment| {
-                segment_images
-                    .get(&segment.segment_id)
-                    .map(|segment_image| {
-                        process_segment(segment, &configuration, segment_image.clone())
-                    })
+            chunk.segments.iter_mut().map(|segment| {
+                process_segment(
+                    segment,
+                    &configuration,
+                    segment_images.get(&segment.segment_id).map(|r| r.clone()),
+                )
             })
         })
         .collect();
