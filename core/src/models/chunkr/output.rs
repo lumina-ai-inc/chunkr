@@ -12,6 +12,15 @@ pub struct OutputResponse {
     pub extracted_json: Option<ExtractedJson>,
 }
 
+impl Default for OutputResponse {
+    fn default() -> Self {
+        Self {
+            chunks: vec![],
+            extracted_json: None,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
     pub chunk_id: String,

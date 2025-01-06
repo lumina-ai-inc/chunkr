@@ -253,8 +253,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
 
     let futures: Vec<_> = pipeline
         .output
-        .as_mut()
-        .unwrap()
         .chunks
         .iter_mut()
         .flat_map(|chunk| {
