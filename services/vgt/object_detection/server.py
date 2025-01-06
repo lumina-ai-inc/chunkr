@@ -216,102 +216,64 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
             return []
             
         page_width = max(seg[0].x2 for seg in segments)
+        page_height = max(seg[0].y2 for seg in segments)
         min_x = min(seg[0].x1 for seg in segments)
         column_threshold = page_width * 0.1  # 10% of page width
         
         def get_segment_centroid(seg):
             return ((seg[0].x1 + seg[0].x2) / 2, (seg[0].y1 + seg[0].y2) / 2)
         
-        def detect_columns():
-            x_centers = [get_segment_centroid(seg)[0] for seg in segments]
-            x_coords = np.array(x_centers).reshape(-1, 1)
-            
-            if len(x_coords) < 4:
-                return 1, None
-            
-            # Try 1-3 columns
-            best_n_cols = 1
-            best_centers = None
-            min_dist_between_cols = column_threshold
-            
-            for n_cols in range(1, 4):
-                if len(x_coords) < n_cols:
-                    break
-                    
-                kmeans = KMeans(n_clusters=n_cols, random_state=42)
-                labels = kmeans.fit_predict(x_coords)
-                centers = sorted(kmeans.cluster_centers_)  # Sort centers left-to-right
-                
-                # Check minimum distance between column centers
-                if n_cols > 1:
-                    min_dist = min(centers[i+1] - centers[i] for i in range(len(centers)-1))
-                    if min_dist > min_dist_between_cols:
-                        best_n_cols = n_cols
-                        best_centers = centers
-            
-            return best_n_cols, best_centers
-        
-        n_cols, column_centers = detect_columns()
-        
-        if n_cols == 1:
-            return sorted(segments, key=lambda x: (x[0].y1, x[0].x1))
-        
-        # Initialize columns
-        columns = [[] for _ in range(n_cols)]
-        
-        # First pass: assign clear column segments
-        unassigned = []
-        for seg in segments:
-            center_x, _ = get_segment_centroid(seg)
+        def get_column_assignment(seg):
+            """Determine column based on segment position and overlap"""
+            center_x = get_segment_centroid(seg)[0]
             width = seg[0].x2 - seg[0].x1
             
-            # Check if segment spans multiple columns
-            is_wide = width > (page_width / n_cols) * 1.5
+            # Check if segment spans significant width
+            if width > page_width * 0.6:  # Wide segments like titles
+                return 0  # Assign to first column
             
-            if is_wide:
-                unassigned.append(seg)
-                continue
+            # For segments in the middle, check their width and position
+            if min_x + page_width * 0.4 <= center_x <= min_x + page_width * 0.6:
+                if width < page_width * 0.3:  # Narrow segment in middle
+                    # Assign based on more of the segment's area
+                    if seg[0].x1 < page_width / 2:
+                        return 0
+                    return 1
+                return 0  # Wider middle segments go to first column
             
-            # Find nearest column
-            col_distances = [abs(center_x - c) for c in column_centers]
-            nearest_col = col_distances.index(min(col_distances))
-            
-            # Only assign if segment is clearly within column bounds
-            if min(col_distances) < column_threshold:
-                columns[nearest_col].append(seg)
-            else:
-                unassigned.append(seg)
+            # Standard left/right assignment
+            return 0 if center_x < page_width / 2 else 1
         
-        # Second pass: handle wide segments and unassigned segments
-        for seg in unassigned:
-            center_x, center_y = get_segment_centroid(seg)
-            
-            # Find appropriate column based on vertical position
-            best_col = 0
-            min_disruption = float('inf')
-            
-            for i, col in enumerate(columns):
-                if not col:  # Empty column
-                    if i == 0:  # First column
-                        min_disruption = 0
-                        best_col = 0
-                    continue
-                    
-                # Find insertion point in this column
-                for j, col_seg in enumerate(col):
-                    col_center_y = get_segment_centroid(col_seg)[1]
-                    if abs(center_y - col_center_y) < min_disruption:
-                        min_disruption = abs(center_y - col_center_y)
-                        best_col = i
-            
-            columns[best_col].append(seg)
+        def is_title_area(seg):
+            """Check if segment is in the title area of the page"""
+            return seg[0].y1 < page_height * 0.2
+        
+        # Separate title area segments
+        title_segments = []
+        body_segments = []
+        
+        for seg in segments:
+            if is_title_area(seg):
+                title_segments.append(seg)
+            else:
+                body_segments.append(seg)
+        
+        # Sort title segments by y-position
+        title_segments.sort(key=lambda x: x[0].y1)
+        
+        # Process body segments into columns
+        columns = [[], []]  # Initialize two columns
+        
+        for seg in body_segments:
+            col_idx = get_column_assignment(seg)
+            columns[col_idx].append(seg)
         
         # Sort each column by y-position
         for col in columns:
             col.sort(key=lambda x: x[0].y1)
         
-        # Combine columns strictly left-to-right
-        ordered_segments = []
+        # Combine in order: title area, then columns left-to-right
+        ordered_segments = title_segments
         for col in columns:
             ordered_segments.extend(col)
         
