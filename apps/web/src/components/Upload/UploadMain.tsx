@@ -5,10 +5,6 @@ import Upload from "./Upload";
 import "./UploadMain.css";
 import { Model, UploadForm } from "../../models/upload.model";
 import { uploadFile } from "../../services/uploadFileApi";
-import HighQualityImage from "../../assets/cards/highQualityImage.webp";
-import HighQualityImageJPG from "../../assets/cards/highQualityImage.jpg";
-import FastImage from "../../assets/cards/fastImage.webp";
-import FastImageJPG from "../../assets/cards/fastImage.jpg";
 
 export default function UploadMain({
   isAuthenticated,
@@ -221,10 +217,7 @@ export default function UploadMain({
                   zIndex: 2,
                 }}
               ></div>
-              <picture style={{ zIndex: 1 }}>
-                <source srcSet={FastImage} type="image/webp" />
-                <img src={FastImageJPG} alt="Fast" className="card-image" />
-              </picture>
+              <picture style={{ zIndex: 1 }}></picture>
               <Flex
                 direction="column"
                 className="toggle-icon-container"
@@ -324,14 +317,7 @@ export default function UploadMain({
                   zIndex: 2,
                 }}
               ></div>
-              <picture style={{ zIndex: 1 }}>
-                <source srcSet={HighQualityImage} type="image/webp" />
-                <img
-                  src={HighQualityImageJPG}
-                  alt="High Quality"
-                  className="card-image"
-                />
-              </picture>
+              <picture style={{ zIndex: 1 }}></picture>
               <Flex
                 direction="column"
                 className="toggle-icon-container"

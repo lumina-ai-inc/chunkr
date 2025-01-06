@@ -9,7 +9,7 @@ import { useTaskQuery } from "../../hooks/useTaskQuery";
 import { Suspense, lazy } from "react";
 import Loader from "../../pages/Loader/Loader";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import UploadDialog from "../../components/Upload/UploadDialog";
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
 
@@ -482,6 +482,7 @@ export default function NewDashboard() {
             )}
           </Flex>
           <Flex gap="24px">
+            <UploadDialog auth={auth} />
             <BetterButton>
               <svg
                 width="18"
@@ -536,6 +537,7 @@ export default function NewDashboard() {
                 Create Task
               </Text>
             </BetterButton>
+
             <BetterButton>
               <svg
                 width="18"
