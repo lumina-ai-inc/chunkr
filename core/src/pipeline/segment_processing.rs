@@ -18,7 +18,10 @@ lazy_static! {
 
 trait ContentGenerator {
     fn clean_list_item(content: &str) -> String {
-        content.trim_start_matches(&['-', '*', '•', '●', ' '][..]).trim().to_string()
+        content
+            .trim_start_matches(&['-', '*', '•', '●', ' '][..])
+            .trim()
+            .to_string()
     }
     fn generate_auto(&self, content: &str) -> String;
     fn prompt_key(&self) -> &'static str;
@@ -46,7 +49,7 @@ impl ContentGenerator for HtmlGenerator {
                 } else {
                     format!("<ul><li>{}</li></ul>", Self::clean_list_item(content))
                 }
-            },
+            }
             SegmentType::Page => format!("<div class='page'>{}</div>", content),
             SegmentType::PageFooter => format!("<div class='page-footer'>{}</div>", content),
             SegmentType::PageHeader => format!("<div class='page-header'>{}</div>", content),
@@ -92,11 +95,15 @@ impl ContentGenerator for MarkdownGenerator {
             SegmentType::Formula => format!("${}$", content),
             SegmentType::ListItem => {
                 if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
-                    format!("{}. {}", captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str())
+                    format!(
+                        "{}. {}",
+                        captures.get(1).unwrap().as_str(),
+                        captures.get(2).unwrap().as_str()
+                    )
                 } else {
                     format!("- {}", Self::clean_list_item(content))
                 }
-            },
+            }
             SegmentType::Page => format!("\n---\n{}\n---\n", content),
             SegmentType::PageFooter | SegmentType::PageHeader => content.to_string(),
             SegmentType::Picture => format!("![{}]()", content),
@@ -140,10 +147,12 @@ async fn generate_content<T: ContentGenerator>(
             let prompt = get_prompt(generator.prompt_key(), &HashMap::new())?;
             let result = match (generator.prompt_key(), generator.segment_type()) {
                 (_, SegmentType::Formula) => llm::latex_ocr(segment_image, prompt).await?,
-                (key, _) if key.starts_with("md_") => llm::markdown_ocr(segment_image, prompt).await?,
+                (key, _) if key.starts_with("md_") => {
+                    llm::markdown_ocr(segment_image, prompt).await?
+                }
                 _ => llm::html_ocr(segment_image, prompt).await?,
             };
-            
+
             Ok(generator.process_llm_result(&result))
         }
         GenerationStrategy::Auto => Ok(generator.generate_auto(content)),
@@ -204,8 +213,18 @@ async fn process_segment(
     };
 
     let (html, markdown) = futures::try_join!(
-        generate_html(segment.segment_type.clone(), segment.content.clone(), segment_image.clone(), html_strategy),
-        generate_markdown(segment.segment_type.clone(), segment.content.clone(), segment_image.clone(), markdown_strategy)
+        generate_html(
+            segment.segment_type.clone(),
+            segment.content.clone(),
+            segment_image.clone(),
+            html_strategy
+        ),
+        generate_markdown(
+            segment.segment_type.clone(),
+            segment.content.clone(),
+            segment_image.clone(),
+            markdown_strategy
+        )
     )?;
 
     segment.html = Some(html);
@@ -233,18 +252,19 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     let segment_images = pipeline.segment_images.clone();
 
     let futures: Vec<_> = pipeline
-        .chunks
+        .output
         .as_mut()
         .unwrap()
+        .chunks
         .iter_mut()
         .flat_map(|chunk| {
-            chunk
-                .segments
-                .iter_mut()
-                .map(|segment| {
-                    let segment_image = segment_images.get(&segment.segment_id).unwrap().clone();
-                    process_segment(segment, &configuration, segment_image)
-                })
+            chunk.segments.iter_mut().filter_map(|segment| {
+                segment_images
+                    .get(&segment.segment_id)
+                    .map(|segment_image| {
+                        process_segment(segment, &configuration, segment_image.clone())
+                    })
+            })
         })
         .collect();
 

@@ -1,5 +1,4 @@
-use crate::models::chunkr::output::Chunk;
-use crate::models::chunkr::structured_extraction::ExtractedJson;
+use crate::models::chunkr::output::OutputResponse;
 use crate::models::chunkr::task::{Status, TaskPayload};
 use crate::utils::services::file_operations::{check_file_type, convert_to_pdf};
 use crate::utils::services::log::log_task;
@@ -10,8 +9,7 @@ use tempfile::NamedTempFile;
 
 #[derive(Debug, Clone)]
 pub struct Pipeline {
-    pub chunks: Option<Vec<Chunk>>,
-    pub extracted_json: Option<ExtractedJson>,
+    pub output: Option<OutputResponse>,
     pub input_file: Option<Arc<NamedTempFile>>,
     pub mime_type: Option<String>,
     pub page_count: Option<u32>,
@@ -25,8 +23,7 @@ pub struct Pipeline {
 impl Pipeline {
     pub fn new() -> Self {
         Self {
-            chunks: None,
-            extracted_json: None,
+            output: None,
             input_file: None,
             mime_type: None,
             page_count: None,

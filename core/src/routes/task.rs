@@ -1,7 +1,7 @@
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::task::Configuration;
 use crate::models::chunkr::task::TaskResponse;
-use crate::models::chunkr::upload::{OcrStrategy, UploadForm};
+use crate::models::chunkr::upload::UploadForm;
 use crate::utils::server::create_task::create_task;
 use crate::utils::server::get_task::get_task;
 use actix_multipart::form::MultipartForm;
@@ -74,33 +74,27 @@ pub async fn create_extraction_task(
     let form = form.into_inner();
     let file_data = &form.file;
     let configuration = Configuration {
-        chunk_processing: form
-            .chunk_processing
-            .map(|cp| cp.into_inner())
-            .unwrap_or_default(),
+        chunk_processing: form.get_chunk_processing().unwrap_or_default(),
         expires_in: form.expires_in.map(|e| e.into_inner()),
         high_resolution: form
             .high_resolution
-            .map(|hr| hr.into_inner())
+            .map(|e| e.into_inner())
             .unwrap_or(false),
         json_schema: form.json_schema.map(|js| js.into_inner()),
         model: None,
         ocr_strategy: form
             .ocr_strategy
-            .map(|t| t.into_inner())
-            .unwrap_or(OcrStrategy::default()),
+            .map(|e| e.into_inner())
+            .unwrap_or_default(),
         segment_processing: form
             .segment_processing
-            .map(|sp| sp.into_inner())
+            .map(|e| e.into_inner())
             .unwrap_or_default(),
         segmentation_strategy: form
             .segmentation_strategy
-            .map(|ss| ss.into_inner())
+            .map(|e| e.into_inner())
             .unwrap_or_default(),
-        target_chunk_length: form
-            .target_chunk_length
-            .map(|t| t.into_inner())
-            .or(Some(512)),
+        target_chunk_length: None,
     };
 
     let result = create_task(file_data, &user_info, &configuration).await;
