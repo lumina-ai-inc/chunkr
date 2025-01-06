@@ -11,28 +11,18 @@ use futures::future::try_join_all;
 use rayon::prelude::*;
 use tempfile::NamedTempFile;
 
-async fn ocr_page_all(page: &NamedTempFile) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
-    match ocr::perform_general_ocr(&page).await {
-        Ok(ocr_results) => Ok(ocr_results),
-        Err(e) => {
-            println!("Error in performing OCR: {:?}", e);
-            Err(e.to_string().into())
-        }
-    }
+async fn ocr_page_all(
+    page: &NamedTempFile,
+) -> Result<Vec<OCRResult>, Box<dyn std::error::Error + Send + Sync>> {
+    Ok(ocr::perform_general_ocr(&page).await?)
 }
 
 async fn ocr_page_auto(
     page: &NamedTempFile,
     extracted_ocr_result: Vec<OCRResult>,
-) -> Result<Vec<OCRResult>, Box<dyn std::error::Error>> {
+) -> Result<Vec<OCRResult>, Box<dyn std::error::Error + Send + Sync>> {
     if extracted_ocr_result.is_empty() {
-        match ocr::perform_general_ocr(&page).await {
-            Ok(ocr_results) => Ok(ocr_results),
-            Err(e) => {
-                println!("Error in performing OCR: {:?}", e);
-                Err(e.to_string().into())
-            }
-        }
+        Ok(ocr::perform_general_ocr(&page).await?)
     } else {
         Ok(extracted_ocr_result)
     }
@@ -42,7 +32,7 @@ async fn page_segmentation(
     page: &NamedTempFile,
     ocr_results: Vec<OCRResult>,
     page_number: u32,
-) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
+) -> Result<Vec<Segment>, Box<dyn std::error::Error + Send + Sync>> {
     let (page_width, page_height) = images::get_image_dimensions(page)?;
     let segments = vec![Segment::new(
         BoundingBox::new(0.0, 0.0, page_width as f32, page_height as f32),
@@ -55,37 +45,58 @@ async fn page_segmentation(
     Ok(segments)
 }
 
-async fn layout_analysis(
-    page: &NamedTempFile,
-    ocr_results: Vec<OCRResult>,
-    page_number: u32,
-) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
-    let segments = match segmentation::perform_segmentation(page, ocr_results, page_number).await {
-        Ok(segments) => segments,
-        Err(e) => {
-            println!("Error in performing segmentation: {:?}", e);
-            return Err(e.to_string().into());
-        }
-    };
-    Ok(segments)
-}
-
 async fn process_page(
     page: &NamedTempFile,
     task_payload: TaskPayload,
     extracted_ocr_result: Vec<OCRResult>,
     page_number: u32,
 ) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
-    let ocr_results = match task_payload.current_configuration.ocr_strategy {
-        OcrStrategy::All => ocr_page_all(&page).await?,
-        OcrStrategy::Auto => ocr_page_auto(&page, extracted_ocr_result).await?,
-    };
-    let segments = match task_payload.current_configuration.segmentation_strategy {
-        SegmentationStrategy::LayoutAnalysis => {
-            layout_analysis(page, ocr_results, page_number).await?
+    let (ocr_results, raw_segments) = tokio::join!(
+        async {
+            match task_payload.current_configuration.ocr_strategy {
+                OcrStrategy::All => ocr_page_all(&page).await,
+                OcrStrategy::Auto => ocr_page_auto(&page, extracted_ocr_result).await,
+            }
+        },
+        async {
+            match task_payload.current_configuration.segmentation_strategy {
+                SegmentationStrategy::LayoutAnalysis => {
+                    segmentation::perform_segmentation(page, vec![], page_number).await
+                }
+                SegmentationStrategy::Page => page_segmentation(page, vec![], page_number).await,
+            }
         }
-        SegmentationStrategy::Page => page_segmentation(page, ocr_results, page_number).await?,
+    );
+
+    let ocr_results: Vec<OCRResult> = match ocr_results {
+        Ok(ocr_results) => ocr_results,
+        Err(e) => {
+            println!("Error in performing OCR: {:?}", e);
+            return Err(e.to_string().into());
+        }
     };
+    let raw_segments: Vec<Segment> = match raw_segments {
+        Ok(segments) => segments,
+        Err(e) => {
+            println!("Error in performing segmentation: {:?}", e);
+            return Err(e.to_string().into());
+        }
+    };
+    let segments = raw_segments
+        .into_par_iter()
+        .map(|segment| {
+            let ocr_results = ocr_results.clone();
+            Segment::new_from_page_ocr(
+                segment.bbox,
+                ocr_results,
+                segment.page_height,
+                segment.page_number,
+                segment.page_width,
+                segment.segment_type,
+            )
+        })
+        .collect::<Vec<_>>();
+
     Ok(segments)
 }
 

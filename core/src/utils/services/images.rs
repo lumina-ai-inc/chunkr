@@ -4,7 +4,7 @@ use tempfile::NamedTempFile;
 
 pub fn get_image_dimensions(
     image: &NamedTempFile,
-) -> Result<(u32, u32), Box<dyn std::error::Error>> {
+) -> Result<(u32, u32), Box<dyn std::error::Error + Send + Sync>> {
     let img = ImageReader::open(image.path())?
         .with_guessed_format()?
         .decode()?;
