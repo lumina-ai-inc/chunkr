@@ -237,7 +237,7 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
                 if n_cols > 1:
                     try:
                         score = silhouette_score(x_coords, labels)
-                        if score > best_score:
+                        if score > best_score and score > 0.5:  # Ensure good separation
                             best_score = score
                             best_n_cols = n_cols
                             best_labels = labels
@@ -252,10 +252,19 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
         if n_cols == 1:
             # Single column - sort by y position
             return sorted(segments, key=lambda x: x[0].y1)
-            
+        
+        # Sort centers left-to-right
+        if centers is not None:
+            col_order = np.argsort(centers.flatten())
+            centers = centers[col_order]
+        else:
+            return sorted(segments, key=lambda x: x[0].y1)
+        
         # Organize into columns
         columns = [[] for _ in range(n_cols)]
-        for idx, seg in enumerate(segments):
+        
+        # First pass: assign segments to columns
+        for seg in segments:
             center_x = (seg[0].x1 + seg[0].x2) / 2
             width = seg[0].x2 - seg[0].x1
             
@@ -263,16 +272,16 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
             is_wide = width > (page_width / n_cols) * 1.5
             
             if is_wide:
-                # Place wide elements in their vertical position
-                y_pos = seg[0].y1
+                # For wide elements, find the leftmost column it spans
+                left_edge = seg[0].x1
                 col_idx = 0
-                for i, col in enumerate(columns):
-                    if not col or y_pos < col[-1][0].y1:
+                for i, center in enumerate(centers):
+                    if left_edge < center[0]:
                         col_idx = i
                         break
                 columns[col_idx].append(seg)
             else:
-                # Assign to nearest column
+                # Find nearest column center
                 distances = [abs(center_x - c[0]) for c in centers]
                 col_idx = distances.index(min(distances))
                 columns[col_idx].append(seg)
@@ -281,11 +290,11 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
         for col in columns:
             col.sort(key=lambda x: x[0].y1)
         
-        # Combine columns left to right
+        # Combine columns strictly left-to-right
         ordered_segments = []
-        for col in columns:
+        for col in columns:  # columns are already sorted left-to-right
             ordered_segments.extend(col)
-            
+        
         return ordered_segments
 
     # Process each prediction
