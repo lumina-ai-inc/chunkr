@@ -1435,7 +1435,7 @@ def visualize_predictions(images, predictions, subfolder_path):
     for i, (image, pred_dict) in enumerate(zip(images, predictions)):
         pred_dict = pred_dict.get("instances", {})
 
-        image_resized = image.resize((image.width * 2, image.height * 2))
+        image_resized = image.resize((image.width , image.height ))
         draw = ImageDraw.Draw(image_resized)
 
         boxes = pred_dict.get("boxes", [])
@@ -1447,10 +1447,10 @@ def visualize_predictions(images, predictions, subfolder_path):
                 if score <= 0:
                     continue
                 scaled_box = [
-                    box["left"] * 2,
-                    box["top"] * 2,
-                    (box["left"] + box["width"]) * 2,
-                    (box["top"] + box["height"]) * 2
+                    box["left"] ,
+                    box["top"] ,
+                    (box["left"] + box["width"]) ,
+                    (box["top"] + box["height"])
                 ]
                 draw.rectangle(scaled_box, outline="red", width=3)
 
@@ -1502,7 +1502,7 @@ if __name__ == "__main__":
     pdf_path = "figures/test_batch5.pdf"
     server_url = "http://localhost:8001/batch_async"
 
-    for use_tesseract_ocr in [True, False]:
+    for use_tesseract_ocr in [False]:
         ocr_mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
         subfolder_path = ANNOTATED_IMAGES_DIR / ocr_mode
         subfolder_path.mkdir(parents=True, exist_ok=True)

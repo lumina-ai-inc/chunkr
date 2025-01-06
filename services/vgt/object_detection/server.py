@@ -158,6 +158,81 @@ def create_grid_dict_from_ocr(ocr_results: List[OCRInput]) -> dict:
         "bbox_texts_list": boxes
     }
 
+def identify_vertical_regions(segments: List[tuple]) -> List[List[tuple]]:
+    if not segments:
+        return []
+        
+    sorted_segs = sorted(segments, key=lambda x: x[0].y1)
+    vertical_regions = []
+    current_region = [sorted_segs[0]]
+    
+    # Calculate dynamic gap threshold based on segment heights
+    heights = [seg[0].y2 - seg[0].y1 for seg in segments]
+    mean_height = np.mean(heights)
+    std_height = np.std(heights)
+    gap_threshold = mean_height + (2 * std_height)  # Dynamic threshold
+    
+    for i in range(1, len(sorted_segs)):
+        current_seg = sorted_segs[i]
+        prev_seg = sorted_segs[i-1]
+        gap = current_seg[0].y1 - prev_seg[0].y2
+        
+        # Calculate region density dynamically
+        region_height = current_seg[0].y2 - current_region[0][0].y1
+        if region_height > 0:
+            y_positions = [seg[0].y1 for seg in current_region]
+            density_std = np.std(y_positions) / region_height
+            
+            if gap > gap_threshold or density_std > 0.5:  # Significant gap or density change
+                vertical_regions.append(current_region)
+                current_region = [current_seg]
+            else:
+                current_region.append(current_seg)
+                
+    vertical_regions.append(current_region)
+    return vertical_regions
+
+def analyze_region_structure(region: List[tuple]) -> List[tuple]:
+    """Analyze column structure using only x-axis positions"""
+    if not region:
+        return []
+        
+    # Only use x-coordinates for centroid calculation
+    x_centroids = np.array([(seg[0].x1 + seg[0].x2) / 2 for seg in region]).reshape(-1, 1)
+    
+    # Calculate x-axis statistics
+    mean_x = np.mean(x_centroids)
+    std_x = np.std(x_centroids)
+    
+    # Check for natural column separation using x-position only
+    x_distances = np.abs(x_centroids - mean_x)
+    outliers = x_distances > (1.5 * std_x)
+    
+    if not any(outliers):  # No significant x-axis separation
+        return sorted(region, key=lambda x: (x[0].y1, x[0].x1))
+    
+    # Cluster only on x-coordinates
+    kmeans = KMeans(n_clusters=2, random_state=42)
+    labels = kmeans.fit_predict(x_centroids)
+    
+    # Validate column separation
+    cluster_centers = sorted(kmeans.cluster_centers_.flatten())
+    if len(cluster_centers) > 1:
+        x_gap = cluster_centers[1] - cluster_centers[0]
+        if x_gap < std_x:  # Columns not well separated on x-axis
+            return sorted(region, key=lambda x: (x[0].y1, x[0].x1))
+    
+    # Group by x-position based columns and sort by y within columns
+    columns = [[] for _ in range(len(cluster_centers))]
+    for seg, label in zip(region, labels):
+        columns[label].append(seg)
+    
+    # Sort within columns by y-position only
+    for col in columns:
+        col.sort(key=lambda x: x[0].y1)
+    
+    return [seg for col in columns for seg in col]
+
 def get_reading_order(predictions: List[SerializablePrediction]) -> List[SerializablePrediction]:
     def analyze_vertical_structure(segments: List[tuple]) -> dict:
         if not segments:
