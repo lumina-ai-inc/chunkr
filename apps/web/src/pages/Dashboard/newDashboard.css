@@ -98,11 +98,19 @@
   align-items: center;
 }
 
+.main-header-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.main-header-text:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
 .header-task-tag {
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(103, 232, 249, 0.1);
-  border: 1px solid rgba(103, 232, 249, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .profile-menu {
@@ -189,4 +197,8 @@
 
 .profile-popup .profile-menu-item {
   width: 100%;
+}
+
+.main-header-text:has(+ .task-tag):hover {
+  color: rgba(255, 255, 255, 1);
 }
