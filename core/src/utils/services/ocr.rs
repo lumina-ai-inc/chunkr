@@ -91,6 +91,7 @@ pub async fn perform_general_ocr(
     .await?)
 }
 
+// TODO: Remove this
 // fn extract_fenced_content(content: &str, fence_type: &str) -> Option<String> {
 //     content
 //         .split(&format!("```{}", fence_type))

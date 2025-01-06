@@ -60,7 +60,6 @@ pub async fn open_ai_call(
         max_completion_tokens,
         temperature,
     };
-
     let client = reqwest::Client::new();
     let response = client
         .post(url)
@@ -69,10 +68,8 @@ pub async fn open_ai_call(
         .json(&request)
         .send()
         .await?
-        .error_for_status()?
-        .json::<OpenAiResponse>()
-        .await?;
-
+        .error_for_status()?;
+    let response: OpenAiResponse = response.json().await?;
     Ok(response)
 }
 
@@ -121,6 +118,11 @@ pub fn get_basic_image_message(
     let mut buffer = Vec::new();
     temp_file.as_file().read_to_end(&mut buffer)?;
     let base64_image = general_purpose::STANDARD.encode(&buffer);
+    if base64_image.is_empty() {
+        return Err(
+            Box::new(LLMError("No image found".to_string())) as Box<dyn Error + Send + Sync>
+        );
+    }
     Ok(vec![Message {
         role: "user".to_string(),
         content: MessageContent::Array {
@@ -158,6 +160,7 @@ pub async fn llm_ocr(
         Some(0.0),
     )
     .await?;
+
     if let MessageContent::String { content } = response.choices[0].message.content.clone() {
         Ok(content)
     } else {

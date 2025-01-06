@@ -57,10 +57,6 @@ async fn crop_segment(
 
     if should_crop {
         let cropped_image = crop_image(page_image, &segment.bbox)?;
-        println!(
-            "Croping image for segment type: {:?} and id: {:?}",
-            segment.segment_type, segment.segment_id
-        );
         Ok(Some(cropped_image))
     } else {
         Ok(None)
@@ -84,7 +80,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
         .current_configuration
         .clone();
     let segment_images = pipeline.segment_images.clone();
-
     pipeline.output.chunks.par_iter().for_each(|chunk| {
         chunk.segments.par_iter().for_each(|segment| {
             let page_image = page_images
@@ -101,6 +96,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
             }
         });
     });
-
+    pipeline.segment_images = segment_images;
     Ok(())
 }

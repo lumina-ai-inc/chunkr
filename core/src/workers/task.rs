@@ -67,12 +67,19 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         pipeline.init(input_file, task_payload).await?;
 
+        let start_time = std::time::Instant::now();
         for step in orchestrate_task() {
             execute_step(step, &mut pipeline).await?;
             if pipeline.status.clone().unwrap().clone() != Status::Processing {
                 return Ok(());
             }
         }
+        let end_time = std::time::Instant::now();
+        println!(
+            "Task took {:?} to complete with page count {:?}",
+            end_time.duration_since(start_time),
+            pipeline.page_count.unwrap_or(0)
+        );
 
         pipeline
             .update_status(Status::Succeeded, Some("Task succeeded".to_string()))
