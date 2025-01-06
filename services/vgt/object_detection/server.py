@@ -22,6 +22,11 @@ import psutil
 from transformers import AutoTokenizer
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
+from dataclasses import dataclass
+from typing import List, Optional
+import numpy as np
+from sklearn.cluster import DBSCAN
+from enum import IntEnum
 
 warnings.filterwarnings("ignore", category=UserWarning, module='torch')
 
@@ -157,81 +162,6 @@ def create_grid_dict_from_ocr(ocr_results: List[OCRInput]) -> dict:
         "texts": texts,
         "bbox_texts_list": boxes
     }
-
-def identify_vertical_regions(segments: List[tuple]) -> List[List[tuple]]:
-    if not segments:
-        return []
-        
-    sorted_segs = sorted(segments, key=lambda x: x[0].y1)
-    vertical_regions = []
-    current_region = [sorted_segs[0]]
-    
-    # Calculate dynamic gap threshold based on segment heights
-    heights = [seg[0].y2 - seg[0].y1 for seg in segments]
-    mean_height = np.mean(heights)
-    std_height = np.std(heights)
-    gap_threshold = mean_height + (2 * std_height)  # Dynamic threshold
-    
-    for i in range(1, len(sorted_segs)):
-        current_seg = sorted_segs[i]
-        prev_seg = sorted_segs[i-1]
-        gap = current_seg[0].y1 - prev_seg[0].y2
-        
-        # Calculate region density dynamically
-        region_height = current_seg[0].y2 - current_region[0][0].y1
-        if region_height > 0:
-            y_positions = [seg[0].y1 for seg in current_region]
-            density_std = np.std(y_positions) / region_height
-            
-            if gap > gap_threshold or density_std > 0.5:  # Significant gap or density change
-                vertical_regions.append(current_region)
-                current_region = [current_seg]
-            else:
-                current_region.append(current_seg)
-                
-    vertical_regions.append(current_region)
-    return vertical_regions
-
-def analyze_region_structure(region: List[tuple]) -> List[tuple]:
-    """Analyze column structure using only x-axis positions"""
-    if not region:
-        return []
-        
-    # Only use x-coordinates for centroid calculation
-    x_centroids = np.array([(seg[0].x1 + seg[0].x2) / 2 for seg in region]).reshape(-1, 1)
-    
-    # Calculate x-axis statistics
-    mean_x = np.mean(x_centroids)
-    std_x = np.std(x_centroids)
-    
-    # Check for natural column separation using x-position only
-    x_distances = np.abs(x_centroids - mean_x)
-    outliers = x_distances > (1.5 * std_x)
-    
-    if not any(outliers):  # No significant x-axis separation
-        return sorted(region, key=lambda x: (x[0].y1, x[0].x1))
-    
-    # Cluster only on x-coordinates
-    kmeans = KMeans(n_clusters=2, random_state=42)
-    labels = kmeans.fit_predict(x_centroids)
-    
-    # Validate column separation
-    cluster_centers = sorted(kmeans.cluster_centers_.flatten())
-    if len(cluster_centers) > 1:
-        x_gap = cluster_centers[1] - cluster_centers[0]
-        if x_gap < std_x:  # Columns not well separated on x-axis
-            return sorted(region, key=lambda x: (x[0].y1, x[0].x1))
-    
-    # Group by x-position based columns and sort by y within columns
-    columns = [[] for _ in range(len(cluster_centers))]
-    for seg, label in zip(region, labels):
-        columns[label].append(seg)
-    
-    # Sort within columns by y-position only
-    for col in columns:
-        col.sort(key=lambda x: x[0].y1)
-    
-    return [seg for col in columns for seg in col]
 
 def get_reading_order(predictions: List[SerializablePrediction]) -> List[SerializablePrediction]:
     def analyze_vertical_structure(segments: List[tuple]) -> dict:
@@ -683,3 +613,213 @@ def validate_column_gaps(columns: List[List[tuple]], kmeans: KMeans) -> bool:
             return False
             
     return True
+
+class ElementType(IntEnum):
+    CAPTION = 0
+    FOOTNOTE = 1
+    FORMULA = 2
+    LIST_ITEM = 3
+    PAGE_FOOTER = 4
+    PAGE_HEADER = 5
+    PICTURE = 6
+    SECTION_HEADER = 7
+    TABLE = 8
+    TEXT = 9
+    TITLE = 10
+
+@dataclass
+class Region:
+    segments: List[Segment]
+    region_type: str  # 'references', 'figure', 'text', etc.
+    column_count: int
+    confidence: float
+
+@dataclass
+class DocumentLayout:
+    regions: List[Region]
+    is_two_column: bool
+    has_references: bool
+
+def analyze_document_structure(segments: List[Segment]) -> List[Segment]:
+    """Main document analysis function"""
+    if not segments:
+        return []
+
+    # 1. Separate fixed elements
+    headers = [s for s in segments if s.element_type == ElementType.PAGE_HEADER]
+    footers = [s for s in segments if s.element_type == ElementType.PAGE_FOOTER]
+    main_content = [s for s in segments if s.element_type not in {ElementType.PAGE_HEADER, ElementType.PAGE_FOOTER}]
+
+    # 2. Detect document layout pattern
+    layout = detect_document_layout(main_content)
+
+    # 3. Identify and process regions
+    regions = identify_regions(main_content, layout)
+    
+    # 4. Process each region according to its type
+    ordered_segments = []
+    ordered_segments.extend(headers)
+    
+    for region in regions:
+        processed = process_region(region, layout)
+        ordered_segments.extend(processed)
+        
+    ordered_segments.extend(footers)
+    return ordered_segments
+
+def detect_document_layout(segments: List[Segment]) -> DocumentLayout:
+    """Analyze overall document layout pattern"""
+    # Check for references section
+    has_references = any(is_reference_segment(s) for s in segments)
+    
+    # Analyze column structure
+    x_centers = np.array([(s.box.x1 + s.box.x2)/2 for s in segments 
+                         if s.element_type == ElementType.TEXT])
+    
+    if len(x_centers) > 0:
+        clustering = DBSCAN(eps=50, min_samples=3).fit(x_centers.reshape(-1, 1))
+        is_two_column = len(set(clustering.labels_)) > 1
+    else:
+        is_two_column = False
+        
+    return DocumentLayout(regions=[], is_two_column=is_two_column, has_references=has_references)
+
+def identify_regions(segments: List[Segment], layout: DocumentLayout) -> List[Region]:
+    """Split document into logical regions"""
+    regions = []
+    
+    # Group segments by vertical position using DBSCAN
+    y_centers = np.array([(s.box.y1 + s.box.y2)/2 for s in segments])
+    clustering = DBSCAN(eps=40, min_samples=2).fit(y_centers.reshape(-1, 1))
+    
+    # Group segments by cluster
+    clusters = {}
+    for segment, label in zip(segments, clustering.labels_):
+        if label not in clusters:
+            clusters[label] = []
+        clusters[label].append(segment)
+    
+    # Process each cluster into a region
+    for label in sorted(clusters.keys()):
+        cluster_segments = clusters[label]
+        
+        # Determine region type
+        region_type = determine_region_type(cluster_segments)
+        
+        # Analyze column structure for this region
+        column_count = analyze_region_columns(cluster_segments, layout)
+        
+        regions.append(Region(
+            segments=cluster_segments,
+            region_type=region_type,
+            column_count=column_count,
+            confidence=1.0
+        ))
+    
+    return regions
+
+def determine_region_type(segments: List[Segment]) -> str:
+    """Determine the type of a region based on its contents"""
+    type_counts = {}
+    for seg in segments:
+        type_counts[seg.element_type] = type_counts.get(seg.element_type, 0) + 1
+    
+    if any(s.element_type == ElementType.PICTURE for s in segments):
+        return 'figure'
+    elif any(s.element_type == ElementType.TABLE for s in segments):
+        return 'table'
+    elif is_reference_section(segments):
+        return 'references'
+    elif any(s.element_type == ElementType.SECTION_HEADER for s in segments):
+        return 'section_start'
+    else:
+        return 'text'
+
+def analyze_region_columns(segments: List[Segment], layout: DocumentLayout) -> int:
+    """Determine column structure for a region"""
+    # Headers and figures span columns
+    if any(s.element_type in {ElementType.SECTION_HEADER, ElementType.TITLE} for s in segments):
+        return 1
+        
+    if not layout.is_two_column:
+        return 1
+        
+    # Analyze x-positions of text segments
+    text_segments = [s for s in segments if s.element_type == ElementType.TEXT]
+    if not text_segments:
+        return 1
+        
+    x_centers = np.array([(s.box.x1 + s.box.x2)/2 for s in text_segments])
+    clustering = DBSCAN(eps=50, min_samples=2).fit(x_centers.reshape(-1, 1))
+    
+    return len(set(clustering.labels_))
+
+def process_region(region: Region, layout: DocumentLayout) -> List[Segment]:
+    """Process segments within a region based on its type"""
+    if region.region_type in {'figure', 'table'}:
+        return process_figure_region(region)
+    elif region.region_type == 'references':
+        return process_reference_region(region)
+    else:
+        return process_text_region(region)
+
+def process_figure_region(region: Region) -> List[Segment]:
+    """Handle figures/tables and their captions"""
+    figures = [s for s in region.segments if s.element_type in {ElementType.PICTURE, ElementType.TABLE}]
+    captions = [s for s in region.segments if s.element_type == ElementType.CAPTION]
+    other = [s for s in region.segments if s.element_type not in 
+             {ElementType.PICTURE, ElementType.TABLE, ElementType.CAPTION}]
+    
+    result = []
+    for fig in sorted(figures, key=lambda x: x.box.y1):
+        result.append(fig)
+        # Find closest caption
+        if captions:
+            closest = min(captions, key=lambda x: abs(x.box.y1 - fig.box.y2))
+            result.append(closest)
+            captions.remove(closest)
+    
+    result.extend(sorted(captions, key=lambda x: x.box.y1))
+    result.extend(sorted(other, key=lambda x: x.box.y1))
+    return result
+
+def process_reference_region(region: Region) -> List[Segment]:
+    """Handle reference sections"""
+    return sorted(region.segments, key=lambda x: (x.box.y1, x.box.x1))
+
+def process_text_region(region: Region) -> List[Segment]:
+    """Process regular text regions"""
+    if region.column_count == 1:
+        return sorted(region.segments, key=lambda x: x.box.y1)
+    
+    # For two-column regions, cluster by x-position
+    x_centers = np.array([(s.box.x1 + s.box.x2)/2 for s in region.segments])
+    clustering = DBSCAN(eps=50, min_samples=2).fit(x_centers.reshape(-1, 1))
+    
+    # Group by column
+    columns = {}
+    for segment, label in zip(region.segments, clustering.labels_):
+        if label not in columns:
+            columns[label] = []
+        columns[label].append(segment)
+    
+    # Sort columns by x-position
+    sorted_columns = []
+    for label in sorted(columns.keys(), 
+                       key=lambda k: np.mean([s.box.x1 for s in columns[k]])):
+        column = columns[label]
+        sorted_columns.append(sorted(column, key=lambda x: x.box.y1))
+    
+    # Combine columns
+    return [s for col in sorted_columns for s in col]
+
+def is_reference_segment(segment: Segment) -> bool:
+    """Check if a segment is likely part of references"""
+    if segment.element_type != ElementType.TEXT:
+        return False
+    # Add additional reference detection logic if needed
+    return False
+
+def is_reference_section(segments: List[Segment]) -> bool:
+    """Check if a group of segments forms a reference section"""
+    return any(is_reference_segment(s) for s in segments)
