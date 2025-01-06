@@ -9,7 +9,7 @@ use tempfile::NamedTempFile;
 
 #[derive(Debug, Clone)]
 pub struct Pipeline {
-    pub output: Option<OutputResponse>,
+    pub output: OutputResponse,
     pub input_file: Option<Arc<NamedTempFile>>,
     pub mime_type: Option<String>,
     pub page_count: Option<u32>,
@@ -23,7 +23,7 @@ pub struct Pipeline {
 impl Pipeline {
     pub fn new() -> Self {
         Self {
-            output: None,
+            output: OutputResponse::default(),
             input_file: None,
             mime_type: None,
             page_count: None,

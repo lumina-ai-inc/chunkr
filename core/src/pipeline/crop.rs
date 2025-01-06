@@ -85,28 +85,22 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
         .clone();
     let segment_images = pipeline.segment_images.clone();
 
-    pipeline
-        .output
-        .as_mut()
-        .unwrap()
-        .chunks
-        .par_iter()
-        .for_each(|chunk| {
-            chunk.segments.par_iter().for_each(|segment| {
-                let page_image = page_images
-                    .get(segment.page_number as usize - 1)
-                    .unwrap()
-                    .as_ref();
+    pipeline.output.chunks.par_iter().for_each(|chunk| {
+        chunk.segments.par_iter().for_each(|segment| {
+            let page_image = page_images
+                .get(segment.page_number as usize - 1)
+                .unwrap()
+                .as_ref();
 
-                let cropped_image =
-                    futures::executor::block_on(crop_segment(page_image, &configuration, segment))
-                        .expect("Failed to crop segment");
+            let cropped_image =
+                futures::executor::block_on(crop_segment(page_image, &configuration, segment))
+                    .expect("Failed to crop segment");
 
-                if let Some(cropped_image) = cropped_image {
-                    segment_images.insert(segment.segment_id.clone(), Arc::new(cropped_image));
-                }
-            });
+            if let Some(cropped_image) = cropped_image {
+                segment_images.insert(segment.segment_id.clone(), Arc::new(cropped_image));
+            }
         });
+    });
 
     Ok(())
 }
