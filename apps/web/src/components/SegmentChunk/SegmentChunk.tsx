@@ -101,7 +101,7 @@ const MemoizedMarkdown = memo(({ content }: { content: string }) => (
   <ReactMarkdown
     className="cyan-2"
     remarkPlugins={[remarkMath]}
-    rehypePlugins={[rehypeKatex, remarkGfm]}
+    rehypePlugins={[rehypeKatex]}
   >
     {content}
   </ReactMarkdown>

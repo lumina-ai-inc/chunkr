@@ -326,7 +326,14 @@ export default function NewDashboard() {
         direction="column"
       >
         <Flex className="dashboard-nav-header">
-          <Flex gap="8px" align="center" justify="center" mt="6px">
+          <Flex
+            gap="8px"
+            align="center"
+            justify="center"
+            mt="6px"
+            onClick={() => navigate("/")}
+            style={{ cursor: "pointer" }}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="28"
@@ -456,7 +463,7 @@ export default function NewDashboard() {
                 Your Tasks
               </Text>
             </Flex>
-            {taskId && (
+            {taskId && taskResponse?.file_name && (
               <>
                 <svg
                   width="24"
