@@ -10,7 +10,7 @@ use core::pipeline::segment_processing;
 use core::pipeline::segmentation_and_ocr;
 use core::pipeline::update_metadata;
 use core::pipeline::upsert_output;
-use core::utils::clients::initialize_clients;
+use core::utils::clients::initialize;
 use core::utils::rrq::consumer::consumer;
 use core::utils::storage::services::download_to_tempfile;
 
@@ -109,7 +109,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Starting task processor");
     let config = WorkerConfig::from_env()?;
     PdfiumConfig::from_env()?.ensure_binary().await?;
-    initialize_clients().await;
+    initialize().await;
     consumer(process, config.queue_task, 1, 2400).await?;
     Ok(())
 }

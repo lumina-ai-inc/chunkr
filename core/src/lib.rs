@@ -37,7 +37,7 @@ use routes::task::{create_extraction_task, get_task_status};
 use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
-use utils::clients::initialize_clients;
+use utils::clients::initialize;
 use utils::server::admin_user::get_or_create_admin_user;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
@@ -125,7 +125,7 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
         env_logger::init_from_env(Env::default().default_filter_or("info"));
-        initialize_clients().await;
+        initialize().await;
         run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
         get_or_create_admin_user()
             .await
