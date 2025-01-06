@@ -103,7 +103,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             vec![vec![]; pipeline.page_count.unwrap_or(0) as usize]
         }
     };
-    println!("pdf_ocr_results: {:?}", pdf_ocr_results);
 
     let page_segments = try_join_all(
         pipeline
@@ -139,6 +138,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             .target_length,
     )?;
 
-    pipeline.chunks = Some(chunks);
+    pipeline.output.as_mut().unwrap().chunks = chunks;
     Ok(())
 }

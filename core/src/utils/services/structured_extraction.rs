@@ -236,6 +236,7 @@ pub async fn perform_structured_extraction(
     Ok(ExtractedJson {
         title: json_schema.title,
         extracted_fields,
+        schema_type: None,
     })
 }
 
@@ -359,6 +360,7 @@ mod tests {
 
         let json_schema = JsonSchema {
             title: "Basket".to_string(),
+            schema_type: None,
             properties: vec![
                 Property {
                     name: "fruits".to_string(),

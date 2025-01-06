@@ -12,6 +12,10 @@ pub struct JsonSchema {
     pub title: String,
     /// The properties of the JSON schema. Each property is a field to be extracted from the document.
     pub properties: Vec<Property>,
+    #[serde(alias = "type", skip_serializing_if = "Option::is_none")]
+    #[deprecated]
+    /// The type of the JSON schema.
+    pub schema_type: Option<String>,
 }
 
 impl std::str::FromStr for JsonSchema {
@@ -56,6 +60,10 @@ pub struct ExtractedJson {
     pub title: String,
     /// The extracted fields. Each field is a key in the json schema provided.
     pub extracted_fields: Vec<ExtractedField>,
+    #[serde(alias = "type", skip_serializing_if = "Option::is_none")]
+    #[deprecated]
+    /// The type of the extracted JSON.
+    pub schema_type: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]

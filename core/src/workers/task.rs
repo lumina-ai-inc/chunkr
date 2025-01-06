@@ -9,6 +9,7 @@ use core::pipeline::crop;
 use core::pipeline::pages;
 use core::pipeline::segment_processing;
 use core::pipeline::update_metadata;
+use core::pipeline::upsert_output;
 use core::utils::clients::initialize_clients;
 use core::utils::rrq::consumer::consumer;
 use core::utils::storage::services::download_to_tempfile;
@@ -26,6 +27,7 @@ async fn execute_step(
         "pages" => pages::process(pipeline).await,
         "segment_processing" => segment_processing::process(pipeline).await,
         "update_metadata" => update_metadata::process(pipeline).await,
+        "upsert_output" => upsert_output::process(pipeline).await,
         _ => Err(format!("Unknown function: {}", step).into()),
     }?;
     let duration = start.elapsed();
@@ -48,6 +50,7 @@ fn orchestrate_task() -> Vec<&'static str> {
         "pages",
         "crop",
         "segment_processing",
+        "upsert_output",
     ]
 }
 
@@ -73,7 +76,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         // TODO: Change status to succeeded after development
         pipeline
-            .update_status(Status::Failed, Some("Task succeeded".to_string()))
+            .update_status(Status::Succeeded, Some("Task succeeded".to_string()))
             .await?;
 
         Ok(())

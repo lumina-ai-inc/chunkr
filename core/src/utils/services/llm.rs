@@ -46,7 +46,7 @@ fn init_throttle() {
     TOKEN_TIMEOUT.get_or_init(|| 10000);
 }
 
-async fn open_ai_call(
+pub async fn open_ai_call(
     url: String,
     key: String,
     model: String,

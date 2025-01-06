@@ -49,6 +49,23 @@ pub struct UploadForm {
     pub target_chunk_length: Option<Text<i32>>,
 }
 
+impl UploadForm {
+    pub fn get_chunk_processing(&self) -> Option<ChunkProcessing> {
+        self.chunk_processing
+            .as_ref()
+            .map(|mp_json| mp_json.0.clone())
+            .or_else(|| {
+                // For backwards compatibility: if chunk_processing is not set but target_chunk_length is,
+                // create a ChunkProcessing with defaults and override target_length
+                self.target_chunk_length.as_ref().map(|length| {
+                    let mut chunk_processing = ChunkProcessing::default();
+                    chunk_processing.target_length = length.0;
+                    chunk_processing
+                })
+            })
+    }
+}
+
 #[derive(
     Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString,
 )]

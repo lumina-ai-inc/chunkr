@@ -33,18 +33,15 @@ pub async fn create_task(
     let bucket_name = worker_config.s3_bucket;
     let base_url = worker_config.server_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
+    let page_count: i32 = 0;
 
     let file_path: PathBuf = PathBuf::from(file.file.path());
-
-    let page_count: i32 = 0;
     let file_size = file.size;
-
     let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
-
     let path = Path::new(file_name);
     let file_stem = path
         .file_stem()
-        .and_then(|s| s.to_str())
+        .and_then(|s: &std::ffi::OsStr| s.to_str())
         .unwrap_or("unknown");
     let extension = path.extension().and_then(|s| s.to_str()).unwrap_or("pdf");
 
