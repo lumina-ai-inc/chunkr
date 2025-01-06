@@ -107,7 +107,7 @@
 }
 
 .header-task-tag {
-  padding: 8px 12px;
+  padding: 0px 12px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -118,7 +118,8 @@
   display: inline-block;
   box-sizing: border-box;
   color: rgba(255, 255, 255, 0.9);
-  padding-bottom: 9px;
+  padding-top: 5px;
+  padding-bottom: 7px;
 }
 
 .profile-menu {
