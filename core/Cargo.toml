@@ -68,6 +68,8 @@ uuid = { version = "1.8.0", features = ["v4", "v5"] }
 
 [dev-dependencies]
 rand = "0.8.5"
+imageproc = "0.25.0"
+
 
 [build-dependencies]
 pkg-config = "0.3.19"

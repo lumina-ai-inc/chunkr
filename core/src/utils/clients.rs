@@ -1,5 +1,6 @@
 use crate::configs::postgres_config::{create_pool, Pool};
 use crate::configs::s3_config::{create_client, create_external_client};
+use crate::utils::rate_limit::init_throttle;
 use aws_sdk_s3::Client as S3Client;
 use futures::FutureExt;
 use once_cell::sync::OnceCell;
@@ -9,7 +10,7 @@ static S3_CLIENT: OnceCell<S3Client> = OnceCell::new();
 static S3_EXTERNAL_CLIENT: OnceCell<S3Client> = OnceCell::new();
 static PG_POOL: OnceCell<Pool> = OnceCell::new();
 
-pub async fn initialize_clients() {
+pub async fn initialize() {
     REQWEST_CLIENT.get_or_init(|| ReqwestClient::new());
     S3_CLIENT.get_or_init(|| {
         async { create_client().await.unwrap() }
@@ -22,7 +23,8 @@ pub async fn initialize_clients() {
             .unwrap()
     });
     PG_POOL.get_or_init(|| async { create_pool() }.now_or_never().unwrap());
-    println!("Clients initialized");
+    init_throttle();
+    println!("Initialized done");
 }
 
 pub fn get_reqwest_client() -> &'static ReqwestClient {

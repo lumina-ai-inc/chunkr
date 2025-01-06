@@ -1,6 +1,17 @@
-use crate::configs::redis_config::{Pool, RedisError, RedisResult};
+use crate::configs::llm_config::Config as LlmConfig;
+use crate::configs::redis_config::{create_pool as create_redis_pool, Pool};
 use crate::configs::throttle_config::Config as ThrottleConfig;
+use deadpool_redis::redis::{RedisError, RedisResult};
+use once_cell::sync::OnceCell;
 use std::time::Duration;
+
+pub static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
+pub static SEGMENTATION_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
+pub static POOL: OnceCell<Pool> = OnceCell::new();
+pub static GENERAL_OCR_TIMEOUT: OnceCell<u64> = OnceCell::new();
+pub static SEGMENTATION_TIMEOUT: OnceCell<u64> = OnceCell::new();
+pub static TOKEN_TIMEOUT: OnceCell<u64> = OnceCell::new();
+pub static LLM_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
 
 pub struct RateLimiter {
     pool: Pool,
@@ -89,19 +100,46 @@ impl RateLimiter {
     }
 }
 
-pub fn create_general_ocr_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
+fn create_general_ocr_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
     RateLimiter::new(pool, throttle_config.general_ocr_rate_limit, bucket_name)
 }
 
-pub fn create_llm_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
+fn create_llm_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
     RateLimiter::new(pool, throttle_config.llm_ocr_rate_limit, bucket_name)
 }
 
-pub fn create_segmentation_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
+fn create_segmentation_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
     RateLimiter::new(pool, throttle_config.segmentation_rate_limit, bucket_name)
+}
+
+pub fn init_throttle() {
+    POOL.get_or_init(|| create_redis_pool());
+    TOKEN_TIMEOUT.get_or_init(|| 10000);
+    GENERAL_OCR_RATE_LIMITER.get_or_init(|| {
+        create_general_ocr_rate_limiter(POOL.get().unwrap().clone(), "general_ocr")
+    });
+    GENERAL_OCR_TIMEOUT.get_or_init(|| 120);
+    SEGMENTATION_RATE_LIMITER.get_or_init(|| {
+        create_segmentation_rate_limiter(POOL.get().unwrap().clone(), "segmentation")
+    });
+    SEGMENTATION_TIMEOUT.get_or_init(|| 120);
+    let llm_config = LlmConfig::from_env().unwrap();
+    let llm_ocr_url = llm_config.ocr_url.unwrap_or(llm_config.url);
+    let domain_name = llm_ocr_url
+        .split("://")
+        .nth(1)
+        .ok_or("Invalid URL format: missing protocol separator")
+        .and_then(|s| {
+            s.split('/')
+                .next()
+                .ok_or("Invalid URL format: missing domain")
+        })
+        .unwrap_or_else(|_| "localhost");
+    LLM_RATE_LIMITER
+        .get_or_init(|| create_llm_rate_limiter(POOL.get().unwrap().clone(), domain_name));
 }
 
 #[cfg(test)]

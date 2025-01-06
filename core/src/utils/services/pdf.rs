@@ -37,6 +37,9 @@ pub fn count_pages(pdf_file: &NamedTempFile) -> Result<u32, Box<dyn std::error::
     Ok(document.pages().len() as u32)
 }
 
+/// Extracts OCR results from a PDF file.
+///
+/// The OCR results are converted from a bottom-left origin to a top-left origin.
 pub fn extract_ocr_results(
     pdf_file: &NamedTempFile,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn Error>> {
@@ -46,22 +49,22 @@ pub fn extract_ocr_results(
 
     for page in document.pages().iter() {
         let text_page = page.text()?;
+        let page_height = page.height().value;
         let mut page_ocr = Vec::new();
-
         for segment in text_page.segments().iter() {
             let rect = segment.bounds();
-            page_ocr.push(OCRResult {
+            let ocr_result = OCRResult {
                 bbox: BoundingBox {
                     left: rect.left.value,
-                    top: rect.top.value,
+                    top: page_height - rect.top.value,
                     width: rect.right.value - rect.left.value,
-                    height: rect.bottom.value - rect.top.value,
+                    height: (rect.top.value - rect.bottom.value).abs(),
                 },
                 text: segment.text(),
                 confidence: None,
-            });
+            };
+            page_ocr.push(ocr_result);
         }
-
         page_results.push(page_ocr);
     }
 
@@ -71,8 +74,46 @@ pub fn extract_ocr_results(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use image::Rgb;
+    use imageproc::drawing::draw_hollow_rect_mut;
+    use imageproc::rect::Rect;
     use std::io::Write;
     use std::path::Path;
+
+    #[test]
+    fn test_visualize_ocr_boxes() -> Result<(), Box<dyn Error>> {
+        let path = Path::new("input/test.pdf");
+        let output_dir = Path::new("output/annotated_pages");
+        let mut pdf_file = NamedTempFile::new()?;
+        pdf_file.write(std::fs::read(path)?.as_slice())?;
+
+        let ocr_results = extract_ocr_results(&pdf_file)?;
+        let image_files = pages_as_images(&pdf_file, 1.0)?;
+
+        std::fs::create_dir_all(output_dir)?;
+
+        for (page_idx, (image_file, page_ocr)) in
+            image_files.iter().zip(ocr_results.iter()).enumerate()
+        {
+            let mut img = image::io::Reader::open(image_file.path())?
+                .with_guessed_format()?
+                .decode()?
+                .into_rgb8();
+
+            for ocr in page_ocr {
+                let rect = Rect::at(ocr.bbox.left.round() as i32, ocr.bbox.top.round() as i32)
+                    .of_size(
+                        ocr.bbox.width.round() as u32,
+                        ocr.bbox.height.round() as u32,
+                    );
+                draw_hollow_rect_mut(&mut img, rect, Rgb([255, 0, 0]));
+            }
+
+            img.save(format!("{}/page_{}.jpg", output_dir.display(), page_idx))?;
+        }
+
+        Ok(())
+    }
 
     #[test]
     fn test_count_pages() {
