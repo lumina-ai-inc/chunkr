@@ -69,7 +69,15 @@ pub async fn open_ai_call(
         .send()
         .await?
         .error_for_status()?;
-    let response: OpenAiResponse = response.json().await?;
+
+    let text = response.text().await?;
+    let response: OpenAiResponse = match serde_json::from_str(&text) {
+        Ok(parsed) => parsed,
+        Err(e) => {
+            println!("Error parsing JSON: {:?}\nRaw response: {}", e, text);
+            return Err(Box::new(LLMError("Error parsing JSON".to_string())));
+        }
+    };
     Ok(response)
 }
 
@@ -114,14 +122,15 @@ pub fn get_basic_image_message(
     temp_file: &NamedTempFile,
     prompt: String,
 ) -> Result<Vec<Message>, Box<dyn Error>> {
-    let llm_config = LlmConfig::from_env().unwrap();
     let mut buffer = Vec::new();
-    temp_file.as_file().read_to_end(&mut buffer)?;
+    let mut file = temp_file.reopen()?;
+    file.read_to_end(&mut buffer)?;
     let base64_image = general_purpose::STANDARD.encode(&buffer);
     if base64_image.is_empty() {
-        return Err(
-            Box::new(LLMError("No image found".to_string())) as Box<dyn Error + Send + Sync>
-        );
+        return Err(Box::new(LLMError(format!(
+            "No image data (bytes read: {})",
+            buffer.len()
+        ))));
     }
     Ok(vec![Message {
         role: "user".to_string(),
@@ -133,7 +142,7 @@ pub fn get_basic_image_message(
                     image_url: None,
                 },
                 ContentPart {
-                    content_type: llm_config.image_field.to_string(),
+                    content_type: "image_url".to_string(),
                     text: None,
                     image_url: Some(ImageUrl {
                         url: format!("data:image/jpeg;base64,{}", base64_image),
