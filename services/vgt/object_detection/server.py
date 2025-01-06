@@ -276,7 +276,6 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
         ordered_segments.extend(process_body_content(zones['body']))  # Body (including titles and columns)
         ordered_segments.extend(sorted(zones['footer'], key=lambda x: x.y1))  # Footer
 
-        # Update prediction with new order
         pred.instances.boxes = ordered_segments
         pred.instances.scores = [score for _, score, _ in segments]
         pred.instances.classes = [cls for _, _, cls in segments]
