@@ -573,3 +573,38 @@ async def root():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+def refine_column_assignments(columns: List[List[tuple]], centroids: np.ndarray) -> List[List[tuple]]:
+    # Reassign segments that span multiple columns
+    span_threshold = 0.4  # % of page width
+    
+    refined_columns = [[] for _ in columns]
+    page_width = max(seg[0].x2 for column in columns for seg in column)
+    
+    for col_idx, col in enumerate(columns):
+        for seg in col:
+            seg_width = seg[0].x2 - seg[0].x1
+            
+            if seg_width > page_width * span_threshold:
+                # Wide segment - assign to leftmost applicable column
+                refined_columns[0].append(seg)
+            else:
+                refined_columns[col_idx].append(seg)
+                
+    return refined_columns
+
+def validate_column_gaps(columns: List[List[tuple]], kmeans: KMeans) -> bool:
+    # Ensure sufficient separation between column centers
+    centers = sorted(kmeans.cluster_centers_.flatten())
+    if len(centers) < 2:
+        return True
+        
+    min_gap_ratio = 0.1  # Minimum gap between columns as % of page width
+    page_width = max(seg[0].x2 for column in columns for seg in column)
+    
+    for i in range(len(centers) - 1):
+        gap = centers[i + 1] - centers[i]
+        if gap < page_width * min_gap_ratio:
+            return False
+            
+    return True
