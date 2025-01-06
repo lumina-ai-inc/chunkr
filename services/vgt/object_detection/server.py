@@ -159,20 +159,17 @@ def create_grid_dict_from_ocr(ocr_results: List[OCRInput]) -> dict:
     }
 
 def get_reading_order(predictions: List[SerializablePrediction]) -> List[SerializablePrediction]:
-    def get_page_zones(segments_data: List[tuple]) -> dict:
-        # Get y-coordinates for all segments
-        y_centers = [(box, (box.y1 + box.y2) / 2) for box, score, cls in segments_data]
-        y_coords = np.array([y[1] for y in y_centers]).reshape(-1, 1)
+    def analyze_vertical_structure(segments: List[tuple]) -> dict:
+        if not segments:
+            return {'header': [], 'body': [], 'footer': []}
+            
+        # Sort by y position
+        sorted_segs = sorted(segments, key=lambda x: x[0].y1)
+        page_height = max(seg[0].y2 for seg in segments)
         
-        # Use clustering to find major vertical zones
-        n_clusters = min(3, len(y_coords))  # At most 3 zones (header, body, footer)
-        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-        labels = kmeans.fit_predict(y_coords)
-        centers = kmeans.cluster_centers_
-
-        # Sort zones by y-position
-        sorted_zones = sorted(enumerate(centers), key=lambda x: x[1])
-        zone_mapping = {old_idx: new_idx for new_idx, (old_idx, _) in enumerate(sorted_zones)}
+        # Define approximate zones
+        header_threshold = page_height * 0.15
+        footer_threshold = page_height * 0.85
         
         zones = {
             'header': [],
@@ -180,105 +177,139 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
             'footer': []
         }
         
-        # Assign segments to zones
-        for (box, y_center), label in zip(y_centers, labels):
-            zone_idx = zone_mapping[label]
-            if zone_idx == 0:
-                zones['header'].append(box)
-            elif zone_idx == len(centers) - 1:
-                zones['footer'].append(box)
+        for seg in sorted_segs:
+            center_y = (seg[0].y1 + seg[0].y2) / 2
+            if center_y < header_threshold:
+                zones['header'].append(seg)
+            elif center_y > footer_threshold:
+                zones['footer'].append(seg)
             else:
-                zones['body'].append(box)
+                zones['body'].append(seg)
                 
         return zones
 
-    def process_body_content(body_segments: List[tuple]) -> List[tuple]:
-        # Separate title area from main content
-        y_coords = np.array([(box.y1 + box.y2) / 2 for box in body_segments]).reshape(-1, 1)
-        if len(y_coords) > 1:
-            title_clusters = KMeans(n_clusters=min(2, len(y_coords)), random_state=42)
-            title_labels = title_clusters.fit_predict(y_coords)
+    def analyze_body_structure(segments: List[tuple]) -> List[tuple]:
+        if not segments:
+            return []
             
-            title_area = []
-            main_content = []
-            
-            for segment, label in zip(body_segments, title_labels):
-                if label == 0 and segment.y1 < np.median(y_coords):
-                    title_area.append(segment)
-                else:
-                    main_content.append(segment)
-                    
-            # Process columns in main content
-            columns = process_columns(main_content)
-            return title_area + columns
-        return body_segments
+        # Sort by y position
+        sorted_segs = sorted(segments, key=lambda x: x[0].y1)
+        page_height = max(seg[0].y2 for seg in segments)
+        title_threshold = page_height * 0.25
+        
+        # Separate title area and main content
+        title_area = []
+        main_content = []
+        
+        for seg in sorted_segs:
+            if seg[0].y2 < title_threshold:
+                title_area.append(seg)
+            else:
+                main_content.append(seg)
+                
+        # Process main content columns
+        column_segments = process_columns(main_content)
+        return title_area + column_segments
 
     def process_columns(segments: List[tuple]) -> List[tuple]:
         if not segments:
             return []
-
-        # Get x-coordinates for column detection
-        x_centers = [(seg, (seg.x1 + seg.x2) / 2) for seg in segments]
-        x_coords = np.array([x[1] for x in x_centers]).reshape(-1, 1)
-        
-        # Determine optimal number of columns
-        best_n_columns = 1
-        best_score = -1
-        
-        for n_cols in range(1, min(4, len(x_coords) + 1)):
-            kmeans = KMeans(n_clusters=n_cols, random_state=42)
-            labels = kmeans.fit_predict(x_coords)
-            if n_cols > 1:
-                score = silhouette_score(x_coords, labels)
-                if score > best_score:
-                    best_score = best_score
-                    best_n_columns = n_cols
-
-        # Final column clustering
-        kmeans = KMeans(n_clusters=best_n_columns, random_state=42)
-        column_labels = kmeans.fit_predict(x_coords)
-        column_centers = kmeans.cluster_centers_
-
-        # Organize segments into columns
-        columns = [[] for _ in range(best_n_columns)]
-        for (segment, x_center), label in zip(x_centers, column_labels):
-            # Check if segment spans multiple columns
-            width = segment.x2 - segment.x1
-            page_width = max(seg.x2 for seg in segments)
-            is_wide_element = width > (page_width / best_n_columns) * 1.5
             
-            if is_wide_element:
-                # Place wide elements in leftmost affected column
-                distances = [abs(x_center - center) for center in column_centers]
-                nearest_col = distances.index(min(distances))
-                columns[nearest_col].append(segment)
+        page_width = max(seg[0].x2 for seg in segments)
+        
+        def detect_columns():
+            x_centers = [(seg, (seg[0].x1 + seg[0].x2) / 2) for seg in segments]
+            x_coords = np.array([x[1] for x in x_centers]).reshape(-1, 1)
+            
+            if len(x_coords) < 4:  # Too few segments for reliable clustering
+                return 1, None, None
+            
+            best_n_cols = 1
+            best_score = float('-inf')
+            best_labels = None
+            best_centers = None
+            
+            # Try 1-3 columns
+            for n_cols in range(1, min(4, len(x_coords))):
+                kmeans = KMeans(n_clusters=n_cols, random_state=42)
+                labels = kmeans.fit_predict(x_coords)
+                
+                if n_cols > 1:
+                    try:
+                        score = silhouette_score(x_coords, labels)
+                        if score > best_score:
+                            best_score = score
+                            best_n_cols = n_cols
+                            best_labels = labels
+                            best_centers = kmeans.cluster_centers_
+                    except ValueError:
+                        continue
+            
+            return best_n_cols, best_centers, best_labels
+
+        n_cols, centers, labels = detect_columns()
+        
+        if n_cols == 1:
+            # Single column - sort by y position
+            return sorted(segments, key=lambda x: x[0].y1)
+            
+        # Organize into columns
+        columns = [[] for _ in range(n_cols)]
+        for idx, seg in enumerate(segments):
+            center_x = (seg[0].x1 + seg[0].x2) / 2
+            width = seg[0].x2 - seg[0].x1
+            
+            # Check if segment spans multiple columns
+            is_wide = width > (page_width / n_cols) * 1.5
+            
+            if is_wide:
+                # Place wide elements in their vertical position
+                y_pos = seg[0].y1
+                col_idx = 0
+                for i, col in enumerate(columns):
+                    if not col or y_pos < col[-1][0].y1:
+                        col_idx = i
+                        break
+                columns[col_idx].append(seg)
             else:
-                columns[label].append(segment)
-
-        # Sort within each column by y-coordinate
+                # Assign to nearest column
+                distances = [abs(center_x - c[0]) for c in centers]
+                col_idx = distances.index(min(distances))
+                columns[col_idx].append(seg)
+        
+        # Sort each column by y position
         for col in columns:
-            col.sort(key=lambda seg: seg.y1)
-
+            col.sort(key=lambda x: x[0].y1)
+        
         # Combine columns left to right
-        return [seg for col in columns for seg in col]
+        ordered_segments = []
+        for col in columns:
+            ordered_segments.extend(col)
+            
+        return ordered_segments
 
-    # Main processing
+    # Process each prediction
     for pred in predictions:
         segments = [(box, score, cls) for box, score, cls 
                    in zip(pred.instances.boxes, pred.instances.scores, pred.instances.classes)]
         
-        # Get page zones
-        zones = get_page_zones(segments)
+        # Skip empty predictions
+        if not segments:
+            continue
+            
+        # Analyze page structure
+        zones = analyze_vertical_structure(segments)
         
-        # Process each zone
+        # Process each zone and combine
         ordered_segments = []
-        ordered_segments.extend(sorted(zones['header'], key=lambda x: x.y1))  # Header
-        ordered_segments.extend(process_body_content(zones['body']))  # Body (including titles and columns)
-        ordered_segments.extend(sorted(zones['footer'], key=lambda x: x.y1))  # Footer
-
-        pred.instances.boxes = ordered_segments
-        pred.instances.scores = [score for _, score, _ in segments]
-        pred.instances.classes = [cls for _, _, cls in segments]
+        ordered_segments.extend(sorted(zones['header'], key=lambda x: x[0].y1))
+        ordered_segments.extend(analyze_body_structure(zones['body']))
+        ordered_segments.extend(sorted(zones['footer'], key=lambda x: x[0].y1))
+        
+        # Update prediction
+        pred.instances.boxes = [seg[0] for seg in ordered_segments]
+        pred.instances.scores = [seg[1] for seg in ordered_segments]
+        pred.instances.classes = [seg[2] for seg in ordered_segments]
 
     return predictions
 
