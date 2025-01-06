@@ -216,83 +216,103 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
             return []
             
         page_width = max(seg[0].x2 for seg in segments)
+        min_x = min(seg[0].x1 for seg in segments)
+        column_threshold = page_width * 0.1  # 10% of page width
+        
+        def get_segment_centroid(seg):
+            return ((seg[0].x1 + seg[0].x2) / 2, (seg[0].y1 + seg[0].y2) / 2)
         
         def detect_columns():
-            x_centers = [(seg, (seg[0].x1 + seg[0].x2) / 2) for seg in segments]
-            x_coords = np.array([x[1] for x in x_centers]).reshape(-1, 1)
+            x_centers = [get_segment_centroid(seg)[0] for seg in segments]
+            x_coords = np.array(x_centers).reshape(-1, 1)
             
-            if len(x_coords) < 4:  # Too few segments for reliable clustering
-                return 1, None, None
-            
-            best_n_cols = 1
-            best_score = float('-inf')
-            best_labels = None
-            best_centers = None
+            if len(x_coords) < 4:
+                return 1, None
             
             # Try 1-3 columns
-            for n_cols in range(1, min(4, len(x_coords))):
+            best_n_cols = 1
+            best_centers = None
+            min_dist_between_cols = column_threshold
+            
+            for n_cols in range(1, 4):
+                if len(x_coords) < n_cols:
+                    break
+                    
                 kmeans = KMeans(n_clusters=n_cols, random_state=42)
                 labels = kmeans.fit_predict(x_coords)
+                centers = sorted(kmeans.cluster_centers_)  # Sort centers left-to-right
                 
+                # Check minimum distance between column centers
                 if n_cols > 1:
-                    try:
-                        score = silhouette_score(x_coords, labels)
-                        if score > best_score and score > 0.5:  # Ensure good separation
-                            best_score = score
-                            best_n_cols = n_cols
-                            best_labels = labels
-                            best_centers = kmeans.cluster_centers_
-                    except ValueError:
-                        continue
+                    min_dist = min(centers[i+1] - centers[i] for i in range(len(centers)-1))
+                    if min_dist > min_dist_between_cols:
+                        best_n_cols = n_cols
+                        best_centers = centers
             
-            return best_n_cols, best_centers, best_labels
-
-        n_cols, centers, labels = detect_columns()
+            return best_n_cols, best_centers
+        
+        n_cols, column_centers = detect_columns()
         
         if n_cols == 1:
-            # Single column - sort by y position
-            return sorted(segments, key=lambda x: x[0].y1)
+            return sorted(segments, key=lambda x: (x[0].y1, x[0].x1))
         
-        # Sort centers left-to-right
-        if centers is not None:
-            col_order = np.argsort(centers.flatten())
-            centers = centers[col_order]
-        else:
-            return sorted(segments, key=lambda x: x[0].y1)
-        
-        # Organize into columns
+        # Initialize columns
         columns = [[] for _ in range(n_cols)]
         
-        # First pass: assign segments to columns
+        # First pass: assign clear column segments
+        unassigned = []
         for seg in segments:
-            center_x = (seg[0].x1 + seg[0].x2) / 2
+            center_x, _ = get_segment_centroid(seg)
             width = seg[0].x2 - seg[0].x1
             
             # Check if segment spans multiple columns
             is_wide = width > (page_width / n_cols) * 1.5
             
             if is_wide:
-                # For wide elements, find the leftmost column it spans
-                left_edge = seg[0].x1
-                col_idx = 0
-                for i, center in enumerate(centers):
-                    if left_edge < center[0]:
-                        col_idx = i
-                        break
-                columns[col_idx].append(seg)
+                unassigned.append(seg)
+                continue
+            
+            # Find nearest column
+            col_distances = [abs(center_x - c) for c in column_centers]
+            nearest_col = col_distances.index(min(col_distances))
+            
+            # Only assign if segment is clearly within column bounds
+            if min(col_distances) < column_threshold:
+                columns[nearest_col].append(seg)
             else:
-                # Find nearest column center
-                distances = [abs(center_x - c[0]) for c in centers]
-                col_idx = distances.index(min(distances))
-                columns[col_idx].append(seg)
+                unassigned.append(seg)
         
-        # Sort each column by y position
+        # Second pass: handle wide segments and unassigned segments
+        for seg in unassigned:
+            center_x, center_y = get_segment_centroid(seg)
+            
+            # Find appropriate column based on vertical position
+            best_col = 0
+            min_disruption = float('inf')
+            
+            for i, col in enumerate(columns):
+                if not col:  # Empty column
+                    if i == 0:  # First column
+                        min_disruption = 0
+                        best_col = 0
+                    continue
+                    
+                # Find insertion point in this column
+                for j, col_seg in enumerate(col):
+                    col_center_y = get_segment_centroid(col_seg)[1]
+                    if abs(center_y - col_center_y) < min_disruption:
+                        min_disruption = abs(center_y - col_center_y)
+                        best_col = i
+            
+            columns[best_col].append(seg)
+        
+        # Sort each column by y-position
         for col in columns:
             col.sort(key=lambda x: x[0].y1)
         
         # Combine columns strictly left-to-right
         ordered_segments = []
-        for col in columns:  # columns are already sorted left-to-right
+        for col in columns:
             ordered_segments.extend(col)
         
         return ordered_segments
