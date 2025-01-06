@@ -1,0 +1,41 @@
+.dialog-overlay {
+  background-color: rgba(2, 5, 6, 0.95);
+  position: fixed;
+  max-width: 800px;
+  max-height: 800px;
+  height: 80%;
+  width: 80%;
+  inset: 0;
+  animation: overlayShow 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 999;
+  overflow: hidden;
+}
+
+.dialog-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-11);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.dialog-close:hover {
+  background-color: var(--gray-4);
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
