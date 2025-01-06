@@ -6,8 +6,8 @@ use core::models::chunkr::task::TaskPayload;
 use core::models::rrq::queue::QueuePayload;
 use core::pipeline::convert_to_images;
 use core::pipeline::crop;
-use core::pipeline::pages;
 use core::pipeline::segment_processing;
+use core::pipeline::segmentation_and_ocr;
 use core::pipeline::update_metadata;
 use core::pipeline::upsert_output;
 use core::utils::clients::initialize_clients;
@@ -24,8 +24,8 @@ async fn execute_step(
     match step {
         "convert_to_images" => convert_to_images::process(pipeline).await,
         "crop" => crop::process(pipeline).await,
-        "pages" => pages::process(pipeline).await,
         "segment_processing" => segment_processing::process(pipeline).await,
+        "segmentation_and_ocr" => segmentation_and_ocr::process(pipeline).await,
         "update_metadata" => update_metadata::process(pipeline).await,
         "upsert_output" => upsert_output::process(pipeline).await,
         _ => Err(format!("Unknown function: {}", step).into()),
@@ -47,7 +47,7 @@ fn orchestrate_task() -> Vec<&'static str> {
     vec![
         "update_metadata",
         "convert_to_images",
-        "pages",
+        "segmentation_and_ocr",
         "crop",
         "segment_processing",
         "upsert_output",
@@ -74,7 +74,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             }
         }
 
-        // TODO: Change status to succeeded after development
         pipeline
             .update_status(Status::Succeeded, Some("Task succeeded".to_string()))
             .await?;
