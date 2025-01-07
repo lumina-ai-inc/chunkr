@@ -24,21 +24,8 @@ cp .env.example .env
 cargo run
 
 # Start the workers
-## Preprocess: Converts documents to PDF if needed, counts pages, and convert the pdf pages to images
-cargo run --bin preprocess
-
-## Segmentation: Uses a layout model to segment the pages into chunks
-cargo run --bin high-quality
-cargo run --bin fast
-
-## Postprocess: Crops the segments using the bounding boxes from the layout model and creates chunks from the segments
-cargo run --bin postprocess
-
-## OCR: Uses a OCR model to extract text from the images, and convert tables in to HTML
-cargo run --bin ocr
-
-## Structured Extraction: Uses a LLM to extract structured json from the chunks
-cargo run --bin structured-extraction
+## Each wokrer is 1 task
+cargo run --bin task
 ```
 
 ### Other Services
