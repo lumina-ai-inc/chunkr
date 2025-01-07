@@ -91,10 +91,6 @@ impl EmbeddingCache {
         }
 
         if !texts_to_generate.is_empty() {
-            println!(
-                "Generating embeddings for {} texts",
-                texts_to_generate.len()
-            );
             let new_embeddings = self
                 .generate_embeddings(client, embedding_url, texts_to_generate, batch_size)
                 .await?;
@@ -121,7 +117,7 @@ mod tests {
         let segments = vec![
             Segment {
                 segment_id: "1".to_string(),
-                confidence: 1.0,
+                confidence: Some(1.0),
                 content: "Today is a nice day".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -140,7 +136,7 @@ mod tests {
             },
             Segment {
                 segment_id: "2".to_string(),
-                confidence: 1.0,
+                confidence: Some(1.0),
                 content: "I like you".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,

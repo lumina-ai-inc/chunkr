@@ -38,7 +38,7 @@ impl Instance {
                 self.get_segment_type(idx).map(|segment_type| {
                     Segment::new_from_page_ocr(
                         bbox.clone(),
-                        confidence,
+                        Some(confidence),
                         ocr_results.clone(),
                         page_height,
                         page_number,

@@ -1,3 +1,6 @@
+use crate::configs::llm_config::Config as LlmConfig;
+use crate::configs::search_config::Config as SearchConfig;
+use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::open_ai::MessageContent;
 use crate::models::chunkr::output::SegmentType;
 use crate::models::chunkr::output::{Chunk, Segment};
@@ -16,14 +19,27 @@ use tokio::task::JoinHandle;
 pub async fn perform_structured_extraction(
     json_schema: JsonSchema,
     chunks: Vec<Chunk>,
-    embedding_url: String,
-    llm_url: String,
-    llm_key: String,
-    top_k: usize,
-    model_name: String,
-    batch_size: usize,
     content_type: String,
 ) -> Result<ExtractedJson, Box<dyn Error + Send + Sync>> {
+    let llm_config = LlmConfig::from_env().expect("Failed to load LlmConfig");
+    let worker_config = WorkerConfig::from_env().expect("Failed to load WorkerConfig");
+    let search_config = SearchConfig::from_env().expect("Failed to load SearchConfig");
+    let embedding_url = format!("{}/embed", search_config.dense_vector_url);
+    let llm_url = llm_config
+        .structured_extraction_url
+        .clone()
+        .unwrap_or(llm_config.url.clone());
+    let llm_key = llm_config
+        .structured_extraction_key
+        .clone()
+        .unwrap_or(llm_config.key.clone());
+    let top_k = worker_config.structured_extraction_top_k as usize;
+    let model_name = llm_config
+        .structured_extraction_model
+        .clone()
+        .unwrap_or(llm_config.model.clone());
+    let batch_size = worker_config.structured_extraction_batch_size as usize;
+
     let client = Client::new();
     let content_type_clone = content_type.clone();
     let fields = json_schema.to_fields();
@@ -243,32 +259,16 @@ pub async fn perform_structured_extraction(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::configs::llm_config::Config as LlmConfig;
-    use crate::configs::worker_config::Config as WorkerConfig;
     use crate::models::chunkr::output::{BoundingBox, Segment, SegmentType};
     use crate::models::chunkr::structured_extraction::Property;
     use tokio;
 
     #[tokio::test]
     async fn st_extraction() -> Result<(), Box<dyn Error + Send + Sync>> {
-        let embedding_url = "http://127.0.0.1:8085/embed".to_string();
-        let worker_config = WorkerConfig::from_env().expect("Failed to load WorkerConfig");
-        let llm_config = LlmConfig::from_env().expect("Failed to load LlmConfig");
-        let llm_url = llm_config
-            .structured_extraction_url
-            .unwrap_or(llm_config.url);
-        let llm_key = llm_config
-            .structured_extraction_key
-            .unwrap_or(llm_config.key);
-        let model_name = llm_config
-            .structured_extraction_model
-            .unwrap_or(llm_config.model);
-        let top_k = worker_config.structured_extraction_top_k;
-        let batch_size = worker_config.structured_extraction_batch_size;
         let segments = vec![
             Segment {
                 segment_id: "1".to_string(),
-                confidence: 1.0,
+                confidence: Some(1.0),
                 content: "Apple".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -287,7 +287,7 @@ mod tests {
             },
             Segment {
                 segment_id: "2".to_string(),
-                confidence: 1.0,
+                confidence: Some(1.0),
                 content: "Banana".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -306,7 +306,7 @@ mod tests {
             },
             Segment {
                 segment_id: "3".to_string(),
-                confidence: 1.0,
+                confidence: Some(1.0),
                 content: "Carrot".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -325,7 +325,7 @@ mod tests {
             },
             Segment {
                 segment_id: "4".to_string(),
-                confidence: 1.0,
+                confidence: Some(1.0),
                 content: "Broccoli".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -344,7 +344,7 @@ mod tests {
             },
             Segment {
                 segment_id: "5".to_string(),
-                confidence: 1.0,
+                confidence: Some(1.0),
                 content: "Orange".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -393,18 +393,8 @@ mod tests {
         println!("JSON SCHEMA: {:?}", json_schema);
         let chunks = vec![Chunk::new(segments.clone())];
 
-        let results = perform_structured_extraction(
-            json_schema,
-            chunks,
-            embedding_url,
-            llm_url,
-            llm_key,
-            top_k as usize,
-            model_name,
-            batch_size as usize,
-            "content".to_string(),
-        )
-        .await?;
+        let results =
+            perform_structured_extraction(json_schema, chunks, "content".to_string()).await?;
 
         println!("{:?}", results);
         assert!(

@@ -139,34 +139,33 @@ if __name__ == "__main__":
     
     target_chunk_length = 0
     ocr_strategy = OcrStrategy.Auto
-    # json_schema = JsonSchema(
-    #     title="Summary of the Document",
-    #     type="object", 
-    #     properties=[
-    #     Property(
-    #         name="title",
-    #         title="Document Title",
-    #         type="string", 
-    #         description="The main title or heading of the document",
-    #         default=None
-    #     ),
-    #     Property(
-    #         name="author",
-    #         title="Author",
-    #         type="string",
-    #         description="The name of the person or organization that authored the document, or the main party involved.",
-    #         default=None
-    #     ),
-    #     Property(
-    #         name="summary", 
-    #         title="Location",
-    #         type="string",
-    #         description="A brief overview or abstract describing what the document is about",
-    #         default=None
-    #     )
-    #     ]
-    # )
-    json_schema = None
+    json_schema = JsonSchema(
+        title="Summary of the Document",
+        type="object", 
+        properties=[
+        Property(
+            name="title",
+            title="Document Title",
+            type="string", 
+            description="The main title or heading of the document",
+            default=None
+        ),
+        Property(
+            name="author",
+            title="Author",
+            type="string",
+            description="The name of the person or organization that authored the document, or the main party involved.",
+            default=None
+        ),
+        Property(
+            name="summary", 
+            title="Location",
+            type="string",
+            description="A brief overview or abstract describing what the document is about",
+            default=None
+        )
+        ]
+    )
     segmentation_strategy = SegmentationStrategy.Page
     times = asyncio.run(main( model, target_chunk_length, ocr_strategy, "input", json_schema=json_schema, segmentation_strategy=segmentation_strategy))  
     
