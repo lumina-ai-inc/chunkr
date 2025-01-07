@@ -130,6 +130,7 @@ const TaskTable = () => {
                 backdropFilter: "none",
                 height: "100%",
                 zIndex: 1000,
+                backgroundColor: "rgb(2, 8, 9) !important",
               },
             },
           },
