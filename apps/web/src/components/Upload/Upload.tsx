@@ -162,37 +162,37 @@ export default function Upload({
           </Text>
           <Flex direction="column" gap="1" wrap="wrap" mt="8px">
             <Flex direction="row" gap="2" wrap="wrap">
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 PDF
               </Text>
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 DOCX
               </Text>
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 DOC
               </Text>
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 PPTX
               </Text>
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 PPT
               </Text>
             </Flex>
 
             <Flex direction="row" gap="2" wrap="wrap">
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 XLSX
               </Text>
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 XLS
               </Text>
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 JPEG
               </Text>
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 JPG
               </Text>
-              <Text size="1" weight="light" className="white">
+              <Text size="1" weight="medium" className="white">
                 PNG
               </Text>
             </Flex>
