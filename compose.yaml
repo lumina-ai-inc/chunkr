@@ -96,7 +96,7 @@ services:
     restart: always
 
   server:
-    image: luminainc/chunkmydocs:3c8cc0be
+    image: luminainc/server:ee9bf331
     ports:
       - "8000:8000"
     depends_on:
@@ -106,7 +106,19 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
+    restart: always
+
+  task:
+    image: luminainc/task:ee9bf331
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
     restart: always
 
   web:
@@ -140,7 +152,7 @@ services:
     ports:
       - "8002:8000"
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:
