@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chunkr-ai"
+version = "0.0.1"
+authors = [{"name" = "Ishaan Kapoor", "email" = "ishaan@lumina.sh"}]
+description = "PDF chunking"
+readme = "README.md"
+license = {"file" = "LICENSE"}

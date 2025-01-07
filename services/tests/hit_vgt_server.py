@@ -58,62 +58,158 @@ def get_tesseract_ocr_data(pil_image):
     return json.dumps(ocr_words)
 
 
-def visualize_predictions(images, predictions, subfolder_path):
+def apply_reading_order(instances):
+    bxs = instances.get("boxes", [])
+    scs = instances.get("scores", [])
+    cls = instances.get("classes", [])
+    if not bxs:
+        return instances
+
+    def is_wide_element(box, page_width=1000, threshold=0.7):
+        """Check if element spans multiple columns"""
+        return box["width"] / page_width > threshold
+
+    def get_column_assignment(box, col_boundaries):
+        """Determine which column a box belongs to"""
+        center_x = box["left"] + box["width"]/2
+        for i, (left, right) in enumerate(col_boundaries):
+            if left <= center_x <= right:
+                return i
+        return 0
+
+    # Create segments with additional metadata
+    segments = []
+    page_width = max(box["left"] + box["width"] for box in bxs) if bxs else 1000
+    
+    for i, (box, score, class_id) in enumerate(zip(bxs, scs, cls)):
+        if score > 0.2:
+            is_wide = is_wide_element(box, page_width)
+            segments.append({
+                'idx': i,
+                'box': box,
+                'score': score,
+                'class': class_id,
+                'is_wide': is_wide,
+                'center_x': box["left"] + box["width"]/2,
+                'center_y': box["top"] + box["height"]/2
+            })
+
+    # Separate headers and footers
+    headers = [s for s in segments if s['class'] == 5]
+    footers = [s for s in segments if s['class'] in [1, 4]]
+    body = [s for s in segments if s['class'] not in [1, 4, 5]]
+
+    # Define column boundaries (assuming 2-column layout as default)
+    col_width = page_width / 2
+    col_boundaries = [(0, col_width), (col_width, page_width)]
+
+    def process_body_segments(segments):
+        # Sort by vertical position first
+        segments.sort(key=lambda s: s['box']['top'])
+        
+        # Initialize columns
+        col1, col2 = [], []
+        current_y = float('-inf')
+        temp_segments = []
+        
+        for segment in segments:
+            # Check if we're starting a new row
+            if abs(segment['box']['top'] - current_y) > 20:
+                # Process accumulated segments
+                if temp_segments:
+                    # If any segment in the row is wide, add all as wide
+                    if any(s['is_wide'] for s in temp_segments):
+                        for s in temp_segments:
+                            s['is_wide'] = True
+                    
+                    # Distribute segments to columns
+                    for s in temp_segments:
+                        if s['is_wide']:
+                            # Add any accumulated column content first
+                            if col1 or col2:
+                                yield from col1
+                                yield from col2
+                                col1, col2 = [], []
+                            yield s
+                        else:
+                            col = get_column_assignment(s['box'], col_boundaries)
+                            if col == 0:
+                                col1.append(s)
+                            else:
+                                col2.append(s)
+                
+                temp_segments = [segment]
+                current_y = segment['box']['top']
+            else:
+                temp_segments.append(segment)
+        
+        # Process remaining segments
+        if temp_segments:
+            if any(s['is_wide'] for s in temp_segments):
+                if col1 or col2:
+                    yield from col1
+                    yield from col2
+                yield from temp_segments
+            else:
+                for s in temp_segments:
+                    col = get_column_assignment(s['box'], col_boundaries)
+                    if col == 0:
+                        col1.append(s)
+                    else:
+                        col2.append(s)
+        
+        # Yield any remaining column content
+        if col1 or col2:
+            yield from col1
+            yield from col2
+
+    # Process each section
+    ordered_segments = []
+    ordered_segments.extend(sorted(headers, key=lambda s: s['box']['top']))
+    ordered_segments.extend(process_body_segments(body))
+    ordered_segments.extend(sorted(footers, key=lambda s: s['box']['top']))
+
+    # Reorder the original lists
+    if ordered_segments:
+        final_indices = [s['idx'] for s in ordered_segments]
+        instances["boxes"] = [bxs[i] for i in final_indices]
+        instances["scores"] = [scs[i] for i in final_indices]
+        instances["classes"] = [cls[i] for i in final_indices]
+
+    return instances
+
+
+def visualize_predictions(images, predictions, subfolder_path, apply_ro=False):
     class_labels = [
-        "Caption", "Footnote", "Formula", "ListItem", "PageFooter",
-        "PageHeader", "Picture", "SectionHeader", "Table", "Text", "Title"
+        "Caption","Footnote","Formula","ListItem","PageFooter","PageHeader",
+        "Picture","SectionHeader","Table","Text","Title"
     ]
-
     for i, (image, pred_dict) in enumerate(zip(images, predictions)):
-        pred_dict = pred_dict.get("instances", {})
-
-        image_resized = image.resize((image.width , image.height ))
+        pred_inst = pred_dict.get("instances", {})
+        if apply_ro:
+            pred_inst = apply_reading_order(pred_inst)
+        image_resized = image.resize((image.width, image.height))
         draw = ImageDraw.Draw(image_resized)
-
-        boxes = pred_dict.get("boxes", [])
-        scores = pred_dict.get("scores", [])
-        classes = pred_dict.get("classes", [])
-
-        try:
-            for order, (box, score, cls_idx) in enumerate(zip(boxes, scores, classes), start=1):
-                if score <= 0:
-                    continue
-                scaled_box = [
-                    box["left"] ,
-                    box["top"] ,
-                    (box["left"] + box["width"]) ,
-                    (box["top"] + box["height"])
-                ]
-                draw.rectangle(scaled_box, outline="red", width=3)
-
-                class_label = class_labels[cls_idx] if cls_idx < len(class_labels) else "Unknown"
-                label_text = f"{order}: {score:.2f} ({class_label})"
-
-                text_position = (scaled_box[0], max(0, scaled_box[1] - 20))
-                text_width = len(label_text) * 6
-                text_height = 15
-                label_bbox = [
-                    text_position[0],
-                    text_position[1],
-                    text_position[0] + text_width,
-                    text_position[1] + text_height
-                ]
-                draw.rectangle(label_bbox, fill="red")
-
-                try:
-                    font = ImageFont.truetype("DejaVuSans", 50)
-                except OSError:
-                    font = ImageFont.load_default()
-
-                draw.text(
-                    (text_position[0] + 2, text_position[1] + 2),
-                    label_text,
-                    fill="black",
-                    font=font
-                )
-        except Exception as ex:
-            print(f"Error drawing predictions on image {i}: {ex}")
-
+        boxes = pred_inst.get("boxes", [])
+        scores = pred_inst.get("scores", [])
+        classes = pred_inst.get("classes", [])
+        for order, (box, score, cls_idx) in enumerate(zip(boxes, scores, classes), 1):
+            if score <= 0:
+                continue
+            scaled_box = [box["left"], box["top"], box["left"]+box["width"], box["top"]+box["height"]]
+            draw.rectangle(scaled_box, outline="red", width=3)
+            clabel = class_labels[cls_idx] if cls_idx < len(class_labels) else "Unknown"
+            t = f"{order}: {score:.2f} ({clabel})"
+            pos = (scaled_box[0], max(0, scaled_box[1]-20))
+            w = len(t)*6
+            h = 15
+            lb = [pos[0], pos[1], pos[0]+w, pos[1]+h]
+            draw.rectangle(lb, fill="red")
+            try:
+                font = ImageFont.truetype("DejaVuSans", 50)
+            except OSError:
+                font = ImageFont.load_default()
+            draw.text((pos[0]+2, pos[1]+2), t, fill="black", font=font)
         annotated_name = subfolder_path / f"annotated_page_{i}.jpg"
         image_resized.save(annotated_name)
 
@@ -130,79 +226,49 @@ def post_image_to_async(server_url, img_bytes, ocr_data_json):
 
 
 if __name__ == "__main__":
-
     pdf_path = "figures/test_batch5.pdf"
     server_url = "http://localhost:8001/batch_async"
-
     for use_tesseract_ocr in [False]:
-        ocr_mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
-        subfolder_path = ANNOTATED_IMAGES_DIR / ocr_mode
-        subfolder_path.mkdir(parents=True, exist_ok=True)
-
-        start_time = time.time()
-        print(f"Converting PDF to images for OCR mode: {ocr_mode}...")
-        pdf_images = convert_from_path(str(pdf_path), dpi=150, fmt="jpg")
-        end_time = time.time()
-        print(f"Conversion completed in {end_time - start_time:.2f} seconds")
-
-        request_data_list = []
-        for image_idx, pil_img in enumerate(pdf_images):
-            img_byte_arr = io.BytesIO()
-            pil_img.save(img_byte_arr, format='JPEG')
-            img_bytes = img_byte_arr.getvalue()
-
-            if use_tesseract_ocr:
-                ocr_data_json = get_tesseract_ocr_data(pil_img)
-                # ocr_data_json = json.dumps([json.loads(ocr_data_json), json.loads(ocr_data_json)])
-            else:
-                ocr_data_json = "[]"
-
-            request_data_list.append((img_bytes, ocr_data_json))
-
-        all_predictions = []
-        request_times = []
-        print(f"Sending {len(request_data_list)} requests to: {server_url}")
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = [
-                executor.submit(post_image_to_async, server_url, data[0], data[1])
-                for data in request_data_list
-            ]
-
-        for i, fut in enumerate(futures):
-            try:
-                response, req_time = fut.result()
-                request_times.append(req_time)
-
-                if response.status_code == 200:
-                    predictions = response.json()
-                    all_predictions.append(predictions)
-                else:
-                    print(f"Error processing image {i}: HTTP {response.status_code}")
-                    print(f"Response: {response.text}")
+        for use_reading_order in [False, True]:
+            mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
+            ro_mode = "with_reading_order" if use_reading_order else "without_reading_order"
+            subfolder_path = ANNOTATED_IMAGES_DIR / mode / ro_mode
+            subfolder_path.mkdir(parents=True, exist_ok=True)
+            start_time = time.time()
+            pdf_images = convert_from_path(str(pdf_path), dpi=150, fmt="jpg")
+            end_time = time.time()
+            request_data_list = []
+            for pil_img in pdf_images:
+                img_byte_arr = io.BytesIO()
+                pil_img.save(img_byte_arr, format='JPEG')
+                img_bytes = img_byte_arr.getvalue()
+                ocr_data_json = get_tesseract_ocr_data(pil_img) if use_tesseract_ocr else "[]"
+                request_data_list.append((img_bytes, ocr_data_json))
+            all_predictions = []
+            request_times = []
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = [
+                    executor.submit(post_image_to_async, server_url, d[0], d[1])
+                    for d in request_data_list
+                ]
+            for i, fut in enumerate(futures):
+                try:
+                    response, req_time = fut.result()
+                    request_times.append(req_time)
+                    if response.status_code == 200:
+                        all_predictions.append(response.json())
+                    else:
+                        all_predictions.append({"instances": {}})
+                except:
                     all_predictions.append({"instances": {}})
-            except Exception as e:
-                print(f"Error processing image {i}: {str(e)}")
-                all_predictions.append({"instances": {}})
-
-        total_duration = max(request_times)
-        avg_request_time = total_duration / len(request_times)
-        pages_per_sec = len(request_times) / total_duration
-        print(f"Image size: {pdf_images[0].size}")
-
-        print(f"Average request time: {avg_request_time:.2f} seconds")
-        print(f"Min request time: {min(request_times):.2f} seconds")
-        print(f"Max request time: {max(request_times):.2f} seconds")
-        print(f"Total time for all requests: {total_duration:.2f} seconds")
-        print(f"Pages per second: {pages_per_sec:.2f}")
-
-        table_data = [
-            ["OCR Mode", "Total Requests", "Total Time (s)", "Avg Time per Request (s)", "Pages per Second"],
-            [ocr_mode, len(request_times), f"{total_duration:.2f}", f"{avg_request_time:.2f}", f"{pages_per_sec:.2f}"]
-        ]
-
-        print(tabulate(table_data, headers="firstrow", tablefmt="grid"))
-
-        if all_predictions:
-            print(f"Visualizing predictions for all successful responses in {ocr_mode} mode...")
-            visualize_predictions(pdf_images, all_predictions, subfolder_path)
+            total_duration = max(request_times) if request_times else 0
+            avg_request_time = total_duration / len(request_times) if request_times else 0
+            pages_per_sec = len(request_times) / total_duration if total_duration else 0
+            table_data = [
+                ["OCR Mode","Reading Order","Reqs","Total(s)","Avg(s)","PPS"],
+                [mode, ro_mode, len(request_times),
+                 f"{total_duration:.2f}", f"{avg_request_time:.2f}", f"{pages_per_sec:.2f}"]
+            ]
+            print(tabulate(table_data, headers="firstrow", tablefmt="grid"))
+            if all_predictions:
+                visualize_predictions(pdf_images, all_predictions, subfolder_path, apply_ro=use_reading_order)
