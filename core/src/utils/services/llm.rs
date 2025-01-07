@@ -136,6 +136,7 @@ pub async fn llm_ocr(
     let messages = get_basic_image_message(temp_file, prompt)
         .map_err(|e| Box::new(LLMError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
     let llm_config = LlmConfig::from_env().unwrap();
+
     let response = process_openai_request(
         llm_config.ocr_url.unwrap_or(llm_config.url),
         llm_config.ocr_key.unwrap_or(llm_config.key),
