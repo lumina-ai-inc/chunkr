@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `segmentation_strategy` to control segmentation
 - Concurrent OCR and segmentation
 - Concurrent page processing
+- CPU support
 
 ### Changed
 - Combined all workers into a `task` worker. See [279](https://github.com/lumina-ai-inc/chunkr/issues/279)
