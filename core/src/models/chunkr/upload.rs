@@ -33,7 +33,7 @@ pub struct UploadForm {
     #[schema(value_type = Option<JsonSchema>)]
     pub json_schema: Option<MPJson<JsonSchema>>,
     #[param(style = Form, value_type = Option<OcrStrategy>)]
-    #[schema(value_type = Option<OcrStrategy>, default = "Auto")]
+    #[schema(value_type = Option<OcrStrategy>, default = "All")]
     pub ocr_strategy: Option<Text<OcrStrategy>>,
     #[param(style = Form, value_type = Option<SegmentProcessing>)]
     #[schema(value_type = Option<SegmentProcessing>)]

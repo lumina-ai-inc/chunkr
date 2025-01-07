@@ -25,6 +25,7 @@ RUN apt-get update -y; \
     libssl-dev \
     libpq-dev \
     ca-certificates \
+    file \
     ; \
     mkdir -p /app/tmp
 

@@ -9,11 +9,34 @@ if [ ${#docker_scripts[@]} -eq 0 ]; then
     exit 1
 fi
 
+# Array to store scripts that user wants to build
+selected_scripts=()
+
+# Check if --all parameter was passed
+if [ "$1" == "--all" ]; then
+    selected_scripts=("${docker_scripts[@]}")
+else
+    # Ask user about each script
+    for script in "${docker_scripts[@]}"; do
+        dir_name=$(basename $(dirname "$script"))
+        read -p "Build $dir_name? (y/n): " choice
+        if [[ $choice =~ ^[Yy]$ ]]; then
+            selected_scripts+=("$script")
+        fi
+    done
+fi
+
+# Check if any scripts were selected
+if [ ${#selected_scripts[@]} -eq 0 ]; then
+    echo "No docker builds were selected"
+    exit 0
+fi
+
 # Start a new tmux session
 tmux new-session -d -s docker_session
 
-# For each docker.sh file, create a new pane and run the script
-for i in "${!docker_scripts[@]}"; do
+# For each selected docker.sh file, create a new pane and run the script
+for i in "${!selected_scripts[@]}"; do
     if [ $i -ne 0 ]; then
         # Split the window horizontally for additional scripts
         tmux split-window -h
@@ -22,7 +45,7 @@ for i in "${!docker_scripts[@]}"; do
     fi
     
     # Send the command to run the docker.sh script
-    tmux send-keys -t $i "cd $(dirname ${docker_scripts[$i]}) && ./docker.sh" C-m
+    tmux send-keys -t $i "cd $(dirname ${selected_scripts[$i]}) && ./docker.sh" C-m
 done
 
 # Attach to the tmux session
