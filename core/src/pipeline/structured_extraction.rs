@@ -38,8 +38,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
         };
         output_response.extracted_json = Some(structured_results);
         pipeline.output = output_response;
-    } else {
-        println!("No JSON schema found");
     }
+
     Ok(())
 }

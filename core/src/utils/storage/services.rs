@@ -107,7 +107,6 @@ pub async fn download_to_tempfile(
         .bytes()
         .await?;
     copy(&mut content.as_ref(), &mut temp_file)?;
-
     Ok(temp_file)
 }
 
