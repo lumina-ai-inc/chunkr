@@ -96,7 +96,7 @@ services:
     restart: always
 
   server:
-    image: luminainc/server:ade33be9
+    image: luminainc/server:4c136039
     ports:
       - "8000:8000"
     depends_on:
@@ -106,11 +106,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   task:
-    image: luminainc/task:ade33be9
+    image: luminainc/task:4c136039
     depends_on:
       - postgres
       - redis
@@ -118,7 +118,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   web:

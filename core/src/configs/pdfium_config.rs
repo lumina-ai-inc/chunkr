@@ -71,7 +71,6 @@ impl Config {
 
     pub async fn ensure_binary(&mut self) -> Result<(), PdfiumError> {
         let target_path = self.get_target_path()?;
-
         if !target_path.exists() {
             println!(
                 "PDFium binary not found, downloading to {}...",
@@ -81,7 +80,6 @@ impl Config {
         } else {
             println!("PDFium binary found at {}", target_path.display());
         }
-
         Ok(())
     }
 
