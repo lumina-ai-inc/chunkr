@@ -27,4 +27,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deprecated `model` config
 - Deprecated `target_chunk_length`, you can now use `chunk_processing.target_length` instead 
 - Deprecated `structured_extraction.json_schema.type`
-- Deprecated `ocr_strategy.OFF`
+- Deprecated `ocr_strategy.Off`
