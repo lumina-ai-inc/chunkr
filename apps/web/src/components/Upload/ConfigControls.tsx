@@ -13,7 +13,7 @@ interface ToggleGroupProps {
   value: string;
   onChange: (value: string) => void;
   options: { label: string; value: string }[];
-  label: string;
+  label: React.ReactNode;
   docHover?: boolean;
 }
 
@@ -88,9 +88,10 @@ export function ToggleGroup({
 interface NumberInputProps {
   value: number;
   onChange: (value: number) => void;
-  label: string;
+  label: React.ReactNode;
   min?: number;
   max?: number;
+  docHover?: boolean;
 }
 
 export function NumberInput({
@@ -99,6 +100,7 @@ export function NumberInput({
   label,
   min,
   max,
+  docHover = true,
 }: NumberInputProps) {
   return (
     <div className="config-card">
@@ -111,7 +113,7 @@ export function NumberInput({
           gap="1"
           align="center"
           justify="end"
-          className="docs-text"
+          className={docHover ? "docs-text" : "docs-text-hidden"}
         >
           <Text size="1" weight="medium" className="white ">
             Docs
@@ -342,9 +344,29 @@ export function JsonSchemaControls({
     <div className="segment-processing-container">
       <div className="config-card">
         <div className="config-card-header">
-          <Text size="3" weight="bold" className="white">
-            JSON Schema
-          </Text>
+          <Flex direction="row" gap="2" align="center">
+            <svg
+              width="24px"
+              height="24px"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M14 19H16C17.1046 19 18 18.1046 18 17V14.5616C18 13.6438 18.6246 12.8439 19.5149 12.6213L21.0299 12.2425C21.2823 12.1794 21.2823 11.8206 21.0299 11.7575L19.5149 11.3787C18.6246 11.1561 18 10.3562 18 9.43845V5H14"
+                stroke="#FFF"
+                stroke-width="2"
+              />
+              <path
+                d="M10 5H8C6.89543 5 6 5.89543 6 7V9.43845C6 10.3562 5.37541 11.1561 4.48507 11.3787L2.97014 11.7575C2.71765 11.8206 2.71765 12.1794 2.97014 12.2425L4.48507 12.6213C5.37541 12.8439 6 13.6438 6 14.5616V19H10"
+                stroke="#FFF"
+                stroke-width="2"
+              />
+            </svg>
+            <Text size="3" weight="bold" className="white">
+              JSON Schema
+            </Text>
+          </Flex>
           <Flex
             direction="row"
             gap="1"

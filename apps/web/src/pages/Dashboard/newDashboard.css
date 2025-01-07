@@ -1,7 +1,7 @@
 .dashboard-nav-container {
   width: 100%;
   max-width: 256px;
-  gap: 28px;
+  gap: 26px;
   padding: 16px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
@@ -91,7 +91,7 @@
 
 .main-header {
   width: 100%;
-  padding: 16px;
+  padding: 16px 24px;
   height: fit-content;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   justify-content: space-between;
