@@ -52,7 +52,7 @@ impl Chunk {
 pub struct Segment {
     pub bbox: BoundingBox,
     // Confidence score of the segment
-    pub confidence: f32,
+    pub confidence: Option<f32>,
     /// Text content of the segment.
     pub content: String,
     /// Height of the page containing the segment.
@@ -77,7 +77,7 @@ pub struct Segment {
 impl Segment {
     pub fn new(
         bbox: BoundingBox,
-        confidence: f32,
+        confidence: Option<f32>,
         ocr_results: Vec<OCRResult>,
         page_height: f32,
         page_number: u32,
@@ -108,7 +108,7 @@ impl Segment {
 
     pub fn new_from_page_ocr(
         bbox: BoundingBox,
-        confidence: f32,
+        confidence: Option<f32>,
         ocr_results: Vec<OCRResult>,
         page_height: f32,
         page_number: u32,

@@ -8,6 +8,7 @@ use core::pipeline::convert_to_images;
 use core::pipeline::crop;
 use core::pipeline::segment_processing;
 use core::pipeline::segmentation_and_ocr;
+use core::pipeline::structured_extraction;
 use core::pipeline::update_metadata;
 use core::pipeline::upsert_output;
 use core::utils::clients::initialize;
@@ -24,8 +25,9 @@ async fn execute_step(
     match step {
         "convert_to_images" => convert_to_images::process(pipeline).await,
         "crop" => crop::process(pipeline).await,
-        "segment_processing" => segment_processing::process(pipeline).await,
         "segmentation_and_ocr" => segmentation_and_ocr::process(pipeline).await,
+        "segment_processing" => segment_processing::process(pipeline).await,
+        "structured_extraction" => structured_extraction::process(pipeline).await,
         "update_metadata" => update_metadata::process(pipeline).await,
         "upsert_output" => upsert_output::process(pipeline).await,
         _ => Err(format!("Unknown function: {}", step).into()),
@@ -50,6 +52,7 @@ fn orchestrate_task() -> Vec<&'static str> {
         "segmentation_and_ocr",
         "crop",
         "segment_processing",
+        "structured_extraction",
         "upsert_output",
     ]
 }
