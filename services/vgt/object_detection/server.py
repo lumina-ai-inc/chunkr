@@ -30,8 +30,9 @@ load_dotenv(dotenv_path=ENV_PATH)
 
 batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.5))
 max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
-
+overlap_threshold = float(os.getenv("OVERLAP_THRESHOLD", 0.1))
 print(f"Max batch size: {max_batch_size}")
+print(f"Overlap threshold: {overlap_threshold}")
 
 app = FastAPI()  
 
@@ -358,7 +359,7 @@ def merge_colliding_predictions(boxes: List[BoundingBox], scores: List[float], c
                 area2 = (box2.x2 - box2.x1) * (box2.y2 - box2.y1)
                 min_area = min(area1, area2)
                 
-                if min_area > 0 and (intersection / min_area) > 0.1:
+                if min_area > 0 and (intersection / min_area) > overlap_threshold:
                     to_merge_indices.append(i)
             
             if to_merge_indices:
@@ -428,7 +429,7 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
                 pred_area = (box.x2 - box.x1) * (box.y2 - box.y1)
                 min_area = min(text_area, pred_area)
                 
-                if min_area > 0 and intersection / min_area > 0.1 and score > best_score:
+                if min_area > 0 and intersection / min_area > overlap_threshold:
                     best_score = score
                     best_class = cls
             
