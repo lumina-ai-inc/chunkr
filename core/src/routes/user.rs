@@ -1,5 +1,5 @@
 use crate::models::chunkr::auth::UserInfo;
-use crate::utils::server::{create_user::create_user, get_user::get_user};
+use crate::utils::routes::{create_user::create_user, get_user::get_user};
 use actix_web::{web, Error, HttpResponse};
 
 pub async fn get_or_create_user(user_info: web::ReqData<UserInfo>) -> Result<HttpResponse, Error> {

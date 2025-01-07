@@ -31,4 +31,4 @@ RUN apt-get update -y; \
 COPY --from=builder /app/target/release/core /app/core
 
 EXPOSE 8000
-ENTRYPOINT ["/app/chunkr-core"]
+ENTRYPOINT ["/app/core"]
