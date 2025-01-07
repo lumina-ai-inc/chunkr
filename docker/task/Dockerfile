@@ -31,4 +31,4 @@ RUN apt-get update -y; \
 COPY --from=builder /app/target/release/task /app/task
 
 EXPOSE 8000
-ENTRYPOINT ["/app/ocr"]
+ENTRYPOINT ["/app/task"]
