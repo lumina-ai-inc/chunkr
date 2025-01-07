@@ -58,6 +58,7 @@ mod tests {
             Segment {
                 segment_id: "1".to_string(),
                 content: "Apple".to_string(),
+                confidence: 1.0,
                 bbox: BoundingBox {
                     left: 0.0,
                     top: 0.0,
@@ -76,6 +77,7 @@ mod tests {
             Segment {
                 segment_id: "2".to_string(),
                 content: "Orange".to_string(),
+                confidence: 1.0,
                 bbox: BoundingBox {
                     left: 0.0,
                     top: 0.0,
@@ -94,6 +96,7 @@ mod tests {
             Segment {
                 segment_id: "3".to_string(),
                 content: "Carrot".to_string(),
+                confidence: 1.0,
                 bbox: BoundingBox {
                     left: 0.0,
                     top: 0.0,
@@ -112,6 +115,7 @@ mod tests {
             Segment {
                 segment_id: "4".to_string(),
                 content: "Lemon".to_string(),
+                confidence: 1.0,
                 bbox: BoundingBox {
                     left: 0.0,
                     top: 0.0,

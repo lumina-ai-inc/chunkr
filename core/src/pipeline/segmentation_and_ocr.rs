@@ -36,6 +36,7 @@ async fn page_segmentation(
     let (page_width, page_height) = images::get_image_dimensions(page)?;
     let segments = vec![Segment::new(
         BoundingBox::new(0.0, 0.0, page_width as f32, page_height as f32),
+        1.0,
         ocr_results,
         page_height as f32,
         page_number,
@@ -88,6 +89,7 @@ async fn process_page(
             let ocr_results = ocr_results.clone();
             Segment::new_from_page_ocr(
                 segment.bbox,
+                segment.confidence,
                 ocr_results,
                 segment.page_height,
                 segment.page_number,

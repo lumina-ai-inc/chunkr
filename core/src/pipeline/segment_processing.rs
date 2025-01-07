@@ -2,7 +2,7 @@ use crate::configs::llm_config::get_prompt;
 use crate::models::chunkr::output::{Segment, SegmentType};
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::segment_processing::{
-    AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig,
+    AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig, PictureGenerationConfig,
 };
 use crate::models::chunkr::task::{Configuration, Status};
 use crate::utils::services::llm;
@@ -185,7 +185,6 @@ async fn generate_markdown(
     generate_content(&generator, &content, segment_image, generation_strategy).await
 }
 
-// TODO: Maybe move getting config logic somewhere else so it can be reused?
 async fn process_segment(
     segment: &mut Segment,
     configuration: &Configuration,
@@ -200,13 +199,16 @@ async fn process_segment(
             };
             (&config.html, &config.markdown)
         }
+        SegmentType::Picture => {
+            let config: &PictureGenerationConfig = &configuration.segment_processing.picture;
+            (&config.html, &config.markdown)
+        }
         segment_type => {
             let config: &AutoGenerationConfig = match segment_type {
                 SegmentType::Title => &configuration.segment_processing.title,
                 SegmentType::SectionHeader => &configuration.segment_processing.section_header,
                 SegmentType::Text => &configuration.segment_processing.text,
                 SegmentType::ListItem => &configuration.segment_processing.list_item,
-                SegmentType::Picture => &configuration.segment_processing.picture,
                 SegmentType::Caption => &configuration.segment_processing.caption,
                 SegmentType::Footnote => &configuration.segment_processing.footnote,
                 SegmentType::PageHeader => &configuration.segment_processing.page_header,
@@ -217,11 +219,6 @@ async fn process_segment(
             (&config.html, &config.markdown)
         }
     };
-
-    println!(
-        "Processing segment {:?} with html {:?} and markdown {:?}",
-        segment.segment_id, html_strategy, markdown_strategy
-    );
 
     let (html, markdown) = futures::try_join!(
         generate_html(
