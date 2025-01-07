@@ -30,6 +30,7 @@ export default function NewDashboard() {
   >(null);
   const [customerSessionClientSecret, setCustomerSessionClientSecret] =
     useState<string | null>(null);
+  const [isNavOpen, setIsNavOpen] = useState(true);
 
   const location = useLocation();
   const searchParams = useMemo(
@@ -212,7 +213,28 @@ export default function NewDashboard() {
     ),
   };
 
-  const handleReturnToTasks = useCallback(() => {
+  const handleNavigation = useCallback(
+    (item: string) => {
+      const tableParams = new URLSearchParams();
+      const tablePageIndex = searchParams.get("tablePageIndex");
+      const tablePageSize = searchParams.get("tablePageSize");
+
+      if (tablePageIndex) tableParams.set("tablePageIndex", tablePageIndex);
+      if (tablePageSize) tableParams.set("tablePageSize", tablePageSize);
+
+      if (item === "Tasks" || taskId) {
+        navigate({
+          pathname: "/newDashboard",
+          search: tableParams.toString(),
+        });
+      }
+
+      setSelectedNav(item);
+    },
+    [searchParams, navigate, taskId]
+  );
+
+  const handleHeaderNavigation = useCallback(() => {
     const tableParams = new URLSearchParams();
     const tablePageIndex = searchParams.get("tablePageIndex");
     const tablePageSize = searchParams.get("tablePageSize");
@@ -224,7 +246,6 @@ export default function NewDashboard() {
       pathname: "/newDashboard",
       search: tableParams.toString(),
     });
-
     setSelectedNav("Tasks");
   }, [searchParams, navigate]);
 
@@ -307,10 +328,14 @@ export default function NewDashboard() {
     handleAddPaymentMethod,
   ]);
 
+  const toggleNav = () => {
+    setIsNavOpen(!isNavOpen);
+  };
+
   return (
     <Flex direction="row" width="100%">
       <Flex
-        className="dashboard-nav-container"
+        className={`dashboard-nav-container ${isNavOpen ? "" : "closed"}`}
         align="start"
         direction="column"
       >
@@ -319,7 +344,6 @@ export default function NewDashboard() {
             gap="8px"
             align="center"
             justify="center"
-            mt="6px"
             onClick={() => navigate("/")}
             style={{ cursor: "pointer" }}
           >
@@ -355,6 +379,37 @@ export default function NewDashboard() {
               chunkr
             </Text>
           </Flex>
+          <Flex className="dashboard-toggle" onClick={toggleNav}>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21.97 15V9C21.97 4 19.97 2 14.97 2H8.96997C3.96997 2 1.96997 4 1.96997 9V15C1.96997 20 3.96997 22 8.96997 22H14.97C19.97 22 21.97 20 21.97 15Z"
+                stroke="#FFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M7.96997 2V22"
+                stroke="#FFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M14.97 9.43994L12.41 11.9999L14.97 14.5599"
+                stroke="#FFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Flex>
         </Flex>
         <Flex
           className="dashboard-nav-body"
@@ -367,12 +422,7 @@ export default function NewDashboard() {
                 <Flex
                   key={item}
                   className={`dashboard-nav-item ${selectedNav === item ? "selected" : ""}`}
-                  onClick={() => {
-                    setSelectedNav(item);
-                    if (item === "Tasks") {
-                      window.history.pushState({}, "", "/newDashboard");
-                    }
-                  }}
+                  onClick={() => handleNavigation(item)}
                 >
                   <svg
                     width="20"
@@ -445,9 +495,43 @@ export default function NewDashboard() {
       <Flex direction="column" className="main-container">
         <Flex className="main-header">
           <Flex gap="8px" align="center">
-            <Flex onClick={handleReturnToTasks} style={{ cursor: "pointer" }}>
+            <div className="main-header-toggle" onClick={toggleNav}>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M21.97 15V9C21.97 4 19.97 2 14.97 2H8.96997C3.96997 2 1.96997 4 1.96997 9V15C1.96997 20 3.96997 22 8.96997 22H14.97C19.97 22 21.97 20 21.97 15Z"
+                  stroke="#FFF"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M14.97 2V22"
+                  stroke="#FFF"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M7.96997 9.43994L10.53 11.9999L7.96997 14.5599"
+                  stroke="#FFF"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <Flex
+              onClick={handleHeaderNavigation}
+              style={{ cursor: "pointer" }}
+            >
               <Text size="5" weight="medium" className="main-header-text">
-                {content.title}
+                {taskId ? "Your Tasks" : content.title}
               </Text>
             </Flex>
             {taskId && taskResponse?.file_name && (

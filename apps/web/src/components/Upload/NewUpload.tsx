@@ -321,7 +321,7 @@ export default function NewUploadForm({
             />
           </div>
 
-          <div className="config-card" style={{ marginTop: "24px" }}>
+          <div className="config-card" style={{ marginTop: "32px" }}>
             <div className="config-card-header">
               <Flex direction="row" gap="2" align="center">
                 <svg
@@ -397,7 +397,7 @@ export default function NewUploadForm({
             />
           </div>
 
-          <Flex direction="column" mt="24px">
+          <Flex direction="column" mt="32px">
             <JsonSchemaControls
               value={config.json_schema}
               onChange={(newSchema) =>

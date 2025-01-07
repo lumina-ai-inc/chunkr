@@ -10,9 +10,15 @@
     2px 0 8px -4px rgba(0, 0, 0, 0.1);
 }
 
+.dashboard-nav-container.closed {
+  display: none;
+}
+
 .dashboard-nav-header {
   width: 100%;
   align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
 }
 
 .dashboard-nav-body {
@@ -20,6 +26,16 @@
   display: flex;
   flex-direction: column;
   flex: 1 1 0%;
+}
+
+.dashboard-toggle {
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.dashboard-toggle:hover {
+  opacity: 1;
 }
 
 .logo-container {
@@ -210,4 +226,22 @@
 
 .main-header-text:has(+ .task-tag):hover {
   color: rgba(255, 255, 255, 1);
+}
+
+/* Add styles for the header toggle button */
+.main-header-toggle {
+  cursor: pointer;
+  margin-right: 16px;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+  display: none; /* Hidden by default */
+}
+
+.main-header-toggle:hover {
+  opacity: 1;
+}
+
+/* Show header toggle when nav is closed */
+.dashboard-nav-container.closed + .main-container .main-header-toggle {
+  display: block;
 }

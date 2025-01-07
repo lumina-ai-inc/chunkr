@@ -42,7 +42,7 @@
 .config-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+  gap: 32px;
   padding: 4px 0px;
 }
 
@@ -110,7 +110,7 @@
 .submit-section {
   display: flex;
   justify-content: flex-end;
-  margin-top: 24px;
+  margin-top: 32px;
 }
 
 .submit-button {
