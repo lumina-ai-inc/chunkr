@@ -11,6 +11,7 @@ import { TaskResponse } from "../../models/task.model";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
 import "./TaskTable.css";
+import { Flex } from "@radix-ui/themes";
 
 const TaskTable = () => {
   const navigate = useNavigate();
@@ -131,6 +132,7 @@ const TaskTable = () => {
                 height: "100%",
                 zIndex: 1000,
                 backgroundColor: "rgb(2, 8, 9) !important",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
               },
             },
           },
@@ -256,62 +258,71 @@ const TaskTable = () => {
               },
             },
           },
+          MuiStack: {
+            styleOverrides: {
+              root: {
+                color: "rgba(255, 255, 255, 0.95)",
+              },
+            },
+          },
         },
       }),
     []
   );
 
   return (
-    <ThemeProvider theme={tableTheme}>
-      <MaterialReactTable
-        columns={columns}
-        data={tasks || []}
-        enableColumnOrdering
-        enableColumnPinning
-        enableRowSelection
-        enablePagination
-        manualPagination
-        enableStickyHeader
-        enableStickyFooter
-        muiPaginationProps={{
-          rowsPerPageOptions: [10, 20, 50, 100],
-          defaultValue: 20,
-        }}
-        muiTableContainerProps={{
-          sx: {
-            height: "calc(100% - 116px)",
-            width: "100%",
-          },
-        }}
-        onPaginationChange={setPagination}
-        rowCount={totalTasks}
-        state={{
-          isLoading,
-          pagination,
-          showAlertBanner: isError,
-          showProgressBars: isRefetching,
-        }}
-        muiToolbarAlertBannerProps={
-          isError
-            ? {
-                color: "error",
-                children: "Error loading data",
-              }
-            : undefined
-        }
-        renderTopToolbarCustomActions={() => (
-          <Tooltip arrow title="Refresh Data">
-            <IconButton onClick={() => refetch()}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-        muiTableBodyRowProps={({ row }) => ({
-          onClick: () => handleTaskClick(row.original),
-          sx: { cursor: "pointer" },
-        })}
-      />
-    </ThemeProvider>
+    <Flex p="24px" direction="column" width="100%" height="100%">
+      <ThemeProvider theme={tableTheme}>
+        <MaterialReactTable
+          columns={columns}
+          data={tasks || []}
+          enableColumnOrdering
+          enableColumnPinning
+          enableRowSelection
+          enablePagination
+          manualPagination
+          enableStickyHeader
+          enableStickyFooter
+          muiPaginationProps={{
+            rowsPerPageOptions: [10, 20, 50, 100],
+            defaultValue: 20,
+          }}
+          muiTableContainerProps={{
+            sx: {
+              height: "calc(100% - 112px)",
+              width: "100%",
+            },
+          }}
+          onPaginationChange={setPagination}
+          rowCount={totalTasks}
+          state={{
+            isLoading,
+            pagination,
+            showAlertBanner: isError,
+            showProgressBars: isRefetching,
+          }}
+          muiToolbarAlertBannerProps={
+            isError
+              ? {
+                  color: "error",
+                  children: "Error loading data",
+                }
+              : undefined
+          }
+          renderTopToolbarCustomActions={() => (
+            <Tooltip arrow title="Refresh Data">
+              <IconButton onClick={() => refetch()}>
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+          muiTableBodyRowProps={({ row }) => ({
+            onClick: () => handleTaskClick(row.original),
+            sx: { cursor: "pointer" },
+          })}
+        />
+      </ThemeProvider>
+    </Flex>
   );
 };
 

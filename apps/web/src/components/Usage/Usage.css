@@ -1,0 +1,68 @@
+.usage-container {
+  width: 100%;
+  height: 100%;
+  padding: 32px 24px;
+}
+
+.usage-card {
+  background: rgba(2, 5, 6, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 24px;
+  flex: 1;
+  min-width: 280px;
+  max-width: 400px;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+
+.usage-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.usage-alert {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.usage-badge {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.usage-discount-badge {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.usage-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.usage-progress-fill {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.payment-card {
+  min-width: 280px;
+  max-width: 400px;
+}
+
+.payment-card button {
+  width: fit-content;
+}
