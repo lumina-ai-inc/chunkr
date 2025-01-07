@@ -10,7 +10,7 @@ use core::pipeline::segment_processing;
 use core::pipeline::segmentation_and_ocr;
 use core::pipeline::structured_extraction;
 use core::pipeline::update_metadata;
-use core::pipeline::upsert_output;
+use core::pipeline::upload_objects;
 use core::utils::clients::initialize;
 use core::utils::rrq::consumer::consumer;
 use core::utils::storage::services::download_to_tempfile;
@@ -29,7 +29,7 @@ async fn execute_step(
         "segment_processing" => segment_processing::process(pipeline).await,
         "structured_extraction" => structured_extraction::process(pipeline).await,
         "update_metadata" => update_metadata::process(pipeline).await,
-        "upsert_output" => upsert_output::process(pipeline).await,
+        "upload_objects" => upload_objects::process(pipeline).await,
         _ => Err(format!("Unknown function: {}", step).into()),
     }?;
     let duration = start.elapsed();
@@ -53,7 +53,7 @@ fn orchestrate_task() -> Vec<&'static str> {
         "crop",
         "segment_processing",
         "structured_extraction",
-        "upsert_output",
+        "upload_objects",
     ]
 }
 

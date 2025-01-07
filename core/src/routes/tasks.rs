@@ -1,6 +1,6 @@
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::tasks::TasksQuery;
-use crate::utils::server::get_tasks::get_tasks;
+use crate::utils::routes::get_tasks::get_tasks;
 use actix_web::{web, Error, HttpResponse};
 
 pub async fn get_tasks_status(

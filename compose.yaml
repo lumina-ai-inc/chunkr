@@ -96,7 +96,7 @@ services:
     restart: always
 
   server:
-    image: luminainc/server:ee9bf331
+    image: luminainc/server:ade33be9
     ports:
       - "8000:8000"
     depends_on:
@@ -106,11 +106,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   task:
-    image: luminainc/task:ee9bf331
+    image: luminainc/task:ade33be9
     depends_on:
       - postgres
       - redis
@@ -118,7 +118,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 1
+      replicas: 0
     restart: always
 
   web:
@@ -152,7 +152,7 @@ services:
     ports:
       - "8002:8000"
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
@@ -161,6 +161,23 @@ services:
               capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
+    restart: always
+
+  rrq:
+    image: luminainc/rrq:33cd165
+    depends_on:
+      - redis
+    ports:
+      - "8005:8000"
+    environment:
+      - REDIS__URL=redis://redis:6379
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 1
     restart: always
 
   dense-vector:
@@ -194,23 +211,6 @@ services:
               count: all
               capabilities: [ gpu ]
     ipc: host
-    restart: always
-
-  rrq:
-    image: luminainc/rrq:33cd165
-    depends_on:
-      - redis
-    ports:
-      - "8005:8000"
-    environment:
-      - REDIS__URL=redis://redis:6379
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      replicas: 1
     restart: always
 
 volumes:
