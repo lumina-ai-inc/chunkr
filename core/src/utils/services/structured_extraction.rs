@@ -268,6 +268,7 @@ mod tests {
         let segments = vec![
             Segment {
                 segment_id: "1".to_string(),
+                confidence: 1.0,
                 content: "Apple".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -286,6 +287,7 @@ mod tests {
             },
             Segment {
                 segment_id: "2".to_string(),
+                confidence: 1.0,
                 content: "Banana".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -304,6 +306,7 @@ mod tests {
             },
             Segment {
                 segment_id: "3".to_string(),
+                confidence: 1.0,
                 content: "Carrot".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -322,6 +325,7 @@ mod tests {
             },
             Segment {
                 segment_id: "4".to_string(),
+                confidence: 1.0,
                 content: "Broccoli".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -340,6 +344,7 @@ mod tests {
             },
             Segment {
                 segment_id: "5".to_string(),
+                confidence: 1.0,
                 content: "Orange".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,

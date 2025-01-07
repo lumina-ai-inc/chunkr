@@ -30,17 +30,15 @@ impl Instance {
     // TODO: Add confidence score to the segment
     pub fn to_segments(&self, page_number: u32, ocr_results: Vec<OCRResult>) -> Vec<Segment> {
         let (page_width, page_height) = (self.image_size.0 as f32, self.image_size.1 as f32);
-        // println!("instance: {:?}", self);
-        println!("instance length: {:?}", self.boxes.len());
-        println!("page_width: {:?}", page_width);
-        println!("page_height: {:?}", page_height);
         self.boxes
             .iter()
             .enumerate()
             .filter_map(|(idx, bbox)| {
+                let confidence = self.scores.get(idx).copied().unwrap_or(0.0);
                 self.get_segment_type(idx).map(|segment_type| {
                     Segment::new_from_page_ocr(
                         bbox.clone(),
+                        confidence,
                         ocr_results.clone(),
                         page_height,
                         page_number,

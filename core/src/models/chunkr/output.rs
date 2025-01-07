@@ -51,6 +51,8 @@ impl Chunk {
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Segment {
     pub bbox: BoundingBox,
+    // Confidence score of the segment
+    pub confidence: f32,
     /// Text content of the segment.
     pub content: String,
     /// Height of the page containing the segment.
@@ -75,6 +77,7 @@ pub struct Segment {
 impl Segment {
     pub fn new(
         bbox: BoundingBox,
+        confidence: f32,
         ocr_results: Vec<OCRResult>,
         page_height: f32,
         page_number: u32,
@@ -88,12 +91,13 @@ impl Segment {
             .collect::<Vec<String>>()
             .join(" ");
         Self {
-            segment_id,
             bbox,
+            confidence,
+            content,
+            page_height,
             page_number,
             page_width,
-            page_height,
-            content,
+            segment_id,
             segment_type,
             ocr: ocr_results,
             image: None,
@@ -104,6 +108,7 @@ impl Segment {
 
     pub fn new_from_page_ocr(
         bbox: BoundingBox,
+        confidence: f32,
         ocr_results: Vec<OCRResult>,
         page_height: f32,
         page_number: u32,
@@ -122,6 +127,7 @@ impl Segment {
 
         Self::new(
             bbox,
+            confidence,
             segment_ocr,
             page_height,
             page_number,

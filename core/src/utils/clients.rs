@@ -24,29 +24,21 @@ pub async fn initialize() {
     });
     PG_POOL.get_or_init(|| async { create_pool() }.now_or_never().unwrap());
     init_throttle();
-    println!("Initialized done");
+    println!("Initialized clients and rate limiters");
 }
 
 pub fn get_reqwest_client() -> &'static ReqwestClient {
-    REQWEST_CLIENT
-        .get()
-        .expect("Reqwest client not initialized")
+    REQWEST_CLIENT.get().unwrap()
 }
 
 pub fn get_s3_client() -> &'static S3Client {
-    S3_CLIENT.get().expect("S3 client not initialized")
+    S3_CLIENT.get().unwrap()
 }
 
 pub fn get_external_s3_client() -> &'static S3Client {
-    S3_EXTERNAL_CLIENT
-        .get()
-        .expect("External S3 client not initialized")
+    S3_EXTERNAL_CLIENT.get().unwrap()
 }
 
 pub async fn get_pg_client() -> Result<deadpool_postgres::Client, deadpool_postgres::PoolError> {
-    Ok(PG_POOL
-        .get()
-        .expect("Postgres pool not initialized")
-        .get()
-        .await?)
+    Ok(PG_POOL.get().unwrap().get().await?)
 }

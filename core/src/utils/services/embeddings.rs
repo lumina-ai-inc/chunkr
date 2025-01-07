@@ -121,6 +121,7 @@ mod tests {
         let segments = vec![
             Segment {
                 segment_id: "1".to_string(),
+                confidence: 1.0,
                 content: "Today is a nice day".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
@@ -139,6 +140,7 @@ mod tests {
             },
             Segment {
                 segment_id: "2".to_string(),
+                confidence: 1.0,
                 content: "I like you".to_string(),
                 bbox: BoundingBox {
                     left: 0.0,
