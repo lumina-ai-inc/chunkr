@@ -1,3 +1,4 @@
+# THIS IS UNDER DEVELOPMENT [DO NOT USE]
 services:
   postgres:
     build:
@@ -121,7 +122,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 20
+      replicas: 1
     restart: always
 
   web:
@@ -142,12 +143,6 @@ services:
       - "8001:8000"
     deploy:
       replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
     restart: always
@@ -159,12 +154,6 @@ services:
       - "8002:8000"
     deploy:
       replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
     restart: always
@@ -195,12 +184,6 @@ services:
     command: [ "--model-id", "BAAI/bge-m3", "--auto-truncate", "--payload-limit", "100000000" ]
     deploy:
       replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
     restart: always
 
 volumes:
