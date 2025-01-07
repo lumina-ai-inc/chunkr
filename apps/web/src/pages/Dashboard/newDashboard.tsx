@@ -8,8 +8,13 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTaskQuery } from "../../hooks/useTaskQuery";
 import { Suspense, lazy } from "react";
 import Loader from "../../pages/Loader/Loader";
+import Usage from "../../components/Usage/Usage";
 import { useLocation, useNavigate } from "react-router-dom";
 import UploadDialog from "../../components/Upload/UploadDialog";
+import {
+  createCustomerSession,
+  createSetupIntent,
+} from "../../services/stripeService";
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
 
@@ -19,6 +24,12 @@ export default function NewDashboard() {
   const [selectedNav, setSelectedNav] = useState("Tasks");
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const [showPaymentSetup, setShowPaymentSetup] = useState(false);
+  const [customerSessionSecret, setCustomerSessionSecret] = useState<
+    string | null
+  >(null);
+  const [customerSessionClientSecret, setCustomerSessionClientSecret] =
+    useState<string | null>(null);
 
   const location = useLocation();
   const searchParams = useMemo(
@@ -94,7 +105,7 @@ export default function NewDashboard() {
         />
       </g>
     ),
-    Usage: (
+    "Usage + Billing": (
       <g>
         <svg
           width="20"
@@ -199,52 +210,6 @@ export default function NewDashboard() {
         </svg>
       </g>
     ),
-    "Account & Billing": (
-      <g>
-        {" "}
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 22 22"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g clip-path="url(#clip0_113_1457)">
-            <path
-              d="M21.75 8.75H3.25V12.25H21.75V8.75Z"
-              stroke="#FFF"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M6.25 16.25H10.75"
-              stroke="#FFF"
-              stroke-width="1.5"
-              stroke-miterlimit="10"
-              stroke-linecap="round"
-            />
-            <path
-              d="M21.75 18.25V5.75C21.75 5.19772 21.3023 4.75 20.75 4.75L4.25 4.75C3.69772 4.75 3.25 5.19772 3.25 5.75V18.25C3.25 18.8023 3.69772 19.25 4.25 19.25H20.75C21.3023 19.25 21.75 18.8023 21.75 18.25Z"
-              stroke="#FFF"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_113_1457">
-              <rect
-                width="24"
-                height="24"
-                fill="white"
-                transform="translate(0.5)"
-              />
-            </clipPath>
-          </defs>
-        </svg>
-      </g>
-    ),
   };
 
   const handleReturnToTasks = useCallback(() => {
@@ -262,6 +227,23 @@ export default function NewDashboard() {
 
     setSelectedNav("Tasks");
   }, [searchParams, navigate]);
+
+  const userDisplayName =
+    user?.data?.first_name && user?.data?.last_name
+      ? `${user.data.first_name} ${user.data.last_name}`
+      : user?.data?.email || "User";
+
+  const handleAddPaymentMethod = useCallback(async () => {
+    const setupIntent = await createSetupIntent(
+      auth.user?.access_token as string
+    );
+    const customerSession = await createCustomerSession(
+      auth.user?.access_token as string
+    );
+    setCustomerSessionSecret(customerSession.customer_session_secret);
+    setCustomerSessionClientSecret(setupIntent.client_secret);
+    setShowPaymentSetup(true);
+  }, [auth.user?.access_token]);
 
   const content = useMemo(() => {
     switch (selectedNav) {
@@ -290,20 +272,23 @@ export default function NewDashboard() {
           title: "Your Tasks",
           component: <TaskTable key="task-table" />,
         };
-      case "Usage":
+      case "Usage + Billing":
         return {
-          title: "Usage Analytics",
-          component: <div>Usage Component</div>,
+          title: "Usage + Billing",
+          component: (
+            <Usage
+              showPaymentSetup={showPaymentSetup}
+              setShowPaymentSetup={setShowPaymentSetup}
+              customerSessionSecret={customerSessionSecret}
+              customerSessionClientSecret={customerSessionClientSecret}
+              handleAddPaymentMethod={handleAddPaymentMethod}
+            />
+          ),
         };
       case "API Keys":
         return {
           title: "API Keys",
           component: <div>API Keys Component</div>,
-        };
-      case "Account & Billing":
-        return {
-          title: "Account Settings",
-          component: <div>Account Component</div>,
         };
       default:
         return {
@@ -311,12 +296,16 @@ export default function NewDashboard() {
           component: <TaskTable />,
         };
     }
-  }, [selectedNav, taskId, taskResponse, isLoading]);
-
-  const userDisplayName =
-    user?.data?.first_name && user?.data?.last_name
-      ? `${user.data.first_name} ${user.data.last_name}`
-      : user?.data?.email || "User";
+  }, [
+    selectedNav,
+    taskId,
+    taskResponse,
+    isLoading,
+    customerSessionClientSecret,
+    customerSessionSecret,
+    showPaymentSetup,
+    handleAddPaymentMethod,
+  ]);
 
   return (
     <Flex direction="row" width="100%">
@@ -374,39 +363,37 @@ export default function NewDashboard() {
         >
           <Flex direction="column">
             <Flex className="dashboard-nav-items" direction="column">
-              {["Tasks", "Usage", "API Keys", "Account & Billing"].map(
-                (item) => (
-                  <Flex
-                    key={item}
-                    className={`dashboard-nav-item ${selectedNav === item ? "selected" : ""}`}
-                    onClick={() => {
-                      setSelectedNav(item);
-                      if (item === "Tasks") {
-                        window.history.pushState({}, "", "/newDashboard");
-                      }
+              {["Tasks", "API Keys", "Usage + Billing"].map((item) => (
+                <Flex
+                  key={item}
+                  className={`dashboard-nav-item ${selectedNav === item ? "selected" : ""}`}
+                  onClick={() => {
+                    setSelectedNav(item);
+                    if (item === "Tasks") {
+                      window.history.pushState({}, "", "/newDashboard");
+                    }
+                  }}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 22 22"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    {navIcons[item as keyof typeof navIcons]}
+                  </svg>
+                  <Text
+                    size="3"
+                    weight="medium"
+                    style={{
+                      color: selectedNav === item ? "rgb(2, 5, 6)" : "#FFF",
                     }}
                   >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 22 22"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      {navIcons[item as keyof typeof navIcons]}
-                    </svg>
-                    <Text
-                      size="3"
-                      weight="medium"
-                      style={{
-                        color: selectedNav === item ? "rgb(2, 5, 6)" : "#FFF",
-                      }}
-                    >
-                      {item}
-                    </Text>
-                  </Flex>
-                )
-              )}
+                    {item}
+                  </Text>
+                </Flex>
+              ))}
             </Flex>
           </Flex>
 
@@ -460,7 +447,7 @@ export default function NewDashboard() {
           <Flex gap="8px" align="center">
             <Flex onClick={handleReturnToTasks} style={{ cursor: "pointer" }}>
               <Text size="5" weight="medium" className="main-header-text">
-                Your Tasks
+                {content.title}
               </Text>
             </Flex>
             {taskId && taskResponse?.file_name && (

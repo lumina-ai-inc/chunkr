@@ -23,6 +23,17 @@
   background-color: rgb(30, 36, 37) !important;
 }
 
+.MuiStack-root > :last-child {
+  border-radius: 4px !important;
+
+  color: rgba(255, 255, 255, 0.95) !important;
+  padding: 8px 16px !important;
+}
+
+.MuiAlert-message {
+  padding: 0px !important;
+}
+
 .MuiTableContainer-root {
   background-color: rgb(2, 8, 9) !important;
 

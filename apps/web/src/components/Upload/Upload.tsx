@@ -25,7 +25,7 @@ export default function Upload({
     [onFileUpload]
   );
 
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+  const { getRootProps, getInputProps, open } = useDropzone({
     onDrop,
     accept: {
       "application/pdf": [".pdf"],
@@ -49,13 +49,64 @@ export default function Upload({
   return (
     <>
       <Flex direction="row" width="100%" gap="4" mb="16px">
-        <Text
-          size="5"
-          weight="bold"
-          style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
-        >
-          Create Ingestion Tasks
-        </Text>
+        <Flex direction="row" gap="2" align="center">
+          <svg
+            width="24px"
+            height="24px"
+            viewBox="0 0 25 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g clip-path="url(#clip0_113_1479)">
+              <path
+                d="M19.75 9.25V20.25C19.75 20.8 19.3 21.25 18.75 21.25H6.25C5.7 21.25 5.25 20.8 5.25 20.25V3.75C5.25 3.2 5.7 2.75 6.25 2.75H13.25"
+                stroke="#FFF"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M13.25 9.25H19.75L13.25 2.75V9.25Z"
+                stroke="#FFF"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M10 15.25L12.5 12.75L15 15.25"
+                stroke="#FFF"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M12.5 13.75V18.25"
+                stroke="#FFF"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </g>
+            <defs>
+              <clipPath id="clip0_113_1479">
+                <rect
+                  width="24"
+                  height="24"
+                  fill="white"
+                  transform="translate(0.5)"
+                />
+              </clipPath>
+            </defs>
+          </svg>
+          <Text
+            size="5"
+            weight="bold"
+            style={{ color: "hsl(0, 0%, 100%, 0.98)" }}
+          >
+            Create Tasks
+          </Text>
+        </Flex>
+
         {files.length > 0 && (
           <Flex
             direction="row"
@@ -87,7 +138,7 @@ export default function Upload({
         style={{ cursor: "pointer" }}
         onClick={isAuthenticated ? open : () => auth.signinRedirect()}
       >
-        {isAuthenticated && <input {...getInputProps()} />}
+        <input {...getInputProps()} />
         <Flex
           direction="column"
           py="24px"
@@ -95,26 +146,57 @@ export default function Upload({
           style={{ border: "1px dashed hsla(0, 0%, 100%, 0.2)" }}
         >
           <Text size="7" weight="bold" className="white">
-            {!isAuthenticated
-              ? "Log In to start uploading"
-              : files.length > 0
-                ? `${files.length} ${files.length === 1 ? "File" : "Files"} Uploaded`
-                : isDragActive
-                  ? "Drop files here"
-                  : "Upload Documents"}
+            {files.length > 0
+              ? `${files.length} ${files.length === 1 ? "File" : "Files"} Uploaded`
+              : "Upload Files"}
           </Text>
-          {isAuthenticated && (
-            <Text
-              size="4"
-              className="white"
-              weight="light"
-              style={{ marginTop: "8px" }}
-            >
-              {files.length > 0
-                ? `${files.length} ${files.length === 1 ? "file" : "files"} selected`
-                : "Drag and drop documents or click"}
-            </Text>
-          )}
+          <Text
+            size="4"
+            className="white"
+            weight="medium"
+            style={{ marginTop: "8px" }}
+          >
+            {files.length > 0
+              ? `${files.length} ${files.length === 1 ? "file" : "files"} selected`
+              : "Drag and drop documents or click"}
+          </Text>
+          <Flex direction="column" gap="1" wrap="wrap" mt="8px">
+            <Flex direction="row" gap="2" wrap="wrap">
+              <Text size="1" weight="light" className="white">
+                PDF
+              </Text>
+              <Text size="1" weight="light" className="white">
+                DOCX
+              </Text>
+              <Text size="1" weight="light" className="white">
+                DOC
+              </Text>
+              <Text size="1" weight="light" className="white">
+                PPTX
+              </Text>
+              <Text size="1" weight="light" className="white">
+                PPT
+              </Text>
+            </Flex>
+
+            <Flex direction="row" gap="2" wrap="wrap">
+              <Text size="1" weight="light" className="white">
+                XLSX
+              </Text>
+              <Text size="1" weight="light" className="white">
+                XLS
+              </Text>
+              <Text size="1" weight="light" className="white">
+                JPEG
+              </Text>
+              <Text size="1" weight="light" className="white">
+                JPG
+              </Text>
+              <Text size="1" weight="light" className="white">
+                PNG
+              </Text>
+            </Flex>
+          </Flex>
         </Flex>
       </Flex>
       {files.length > 0 && (

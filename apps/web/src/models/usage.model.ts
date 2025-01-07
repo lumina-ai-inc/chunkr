@@ -26,27 +26,14 @@ export function calculateBillingDueDate(month: string): string {
 }
 
 export function calculateDiscountedBilling(
-  fastUsage: number,
-  highQualityUsage: number,
-  fastDiscount: number,
-  highQualityDiscount: number,
-  fastCost: number,
-  highQualityCost: number
+  totalUsage: number,
+  discount: number,
+  totalCost: number
 ): number {
-  const fastPricePerPage = fastUsage > 0 ? fastCost / fastUsage : 0;
-  const highQualityPricePerPage =
-    highQualityUsage > 0 ? highQualityCost / highQualityUsage : 0;
+  if (totalUsage === 0) return 0;
 
-  const discountedFastCost = Math.max(
-    0,
-    fastCost - fastDiscount * fastPricePerPage
-  );
-  const discountedHighQualityCost = Math.max(
-    0,
-    highQualityCost - highQualityDiscount * highQualityPricePerPage
-  );
+  const pricePerPage = totalCost / totalUsage;
+  const discountedCost = Math.max(0, totalCost - discount * pricePerPage);
 
-  const totalDiscountedCost = discountedFastCost + discountedHighQualityCost;
-
-  return Math.max(0, totalDiscountedCost);
+  return Math.max(0, discountedCost);
 }

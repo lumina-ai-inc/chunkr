@@ -60,7 +60,40 @@ export default function NewUploadForm({
         >
           <div className="config-grid">
             <ToggleGroup
-              label="Segmentation Strategy"
+              label={
+                <Flex gap="2" align="center">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clipPath="url(#clip0_305_27919)">
+                      <path
+                        d="M7.75 20.25V8.75C7.75 8.2 8.2 7.75 8.75 7.75H20.25"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M16.25 3.75V15.25C16.25 15.8 15.8 16.25 15.25 16.25H3.75"
+                        stroke="#FFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_305_27919">
+                        <rect width="24" height="24" fill="white" />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <span>Segmentation Strategy</span>
+                </Flex>
+              }
               value={
                 config.segmentation_strategy ||
                 SegmentationStrategy.LayoutAnalysis
@@ -80,7 +113,36 @@ export default function NewUploadForm({
               ]}
             />
             <ToggleGroup
-              label="OCR Strategy"
+              label={
+                <Flex gap="2" align="center">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="9.25"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="5.25"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+
+                  <span>OCR Strategy</span>
+                </Flex>
+              }
               value={config.ocr_strategy || OcrStrategy.Auto}
               onChange={(value) =>
                 setConfig({ ...config, ocr_strategy: value as OcrStrategy })
@@ -92,7 +154,54 @@ export default function NewUploadForm({
             />
 
             <NumberInput
-              label="Target Chunk Length"
+              label={
+                <Flex gap="2" align="center">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clip-path="url(#clip0_305_31854)">
+                      <path
+                        d="M9.25 16C9.25 14.2051 7.79493 12.75 6 12.75C4.20507 12.75 2.75 14.2051 2.75 16C2.75 17.7949 4.20507 19.25 6 19.25C7.79493 19.25 9.25 17.7949 9.25 16Z"
+                        stroke="#FFF"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M16.8699 4.75L8.85994 17.55L8.68994 17.82"
+                        stroke="#FFF"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M14.75 16C14.75 17.7949 16.2051 19.25 18 19.25C19.7949 19.25 21.25 17.7949 21.25 16C21.25 14.2051 19.7949 12.75 18 12.75C16.2051 12.75 14.75 14.2051 14.75 16Z"
+                        stroke="#FFF"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M15.3099 17.82L15.1399 17.55L7.12988 4.75"
+                        stroke="#FFF"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_305_31854">
+                        <rect width="24" height="24" fill="white" />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <span>Target Chunk Length</span>
+                </Flex>
+              }
               value={config.chunk_processing?.target_length || 512}
               onChange={(value) =>
                 setConfig({
@@ -107,7 +216,100 @@ export default function NewUploadForm({
             />
 
             <ToggleGroup
-              label="High Resolution"
+              label={
+                <Flex gap="2" align="center">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="12"
+                      cy="5.5"
+                      r="1.75"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                    />
+                    <circle
+                      cx="5.5"
+                      cy="5.5"
+                      r="1.75"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                    />
+                    <circle
+                      cx="18.5"
+                      cy="5.5"
+                      r="1.75"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                    />
+                    <circle
+                      cx="12"
+                      cy="18.5"
+                      r="1.75"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                    />
+                    <circle
+                      cx="5.5"
+                      cy="18.5"
+                      r="1.75"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                    />
+                    <circle
+                      cx="18.5"
+                      cy="18.5"
+                      r="1.75"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="1.75"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                    />
+                    <circle
+                      cx="5.5"
+                      cy="12"
+                      r="1.75"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                    />
+                    <circle
+                      cx="18.5"
+                      cy="12"
+                      r="1.75"
+                      stroke="#FFF"
+                      stroke-width="1.5"
+                      stroke-miterlimit="10"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  <span>High Resolution</span>
+                </Flex>
+              }
               value={config.high_resolution ? "ON" : "OFF"}
               onChange={(value) =>
                 setConfig({ ...config, high_resolution: value === "ON" })
@@ -121,9 +323,31 @@ export default function NewUploadForm({
 
           <div className="config-card" style={{ marginTop: "24px" }}>
             <div className="config-card-header">
-              <Text size="3" weight="bold" className="white">
-                Segment Processing
-              </Text>
+              <Flex direction="row" gap="2" align="center">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M21.25 12C21.25 17.1086 17.1086 21.25 12 21.25M2.75 12C2.75 6.89137 6.89137 2.75 12 2.75"
+                    stroke="#FFF"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M17.25 12C17.25 9.10051 14.8995 6.75 12 6.75M12 17.25C9.10051 17.25 6.75 14.8995 6.75 12"
+                    stroke="#FFF"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <Text size="3" weight="bold" className="white">
+                  Segment Processing
+                </Text>
+              </Flex>
               <Flex
                 direction="row"
                 gap="1"
