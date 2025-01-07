@@ -156,105 +156,179 @@ def create_grid_dict_from_ocr(ocr_results: List[OCRInput]) -> dict:
         "bbox_texts_list": boxes
     }
 
+def apply_reading_order(instances):
+    bxs = instances.get("boxes", [])
+    scs = instances.get("scores", [])
+    cls = instances.get("classes", [])
+    if not bxs:
+        return instances
+
+    def is_wide_element(box, page_width=1000, threshold=0.7):
+        """Check if element spans multiple columns"""
+        return box["width"] / page_width > threshold
+
+    def get_column_assignment(box, col_boundaries):
+        """Determine which column a box belongs to"""
+        center_x = box["left"] + box["width"]/2
+        for i, (left, right) in enumerate(col_boundaries):
+            if left <= center_x <= right:
+                return i
+        return 0
+
+    # Create segments with additional metadata
+    segments = []
+    page_width = max(box["left"] + box["width"] for box in bxs) if bxs else 1000
+    
+    for i, (box, score, class_id) in enumerate(zip(bxs, scs, cls)):
+        if score > 0.2:
+            is_wide = is_wide_element(box, page_width)
+            segments.append({
+                'idx': i,
+                'box': box,
+                'score': score,
+                'class': class_id,
+                'is_wide': is_wide,
+                'center_x': box["left"] + box["width"]/2,
+                'center_y': box["top"] + box["height"]/2
+            })
+
+    # Separate headers and footers
+    headers = [s for s in segments if s['class'] == 5]
+    footers = [s for s in segments if s['class'] in [1, 4]]
+    body = [s for s in segments if s['class'] not in [1, 4, 5]]
+
+    # Define column boundaries (assuming 2-column layout as default)
+    col_width = page_width / 2
+    col_boundaries = [(0, col_width), (col_width, page_width)]
+
+    def process_body_segments(segments):
+        # Sort by vertical position first
+        segments.sort(key=lambda s: s['box']['top'])
+        
+        # Initialize columns
+        col1, col2 = [], []
+        current_y = float('-inf')
+        temp_segments = []
+        
+        for segment in segments:
+            # Check if we're starting a new row
+            if abs(segment['box']['top'] - current_y) > 20:
+                # Process accumulated segments
+                if temp_segments:
+                    # If any segment in the row is wide, add all as wide
+                    if any(s['is_wide'] for s in temp_segments):
+                        for s in temp_segments:
+                            s['is_wide'] = True
+                    
+                    # Distribute segments to columns
+                    for s in temp_segments:
+                        if s['is_wide']:
+                            # Add any accumulated column content first
+                            if col1 or col2:
+                                yield from col1
+                                yield from col2
+                                col1, col2 = [], []
+                            yield s
+                        else:
+                            col = get_column_assignment(s['box'], col_boundaries)
+                            if col == 0:
+                                col1.append(s)
+                            else:
+                                col2.append(s)
+                
+                temp_segments = [segment]
+                current_y = segment['box']['top']
+            else:
+                temp_segments.append(segment)
+        
+        # Process remaining segments
+        if temp_segments:
+            if any(s['is_wide'] for s in temp_segments):
+                if col1 or col2:
+                    yield from col1
+                    yield from col2
+                yield from temp_segments
+            else:
+                for s in temp_segments:
+                    col = get_column_assignment(s['box'], col_boundaries)
+                    if col == 0:
+                        col1.append(s)
+                    else:
+                        col2.append(s)
+        
+        # Yield any remaining column content
+        if col1 or col2:
+            yield from col1
+            yield from col2
+
+    # Process each section
+    ordered_segments = []
+    ordered_segments.extend(sorted(headers, key=lambda s: s['box']['top']))
+    ordered_segments.extend(process_body_segments(body))
+    ordered_segments.extend(sorted(footers, key=lambda s: s['box']['top']))
+
+    # Reorder the original lists
+    if ordered_segments:
+        final_indices = [s['idx'] for s in ordered_segments]
+        instances["boxes"] = [bxs[i] for i in final_indices]
+        instances["scores"] = [scs[i] for i in final_indices]
+        instances["classes"] = [cls[i] for i in final_indices]
+
+    return instances
+
 def get_reading_order(predictions: List[SerializablePrediction]) -> List[SerializablePrediction]:
-    type_mapping = {
-        0: "Caption", 
-        1: "Footnote", 
-        2: "Formula", 
-        3: "ListItem", 
-        4: "PageFooter", 
-        5: "PageHeader", 
-        6: "Picture", 
-        7: "SectionHeader", 
-        8: "Table", 
-        9: "Text", 
-        10: "Title"
-    }
+    def convert_to_dict_format(boxes, scores, classes, image_size):
+        dict_boxes = []
+        for box in boxes:
+            dict_boxes.append({
+                "left": box.x1,
+                "top": box.y1,
+                "width": box.x2 - box.x1,
+                "height": box.y2 - box.y1
+            })
+        return {
+            "boxes": dict_boxes,
+            "scores": scores,
+            "classes": classes,
+            "image_size": image_size
+        }
 
-    def get_segment_type(class_id: int) -> str:
-        return type_mapping.get(class_id, "Text")
-
-    def columns_layout_sort(segments_data: List[tuple]) -> List[tuple]:
-        if not segments_data:
-            return []
-
-        horizontal_threshold = 100
-
-        segments_data = sorted(segments_data, key=lambda seg: seg[0].x1)
-
-        columns = []
-        for seg in segments_data:
-            box, score, cls = seg
-            placed = False
-            for col_index, col_items in enumerate(columns):
-                col_x1s = [item[0].x1 for item in col_items]
-                col_x2s = [item[0].x2 for item in col_items]
-                col_min_x = min(col_x1s)
-                col_max_x = max(col_x2s)
-
-                if abs(box.x1 - col_min_x) < horizontal_threshold or abs(box.x1 - col_max_x) < horizontal_threshold:
-                    columns[col_index].append(seg)
-                    placed = True
-                    break
-
-            if not placed:
-                columns.append([seg])
-
-        column_positions = []
-        for col_index, col_items in enumerate(columns):
-            col_items.sort(key=lambda item: (item[0].y1, item[0].x1))
-            avg_x_positions = [it[0].x1 for it in col_items]
-            column_positions.append((col_index, sum(avg_x_positions) / len(avg_x_positions)))
-
-        column_positions.sort(key=lambda cp: cp[1])
-        sorted_columns = []
-        for col_index, _ in column_positions:
-            sorted_columns.extend(columns[col_index])
-
-        return sorted_columns
+    def convert_from_dict_format(instances_dict):
+        boxes = []
+        for box in instances_dict["boxes"]:
+            boxes.append(BoundingBox(
+                x1=box["left"],
+                y1=box["top"],
+                x2=box["left"] + box["width"],
+                y2=box["top"] + box["height"]
+            ))
+        return boxes, instances_dict["scores"], instances_dict["classes"]
 
     updated_predictions = []
-    
     for pred in predictions:
-        header_segments = []
-        main_segments = []
-        footer_segments = []
-
-        for box, score, cls in zip(pred.instances.boxes, 
-                                   pred.instances.scores, 
-                                   pred.instances.classes):
-            segment_type = get_segment_type(cls)
-            segment_data = (box, score, cls)
-            if segment_type == "PageHeader":
-                header_segments.append(segment_data)
-            elif segment_type == "PageFooter":
-                footer_segments.append(segment_data)
-            else:
-                main_segments.append(segment_data)
-     
-        header_segments.sort(key=lambda seg: (seg[0].y1, seg[0].x1))
-        footer_segments.sort(key=lambda seg: (seg[0].y1, seg[0].x1))
-
-        main_segments = columns_layout_sort(main_segments)
-
-        ordered_segments = header_segments + main_segments + footer_segments
-
-        if ordered_segments:
-            boxes, scores, classes = zip(*ordered_segments)
-        else:
-            boxes, scores, classes = [], [], []
+        instances_dict = convert_to_dict_format(
+            pred.instances.boxes,
+            pred.instances.scores,
+            pred.instances.classes,
+            pred.instances.image_size
+        )
+        
+        ordered_dict = apply_reading_order(instances_dict)
+        
+        boxes, scores, classes = convert_from_dict_format(ordered_dict)
         
         ordered_pred = SerializablePrediction(
             instances=Instance(
-                boxes=list(boxes),
-                scores=list(scores),
-                classes=list(classes),
+                boxes=boxes,
+                scores=scores,
+                classes=classes,
                 image_size=pred.instances.image_size
             )
         )
         updated_predictions.append(ordered_pred)
     
     return updated_predictions
+
 
 def merge_colliding_predictions(boxes: List[BoundingBox], scores: List[float], classes: List[int]) -> tuple[List[BoundingBox], List[float], List[int]]:
     valid_indices = [i for i, score in enumerate(scores) if score >= 0.2]
