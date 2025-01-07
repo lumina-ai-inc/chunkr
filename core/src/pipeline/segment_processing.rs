@@ -19,7 +19,7 @@ lazy_static! {
 trait ContentGenerator {
     fn clean_list_item(content: &str) -> String {
         content
-            .trim_start_matches(&['-', '*', '•', '●', ' '][..])
+            .trim_start_matches(&['-', '*', '•', '●', ' ', ''][..])
             .trim()
             .to_string()
     }
