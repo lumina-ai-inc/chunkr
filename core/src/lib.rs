@@ -38,7 +38,7 @@ use routes::tasks::get_tasks_status;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
 use utils::clients::initialize;
-use utils::server::admin_user::get_or_create_admin_user;
+use utils::routes::admin_user::get_or_create_admin_user;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 

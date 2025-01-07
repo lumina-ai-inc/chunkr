@@ -2,8 +2,8 @@ use crate::configs::postgres_config::Pool;
 use crate::configs::stripe_config::Config;
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::user::{InvoiceStatus, Tier, UsageType};
-use crate::utils::server::get_user::get_monthly_usage_count;
-use crate::utils::server::get_user::{get_invoice_information, get_invoices};
+use crate::utils::routes::get_user::get_monthly_usage_count;
+use crate::utils::routes::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe_utils::{
     create_customer_session, create_stripe_customer, create_stripe_setup_intent,
     set_default_payment_method, update_invoice_status,

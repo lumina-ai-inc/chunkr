@@ -48,5 +48,11 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
     )
     .await?;
 
+    upload_to_s3(
+        &pipeline.task_payload.as_ref().unwrap().pdf_location,
+        pipeline.pdf_file.as_ref().unwrap().as_ref().path(),
+    )
+    .await?;
+
     Ok(())
 }
