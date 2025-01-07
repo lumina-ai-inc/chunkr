@@ -75,7 +75,7 @@ fn default_structured_extraction_top_k() -> i32 {
 }
 
 fn default_version() -> String {
-    "1.0.3".to_string()
+    "1.1.0".to_string()
 }
 
 impl Config {
