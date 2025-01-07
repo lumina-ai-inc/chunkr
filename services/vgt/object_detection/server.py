@@ -20,9 +20,6 @@ import signal
 import psutil
 
 from transformers import AutoTokenizer
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
-from sklearn.cluster import DBSCAN
 
 warnings.filterwarnings("ignore", category=UserWarning, module='torch')
 
@@ -160,158 +157,104 @@ def create_grid_dict_from_ocr(ocr_results: List[OCRInput]) -> dict:
     }
 
 def get_reading_order(predictions: List[SerializablePrediction]) -> List[SerializablePrediction]:
-    def analyze_vertical_structure(segments: List[tuple]) -> dict:
-        if not segments:
-            return {'header': [], 'body': [], 'footer': []}
-            
-        # Sort by y position
-        sorted_segs = sorted(segments, key=lambda x: x[0].y1)
-        page_height = max(seg[0].y2 for seg in segments)
-        
-        # Define approximate zones
-        header_threshold = page_height * 0.15
-        footer_threshold = page_height * 0.85
-        
-        zones = {
-            'header': [],
-            'body': [],
-            'footer': []
-        }
-        
-        for seg in sorted_segs:
-            center_y = (seg[0].y1 + seg[0].y2) / 2
-            if center_y < header_threshold:
-                zones['header'].append(seg)
-            elif center_y > footer_threshold:
-                zones['footer'].append(seg)
-            else:
-                zones['body'].append(seg)
-                
-        return zones
+    type_mapping = {
+        0: "Caption", 
+        1: "Footnote", 
+        2: "Formula", 
+        3: "ListItem", 
+        4: "PageFooter", 
+        5: "PageHeader", 
+        6: "Picture", 
+        7: "SectionHeader", 
+        8: "Table", 
+        9: "Text", 
+        10: "Title"
+    }
 
-    def analyze_body_structure(segments: List[tuple]) -> List[tuple]:
-        if not segments:
+    def get_segment_type(class_id: int) -> str:
+        return type_mapping.get(class_id, "Text")
+
+    def columns_layout_sort(segments_data: List[tuple]) -> List[tuple]:
+        if not segments_data:
             return []
-            
-        # Sort by y position
-        sorted_segs = sorted(segments, key=lambda x: x[0].y1)
-        page_height = max(seg[0].y2 for seg in segments)
-        title_threshold = page_height * 0.25
-        
-        # Separate title area and main content
-        title_area = []
-        main_content = []
-        
-        for seg in sorted_segs:
-            if seg[0].y2 < title_threshold:
-                title_area.append(seg)
-            else:
-                main_content.append(seg)
-                
-        # Process main content columns
-        column_segments = process_columns(main_content)
-        return title_area + column_segments
 
-    def process_columns(segments: List[tuple]) -> List[tuple]:
-        if not segments:
-            return []
-        
-        # Get page dimensions
-        page_width = max(seg[0].x2 for seg in segments)
-        page_height = max(seg[0].y2 for seg in segments)
-        
-        # Calculate x-axis centroids only
-        x_centroids = np.array([(seg[0].x1 + seg[0].x2) / 2 for seg in segments]).reshape(-1, 1)
-        
-        # Use DBSCAN for column detection
-        clustering = DBSCAN(
-            eps=page_width * 0.15,
-            min_samples=3
-        ).fit(x_centroids)
-        
-        labels = clustering.labels_
-        unique_labels = set(labels[labels >= 0])  # Exclude noise points (-1)
-        n_columns = len(unique_labels)
-        
-        # If no clear columns detected, treat as single column
-        if n_columns == 0:
-            return sorted(segments, key=lambda x: (x[0].y1, x[0].x1))
-        
-        # Group segments by column
-        columns = [[] for _ in range(n_columns)]
-        noise_segments = []
-        
-        for seg, label in zip(segments, labels):
-            if label == -1:
-                noise_segments.append(seg)
-            else:
-                columns[label].append(seg)
-        
-        # Calculate column boundaries
-        column_bounds = []
-        for col in columns:
-            if col:
-                left = min(seg[0].x1 for seg in col)
-                right = max(seg[0].x2 for seg in col)
-                column_bounds.append((left, right))
-        
-        # Sort columns left to right
-        columns_with_bounds = list(zip(columns, column_bounds))
-        columns_with_bounds.sort(key=lambda x: x[1][0])
-        columns = [col for col, _ in columns_with_bounds]
-        
-        # Handle noise segments only if we have valid columns
-        if columns_with_bounds:
-            for seg in noise_segments:
-                seg_center = (seg[0].x1 + seg[0].x2) / 2
-                distances = [abs(seg_center - (bounds[0] + bounds[1])/2) 
-                            for _, bounds in columns_with_bounds]
-                nearest_col = np.argmin(distances)
-                columns[nearest_col].append(seg)
-        else:
-            # If no valid columns, add noise segments to first column
-            columns[0].extend(noise_segments)
-        
-        # Sort within columns by y-position
-        for col in columns:
-            col.sort(key=lambda x: x[0].y1)
-        
-        # Handle wide segments
-        span_threshold = page_width * 0.6
-        for i, col in enumerate(columns):
-            col[:] = [seg for seg in col if (seg[0].x2 - seg[0].x1) <= span_threshold]
-        
-        # Combine columns in reading order
-        ordered_segments = []
-        for col in columns:
-            ordered_segments.extend(col)
-        
-        return ordered_segments
+        horizontal_threshold = 100
 
-    # Process each prediction
+        segments_data = sorted(segments_data, key=lambda seg: seg[0].x1)
+
+        columns = []
+        for seg in segments_data:
+            box, score, cls = seg
+            placed = False
+            for col_index, col_items in enumerate(columns):
+                col_x1s = [item[0].x1 for item in col_items]
+                col_x2s = [item[0].x2 for item in col_items]
+                col_min_x = min(col_x1s)
+                col_max_x = max(col_x2s)
+
+                if abs(box.x1 - col_min_x) < horizontal_threshold or abs(box.x1 - col_max_x) < horizontal_threshold:
+                    columns[col_index].append(seg)
+                    placed = True
+                    break
+
+            if not placed:
+                columns.append([seg])
+
+        column_positions = []
+        for col_index, col_items in enumerate(columns):
+            col_items.sort(key=lambda item: (item[0].y1, item[0].x1))
+            avg_x_positions = [it[0].x1 for it in col_items]
+            column_positions.append((col_index, sum(avg_x_positions) / len(avg_x_positions)))
+
+        column_positions.sort(key=lambda cp: cp[1])
+        sorted_columns = []
+        for col_index, _ in column_positions:
+            sorted_columns.extend(columns[col_index])
+
+        return sorted_columns
+
+    updated_predictions = []
+    
     for pred in predictions:
-        segments = [(box, score, cls) for box, score, cls 
-                   in zip(pred.instances.boxes, pred.instances.scores, pred.instances.classes)]
-        
-        # Skip empty predictions
-        if not segments:
-            continue
-            
-        # Analyze page structure
-        zones = analyze_vertical_structure(segments)
-        
-        # Process each zone and combine
-        ordered_segments = []
-        ordered_segments.extend(sorted(zones['header'], key=lambda x: x[0].y1))
-        ordered_segments.extend(analyze_body_structure(zones['body']))
-        ordered_segments.extend(sorted(zones['footer'], key=lambda x: x[0].y1))
-        
-        # Update prediction
-        pred.instances.boxes = [seg[0] for seg in ordered_segments]
-        pred.instances.scores = [seg[1] for seg in ordered_segments]
-        pred.instances.classes = [seg[2] for seg in ordered_segments]
+        header_segments = []
+        main_segments = []
+        footer_segments = []
 
-    return predictions
+        for box, score, cls in zip(pred.instances.boxes, 
+                                   pred.instances.scores, 
+                                   pred.instances.classes):
+            segment_type = get_segment_type(cls)
+            segment_data = (box, score, cls)
+            if segment_type == "PageHeader":
+                header_segments.append(segment_data)
+            elif segment_type == "PageFooter":
+                footer_segments.append(segment_data)
+            else:
+                main_segments.append(segment_data)
+     
+        header_segments.sort(key=lambda seg: (seg[0].y1, seg[0].x1))
+        footer_segments.sort(key=lambda seg: (seg[0].y1, seg[0].x1))
+
+        main_segments = columns_layout_sort(main_segments)
+
+        ordered_segments = header_segments + main_segments + footer_segments
+
+        if ordered_segments:
+            boxes, scores, classes = zip(*ordered_segments)
+        else:
+            boxes, scores, classes = [], [], []
+        
+        ordered_pred = SerializablePrediction(
+            instances=Instance(
+                boxes=list(boxes),
+                scores=list(scores),
+                classes=list(classes),
+                image_size=pred.instances.image_size
+            )
+        )
+        updated_predictions.append(ordered_pred)
+    
+    return updated_predictions
 
 def merge_colliding_predictions(boxes: List[BoundingBox], scores: List[float], classes: List[int]) -> tuple[List[BoundingBox], List[float], List[int]]:
     valid_indices = [i for i, score in enumerate(scores) if score >= 0.2]
@@ -596,38 +539,3 @@ async def root():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-def refine_column_assignments(columns: List[List[tuple]], centroids: np.ndarray) -> List[List[tuple]]:
-    # Reassign segments that span multiple columns
-    span_threshold = 0.4  # % of page width
-    
-    refined_columns = [[] for _ in columns]
-    page_width = max(seg[0].x2 for column in columns for seg in column)
-    
-    for col_idx, col in enumerate(columns):
-        for seg in col:
-            seg_width = seg[0].x2 - seg[0].x1
-            
-            if seg_width > page_width * span_threshold:
-                # Wide segment - assign to leftmost applicable column
-                refined_columns[0].append(seg)
-            else:
-                refined_columns[col_idx].append(seg)
-                
-    return refined_columns
-
-def validate_column_gaps(columns: List[List[tuple]], kmeans: KMeans) -> bool:
-    # Ensure sufficient separation between column centers
-    centers = sorted(kmeans.cluster_centers_.flatten())
-    if len(centers) < 2:
-        return True
-        
-    min_gap_ratio = 0.1  # Minimum gap between columns as % of page width
-    page_width = max(seg[0].x2 for column in columns for seg in column)
-    
-    for i in range(len(centers) - 1):
-        gap = centers[i + 1] - centers[i]
-        if gap < page_width * min_gap_ratio:
-            return False
-            
-    return True
