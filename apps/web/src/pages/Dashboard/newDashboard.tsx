@@ -15,6 +15,8 @@ import {
   createCustomerSession,
   createSetupIntent,
 } from "../../services/stripeService";
+import ApiKeyManagement from "../../components/ApiKeyManagement/ApiKeyManagement";
+
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
 
@@ -309,7 +311,7 @@ export default function NewDashboard() {
       case "API Keys":
         return {
           title: "API Keys",
-          component: <div>API Keys Component</div>,
+          component: <ApiKeyManagement user={user.data} />,
         };
       default:
         return {
@@ -326,6 +328,7 @@ export default function NewDashboard() {
     customerSessionSecret,
     showPaymentSetup,
     handleAddPaymentMethod,
+    user,
   ]);
 
   const toggleNav = () => {
