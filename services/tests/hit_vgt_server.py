@@ -20,13 +20,107 @@ try:
 except ImportError:
     pytesseract = None
 
+from tokenization_bros import BrosTokenizer
+
 ANNOTATED_IMAGES_DIR = Path("annotated_images")
 os.makedirs(ANNOTATED_IMAGES_DIR, exist_ok=True)
 
 
+import pickle
+import shutil
+import numpy as np
+class Rectangle:
+    def __init__(self, left: int, top: int, right: int, bottom: int):
+        self.left = left
+        self.top = top
+        self.right = right
+        self.bottom = bottom
+        self.width = self.right - self.left
+        self.height = self.bottom - self.top
+
+    def to_bbox(self):
+        return [self.left, self.top, self.width, self.height]
+
+    def get_intersection_percentage(self, other):
+        intersection_area = max(0, min(self.right, other.right) - max(self.left, other.left)) * \
+                              max(0, min(self.bottom, other.bottom) - max(self.top, other.top))
+        return intersection_area / (self.width * self.height)
+
+    def merge_rectangles(rectangles):
+        left = min(rect["left"] for rect in rectangles)
+        top = min(rect["top"] for rect in rectangles)
+        right = max(rect["left"] + rect["width"] for rect in rectangles)
+        bottom = max(rect["top"] + rect["height"] for rect in rectangles)
+        return Rectangle(left, top, right, bottom)
+
+tokenizer = BrosTokenizer.from_pretrained("naver-clova-ocr/bros-base-uncased")
+
+def rectangle_to_bbox(rectangle: Rectangle):
+    return rectangle.to_bbox()
+
+def get_words_positions(text: str, rectangle: Rectangle):
+    text = text.strip()
+    text_len = len(text)
+
+    width_per_letter = rectangle.width / text_len
+
+    words_bboxes = [Rectangle(rectangle.left, rectangle.top, rectangle.left + 5, rectangle.bottom)]
+    words_bboxes[-1].width = 0
+    words_bboxes[-1].right = words_bboxes[-1].left
+
+    for letter in text:
+        if letter == " ":
+            left = words_bboxes[-1].right + width_per_letter
+            words_bboxes.append(Rectangle(left, words_bboxes[-1].top, left + 5, words_bboxes[-1].bottom))
+            words_bboxes[-1].width = 0
+            words_bboxes[-1].right = words_bboxes[-1].left
+        else:
+            words_bboxes[-1].right = words_bboxes[-1].right + width_per_letter
+            words_bboxes[-1].width = words_bboxes[-1].width + width_per_letter
+
+    words = text.split()
+    return words, words_bboxes
+
+def get_subwords_positions(word: str, rectangle: Rectangle):
+    width_per_letter = rectangle.width / len(word)
+    word_tokens = [x.replace("#", "") for x in tokenizer.tokenize(word)]
+
+    if not word_tokens:
+        return [], []
+
+    ids = [x[-2] for x in tokenizer(word_tokens)["input_ids"]]
+
+    right = rectangle.left + len(word_tokens[0]) * width_per_letter
+    bboxes = [Rectangle(rectangle.left, rectangle.top, right, rectangle.bottom)]
+
+    for subword in word_tokens[1:]:
+        right = bboxes[-1].right + len(subword) * width_per_letter
+        bboxes.append(Rectangle(bboxes[-1].right, rectangle.top, right, rectangle.bottom))
+
+    return ids, bboxes
+
+def get_grid_words_dict(text_data, bounding_boxes):
+    texts, bbox_texts_list, inputs_ids, bbox_subword_list = [], [], [], []
+    for text, bounding_box in zip(text_data, bounding_boxes):
+        words, words_bboxes = get_words_positions(text, bounding_box)
+        texts += words
+        bbox_texts_list += [rectangle_to_bbox(r) for r in words_bboxes]
+        for word, word_box in zip(words, words_bboxes):
+            ids, subwords_bboxes = get_subwords_positions(word, word_box)
+            inputs_ids += ids
+            bbox_subword_list += [rectangle_to_bbox(r) for r in subwords_bboxes]
+
+    return {
+        "input_ids": np.array(inputs_ids),
+        "bbox_subword_list": np.array(bbox_subword_list),
+        "texts": texts,
+        "bbox_texts_list": np.array(bbox_texts_list),
+    }
+
 def get_tesseract_ocr_data(pil_image):
     if not pytesseract:
-        return "[]"
+        print("Tesseract OCR is not installed")
+        return json.dumps({"data": []})
     
     start_time = time.time()
     data = pytesseract.image_to_data(pil_image, output_type=pytesseract.Output.DICT)
@@ -34,6 +128,7 @@ def get_tesseract_ocr_data(pil_image):
     print(f"Tesseract OCR processing time: {elapsed_time:.2f} seconds")
 
     ocr_words = []
+    bounding_boxes = []
     for i in range(len(data["text"])):
         text = data["text"][i].strip()
         if not text:
@@ -54,145 +149,29 @@ def get_tesseract_ocr_data(pil_image):
             "text": text,
             "confidence": confidence
         })
-        
-    return json.dumps(ocr_words)
+        bounding_boxes.append(Rectangle(left, top, left + width, top + height))
 
-
-def apply_reading_order(instances):
-    bxs = instances.get("boxes", [])
-    scs = instances.get("scores", [])
-    cls = instances.get("classes", [])
-    if not bxs:
-        return instances
-
-    def is_wide_element(box, page_width=1000, threshold=0.7):
-        """Check if element spans multiple columns"""
-        return box["width"] / page_width > threshold
-
-    def get_column_assignment(box, col_boundaries):
-        """Determine which column a box belongs to"""
-        center_x = box["left"] + box["width"]/2
-        for i, (left, right) in enumerate(col_boundaries):
-            if left <= center_x <= right:
-                return i
-        return 0
-
-    # Create segments with additional metadata
-    segments = []
-    page_width = max(box["left"] + box["width"] for box in bxs) if bxs else 1000
+    grid_dict = get_grid_words_dict([word["text"] for word in ocr_words], bounding_boxes)
     
-    for i, (box, score, class_id) in enumerate(zip(bxs, scs, cls)):
-        if score > 0.2:
-            is_wide = is_wide_element(box, page_width)
-            segments.append({
-                'idx': i,
-                'box': box,
-                'score': score,
-                'class': class_id,
-                'is_wide': is_wide,
-                'center_x': box["left"] + box["width"]/2,
-                'center_y': box["top"] + box["height"]/2
-            })
-
-    # Separate headers and footers
-    headers = [s for s in segments if s['class'] == 5]
-    footers = [s for s in segments if s['class'] in [1, 4]]
-    body = [s for s in segments if s['class'] not in [1, 4, 5]]
-
-    # Define column boundaries (assuming 2-column layout as default)
-    col_width = page_width / 2
-    col_boundaries = [(0, col_width), (col_width, page_width)]
-
-    def process_body_segments(segments):
-        # Sort by vertical position first
-        segments.sort(key=lambda s: s['box']['top'])
-        
-        # Initialize columns
-        col1, col2 = [], []
-        current_y = float('-inf')
-        temp_segments = []
-        
-        for segment in segments:
-            # Check if we're starting a new row
-            if abs(segment['box']['top'] - current_y) > 20:
-                # Process accumulated segments
-                if temp_segments:
-                    # If any segment in the row is wide, add all as wide
-                    if any(s['is_wide'] for s in temp_segments):
-                        for s in temp_segments:
-                            s['is_wide'] = True
-                    
-                    # Distribute segments to columns
-                    for s in temp_segments:
-                        if s['is_wide']:
-                            # Add any accumulated column content first
-                            if col1 or col2:
-                                yield from col1
-                                yield from col2
-                                col1, col2 = [], []
-                            yield s
-                        else:
-                            col = get_column_assignment(s['box'], col_boundaries)
-                            if col == 0:
-                                col1.append(s)
-                            else:
-                                col2.append(s)
-                
-                temp_segments = [segment]
-                current_y = segment['box']['top']
-            else:
-                temp_segments.append(segment)
-        
-        # Process remaining segments
-        if temp_segments:
-            if any(s['is_wide'] for s in temp_segments):
-                if col1 or col2:
-                    yield from col1
-                    yield from col2
-                yield from temp_segments
-            else:
-                for s in temp_segments:
-                    col = get_column_assignment(s['box'], col_boundaries)
-                    if col == 0:
-                        col1.append(s)
-                    else:
-                        col2.append(s)
-        
-        # Yield any remaining column content
-        if col1 or col2:
-            yield from col1
-            yield from col2
-
-    # Process each section
-    ordered_segments = []
-    ordered_segments.extend(sorted(headers, key=lambda s: s['box']['top']))
-    ordered_segments.extend(process_body_segments(body))
-    ordered_segments.extend(sorted(footers, key=lambda s: s['box']['top']))
-
-    # Reorder the original lists
-    if ordered_segments:
-        final_indices = [s['idx'] for s in ordered_segments]
-        instances["boxes"] = [bxs[i] for i in final_indices]
-        instances["scores"] = [scs[i] for i in final_indices]
-        instances["classes"] = [cls[i] for i in final_indices]
-
-    return instances
+    # Convert NumPy arrays to lists and structure data properly
+    return json.dumps({
+        "data": ocr_words  # Send the OCR words directly instead of grid_dict
+    })
 
 
-def visualize_predictions(images, predictions, subfolder_path, apply_ro=False):
+def  visualize_predictions(images, predictions, subfolder_path):
     class_labels = [
         "Caption","Footnote","Formula","ListItem","PageFooter","PageHeader",
         "Picture","SectionHeader","Table","Text","Title"
     ]
     for i, (image, pred_dict) in enumerate(zip(images, predictions)):
         pred_inst = pred_dict.get("instances", {})
-        if apply_ro:
-            pred_inst = apply_reading_order(pred_inst)
         image_resized = image.resize((image.width, image.height))
         draw = ImageDraw.Draw(image_resized)
         boxes = pred_inst.get("boxes", [])
         scores = pred_inst.get("scores", [])
         classes = pred_inst.get("classes", [])
+        print(f"visualiting image {i}")
         for order, (box, score, cls_idx) in enumerate(zip(boxes, scores, classes), 1):
             if score <= 0:
                 continue
@@ -219,31 +198,32 @@ def post_image_to_async(server_url, img_bytes, ocr_data_json):
     response = requests.post(
         server_url,
         files=[("file", ("image.jpg", img_bytes, "image/jpeg"))],
-        data={"ocr_data": json.dumps({"data": json.loads(ocr_data_json)})}
+        data={"ocr_data": ocr_data_json}
     )
     elapsed = time.time() - start_time
+
     return response, elapsed
+
+
+
 
 
 if __name__ == "__main__":
     pdf_path = "figures/test_batch5.pdf"
-    server_url = "http://localhost:8001/batch_async"
-    for use_tesseract_ocr in [False]:
-        for use_reading_order in [False, True]:
-            mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
-            ro_mode = "with_reading_order" if use_reading_order else "without_reading_order"
-            subfolder_path = ANNOTATED_IMAGES_DIR / mode / ro_mode
+    server_url = "http://localhost:8000/batch_async"
+    for use_tesseract_ocr in [True]:
+        for use_reading_order in [False]:
+            ocr_mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
+            subfolder_path = ANNOTATED_IMAGES_DIR / ocr_mode 
             subfolder_path.mkdir(parents=True, exist_ok=True)
             start_time = time.time()
-            pdf_images = convert_from_path(str(pdf_path), dpi=150, fmt="jpg")
+            pdf_images = convert_from_path(str(pdf_path), dpi=300, fmt="jpg")
             end_time = time.time()
             request_data_list = []
-            for pil_img in pdf_images:
-                img_byte_arr = io.BytesIO()
-                pil_img.save(img_byte_arr, format='JPEG')
-                img_bytes = img_byte_arr.getvalue()
-                ocr_data_json = get_tesseract_ocr_data(pil_img) if use_tesseract_ocr else "[]"
-                request_data_list.append((img_bytes, ocr_data_json))
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                request_data_list = list(executor.map(lambda pil_img: (
+                    (img_byte_arr := io.BytesIO(), pil_img.save(img_byte_arr, format='JPEG'), img_byte_arr.getvalue(), get_tesseract_ocr_data(pil_img) if use_tesseract_ocr else json.dumps({"data": []}))
+                )[2:4], pdf_images))
             all_predictions = []
             request_times = []
             with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -261,14 +241,17 @@ if __name__ == "__main__":
                         all_predictions.append({"instances": {}})
                 except:
                     all_predictions.append({"instances": {}})
+                    
             total_duration = max(request_times) if request_times else 0
             avg_request_time = total_duration / len(request_times) if request_times else 0
             pages_per_sec = len(request_times) / total_duration if total_duration else 0
             table_data = [
-                ["OCR Mode","Reading Order","Reqs","Total(s)","Avg(s)","PPS"],
-                [mode, ro_mode, len(request_times),
+                ["OCR Mode","Reqs","Total(s)","Avg(s)","PPS"],
+                [ocr_mode, len(request_times),
                  f"{total_duration:.2f}", f"{avg_request_time:.2f}", f"{pages_per_sec:.2f}"]
             ]
             print(tabulate(table_data, headers="firstrow", tablefmt="grid"))
             if all_predictions:
-                visualize_predictions(pdf_images, all_predictions, subfolder_path, apply_ro=use_reading_order)
+                # if use_tesseract_ocr:
+                #     all_predictions = [get_best_segments(pred, ocr_data) for pred, ocr_data in zip(all_predictions, request_data_list)]
+                visualize_predictions(pdf_images, all_predictions, subfolder_path)

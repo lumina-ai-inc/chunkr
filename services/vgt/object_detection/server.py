@@ -16,10 +16,11 @@ from pydantic import BaseModel
 from memory_inference import create_predictor, process_image_batch
 from fastapi.responses import JSONResponse
 import torch
-import signal
 import psutil
-
+import collections
 from transformers import AutoTokenizer
+# from configuration import MODELS_PATH
+
 
 warnings.filterwarnings("ignore", category=UserWarning, module='torch')
 
@@ -31,6 +32,7 @@ load_dotenv(dotenv_path=ENV_PATH)
 batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.5))
 max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
 overlap_threshold = float(os.getenv("OVERLAP_THRESHOLD", 0.1))
+score_threshold = float(os.getenv("SCORE_THRESHOLD", 0.2))
 print(f"Max batch size: {max_batch_size}")
 print(f"Overlap threshold: {overlap_threshold}")
 
@@ -164,22 +166,32 @@ def apply_reading_order(instances):
     if not bxs:
         return instances
 
-    def is_wide_element(box, page_width=1000, threshold=0.7):
-        """Check if element spans multiple columns"""
+    def is_wide_element(box, page_width, threshold=0.7):
         return box["width"] / page_width > threshold
 
     def get_column_assignment(box, col_boundaries):
-        """Determine which column a box belongs to"""
-        center_x = box["left"] + box["width"]/2
+        center_x = box["left"] + box["width"] / 2
         for i, (left, right) in enumerate(col_boundaries):
             if left <= center_x <= right:
                 return i
         return 0
 
-    # Create segments with additional metadata
-    segments = []
+    # Calculate page width
     page_width = max(box["left"] + box["width"] for box in bxs) if bxs else 1000
-    
+
+    # Determine column boundaries using clustering
+    centers_x = [box["left"] + box["width"] / 2 for box in bxs]
+    centers_x.sort()
+    col_boundaries = []
+    if len(centers_x) > 1:
+        # Use a simple clustering approach to find gaps
+        for i in range(1, len(centers_x)):
+            if centers_x[i] - centers_x[i - 1] > page_width * 0.1:  # Adjust threshold as needed
+                col_boundaries.append((centers_x[i - 1], centers_x[i]))
+    col_boundaries = [(0, col_boundaries[0][0])] + col_boundaries + [(col_boundaries[-1][1], page_width)]
+
+    # Process segments
+    segments = []
     for i, (box, score, class_id) in enumerate(zip(bxs, scs, cls)):
         if score > 0.2:
             is_wide = is_wide_element(box, page_width)
@@ -189,8 +201,8 @@ def apply_reading_order(instances):
                 'score': score,
                 'class': class_id,
                 'is_wide': is_wide,
-                'center_x': box["left"] + box["width"]/2,
-                'center_y': box["top"] + box["height"]/2
+                'center_x': box["left"] + box["width"] / 2,
+                'center_y': box["top"] + box["height"] / 2
             })
 
     # Separate headers and footers
@@ -198,77 +210,66 @@ def apply_reading_order(instances):
     footers = [s for s in segments if s['class'] in [1, 4]]
     body = [s for s in segments if s['class'] not in [1, 4, 5]]
 
-    # Define column boundaries (assuming 2-column layout as default)
-    col_width = page_width / 2
-    col_boundaries = [(0, col_width), (col_width, page_width)]
-
     def process_body_segments(segments):
-        # Sort by vertical position first
         segments.sort(key=lambda s: s['box']['top'])
-        
-        # Initialize columns
-        col1, col2 = [], []
+        col1, col2, col3 = [], [], []
         current_y = float('-inf')
         temp_segments = []
-        
+
         for segment in segments:
-            # Check if we're starting a new row
             if abs(segment['box']['top'] - current_y) > 20:
-                # Process accumulated segments
                 if temp_segments:
-                    # If any segment in the row is wide, add all as wide
                     if any(s['is_wide'] for s in temp_segments):
                         for s in temp_segments:
                             s['is_wide'] = True
-                    
-                    # Distribute segments to columns
                     for s in temp_segments:
                         if s['is_wide']:
-                            # Add any accumulated column content first
-                            if col1 or col2:
+                            if col1 or col2 or col3:
                                 yield from col1
                                 yield from col2
-                                col1, col2 = [], []
+                                yield from col3
+                                col1, col2, col3 = [], [], []
                             yield s
                         else:
                             col = get_column_assignment(s['box'], col_boundaries)
                             if col == 0:
                                 col1.append(s)
-                            else:
+                            elif col == 1:
                                 col2.append(s)
-                
+                            else:
+                                col3.append(s)
                 temp_segments = [segment]
                 current_y = segment['box']['top']
             else:
                 temp_segments.append(segment)
-        
-        # Process remaining segments
+
         if temp_segments:
             if any(s['is_wide'] for s in temp_segments):
-                if col1 or col2:
+                if col1 or col2 or col3:
                     yield from col1
                     yield from col2
+                    yield from col3
                 yield from temp_segments
             else:
                 for s in temp_segments:
                     col = get_column_assignment(s['box'], col_boundaries)
                     if col == 0:
                         col1.append(s)
-                    else:
+                    elif col == 1:
                         col2.append(s)
-        
-        # Yield any remaining column content
-        if col1 or col2:
+                    else:
+                        col3.append(s)
+
+        if col1 or col2 or col3:
             yield from col1
             yield from col2
+            yield from col3
 
-    # Process each section
     ordered_segments = []
     ordered_segments.extend(sorted(headers, key=lambda s: s['box']['top']))
     ordered_segments.extend(process_body_segments(body))
     ordered_segments.extend(sorted(footers, key=lambda s: s['box']['top']))
 
-    # Reorder the original lists
     if ordered_segments:
         final_indices = [s['idx'] for s in ordered_segments]
         instances["boxes"] = [bxs[i] for i in final_indices]
@@ -332,7 +333,7 @@ def get_reading_order(predictions: List[SerializablePrediction]) -> List[Seriali
 
 
 def merge_colliding_predictions(boxes: List[BoundingBox], scores: List[float], classes: List[int]) -> tuple[List[BoundingBox], List[float], List[int]]:
-    valid_indices = [i for i, score in enumerate(scores) if score >= 0.2]
+    valid_indices = [i for i, score in enumerate(scores) if score >= score_threshold]
     if not valid_indices:
         return boxes, scores, classes
     
@@ -340,64 +341,73 @@ def merge_colliding_predictions(boxes: List[BoundingBox], scores: List[float], c
     filtered_scores = [scores[i] for i in valid_indices]
     filtered_classes = [classes[i] for i in valid_indices]
     
-    while True:
-        merged = False
-        new_boxes, new_scores, new_classes = [], [], []
+    merged_boxes, merged_scores, merged_classes = [], [], []
+    
+    while filtered_boxes:
+        box1 = filtered_boxes.pop(0)
+        score1 = filtered_scores.pop(0)
+        class1 = filtered_classes.pop(0)
         
-        while filtered_boxes:
-            box1 = filtered_boxes.pop(0)
-            score1 = filtered_scores.pop(0)
-            class1 = filtered_classes.pop(0)
+        to_merge_indices = []
+        for i, box2 in enumerate(filtered_boxes):
+            intersection = (
+                max(0, min(box1.x2, box2.x2) - max(box1.x1, box2.x1)) *
+                max(0, min(box1.y2, box2.y2) - max(box1.y1, box2.y1))
+            )
+            area1 = (box1.x2 - box1.x1) * (box1.y2 - box1.y1)
+            area2 = (box2.x2 - box2.x1) * (box2.y2 - box2.y1)
+            min_area = min(area1, area2)
             
-            to_merge_indices = []
-            for i, box2 in enumerate(filtered_boxes):
+            if min_area > 0 and (intersection / min_area) > overlap_threshold:
+                to_merge_indices.append(i)
+        
+        if to_merge_indices:
+            merge_boxes = [box1] + [filtered_boxes[i] for i in to_merge_indices]
+            merge_scores = [score1] + [filtered_scores[i] for i in to_merge_indices]
+            merge_classes = [class1] + [filtered_classes[i] for i in to_merge_indices]
+            
+            for i in reversed(to_merge_indices):
+                filtered_boxes.pop(i)
+                filtered_scores.pop(i)
+                filtered_classes.pop(i)
+            
+            x1 = min(box.x1 for box in merge_boxes)
+            y1 = min(box.y1 for box in merge_boxes)
+            x2 = max(box.x2 for box in merge_boxes)
+            y2 = max(box.y2 for box in merge_boxes)
+            
+            class_counts = collections.Counter(merge_classes)
+            final_class = class_counts.most_common(1)[0][0]
+            
+            merged_boxes.append(BoundingBox(x1=x1, y1=y1, x2=x2, y2=y2))
+            merged_scores.append(max(merge_scores))
+            merged_classes.append(final_class)
+        else:
+            merged_boxes.append(box1)
+            merged_scores.append(score1)
+            merged_classes.append(class1)
+    
+    # Merge small boxes into larger ones if overlap > 90%
+    final_boxes, final_scores, final_classes = [], [], []
+    for i, box1 in enumerate(merged_boxes):
+        merged = False
+        for j, box2 in enumerate(merged_boxes):
+            if i != j:
                 intersection = (
                     max(0, min(box1.x2, box2.x2) - max(box1.x1, box2.x1)) *
                     max(0, min(box1.y2, box2.y2) - max(box1.y1, box2.y1))
                 )
                 area1 = (box1.x2 - box1.x1) * (box1.y2 - box1.y1)
-                area2 = (box2.x2 - box2.x1) * (box2.y2 - box2.y1)
-                min_area = min(area1, area2)
-                
-                if min_area > 0 and (intersection / min_area) > overlap_threshold:
-                    to_merge_indices.append(i)
-            
-            if to_merge_indices:
-                merged = True
-                merge_boxes = [box1] + [filtered_boxes[i] for i in to_merge_indices]
-                merge_scores = [score1] + [filtered_scores[i] for i in to_merge_indices]
-                merge_classes = [class1] + [filtered_classes[i] for i in to_merge_indices]
-                
-                for i in reversed(to_merge_indices):
-                    filtered_boxes.pop(i)
-                    filtered_scores.pop(i)
-                    filtered_classes.pop(i)
-                
-                x1 = min(box.x1 for box in merge_boxes)
-                y1 = min(box.y1 for box in merge_boxes)
-                x2 = max(box.x2 for box in merge_boxes)
-                y2 = max(box.y2 for box in merge_boxes)
-                
-                if 8 in merge_classes:
-                    final_class = 8
-                else:
-                    max_score_idx = merge_scores.index(max(merge_scores))
-                    final_class = merge_classes[max_score_idx]
-                
-                new_boxes.append(BoundingBox(x1=x1, y1=y1, x2=x2, y2=y2))
-                new_scores.append(max(merge_scores))
-                new_classes.append(final_class)
-            else:
-                new_boxes.append(box1)
-                new_scores.append(score1)
-                new_classes.append(class1)
-        
+                if area1 > 0 and (intersection / area1) > 0.9:
+                    merged = True
+                    break
         if not merged:
-            return new_boxes, new_scores, new_classes
-        
-        filtered_boxes = new_boxes
-        filtered_scores = new_scores
-        filtered_classes = new_classes
+            final_boxes.append(box1)
+            final_scores.append(merged_scores[i])
+            final_classes.append(merged_classes[i])
+    
+    return final_boxes, final_scores, final_classes
+
 
 def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: GridDicts) -> List[SerializablePrediction]:
     grid_list = grid_dicts.grid_dicts if isinstance(grid_dicts, GridDicts) else grid_dicts
@@ -409,54 +419,12 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
             pred.instances.scores,
             pred.instances.classes
         )
-        text_boxes = []
-        text_scores = []
-        text_classes = []
-        
-        for text, bbox in zip(grid.texts, grid.bbox_texts_list):
-            x, y, w, h = bbox
-            text_box = BoundingBox(x1=x, y1=y, x2=x+w, y2=y+h)
-            
-            best_score = 0
-            best_class = 9
-            
-            for box, score, cls in zip(boxes, scores, classes):
-                intersection = (
-                    max(0, min(text_box.x2, box.x2) - max(text_box.x1, box.x1)) *
-                    max(0, min(text_box.y2, box.y2) - max(text_box.y1, box.y1))
-                )
-                text_area = (text_box.x2 - text_box.x1) * (text_box.y2 - text_box.y1)
-                pred_area = (box.x2 - box.x1) * (box.y2 - box.y1)
-                min_area = min(text_area, pred_area)
-                
-                if min_area > 0 and intersection / min_area > overlap_threshold:
-                    best_score = score
-                    best_class = cls
-            
-            text_boxes.append(text_box)
-            text_scores.append(best_score)
-            text_classes.append(best_class)
-        
-        for box, score, cls in zip(boxes, scores, classes):
-            has_overlap = False
-            for text_box in text_boxes:
-                intersection = (
-                    max(0, min(text_box.x2, box.x2) - max(text_box.x1, box.x1)) *
-                    max(0, min(text_box.y2, box.y2) - max(text_box.y1, box.y1))
-                )
-                if intersection > 0:
-                    has_overlap = True
-                    break
-            if not has_overlap:
-                text_boxes.append(box)
-                text_scores.append(score)
-                text_classes.append(cls)
         
         updated_pred = SerializablePrediction(
             instances=Instance(
-                boxes=text_boxes,
-                scores=text_scores,
-                classes=text_classes,
+                boxes=boxes,
+                scores=scores,
+                classes=classes,
                 image_size=pred.instances.image_size
             )
         )
@@ -465,15 +433,17 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
     return updated_predictions
 
 
+async def decode_image(file_data):
+    return cv2.imdecode(np.frombuffer(file_data, np.uint8), cv2.IMREAD_COLOR)
+
 async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePrediction]]:
     print(f"Processing batch of {len(tasks)} tasks | {time.time()}")
     try:
-        images = []
-        grid_dicts_data = []
-        for t in tasks:
-            image = cv2.imdecode(np.frombuffer(t.file_data, np.uint8), cv2.IMREAD_COLOR)
-            images.append(image)
-            grid_dicts_data.append(t.grid_dict)  
+        # Concurrent image decoding
+        images = await asyncio.gather(*[
+            decode_image(t.file_data) for t in tasks
+        ])
+        grid_dicts_data = [t.grid_dict for t in tasks]
 
         try:
             raw_predictions = process_image_batch(
@@ -489,16 +459,19 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
                 return
             raise e
 
+        # Process predictions in parallel
         predictions_list = []
         for pred in raw_predictions:
             instances = pred["instances"].to("cpu")
+            boxes = instances.pred_boxes.tensor.tolist()
+            
             serializable_pred = SerializablePrediction(
                 instances=Instance(
-                    boxes=[BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) 
-                           for box in instances.pred_boxes.tensor.tolist()],
+                    boxes=[BoundingBox(x1=b[0], y1=b[1], x2=b[2], y2=b[3]) 
+                           for b in boxes],
                     scores=instances.scores.tolist(),
                     classes=instances.pred_classes.tolist(),
-                    image_size=[instances.image_size[0], instances.image_size[1]]
+                    image_size=list(instances.image_size)
                 )
             )
             predictions_list.append(serializable_pred)
@@ -511,15 +484,13 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
             grid_dicts_obj = GridDicts(grid_dicts=[t.grid_dict])
             final_predictions = find_best_segments([predictions_list[i]], grid_dicts_obj)
             ordered_predictions = get_reading_order(final_predictions)
-            results_for_tasks.append(ordered_predictions)  
-
+            results_for_tasks.append(ordered_predictions)
+            
         return results_for_tasks
 
     finally:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
-        import gc
-        gc.collect()
 
 async def batch_processor():
     while True:
