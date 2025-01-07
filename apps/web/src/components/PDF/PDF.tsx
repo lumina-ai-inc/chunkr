@@ -168,7 +168,7 @@ function SegmentOverlay({
       className="segment visible absolute z-50 border-2"
       style={{
         width: scaledWidth,
-        height: scaledHeight,
+        height: "600px !important",
         left: scaledLeft,
         top: scaledTop,
         borderColor: `var(${baseColor})`,

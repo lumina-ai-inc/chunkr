@@ -95,7 +95,7 @@ services:
       - postgres
     restart: always
 
-  chunkmydocs:
+  server:
     image: luminainc/chunkmydocs:3c8cc0be
     ports:
       - "8000:8000"
@@ -109,87 +109,6 @@ services:
       replicas: 0
     restart: always
 
-  preprocess:
-    image: luminainc/preprocess:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  fast:
-    image: luminainc/fast:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-      - pdla
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  high-quality:
-    image: luminainc/high-quality:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-      - pdla
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  postprocess:
-    image: luminainc/postprocess:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  ocr:
-    image: luminainc/ocr:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  structured-extraction:
-    image: luminainc/structured-extraction:3c8cc0be
-    depends_on:
-      - postgres
-      - redis
-      - minio
-      - rrq
-      - dense-vector
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
   web:
     image: luminainc/web:3c8cc0be
     ports:
@@ -200,29 +119,12 @@ services:
       replicas: 1
     restart: always
 
-  pdla:
-    image: luminainc/pdla:8c4bfb6d
+  segmentation:
+    image: luminainc/segmentation:0231783f
     ports:
-      - "8002:8000"
-    command: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src", "app:app", "--bind", "0.0.0.0:8000", "--timeout", "10000" ]
+      - "8001:8000"
     deploy:
       replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    volumes:
-      - /dev/shm:/dev/shm
-    restart: always
-
-  paddle-ocr:
-    image: luminainc/paddle-ocr:3c8cc0be
-    ports:
-      - "8003:8080"
-    deploy:
-      replicas: 0
       resources:
         reservations:
           devices:
@@ -236,25 +138,9 @@ services:
   doctr:
     image: luminainc/doctr:3c8cc0be
     ports:
-      - "8003:8000"
+      - "8002:8000"
     deploy:
       replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    volumes:
-      - /dev/shm:/dev/shm
-    restart: always
-
-  table-ocr:
-    image: luminainc/table-ocr:3c8cc0be
-    ports:
-      - "8004:8000"
-    deploy:
-      replicas: 0
       resources:
         reservations:
           devices:
@@ -268,7 +154,7 @@ services:
   dense-vector:
     image: ghcr.io/huggingface/text-embeddings-inference:1.5
     ports:
-      - "8007:80"
+      - "8003:80"
     command: [ "--model-id", "BAAI/bge-m3", "--auto-truncate", "--payload-limit", "100000000" ]
     deploy:
       replicas: 1
@@ -283,7 +169,7 @@ services:
   vllm:
     image: vllm/vllm-openai:latest
     ports:
-      - "8008:8000"
+      - "8004:8000"
     command: [ "--model", "Qwen/Qwen2-VL-7B-Instruct-GPTQ-Int4" ]
     env_file:
       - .env
@@ -311,16 +197,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    deploy:
-      replicas: 1
-    restart: always
-
-  rrq-analytics:
-    image: luminainc/rrq-analytics:459b00d
-    ports:
-      - "8006:8000"
-    environment:
-      - VITE_API_URL=http://localhost:8005
     deploy:
       replicas: 1
     restart: always
