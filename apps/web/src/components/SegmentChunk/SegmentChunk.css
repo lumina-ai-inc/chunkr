@@ -271,12 +271,12 @@
 }
 
 .segment-content-wrapper:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.05);
 }
 
 .segment-content-wrapper.active {
-  background: rgba(2, 5, 6, 0.5);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }

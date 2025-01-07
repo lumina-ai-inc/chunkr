@@ -11,8 +11,7 @@ export default function UploadMain({
 }: {
   isAuthenticated: boolean;
 }) {
-  const [file, setFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
   const [model, setModel] = useState<Model>(Model.HighQuality);
   const [ocrStrategy, setOcrStrategy] = useState<"Auto" | "All" | "Off">(
     "Auto"
@@ -23,14 +22,12 @@ export default function UploadMain({
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleFileUpload = async (uploadedFile: File) => {
-    setFile(uploadedFile);
-    setFileName(uploadedFile.name);
+  const handleFileUpload = async (uploadedFiles: File[]) => {
+    setFiles((prev) => [...prev, ...uploadedFiles]);
   };
 
-  const handleFileRemove = () => {
-    setFile(null);
-    setFileName("");
+  const handleFileRemove = (fileName: string) => {
+    setFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
 
   const handleModelToggle = (selectedModel: Model) => {
@@ -77,28 +74,19 @@ export default function UploadMain({
   };
 
   const handleRun = async () => {
-    if (!file) {
-      console.error("No file uploaded");
+    if (files.length === 0) {
+      console.error("No files uploaded");
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    const payload: UploadForm = {
-      file,
-      model,
-      ocr_strategy: ocrStrategy,
-      target_chunk_length: intelligentChunking ? chunkLength : 0,
-    };
 
     try {
-      const taskResponse = await uploadFile(payload);
-      navigate(
-        `/task/${taskResponse.task_id}?pageCount=${taskResponse.page_count}`
-      );
+      navigate("/newDashboard?tablePageIndex=0&tablePageSize=10");
     } catch (error) {
-      console.error("Error uploading file:", error);
-      setError("Failed to upload file. Please try again later.");
+      console.error("Error uploading files:", error);
+      setError("Failed to upload files. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -145,8 +133,7 @@ export default function UploadMain({
       <Upload
         onFileUpload={handleFileUpload}
         onFileRemove={handleFileRemove}
-        isUploaded={!!file}
-        fileName={fileName}
+        files={files}
         isAuthenticated={isAuthenticated}
       />
       {isAuthenticated && (
@@ -600,12 +587,13 @@ export default function UploadMain({
               height="72px"
               justify="center"
               align="center"
-              className={!!file && !isLoading ? "run-active" : "run"}
+              className={!!files.length && !isLoading ? "run-active" : "run"}
               style={{
                 borderRadius: "8px",
-                cursor: !!file && !isLoading ? "pointer" : "not-allowed",
+                cursor:
+                  !!files.length && !isLoading ? "pointer" : "not-allowed",
               }}
-              onClick={!!file && !isLoading ? handleRun : undefined}
+              onClick={!!files.length && !isLoading ? handleRun : undefined}
             >
               <Text size="5" weight="bold">
                 {isLoading ? "Uploading..." : "Run"}

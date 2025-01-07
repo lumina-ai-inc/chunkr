@@ -49,3 +49,7 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
+
+.MuiPopover-root > .MuiPaper-root {
+  background-color: rgb(30, 36, 37) !important;
+}
