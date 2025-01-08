@@ -121,7 +121,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 2
+      replicas: 20
     restart: always
 
   web:
@@ -175,7 +175,7 @@ services:
       replicas: 1
     restart: always
 
-  dense-vector:
+  embeddings:
     image: ghcr.io/huggingface/text-embeddings-inference:1.5
     platform: linux/amd64
     ports:

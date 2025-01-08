@@ -27,7 +27,7 @@ impl Instance {
             _ => SegmentType::Text,
         })
     }
-    // TODO: Add confidence score to the segment
+
     pub fn to_segments(&self, page_number: u32, ocr_results: Vec<OCRResult>) -> Vec<Segment> {
         let (page_width, page_height) = (self.image_size.0 as f32, self.image_size.1 as f32);
         self.boxes
