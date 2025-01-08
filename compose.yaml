@@ -136,12 +136,7 @@ services:
     restart: always
 
   segmentation:
-<<<<<<< HEAD
-    image: luminainc/segmentation:0231783f
-    platform: linux/amd64
-=======
-    image: luminainc/segmentation:5937e112
->>>>>>> ik/client
+    image: luminainc/segmentation:34aaff36
     ports:
       - "8001:8000"
     deploy:
