@@ -97,7 +97,7 @@ services:
     restart: always
 
   server:
-    image: luminainc/server:8e9698e8
+    image: luminainc/server:d03718fd
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -112,7 +112,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:8e9698e8
+    image: luminainc/task:d03718fd
     platform: linux/amd64
     depends_on:
       - postgres
@@ -136,7 +136,7 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:8e9698e8
+    image: luminainc/segmentation:d03718fd
     platform: linux/amd64
     ports:
       - "8001:8000"
@@ -147,7 +147,7 @@ services:
     restart: always
 
   doctr:
-    image: luminainc/doctr:8e9698e8
+    image: luminainc/doctr:d03718fd
     platform: linux/amd64
     ports:
       - "8002:8000"
