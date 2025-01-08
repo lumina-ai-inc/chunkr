@@ -220,12 +220,12 @@ resource "google_service_networking_connection" "private_service_connection" {
 # K8s configuration
 ###############################################################
 resource "google_container_cluster" "cluster" {
-  name                     = "${var.base_name}-cluster"
-  location                 = "${var.region}-b"
-  remove_default_node_pool = true
-  initial_node_count       = 1
-
-  deletion_protection = false
+  name                      = "${var.base_name}-cluster"
+  location                  = "${var.region}-b"
+  remove_default_node_pool  = true
+  initial_node_count        = 1
+  default_max_pods_per_node = 256
+  deletion_protection       = false
 
   network    = google_compute_network.vpc_network.self_link
   subnetwork = google_compute_subnetwork.vpc_subnet.self_link

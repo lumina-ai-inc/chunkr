@@ -3,9 +3,15 @@
 ## Prerequisites
 
 - [Helm](https://helm.sh/docs/intro/install/)
-- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 
 ### GPU Setup [Required]
+
+#### For GKE Users
+No additional setup required - GKE automatically handles NVIDIA drivers and device plugins for GPU nodes.
+
+#### For Other Kubernetes Distributions
+If you're not using GKE, follow these steps:
 
 1. Install NVIDIA operator with time-slicing following the instructions at: https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-sharing.html#time-slicing-cluster-wide-config
 
@@ -155,6 +161,33 @@ helm uninstall chunkr --namespace chunkr
 ```
 
 ## External providers
+
+### Storage Classes
+By default, the storage class is set to "standard" which works for GCP. For other cloud providers, you'll need to specify the appropriate storage class:
+
+- GCP: `standard`
+- AWS: `gp2` or `gp3`
+- Azure: `default` or `managed-premium`
+- On-premise/Others: `default`
+
+You can set the storage class during installation or upgrade:
+
+```bash
+# For GCP (default)
+helm install chunkr ./charts/chunkr \
+  --namespace chunkr \
+  --set global.storageClass=standard
+
+# For AWS
+helm install chunkr ./charts/chunkr \
+  --namespace chunkr \
+  --set global.storageClass=gp2
+
+# For Azure
+helm install chunkr ./charts/chunkr \
+  --namespace chunkr \
+  --set global.storageClass=managed-premium
+```
 
 ### S3 provider
 By default, the S3 provider is set to MinIO. 
