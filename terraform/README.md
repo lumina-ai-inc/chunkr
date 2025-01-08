@@ -8,19 +8,19 @@
 ## GCP Deployment
 
 1. Authenticate with GCP:
-   ```bash
-   gcloud auth application-default login
-   ```
+```bash
+gcloud auth application-default login
+```
 
 2. Navigate to the GCP Terraform directory:
-   ```bash
-   cd terraform/gcp
-   ```
+```bash
+cd terraform/gcp
+```
 
 3. Create a `terraform.tfvars` file:
-   ```bash
-   nano terraform.tfvars
-   ```
+```bash
+nano terraform.tfvars
+```
 
 4. Set the following variables:
 
@@ -42,19 +42,19 @@
 ## Azure Deployment
 
 1. Authenticate with Azure:
-   ```bash
-   az login
-   ```
+```bash
+az login
+```
 
 2. Navigate to the Azure Terraform directory:
-   ```bash
-   cd terraform/azure
-   ```
+```bash
+cd terraform/azure
+```
 
 3. Create a `terraform.tfvars` file:
-   ```bash
-   nano terraform.tfvars
-   ```
+```bash
+nano terraform.tfvars
+```
 
 4. Set the following variables:
 
@@ -63,14 +63,15 @@
    #### Required Variables
    | Variable | Description |
    |----------|-------------|
-   | `postgres_username` | Username for PostgreSQL |
-   | `postgres_password` | Password for PostgreSQL |
+   | `base_name` | Base name for resources |
+   | `project` | GCP project ID |
 
    #### Optional Variables
    | Variable | Description | Default |
    |----------|-------------|---------|
-   | `base_name` | Base name for resources | chunkr |
-   | `location` | Azure region | eastus2 |
+   | `region` | GCP region | us-central1 |
+   | `postgres_username` | Username for PostgreSQL | postgres |
+   | `postgres_password` | Password for PostgreSQL | postgres |
 
 ### Azure
 
@@ -86,16 +87,17 @@
    |----------|-------------|---------|
    | `location` | Azure region | eastus2 |
    | `postgres_username` | Username for PostgreSQL | postgres |
-   | `postgres_password` | Password for PostgreSQL | postgres |terraform
+   | `postgres_password` | Password for PostgreSQL | postgres |
+
 3. Apply the Terraform configuration:
-   ```bash
-   terraform apply
-   ```
+```bash
+terraform apply
+```
 
 4. Get raw output values:
-   ```bash
-   terraform output -json | jq -r 'to_entries[] | "echo \"\(.key): $(terraform output -raw \(.key))\"" ' | bash
-   ```
+```bash
+terraform output -json | jq -r 'to_entries[] | "echo \"\(.key): $(terraform output -raw \(.key))\"" ' | bash
+```
    > **Note**: The output will contain sensitive information. Make sure to keep it secure.
 
 ## Multiple Environments
@@ -107,9 +109,10 @@ Install AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-starte
 1. Create a bucket and a dynamodb table
 
 2. Copy the backend configuration example from terraform/{provider}:
-   ```bash
-   cp ../backend.example.hcl ./backend.hcl
-   ```
+   
+```bash
+cp ../backend.example.hcl ./backend.hcl
+```
 
 3. Update the backend.hcl file with your S3 bucket details:
    - bucket: Your S3 bucket name
@@ -118,21 +121,21 @@ Install AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-starte
    - key: Update path if needed (defaults to provider/terraform.tfstate)
 
 4. Initialize Terraform with your backend:
-   ```bash
-   terraform init -backend-config=./backend.hcl
-   ```
+```bash
+terraform init -backend-config=path/to/backend.hcl
+```
 
 **Other options:**
 
 Migrate local state to backend:
-   ```bash
-   terraform init -backend-config=./backend.hcl -migrate-state
-   ```
+```bash
+terraform init -backend-config=path/to/backend.hcl -migrate-state
+```
 
 Use existing state from s3:
-   ```bash
-   terraform init -backend-config=./backend.hcl -reconfigure
-   ```
+```bash
+terraform init -backend-config=path/to/backend.hcl -reconfigure
+```
 
 ### Environment Specific Configuration
 
@@ -141,7 +144,7 @@ Use existing state from s3:
 2. Plan and apply the Terraform configuration:
 
 ```bash
-terraform plan -var-file="path/to/terraform.tfvars"
+terraform plan -var-file="path/to/terraform.tfvars" 
 terraform apply -var-file="path/to/terraform.tfvars"
 ```
 
