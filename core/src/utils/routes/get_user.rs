@@ -3,6 +3,7 @@ use crate::models::chunkr::user::{Discount, InvoiceStatus, Tier, UsageLimit, Usa
 use crate::utils::clients::get_pg_client;
 use serde_json::Value;
 use std::str::FromStr;
+
 pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error>> {
     let client: Client = get_pg_client().await?;
     let query = r#"
@@ -54,7 +55,7 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
     let mut usage_map = std::collections::HashMap::new();
     for usage_row in usage_limits {
         let usage_type: String = usage_row.get("usage_type");
-        let limit: i32 = usage_row.get("usage_limit");
+        let limit: i32 = usage_row.try_get("usage_limit").unwrap_or(0);
         usage_map.insert(usage_type, limit);
     }
 
