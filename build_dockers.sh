@@ -1,4 +1,8 @@
 #!/bin/bash
+echo "Welcome to the docker builder!"
+echo "------------------------"
+echo "The current sha is: $(git rev-parse --short HEAD)"
+echo "------------------------"
 
 # Find all docker.sh files in subdirectories of ./docker
 docker_scripts=($(find ./docker -name "docker.sh"))
