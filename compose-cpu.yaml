@@ -1,4 +1,3 @@
-# THIS IS UNDER DEVELOPMENT [DO NOT USE]
 services:
   postgres:
     build:
