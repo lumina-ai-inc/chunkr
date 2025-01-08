@@ -119,7 +119,7 @@ helm install chunkr ./charts/chunkr \
   --create-namespace \
   --set ingress.subdomains.root=false \
   --set "services.web.ingress.subdomain=chunkr" \
-  --set "services.chunkr.ingress.subdomain=chunkr-api" \
+  --set "services.server.ingress.subdomain=chunkr-api" \
   --set "services.keycloak.ingress.subdomain=chunkr-auth" \
   --set "services.minio.ingress.subdomain=chunkr-s3" \
   --set ingress.type=cloudflare \
