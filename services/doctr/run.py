@@ -87,7 +87,9 @@ def ocr_images():
     image_paths = [os.path.join(input_dir, f) for f in sorted(os.listdir(input_dir))]
     doc = DocumentFile.from_images(image_paths)
     start_time = time.time()
-    predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, export_as_straight_boxes=True, det_bs=16, reco_bs=8192).cuda()
+    predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, export_as_straight_boxes=True, det_bs=16, reco_bs=8192)
+    if torch.cuda.is_available():
+        predictor = predictor.cuda()
     end_time = time.time()
     print(f"Time taken to load model: {end_time - start_time} seconds")
     start_time = time.time()
@@ -155,7 +157,9 @@ def ocr_images_parallel():
     # Initialize predictor
     start_time = time.time()
     predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, 
-                            export_as_straight_boxes=True).cuda()
+                            export_as_straight_boxes=True)
+    if torch.cuda.is_available():
+        predictor = predictor.cuda()
     end_time = time.time()
     print(f"Time taken to load model: {end_time - start_time} seconds")
     
@@ -227,7 +231,9 @@ def ocr_and_draw_boxes():
     image_paths = [os.path.join(input_dir, f) for f in os.listdir(input_dir)]
     
     predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, 
-                            export_as_straight_boxes=True).cuda()
+                            export_as_straight_boxes=True)
+    if torch.cuda.is_available():
+        predictor = predictor.cuda()
     doc = DocumentFile.from_images(image_paths)
     result = predictor(doc)
     
@@ -245,7 +251,9 @@ def kie_process():
     start_time = time.time()
     model = kie_predictor(det_arch='db_resnet50', 
                          reco_arch='crnn_vgg16_bn', 
-                         pretrained=True).cuda()
+                         pretrained=True)
+    if torch.cuda.is_available():
+        model = model.cuda()
     end_time = time.time()
     print(f"Time taken to load KIE model: {end_time - start_time} seconds")
     
@@ -328,7 +336,9 @@ def ocr_images_organized_batch(input_dir, output_dir):
     # Process all images in batch
     start_time = time.time()
     predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, 
-                            export_as_straight_boxes=True, det_bs=16, reco_bs=8192).cuda()
+                            export_as_straight_boxes=True, det_bs=16, reco_bs=8192)
+    if torch.cuda.is_available():
+        predictor = predictor.cuda()
     doc = DocumentFile.from_images(image_paths)
     result = predictor(doc)
     end_time = time.time()
