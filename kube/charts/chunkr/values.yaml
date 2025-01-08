@@ -20,7 +20,7 @@ ingress:
     config:
       tunnelName: "chunkr"
       services:
-        - name: "chunkr"
+        - name: "server"
         - name: "keycloak"
         - name: "web"
         - name: "minio"
@@ -48,7 +48,7 @@ common:
     - name: WORKER__SEGMENTATION_URL
       value: "http://{{- .Release.Name }}-segmentation:8000"
     - name: WORKER__SERVER_URL
-      value: "https://{{ .Values.services.chunkr.ingress.subdomain }}.{{ .Values.ingress.domain }}"
+      value: "https://{{ .Values.services.server.ingress.subdomain }}.{{ .Values.ingress.domain }}"
 
 global:
   image:
@@ -141,7 +141,7 @@ services:
       subdomain: "www"
     env:
       - name: VITE_API_URL
-        value: https://{{ .Values.services.chunkr.ingress.subdomain }}.{{ .Values.ingress.domain }}
+        value: https://{{ .Values.services.server.ingress.subdomain }}.{{ .Values.ingress.domain }}
       - name: VITE_KEYCLOAK_CLIENT_ID
         value: chunkr
       - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
@@ -383,7 +383,7 @@ services:
       restartPolicy: OnFailure
 
   postgres:
-    enabled: true
+    enabled: false
     image:
       repository: postgres
       tag: "15-alpine"
