@@ -19,6 +19,7 @@ import torch
 import psutil
 import collections
 from transformers import AutoTokenizer
+from sklearn.cluster import KMeans
 # from configuration import MODELS_PATH
 
 
@@ -180,15 +181,36 @@ def apply_reading_order(instances):
     page_width = max(box["left"] + box["width"] for box in bxs) if bxs else 1000
 
     # Determine column boundaries using clustering
-    centers_x = [box["left"] + box["width"] / 2 for box in bxs]
-    centers_x.sort()
+    centers_x = np.array([[box["left"] + box["width"] / 2] for box in bxs])
+    
+    # Use the elbow method to find the optimal number of clusters
+    distortions = []
+    K = range(1, min(10, len(centers_x) + 1))  # Ensure K is within valid range
+    for k in K:
+        kmeans = KMeans(n_clusters=k)
+        kmeans.fit(centers_x)
+        distortions.append(kmeans.inertia_)
+
+    # Find the elbow point
+    optimal_k = 1
+    for i in range(1, len(distortions) - 1):
+        if distortions[i] - distortions[i + 1] < distortions[i - 1] - distortions[i]:
+            optimal_k = i + 1
+            break
+
+    # Perform clustering with the optimal number of clusters
+    kmeans = KMeans(n_clusters=optimal_k)
+    kmeans.fit(centers_x)
     col_boundaries = []
-    if len(centers_x) > 1:
-        # Use a simple clustering approach to find gaps
-        for i in range(1, len(centers_x)):
-            if centers_x[i] - centers_x[i - 1] > page_width * 0.1:  # Adjust threshold as needed
-                col_boundaries.append((centers_x[i - 1], centers_x[i]))
-    col_boundaries = [(0, col_boundaries[0][0])] + col_boundaries + [(col_boundaries[-1][1], page_width)]
+    for i in range(optimal_k):
+        cluster_points = centers_x[kmeans.labels_ == i]
+        if cluster_points.size > 0:
+            col_boundaries.append((cluster_points.min(), cluster_points.max()))
+
+    # Ensure col_boundaries is not empty and sort them
+    if not col_boundaries:
+        col_boundaries = [(0, page_width)]
+    col_boundaries.sort(key=lambda x: x[0])  # Sort by the left boundary
 
     # Process segments
     segments = []
@@ -212,7 +234,7 @@ def apply_reading_order(instances):
 
     def process_body_segments(segments):
         segments.sort(key=lambda s: s['box']['top'])
-        col1, col2, col3 = [], [], []
+        columns = [[] for _ in range(optimal_k)]
         current_y = float('-inf')
         temp_segments = []
 
@@ -224,20 +246,13 @@ def apply_reading_order(instances):
                             s['is_wide'] = True
                     for s in temp_segments:
                         if s['is_wide']:
-                            if col1 or col2 or col3:
-                                yield from col1
-                                yield from col2
-                                yield from col3
-                                col1, col2, col3 = [], [], []
+                            for col in columns:
+                                yield from col
+                            columns = [[] for _ in range(optimal_k)]
                             yield s
                         else:
                             col = get_column_assignment(s['box'], col_boundaries)
-                            if col == 0:
-                                col1.append(s)
-                            elif col == 1:
-                                col2.append(s)
-                            else:
-                                col3.append(s)
+                            columns[col].append(s)
                 temp_segments = [segment]
                 current_y = segment['box']['top']
             else:
@@ -245,25 +260,16 @@ def apply_reading_order(instances):
 
         if temp_segments:
             if any(s['is_wide'] for s in temp_segments):
-                if col1 or col2 or col3:
-                    yield from col1
-                    yield from col2
-                    yield from col3
+                for col in columns:
+                    yield from col
                 yield from temp_segments
             else:
                 for s in temp_segments:
                     col = get_column_assignment(s['box'], col_boundaries)
-                    if col == 0:
-                        col1.append(s)
-                    elif col == 1:
-                        col2.append(s)
-                    else:
-                        col3.append(s)
+                    columns[col].append(s)
 
-        if col1 or col2 or col3:
-            yield from col1
-            yield from col2
-            yield from col3
+        for col in columns:
+            yield from col
 
     ordered_segments = []
     ordered_segments.extend(sorted(headers, key=lambda s: s['box']['top']))
