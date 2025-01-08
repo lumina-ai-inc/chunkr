@@ -3,15 +3,7 @@
 This guide explains how to set up and manage a Doctr Docker container.
 
 
-<<<<<<< HEAD
-## Paper
-* [ICCV 2023]
-* [Arxiv](https://arxiv.org/abs/2308.14978)
-
-If you would like to hit the server, refer to `services/tests/hit_vgt_server.py`.
-=======
 ## Initial Setup
->>>>>>> ik/client
 
 1. Create a history file:
 ```bash
