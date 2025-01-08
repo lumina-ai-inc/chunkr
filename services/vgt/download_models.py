@@ -13,14 +13,18 @@ def monitor_download_progress(downloaded_chunks, chunk_size, file_size):
         print(f"Downloaded {math.ceil(percent_complete)}%")
 
 def download_required_models(model_id: str):
+    print("Downloading models now1...")
     makedirs(MODELS_PATH, exist_ok=True) 
+    print("Downloading models now2...")
     acquire_text_model()
+    print("LayoutLM model downloaded successfully!")
     download_vgt_model(model_id)
-
+    print("VGT model downloaded successfully!")
 
 def acquire_text_model():
     target_path = join(MODELS_PATH, "layoutlm-base-uncased")
     if exists(target_path):
+        print("LayoutLM model already exists")
         return
     makedirs(target_path, exist_ok=True)
     print("Embedding model is being downloaded")
@@ -34,4 +38,6 @@ def download_vgt_model(model_name: str):
     urlretrieve(download_link, model_path, reporthook=monitor_download_progress)
     
 if __name__ == "__main__":
+    print("Downloading models...")
     download_required_models("doclaynet")
+    print("Models downloaded successfully!")

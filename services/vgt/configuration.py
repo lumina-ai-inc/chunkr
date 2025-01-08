@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 service_logger = logging.getLogger(__name__)
 
 
-MODELS_PATH = Path(join(ROOT_PATH, "/app/object_detection/weights"))
+MODELS_PATH = Path(join("./object_detection/weights"))
 
 DOCLAYNET_TYPE_BY_ID = {
     1: "Caption",
