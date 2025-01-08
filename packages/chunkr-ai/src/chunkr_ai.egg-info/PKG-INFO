@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: chunkr-ai
+Version: 0.0.1
+Summary: PDF chunking
+Author-email: Ishaan Kapoor <ishaan@lumina.sh>
+Description-Content-Type: text/markdown
+License-File: LICENSE

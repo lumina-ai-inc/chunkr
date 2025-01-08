@@ -1,0 +1,9 @@
+LICENSE
+README.md
+pyproject.toml
+src/chunkr_ai/__init__.py
+src/chunkr_ai/main.py
+src/chunkr_ai.egg-info/PKG-INFO
+src/chunkr_ai.egg-info/SOURCES.txt
+src/chunkr_ai.egg-info/dependency_links.txt
+src/chunkr_ai.egg-info/top_level.txt
