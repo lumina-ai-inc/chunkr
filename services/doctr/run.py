@@ -13,13 +13,15 @@ from shutil import copy2
 torch.multiprocessing.set_start_method('spawn', force=True) 
 
 def ocr_pdf():
-    input_file = "input/test.pdf"
+    input_file = "files/test.pdf"
     output_dir = f"output/{os.path.basename(input_file)}"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     doc = DocumentFile.from_pdf(input_file)
     start_time = time.time()
-    predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, export_as_straight_boxes=True, det_bs=16, reco_bs=8192).cuda()
+    predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, export_as_straight_boxes=True, det_bs=16, reco_bs=8192)
+    if torch.cuda.is_available():
+        predictor = predictor.cuda()
     end_time = time.time()
     print(f"Time taken to load model: {end_time - start_time} seconds")
     start_time = time.time()
@@ -367,8 +369,9 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
+    ocr_pdf()
     # ocr_images_parallel()
     # ocr_images()
     # ocr_and_draw_boxes()
     # kie_process()
-    ocr_images_organized_batch("input/TMM.2018.2872898", "output/organized")
+    # ocr_images_organized_batch("input/TMM.2018.2872898", "output/organized")

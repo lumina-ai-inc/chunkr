@@ -19,7 +19,9 @@ max_batch_size = int(os.getenv('MAX_BATCH_SIZE', 240))
 app = FastAPI()
 
 predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, 
-                         export_as_straight_boxes=True).cuda()
+                         export_as_straight_boxes=True)
+if torch.cuda.is_available():
+    predictor = predictor.cuda()
 
 pending_tasks = deque()
 processing_lock = asyncio.Lock()
