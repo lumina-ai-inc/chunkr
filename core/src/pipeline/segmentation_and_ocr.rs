@@ -51,53 +51,18 @@ async fn process_page(
     task_payload: TaskPayload,
     extracted_ocr_result: Vec<OCRResult>,
     page_number: u32,
-) -> Result<Vec<Segment>, Box<dyn std::error::Error>> {
-    let (ocr_results, raw_segments) = tokio::join!(
-        async {
-            match task_payload.current_configuration.ocr_strategy {
-                OcrStrategy::All => ocr_page_all(&page).await,
-                OcrStrategy::Auto => ocr_page_auto(&page, extracted_ocr_result).await,
-            }
-        },
-        async {
-            match task_payload.current_configuration.segmentation_strategy {
-                SegmentationStrategy::LayoutAnalysis => {
-                    segmentation::perform_segmentation(page, vec![], page_number).await
-                }
-                SegmentationStrategy::Page => page_segmentation(page, vec![], page_number).await,
-            }
-        }
-    );
+) -> Result<Vec<Segment>, Box<dyn std::error::Error + Send + Sync>> {
+    let ocr_results = match task_payload.current_configuration.ocr_strategy {
+        OcrStrategy::All => ocr_page_all(&page).await,
+        OcrStrategy::Auto => ocr_page_auto(&page, extracted_ocr_result).await,
+    }?;
 
-    let ocr_results: Vec<OCRResult> = match ocr_results {
-        Ok(ocr_results) => ocr_results,
-        Err(e) => {
-            println!("Error in performing OCR: {:?}", e);
-            return Err(e.to_string().into());
+    let segments = match task_payload.current_configuration.segmentation_strategy {
+        SegmentationStrategy::LayoutAnalysis => {
+            segmentation::perform_segmentation(page, ocr_results, page_number).await
         }
-    };
-    let raw_segments: Vec<Segment> = match raw_segments {
-        Ok(segments) => segments,
-        Err(e) => {
-            println!("Error in performing segmentation: {:?}", e);
-            return Err(e.to_string().into());
-        }
-    };
-    let segments = raw_segments
-        .into_par_iter()
-        .map(|segment| {
-            let ocr_results = ocr_results.clone();
-            Segment::new_from_page_ocr(
-                segment.bbox,
-                segment.confidence,
-                ocr_results,
-                segment.page_height,
-                segment.page_number,
-                segment.page_width,
-                segment.segment_type,
-            )
-        })
-        .collect::<Vec<_>>();
+        SegmentationStrategy::Page => page_segmentation(page, ocr_results, page_number).await,
+    }?;
 
     Ok(segments)
 }
@@ -117,7 +82,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         }
     };
 
-    let page_segments = try_join_all(
+    let page_segments = match try_join_all(
         pipeline
             .page_images
             .as_ref()
@@ -134,7 +99,14 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             })
             .collect::<Vec<_>>(),
     )
-    .await?;
+    .await
+    {
+        Ok(page_segments) => page_segments,
+        Err(e) => {
+            println!("Error in performing segmentation and OCR: {:?}", e);
+            return Err(e.to_string().into());
+        }
+    };
 
     pipeline
         .update_status(Status::Processing, Some("Chunking".to_string()))
