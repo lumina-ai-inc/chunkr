@@ -32,7 +32,7 @@
 - [Table of Contents](#table-of-contents)
 - [Docs](#docs)
 - [(Super) Quick Start](#super-quick-start)
-  - [Production Deployment with Kubernetes](#production-deployment-with-kubernetes)
+  - [Deployment with Kubernetes](#deployment-with-kubernetes)
 - [Licensing](#licensing)
 - [Connect With Us](#connect-with-us)
 
@@ -65,34 +65,45 @@ https://docs.chunkr.ai
 ### Quick Start with Docker Compose
 1. Prerequisites:
    - [Docker and Docker Compose](https://docs.docker.com/get-docker/)
-   - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) (for GPU support)
+   - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) (for GPU support, optional)
 
 2. Clone the repo:
-    ```bash
-    git clone https://github.com/lumina-ai-inc/chunkr
-    cd chunkr
-    ```
+```bash
+git clone https://github.com/lumina-ai-inc/chunkr
+cd chunkr
+```
 
-3. Copy the example env file
-   ```bash
-   cp .env.example .env
-   ```
+3. Set up environment variables:
+```bash
+# Copy the example environment file
+cp .env.example .env
 
-4. Start the services
-   ```bash
-   docker compose up -d
-   ```
+# Configure your environment variables
+# Required: LLM_KEY as your OpenAI API key
+```
 
-5. Access the services:
+4. Start the services:
+   
+For GPU support:
+```bash
+docker compose up -d
+```
+
+For CPU deployment:
+```bash
+docker compose -f compose-cpu.yaml up -d
+```
+
+1. Access the services:
    - Web UI: `http://localhost:5173`
    - API: `http://localhost:8000`
 
-> **Note**: Requires an NVIDIA CUDA GPU to run.
+> **Note**: The default configuration (`docker compose up -d`) requires an NVIDIA CUDA GPU. For systems without a GPU, use the CPU deployment option.
 
-6. Stop the services
-   ```bash
-   docker compose down
-   ```
+6. Stop the services when done:
+```bash
+docker compose down
+```
 
 ### Deployment with Kubernetes
 For production environments, we provide a Helm chart and detailed deployment instructions:
