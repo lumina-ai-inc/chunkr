@@ -45,18 +45,18 @@ common:
       value: "http://{{- .Release.Name }}-embeddings:8000"
     - name: WORKER__GENERAL_OCR_URL
       value: "http://{{- .Release.Name }}-doctr:8000"
-    - name: WORKER__PDLA_URL
-      value: "http://{{- .Release.Name }}-pdla:8000"
+    - name: WORKER__SEGMENTATION_URL
+      value: "http://{{- .Release.Name }}-segmentation:8000"
     - name: WORKER__SERVER_URL
       value: "https://{{ .Values.services.chunkr.ingress.subdomain }}.{{ .Values.ingress.domain }}"
-    - name: WORKER__TABLE_OCR_MODEL
-      value: "LLM"
 
 global:
   image:
     registry: luminainc
     pullPolicy: Always
-    
+
+  storageClass: "standard"
+
   # Shared GPU configuration
   gpuWorkload:
     affinity:
@@ -97,12 +97,12 @@ nvidia:
 
 services:
   # Servers
-  chunkr:
+  server:
     enabled: true
     useStandardEnv: true
     image:
-      repository: chunkmydocs
-      tag: "3c8cc0be"
+      repository: server
+      tag: "4c136039"
     port: 8000
     targetPort: 8000
     ingress:
@@ -129,20 +129,6 @@ services:
       - name: VERSION
         value: "1.0.5"
 
-  rrq-analytics:
-    enabled: false
-    image:
-      repository: rrq-analytics
-      tag: "459b00d"
-    port: 8000
-    targetPort: 8000
-    ingress:
-      enabled: false
-      subdomain: "rrq"
-    env:
-      - name: VITE_API_URL
-        value: https://{{ .Values.services.rrq.ingress.subdomain }}.{{ .Values.ingress.domain }}
-
   web:
     enabled: true
     image:
@@ -168,77 +154,12 @@ services:
         value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
 
   # Workers
-  fast:
+  task:
     enabled: true
     useStandardEnv: true
     image:
-      repository: fast
-      tag: "3c8cc0be"
-    envFrom:
-      - secretRef:
-          name: chunkr-secret
-    env:
-      - name: PG__POOL__MAX_SIZE
-        value: "3"
-
-  high-quality:
-    enabled: true
-    useStandardEnv: true
-    image:
-      repository: high-quality
-      tag: "3c8cc0be"
-    envFrom:
-      - secretRef:
-          name: chunkr-secret
-    env:
-      - name: PG__POOL__MAX_SIZE
-        value: "3"
-
-  ocr:
-    enabled: true
-    useStandardEnv: true
-    image:
-      repository: ocr
-      tag: "3c8cc0be"
-    envFrom:
-      - secretRef:
-          name: chunkr-secret
-    env:
-      - name: PG__POOL__MAX_SIZE
-        value: "3"
-
-  postprocess:
-    enabled: true
-    useStandardEnv: true
-    image:
-      repository: postprocess
-      tag: "3c8cc0be"
-    envFrom:
-      - secretRef:
-          name: chunkr-secret
-    env:
-      - name: PG__POOL__MAX_SIZE
-        value: "3"
-
-  preprocess:
-    enabled: true
-    useStandardEnv: true
-    image:
-      repository: preprocess
-      tag: "3c8cc0be"
-    envFrom:
-      - secretRef:
-          name: chunkr-secret
-    env:
-      - name: PG__POOL__MAX_SIZE
-        value: "3"
-
-  structured-extraction:
-    enabled: true
-    useStandardEnv: true
-    image:
-      repository: structured-extraction
-      tag: "3c8cc0be"
+      repository: task
+      tag: "4c136039"
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -274,46 +195,11 @@ services:
     labels:
       workload-type: chunkr-gpu
 
-  paddle-ocr:
-    enabled: false
-    image:
-      repository: paddle-ocr
-      tag: "07c654a8"
-    port: 8000
-    targetPort: 8000
-    useGPU: true
-    labels:
-      workload-type: chunkr-gpu
-
-  pdla:
+  segmentation:
     enabled: true
     image:
-      repository: pdla
-      tag: "8c4bfb6d"
-    port: 8000
-    targetPort: 8000
-    useGPU: true
-    command:
-      [
-        "gunicorn",
-        "-k",
-        "uvicorn.workers.UvicornWorker",
-        "--chdir",
-        "./src",
-        "app:app",
-        "--bind",
-        "0.0.0.0:8000",
-        "--timeout",
-        "10000",
-      ]
-    labels:
-      workload-type: chunkr-gpu
-
-  table-ocr:
-    enabled: false
-    image:
-      repository: table-ocr
-      tag: "3c8cc0be"
+      repository: segmentation
+      tag: "0231783f"
     port: 8000
     targetPort: 8000
     useGPU: true
@@ -392,7 +278,6 @@ services:
       name: redis-data
       enabled: true
       size: 1Gi
-      storageClassName: "default" 
       accessModes:
         - ReadWriteOnce
       annotations:
@@ -443,7 +328,6 @@ services:
       name: minio-data
       enabled: true
       size: 100Gi
-      storageClassName: "default" 
       accessModes:
         - ReadWriteOnce
       annotations:
@@ -527,7 +411,6 @@ services:
       name: postgres-data
       enabled: true
       size: 10Gi
-      storageClassName: "default" 
       accessModes:
         - ReadWriteOnce
       annotations:

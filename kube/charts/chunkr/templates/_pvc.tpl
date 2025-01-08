@@ -18,7 +18,7 @@ spec:
   resources:
     requests:
       storage: {{ $service.persistence.size }}
-  storageClassName: {{ $service.persistence.storageClassName }}
+  storageClassName: {{ default "standard" $.Values.global.storageClass }}
 {{- end }}
 {{- end }}
 {{- end }} 
