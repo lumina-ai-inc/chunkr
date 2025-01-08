@@ -8,19 +8,6 @@
 ### GPU Setup [Required]
 
 1. Install NVIDIA operator with time-slicing following the instructions at: https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-sharing.html#time-slicing-cluster-wide-config
-<<<<<<< HEAD
-```bash
-kubectl create namespace gpu-operator
-
-# Add the NVIDIA Helm repository
-helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
-helm repo update
-
-# Install the GPU Operator
-helm install --wait --generate-name \
-     -n gpu-operator --create-namespace \
-     nvidia/gpu-operator
-=======
 
 ```bash
 # Add the NVIDIA Helm repository
@@ -32,20 +19,13 @@ helm install --wait --generate-name \
   -n gpu-operator --create-namespace \
   nvidia/gpu-operator \
   --version=v24.9.1
->>>>>>> main
 
 kubectl create -f time-slicing-config-all.yaml -n gpu-operator
 
 kubectl patch clusterpolicy/cluster-policy \
-<<<<<<< HEAD
-    -n gpu-operator \
-    --type merge \
-    -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config-all", "default": "any"}}}}'
-=======
   -n gpu-operator \
   --type merge \
   -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config-all", "default": "any"}}}}'
->>>>>>> main
 ```
 
 ### Ingress Setup [Required]
@@ -135,16 +115,10 @@ helm install chunkr ./charts/chunkr \
   --set "services.web.ingress.subdomain=chunkr" \
   --set "services.chunkr.ingress.subdomain=chunkr-api" \
   --set "services.keycloak.ingress.subdomain=chunkr-auth" \
-<<<<<<< HEAD
-  --set "services.s3proxy.ingress.subdomain=chunkr-s3" \
-  --set ingress.type=cloudflare \
-  --set cloudflared.enabled=true
-=======
   --set "services.minio.ingress.subdomain=chunkr-s3" \
   --set ingress.type=cloudflare \
   --set cloudflared.enabled=true \
   --set cloudflared.config.tunnelName=YOUR_TUNNEL_NAME
->>>>>>> main
 ```
 
 **Installation with TLS (Cloudflare):**
@@ -183,37 +157,6 @@ helm uninstall chunkr --namespace chunkr
 ## External providers
 
 ### S3 provider
-<<<<<<< HEAD
-You must set the credentials for the external S3 provider in the chunkr-secret.yaml file.
-
-**AWS S3:**
-
-```bash
-helm upgrade chunkr ./charts/chunkr \
-  --namespace chunkr \
-  --set global.s3provider=aws \
-  --set services.s3proxy.enabled=false
-```
-
-**GCP Storage (with Interoperability):**
-
-```bash
-helm upgrade chunkr ./charts/chunkr \
-  --namespace chunkr \
-  --set global.s3provider=gcp \
-  --set services.s3proxy.enabled=false
-```
-
-**Azure Blob Storage:**
-
-```bash
-# Set the JCLOUDS_ENDPOINT in the chunkr-secret.yaml file
-
-helm upgrade chunkr ./charts/chunkr \
-  --namespace chunkr \
-  --set global.s3provider=azure \
-  --set services.s3proxy.persistence.enabled=false
-=======
 By default, the S3 provider is set to MinIO. 
 You must set the credentials for the external S3 provider in the chunkr-secret.yaml file.
 
@@ -227,7 +170,6 @@ AWS__ENDPOINT=
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
   --set services.minio.enabled=false
->>>>>>> main
 ```
 
 ### Postgres
@@ -250,15 +192,9 @@ helm upgrade chunkr ./charts/chunkr \
   --set "common.standardEnv[6].value=redis://your-external-redis:6379"
 ```
 
-<<<<<<< HEAD
-### GPU Compatibility
-
-The embeddings service supports different GPU architectures through specific Docker images. By default, it uses the Turing architecture (T4, RTX 2000 series, etc) with image `ghcr.io/huggingface/text-embeddings-inference:turing-1.5` (experimental).
-=======
 ## GPU Compatibility
 
 The embeddings service supports different GPU architectures through specific Docker images. By default, it uses the Ampere 80 architecture (A100, A30, etc) with image `ghcr.io/huggingface/text-embeddings-inference:1.5`.
->>>>>>> main
 
 For the most up-to-date information about supported GPU architectures and their corresponding image tags, please refer to [Text Embeddings Inference Supported Models Documentation](https://huggingface.co/docs/text-embeddings-inference/supported_models#supported-hardware)
 
@@ -267,9 +203,5 @@ Example upgrade with GPU-specific image tag:
 ```bash
 helm upgrade chunkr ./charts/chunkr \
   --namespace chunkr \
-<<<<<<< HEAD
-  --set services.embeddings.image.tag=1.5  # Replace with your GPU-specific tag
-=======
   --set services.embeddings.image.tag=turing-1.6  # Replace with your GPU-specific tag
->>>>>>> main
 ```
