@@ -18,25 +18,20 @@ variable "region" {
 }
 
 variable "base_name" {
-  default = "chunkmydocs"
-}
-
-variable "bucket_name" {
-  default = "chunkmydocs-bucket"
-}
-
-variable "cluster_name" {
-  default = "chunkmydocs-cluster"
+  type = string
 }
 
 variable "postgres_username" {
   type        = string
   description = "The username for the PostgreSQL database"
+  default     = "postgres"
 }
 
 variable "postgres_password" {
   type        = string
   description = "The password for the PostgreSQL database"
+  sensitive   = true
+  default     = "postgres"
 }
 
 variable "chunkmydocs_db" {
@@ -56,11 +51,11 @@ variable "general_min_vm_count" {
 }
 
 variable "general_max_vm_count" {
-  default = 6
+  default = 1
 }
 
 variable "general_machine_type" {
-  default = "c2d-highcpu-4"
+  default = "c2d-highcpu-16"
 }
 
 variable "gpu_vm_count" {
@@ -72,7 +67,7 @@ variable "gpu_min_vm_count" {
 }
 
 variable "gpu_max_vm_count" {
-  default = 6
+  default = 1
 }
 
 variable "gpu_machine_type" {
@@ -87,66 +82,17 @@ variable "gpu_accelerator_count" {
   default = 1
 }
 
-variable "gpu_b_vm_count" {
-  default = 1
-}
-
-variable "gpu_b_min_vm_count" {
-  default = 1
-}
-
-variable "gpu_b_max_vm_count" {
-  default = 6
-}
-
-variable "gpu_b_machine_type" {
-  default = "a2-highgpu-1g"
-}
-
-variable "gpu_b_accelerator_type" {
-  default = "nvidia-tesla-a100"
-}
-
 provider "google" {
   region  = var.region
   project = var.project
 }
 
-###############################################################
-# Enable required APIs
-###############################################################
-# resource "google_project_service" "kubernetes_engine_api" {
-#   project = "chunkmydocs"
-#   service = "container.googleapis.com"
-#   disable_on_destroy = true
-# }
-
-# resource "google_project_service" "compute_engine_api" {
-#   project = "chunkmydocs"
-#   service = "compute.googleapis.com"
-#   disable_on_destroy = true
-# }
-
-###############################################################
-# Redis (Cloud Memorystore)
-###############################################################
-resource "google_redis_instance" "cache" {
-  name                    = "${var.base_name}-redis"
-  tier                    = "BASIC"
-  memory_size_gb          = 6
-  region                  = var.region
-  authorized_network      = google_compute_network.vpc_network.id
-  connect_mode            = "PRIVATE_SERVICE_ACCESS"
-  transit_encryption_mode = "DISABLED"
-  display_name            = "${var.base_name} redis cache"
-  depends_on              = [google_service_networking_connection.private_service_connection]
-}
 
 ###############################################################
 # Google Cloud Storage
 ###############################################################
 resource "google_storage_bucket" "project_bucket" {
-  name          = var.bucket_name
+  name          = "${var.base_name}-bucket"
   location      = var.region
   force_destroy = true
   storage_class = "STANDARD"
@@ -274,7 +220,7 @@ resource "google_service_networking_connection" "private_service_connection" {
 # K8s configuration
 ###############################################################
 resource "google_container_cluster" "cluster" {
-  name                     = var.cluster_name
+  name                     = "${var.base_name}-cluster"
   location                 = "${var.region}-b"
   remove_default_node_pool = true
   initial_node_count       = 1
@@ -336,9 +282,16 @@ resource "google_container_node_pool" "general_purpose_nodes" {
     }
 
     labels = {
-      cluster_name = var.cluster_name
+      cluster_name = "${var.base_name}-cluster"
       purpose      = "general-compute"
       node_pool    = "general-compute"
+    }
+
+
+    kubelet_config {
+      cpu_manager_policy = "static"
+      cpu_cfs_quota      = true
+      pod_pids_limit     = 4096
     }
 
     tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-general-compute"]
@@ -392,7 +345,7 @@ resource "google_container_node_pool" "gpu_nodes" {
     }
 
     labels = {
-      cluster_name = var.cluster_name
+      cluster_name = "${var.base_name}-cluster"
       purpose      = "gpu-time-sharing"
       node_pool    = "gpu-time-sharing"
     }
@@ -403,65 +356,16 @@ resource "google_container_node_pool" "gpu_nodes" {
       value  = "present"
     }
 
+    kubelet_config {
+      cpu_manager_policy = "static"
+      cpu_cfs_quota      = true
+      pod_pids_limit     = 4096
+    }
+
     tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-gpu-time-sharing"]
   }
 }
 
-# resource "google_container_node_pool" "gpu_b_nodes" {
-#   name       = "gpu-b-compute"
-#   location   = "${var.region}-b"
-#   cluster    = google_container_cluster.cluster.name
-#   node_count = var.gpu_b_vm_count
-
-#   autoscaling {
-#     min_node_count = var.gpu_b_min_vm_count
-#     max_node_count = var.gpu_b_max_vm_count
-#   }
-
-#   node_config {
-#     preemptible  = false
-#     machine_type = var.gpu_machine_type
-#     disk_size_gb = 500
-
-#     gcfs_config {
-#       enabled = true
-#     }
-
-#     gvnic {
-#       enabled = true
-#     }
-
-#     guest_accelerator {
-#       type  = var.gpu_b_accelerator_type
-#       count = 1
-#       gpu_driver_installation_config {
-#         gpu_driver_version = "LATEST"
-#       }
-#       gpu_sharing_config {
-#         gpu_sharing_strategy       = "TIME_SHARING"
-#         max_shared_clients_per_gpu = 20
-#       }
-#     }
-
-#     workload_metadata_config {
-#       mode = "GCE_METADATA"
-#     }
-
-#     labels = {
-#       cluster_name = var.cluster_name
-#       purpose      = "gpu-b-time-sharing"
-#       node_pool    = "gpu-b-time-sharing"
-#     }
-
-#     taint {
-#       effect = "NO_SCHEDULE"
-#       key    = "nvidia.com/gpu.b"
-#       value  = "present"
-#     }
-
-#     tags = ["gke-${var.project}-${var.region}", "gke-${var.project}-${var.region}-gpu-b-time-sharing"]
-#   }
-# }
 
 ###############################################################
 # PostgreSQL (Cloud SQL)
@@ -595,9 +499,4 @@ output "gcs_s3_compatible_region" {
 output "bucket_name" {
   value       = google_storage_bucket.project_bucket.name
   description = "The name of the GCS bucket"
-}
-
-output "redis_url" {
-  value       = "redis://${google_redis_instance.cache.host}:${google_redis_instance.cache.port}"
-  description = "The connection URL for the Redis cache"
 }
