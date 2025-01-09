@@ -1,8 +1,6 @@
 import pytest
-import os
 from pathlib import Path
 from PIL import Image
-import io
 from chunkr_ai import Chunkr, ChunkrAsync
 from chunkr_ai.models import TaskResponse
 
