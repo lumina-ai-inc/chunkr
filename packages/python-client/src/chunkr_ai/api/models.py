@@ -6,7 +6,7 @@ import httpx
 from pydantic import BaseModel, Field, PrivateAttr
 import requests
 import time
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
