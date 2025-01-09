@@ -84,12 +84,12 @@ cp .env.example .env
 
 4. Start the services:
    
-For GPU support:
+With GPU (recommended):
 ```bash
 docker compose up -d
 ```
 
-For CPU deployment:
+Only CPU:
 ```bash
 docker compose -f compose-cpu.yaml up -d
 ```
