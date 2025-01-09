@@ -1,5 +1,3 @@
-from typing import Optional
-
 class HeadersMixin:
     """Mixin class for handling authorization headers"""
     
