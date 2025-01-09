@@ -36,6 +36,8 @@ class Chunkr(HeadersMixin):
         Args:
             file: Input file, can be:
                 - String or Path to a file
+                - URL string starting with http:// or https://
+                - Base64 string
                 - Opened binary file (mode='rb')
                 - PIL/Pillow Image object
 
@@ -45,7 +47,53 @@ class Chunkr(HeadersMixin):
         Raises:
             FileNotFoundError: If the file path doesn't exist
             TypeError: If the file type is not supported
+            ValueError: If the URL is invalid or unreachable
+            ValueError: If the MIME type is unsupported
         """
+        # Handle URLs
+        if isinstance(file, str) and (file.startswith('http://') or file.startswith('https://')):
+            response = requests.get(file)
+            response.raise_for_status()
+            file_obj = io.BytesIO(response.content)
+            filename = Path(file.split('/')[-1]).name or 'downloaded_file'
+            return filename, file_obj
+
+        # Handle base64 strings
+        if isinstance(file, str) and ',' in file and ';base64,' in file:
+            try:
+                # Split header and data
+                header, base64_data = file.split(',', 1)
+                import base64
+                file_bytes = base64.b64decode(base64_data)
+                file_obj = io.BytesIO(file_bytes)
+                
+                # Try to determine format from header
+                format = 'bin'
+                mime_type = header.split(':')[-1].split(';')[0].lower()
+                
+                # Map MIME types to file extensions
+                mime_to_ext = {
+                    'application/pdf': 'pdf',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+                    'application/msword': 'doc',
+                    'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+                    'application/vnd.ms-powerpoint': 'ppt',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+                    'application/vnd.ms-excel': 'xls',
+                    'image/jpeg': 'jpg',
+                    'image/png': 'png',
+                    'image/jpg': 'jpg'
+                }
+                
+                if mime_type in mime_to_ext:
+                    format = mime_to_ext[mime_type]
+                else:
+                    raise ValueError(f"Unsupported MIME type: {mime_type}")
+
+                return f"file.{format}", file_obj
+            except Exception as e:
+                raise ValueError(f"Invalid base64 string: {str(e)}")
+
         # Handle file paths
         if isinstance(file, (str, Path)):
             path = Path(file).resolve()
@@ -81,6 +129,12 @@ class Chunkr(HeadersMixin):
         # Upload from file path
         chunkr.upload("document.pdf")
 
+        # Upload from URL
+        chunkr.upload("https://example.com/document.pdf")
+
+        # Upload from base64 string (must include MIME type header)
+        chunkr.upload("data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmo...")
+
         # Upload from opened file
         with open("document.pdf", "rb") as f:
             chunkr.upload(f)
@@ -95,7 +149,7 @@ class Chunkr(HeadersMixin):
         """
         return self.start_upload(file, config).poll()
 
-    def start_upload(self, file: Union[str, BinaryIO, Image.Image, bytes, io.BytesIO], config: Configuration = None) -> TaskResponse:
+    def start_upload(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
         """Upload a file for processing and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll()`
 
         Args:
@@ -110,6 +164,12 @@ class Chunkr(HeadersMixin):
         # Upload from opened file
         with open("document.pdf", "rb") as f:
             task = chunkr.start_upload(f)
+
+        # Upload from URL
+        task = chunkr.start_upload("https://example.com/document.pdf")
+
+        # Upload from base64 string (must include MIME type header)
+        task = chunkr.start_upload("data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmo...")
 
         # Upload an image
         from PIL import Image
