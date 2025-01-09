@@ -14,11 +14,12 @@ from pdf2image import convert_from_path
 import numpy as np
 import json
 from tabulate import tabulate
-
+from sklearn.cluster import KMeans
 try:
     import pytesseract
 except ImportError:
     pytesseract = None
+import pdfplumber
 
 from tokenization_bros import BrosTokenizer
 
@@ -121,7 +122,7 @@ def get_tesseract_ocr_data(pil_image):
     if not pytesseract:
         print("Tesseract OCR is not installed")
         return json.dumps({"data": []})
-    
+    print("Tesseract OCR is installed")
     start_time = time.time()
     data = pytesseract.image_to_data(pil_image, output_type=pytesseract.Output.DICT)
     elapsed_time = time.time() - start_time
@@ -158,6 +159,25 @@ def get_tesseract_ocr_data(pil_image):
         "data": ocr_words  # Send the OCR words directly instead of grid_dict
     })
 
+def get_pdfplumber_ocr_data(pdf_path):
+    pdf = pdfplumber.open(pdf_path)
+    ocr_words = []
+    bounding_boxes = []
+    for page in pdf.pages:
+        words = page.extract_words()
+        for word in words:
+            ocr_words.append({
+                "bbox": {
+                    "left": word["x0"],
+                    "top": word["top"],
+                    "width": word["x1"] - word["x0"],
+                    "height": word["bottom"] - word["top"]
+                },
+                "text": word["text"],
+                "confidence": 1.0  # pdfplumber does not provide confidence
+            })
+            bounding_boxes.append(Rectangle(word["x0"], word["top"], word["x1"], word["bottom"]))
+    return ocr_words, bounding_boxes
 
 def  visualize_predictions(images, predictions, subfolder_path):
     class_labels = [
@@ -209,9 +229,9 @@ def post_image_to_async(server_url, img_bytes, ocr_data_json):
 
 
 if __name__ == "__main__":
-    pdf_path = "figures/test_batch5.pdf"
+    pdf_path = "figures/test_batch4.pdf"
     server_url = "http://localhost:8000/batch_async"
-    for use_tesseract_ocr in [True]:
+    for use_tesseract_ocr in [False]:
         for use_reading_order in [False]:
             ocr_mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
             subfolder_path = ANNOTATED_IMAGES_DIR / ocr_mode 
@@ -221,9 +241,14 @@ if __name__ == "__main__":
             end_time = time.time()
             request_data_list = []
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                request_data_list = list(executor.map(lambda pil_img: (
-                    (img_byte_arr := io.BytesIO(), pil_img.save(img_byte_arr, format='JPEG'), img_byte_arr.getvalue(), get_tesseract_ocr_data(pil_img) if use_tesseract_ocr else json.dumps({"data": []}))
-                )[2:4], pdf_images))
+                if use_tesseract_ocr:
+                    request_data_list = list(executor.map(lambda pil_img: (
+                        (img_byte_arr := io.BytesIO(), pil_img.save(img_byte_arr, format='JPEG'), img_byte_arr.getvalue(), get_tesseract_ocr_data(pil_img))
+                    )[2:4], pdf_images))
+                else:
+                    ocr_words, bounding_boxes = get_pdfplumber_ocr_data(pdf_path)
+                    grid_dict = get_grid_words_dict([word["text"] for word in ocr_words], bounding_boxes)
+                    request_data_list = [(None, json.dumps({"data": ocr_words}))] * len(pdf_images)
             all_predictions = []
             request_times = []
             with concurrent.futures.ThreadPoolExecutor() as executor:
