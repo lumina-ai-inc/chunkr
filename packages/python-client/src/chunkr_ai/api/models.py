@@ -1,8 +1,9 @@
+from .auth import HeadersMixin
 import asyncio
 from datetime import datetime
 from enum import Enum
 import httpx
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 import requests
 import time
 from typing import Optional, List, Dict, Union
@@ -141,7 +142,7 @@ class Status(str, Enum):
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
 
-class TaskResponse(BaseModel):
+class TaskResponse(BaseModel, HeadersMixin):
     configuration: Configuration
     created_at: datetime
     expires_at: Optional[datetime]
@@ -155,6 +156,12 @@ class TaskResponse(BaseModel):
     status: Status
     task_id: str
     task_url: Optional[str]
+    _api_key: Optional[str] = PrivateAttr(default=None)
+
+    def with_api_key(self, api_key: str) -> 'TaskResponse':
+        """Helper function to set api key on a TaskResponse after creation"""
+        self._api_key = api_key
+        return self
 
     def poll(self) -> 'TaskResponse':
         """Poll the task for completion"""
