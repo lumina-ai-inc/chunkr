@@ -29,48 +29,67 @@ class Chunkr(HeadersMixin):
 
     def _prepare_file(
         self,
-        file: Union[str, BinaryIO, Image.Image, bytes, io.BytesIO]
+        file: Union[str, Path, BinaryIO, Image.Image]
     ) -> Tuple[str, BinaryIO]:
         """Convert various file types into a tuple of (filename, file-like object).
 
         Args:
-            file: Input file in various formats
+            file: Input file, can be:
+                - String or Path to a file
+                - Opened binary file (mode='rb')
+                - PIL/Pillow Image object
 
         Returns:
-            Tuple[str, BinaryIO]: Filename and file-like object ready for upload
+            Tuple[str, BinaryIO]: (filename, file-like object) ready for upload
+
+        Raises:
+            FileNotFoundError: If the file path doesn't exist
+            TypeError: If the file type is not supported
         """
-        if isinstance(file, str):
-            path = Path(file).resolve() 
+        # Handle file paths
+        if isinstance(file, (str, Path)):
+            path = Path(file).resolve()
             if not path.exists():
                 raise FileNotFoundError(f"File not found: {file}")
-            return path.name, path.open("rb")
-        elif isinstance(file, Image.Image):
-            img_byte_arr = io.BytesIO()
-            file.save(img_byte_arr, format=file.format or 'PNG')
-            img_byte_arr.seek(0)
-            return "image.png", img_byte_arr
-        elif isinstance(file, bytes):
-            return "document", io.BytesIO(file)
-        elif isinstance(file, io.BytesIO):
-            return "document", file
-        else:
-            return "document", file
+            return path.name, open(path, 'rb')
 
-    def upload(self, file: Union[str, BinaryIO, Image.Image, bytes, io.BytesIO], config: Configuration = None) -> TaskResponse:
+        # Handle PIL Images
+        if isinstance(file, Image.Image):
+            img_byte_arr = io.BytesIO()
+            format = file.format or 'PNG'
+            file.save(img_byte_arr, format=format)
+            img_byte_arr.seek(0)
+            return f"image.{format.lower()}", img_byte_arr
+
+        # Handle file-like objects
+        if hasattr(file, 'read') and hasattr(file, 'seek'):
+            # Try to get the filename from the file object if possible
+            name = getattr(file, 'name', 'document') if hasattr(file, 'name') else 'document'
+            return Path(name).name, file
+
+        raise TypeError(f"Unsupported file type: {type(file)}")
+
+    def upload(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
         """Upload a file and wait for processing to complete.
 
-        The file can be one of:
-        - str: Path to a file on disk
-        - BinaryIO: A file-like object (e.g., opened with 'rb' mode)
-        - Image.Image: A PIL/Pillow Image object
-        - bytes: Raw binary data
-        - io.BytesIO: A binary stream in memory
-
         Args:
-            file: The file to upload.
-            config:
-                Configuration options for processing. Optional.
+            file: The file to upload. 
+            config: Configuration options for processing. Optional.
 
+        Examples:
+        ```
+        # Upload from file path
+        chunkr.upload("document.pdf")
+
+        # Upload from opened file
+        with open("document.pdf", "rb") as f:
+            chunkr.upload(f)
+
+        # Upload an image
+        from PIL import Image
+        img = Image.open("photo.jpg")
+        chunkr.upload(img)
+        ```
         Returns:
             TaskResponse: The completed task response
         """
@@ -79,22 +98,30 @@ class Chunkr(HeadersMixin):
     def start_upload(self, file: Union[str, BinaryIO, Image.Image, bytes, io.BytesIO], config: Configuration = None) -> TaskResponse:
         """Upload a file for processing and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll()`
 
-        The file can be one of:
-        - str: Path to a file on disk
-        - BinaryIO: A file-like object (e.g., opened with 'rb' mode)
-        - Image.Image: A PIL/Pillow Image object
-        - bytes: Raw binary data
-        - io.BytesIO: A binary stream in memory
-
         Args:
             file: The file to upload.
-            config (Configuration, optional): Configuration options for processing
+            config: Configuration options for processing. Optional.
+
+        Examples:
+        ```
+        # Upload from file path
+        task = chunkr.start_upload("document.pdf")
+
+        # Upload from opened file
+        with open("document.pdf", "rb") as f:
+            task = chunkr.start_upload(f)
+
+        # Upload an image
+        from PIL import Image
+        img = Image.open("photo.jpg")
+        task = chunkr.start_upload(img)
+
+        # Wait for the task to complete - this can be done when needed
+        task.poll()
+        ```
 
         Returns:
             TaskResponse: The initial task response
-
-        Raises:
-            requests.exceptions.HTTPError: If the API request fails
         """
         url = f"{self.url}/api/v1/task"
         filename, file_obj = self._prepare_file(file)
