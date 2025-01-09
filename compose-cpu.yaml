@@ -136,7 +136,7 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:d03718fd
+    image: luminainc/segmentation:357f596a
     platform: linux/amd64
     ports:
       - "8001:8000"
