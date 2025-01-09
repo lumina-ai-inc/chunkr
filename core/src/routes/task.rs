@@ -45,7 +45,7 @@ pub async fn get_task_status(
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
             eprintln!("Error getting task status: {:?}", e);
-            if e.to_string().contains("has expired") || e.to_string().contains("not found") {
+            if e.to_string().contains("expired") || e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
             } else {
                 Ok(HttpResponse::InternalServerError().body(e.to_string()))

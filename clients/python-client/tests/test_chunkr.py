@@ -3,7 +3,7 @@ from pathlib import Path
 from PIL import Image
 
 from chunkr_ai import Chunkr, ChunkrAsync
-from chunkr_ai.models import Configuration, OcrStrategy, TaskResponse
+from chunkr_ai.models import ChunkProcessing, Configuration, OcrStrategy, TaskResponse
 
 @pytest.fixture
 def chunkr():
@@ -63,7 +63,7 @@ def test_ocr_auto(chunkr, sample_path):
     assert response.status == "Succeeded"
     assert response.output is not None
 
-def test_ocr_expires_in(chunkr, sample_path):
+def test_expires_in(chunkr, sample_path):
     response = chunkr.upload(sample_path, Configuration(
         expires_in=10
     ))
@@ -72,3 +72,13 @@ def test_ocr_expires_in(chunkr, sample_path):
     assert response.status == "Succeeded"
     assert response.output is not None
     
+def test_chunk_processing(chunkr, sample_path):
+    response = chunkr.upload(sample_path, Configuration(
+        chunk_processing=ChunkProcessing(
+            target_length=1024
+        )
+    ))
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
