@@ -140,7 +140,7 @@ class Chunkr(HeadersMixin):
         """Get a task response by its ID.
         
         Args:
-            task_id (str): The ID of the task to get
+            task_id: The ID of the task to get
 
         Returns:
             TaskResponse: The task response
