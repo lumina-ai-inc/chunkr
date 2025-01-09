@@ -156,3 +156,5 @@ crash.*.log
 !*.example.tfvars
 !backend.example.hcl
 !backend.hcl.example
+
+.ruff_cache
