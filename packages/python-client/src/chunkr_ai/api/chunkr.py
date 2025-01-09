@@ -1,6 +1,6 @@
 from .models import TaskResponse, Configuration
+from .auth import HeadersMixin
 from dotenv import load_dotenv
-import httpx
 import io
 import os
 from pathlib import Path
@@ -8,7 +8,7 @@ from PIL import Image
 import requests
 from typing import Union, BinaryIO, Tuple
 
-class Chunkr:
+class Chunkr(HeadersMixin):
     """Client for interacting with the Chunkr API."""
 
     def __init__(self, url: str = None, api_key: str = None):
@@ -18,17 +18,14 @@ class Chunkr:
             os.getenv('CHUNKR_URL') or 
             'https://api.chunkr.ai' 
         )
-        self.api_key = (
+        self._api_key = (
             api_key or 
             os.getenv('CHUNKR_API_KEY')
         )
-        if not self.api_key:
+        if not self._api_key:
             raise ValueError("API key must be provided either directly, in .env file, or as CHUNKR_API_KEY environment variable. You can get an api key at: https://www.chunkr.ai")
             
         self.url = self.url.rstrip("/")
-
-    def _headers(self):
-        return {"Authorization": self.api_key}
 
     def _prepare_file(
         self,
@@ -101,10 +98,16 @@ class Chunkr:
         """
         url = f"{self.url}/api/v1/task"
         filename, file_obj = self._prepare_file(file)
+        
         files = {"file": (filename, file_obj)}   
-        r = requests.post(url, files=files, json=config.dict() if config else {}, headers=self._headers())
+        r = requests.post(
+            url, 
+            files=files, 
+            json=config.dict() if config else {}, 
+            headers=self._headers()
+        )
         r.raise_for_status()
-        return TaskResponse(**r.json())
+        return TaskResponse(**r.json()).with_api_key(self._api_key)
 
     def get_task(self, task_id: str) -> TaskResponse:
         """Get a task response by its ID.
@@ -118,38 +121,5 @@ class Chunkr:
         url = f"{self.url}/api/v1/task/{task_id}"
         r = requests.get(url, headers=self._headers())
         r.raise_for_status()
-        return TaskResponse(**r.json())
+        return TaskResponse(**r.json()).with_api_key(self._api_key)
 
-
-class ChunkrAsync(Chunkr):
-    """Async client for interacting with the Chunkr API.
-    
-    This class inherits from the Chunkr class but works with async HTTP requests.
-    """
-
-    async def upload(self, file_path: str, config: Configuration = None) -> TaskResponse:
-        task = await self.start_upload(file_path, config)
-        return await task.poll_async()
-
-    async def start_upload(self, file_path: str, config: Configuration = None) -> TaskResponse:
-        url = f"{self.url}/api/v1/task"
-        async with httpx.AsyncClient() as client:
-            with open(file_path, "rb") as f:
-                files = {"file": (os.path.basename(file_path), f, "application/pdf")}
-                r = await client.post(
-                    url, 
-                    files=files, 
-                    json=config.dict() if config else None,
-                    headers=self._headers()
-                )
-                r.raise_for_status()
-                return TaskResponse(**r.json())
-
-    async def get_task(self, task_id: str) -> TaskResponse:
-        url = f"{self.url}/api/v1/task/{task_id}"
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url, headers=self._headers())
-            r.raise_for_status()
-            return TaskResponse(**r.json())
-
-    
