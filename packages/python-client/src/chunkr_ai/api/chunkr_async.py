@@ -21,16 +21,22 @@ class ChunkrAsync(Chunkr):
         Examples:
         ```python
         # Upload from file path
-        task = await chunkr.upload("document.pdf")
+        await chunkr.upload("document.pdf")
 
         # Upload from opened file
         with open("document.pdf", "rb") as f:
-            task = await chunkr.upload(f)
+            await chunkr.upload(f)
+        
+        # Upload from URL
+        await chunkr.upload("https://example.com/document.pdf")
+
+        # Upload from base64 string (must include MIME type header)
+        await chunkr.upload("data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmo...")
 
         # Upload an image
         from PIL import Image
         img = Image.open("photo.jpg")
-        task = await chunkr.upload(img)
+        await chunkr.upload(img)
         ```
         Returns:
             TaskResponse: The completed task response
@@ -53,6 +59,12 @@ class ChunkrAsync(Chunkr):
         # Upload from opened file
         with open("document.pdf", "rb") as f:
             task = await chunkr.start_upload(f)
+    
+        # Upload from URL
+        task = await chunkr.start_upload("https://example.com/document.pdf")
+
+        # Upload from base64 string (must include MIME type header)
+        task = await chunkr.start_upload("data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmo...")
 
         # Upload an image
         from PIL import Image
