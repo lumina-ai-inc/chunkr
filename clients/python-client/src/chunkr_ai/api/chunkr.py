@@ -1,12 +1,13 @@
-from .models import TaskResponse, Configuration
 from .base import ChunkrBase
-from dotenv import load_dotenv
-import io
-import os
+from .config import Configuration
+from .task import TaskResponse
 from pathlib import Path
 from PIL import Image
 import requests
-from typing import Union, BinaryIO, Tuple
+from typing import Union, BinaryIO
+import json
+import os
+from datetime import datetime
 
 class Chunkr(ChunkrBase):
     """Chunkr API client"""
@@ -84,10 +85,16 @@ class Chunkr(ChunkrBase):
         """
         filename, file_obj = self._prepare_file(file)
         files = {"file": (filename, file_obj)}
+        
+        data = {}
+        if config:
+            config_dict = config.model_dump(mode="json", exclude_none=True)
+            data = {k: str(v) for k, v in config_dict.items()}
+            
         r = self._session.post(
             f"{self.url}/api/v1/task",
             files=files,
-            json=config.dict() if config else {},
+            data=data,  
             headers=self._headers()
         )
         r.raise_for_status()

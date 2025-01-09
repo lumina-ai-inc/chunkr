@@ -1,4 +1,4 @@
-from .api.models import (
+from .api.config import (
     AutoGenerationConfig,
     BoundingBox,
     Chunk,
@@ -19,10 +19,10 @@ from .api.models import (
     SegmentProcessing,
     SegmentType,
     SegmentationStrategy,
-    Status,
-    TaskPayload,
-    TaskResponse
+    Status
 )
+
+from .api.task import TaskResponse, TaskPayload
 
 __all__ = [
     'AutoGenerationConfig',

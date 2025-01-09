@@ -1,11 +1,12 @@
-from .chunkr import Chunkr
-from .models import TaskResponse, Configuration
+from .base import ChunkrBase
+from .task import TaskResponse
+from .config import Configuration
 import httpx
 from pathlib import Path
 from PIL import Image
 from typing import Union, BinaryIO
 
-class ChunkrAsync(Chunkr):
+class ChunkrAsync(ChunkrBase):
     """Asynchronous Chunkr API client"""
     
     def __init__(self, url: str = None, api_key: str = None):
@@ -84,7 +85,7 @@ class ChunkrAsync(Chunkr):
         r = await self._client.post(
             f"{self.url}/api/v1/task",
             files=files,
-            json=config.dict() if config else {},
+            json=config.model_dump() if config else {},
             headers=self._headers()
         )
         r.raise_for_status()

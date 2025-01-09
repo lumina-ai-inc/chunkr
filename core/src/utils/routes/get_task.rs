@@ -11,12 +11,19 @@ pub async fn get_task(
     user_id: String,
 ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
     let client: Client = get_pg_client().await?;
-    let task = client
+    let task = match client
         .query_one(
             "SELECT * FROM TASKS WHERE task_id = $1 AND user_id = $2",
             &[&task_id, &user_id],
         )
-        .await?;
+        .await
+    {
+        Ok(row) => row,
+        Err(e) if e.code().map(|c| c.code()) == Some("P0002") => {
+            return Err("Task not found".into());
+        }
+        Err(e) => return Err(e.into()),
+    };
 
     let expires_at: Option<DateTime<Utc>> = task.get("expires_at");
     if expires_at.is_some() && expires_at.unwrap() < Utc::now() {

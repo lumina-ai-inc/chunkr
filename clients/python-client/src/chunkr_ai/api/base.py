@@ -1,13 +1,14 @@
-from .models import TaskResponse, Configuration
+from abc import abstractmethod
 from .auth import HeadersMixin
-from abc import ABC, abstractmethod
-from dotenv import load_dotenv
 import io
+from dotenv import load_dotenv
+from .config import Configuration
+from .task import TaskResponse
 import os
 from pathlib import Path
 from PIL import Image
 import requests
-from typing import Union, BinaryIO, Tuple
+from typing import BinaryIO, Tuple, Union
 
 class ChunkrBase(HeadersMixin):
     """Base class with shared functionality for Chunkr API clients."""
@@ -141,4 +142,3 @@ class ChunkrBase(HeadersMixin):
         Must be implemented by subclasses.
         """
         pass
-
