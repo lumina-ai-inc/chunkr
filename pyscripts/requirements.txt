@@ -1,7 +1,0 @@
-requests
-PyMuPDF
-python-dotenv
-pydantic
-numpy
-PyPDF2
-fastapi

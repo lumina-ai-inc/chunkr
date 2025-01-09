@@ -2,11 +2,11 @@ from .auth import HeadersMixin
 import asyncio
 from datetime import datetime
 from enum import Enum
-import httpx
 from pydantic import BaseModel, Field, PrivateAttr
-import requests
 import time
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any, Union
+from .chunkr import Chunkr
+from .chunkr_async import ChunkrAsync
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
@@ -141,7 +141,7 @@ class Status(str, Enum):
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
 
-class TaskResponse(BaseModel, HeadersMixin):
+class TaskResponse(BaseModel):
     configuration: Configuration
     created_at: datetime
     expires_at: Optional[datetime]
@@ -155,43 +155,45 @@ class TaskResponse(BaseModel, HeadersMixin):
     status: Status
     task_id: str
     task_url: Optional[str]
-    _api_key: Optional[str] = PrivateAttr(default=None)
+    _client: Optional[Union[Chunkr, ChunkrAsync]] = PrivateAttr(default=None)
 
-    def with_api_key(self, api_key: str) -> 'TaskResponse':
-        """Helper function to set api key on a TaskResponse after creation"""
-        self._api_key = api_key
+    def with_client(self, client: Union[Chunkr, ChunkrAsync]) -> 'TaskResponse':
+        self._client = client
         return self
 
     def poll(self) -> 'TaskResponse':
-        """Poll the task for completion"""
+        """Poll the task for completion."""
         if not self.task_url:
             raise ValueError("Task URL not found in response")
-        
+
         while True:
-            r = requests.get(self.task_url, headers=self._headers())
+            r = self._client._session.get(self.task_url, headers=self._client._headers())
             r.raise_for_status()
             self.__dict__.update(r.json())
+            
             if self.status == "Failed":
                 raise ValueError(self.message)
             if self.status not in ("Starting", "Processing"):
                 return self
+            
             time.sleep(0.5)
 
     async def poll_async(self) -> 'TaskResponse':
-        """Async poll the task for completion"""
+        """Poll the task for completion asynchronously."""
         if not self.task_url:
             raise ValueError("Task URL not found in response")
-        
-        async with httpx.AsyncClient() as client:
-            while True:
-                r = await client.get(self.task_url, headers=self._headers())
-                r.raise_for_status()
-                self.__dict__.update(r.json())
-                if self.status == "Failed":
-                    raise ValueError(self.message)
-                if self.status not in ("Starting", "Processing"):
-                    return self
-                await asyncio.sleep(0.5)
+
+        while True:
+            r = await self._client._client.get(self.task_url, headers=self._client._headers())
+            r.raise_for_status()
+            self.__dict__.update(r.json())
+            
+            if self.status == "Failed":
+                raise ValueError(self.message)
+            if self.status not in ("Starting", "Processing"):
+                return self
+            
+            await asyncio.sleep(0.5)
 
 
     def _get_content(self, content_type: str) -> str:
