@@ -6,10 +6,11 @@ from PIL import Image
 from typing import Union, BinaryIO
 
 class ChunkrAsync(Chunkr):
-    """Async client for interacting with the Chunkr API.
+    """Asynchronous Chunkr API client"""
     
-    This class inherits from the Chunkr class but works with async HTTP requests.
-    """
+    def __init__(self, url: str = None, api_key: str = None):
+        super().__init__(url, api_key)
+        self._client = httpx.AsyncClient()
 
     async def upload(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
         """Upload a file and wait for processing to complete.
@@ -78,24 +79,27 @@ class ChunkrAsync(Chunkr):
         Returns:
             TaskResponse: The initial task response
         """
-        url = f"{self.url}/api/v1/task"
         filename, file_obj = self._prepare_file(file)
-        async with httpx.AsyncClient() as client:
-            files = {"file": (filename, file_obj)}
-            r = await client.post(
-                url, 
-                files=files, 
-                json=config.dict() if config else {},
-                headers=self._headers()
-            )
-            r.raise_for_status()
-            return TaskResponse(**r.json()).with_api_key(self._api_key)
+        files = {"file": (filename, file_obj)}
+        r = await self._client.post(
+            f"{self.url}/api/v1/task",
+            files=files,
+            json=config.dict() if config else {},
+            headers=self._headers()
+        )
+        r.raise_for_status()
+        return TaskResponse(**r.json()).with_client(self)
 
     async def get_task(self, task_id: str) -> TaskResponse:
-        url = f"{self.url}/api/v1/task/{task_id}"
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url, headers=self._headers())
-            r.raise_for_status()
-            return TaskResponse(**r.json()).with_api_key(self._api_key)
+        r = await self._client.get(
+            f"{self.url}/api/v1/task/{task_id}",
+            headers=self._headers()
+        )
+        r.raise_for_status()
+        return TaskResponse(**r.json()).with_client(self)
 
- 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self._client.aclose()
