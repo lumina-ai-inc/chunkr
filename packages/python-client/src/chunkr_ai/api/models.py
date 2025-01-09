@@ -135,7 +135,6 @@ class Configuration(BaseModel):
     segmentation_strategy: SegmentationStrategy = SegmentationStrategy.LAYOUT_ANALYSIS
     target_chunk_length: Optional[int] = Field(None, deprecated=True)
 
-
 class Status(str, Enum):
     STARTING = "Starting"
     PROCESSING = "Processing"
