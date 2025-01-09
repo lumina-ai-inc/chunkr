@@ -1,7 +1,11 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Union
+import asyncio
 from datetime import datetime
 from enum import Enum
+import httpx
+from pydantic import BaseModel, Field
+import requests
+import time
+from typing import Optional, List, Dict, Union
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
@@ -151,6 +155,62 @@ class TaskResponse(BaseModel):
     status: Status
     task_id: str
     task_url: Optional[str]
+
+    def poll(self) -> 'TaskResponse':
+        """Poll the task for completion"""
+        if not self.task_url:
+            raise ValueError("Task URL not found in response")
+        
+        while True:
+            r = requests.get(self.task_url, headers=self._headers())
+            r.raise_for_status()
+            self.__dict__.update(r.json())
+            if self.status == "Failed":
+                raise ValueError(self.message)
+            if self.status not in ("Starting", "Processing"):
+                return self
+            time.sleep(0.5)
+
+    async def poll_async(self) -> 'TaskResponse':
+        """Async poll the task for completion"""
+        if not self.task_url:
+            raise ValueError("Task URL not found in response")
+        
+        async with httpx.AsyncClient() as client:
+            while True:
+                r = await client.get(self.task_url, headers=self._headers())
+                r.raise_for_status()
+                self.__dict__.update(r.json())
+                if self.status == "Failed":
+                    raise ValueError(self.message)
+                if self.status not in ("Starting", "Processing"):
+                    return self
+                await asyncio.sleep(0.5)
+
+
+    def _get_content(self, content_type: str) -> str:
+        """Helper method to get either HTML, Markdown, or raw content."""
+        if not self.output:
+            return ""
+        parts = []
+        for c in self.output.chunks:
+            for s in c.segments:
+                content = getattr(s, content_type)
+                if content:
+                    parts.append(content)
+        return "\n".join(parts)
+
+    def html(self) -> str:
+        """Get full HTML for the task"""
+        return self._get_content("html")
+
+    def markdown(self) -> str:
+        """Get full markdown for the task"""
+        return self._get_content("markdown")
+        
+    def content(self) -> str:
+        """Get full text for the task"""
+        return self._get_content("content")
 
 class TaskPayload(BaseModel):
     current_configuration: Configuration
