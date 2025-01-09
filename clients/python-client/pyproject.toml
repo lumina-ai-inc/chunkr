@@ -6,9 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "chunkr-ai"
 version = "0.0.1"
 authors = [{"name" = "Ishaan Kapoor", "email" = "ishaan@lumina.sh"}]
-description = "Python client for chunkr: open source document intelligence"
+description = "Python client for Chunkr: open source document intelligence"
 readme = "README.md"
 license = {"file" = "LICENSE"}
+urls = {Homepage = "https://chunkr.ai"} 
 dependencies = [
     "httpx>=0.28.1",
     "pillow>=11.1.0",
@@ -20,4 +21,5 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest>=8.3.4",
+    "pytest-xdist>=3.6.1",
 ]
