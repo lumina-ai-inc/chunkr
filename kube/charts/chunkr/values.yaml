@@ -44,7 +44,7 @@ common:
     - name: SEARCH__DENSE_VECTOR_URL
       value: "http://{{- .Release.Name }}-embeddings:8000"
     - name: WORKER__GENERAL_OCR_URL
-      value: "http://{{- .Release.Name }}-doctr:8000"
+      value: "http://{{- .Release.Name }}-ocr:8000"
     - name: WORKER__SEGMENTATION_URL
       value: "http://{{- .Release.Name }}-segmentation:8000"
     - name: WORKER__SERVER_URL
@@ -168,7 +168,7 @@ services:
         value: "3"
 
   # Services
-  doctr:
+  ocr:
     enabled: true
     image:
       repository: doctr
