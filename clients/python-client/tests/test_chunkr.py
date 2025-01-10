@@ -135,12 +135,10 @@ def test_page_llm(chunkr, sample_path):
 def test_json_schema(chunkr, sample_path):
     response = chunkr.upload(sample_path, Configuration(
         json_schema=JsonSchema(
-            title="Enrollment and Sales Data",
+            title="Sales Data",
             properties=[
-                Property(name="Term with highest enrollment", prop_type="string"),
-                Property(name="Term with lowest enrollment", prop_type="string"),
-                Property(name="Highest Sales", prop_type="string"),
-                Property(name="Lowest Sales", prop_type="string"),
+                Property(name="Person with highest sales", prop_type="string", description="The person with the highest sales"),
+                Property(name="Person with lowest sales", prop_type="string", description="The person with the lowest sales"),
             ]
         )
     ))
