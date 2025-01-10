@@ -3,6 +3,7 @@ use crate::models::chunkr::output::{Chunk, Segment, SegmentType};
 pub fn hierarchical_chunking(
     segments: Vec<Segment>,
     target_length: i32,
+    ignore_headers_and_footers: bool,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let mut chunks: Vec<Chunk> = Vec::new();
     if target_length == 0 || target_length == 1 {
@@ -32,6 +33,9 @@ pub fn hierarchical_chunking(
                 }
                 // headers and footers are 1 chunk each
                 SegmentType::PageHeader | SegmentType::PageFooter => {
+                    if ignore_headers_and_footers {
+                        continue;
+                    }
                     finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
                     current_segments.push(segment.clone());
                     finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
@@ -71,7 +75,7 @@ mod tests {
         ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
             let file_content = tokio::fs::read_to_string(file_path).await?;
             let segments: Vec<Segment> = serde_json::from_str(&file_content)?;
-            Ok(hierarchical_chunking(segments, target_size as i32)?)
+            Ok(hierarchical_chunking(segments, target_size as i32, true)?)
         }
 
         // Load the bounding_boxes.json file

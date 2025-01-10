@@ -112,15 +112,18 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .update_status(Status::Processing, Some("Chunking".to_string()))
         .await?;
 
+    let chunk_processing = pipeline
+        .task_payload
+        .as_ref()
+        .unwrap()
+        .current_configuration
+        .chunk_processing
+        .clone();
+
     let chunks = chunking::hierarchical_chunking(
         page_segments.into_iter().flatten().collect(),
-        pipeline
-            .task_payload
-            .as_ref()
-            .unwrap()
-            .current_configuration
-            .chunk_processing
-            .target_length,
+        chunk_processing.target_length,
+        chunk_processing.ignore_headers_and_footers,
     )?;
 
     pipeline.output.chunks = chunks;

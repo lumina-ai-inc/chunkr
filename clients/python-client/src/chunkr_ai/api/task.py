@@ -57,8 +57,9 @@ class TaskResponse(BaseModel):
         while True:
             try:
                 r = await self._client._client.get(self.task_url, headers=self._client._headers())
-                await r.raise_for_status()
-                return await r.json()
+                r.raise_for_status()
+                response = r.json()
+                return response
             except (ConnectionError, TimeoutError) as _:
                 print("Connection error while polling the task, retrying...")
                 await asyncio.sleep(0.5)

@@ -37,6 +37,7 @@ pub async fn create_task_from_row(
         .ok_or("Invalid status")?;
     let created_at: DateTime<Utc> = row.get("created_at");
     let finished_at: Option<DateTime<Utc>> = row.get("finished_at");
+    let started_at: Option<DateTime<Utc>> = row.get("started_at");
     let expires_at: Option<DateTime<Utc>> = row.get("expires_at");
     let message = row.get::<_, Option<String>>("message").unwrap_or_default();
     let file_name = row.get::<_, Option<String>>("file_name");
@@ -68,6 +69,7 @@ pub async fn create_task_from_row(
         task_id,
         status,
         created_at,
+        started_at,
         finished_at,
         expires_at,
         message,

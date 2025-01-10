@@ -18,6 +18,8 @@ pub struct Config {
     pub max_retries: u32,
     #[serde(default = "default_s3_bucket")]
     pub s3_bucket: String,
+    #[serde(default = "default_segmentation_padding")]
+    pub segmentation_padding: f32,
     #[serde(default = "default_segmentation_url")]
     pub segmentation_url: String,
     #[serde(default = "default_server_url")]
@@ -56,6 +58,10 @@ fn default_max_retries() -> u32 {
 
 fn default_s3_bucket() -> String {
     "chunkr".to_string()
+}
+
+fn default_segmentation_padding() -> f32 {
+    1.0
 }
 
 fn default_segmentation_url() -> String {
