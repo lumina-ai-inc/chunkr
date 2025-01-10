@@ -118,14 +118,3 @@ class TaskResponse(BaseModel):
     def content(self) -> str:
         """Get full text for the task"""
         return self._get_content("content")
-
-class TaskPayload(BaseModel):
-    current_configuration: Configuration
-    file_name: str
-    image_folder_location: str
-    input_location: str
-    output_location: str
-    pdf_location: str
-    previous_configuration: Optional[Configuration]
-    task_id: str
-    user_id: str
