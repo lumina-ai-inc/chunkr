@@ -13,7 +13,7 @@ use utoipa::ToSchema;
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub struct TaskResponse {
     pub configuration: Configuration,
-    /// The date and time when the task was created.
+    /// The date and time when the task was created and queued.
     pub created_at: DateTime<Utc>,
     /// The date and time when the task will expire.
     pub expires_at: Option<DateTime<Utc>>,
@@ -30,6 +30,8 @@ pub struct TaskResponse {
     pub page_count: Option<i32>,
     /// The presigned URL of the PDF file.
     pub pdf_url: Option<String>,
+    /// The date and time when the task was started.
+    pub started_at: Option<DateTime<Utc>>,
     pub status: Status,
     /// The unique identifier for the task.
     pub task_id: String,

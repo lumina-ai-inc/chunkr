@@ -1,3 +1,4 @@
+use crate::configs::worker_config;
 use crate::models::chunkr::output::{BoundingBox, OCRResult, Segment, SegmentType};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -29,12 +30,18 @@ impl Instance {
     }
 
     pub fn to_segments(&self, page_number: u32, ocr_results: Vec<OCRResult>) -> Vec<Segment> {
-        let (page_width, page_height) = (self.image_size.0 as f32, self.image_size.1 as f32);
+        let worker_config = worker_config::Config::from_env().unwrap();
+        let (page_height, page_width) = (self.image_size.0 as f32, self.image_size.1 as f32);
         self.boxes
             .iter()
             .enumerate()
             .filter_map(|(idx, bbox)| {
                 let confidence = self.scores.get(idx).copied().unwrap_or(0.0);
+                let mut bbox = bbox.clone();
+                bbox.top = bbox.top - worker_config.segmentation_padding;
+                bbox.left = bbox.left - worker_config.segmentation_padding;
+                bbox.width = bbox.width + worker_config.segmentation_padding * 2.0;
+                bbox.height = bbox.height + worker_config.segmentation_padding * 2.0;
                 self.get_segment_type(idx).map(|segment_type| {
                     Segment::new_from_page_ocr(
                         bbox.clone(),
