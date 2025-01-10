@@ -158,3 +158,5 @@ crash.*.log
 !backend.hcl.example
 
 .ruff_cache
+
+uv.lock
