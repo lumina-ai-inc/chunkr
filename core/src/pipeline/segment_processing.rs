@@ -5,7 +5,7 @@ use crate::models::chunkr::segment_processing::{
     AutoGenerationConfig, GenerationStrategy, LlmGenerationConfig, PictureGenerationConfig,
 };
 use crate::models::chunkr::task::{Configuration, Status};
-use crate::utils::services::llm;
+use crate::utils::services::{html, llm, markdown};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
@@ -172,7 +172,9 @@ async fn generate_html(
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = HtmlGenerator { segment_type };
-    generate_content(&generator, &content, segment_image, generation_strategy).await
+    Ok(html::clean_img_tags(
+        &generate_content(&generator, &content, segment_image, generation_strategy).await?,
+    ))
 }
 
 async fn generate_markdown(
@@ -182,7 +184,9 @@ async fn generate_markdown(
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = MarkdownGenerator { segment_type };
-    generate_content(&generator, &content, segment_image, generation_strategy).await
+    Ok(markdown::clean_img_tags(
+        &generate_content(&generator, &content, segment_image, generation_strategy).await?,
+    ))
 }
 
 async fn process_segment(

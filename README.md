@@ -32,6 +32,8 @@
 - [Table of Contents](#table-of-contents)
 - [Docs](#docs)
 - [(Super) Quick Start](#super-quick-start)
+- [Self-Hosted Deployment Options](#self-hosted-deployment-options)
+  - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
   - [Deployment with Kubernetes](#deployment-with-kubernetes)
 - [Licensing](#licensing)
 - [Connect With Us](#connect-with-us)

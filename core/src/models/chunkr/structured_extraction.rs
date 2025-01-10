@@ -34,7 +34,7 @@ pub struct Property {
     /// A human-readable title for the property.
     /// This is optional and can be used to increase the accuracy of the extraction.
     pub title: Option<String>,
-    #[serde(rename = "type")]
+    #[serde(alias = "type")]
     /// The data type of the property
     pub prop_type: String,
     /// A description of what the property represents.

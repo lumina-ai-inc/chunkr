@@ -18,10 +18,9 @@ from .api.config import (
     SegmentProcessing,
     SegmentType,
     SegmentationStrategy,
-    Status
 )
 
-from .api.task import TaskResponse, TaskPayload
+from .api.task import TaskResponse, TaskPayload, Status
 
 __all__ = [
     'BoundingBox',
