@@ -1,12 +1,33 @@
-export enum Model {
-  Research = "Research",
-  Fast = "Fast",
-  HighQuality = "HighQuality",
-}
+import {
+  ChunkProcessing,
+  JsonSchema,
+  OcrStrategy,
+  SegmentProcessing,
+  SegmentationStrategy,
+} from "./newTask.model";
 
 export interface UploadForm {
+  /** The file to be uploaded */
   file: File;
-  model: Model;
-  ocr_strategy: "Auto" | "All" | "Off";
-  target_chunk_length?: number;
+
+  /** Optional chunk processing configuration */
+  chunk_processing?: ChunkProcessing;
+
+  /** Time until task deletion in seconds */
+  expires_in?: number;
+
+  /** Use high-res images for processing */
+  high_resolution?: boolean;
+
+  /** Schema for structured data extraction */
+  json_schema?: JsonSchema;
+
+  /** OCR processing strategy */
+  ocr_strategy?: OcrStrategy;
+
+  /** Segment processing configuration */
+  segment_processing?: SegmentProcessing;
+
+  /** Strategy for document segmentation */
+  segmentation_strategy?: SegmentationStrategy;
 }

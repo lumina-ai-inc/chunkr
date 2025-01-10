@@ -15,6 +15,27 @@ interface ApiKeyManagementProps {
   user: User | undefined;
 }
 
+const dummyApiKeys = [
+  {
+    id: 1,
+    name: "Production API Key",
+    key: "sk_live_12345678901234567890abcdef",
+    last_used: "2024-03-20 15:30:00",
+  },
+  {
+    id: 2,
+    name: "Development Key",
+    key: "sk_dev_98765432109876543210zyxwv",
+    last_used: "2024-03-19 09:15:00",
+  },
+  {
+    id: 3,
+    name: "Testing Environment",
+    key: "sk_test_abcdefghijklmnopqrstuvwx",
+    last_used: "2024-03-15 11:45:00",
+  },
+];
+
 export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>(
     user?.api_keys?.map((key: string) => ({
@@ -24,6 +45,8 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
       limit: 10000,
     })) || []
   );
+
+  const [expandedKeyId, setExpandedKeyId] = useState<number | null>(null);
 
   const createNewApiKey = async () => {
     // TODO: API call to create new key
@@ -42,65 +65,113 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
   };
 
   return (
-    <div className="usage-container">
-      <Flex direction="column" gap="4">
-        <Flex justify="between" align="center">
-          <Text
-            size="6"
-            weight="bold"
-            style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
-          >
-            API Keys
+    <Flex direction="column" className="api-key-management" gap="4">
+      <Flex
+        direction="row"
+        justify="between"
+        align="center"
+        className="api-key-header"
+      >
+        <Text size="5" weight="bold" style={{ color: "#FFF" }}>
+          Manage API Keys
+        </Text>
+        <BetterButton
+          onClick={() => {
+            /* TODO: Add create key handler */
+          }}
+        >
+          <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+            Create New Key
           </Text>
-          <BetterButton onClick={createNewApiKey}>
-            <Text
-              size="2"
-              weight="medium"
-              style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
-            >
-              Create New Key
-            </Text>
-          </BetterButton>
-        </Flex>
+        </BetterButton>
+      </Flex>
 
-        {apiKeys.map((apiKey) => (
-          <div key={apiKey.id} className="api-key-card">
-            <Flex direction="row">
-              <Flex direction="row" justify="between" align="center" gap="6">
+      <table className="api-key-table">
+        <thead>
+          <tr>
+            <th>
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Name
+              </Text>
+            </th>
+            <th>
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Key
+              </Text>
+            </th>
+            <th>
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Last Used
+              </Text>
+            </th>
+            <th>
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Actions
+              </Text>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {dummyApiKeys.map((apiKey) => (
+            <tr key={apiKey.id}>
+              <td>
                 <Text
                   size="2"
                   weight="medium"
-                  style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+                  style={{ color: "rgba(255, 255, 255, 0.8)" }}
                 >
-                  {apiKey.key}
+                  {apiKey.name || "API Key"}
                 </Text>
+              </td>
+              <td>
+                <div className="key-cell" title={apiKey.key}>
+                  <Text
+                    size="2"
+                    weight="medium"
+                    style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                  >
+                    {expandedKeyId === apiKey.id
+                      ? apiKey.key
+                      : `${apiKey.key.slice(0, 5)}...`}
+                  </Text>
+                </div>
+              </td>
+              <td>
+                <Text
+                  size="2"
+                  weight="medium"
+                  style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                >
+                  {apiKey.last_used || "Never"}
+                </Text>
+              </td>
+              <td>
                 <Flex gap="4">
+                  <BetterButton
+                    onClick={() =>
+                      setExpandedKeyId(
+                        expandedKeyId === apiKey.id ? null : apiKey.id
+                      )
+                    }
+                  >
+                    <Text size="1">
+                      {expandedKeyId === apiKey.id ? "Hide" : "View"}
+                    </Text>
+                  </BetterButton>
                   <BetterButton
                     onClick={() => navigator.clipboard.writeText(apiKey.key)}
                   >
-                    <Text
-                      size="2"
-                      weight="medium"
-                      style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
-                    >
-                      Copy
-                    </Text>
+                    <Text size="1">Copy</Text>
                   </BetterButton>
                   <BetterButton onClick={() => deleteApiKey(apiKey.id)}>
-                    <Text
-                      size="2"
-                      weight="medium"
-                      style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
-                    >
-                      Delete
-                    </Text>
+                    <Text size="1">Delete</Text>
                   </BetterButton>
                 </Flex>
-              </Flex>
-            </Flex>
-          </div>
-        ))}
-      </Flex>
-    </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Flex>
   );
 }

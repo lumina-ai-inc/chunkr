@@ -24,7 +24,7 @@
   left: -2px;
   padding: 3px 6px;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: 12px !important;
   font-weight: 500;
   opacity: 0;
   transition: opacity 0.2s ease;

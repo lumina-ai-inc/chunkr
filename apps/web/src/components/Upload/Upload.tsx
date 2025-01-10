@@ -10,6 +10,7 @@ interface UploadProps {
   onFileRemove: (fileName: string) => void;
   files: File[];
   isAuthenticated: boolean;
+  isUploading?: boolean;
 }
 
 export default function Upload({
@@ -17,6 +18,7 @@ export default function Upload({
   onFileRemove,
   files,
   isAuthenticated,
+  isUploading = false,
 }: UploadProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -126,7 +128,7 @@ export default function Upload({
       </Flex>
 
       <Flex
-        {...(isAuthenticated ? getRootProps() : {})}
+        {...(isAuthenticated && !isUploading ? getRootProps() : {})}
         direction="row"
         width="100%"
         height="200px"
@@ -134,11 +136,17 @@ export default function Upload({
         justify="center"
         className={`upload-container ${!isAuthenticated ? "inactive" : ""} ${
           files.length > 0 ? "has-files" : ""
-        }`}
-        style={{ cursor: "pointer" }}
-        onClick={isAuthenticated ? open : () => auth.signinRedirect()}
+        } ${isUploading ? "uploading" : ""}`}
+        style={{ cursor: isUploading ? "default" : "pointer" }}
+        onClick={
+          isUploading
+            ? undefined
+            : isAuthenticated
+              ? open
+              : () => auth.signinRedirect()
+        }
       >
-        <input {...getInputProps()} />
+        <input {...(isUploading ? {} : getInputProps())} />
         <Flex
           direction="column"
           py="24px"
@@ -146,9 +154,11 @@ export default function Upload({
           style={{ border: "1px dashed hsla(0, 0%, 100%, 0.2)" }}
         >
           <Text size="7" weight="bold" className="white">
-            {files.length > 0
-              ? `${files.length} ${files.length === 1 ? "File" : "Files"} Uploaded`
-              : "Upload Files"}
+            {isUploading
+              ? "Processing Files..."
+              : files.length > 0
+                ? `${files.length} ${files.length === 1 ? "File" : "Files"} Uploaded`
+                : "Upload Files"}
           </Text>
           <Text
             size="4"
@@ -199,10 +209,11 @@ export default function Upload({
           </Flex>
         </Flex>
       </Flex>
-      {files.length > 0 && (
+      {files.length > 0 && !isUploading && (
         <Flex direction="row" gap="2" wrap="wrap" width="100%">
           {files.map((file) => (
             <BetterButton
+              key={file.name}
               onClick={(e) => {
                 e.stopPropagation();
                 onFileRemove(file.name);

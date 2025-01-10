@@ -45,10 +45,10 @@ const MomentumScroll = ({ children }: MomentumScrollProps): JSX.Element => {
   );
 
   const springPhysics: SpringOptions = {
-    damping: 22,
-    mass: 0.1,
-    stiffness: 200,
-    bounce: 0.5,
+    damping: 15,
+    mass: 0.05,
+    stiffness: 150,
+    bounce: 0.6,
     duration: 0.4,
     velocity: 100,
   };

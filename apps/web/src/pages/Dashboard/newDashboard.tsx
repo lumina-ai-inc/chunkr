@@ -67,14 +67,6 @@ export default function NewDashboard() {
     }
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (taskId) {
-      // Remove these unnecessary dynamic imports
-      // import("../../components/Viewer/Viewer");
-      // import("../../components/Status/StatusView");
-    }
-  }, [taskId]);
-
   const navIcons = {
     Tasks: (
       <g>
@@ -108,7 +100,7 @@ export default function NewDashboard() {
         />
       </g>
     ),
-    "Usage + Billing": (
+    Usage: (
       <g>
         <svg
           width="20"
@@ -278,13 +270,10 @@ export default function NewDashboard() {
               <Suspense fallback={<Loader />}>
                 {isLoading ? (
                   <Loader />
-                ) : taskResponse?.output && taskResponse?.pdf_url ? (
-                  <Viewer
-                    key={taskId}
-                    task={taskResponse}
-                    output={taskResponse.output}
-                    inputFileUrl={taskResponse.pdf_url}
-                  />
+                ) : taskResponse?.output &&
+                  taskResponse?.pdf_url &&
+                  taskResponse?.output ? (
+                  <Viewer key={taskId} task={taskResponse} />
                 ) : null}
               </Suspense>
             ),
@@ -295,9 +284,9 @@ export default function NewDashboard() {
           title: "Your Tasks",
           component: <TaskTable key="task-table" />,
         };
-      case "Usage + Billing":
+      case "Usage":
         return {
-          title: "Usage + Billing",
+          title: "Usage",
           component: (
             <Usage
               showPaymentSetup={showPaymentSetup}
@@ -421,7 +410,7 @@ export default function NewDashboard() {
         >
           <Flex direction="column">
             <Flex className="dashboard-nav-items" direction="column">
-              {["Tasks", "API Keys", "Usage + Billing"].map((item) => (
+              {["Tasks", "API Keys", "Usage"].map((item) => (
                 <Flex
                   key={item}
                   className={`dashboard-nav-item ${selectedNav === item ? "selected" : ""}`}
@@ -533,7 +522,7 @@ export default function NewDashboard() {
               onClick={handleHeaderNavigation}
               style={{ cursor: "pointer" }}
             >
-              <Text size="5" weight="medium" className="main-header-text">
+              <Text size="5" weight="bold" className="main-header-text">
                 {taskId ? "Your Tasks" : content.title}
               </Text>
             </Flex>
@@ -555,7 +544,7 @@ export default function NewDashboard() {
                   />
                 </svg>
                 <Flex className="header-task-tag">
-                  <Text size="2" weight="bold" style={{ color: "#FFF" }}>
+                  <Text size="2" weight="medium" style={{ color: "#FFF" }}>
                     {taskResponse?.file_name || taskId}
                   </Text>
                 </Flex>

@@ -5,8 +5,19 @@ import { TaskResponse } from "../models/task.model";
 export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   const formData = new FormData();
   for (const [key, value] of Object.entries(payload)) {
+    if (value === null || value === undefined) continue;
+
     if (value instanceof File) {
       formData.append(key, value, value.name);
+    } else if (typeof value === "object") {
+      // Convert object to JSON and create a Blob/File with application/json type
+      const jsonBlob = new Blob([JSON.stringify(value)], {
+        type: "application/json",
+      });
+      const jsonFile = new File([jsonBlob], `${key}.json`, {
+        type: "application/json",
+      });
+      formData.append(key, jsonFile);
     } else {
       formData.append(key, value);
     }

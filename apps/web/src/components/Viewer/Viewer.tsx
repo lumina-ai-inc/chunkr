@@ -2,27 +2,22 @@ import { useRef, useState, useCallback, useMemo, useEffect, memo } from "react";
 import { Flex, Text } from "@radix-ui/themes";
 import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
-import { Chunk } from "../../models/chunk.model";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
-import { TaskResponse, Output } from "../../models/task.model";
+import { TaskResponse, Chunk } from "../../models/task.model";
 import ReactJson from "react-json-view";
 import DOMPurify from "dompurify";
 import BetterButton from "../BetterButton/BetterButton";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-interface ViewerProps {
-  output: Output;
-  inputFileUrl: string;
-  task: TaskResponse;
-}
-
 const MemoizedPDF = memo(PDF);
 
 const CHUNK_LOAD_SIZE = 5; // Number of chunks to load at a time
-const PAGE_CHUNK_SIZE = 10; // Number of pages to load at a time
+const PAGE_CHUNK_SIZE = 5; // Number of pages to load at a time
 
-export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
+export default function Viewer({ task }: { task: TaskResponse }) {
+  const output = task.output;
+  const inputFileUrl = task.pdf_url;
   const memoizedOutput = useMemo(() => output, [output]);
   const [showConfig, setShowConfig] = useState(false);
   const [leftPanelWidth, setLeftPanelWidth] = useState(0);
@@ -51,12 +46,13 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
   const scrollToSegment = useCallback(
     (chunkIndex: number, segmentIndex: number) => {
       const targetPage =
-        output.chunks[chunkIndex].segments[segmentIndex].page_number;
+        output?.chunks[chunkIndex].segments[segmentIndex].page_number;
 
       // First, ensure content is loaded
-      const needsMorePages = targetPage > loadedPages;
+      const needsMorePages = targetPage && targetPage > loadedPages;
       const needsMoreChunks = chunkIndex >= loadedChunks;
 
+      // Calculate how many page chunks we need to load to reach the target page
       if (needsMorePages) {
         setLoadedPages(
           Math.ceil(targetPage / PAGE_CHUNK_SIZE) * PAGE_CHUNK_SIZE
@@ -102,7 +98,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
         needsMorePages || needsMoreChunks ? 100 : 0
       );
     },
-    [output.chunks, loadedPages, loadedChunks]
+    [output?.chunks, loadedPages, loadedChunks]
   );
 
   // Add a handler for PDF segment clicks that ensures chunks are loaded
@@ -183,7 +179,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
 
       // Extract original filename from inputFileUrl and create new JSON filename
       const originalFilename = decodeURIComponent(
-        inputFileUrl.split("?")[0].split("/").pop() || "document.pdf"
+        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf"
       );
       const baseFilename = originalFilename.replace(".pdf", "");
       a.download = `chunkr_json_${baseFilename}.json`;
@@ -219,7 +215,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
       a.href = url;
 
       const originalFilename = decodeURIComponent(
-        inputFileUrl.split("?")[0].split("/").pop() || "document.pdf"
+        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf"
       );
       const baseFilename = originalFilename.replace(".pdf", "");
       a.download = `chunkr_html_${baseFilename}.html`;
@@ -255,7 +251,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
       a.href = url;
 
       const originalFilename = decodeURIComponent(
-        inputFileUrl.split("?")[0].split("/").pop() || "document.pdf"
+        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf"
       );
       const baseFilename = originalFilename.replace(".pdf", "");
       a.download = `chunkr_markdown_${baseFilename}.md`;
@@ -362,7 +358,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
     };
   }, []);
 
-  // Unified scroll handler for both containers
+  // Add scroll handler for PDF container to load more pages
   const handleScroll = useCallback(
     (e: Event) => {
       const target = e.target as HTMLDivElement;
@@ -371,9 +367,9 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
 
       if (target.classList.contains("scrollable-content")) {
         // Handle chunk loading
-        if (scrolledToBottom && loadedChunks < output.chunks.length) {
+        if (scrolledToBottom && loadedChunks < (output?.chunks?.length || 0)) {
           setLoadedChunks((prev) =>
-            Math.min(prev + CHUNK_LOAD_SIZE, output.chunks.length)
+            Math.min(prev + CHUNK_LOAD_SIZE, output?.chunks?.length || 0)
           );
         }
       } else if (target.classList.contains("pdf-container")) {
@@ -385,7 +381,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
         }
       }
     },
-    [loadedChunks, output.chunks.length, loadedPages, numPages]
+    [loadedChunks, output?.chunks?.length, loadedPages, numPages]
   );
 
   // Add scroll listeners to both containers
@@ -652,7 +648,7 @@ export default function Viewer({ output, inputFileUrl, task }: ViewerProps) {
                   .slice(0, loadedChunks)
                   .map((chunk: Chunk, chunkIndex: number) => (
                     <SegmentChunk
-                      key={chunkIndex}
+                      key={chunk.chunk_id}
                       chunk={chunk}
                       chunkIndex={chunkIndex}
                       containerWidth={leftPanelWidth}
