@@ -1,9 +1,10 @@
-from abc import abstractmethod
-from .auth import HeadersMixin
-import io
-from dotenv import load_dotenv
 from .config import Configuration
 from .task import TaskResponse
+from .auth import HeadersMixin
+from abc import abstractmethod
+from dotenv import load_dotenv
+import io
+import json
 import os
 from pathlib import Path
 from PIL import Image
@@ -119,6 +120,34 @@ class ChunkrBase(HeadersMixin):
 
         raise TypeError(f"Unsupported file type: {type(file)}")
 
+    def _prepare_upload_data(
+        self,
+        file: Union[str, Path, BinaryIO, Image.Image],
+        config: Configuration = None
+    ) -> Tuple[dict, dict]:
+        """Prepare files and data dictionaries for upload.
+        
+        Args:
+            file: The file to upload
+            config: Optional configuration settings
+            
+        Returns:
+            Tuple[dict, dict]: (files dict, data dict) ready for upload
+        """
+        filename, file_obj = self._prepare_file(file)
+        files = {"file": (filename, file_obj)}
+        data = {}
+        
+        if config:
+            config_dict = config.model_dump(mode="json", exclude_none=True)
+            for key, value in config_dict.items():
+                if isinstance(value, dict):
+                    files[key] = (None, json.dumps(value), 'application/json')
+                else:
+                    data[key] = value
+                    
+        return files, data
+    
     @abstractmethod
     def upload(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
         """Upload a file and wait for processing to complete.
