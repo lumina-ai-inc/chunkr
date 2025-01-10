@@ -38,21 +38,21 @@ struct HtmlGenerator {
 impl ContentGenerator for HtmlGenerator {
     fn generate_auto(&self, content: &str) -> String {
         match self.segment_type {
-            SegmentType::Caption => format!("<span class='caption'>{}</span>", content),
-            SegmentType::Footnote => format!("<span class='footnote'>{}</span>", content),
-            SegmentType::Formula => format!("<span class='formula'>{}</span>", content),
+            SegmentType::Caption => format!("<span class=\"caption\">{}</span>", content),
+            SegmentType::Footnote => format!("<span class=\"footnote\">{}</span>", content),
+            SegmentType::Formula => format!("<span class=\"formula\">{}</span>", content),
             SegmentType::ListItem => {
                 if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
                     let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
                     let item = captures.get(2).unwrap().as_str();
-                    format!("<ol start='{}'><li>{}</li></ol>", start_number, item)
+                    format!("<ol start=\"{}\"<li>{}</li></ol>", start_number, item)
                 } else {
                     format!("<ul><li>{}</li></ul>", Self::clean_list_item(content))
                 }
             }
-            SegmentType::Page => format!("<div class='page'>{}</div>", content),
-            SegmentType::PageFooter => format!("<div class='page-footer'>{}</div>", content),
-            SegmentType::PageHeader => format!("<div class='page-header'>{}</div>", content),
+            SegmentType::Page => format!("<div class=\"page\">{}</div>", content),
+            SegmentType::PageFooter => format!("<div class=\"page-footer\">{}</div>", content),
+            SegmentType::PageHeader => format!("<div class=\"page-header\">{}</div>", content),
             SegmentType::Picture => format!("<img src='' alt='{}' />", content),
             SegmentType::SectionHeader => format!("<h2>{}</h2>", content),
             SegmentType::Table => format!("<table><tr><td>{}</td></tr></table>", content),
@@ -80,6 +80,13 @@ impl ContentGenerator for HtmlGenerator {
 
     fn segment_type(&self) -> SegmentType {
         self.segment_type.clone()
+    }
+
+    fn process_llm_result(&self, content: &str) -> String {
+        match self.segment_type {
+            SegmentType::Formula => format!("<span class=\"formula\">{}</span>", content),
+            _ => content.to_string(),
+        }
     }
 }
 
@@ -133,6 +140,13 @@ impl ContentGenerator for MarkdownGenerator {
 
     fn segment_type(&self) -> SegmentType {
         self.segment_type.clone()
+    }
+
+    fn process_llm_result(&self, content: &str) -> String {
+        match self.segment_type {
+            SegmentType::Formula => format!("${}$", content),
+            _ => content.to_string(),
+        }
     }
 }
 

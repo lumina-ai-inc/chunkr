@@ -183,6 +183,7 @@ pub async fn create_task(
                 file_name: Some(file_name.to_string()),
                 page_count: Some(page_count),
                 pdf_url: None,
+                started_at: None,
             })
         }
         Err(e) => Err(e),
