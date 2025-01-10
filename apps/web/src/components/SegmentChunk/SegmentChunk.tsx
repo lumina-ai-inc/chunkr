@@ -1,5 +1,5 @@
 import { forwardRef, memo, useCallback, useMemo, useState } from "react";
-import { Chunk, Segment } from "../../models/chunk.model";
+import { Chunk, Segment } from "../../models/task.model";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "./SegmentChunk.css";
@@ -343,7 +343,7 @@ export const SegmentChunk = memo(
             overflow: "auto",
           }}
         >
-          <Flex mb="4" pl="4" gap="4">
+          <Flex mb="4" gap="4">
             <BetterButton onClick={handleCopy}>
               <svg
                 width="16"

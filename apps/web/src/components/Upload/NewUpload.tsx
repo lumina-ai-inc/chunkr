@@ -15,32 +15,64 @@ import {
   SegmentProcessingControls,
   JsonSchemaControls,
 } from "./ConfigControls";
+import { uploadFile } from "../../services/uploadFileApi";
+import { UploadForm } from "../../models/upload.model";
 
 interface NewUploadFormProps {
   onSubmit: (config: UploadFormData) => void;
   isAuthenticated: boolean;
 }
 
-export default function NewUploadForm({
-  onSubmit,
-  isAuthenticated,
-}: NewUploadFormProps) {
+export default function NewUploadForm({ isAuthenticated }: NewUploadFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [config, setConfig] = useState<Partial<UploadFormData>>(
     DEFAULT_UPLOAD_CONFIG
   );
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleFileChange = (uploadedFiles: File[]) => {
     setFiles((prev) => [...prev, ...uploadedFiles]);
+    setUploadError(null);
   };
 
   const handleFileRemove = (fileName: string) => {
     setFiles((prev) => prev.filter((file) => file.name !== fileName));
+    setUploadError(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (files.length === 0) return;
-    onSubmit({ ...config, files } as UploadFormData);
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      for (const file of files) {
+        const uploadPayload: UploadForm = {
+          file,
+          chunk_processing: config.chunk_processing,
+          high_resolution: config.high_resolution,
+          json_schema: config.json_schema,
+          ocr_strategy: config.ocr_strategy,
+          segment_processing: config.segment_processing,
+          segmentation_strategy: config.segmentation_strategy,
+        };
+
+        console.log("Upload payload:", uploadPayload);
+
+        const response = await uploadFile(uploadPayload);
+        console.log("Upload successful:", response);
+      }
+
+      setFiles([]);
+      setConfig(DEFAULT_UPLOAD_CONFIG);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setUploadError(error instanceof Error ? error.message : "Upload failed");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -51,7 +83,13 @@ export default function NewUploadForm({
           onFileRemove={handleFileRemove}
           files={files}
           isAuthenticated={isAuthenticated}
+          isUploading={isUploading}
         />
+        {uploadError && (
+          <Text size="2" style={{ color: "red", marginTop: "8px" }}>
+            {uploadError}
+          </Text>
+        )}
       </section>
 
       <div>
@@ -416,10 +454,10 @@ export default function NewUploadForm({
           <button
             className="submit-button"
             onClick={handleSubmit}
-            disabled={files.length === 0 || !isAuthenticated}
+            disabled={files.length === 0 || !isAuthenticated || isUploading}
           >
             <Text size="3" weight="bold">
-              Process Document
+              {isUploading ? "Processing..." : "Process Document"}
             </Text>
           </button>
         </section>

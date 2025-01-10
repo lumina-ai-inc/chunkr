@@ -9,7 +9,7 @@ import {
   SegmentType,
   OCRResult,
   BoundingBox,
-} from "../../models/chunk.model";
+} from "../../models/task.model";
 import "./PDF.css";
 import { debounce } from "lodash";
 
@@ -48,10 +48,11 @@ const segmentColors: Record<SegmentType, string> = {
   Formula: "--amber-8",
   Caption: "--crimson-8",
   Footnote: "--pink-10",
-  "List item": "--bronze-10",
-  "Page footer": "--red-12",
-  "Page header": "--violet-9",
-  "Section header": "--cyan-8",
+  ListItem: "--bronze-10",
+  PageFooter: "--red-12",
+  PageHeader: "--violet-9",
+  SectionHeader: "--cyan-8",
+  Page: "--gray-8",
 };
 
 const segmentLightColors: Record<SegmentType, string> = {
@@ -62,10 +63,11 @@ const segmentLightColors: Record<SegmentType, string> = {
   Formula: "--amber-3",
   Caption: "--crimson-2",
   Footnote: "--pink-4",
-  "List item": "--bronze-4",
-  "Page footer": "--red-4",
-  "Page header": "--violet-4",
-  "Section header": "--cyan-2",
+  ListItem: "--bronze-4",
+  PageFooter: "--red-4",
+  PageHeader: "--violet-4",
+  SectionHeader: "--cyan-2",
+  Page: "--gray-3",
 };
 
 const MemoizedOCRBoundingBoxes = memo(OCRBoundingBoxes);
