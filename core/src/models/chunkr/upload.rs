@@ -44,6 +44,8 @@ pub struct UploadForm {
     #[param(style = Form, value_type = Option<i32>)]
     #[schema(value_type = Option<i32>, default = 512)]
     #[deprecated = "Use `chunk_processing` instead"]
+    /// Deprecated: Use `chunk_processing.target_length` instead.
+    ///
     /// The target chunk length to be used for chunking.
     /// If 0, each chunk will contain a single segment.
     pub target_chunk_length: Option<Text<i32>>,

@@ -63,6 +63,7 @@ pub enum Status {
 /// The configuration used for the task.
 pub struct Configuration {
     pub chunk_processing: ChunkProcessing,
+    #[serde(alias = "expires_at")]
     /// The number of seconds until task is deleted.
     /// Expried tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<i32>,

@@ -80,8 +80,7 @@ class ChunkrAsync(ChunkrBase):
         Returns:
             TaskResponse: The initial task response
         """
-        filename, file_obj = self._prepare_file(file)
-        files = {"file": (filename, file_obj)}
+        files, data = self._prepare_upload_data(file, config)
         r = await self._client.post(
             f"{self.url}/api/v1/task",
             files=files,
