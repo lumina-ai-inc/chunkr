@@ -231,7 +231,7 @@
 /* Add styles for the header toggle button */
 .main-header-toggle {
   cursor: pointer;
-  margin-right: 16px;
+  margin-right: 8px;
   opacity: 0.9;
   transition: opacity 0.2s ease;
   display: none; /* Hidden by default */
