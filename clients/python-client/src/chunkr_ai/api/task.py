@@ -36,12 +36,11 @@ class TaskResponse(BaseModel):
                 r = self._client._session.get(self.task_url, headers=self._client._headers())
                 r.raise_for_status()
                 return r.json()
-            except Exception as e:
-                # Don't retry for client errors (4xx)
-                if hasattr(e, 'status') and 400 <= e.status < 500:
-                    raise
-                print("An error occurred while polling the task, retrying...")
+            except (ConnectionError, TimeoutError) as _:
+                print("Connection error while polling the task, retrying...")
                 time.sleep(0.5)
+            except Exception as e:
+                raise
 
     async def _poll_request_async(self) -> dict:
         """Helper method to make polling request with retry logic (asynchronous)"""
@@ -53,12 +52,11 @@ class TaskResponse(BaseModel):
                 r = await self._client._client.get(self.task_url, headers=self._client._headers())
                 await r.raise_for_status()
                 return await r.json()
-            except Exception as e:
-                # Don't retry for client errors (4xx)
-                if hasattr(e, 'status') and 400 <= e.status < 500:
-                    raise
-                print("An error occurred while polling the task, retrying...")
+            except (ConnectionError, TimeoutError) as _:
+                print("Connection error while polling the task, retrying...")
                 await asyncio.sleep(0.5)
+            except Exception as e:
+                raise
 
     def _check_status(self) -> Optional['TaskResponse']:
         """Helper method to check task status and handle completion/failure"""

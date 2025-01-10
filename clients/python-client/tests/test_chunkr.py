@@ -3,7 +3,16 @@ from pathlib import Path
 from PIL import Image
 
 from chunkr_ai import Chunkr, ChunkrAsync
-from chunkr_ai.models import ChunkProcessing, Configuration, OcrStrategy, TaskResponse
+from chunkr_ai.models import (
+    ChunkProcessing, 
+    Configuration, 
+    GenerationStrategy, 
+    GenerationConfig,
+    OcrStrategy, 
+    SegmentationStrategy, 
+    SegmentProcessing, 
+    TaskResponse, 
+)
 
 @pytest.fixture
 def chunkr():
@@ -82,3 +91,42 @@ def test_chunk_processing(chunkr, sample_path):
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
+    
+def test_segmentation_strategy_page(chunkr, sample_path):
+    response = chunkr.upload(sample_path, Configuration(
+        segmentation_strategy=SegmentationStrategy.PAGE
+    ))
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    
+def test_page_llm_html(chunkr, sample_path):
+    response = chunkr.upload(sample_path, Configuration(
+        segmentation_strategy=SegmentationStrategy.PAGE,
+        segment_processing=SegmentProcessing(
+            page=GenerationConfig(
+                html=GenerationStrategy.LLM
+            )
+        )
+    ))
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+def test_page_llm(chunkr, sample_path):
+    response = chunkr.upload(sample_path, Configuration(
+        segmentation_strategy=SegmentationStrategy.PAGE,
+        segment_processing=SegmentProcessing(
+            page=GenerationConfig(
+                html=GenerationStrategy.LLM,
+                markdown=GenerationStrategy.LLM
+            )
+        )
+    ))
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    

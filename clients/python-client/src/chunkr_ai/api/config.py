@@ -15,34 +15,28 @@ class LlmConfig(BaseModel):
     prompt: str
     temperature: float = 0.0
 
-class AutoGenerationConfig(BaseModel):
-    html: GenerationStrategy = GenerationStrategy.AUTO
+class GenerationConfig(BaseModel):
+    html: Optional[GenerationStrategy] = None
     llm: Optional[LlmConfig] = None
-    markdown: GenerationStrategy = GenerationStrategy.AUTO
-    crop_image: CroppingStrategy = CroppingStrategy.AUTO
-
-class LlmGenerationConfig(BaseModel):
-    html: GenerationStrategy = GenerationStrategy.LLM
-    llm: Optional[LlmConfig] = None
-    markdown: GenerationStrategy = GenerationStrategy.LLM
-    crop_image: CroppingStrategy = CroppingStrategy.AUTO
+    markdown: Optional[GenerationStrategy] = None
+    crop_image: Optional[CroppingStrategy] = None
 
 class SegmentProcessing(BaseModel):
-    title: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
-    section_header: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
-    text: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
-    list_item: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
-    table: LlmGenerationConfig = Field(default_factory=LlmGenerationConfig)
-    picture: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
-    caption: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
-    formula: LlmGenerationConfig = Field(default_factory=LlmGenerationConfig)
-    footnote: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
-    page_header: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
-    page_footer: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
-    page: AutoGenerationConfig = Field(default_factory=AutoGenerationConfig)
+    title: Optional[GenerationConfig] = None
+    section_header: Optional[GenerationConfig] = None
+    text: Optional[GenerationConfig] = None
+    list_item: Optional[GenerationConfig] = None
+    table: Optional[GenerationConfig] = None
+    picture: Optional[GenerationConfig] = None
+    caption: Optional[GenerationConfig] = None
+    formula: Optional[GenerationConfig] = None
+    footnote: Optional[GenerationConfig] = None
+    page_header: Optional[GenerationConfig] = None
+    page_footer: Optional[GenerationConfig] = None
+    page: Optional[GenerationConfig] = None
 
 class ChunkProcessing(BaseModel):
-    target_length: int = 512
+    target_length: Optional[int] = None
 
 class Property(BaseModel):
     name: str

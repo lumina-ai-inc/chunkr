@@ -1,5 +1,4 @@
 from .api.config import (
-    AutoGenerationConfig,
     BoundingBox,
     Chunk,
     ChunkProcessing,
@@ -7,9 +6,9 @@ from .api.config import (
     CroppingStrategy,
     ExtractedJson,
     GenerationStrategy,
+    GenerationConfig,
     JsonSchema,
     LlmConfig,
-    LlmGenerationConfig,
     Model,
     OCRResult,
     OcrStrategy,
@@ -25,17 +24,16 @@ from .api.config import (
 from .api.task import TaskResponse, TaskPayload
 
 __all__ = [
-    'AutoGenerationConfig',
     'BoundingBox',
     'Chunk',
     'ChunkProcessing',
     'Configuration',
     'CroppingStrategy',
     'ExtractedJson',
+    'GenerationConfig',
     'GenerationStrategy',
     'JsonSchema',
     'LlmConfig',
-    'LlmGenerationConfig',
     'Model',
     'OCRResult',
     'OcrStrategy',

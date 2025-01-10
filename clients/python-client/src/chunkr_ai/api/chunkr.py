@@ -5,9 +5,6 @@ from pathlib import Path
 from PIL import Image
 import requests
 from typing import Union, BinaryIO
-import json
-import os
-from datetime import datetime
 
 class Chunkr(ChunkrBase):
     """Chunkr API client"""
@@ -83,14 +80,7 @@ class Chunkr(ChunkrBase):
         Returns:
             TaskResponse: The initial task response
         """
-        filename, file_obj = self._prepare_file(file)
-        files = {"file": (filename, file_obj)}
-        
-        data = {}
-        if config:
-            config_dict = config.model_dump(mode="json", exclude_none=True)
-            data = {k: str(v) for k, v in config_dict.items()}
-            
+        files, data = self._prepare_upload_data(file, config)
         r = self._session.post(
             f"{self.url}/api/v1/task",
             files=files,
