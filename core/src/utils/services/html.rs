@@ -30,7 +30,7 @@ pub fn extract_table_html(html: String) -> String {
 /// Replaces HTML image tags with their alt text (if available) or removes them entirely.
 /// Useful for converting HTML to plain text while preserving image descriptions.
 ///
-/// # Examples
+/// ### Examples
 ///
 /// ```
 /// let html = r#"<p>Text <img src="pic.jpg" alt="A picture"> more text</p>"#;

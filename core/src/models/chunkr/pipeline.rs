@@ -72,8 +72,14 @@ impl Pipeline {
         status: Status,
         message: Option<String>,
     ) -> Result<(), Box<dyn Error>> {
+        let task_id = self
+            .task_payload
+            .as_ref()
+            .ok_or("Task payload is not initialized")?
+            .task_id
+            .clone();
         log_task(
-            &self.task_payload.as_ref().unwrap().task_id,
+            &task_id,
             status.clone(),
             Some(&message.unwrap_or_default()),
             None,

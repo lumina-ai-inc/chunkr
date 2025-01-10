@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from enum import Enum
 from typing import Optional, List, Dict
 
@@ -40,15 +40,14 @@ class ChunkProcessing(BaseModel):
 
 class Property(BaseModel):
     name: str
-    title: Optional[str]
+    title: Optional[str] = None
     prop_type: str
-    description: Optional[str]
-    default: Optional[str]
+    description: Optional[str] = None
+    default: Optional[str] = None
 
 class JsonSchema(BaseModel):
     title: str
     properties: List[Property]
-    schema_type: Optional[str]
 
 class OcrStrategy(str, Enum):
     ALL = "All"
@@ -121,10 +120,12 @@ class Configuration(BaseModel):
     ocr_strategy: Optional[OcrStrategy] = Field(default=None)
     segment_processing: Optional[SegmentProcessing] = Field(default=None)
     segmentation_strategy: Optional[SegmentationStrategy] = Field(default=None)
-    target_chunk_length: Optional[int] = Field(default=None)
 
-class Status(str, Enum):
-    STARTING = "Starting"
-    PROCESSING = "Processing"
-    SUCCEEDED = "Succeeded"
-    FAILED = "Failed"
+    @model_validator(mode='before')
+    def map_deprecated_fields(cls, values: Dict) -> Dict:
+        if isinstance(values, dict) and "target_chunk_length" in values:
+            target_length = values.pop("target_chunk_length")
+            if target_length is not None:
+                values["chunk_processing"] = values.get("chunk_processing", {}) or {}
+                values["chunk_processing"]["target_length"] = target_length
+        return values
