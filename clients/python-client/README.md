@@ -129,7 +129,13 @@ task = chunkr.upload("document.pdf", config)
 
 - **JSON Schema**
   ```python
-  config = Configuration(json_schema=)
+  config = Configuration(json_schema=JsonSchema(
+      title="Sales Data",
+      properties=[
+          Property(name="Person with highest sales", prop_type="string", description="The person with the highest sales"),
+          Property(name="Person with lowest sales", prop_type="string", description="The person with the lowest sales"),
+      ]
+  ))
   ```
 
 - **OCR Strategy**
