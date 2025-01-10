@@ -54,3 +54,5 @@ coverage.xml
 .pytest_cache/
 
 request_logs/
+
+uv.lock
