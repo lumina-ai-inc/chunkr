@@ -1,6 +1,12 @@
 # Chunkr Python Client
 
-This is the Python client for the Chunkr API. It provides a simple interface to interact with Chunkr's services.
+This provides a simple interface to interact with the Chunkr API.
+
+## Getting Started
+
+You can get an API key from [Chunkr](https://chunkr.ai) or deploy your own Chunkr instance. For self-hosted deployment options, check out our [deployment guide](https://github.com/lumina-ai-inc/chunkr/tree/main?tab=readme-ov-file#self-hosted-deployment-options).
+
+For more information about the API and its capabilities, visit the [Chunkr API docs](https://docs.chunkr.ai).
 
 ## Installation
 
@@ -84,6 +90,74 @@ chunkr.upload(img)
 ```
 
 ### Configuration
+
+You can customize the processing behavior by passing a `Configuration` object:
+
+```python
+from chunkr_ai.models import Configuration, OcrStrategy, SegmentationStrategy, GenerationStrategy
+
+# Basic configuration
+config = Configuration(
+    ocr_strategy=OcrStrategy.AUTO,
+    segmentation_strategy=SegmentationStrategy.LAYOUT_ANALYSIS,
+    high_resolution=True,
+    expires_in=3600,  # seconds
+)
+
+# Upload with configuration
+task = chunkr.upload("document.pdf", config)
+```
+
+#### Available Configuration Examples
+
+- **Chunk Processing**
+  ```python
+  from chunkr_ai.models import ChunkProcessing
+  config = Configuration(
+      chunk_processing=ChunkProcessing(target_length=1024)
+  )
+  ```
+- **Expires In**
+  ```python
+  config = Configuration(expires_in=3600)
+  ```
+
+- **High Resolution**
+  ```python
+  config = Configuration(high_resolution=True)
+  ```
+
+- **JSON Schema**
+  ```python
+  config = Configuration(json_schema=)
+  ```
+
+- **OCR Strategy**
+  ```python
+  config = Configuration(ocr_strategy=OcrStrategy.AUTO)
+  ```
+
+- **Segment Processing**
+  ```python
+  from chunkr_ai.models import SegmentProcessing, GenerationConfig, GenerationStrategy
+  config = Configuration(
+      segment_processing=SegmentProcessing(
+          page=GenerationConfig(
+              html=GenerationStrategy.LLM,
+              markdown=GenerationStrategy.LLM
+          )
+      )
+  )
+  ```
+
+- **Segmentation Strategy**
+  ```python
+  config = Configuration(
+      segmentation_strategy=SegmentationStrategy.LAYOUT_ANALYSIS  # or SegmentationStrategy.PAGE
+  )
+  ```
+
+## Environment setup
 
 You can provide your API key and URL in several ways:
 1. Environment variables: `CHUNKR_API_KEY` and `CHUNKR_URL`

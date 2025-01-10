@@ -8,7 +8,9 @@ from chunkr_ai.models import (
     Configuration, 
     GenerationStrategy, 
     GenerationConfig,
+    JsonSchema,
     OcrStrategy, 
+    Property,
     SegmentationStrategy, 
     SegmentProcessing, 
     TaskResponse, 
@@ -56,12 +58,12 @@ def test_send_opened_file(chunkr, sample_path):
     assert response.status == "Succeeded"
     assert response.output is not None
     
-# def test_send_pil_image(chunkr, sample_image):
-#     response = chunkr.upload(sample_image)
+def test_send_pil_image(chunkr, sample_image):
+    response = chunkr.upload(sample_image)
     
-#     assert isinstance(response, TaskResponse)
-#     assert response.task_id is not None
-#     assert response.status == "Succeeded"
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
 
 def test_ocr_auto(chunkr, sample_path):
     response = chunkr.upload(sample_path, Configuration(
@@ -129,4 +131,30 @@ def test_page_llm(chunkr, sample_path):
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
+  
+def test_json_schema(chunkr, sample_path):
+    response = chunkr.upload(sample_path, Configuration(
+        json_schema=JsonSchema(
+            title="Enrollment and Sales Data",
+            properties=[
+                Property(name="Term with highest enrollment", prop_type="string"),
+                Property(name="Term with lowest enrollment", prop_type="string"),
+                Property(name="Highest Sales", prop_type="string"),
+                Property(name="Lowest Sales", prop_type="string"),
+            ]
+        )
+    ))
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+async def test_async_send_file_path(async_chunkr, sample_path):
+    response = await async_chunkr.upload(sample_path)
+    
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    
     

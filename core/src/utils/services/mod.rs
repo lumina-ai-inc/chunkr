@@ -5,6 +5,7 @@ pub mod html;
 pub mod images;
 pub mod llm;
 pub mod log;
+pub mod markdown;
 pub mod ocr;
 pub mod payload;
 pub mod pdf;
