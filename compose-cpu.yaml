@@ -146,7 +146,7 @@ services:
       - /dev/shm:/dev/shm
     restart: always
 
-  doctr:
+  ocr:
     image: luminainc/doctr:d03718fd
     platform: linux/amd64
     ports:
