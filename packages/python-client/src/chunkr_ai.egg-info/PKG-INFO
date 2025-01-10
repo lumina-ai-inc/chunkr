@@ -1,0 +1,16 @@
+Metadata-Version: 2.2
+Name: chunkr-ai
+Version: 0.0.2
+Summary: Python client for chunkr: open source document intelligence
+Author-email: Ishaan Kapoor <ishaan@lumina.sh>
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: build>=1.2.2.post1
+Requires-Dist: httpx>=0.28.1
+Requires-Dist: pillow>=11.1.0
+Requires-Dist: pydantic>=2.10.4
+Requires-Dist: python-dotenv>=1.0.1
+Requires-Dist: requests>=2.32.3
+Requires-Dist: twine>=6.0.1
+Provides-Extra: test
+Requires-Dist: pytest>=8.3.4; extra == "test"

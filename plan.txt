@@ -1,0 +1,89 @@
+Below is a step-by-step guide on how to implement a tiered system (Free, Basic, Pro, Super) using recurring subscriptions and a fallback to Pay-As-You-Go overages, accompanied by example code snippets and a suggested new database migration.
+
+------------------------------------------------------------------------
+1. DATABASE MIGRATIONS
+
+We need:
+• A new column in the users table to store the Stripe subscription_id.  
+• Extra entries in the usage_limits table for the new tiers.  
+• Possibly a new migration file to handle these changes in your schema.
+
+Below is an example of a new migration file you could create (e.g., “2024-10-01-000001_tiered_system”). Adjust naming/timestamps as needed.
+
+-------------------------
+-- up.sql
+-------------------------
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS subscription_id TEXT;
+
+-- Insert additional usage limits for new tiers (FREE, BASIC, PRO, SUPER):
+INSERT INTO usage_limits (usage_type, tier, usage_limit)
+VALUES
+    ('Fast', 'Basic', 100000),
+    ('Fast', 'Pro', 500000),
+    ('Fast', 'Super', 2000000),
+    ('HighQuality', 'Basic', 50000),
+    ('HighQuality', 'Pro', 250000),
+    ('HighQuality', 'Super', 1000000),
+    ('Segment', 'Basic', 50000),
+    ('Segment', 'Pro', 250000),
+    ('Segment', 'Super', 1000000)
+ON CONFLICT (usage_type, tier) DO NOTHING;
+
+-------------------------
+-- down.sql
+-------------------------
+ALTER TABLE users
+DROP COLUMN IF EXISTS subscription_id;
+
+DELETE FROM usage_limits
+WHERE tier IN ('Basic','Pro','Super');
+
+
+2. UPDATING THE USERS TABLE / TIERS
+
+You already have a “tier” column in the users table, which can hold "Free", "Basic", "Pro", or "Super". Add a subscription_id column for Stripe data. That way, users.subscription_id can be NULL for Free tiers and have a valid subscription string for the paid tiers.
+
+
+3. CREATING A SUBSCRIPTION CHECKOUT IN STRIPE
+
+Add a new route (e.g., create_stripe_subscription_for_tier) to:
+• Accept the tier choice ("Basic", "Pro", or "Super").  
+• Look up the Stripe Price ID in your Config (e.g., stripe_config.basic_price_id).  
+• Retrieve or create a Stripe customer if one doesn’t exist.  
+• Create a subscription at Stripe, retrieve the subscription_id, and store it in users.subscription_id.  
+• Update users.tier to match ("Basic", "Pro", or "Super").
+
+
+4. ON USAGE EXCEEDING TIER
+
+If monthly usage plus newly created task usage exceeds the tier’s usage_limit, record the difference as an overage. This overage is handled by your existing Pay-As-You-Go logic (adding line items to invoices).  
+Once the new month starts (or Stripe’s billing cycle resets), monthly usage in monthly_usage resets to 0, and the process repeats.  
+
+
+5. STRIPE WEBHOOK ADJUSTMENTS
+
+In stripe_webhook:
+• Handle subscription events like invoice.payment_succeeded, customer.subscription.deleted, etc.  
+• If a user cancels their subscription, set users.subscription_id = NULL and tier = "Free" (or "PayAsYouGo").
+
+
+6. UPDATED USAGE FLOW
+
+Use your existing triggers and monthly usage checks:
+• If the user is below the monthly limit for their tier, no additional cost.  
+• If the user exceeds the limit, log overage usage in your Pay-As-You-Go invoice system.  
+• Mark those usage line items as overage and finalize them at month’s end.
+
+
+7. PUTTING IT ALL TOGETHER
+
+Steps:
+1) Migrate the DB (subscription_id, extended usage_limits).  
+2) Create a new subscription route (create_stripe_subscription_for_tier).  
+3) Store subscription_id, set the user’s tier.  
+4) Keep monthly usage in monthly_usage.  
+5) When monthly usage runs out, log overage in an invoice.  
+6) Use Stripe webhooks to handle renewals, cancellations, and finalizing invoice payments.
+
+This design allows a hybrid approach—recurring billing for base usage plus Pay-As-You-Go for overages. 
