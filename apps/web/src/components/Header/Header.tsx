@@ -3,13 +3,8 @@ import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
 import "./Header.css";
 import Dashboard from "../../pages/Dashboard/Dashboard";
-// import { downloadJSON } from "../../utils/utils";
-import ApiKeyDialog from "../ApiDialog/ApiKeyDialog";
-// import { useTaskQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
-import { User } from "../../models/user.model";
 import { getRepoStats } from "../../services/githubApi";
-// import BetterButton from "../BetterButton/BetterButton";
 import { AuthContextProps } from "react-oidc-context";
 
 interface HeaderProps {
@@ -24,11 +19,7 @@ export default function Header({
   auth,
 }: HeaderProps) {
   const [showAccount, setShowAccount] = useState(false);
-  // const [showApiKey, setShowApiKey] = useState(false);
-  console.log(auth);
   const isAuthenticated = auth?.isAuthenticated;
-  // const { taskId } = useParams<{ taskId: string }>();
-  // const { data: taskResponse } = useTaskQuery(taskId);
   const { data: user } = useUser();
   const [repoStats, setRepoStats] = useState({ stars: 0, forks: 0 });
 
@@ -39,19 +30,6 @@ export default function Header({
     };
     fetchStats();
   }, []);
-
-  // const handleDownloadJSON = () => {
-  //   if (taskResponse?.output) {
-  //     downloadJSON(
-  //       taskResponse.output,
-  //       `${taskResponse.file_name?.slice(0, -4)}.json`
-  //     );
-  //   }
-  // };
-
-  // const handleGithubRedirect = () => {
-  //   window.open("https://github.com/lumina-ai-inc/chunk-my-docs", "_blank");
-  // };
 
   return (
     <Flex direction="row" justify="between" className="header">
@@ -182,7 +160,7 @@ export default function Header({
 
           {isAuthenticated ? (
             <Link
-              to="/newDashboard"
+              to="/dashboard"
               style={{ textDecoration: "none" }}
               className="nav-item"
             >

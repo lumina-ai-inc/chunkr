@@ -1,749 +1,659 @@
-import { useState } from "react";
-import { Text, Flex, ScrollArea, Code } from "@radix-ui/themes";
+import { Flex, Text } from "@radix-ui/themes";
 import "./Dashboard.css";
-
-import DashBoardHeader from "./DashBoardHeader";
-import Loader from "../Loader/Loader";
-import { useTasksQuery } from "../../hooks/useTaskQuery";
-import {
-  calculateBillingDueDate,
-  calculateDiscountedBilling,
-} from "../../models/usage.model";
-import useMonthlyUsage from "../../hooks/useMonthlyUsage";
-import Pagination from "../../components/Pagination/Pagination";
 import BetterButton from "../../components/BetterButton/BetterButton";
+import TaskTable from "../../components/TaskTable/TaskTable";
+import { useAuth } from "react-oidc-context";
 import useUser from "../../hooks/useUser";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useTaskQuery } from "../../hooks/useTaskQuery";
+import { Suspense, lazy } from "react";
+import Loader from "../Loader/Loader";
+import Usage from "../../components/Usage/Usage";
+import { useLocation, useNavigate } from "react-router-dom";
+import UploadDialog from "../../components/Upload/UploadDialog";
 import {
   createCustomerSession,
   createSetupIntent,
 } from "../../services/stripeService";
-import { useAuth } from "react-oidc-context";
+import ApiKeyManagement from "../../components/ApiKeyManagement/ApiKeyManagement";
+
+// Lazy load components
+const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
 
 export default function Dashboard() {
+  const auth = useAuth();
+  const user = useUser();
+  const [selectedNav, setSelectedNav] = useState("Tasks");
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
   const [showPaymentSetup, setShowPaymentSetup] = useState(false);
   const [customerSessionSecret, setCustomerSessionSecret] = useState<
     string | null
   >(null);
   const [customerSessionClientSecret, setCustomerSessionClientSecret] =
     useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [isNavOpen, setIsNavOpen] = useState(true);
 
-  const { data: user } = useUser();
+  const location = useLocation();
+  const searchParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search]
+  );
+  const taskId = searchParams.get("taskId");
 
-  const auth = useAuth();
-  const accessToken = auth.user?.access_token;
+  const { data: taskResponse, isLoading } = useTaskQuery(taskId || "");
 
-  const totalTasks = user?.task_count || 0;
-  const totalPages = Math.ceil(totalTasks / itemsPerPage);
+  const navigate = useNavigate();
 
-  const { data: monthlyUsage } = useMonthlyUsage();
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileMenuOpen(false);
+      }
+    }
 
-  const {
-    data: tasks,
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (location.pathname === "/dashboard") {
+      setSelectedNav("Tasks");
+    }
+  }, [location.pathname]);
+
+  const navIcons = {
+    Tasks: (
+      <g>
+        <path
+          d="M12.75 7.5H21.25"
+          stroke="#FFF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M12.75 16.5H21.25"
+          stroke="#FFF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M8.25 4.75H2.75V10.25H8.25V4.75Z"
+          stroke="#FFF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M8.25 13.75H2.75V19.25H8.25V13.75Z"
+          stroke="#FFF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+    ),
+    Usage: (
+      <g>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 22 22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g clip-path="url(#clip0_113_1401)">
+            <path
+              d="M5.25 20.25H6.75C7.30228 20.25 7.75 19.8023 7.75 19.25L7.75 13.75C7.75 13.1977 7.30228 12.75 6.75 12.75H5.25C4.69772 12.75 4.25 13.1977 4.25 13.75L4.25 19.25C4.25 19.8023 4.69772 20.25 5.25 20.25Z"
+              stroke="#FFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M18.25 20.25H19.75C20.3023 20.25 20.75 19.8023 20.75 19.25V9.75C20.75 9.19772 20.3023 8.75 19.75 8.75H18.25C17.6977 8.75 17.25 9.19771 17.25 9.75V19.25C17.25 19.8023 17.6977 20.25 18.25 20.25Z"
+              stroke="#FFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M11.75 20.25H13.25C13.8023 20.25 14.25 19.8023 14.25 19.25L14.25 5.75C14.25 5.19771 13.8023 4.75 13.25 4.75H11.75C11.1977 4.75 10.75 5.19771 10.75 5.75L10.75 19.25C10.75 19.8023 11.1977 20.25 11.75 20.25Z"
+              stroke="#FFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_113_1401">
+              <rect
+                width="24"
+                height="24"
+                fill="white"
+                transform="translate(0.5)"
+              />
+            </clipPath>
+          </defs>
+        </svg>
+      </g>
+    ),
+    "API Keys": (
+      <g>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 22 22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g clip-path="url(#clip0_305_27941)">
+            <path
+              d="M2.75 5.75C2.75 5.19771 3.19772 4.75 3.75 4.75H20.25C20.8023 4.75 21.25 5.19772 21.25 5.75V18.25C21.25 18.8023 20.8023 19.25 20.25 19.25H3.75C3.19772 19.25 2.75 18.8023 2.75 18.25V5.75Z"
+              stroke="#FFF"
+              stroke-width="1.5"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M15.75 13.25H18.25"
+              stroke="#FFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8.25 13.25L5.75 10.75"
+              stroke="#FFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M5.75 13.25L8.25 10.75"
+              stroke="#FFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M13.25 13.25L10.75 10.75"
+              stroke="#FFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M10.75 13.25L13.25 10.75"
+              stroke="#FFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_305_27941">
+              <rect width="24" height="24" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+      </g>
+    ),
+  };
+
+  const handleNavigation = useCallback(
+    (item: string) => {
+      const tableParams = new URLSearchParams();
+      const tablePageIndex = searchParams.get("tablePageIndex");
+      const tablePageSize = searchParams.get("tablePageSize");
+
+      if (tablePageIndex) tableParams.set("tablePageIndex", tablePageIndex);
+      if (tablePageSize) tableParams.set("tablePageSize", tablePageSize);
+
+      if (item === "Tasks" || taskId) {
+        navigate({
+          pathname: "/dashboard",
+          search: tableParams.toString(),
+        });
+      }
+
+      setSelectedNav(item);
+    },
+    [searchParams, navigate, taskId]
+  );
+
+  const handleHeaderNavigation = useCallback(() => {
+    const tableParams = new URLSearchParams();
+    const tablePageIndex = searchParams.get("tablePageIndex");
+    const tablePageSize = searchParams.get("tablePageSize");
+
+    if (tablePageIndex) tableParams.set("tablePageIndex", tablePageIndex);
+    if (tablePageSize) tableParams.set("tablePageSize", tablePageSize);
+
+    navigate({
+      pathname: "/dashboard",
+      search: tableParams.toString(),
+    });
+    setSelectedNav("Tasks");
+  }, [searchParams, navigate]);
+
+  const userDisplayName =
+    user?.data?.first_name && user?.data?.last_name
+      ? `${user.data.first_name} ${user.data.last_name}`
+      : user?.data?.email || "User";
+
+  const handleAddPaymentMethod = useCallback(async () => {
+    const setupIntent = await createSetupIntent(
+      auth.user?.access_token as string
+    );
+    const customerSession = await createCustomerSession(
+      auth.user?.access_token as string
+    );
+    setCustomerSessionSecret(customerSession.customer_session_secret);
+    setCustomerSessionClientSecret(setupIntent.client_secret);
+    setShowPaymentSetup(true);
+  }, [auth.user?.access_token]);
+
+  const content = useMemo(() => {
+    switch (selectedNav) {
+      case "Tasks":
+        if (taskId) {
+          return {
+            title: `Your Tasks > ${taskResponse?.file_name || taskId}`,
+            component: (
+              <Suspense fallback={<Loader />}>
+                {isLoading ? (
+                  <Loader />
+                ) : taskResponse?.output &&
+                  taskResponse?.pdf_url &&
+                  taskResponse?.output ? (
+                  <Viewer key={taskId} task={taskResponse} />
+                ) : null}
+              </Suspense>
+            ),
+          };
+        }
+
+        return {
+          title: "Your Tasks",
+          component: <TaskTable key="task-table" />,
+        };
+      case "Usage":
+        return {
+          title: "Usage",
+          component: (
+            <Usage
+              showPaymentSetup={showPaymentSetup}
+              setShowPaymentSetup={setShowPaymentSetup}
+              customerSessionSecret={customerSessionSecret}
+              customerSessionClientSecret={customerSessionClientSecret}
+              handleAddPaymentMethod={handleAddPaymentMethod}
+            />
+          ),
+        };
+      case "API Keys":
+        return {
+          title: "API Keys",
+          component: <ApiKeyManagement user={user.data} />,
+        };
+      default:
+        return {
+          title: "Your Tasks",
+          component: <TaskTable />,
+        };
+    }
+  }, [
+    selectedNav,
+    taskId,
+    taskResponse,
     isLoading,
-    isError,
-  } = useTasksQuery(currentPage, itemsPerPage);
+    customerSessionClientSecret,
+    customerSessionSecret,
+    showPaymentSetup,
+    handleAddPaymentMethod,
+    user,
+  ]);
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+  const toggleNav = () => {
+    setIsNavOpen(!isNavOpen);
   };
-
-  const handleAddPaymentMethod = async () => {
-    try {
-      const customerSessionSecret = await createCustomerSession(
-        accessToken as string
-      );
-      const customerSessionClientSecret = await createSetupIntent(
-        accessToken as string
-      );
-      setCustomerSessionSecret(customerSessionSecret);
-      setCustomerSessionClientSecret(customerSessionClientSecret);
-      setShowPaymentSetup(true);
-    } catch (error) {
-      console.error("Error creating Stripe Setup Intent:", error);
-    }
-  };
-
-  if (!user) {
-    return <Loader />;
-  }
-
-  if (!monthlyUsage) {
-    return <Loader />;
-  }
-
-  const calculateTotalUsage = (usageType: string, tier: string) => {
-    if (!monthlyUsage) return 0;
-
-    if (tier === "Free") {
-      return monthlyUsage.reduce((total, month) => {
-        const usage = month.usage_details.find(
-          (u) => u.usage_type === usageType
-        );
-        return total + (usage?.count || 0);
-      }, 0);
-    } else {
-      return (
-        monthlyUsage[0]?.usage_details.find(
-          (usage) => usage.usage_type === usageType
-        )?.count || 0
-      );
-    }
-  };
-
-  const fastUsage = calculateTotalUsage("Fast", user?.tier);
-  const highQualityUsage = calculateTotalUsage("HighQuality", user?.tier);
-
-  const fastLimit =
-    user?.usage?.find((u) => u.usage_type === "Fast")?.usage_limit || 0;
-  const highQualityLimit =
-    user?.usage?.find((u) => u.usage_type === "HighQuality")?.usage_limit || 0;
-
-  const fastDiscount =
-    user?.usage?.find((u) => u.usage_type === "Fast")?.discounts?.[0]?.amount ||
-    0;
-  const highQualityDiscount =
-    user?.usage?.find((u) => u.usage_type === "HighQuality")?.discounts?.[0]
-      ?.amount || 0;
-
-  const fastDiscountedUsage = Math.max(0, fastDiscount - fastUsage);
-  const highQualityDiscountedUsage = Math.max(
-    0,
-    highQualityDiscount - highQualityUsage
-  );
-
-  const fastCost =
-    monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "Fast")
-      ?.cost || 0;
-  const highQualityCost =
-    monthlyUsage?.[0]?.usage_details.find((u) => u.usage_type === "HighQuality")
-      ?.cost || 0;
-  const totalCost = fastCost + highQualityCost;
-
-  const adjustedBillingAmount = Number(
-    calculateDiscountedBilling(
-      fastUsage,
-      highQualityUsage,
-      fastDiscount,
-      highQualityDiscount,
-      fastCost,
-      highQualityCost
-    ).toFixed(3)
-  );
-
-  const billingAmount = Math.max(0, Number(totalCost.toFixed(3)));
-
-  const billingDueDate = monthlyUsage?.[0]?.month
-    ? calculateBillingDueDate(monthlyUsage[0].month)
-    : null;
 
   return (
-    <div className="dashboard-container" style={{ width: "100%" }}>
-      <Flex className="dashboard-header">
-        <DashBoardHeader
-          {...user}
-          showPaymentSetup={showPaymentSetup}
-          setShowPaymentSetup={setShowPaymentSetup}
-          customerSessionSecret={customerSessionSecret}
-          customerSessionClientSecret={customerSessionClientSecret}
-          handleAddPaymentMethod={handleAddPaymentMethod}
-        />
-      </Flex>
-      <ScrollArea
-        scrollbars="vertical"
-        style={{ height: "100%", width: "100%" }}
+    <Flex direction="row" width="100%" height="100%">
+      <Flex
+        className={`dashboard-nav-container ${isNavOpen ? "" : "closed"}`}
+        align="start"
+        direction="column"
       >
-        <Flex direction="row" className="dashboard-content" maxWidth="100vw">
+        <Flex className="dashboard-nav-header">
           <Flex
-            direction="column"
-            className="dashboard-content-left"
-            width="100%"
+            gap="8px"
+            align="center"
+            justify="center"
+            onClick={() => navigate("/")}
+            style={{ cursor: "pointer" }}
           >
-            <Text size="9" weight="bold" style={{ color: "var(--cyan-1)" }}>
-              Dashboard
-            </Text>
-            <Text
-              size="6"
-              mt="2"
-              mb="2"
-              weight="medium"
-              style={{ color: "hsla(180, 100%, 100%, 0.9)" }}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 22 22"
+              fill="none"
             >
-              {user?.first_name} {user?.last_name}
+              <path
+                d="M5.39 8.965C5.88975 9.16504 6.43722 9.21401 6.96454 9.10584C7.49186 8.99767 7.97584 8.73711 8.35648 8.35648C8.73711 7.97584 8.99767 7.49186 9.10584 6.96454C9.21401 6.43722 9.16504 5.88975 8.965 5.39C9.54645 5.23345 10.0604 4.89038 10.4281 4.41346C10.7957 3.93655 10.9966 3.35215 11 2.75C12.6317 2.75 14.2267 3.23385 15.5835 4.14038C16.9402 5.0469 17.9976 6.33537 18.622 7.84286C19.2464 9.35035 19.4098 11.0092 19.0915 12.6095C18.7732 14.2098 17.9874 15.6798 16.8336 16.8336C15.6798 17.9874 14.2098 18.7732 12.6095 19.0915C11.0092 19.4098 9.35035 19.2464 7.84286 18.622C6.33537 17.9976 5.0469 16.9402 4.14038 15.5835C3.23385 14.2267 2.75 12.6317 2.75 11C3.35215 10.9966 3.93655 10.7957 4.41346 10.4281C4.89038 10.0604 5.23345 9.54645 5.39 8.965Z"
+                stroke="url(#paint0_linear_293_747)"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <defs>
+                <linearGradient
+                  id="paint0_linear_293_747"
+                  x1="11"
+                  y1="2.75"
+                  x2="11"
+                  y2="19.25"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stop-color="white" />
+                  <stop offset="1" stop-color="#DCE4DD" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <Text size="5" weight="bold" mb="2px" style={{ color: "#FFF" }}>
+              chunkr
             </Text>
-            {user?.tier === "Free" && (
-              <Flex className="callout" onClick={handleAddPaymentMethod}>
-                <Text
-                  size="2"
-                  weight="medium"
-                  style={{ color: "var(--amber-4)" }}
-                >
-                  Add a payment method to increase limits
-                </Text>
-
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <rect
-                    width="16"
-                    height="16"
-                    fill="white"
-                    fillOpacity="0.01"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M8.68955 3.35623C8.89782 3.14794 9.23551 3.14794 9.44378 3.35623L13.7105 7.6229C13.9187 7.83117 13.9187 8.16886 13.7105 8.37713L9.44378 12.6439C9.23551 12.8521 8.89782 12.8521 8.68955 12.6439C8.48126 12.4355 8.48126 12.0978 8.68955 11.8895L12.0458 8.53335H2.66666C2.37212 8.53335 2.13333 8.29456 2.13333 8.00002C2.13333 7.70547 2.37212 7.46668 2.66666 7.46668H12.0458L8.68955 4.11047C8.48126 3.90219 8.48126 3.56451 8.68955 3.35623Z"
-                    fill="#FFEE9C"
-                  />
-                </svg>
-              </Flex>
-            )}
-            <Flex direction="row" gap="6" justify="between" mt="5" wrap="wrap">
-              <Flex
-                flexGrow="1"
-                direction="column"
-                p="5"
-                style={{
-                  border: "2px solid hsla(180, 100%, 100%, 0.1)",
-                  borderRadius: "8px",
-                }}
-              >
-                <Flex direction="row" justify="between">
-                  <Flex
-                    direction="row"
-                    gap="2"
-                    align="center"
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: "4px",
-                      width: "fit-content",
-                      border: "1px solid hsla(180, 100%, 100%, 0.1)",
-                      backgroundColor: "hsla(180, 100%, 100%, 0.05)",
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <rect
-                        width="16"
-                        height="16"
-                        fill="white"
-                        fillOpacity="0.01"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M9.27645 0.0430443C9.5025 0.139774 9.63313 0.378514 9.5927 0.621051L8.62955 6.40001H13.3333C13.5353 6.40001 13.72 6.51414 13.8103 6.69484C13.9007 6.87552 13.8812 7.09173 13.7599 7.25334L7.35997 15.7867C7.21245 15.9834 6.94956 16.0537 6.7235 15.957C6.49744 15.8603 6.36681 15.6215 6.40723 15.379L7.37039 9.6H2.66666C2.46465 9.6 2.27998 9.48587 2.18963 9.30518C2.0993 9.1245 2.11878 8.90828 2.23999 8.74667L8.63997 0.213374C8.7875 0.0166672 9.05039 -0.0536855 9.27645 0.0430443ZM3.73332 8.53334H7.99997C8.15675 8.53334 8.30558 8.60231 8.40691 8.72194C8.50825 8.84156 8.55182 8.99971 8.52605 9.15435L7.81895 13.3969L12.2667 7.46668H7.99997C7.8432 7.46668 7.69437 7.3977 7.59302 7.27808C7.49169 7.15845 7.44812 7.00031 7.4739 6.84566L8.18099 2.60311L3.73332 8.53334Z"
-                        fill="hsla(180, 100%, 100%, 1)"
-                      />
-                    </svg>
-                    <Text
-                      size="2"
-                      weight="medium"
-                      style={{ color: "hsla(180, 100%, 100%, 1)" }}
-                    >
-                      Fast ($0.005/page)
-                    </Text>
-                  </Flex>
-                  {user?.tier === "PayAsYouGo" && fastDiscountedUsage < 0 && (
-                    <Flex
-                      direction="row"
-                      gap="2"
-                      align="center"
-                      style={{
-                        padding: "6px 12px",
-                        borderRadius: "4px",
-                        width: "fit-content",
-                        border: "1px solid hsla(180, 100%, 100%, 0.1)",
-                        backgroundColor: "hsla(180, 100%, 100%, 0.9)",
-                      }}
-                    >
-                      <Text
-                        size="2"
-                        weight="medium"
-                        style={{ color: "hsla(0, 0%, 0%, 1)" }}
-                      >
-                        {fastDiscount} free pages
-                      </Text>
-                    </Flex>
-                  )}
-                </Flex>
-
-                {user?.tier === "PayAsYouGo" && (
-                  <Text
-                    size="8"
-                    mt="4"
-                    weight="bold"
-                    style={{
-                      color:
-                        fastUsage >= fastLimit
-                          ? "var(--red-9)"
-                          : "hsla(180, 100%, 100%, 1)",
-                    }}
-                  >
-                    {fastUsage}
-                    <Text
-                      size="4"
-                      weight="medium"
-                      style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
-                    >
-                      {" "}
-                      / {fastLimit} pages
-                    </Text>
-                  </Text>
-                )}
-                {user?.tier === "Free" && (
-                  <Text
-                    size="8"
-                    mt="4"
-                    weight="bold"
-                    style={{
-                      color:
-                        fastUsage >= fastLimit
-                          ? "var(--red-9)"
-                          : "hsla(180, 100%, 100%, 1)",
-                    }}
-                  >
-                    {fastUsage}
-                    <Text
-                      size="4"
-                      weight="medium"
-                      style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
-                    >
-                      {" "}
-                      / {fastLimit} pages
-                    </Text>
-                  </Text>
-                )}
-                {user?.tier === "SelfHosted" && (
-                  <Text
-                    size="8"
-                    mt="4"
-                    weight="bold"
-                    style={{ color: "hsla(180, 100%, 100%, 1)" }}
-                  >
-                    {fastUsage} pages
-                  </Text>
-                )}
-              </Flex>
-              <Flex
-                flexGrow="1"
-                direction="column"
-                p="5"
-                style={{
-                  border: "2px solid hsla(180, 100%, 100%, 0.1)",
-                  borderRadius: "8px",
-                }}
-              >
-                <Flex direction="row" justify="between">
-                  <Flex
-                    direction="row"
-                    gap="2"
-                    align="center"
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: "4px",
-                      width: "fit-content",
-                      border: "1px solid hsla(180, 100%, 100%, 0.1)",
-                      backgroundColor: "hsla(180, 100%, 100%, 0.05)",
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <rect
-                        width="16"
-                        height="16"
-                        fill="white"
-                        fillOpacity="0.01"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M0.935547 8.00221C0.935547 4.0994 4.0994 0.935547 8.00222 0.935547C11.905 0.935547 15.0689 4.0994 15.0689 8.00221C15.0689 11.905 11.905 15.0689 8.00222 15.0689C4.0994 15.0689 0.935547 11.905 0.935547 8.00221ZM1.97225 7.4667C2.22784 4.55082 4.55082 2.22784 7.4667 1.97225V4.80003C7.4667 5.09458 7.70547 5.33337 8.00003 5.33337C8.29458 5.33337 8.53337 5.09458 8.53337 4.80003V1.97186C11.4513 2.22553 13.7764 4.54935 14.0322 7.4667H11.2C10.9055 7.4667 10.6667 7.70547 10.6667 8.00003C10.6667 8.29458 10.9055 8.53337 11.2 8.53337H14.0325C13.7788 11.4527 11.4527 13.7788 8.53337 14.0325V11.2C8.53337 10.9055 8.29458 10.6667 8.00003 10.6667C7.70547 10.6667 7.4667 10.9055 7.4667 11.2V14.0322C4.54935 13.7764 2.22553 11.4513 1.97186 8.53337H4.80003C5.09458 8.53337 5.33337 8.29458 5.33337 8.00003C5.33337 7.70547 5.09458 7.4667 4.80003 7.4667H1.97225Z"
-                        fill="hsla(180, 100%, 100%, 1)"
-                      />
-                    </svg>
-                    <Text
-                      size="2"
-                      weight="medium"
-                      style={{ color: "hsla(180, 100%, 100%, 1)" }}
-                    >
-                      High Quality ($0.01/page)
-                    </Text>
-                  </Flex>
-                  {user?.tier === "PayAsYouGo" &&
-                    highQualityDiscountedUsage < 0 && (
-                      <Flex
-                        direction="row"
-                        gap="2"
-                        align="center"
-                        style={{
-                          padding: "6px 12px",
-                          borderRadius: "4px",
-                          width: "fit-content",
-                          border: "1px solid hsla(180, 100%, 100%, 0.1)",
-                          backgroundColor: "hsla(180, 100%, 100%, 0.9)",
-                        }}
-                      >
-                        <Text
-                          size="2"
-                          weight="medium"
-                          style={{ color: "hsla(0, 0%, 0%, 1)" }}
-                        >
-                          {highQualityDiscount} free pages
-                        </Text>
-                      </Flex>
-                    )}
-                </Flex>
-                {user?.tier === "PayAsYouGo" && (
-                  <Text
-                    size="8"
-                    mt="4"
-                    weight="bold"
-                    style={{
-                      color:
-                        highQualityUsage >= highQualityLimit
-                          ? "var(--red-9)"
-                          : "hsla(180, 100%, 100%, 1)",
-                    }}
-                  >
-                    {highQualityUsage}
-                    <Text
-                      size="4"
-                      weight="medium"
-                      style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
-                    >
-                      {" "}
-                      <>/ {highQualityLimit} pages</>
-                    </Text>
-                  </Text>
-                )}
-                {user?.tier === "Free" && (
-                  <Text
-                    size="8"
-                    mt="4"
-                    weight="bold"
-                    style={{
-                      color:
-                        highQualityUsage >= highQualityLimit
-                          ? "var(--red-9)"
-                          : "hsla(180, 100%, 100%, 1)",
-                    }}
-                  >
-                    {highQualityUsage}
-                    <Text
-                      size="4"
-                      weight="medium"
-                      style={{ color: "hsla(180, 100%, 100%, 0.7)" }}
-                    >
-                      {" "}
-                      <>/ {highQualityLimit} pages</>
-                    </Text>
-                  </Text>
-                )}
-                {user?.tier === "SelfHosted" && (
-                  <Text
-                    size="8"
-                    mt="4"
-                    weight="bold"
-                    style={{ color: "hsla(180, 100%, 100%, 1)" }}
-                  >
-                    {highQualityUsage} pages
-                  </Text>
-                )}
-              </Flex>
-
-              {user?.tier === "PayAsYouGo" && (
+          </Flex>
+          <Flex className="dashboard-toggle" onClick={toggleNav}>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21.97 15V9C21.97 4 19.97 2 14.97 2H8.96997C3.96997 2 1.96997 4 1.96997 9V15C1.96997 20 3.96997 22 8.96997 22H14.97C19.97 22 21.97 20 21.97 15Z"
+                stroke="#FFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M7.96997 2V22"
+                stroke="#FFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M14.97 9.43994L12.41 11.9999L14.97 14.5599"
+                stroke="#FFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Flex>
+        </Flex>
+        <Flex
+          className="dashboard-nav-body"
+          direction="column"
+          justify="between"
+        >
+          <Flex direction="column">
+            <Flex className="dashboard-nav-items" direction="column">
+              {["Tasks", "API Keys", "Usage"].map((item) => (
                 <Flex
-                  flexGrow="1"
-                  p="5"
-                  direction="column"
-                  style={{
-                    border: "2px solid hsla(180, 100%, 100%, 0.1)",
-                    borderRadius: "8px",
-                  }}
+                  key={item}
+                  className={`dashboard-nav-item ${selectedNav === item ? "selected" : ""}`}
+                  onClick={() => handleNavigation(item)}
                 >
-                  <Flex direction="row" justify="between">
-                    <Flex
-                      direction="row"
-                      gap="2"
-                      align="center"
-                      style={{
-                        padding: "6px 12px",
-                        borderRadius: "4px",
-                        width: "fit-content",
-                        border: "1px solid hsla(180, 100%, 100%, 0.1)",
-                        backgroundColor: "hsla(180, 100%, 100%, 0.05)",
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <rect
-                          width="16"
-                          height="16"
-                          fill="white"
-                          fillOpacity="0.01"
-                        />
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M4.48 1.06668H4.4559C4.12733 1.06667 3.84393 1.06666 3.61183 1.08873C3.36614 1.11209 3.12347 1.16389 2.89733 1.30246C2.68205 1.43438 2.50105 1.6154 2.36911 1.83068C2.23054 2.05681 2.17874 2.29949 2.15538 2.54518C2.13331 2.77726 2.13332 3.06065 2.13333 3.38922V3.41335V12.5867V12.6108C2.13332 12.9394 2.13331 13.2227 2.15538 13.4548C2.17874 13.7005 2.23054 13.9432 2.36911 14.1693C2.50105 14.3847 2.68205 14.5657 2.89733 14.6976C3.12347 14.8362 3.36614 14.8879 3.61183 14.9113C3.84393 14.9333 4.12733 14.9333 4.4559 14.9333H4.48H11.52H11.5441C11.8726 14.9333 12.1561 14.9333 12.3882 14.9113C12.6338 14.8879 12.8765 14.8362 13.1026 14.6976C13.318 14.5657 13.499 14.3847 13.6309 14.1693C13.7695 13.9432 13.8212 13.7005 13.8446 13.4548C13.8667 13.2227 13.8667 12.9393 13.8667 12.6108V12.5867V3.41335V3.38925C13.8667 3.06067 13.8667 2.77727 13.8446 2.54518C13.8212 2.29949 13.7695 2.05681 13.6309 1.83068C13.499 1.6154 13.318 1.43438 13.1026 1.30246C12.8765 1.16389 12.6338 1.11209 12.3882 1.08873C12.1561 1.06666 11.8726 1.06667 11.5441 1.06668H11.52H4.48ZM3.45467 2.21194C3.48504 2.19333 3.5452 2.16654 3.7128 2.15061C3.88834 2.13391 4.12051 2.13335 4.48 2.13335H11.52C11.8795 2.13335 12.1117 2.13391 12.2873 2.15061C12.4548 2.16654 12.515 2.19333 12.5454 2.21194C12.6171 2.25592 12.6774 2.31625 12.7214 2.38801C12.7401 2.41838 12.7668 2.47854 12.7827 2.64615C12.7995 2.82169 12.8 3.05386 12.8 3.41335V12.5867C12.8 12.9461 12.7995 13.1784 12.7827 13.3539C12.7668 13.5215 12.7401 13.5817 12.7214 13.6121C12.6774 13.6837 12.6171 13.7441 12.5454 13.7881C12.515 13.8067 12.4548 13.8335 12.2873 13.8494C12.1117 13.8661 11.8795 13.8667 11.52 13.8667H4.48C4.12051 13.8667 3.88834 13.8661 3.7128 13.8494C3.5452 13.8335 3.48504 13.8067 3.45467 13.7881C3.3829 13.7441 3.32257 13.6837 3.27859 13.6121C3.25999 13.5817 3.2332 13.5215 3.21726 13.3539C3.20057 13.1784 3.2 12.9461 3.2 12.5867V3.41335C3.2 3.05386 3.20057 2.82169 3.21726 2.64615C3.2332 2.47854 3.25999 2.41838 3.27859 2.38801C3.32257 2.31625 3.3829 2.25592 3.45467 2.21194ZM5.33333 10.6667C5.03878 10.6667 4.8 10.9055 4.8 11.2C4.8 11.4945 5.03878 11.7333 5.33333 11.7333H8.53333C8.82788 11.7333 9.06667 11.4945 9.06667 11.2C9.06667 10.9055 8.82788 10.6667 8.53333 10.6667H5.33333ZM4.8 8.00001C4.8 7.70547 5.03878 7.46668 5.33333 7.46668H10.6667C10.9612 7.46668 11.2 7.70547 11.2 8.00001C11.2 8.29456 10.9612 8.53335 10.6667 8.53335H5.33333C5.03878 8.53335 4.8 8.29456 4.8 8.00001ZM5.33333 4.26668C5.03878 4.26668 4.8 4.50547 4.8 4.80001C4.8 5.09456 5.03878 5.33335 5.33333 5.33335H10.6667C10.9612 5.33335 11.2 5.09456 11.2 4.80001C11.2 4.50547 10.9612 4.26668 10.6667 4.26668H5.33333Z"
-                          fill="hsla(180, 100%, 100%, 1)"
-                        />
-                      </svg>
-                      <Text
-                        size="2"
-                        weight="medium"
-                        style={{ color: "hsla(180, 100%, 100%, 1)" }}
-                      >
-                        Billing
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 22 22"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    {navIcons[item as keyof typeof navIcons]}
+                  </svg>
+                  <Text
+                    size="3"
+                    weight="medium"
+                    style={{
+                      color: selectedNav === item ? "rgb(2, 5, 6)" : "#FFF",
+                    }}
+                  >
+                    {item}
+                  </Text>
+                </Flex>
+              ))}
+            </Flex>
+          </Flex>
+
+          <Flex className="profile-section" direction="column">
+            <Flex
+              ref={profileRef}
+              className="profile-info"
+              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+              style={{ position: "relative" }}
+            >
+              <Flex gap="12px" align="center">
+                <Flex direction="column" gap="4px">
+                  <Text size="3" weight="bold" style={{ color: "#FFF" }}>
+                    {userDisplayName}
+                  </Text>
+                  <Text size="1" style={{ color: "rgba(255,255,255,0.8)" }}>
+                    Free Plan
+                  </Text>
+                </Flex>
+              </Flex>
+              {isProfileMenuOpen && (
+                <Flex className="profile-popup">
+                  <Flex className="profile-menu" direction="column">
+                    <Flex className="profile-menu-item">
+                      <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                        Support
                       </Text>
                     </Flex>
-                    {billingDueDate && (
-                      <Text
-                        size="2"
-                        weight="medium"
-                        style={{ color: "hsla(180, 100%, 100%, 1)" }}
-                      >
-                        Due {billingDueDate}
+                    <Flex className="profile-menu-item">
+                      <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                        Terms of Service
                       </Text>
-                    )}
+                    </Flex>
+                    <Flex
+                      className="profile-menu-item"
+                      onClick={() => auth.signoutRedirect()}
+                    >
+                      <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                        Logout
+                      </Text>
+                    </Flex>
                   </Flex>
-                  <Text
-                    size="8"
-                    mt="4"
-                    weight="bold"
-                    style={{ color: "hsla(180, 100%, 100%, 1)" }}
-                  >
-                    ${billingAmount}
-                  </Text>
                 </Flex>
               )}
             </Flex>
-            {user?.tier === "PayAsYouGo" &&
-              (fastDiscount > 0 || highQualityDiscount > 0) && (
-                <Flex
-                  direction="row"
-                  p="4"
-                  mt="4"
-                  align="center"
-                  gap="2"
-                  style={{
-                    backgroundColor: "hsla(180, 100%, 100%, 0.1)",
-                    borderRadius: "4px",
-                    color: "hsla(180, 100%, 100%, 1)",
-                  }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                  >
-                    <rect
-                      width="16"
-                      height="16"
-                      fill="white"
-                      fillOpacity="0.01"
-                    />
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M7.9999 0.935349C4.09837 0.935349 0.935547 4.09817 0.935547 7.9997C0.935547 11.9012 4.09837 15.0641 7.9999 15.0641C11.9014 15.0641 15.0642 11.9012 15.0642 7.9997C15.0642 4.09817 11.9014 0.935349 7.9999 0.935349ZM1.94887 7.9997C1.94887 4.65782 4.65802 1.94868 7.9999 1.94868C11.3418 1.94868 14.0509 4.65782 14.0509 7.9997C14.0509 11.3415 11.3418 14.0508 7.9999 14.0508C4.65802 14.0508 1.94887 11.3415 1.94887 7.9997ZM8.79991 4.79999C8.79991 5.24181 8.44174 5.59999 7.99991 5.59999C7.55809 5.59999 7.19991 5.24181 7.19991 4.79999C7.19991 4.35815 7.55809 3.99999 7.99991 3.99999C8.44174 3.99999 8.79991 4.35815 8.79991 4.79999ZM6.40003 6.39999H6.93337H8.00003C8.29459 6.39999 8.53336 6.63876 8.53336 6.93332V10.6667H9.0667H9.60003V11.7333H9.0667H8.00003H6.93337H6.40003V10.6667H6.93337H7.4667V7.46665H6.93337H6.40003V6.39999Z"
-                      fill="white"
-                    />
-                  </svg>
-                  <Text size="2" weight="medium">
-                    A discount of{" "}
-                    {fastDiscount > 0 && highQualityDiscount > 0
-                      ? `${fastDiscount} fast and ${highQualityDiscount} high-quality`
-                      : fastDiscount > 0
-                        ? `${fastDiscount} fast`
-                        : `${highQualityDiscount} high-quality`}{" "}
-                    pages will be applied to your account for this billing
-                    period.
-                    <b>Your adjusted bill is ${adjustedBillingAmount}.</b>
-                  </Text>
-                </Flex>
-              )}
-
-            {((user?.tier === "Free" &&
-              (fastUsage >= fastLimit ||
-                highQualityUsage >= highQualityLimit)) ||
-              (user?.tier === "PayAsYouGo" &&
-                (fastUsage >= fastLimit ||
-                  highQualityUsage >= highQualityLimit))) && (
-              <Flex
-                direction="row"
-                p="4"
-                mt="4"
-                align="center"
-                gap="2"
-                style={{
-                  backgroundColor: "hsla(0, 100%, 50%, 0.1)",
-                  borderRadius: "4px",
-                  color: "hsla(0, 100%, 100%, 1)",
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM7 12C7 11.4477 7.44772 11 8 11C8.55228 11 9 11.4477 9 12C9 12.5523 8.55228 13 8 13C7.44772 13 7 12.5523 7 12ZM8 3C7.44772 3 7 3.44772 7 4V8C7 8.55228 7.44772 9 8 9C8.55228 9 9 8.55228 9 8V4C9 3.44772 8.55228 3 8 3Z"
-                    fill="hsla(0, 100%, 100%, 1)"
-                  />
-                </svg>
-                <Text size="2" weight="medium">
-                  {user?.tier === "Free"
-                    ? "You've reached your free usage limit. Add a payment method to increase your limits and continue using our services."
-                    : "You've reached your usage limit. Please contact us to move to an enterprise plan for higher limits."}
-                </Text>
-                <Flex ml="auto">
-                  {user?.tier === "Free" ? (
-                    <Text
-                      size="1"
-                      weight="medium"
-                      style={{ color: "var(--cyan-9)" }}
-                    >
-                      Add Payment Method
-                    </Text>
-                  ) : (
-                    <BetterButton
-                      onClick={() => {
-                        window.open("https://cal.com/mehulc/30min", "_blank");
-                      }}
-                    >
-                      <Text size="1" weight="medium" className="white">
-                        Contact Us
-                      </Text>
-                    </BetterButton>
-                  )}
-                </Flex>
-              </Flex>
-            )}
-          </Flex>
-
-          <Flex direction="column" className="dashboard-content-right">
-            <ScrollArea
-              scrollbars="vertical"
-              style={{ height: "100%", width: "100%" }}
-            >
-              <Flex direction="column" gap="5" width="100%">
-                <Flex direction="row" justify="between" width="100%">
-                  <Flex direction="row" align="center" gap="2" mb="2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <rect
-                        width="24"
-                        height="24"
-                        fill="white"
-                        fillOpacity="0.01"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M12.4069 2.91125C12.1559 2.7629 11.844 2.7629 11.5929 2.91125L2.79294 8.11125C2.54937 8.25517 2.39993 8.51706 2.39993 8.79999C2.39993 9.08292 2.54937 9.3448 2.79294 9.48872L11.5929 14.6887C11.844 14.8371 12.1559 14.8371 12.4069 14.6887L21.2069 9.48872C21.4506 9.3448 21.6 9.08292 21.6 8.79999C21.6 8.51706 21.4506 8.25517 21.2069 8.11125L12.4069 2.91125ZM11.9999 13.0708L4.77248 8.79999L11.9999 4.52922L19.2274 8.79999L11.9999 13.0708ZM3.60691 13.3113C3.22653 13.0865 2.73597 13.2126 2.51118 13.593C2.28641 13.9734 2.41256 14.464 2.79294 14.6887L11.5929 19.8888C11.844 20.0371 12.1559 20.0371 12.4069 19.8888L21.2069 14.6887C21.5874 14.464 21.7134 13.9734 21.4886 13.593C21.2638 13.2126 20.7733 13.0865 20.393 13.3113L11.9999 18.2707L3.60691 13.3113Z"
-                        fill="var(--cyan-2)"
-                      />
-                    </svg>
-                    <Text
-                      size="6"
-                      weight="bold"
-                      style={{ color: "var(--cyan-2)" }}
-                    >
-                      Tasks
-                    </Text>
-                  </Flex>
-                  {totalPages > 1 && (
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                </Flex>
-
-                {tasks?.length === 0 && (
-                  <Flex direction="column" width="100%">
-                    <Flex direction="row" gap="4" mb="4">
-                      <Text
-                        size="4"
-                        weight="regular"
-                        style={{ color: "hsla(180, 100%, 100%, 0.9)" }}
-                      >
-                        Create a task through the homepage or API.
-                      </Text>
-                    </Flex>
-                    <Code
-                      size="4"
-                      weight="regular"
-                      style={{
-                        color: "hsla(180, 100%, 100%)",
-                        backgroundColor: "hsla(180, 100%, 100%, 0.05)",
-                        padding: "24px",
-                      }}
-                    >
-                      <pre>
-                        <code>
-                          {`curl -X POST ${import.meta.env.VITE_API_URL}/api/v1/task \\
-  -H "Content-Type: multipart/form-data" \\
-  -H "Authorization: ${user?.api_keys[0]}" \\
-  -F "file=@/path/to/your/file.pdf" \\
-  -F "model=HighQuality" \\
-  -F "target_chunk_length=512" \\
-  -F "ocr_strategy=Auto"`}
-                        </code>
-                      </pre>
-                    </Code>
-                  </Flex>
-                )}
-
-                {isLoading ? (
-                  <Loader />
-                ) : isError ? (
-                  <Text style={{ color: "var(--red-9)" }}>
-                    Error - try refreashing the page
-                  </Text>
-                ) : (
-                  <Flex direction="column" width="100%" gap="6"></Flex>
-                )}
-              </Flex>
-            </ScrollArea>
           </Flex>
         </Flex>
-      </ScrollArea>
-    </div>
+      </Flex>
+      <Flex direction="column" className="main-container">
+        <Flex className="main-header">
+          <Flex gap="8px" align="center">
+            <div className="main-header-toggle" onClick={toggleNav}>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M21.97 15V9C21.97 4 19.97 2 14.97 2H8.96997C3.96997 2 1.96997 4 1.96997 9V15C1.96997 20 3.96997 22 8.96997 22H14.97C19.97 22 21.97 20 21.97 15Z"
+                  stroke="#FFF"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M14.97 2V22"
+                  stroke="#FFF"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M7.96997 9.43994L10.53 11.9999L7.96997 14.5599"
+                  stroke="#FFF"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <Flex
+              onClick={handleHeaderNavigation}
+              style={{ cursor: "pointer" }}
+            >
+              <Text size="5" weight="bold" className="main-header-text">
+                {taskId ? "Your Tasks" : content.title}
+              </Text>
+            </Flex>
+            {taskId && taskResponse?.file_name && (
+              <>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9 6L15 12L9 18"
+                    stroke="#FFFFFF"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <Flex className="header-task-tag">
+                  <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                    {taskResponse?.file_name || taskId}
+                  </Text>
+                </Flex>
+              </>
+            )}
+          </Flex>
+          <Flex gap="24px">
+            <UploadDialog auth={auth} />
+            <BetterButton>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 25 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g clip-path="url(#clip0_113_1419)">
+                  <path
+                    d="M9.25 6.75H15.75"
+                    stroke="#FFF"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M8 15.75H19.75V21.25H8C6.48 21.25 5.25 20.02 5.25 18.5C5.25 16.98 6.48 15.75 8 15.75Z"
+                    stroke="#FFF"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M5.25 18.5V5.75C5.25 4.09315 6.59315 2.75 8.25 2.75H18.75C19.3023 2.75 19.75 3.19772 19.75 3.75V16"
+                    stroke="#FFF"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_113_1419">
+                    <rect
+                      width="24"
+                      height="24"
+                      fill="white"
+                      transform="translate(0.5)"
+                    />
+                  </clipPath>
+                </defs>
+              </svg>
+
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Docs
+              </Text>
+            </BetterButton>
+            <BetterButton>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                fill="none"
+                viewBox="0 0 430 430"
+              >
+                <g stroke-width="18">
+                  <path
+                    stroke="#FFF"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M312.601 305.475c-26.273 14.715-58.717 23.408-93.825 23.408s-67.552-8.693-93.825-23.408"
+                  />
+                  <path
+                    stroke="#FFF"
+                    stroke-linejoin="round"
+                    d="M158.352 72.148c3.725 6.192 6.909 13.393 9.531 21.46 15.975-4.123 33.091-6.358 50.893-6.358 15.228 0 29.955 1.636 43.895 4.69 2.513-7.394 5.511-14.03 8.977-19.792 25.747 3.086 49.437 10.893 69.495 22.22 20.228 24.718 37.723 59.3 48.459 99.37 11.642 43.446 13.177 85.277 6.259 118.097-21.508 20.403-52.494 36.375-88.916 45.331-7.134-12.146-13.866-25.549-20.013-39.981-20.648 7.5-43.759 11.698-68.156 11.698-26.99 0-52.406-5.137-74.653-14.199-6.428 15.387-13.524 29.638-21.068 42.482-36.422-8.956-67.408-24.928-88.916-45.331-6.918-32.82-5.383-74.651 6.259-118.097 10.736-40.07 28.23-74.652 48.46-99.37 20.057-11.327 43.747-19.134 69.494-22.22Z"
+                  />
+                  <path
+                    stroke="#FFF"
+                    d="M310 230c0 16.569-11.193 30-25 30s-25-13.431-25-30 11.193-30 25-30 25 13.431 25 30Zm-140 0c0 16.569-11.193 30-25 30s-25-13.431-25-30 11.193-30 25-30 25 13.431 25 30Z"
+                  />
+                </g>
+              </svg>
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Discord
+              </Text>
+            </BetterButton>
+            <BetterButton>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 192 192"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+              >
+                <path
+                  stroke="#FFFFFF"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="12"
+                  d="M120.755 170c.03-4.669.059-20.874.059-27.29 0-9.272-3.167-15.339-6.719-18.41 22.051-2.464 45.201-10.863 45.201-49.067 0-10.855-3.824-19.735-10.175-26.683 1.017-2.516 4.413-12.63-.987-26.32 0 0-8.296-2.672-27.202 10.204-7.912-2.213-16.371-3.308-24.784-3.352-8.414.044-16.872 1.14-24.785 3.352C52.457 19.558 44.162 22.23 44.162 22.23c-5.4 13.69-2.004 23.804-.987 26.32C36.824 55.498 33 64.378 33 75.233c0 38.204 23.149 46.603 45.2 49.067-3.551 3.071-6.719 9.138-6.719 18.41 0 6.416.03 22.621.059 27.29M27 130c9.939.703 15.67 9.735 15.67 9.735 8.834 15.199 23.178 10.803 28.815 8.265"
+                />
+              </svg>
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Github
+              </Text>
+            </BetterButton>
+          </Flex>
+        </Flex>
+        <Flex className="main-body">{auth && user && content.component}</Flex>
+      </Flex>
+    </Flex>
   );
 }

@@ -3,7 +3,7 @@ import { Text } from "@radix-ui/themes";
 import BetterButton from "../BetterButton/BetterButton";
 import { AuthContextProps } from "react-oidc-context";
 import "./UploadDialog.css";
-import NewUploadForm from "./NewUpload";
+import UploadMain from "./UploadMain";
 import { UploadFormData } from "../../models/newTask.model";
 
 export default function UploadDialog({ auth }: { auth: AuthContextProps }) {
@@ -72,10 +72,7 @@ export default function UploadDialog({ auth }: { auth: AuthContextProps }) {
         </BetterButton>
       </Dialog.Trigger>
       <Dialog.Content className="dialog-overlay">
-        <NewUploadForm
-          onSubmit={handleSubmit}
-          isAuthenticated={isAuthenticated}
-        />
+        <UploadMain onSubmit={handleSubmit} isAuthenticated={isAuthenticated} />
       </Dialog.Content>
     </Dialog.Root>
   );

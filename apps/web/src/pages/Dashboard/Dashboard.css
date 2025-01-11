@@ -1,82 +1,247 @@
-.dashboard-container {
-  position: absolute;
+.dashboard-nav-container {
   width: 100%;
-  height: 100%;
-  background: #020809;
+  max-width: 256px;
+  gap: 26px;
+  padding: 16px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    1px 0 0 0 rgba(255, 255, 255, 0.05),
+    4px 0 16px -8px rgba(0, 0, 0, 0.2),
+    2px 0 8px -4px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard-content {
+.dashboard-nav-container.closed {
+  display: none;
+}
+
+.dashboard-nav-header {
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.dashboard-nav-body {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  width: 100%;
-  margin-top: 80px;
-  padding: 40px;
+  flex: 1 1 0%;
 }
 
-.dashboard-header {
-  position: fixed;
-  top: 0;
-  left: 0;
+.dashboard-toggle {
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.dashboard-toggle:hover {
+  opacity: 1;
+}
+
+.logo-container {
+  align-items: center;
+  justify-content: center;
+  height: fit-content;
+  border-radius: var(--Radius-4-max, 8px);
+  padding: 8px;
+  gap: 6px;
+  box-shadow:
+    0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
+    0px 3px 12px -4px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
+    0px 2px 3px -2px var(--Colors-Neutral-Neutral-Alpha-3, rgba(0, 0, 51, 0.06));
+}
+
+.profile-name {
   width: 100%;
-  height: 72px;
-  background-color: rgba(2, 8, 9, 0.4);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 16px;
+}
+
+.dashboard-nav-items {
+  width: 100%;
+  gap: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.dashboard-nav-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-nav-items::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-nav-items::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.dashboard-nav-items:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-nav-item {
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dashboard-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.main-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-width: 0;
+}
+
+.main-header {
+  width: 100%;
+  padding: 16px 24px;
+  height: fit-content;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.main-header-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.main-header-text:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.header-task-tag {
+  padding: 0px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  max-width: 592px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  box-sizing: border-box;
+  color: rgba(255, 255, 255, 0.9);
+  padding-top: 5px;
+  padding-bottom: 7px;
+}
+
+.profile-menu {
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.profile-menu-item {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-menu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.profile-info {
+  padding: 12px;
+  border-radius: 6px;
+  background: rgba(2, 5, 6, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.profile-info:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.profile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.main-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dashboard-nav-item.selected {
+  background: #fff;
+}
+
+.dashboard-nav-item.selected svg path {
+  stroke: rgb(2, 5, 6);
+}
+
+.dashboard-nav-item:hover:not(.selected) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.profile-popup {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 0;
+  right: 0;
+  background: rgba(2, 5, 6, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
 
-.dashboard-content-left {
+.profile-popup .profile-menu {
   width: 100%;
-}
-
-.dashboard-content-right {
-  width: 100%;
-  height: fit-content;
-  gap: 24px;
-  padding: 24px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.01);
-}
-
-.callout {
-  align-items: center;
-  gap: 8px;
-  border: 2px solid rgba(255, 238, 156, 0.5);
-  border-radius: 4px;
   padding: 8px;
-  width: fit-content;
-  margin-top: 20px;
+}
+
+.profile-popup .profile-menu-item {
+  width: 100%;
+}
+
+.main-header-text:has(+ .task-tag):hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+/* Add styles for the header toggle button */
+.main-header-toggle {
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  margin-right: 8px;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+  display: none; /* Hidden by default */
 }
 
-.callout:hover {
-  background-color: rgba(255, 238, 156, 0.1);
+.main-header-toggle:hover {
+  opacity: 1;
 }
 
-.dashboard-card {
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-.dashboard-card-header {
-  padding: 6px 12px;
-  border-radius: 4px;
-  width: fit-content;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.white-text {
-  color: #fff;
-}
-
-@media (max-width: 524px) {
-  .dashboard-content {
-    padding: 24px;
-    margin-top: 104px;
-  }
+/* Show header toggle when nav is closed */
+.dashboard-nav-container.closed + .main-container .main-header-toggle {
+  display: block;
 }
