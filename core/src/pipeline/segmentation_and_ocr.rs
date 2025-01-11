@@ -39,8 +39,8 @@ async fn page_segmentation(
         Some(1.0),
         ocr_results,
         page_height as f32,
-        page_number,
         page_width as f32,
+        page_number,
         SegmentType::Page,
     )];
     Ok(segments)

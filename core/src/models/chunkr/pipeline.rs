@@ -41,7 +41,6 @@ impl Pipeline {
         file: NamedTempFile,
         task_payload: TaskPayload,
     ) -> Result<(), Box<dyn Error>> {
-        println!("Initializing pipeline");
         self.input_file = Some(Arc::new(file));
         self.task_payload = Some(task_payload);
         self.mime_type = Some(match check_file_type(&self.input_file.as_ref().unwrap()) {
@@ -64,7 +63,6 @@ impl Pipeline {
         };
         self.update_status(Status::Processing, Some("Task started".to_string()))
             .await?;
-        println!("Initialized pipeline");
         Ok(())
     }
 
