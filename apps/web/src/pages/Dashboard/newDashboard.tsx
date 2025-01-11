@@ -325,7 +325,7 @@ export default function NewDashboard() {
   };
 
   return (
-    <Flex direction="row" width="100%">
+    <Flex direction="row" width="100%" height="100%">
       <Flex
         className={`dashboard-nav-container ${isNavOpen ? "" : "closed"}`}
         align="start"
