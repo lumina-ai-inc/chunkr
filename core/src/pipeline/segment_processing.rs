@@ -45,7 +45,7 @@ impl ContentGenerator for HtmlGenerator {
                 if let Some(captures) = NUMBERED_LIST_REGEX.captures(content.trim()) {
                     let start_number = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
                     let item = captures.get(2).unwrap().as_str();
-                    format!("<ol start=\"{}\"<li>{}</li></ol>", start_number, item)
+                    format!("<ol start=\"{}\"><li>{}</li></ol>", start_number, item)
                 } else {
                     format!("<ul><li>{}</li></ul>", Self::clean_list_item(content))
                 }
