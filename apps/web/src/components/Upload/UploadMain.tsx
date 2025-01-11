@@ -25,9 +25,7 @@ interface UploadMainProps {
 
 export default function UploadMain({ isAuthenticated }: UploadMainProps) {
   const [files, setFiles] = useState<File[]>([]);
-  const [config, setConfig] = useState<Partial<UploadFormData>>(
-    DEFAULT_UPLOAD_CONFIG
-  );
+  const [config, setConfig] = useState<UploadFormData>(DEFAULT_UPLOAD_CONFIG);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -39,6 +37,18 @@ export default function UploadMain({ isAuthenticated }: UploadMainProps) {
   const handleFileRemove = (fileName: string) => {
     setFiles((prev) => prev.filter((file) => file.name !== fileName));
     setUploadError(null);
+  };
+
+  const getEffectiveSegmentProcessing = (currentConfig: UploadFormData) => {
+    if (currentConfig.segmentation_strategy === SegmentationStrategy.Page) {
+      return {
+        ...DEFAULT_SEGMENT_PROCESSING,
+        Page:
+          currentConfig.segment_processing?.Page ||
+          DEFAULT_SEGMENT_PROCESSING.Page,
+      };
+    }
+    return currentConfig.segment_processing || DEFAULT_SEGMENT_PROCESSING;
   };
 
   const handleSubmit = async () => {
@@ -55,7 +65,7 @@ export default function UploadMain({ isAuthenticated }: UploadMainProps) {
           high_resolution: config.high_resolution,
           json_schema: config.json_schema,
           ocr_strategy: config.ocr_strategy,
-          segment_processing: config.segment_processing,
+          segment_processing: getEffectiveSegmentProcessing(config),
           segmentation_strategy: config.segmentation_strategy,
         };
 
@@ -431,6 +441,9 @@ export default function UploadMain({ isAuthenticated }: UploadMainProps) {
                   ...config,
                   segment_processing: value,
                 })
+              }
+              showOnlyPage={
+                config.segmentation_strategy === SegmentationStrategy.Page
               }
             />
           </div>
