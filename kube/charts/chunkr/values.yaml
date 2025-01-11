@@ -251,7 +251,7 @@ services:
         cpu: "200m"
       limits:
         memory: "1Gi"
-        cpu: "500m"
+        cpu: "1500m"
     args:
       - "redis-server"
       - "--appendonly"
