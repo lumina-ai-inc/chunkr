@@ -16,6 +16,7 @@ import {
   createSetupIntent,
 } from "../../services/stripeService";
 import ApiKeyManagement from "../../components/ApiKeyManagement/ApiKeyManagement";
+import { useTasksQuery } from "../../hooks/useTaskQuery";
 
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
@@ -44,6 +45,11 @@ export default function Dashboard() {
   const { data: taskResponse, isLoading } = useTaskQuery(taskId || "");
 
   const navigate = useNavigate();
+
+  const { refetch: refetchTasks } = useTasksQuery(
+    parseInt(searchParams.get("tablePageIndex") || "0") + 1,
+    parseInt(searchParams.get("tablePageSize") || "20")
+  );
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -552,7 +558,12 @@ export default function Dashboard() {
             )}
           </Flex>
           <Flex gap="24px">
-            <UploadDialog auth={auth} />
+            <UploadDialog
+              auth={auth}
+              onUploadComplete={() => {
+                refetchTasks();
+              }}
+            />
             <BetterButton>
               <svg
                 width="18"

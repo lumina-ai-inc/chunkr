@@ -21,9 +21,13 @@ import { UploadForm } from "../../models/upload.model";
 interface UploadMainProps {
   onSubmit: (config: UploadFormData) => void;
   isAuthenticated: boolean;
+  onUploadSuccess?: () => void;
 }
 
-export default function UploadMain({ isAuthenticated }: UploadMainProps) {
+export default function UploadMain({
+  isAuthenticated,
+  onUploadSuccess,
+}: UploadMainProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [config, setConfig] = useState<UploadFormData>(DEFAULT_UPLOAD_CONFIG);
   const [isUploading, setIsUploading] = useState(false);
@@ -69,14 +73,14 @@ export default function UploadMain({ isAuthenticated }: UploadMainProps) {
           segmentation_strategy: config.segmentation_strategy,
         };
 
-        console.log("Upload payload:", uploadPayload);
-
         const response = await uploadFile(uploadPayload);
         console.log("Upload successful:", response);
       }
 
       setFiles([]);
       setConfig(DEFAULT_UPLOAD_CONFIG);
+
+      onUploadSuccess?.();
     } catch (error) {
       console.error("Upload failed:", error);
       setUploadError(error instanceof Error ? error.message : "Upload failed");
