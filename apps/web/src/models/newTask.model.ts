@@ -180,27 +180,45 @@ const DEFAULT_SEGMENT_CONFIG: SegmentProcessingConfig = {
   markdown: GenerationStrategy.Auto,
 };
 
+const DEFAULT_TABLE_CONFIG: SegmentProcessingConfig = {
+  crop_image: CroppingStrategy.Auto,
+  html: GenerationStrategy.LLM,
+  markdown: GenerationStrategy.LLM,
+};
+
+const DEFAULT_FORMULA_CONFIG: SegmentProcessingConfig = {
+  crop_image: CroppingStrategy.Auto,
+  html: GenerationStrategy.LLM,
+  markdown: GenerationStrategy.LLM,
+};
+
+const DEFAULT_PICTURE_CONFIG: SegmentProcessingConfig = {
+  crop_image: CroppingStrategy.All,
+  html: GenerationStrategy.LLM,
+  markdown: GenerationStrategy.LLM,
+};
+
 export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
   Text: { ...DEFAULT_SEGMENT_CONFIG },
   Title: { ...DEFAULT_SEGMENT_CONFIG },
   SectionHeader: { ...DEFAULT_SEGMENT_CONFIG },
   ListItem: { ...DEFAULT_SEGMENT_CONFIG },
-  Table: { ...DEFAULT_SEGMENT_CONFIG },
-  Picture: { ...DEFAULT_SEGMENT_CONFIG },
+  Table: { ...DEFAULT_TABLE_CONFIG },
+  Picture: { ...DEFAULT_PICTURE_CONFIG },
   Caption: { ...DEFAULT_SEGMENT_CONFIG },
-  Formula: { ...DEFAULT_SEGMENT_CONFIG },
+  Formula: { ...DEFAULT_FORMULA_CONFIG },
   Footnote: { ...DEFAULT_SEGMENT_CONFIG },
   PageHeader: { ...DEFAULT_SEGMENT_CONFIG },
   PageFooter: { ...DEFAULT_SEGMENT_CONFIG },
   Page: { ...DEFAULT_SEGMENT_CONFIG },
 };
 
-export const DEFAULT_UPLOAD_CONFIG: Partial<UploadFormData> = {
-  ocr_strategy: OcrStrategy.Auto,
-  segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
+export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
+  chunk_processing: { target_length: 512 },
   high_resolution: false,
-  chunk_processing: {
-    target_length: 512,
-  },
+  ocr_strategy: OcrStrategy.All,
+  segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
+  json_schema: undefined, // or some default schema if needed
+  file: new File([], ""),
 };

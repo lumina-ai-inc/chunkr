@@ -7,6 +7,7 @@ import {
   CroppingStrategy,
   Property,
   JsonSchema,
+  DEFAULT_SEGMENT_PROCESSING,
 } from "../../models/newTask.model";
 
 interface ToggleGroupProps {
@@ -161,17 +162,31 @@ export function NumberInput({
 interface SegmentProcessingControlsProps {
   value: SegmentProcessing;
   onChange: (value: SegmentProcessing) => void;
+  showOnlyPage?: boolean;
 }
 
 export function SegmentProcessingControls({
   value,
   onChange,
+  showOnlyPage = false,
 }: SegmentProcessingControlsProps) {
   const [selectedType, setSelectedType] =
     useState<keyof SegmentProcessing>("Text");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const segmentTypes = Object.keys(value) as (keyof SegmentProcessing)[];
+  const segmentTypes = showOnlyPage
+    ? (["Page"] as (keyof SegmentProcessing)[])
+    : (Object.keys(value).filter(
+        (key) => key !== "Page"
+      ) as (keyof SegmentProcessing)[]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (showOnlyPage && selectedType !== "Page") {
+      setSelectedType("Page");
+    } else if (!showOnlyPage && selectedType === "Page") {
+      setSelectedType("Text"); // or any other default segment type
+    }
+  }, [selectedType, showOnlyPage]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -189,13 +204,13 @@ export function SegmentProcessingControls({
     };
   }, []);
 
-  // Check if segment has non-default settings
   const isSegmentModified = (type: keyof SegmentProcessing) => {
-    const defaultConfig = {
-      html: GenerationStrategy.Auto,
-      markdown: GenerationStrategy.Auto,
-      crop_image: CroppingStrategy.Auto,
+    const segmentDefaults = {
+      // Default config for most segments
+      ...DEFAULT_SEGMENT_PROCESSING,
     };
+
+    const defaultConfig = segmentDefaults[type] || DEFAULT_SEGMENT_PROCESSING;
 
     return Object.entries(value[type]).some(
       ([key, val]) => val !== defaultConfig[key as keyof typeof defaultConfig]
