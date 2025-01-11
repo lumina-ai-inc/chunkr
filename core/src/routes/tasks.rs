@@ -3,7 +3,7 @@ use crate::models::chunkr::tasks::TasksQuery;
 use crate::utils::routes::get_tasks::get_tasks;
 use actix_web::{web, Error, HttpResponse};
 
-pub async fn get_tasks_status(
+pub async fn get_tasks_route(
     query: web::Query<TasksQuery>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {

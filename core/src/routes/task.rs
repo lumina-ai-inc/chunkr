@@ -4,6 +4,7 @@ use crate::models::chunkr::task::Configuration;
 use crate::models::chunkr::task::TaskResponse;
 use crate::models::chunkr::upload::UploadForm;
 use crate::utils::routes::create_task::create_task;
+use crate::utils::routes::delete_task::delete_task;
 use crate::utils::routes::get_task::get_task;
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
@@ -28,7 +29,7 @@ use uuid::Uuid;
         ("api_key" = []),
     )
 )]
-pub async fn get_task_status(
+pub async fn get_task_route(
     task_id: web::Path<String>,
     user_info: web::ReqData<UserInfo>,
     _req: HttpRequest,
@@ -72,7 +73,7 @@ pub async fn get_task_status(
         ("api_key" = []),
     )
 )]
-pub async fn create_extraction_task(
+pub async fn create_task_route(
     form: MultipartForm<UploadForm>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
@@ -125,6 +126,52 @@ pub async fn create_extraction_task(
             } else {
                 eprintln!("Error creating task: {:?}", e);
                 Ok(HttpResponse::InternalServerError().body("Failed to create task"))
+            }
+        }
+    }
+}
+
+/// Delete Task
+///
+/// Delete a task by its ID
+#[utoipa::path(
+    delete,
+    path = "/task/{task_id}",
+    context_path = "/api/v1",
+    tag = "Task",
+    params(
+        ("task_id" = Option<String>, Path, description = "Id of the task to delete")
+    ),
+    responses(
+        (status = 200, description = "Task deleted successfully"),
+        (status = 500, description = "Internal server error related to deleting the task", body = String),
+    ),
+    security(
+        ("api_key" = []),
+    )
+)]
+pub async fn delete_task_route(
+    task_id: web::Path<String>,
+    user_info: web::ReqData<UserInfo>,
+    _req: HttpRequest,
+) -> Result<HttpResponse, Error> {
+    let task_id = task_id.into_inner();
+
+    // Validate task_id as UUID
+    if Uuid::parse_str(&task_id).is_err() {
+        return Ok(HttpResponse::BadRequest().body("Invalid task ID format"));
+    }
+
+    let user_id = user_info.user_id.clone();
+
+    match delete_task(task_id, user_id).await {
+        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
+        Err(e) => {
+            eprintln!("Error getting task status: {:?}", e);
+            if e.to_string().contains("expired") || e.to_string().contains("not found") {
+                Ok(HttpResponse::NotFound().body("Task not found"))
+            } else {
+                Ok(HttpResponse::InternalServerError().body(e.to_string()))
             }
         }
     }
