@@ -228,4 +228,21 @@ async def test_delete_task(chunkr_client, sample_path):
             client.get_task(response.task_id)
 
     
+@pytest.mark.asyncio
+async def test_cancel_task(chunkr_client, sample_path):
+    client_type, client = chunkr_client
+    response = await client.start_upload(sample_path) if client_type == "async" else client.start_upload(sample_path)
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Starting"
     
+    if client_type == "async":
+        await client.cancel_task(response.task_id)
+        assert (await client.get_task(response.task_id)).status == "Cancelled"
+        await response.poll_async()
+    else:
+        client.cancel_task(response.task_id)
+        assert client.get_task(response.task_id).status == "Cancelled"
+        response.poll()
+        
+    assert response.output is None

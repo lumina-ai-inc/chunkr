@@ -59,6 +59,7 @@ pub enum Status {
     Processing,
     Succeeded,
     Failed,
+    Cancelled,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]

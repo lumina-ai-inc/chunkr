@@ -70,6 +70,14 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
 
         pipeline.init(input_file, task_payload).await?;
 
+        if pipeline.status.clone().unwrap() != Status::Processing {
+            println!(
+                "Skipping task as status is {:?}",
+                pipeline.status.clone().unwrap()
+            );
+            return Ok(());
+        }
+
         let start_time = std::time::Instant::now();
         for step in orchestrate_task() {
             execute_step(step, &mut pipeline).await?;
@@ -85,7 +93,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         );
 
         pipeline
-            .finish_and_update_status(Status::Succeeded, Some("Task succeeded".to_string()))
+            .finish_and_update_remote_status(Status::Succeeded, Some("Task succeeded".to_string()))
             .await?;
 
         Ok(())
@@ -100,7 +108,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 false => format!("Retrying task {}/{}", payload.attempt, payload.max_attempts),
             };
             pipeline
-                .finish_and_update_status(Status::Failed, Some(message))
+                .finish_and_update_remote_status(Status::Failed, Some(message))
                 .await?;
             Err(e)
         }

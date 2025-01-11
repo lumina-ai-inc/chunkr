@@ -18,7 +18,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
 
     if json_schema.is_some() {
         pipeline
-            .update_status(
+            .update_remote_status(
                 Status::Processing,
                 Some("Structured extraction started".to_string()),
             )

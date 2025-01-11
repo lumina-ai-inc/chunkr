@@ -23,7 +23,7 @@ fn generate_segment_image_s3_key(pipeline: &Pipeline, segment_id: &str) -> Strin
 /// and also upload the images for each segment `task_payload.image_folder_location/{segment_id}.jpg`
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
     pipeline
-        .update_status(Status::Processing, Some("Finishing up".to_string()))
+        .update_remote_status(Status::Processing, Some("Finishing up".to_string()))
         .await?;
 
     let mut output_response = pipeline.output.clone();

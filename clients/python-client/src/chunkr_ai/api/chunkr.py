@@ -118,3 +118,15 @@ class Chunkr(ChunkrBase):
             headers=self._headers()
         )
         r.raise_for_status()
+
+    def cancel_task(self, task_id: str) -> None:
+        """Cancel a task by its ID.
+        
+        Args:
+            task_id: The ID of the task to cancel
+        """
+        r = self._session.post(
+            f"{self.url}/api/v1/task/{task_id}/cancel",
+            headers=self._headers()
+        )
+        r.raise_for_status()

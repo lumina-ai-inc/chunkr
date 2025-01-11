@@ -1,12 +1,12 @@
+use crate::configs::rrq_config::Config;
 use crate::models::rrq::{
     consume::{ConsumePayload, ConsumeResponse},
     produce::ProducePayload,
-    status::{StatusPayload, StatusResult},
+    status::StatusPayload,
 };
-use crate::configs::rrq_config::Config;
 use lazy_static::lazy_static;
 use reqwest::Client;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 lazy_static! {
     static ref CLIENT: Client = Client::new();
@@ -33,7 +33,6 @@ pub async fn health() -> Result<String, Box<dyn std::error::Error>> {
 }
 
 pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::error::Error>> {
-    let start_time = Instant::now();
     let cfg = Config::from_env()?;
     let mut responses = Vec::new();
     for chunk in items.chunks(120) {
@@ -55,8 +54,6 @@ pub async fn produce(items: Vec<ProducePayload>) -> Result<String, Box<dyn std::
         let body = response.text().await?;
         responses.push(body);
     }
-
-    println!("Total time taken to produce: {:?}", start_time.elapsed());
 
     Ok(responses.join("\n"))
 }
@@ -86,27 +83,6 @@ pub async fn consume(
 
 pub async fn complete(payloads: Vec<StatusPayload>) -> Result<String, Box<dyn std::error::Error>> {
     let cfg = Config::from_env()?;
-    let mut success_count = 0;
-    let mut failure_count = 0;
-    for payload in &payloads {
-        match payload.result {
-            StatusResult::Success => {
-                success_count += 1;
-            }
-            StatusResult::Failure => {
-                failure_count += 1;
-            }
-        }
-    }
-    println!(
-        "Processing {} items: {} successes, {} failures",
-        payloads.len(),
-        success_count,
-        failure_count
-    );
-
-    let mut responses = Vec::new();
-
     let response = CLIENT
         .post(&format!("{}/complete", cfg.url))
         .header("X-API-Key", &cfg.api_key)
@@ -123,7 +99,5 @@ pub async fn complete(payloads: Vec<StatusPayload>) -> Result<String, Box<dyn st
             format!("HTTP error in success {}: {}", status, error_body)
         })?;
     let body = response.text().await?;
-    responses.push(body);
-
-    Ok(responses.join("\n"))
+    Ok(body)
 }

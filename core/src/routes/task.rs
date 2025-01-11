@@ -3,6 +3,7 @@ use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::task::Configuration;
 use crate::models::chunkr::task::TaskResponse;
 use crate::models::chunkr::upload::UploadForm;
+use crate::utils::routes::cancel_task::cancel_task;
 use crate::utils::routes::create_task::create_task;
 use crate::utils::routes::delete_task::delete_task;
 use crate::utils::routes::get_task::get_task;
@@ -165,11 +166,41 @@ pub async fn delete_task_route(
     let user_id = user_info.user_id.clone();
 
     match delete_task(task_id, user_id).await {
-        Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
+        Ok(_) => Ok(HttpResponse::Ok().body("Task deleted")),
         Err(e) => {
             eprintln!("Error getting task status: {:?}", e);
             if e.to_string().contains("expired") || e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
+            } else {
+                Ok(HttpResponse::InternalServerError().body(e.to_string()))
+            }
+        }
+    }
+}
+
+/// Cancel Task
+///
+/// Cancel a task by its ID
+#[utoipa::path(
+    post,
+    path = "/task/{task_id}/cancel",
+    context_path = "/api/v1",
+    tag = "Task"
+)]
+pub async fn cancel_task_route(
+    task_id: web::Path<String>,
+    _req: HttpRequest,
+) -> Result<HttpResponse, Error> {
+    let task_id = task_id.into_inner();
+
+    match cancel_task(task_id).await {
+        Ok(_) => Ok(HttpResponse::Ok().body("Task cancelled")),
+        Err(e) => {
+            eprintln!("Error cancelling task: {:?}", e);
+            if e.to_string().contains("not found") {
+                Ok(HttpResponse::NotFound().body("Task not found"))
+            } else if e.to_string().contains("cannot be cancelled") {
+                Ok(HttpResponse::BadRequest().body(e.to_string()))
             } else {
                 Ok(HttpResponse::InternalServerError().body(e.to_string()))
             }

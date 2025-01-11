@@ -1,7 +1,7 @@
 use crate::models::chunkr::output::OutputResponse;
 use crate::models::chunkr::task::{Status, TaskPayload};
 use crate::utils::services::file_operations::{check_file_type, convert_to_pdf};
-use crate::utils::services::log::log_task;
+use crate::utils::services::status::{get_task, update_status};
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use std::error::Error;
@@ -41,13 +41,16 @@ impl Pipeline {
         file: NamedTempFile,
         task_payload: TaskPayload,
     ) -> Result<(), Box<dyn Error>> {
-        self.input_file = Some(Arc::new(file));
         self.task_payload = Some(task_payload);
+        if self.get_remote_status().await? == Status::Cancelled {
+            return Ok(());
+        }
+        self.input_file = Some(Arc::new(file));
         self.mime_type = Some(match check_file_type(&self.input_file.as_ref().unwrap()) {
             Ok(mime_type) => mime_type,
             Err(e) => {
                 if e.to_string().contains("Unsupported file type") {
-                    self.update_status(Status::Failed, Some(e.to_string()))
+                    self.update_remote_status(Status::Failed, Some(e.to_string()))
                         .await?;
                     return Ok(());
                 }
@@ -61,26 +64,46 @@ impl Pipeline {
                 &self.input_file.as_ref().unwrap(),
             )?)),
         };
-        self.update_status(Status::Processing, Some("Task started".to_string()))
-            .await?;
+        update_status(
+            &self.get_task_id(),
+            Status::Processing,
+            Some("Task started"),
+            Some(Utc::now()),
+            None,
+            None,
+        )
+        .await?;
+        self.status = Some(Status::Processing);
         Ok(())
     }
 
-    pub async fn update_status(
+    fn get_task_id(&self) -> String {
+        self.task_payload
+            .as_ref()
+            .ok_or("Task payload is not initialized")
+            .unwrap()
+            .task_id
+            .clone()
+    }
+
+    async fn get_remote_status(&mut self) -> Result<Status, Box<dyn std::error::Error>> {
+        let task_id = self.get_task_id();
+        let status = get_task(&task_id).await?;
+        self.status = Some(status.clone());
+        Ok(status)
+    }
+
+    pub async fn update_remote_status(
         &mut self,
         status: Status,
         message: Option<String>,
     ) -> Result<(), Box<dyn Error>> {
-        let task_id = self
-            .task_payload
-            .as_ref()
-            .ok_or("Task payload is not initialized")?
-            .task_id
-            .clone();
-        log_task(
+        let task_id = self.get_task_id();
+        update_status(
             &task_id,
             status.clone(),
             Some(&message.unwrap_or_default()),
+            None,
             None,
             None,
         )
@@ -89,17 +112,12 @@ impl Pipeline {
         Ok(())
     }
 
-    pub async fn finish_and_update_status(
+    pub async fn finish_and_update_remote_status(
         &mut self,
         status: Status,
         message: Option<String>,
     ) -> Result<(), Box<dyn Error>> {
-        let task_id = self
-            .task_payload
-            .as_ref()
-            .ok_or("Task payload is not initialized")?
-            .task_id
-            .clone();
+        let task_id = self.get_task_id();
         let finished_at = Utc::now();
         let expires_at: Option<DateTime<Utc>> = self
             .task_payload
@@ -108,10 +126,11 @@ impl Pipeline {
             .current_configuration
             .expires_in
             .map(|seconds| finished_at + chrono::Duration::seconds(seconds as i64));
-        log_task(
+        update_status(
             &task_id,
             status.clone(),
             Some(&message.unwrap_or_default()),
+            None,
             Some(finished_at),
             expires_at,
         )
