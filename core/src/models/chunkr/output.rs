@@ -55,8 +55,6 @@ pub struct Segment {
     pub confidence: Option<f32>,
     /// Text content of the segment.
     pub content: String,
-    /// Height of the page containing the segment.
-    pub page_height: f32,
     /// HTML representation of the segment.
     pub html: Option<String>,
     /// Presigned URL to the image of the segment.
@@ -65,10 +63,12 @@ pub struct Segment {
     pub markdown: Option<String>,
     /// OCR results for the segment.
     pub ocr: Vec<OCRResult>,
-    /// Page number of the segment.
-    pub page_number: u32,
+    /// Height of the page containing the segment.
+    pub page_height: f32,
     /// Width of the page containing the segment.
     pub page_width: f32,
+    /// Page number of the segment.
+    pub page_number: u32,
     /// Unique identifier for the segment.
     pub segment_id: String,
     pub segment_type: SegmentType,
@@ -80,8 +80,8 @@ impl Segment {
         confidence: Option<f32>,
         ocr_results: Vec<OCRResult>,
         page_height: f32,
-        page_number: u32,
         page_width: f32,
+        page_number: u32,
         segment_type: SegmentType,
     ) -> Self {
         let segment_id = uuid::Uuid::new_v4().to_string();
@@ -120,8 +120,8 @@ impl Segment {
             confidence,
             segment_ocr,
             page_height,
-            page_number,
             page_width,
+            page_number,
             segment_type,
         )
     }
