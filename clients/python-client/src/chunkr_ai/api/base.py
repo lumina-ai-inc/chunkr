@@ -171,3 +171,11 @@ class ChunkrBase(HeadersMixin):
         Must be implemented by subclasses.
         """
         pass
+
+    @abstractmethod
+    def delete_task(self, task_id: str) -> None:
+        """Delete a task by its ID.
+        
+        Must be implemented by subclasses.
+        """
+        pass

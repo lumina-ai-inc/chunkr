@@ -106,3 +106,15 @@ class Chunkr(ChunkrBase):
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self)
 
+
+    def delete_task(self, task_id: str) -> None:
+        """Delete a task by its ID.
+        
+        Args:
+            task_id: The ID of the task to delete
+        """
+        r = self._session.delete(
+            f"{self.url}/api/v1/task/{task_id}",
+            headers=self._headers()
+        )
+        r.raise_for_status()

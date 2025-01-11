@@ -209,4 +209,23 @@ async def test_json_schema(chunkr_client, sample_path):
     assert response.status == "Succeeded"
     assert response.output is not None
     
+@pytest.mark.asyncio
+async def test_delete_task(chunkr_client, sample_path):
+    client_type, client = chunkr_client
+    response = await client.upload(sample_path) if client_type == "async" else client.upload(sample_path)
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    
+    if client_type == "async":
+        await client.delete_task(response.task_id)
+        with pytest.raises(Exception):  
+            await client.get_task(response.task_id)
+    else:
+        client.delete_task(response.task_id)
+        with pytest.raises(Exception):  
+            client.get_task(response.task_id)
+
+    
     
