@@ -16,6 +16,7 @@ import Pricing from "./pages/Pricing/Pricing.tsx";
 import store from "./store/store";
 import Dashboard from "./pages/Dashboard/Dashboard.tsx";
 import NewDashboard from "./pages/Dashboard/newDashboard.tsx";
+
 const oidcConfig: AuthProviderProps = {
   authority:
     import.meta.env.VITE_KEYCLOAK_URL +
