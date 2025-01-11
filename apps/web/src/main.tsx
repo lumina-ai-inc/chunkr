@@ -10,12 +10,9 @@ import "@radix-ui/themes/styles.css";
 import "./index.css";
 import Auth from "./auth/Auth.tsx";
 import Home from "./pages/Home/Home.tsx";
-import Task from "./pages/Task/Task.tsx";
 import AuthGuard from "./auth/AuthGuard.tsx";
-import Pricing from "./pages/Pricing/Pricing.tsx";
 import store from "./store/store";
 import Dashboard from "./pages/Dashboard/Dashboard.tsx";
-import NewDashboard from "./pages/Dashboard/newDashboard.tsx";
 
 const oidcConfig: AuthProviderProps = {
   authority:
@@ -41,30 +38,10 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/task/:taskId",
-    element: (
-      <AuthGuard>
-        <Task />
-      </AuthGuard>
-    ),
-  },
-  {
-    path: "/pricing",
-    element: <Pricing />,
-  },
-  {
     path: "/dashboard",
     element: (
       <AuthGuard>
         <Dashboard />
-      </AuthGuard>
-    ),
-  },
-  {
-    path: "/newDashboard",
-    element: (
-      <AuthGuard>
-        <NewDashboard />
       </AuthGuard>
     ),
   },
