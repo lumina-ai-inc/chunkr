@@ -12,6 +12,7 @@ class Status(str, Enum):
     PROCESSING = "Processing"
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
+    CANCELLED = "Cancelled"
     
 class TaskResponse(BaseModel):
     configuration: Configuration

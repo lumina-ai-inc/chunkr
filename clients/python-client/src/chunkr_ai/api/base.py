@@ -179,3 +179,11 @@ class ChunkrBase(HeadersMixin):
         Must be implemented by subclasses.
         """
         pass
+    
+    @abstractmethod
+    def cancel_task(self, task_id: str) -> None:
+        """Cancel a task by its ID.
+        
+        Must be implemented by subclasses.
+        """
+        pass

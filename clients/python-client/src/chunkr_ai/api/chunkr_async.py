@@ -104,6 +104,13 @@ class ChunkrAsync(ChunkrBase):
             headers=self._headers()
         )
         r.raise_for_status()
+    
+    async def cancel_task(self, task_id: str) -> None:
+        r = await self._client.post(
+            f"{self.url}/api/v1/task/{task_id}/cancel",
+            headers=self._headers()
+        )
+        r.raise_for_status()
 
     async def __aenter__(self):
         return self

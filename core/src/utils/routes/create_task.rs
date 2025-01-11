@@ -9,7 +9,6 @@ use chrono::Utc;
 use std::{
     error::Error,
     path::{Path, PathBuf},
-    time::Instant,
 };
 use uuid::Uuid;
 
@@ -18,7 +17,6 @@ pub async fn create_task(
     user_info: &UserInfo,
     configuration: &Configuration,
 ) -> Result<TaskResponse, Box<dyn Error>> {
-    let start_time = Instant::now();
     let task_id = Uuid::new_v4().to_string();
     let user_id = user_info.user_id.clone();
     let api_key = user_info.api_key.clone();
@@ -90,12 +88,7 @@ pub async fn create_task(
                 )
                 .await
             {
-                Ok(_) => {
-                    println!(
-                        "Time taken to insert into database: {:?}",
-                        start_time.elapsed().as_secs_f32()
-                    );
-                }
+                Ok(_) => {}
                 Err(e) => {
                     if e.to_string().contains("usage limit exceeded") {
                         return Err(Box::new(std::io::Error::new(
@@ -121,23 +114,13 @@ pub async fn create_task(
             };
 
             match produce_extraction_payloads(worker_config.queue_task, extraction_payload).await {
-                Ok(_) => {
-                    println!(
-                        "Time taken to produce extraction payloads: {:?}",
-                        start_time.elapsed().as_secs_f32()
-                    );
-                }
+                Ok(_) => {}
                 Err(e) => {
                     match client
                         .execute("DELETE FROM TASKS WHERE task_id = $1", &[&task_id])
                         .await
                     {
-                        Ok(_) => {
-                            println!(
-                                "Time taken to delete task from database: {:?}",
-                                start_time.elapsed().as_secs_f32()
-                            );
-                        }
+                        Ok(_) => {}
                         Err(e) => {
                             println!("Error deleting task from database: {:?}", e);
                         }
@@ -146,22 +129,12 @@ pub async fn create_task(
                 }
             }
 
-            println!(
-                "Time taken to produce extraction payloads: {:?}",
-                start_time.elapsed().as_secs_f32()
-            );
-
             let input_file_url = match generate_presigned_url(&input_location, true, None).await {
                 Ok(response) => Some(response),
                 Err(_e) => {
                     return Err("Error getting input file url".into());
                 }
             };
-
-            println!(
-                "Time taken to generate presigned url: {:?}",
-                start_time.elapsed().as_secs_f32()
-            );
 
             Ok(TaskResponse {
                 task_id: task_id.clone(),
