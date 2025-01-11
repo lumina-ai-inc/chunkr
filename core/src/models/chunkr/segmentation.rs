@@ -32,21 +32,62 @@ impl Instance {
     pub fn to_segments(&self, page_number: u32, ocr_results: Vec<OCRResult>) -> Vec<Segment> {
         let worker_config = worker_config::Config::from_env().unwrap();
         let (page_height, page_width) = (self.image_size.0 as f32, self.image_size.1 as f32);
-        self.boxes
+
+        let padded_boxes: Vec<_> = self
+            .boxes
             .iter()
-            .enumerate()
-            .filter_map(|(idx, bbox)| {
-                let confidence = self.scores.get(idx).copied().unwrap_or(0.0);
+            .map(|bbox| {
                 let mut bbox = bbox.clone();
                 bbox.top = bbox.top - worker_config.segmentation_padding;
                 bbox.left = bbox.left - worker_config.segmentation_padding;
                 bbox.width = bbox.width + worker_config.segmentation_padding * 2.0;
                 bbox.height = bbox.height + worker_config.segmentation_padding * 2.0;
+                bbox
+            })
+            .collect();
+
+        let mut ocr_assignments: Vec<(usize, OCRResult)> = Vec::new();
+
+        for ocr in ocr_results {
+            let mut best_area = 0.0;
+            let mut best_idx = None;
+
+            for (idx, bbox) in padded_boxes.iter().enumerate() {
+                let area = bbox.intersection_area(&ocr.bbox);
+                if area > best_area {
+                    best_area = area;
+                    best_idx = Some(idx);
+                }
+            }
+
+            if let Some(idx) = best_idx {
+                ocr_assignments.push((idx, ocr));
+            }
+        }
+
+        self.boxes
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, _)| {
+                let confidence = self.scores.get(idx).copied().unwrap_or(0.0);
+                let bbox = &padded_boxes[idx];
+
+                let segment_ocr: Vec<OCRResult> = ocr_assignments
+                    .iter()
+                    .filter(|(assigned_idx, _)| *assigned_idx == idx)
+                    .map(|(_, ocr)| {
+                        let mut ocr = ocr.clone();
+                        ocr.bbox.left -= bbox.left;
+                        ocr.bbox.top -= bbox.top;
+                        ocr
+                    })
+                    .collect();
+
                 self.get_segment_type(idx).map(|segment_type| {
-                    Segment::new_from_page_ocr(
+                    Segment::new_from_segment_ocr(
                         bbox.clone(),
                         Some(confidence),
-                        ocr_results.clone(),
+                        segment_ocr,
                         page_height,
                         page_number,
                         page_width,

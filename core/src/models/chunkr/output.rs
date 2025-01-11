@@ -106,25 +106,15 @@ impl Segment {
         }
     }
 
-    pub fn new_from_page_ocr(
+    pub fn new_from_segment_ocr(
         bbox: BoundingBox,
         confidence: Option<f32>,
-        ocr_results: Vec<OCRResult>,
+        segment_ocr: Vec<OCRResult>,
         page_height: f32,
         page_number: u32,
         page_width: f32,
         segment_type: SegmentType,
     ) -> Self {
-        let segment_ocr: Vec<OCRResult> = ocr_results
-            .into_iter()
-            .filter(|ocr| ocr.bbox.intersects(&bbox))
-            .map(|mut ocr| {
-                ocr.bbox.left -= bbox.left;
-                ocr.bbox.top -= bbox.top;
-                ocr
-            })
-            .collect();
-
         Self::new(
             bbox,
             confidence,
@@ -160,11 +150,7 @@ impl BoundingBox {
         }
     }
 
-    pub fn get_center(&self) -> (f32, f32) {
-        (self.left + self.width / 2.0, self.top + self.height / 2.0)
-    }
-
-    pub fn intersects(&self, other: &BoundingBox) -> bool {
+    fn intersects(&self, other: &BoundingBox) -> bool {
         if self.left + self.width < other.left || other.left + other.width < self.left {
             return false;
         }
@@ -174,6 +160,19 @@ impl BoundingBox {
         }
 
         true
+    }
+
+    pub fn intersection_area(&self, other: &BoundingBox) -> f32 {
+        if !self.intersects(other) {
+            return 0.0;
+        }
+
+        let x_left = self.left.max(other.left);
+        let x_right = (self.left + self.width).min(other.left + other.width);
+        let y_top = self.top.max(other.top);
+        let y_bottom = (self.top + self.height).min(other.top + other.height);
+
+        (x_right - x_left) * (y_bottom - y_top)
     }
 }
 

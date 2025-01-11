@@ -85,7 +85,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         );
 
         pipeline
-            .update_status(Status::Succeeded, Some("Task succeeded".to_string()))
+            .finish_and_update_status(Status::Succeeded, Some("Task succeeded".to_string()))
             .await?;
 
         Ok(())
@@ -100,7 +100,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 false => format!("Retrying task {}/{}", payload.attempt, payload.max_attempts),
             };
             pipeline
-                .update_status(Status::Failed, Some(message))
+                .finish_and_update_status(Status::Failed, Some(message))
                 .await?;
             Err(e)
         }

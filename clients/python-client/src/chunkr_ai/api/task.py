@@ -24,6 +24,7 @@ class TaskResponse(BaseModel):
     output: Optional[OutputResponse]
     page_count: Optional[int]
     pdf_url: Optional[str]
+    started_at: Optional[datetime]
     status: Status
     task_id: str
     task_url: Optional[str]
