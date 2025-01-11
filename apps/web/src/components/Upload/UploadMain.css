@@ -1,253 +1,201 @@
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.toggle-container {
-  filter: drop-shadow(0px 2px 3px rgba(0, 0, 51, 0.06))
-    drop-shadow(0px 3px 12px rgba(0, 0, 0, 0.1))
-    drop-shadow(0px 4px 16px rgba(0, 0, 0, 0.1));
-}
-
-.toggle {
-  display: flex;
-  width: 50%;
-  padding: 16px;
-  border-radius: 8px;
-  color: hsl(0, 0%, 100%, 0.7);
-  cursor: pointer;
-  transition: color 0.2s ease-in-out;
-  aspect-ratio: 3.5 / 1;
-}
-
-.toggle-container {
-  background-color: hsl(0, 0%, 100%, 0.1);
-  border-radius: 8px;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
-
-.toggle-icon {
-  opacity: 0.8;
-  transition: opacity 0.2s ease-in-out;
-}
-
-.toggle-active {
-  display: flex;
-  padding: 16px;
-  border-radius: 8px;
-  width: 50%;
-  color: hsl(0, 0%, 100%);
-  aspect-ratio: 3.5 / 1;
-  border-radius: 8px;
-}
-
-.toggle:hover {
-  color: hsl(0, 0%, 100%, 0.9);
-}
-
-.toggle:hover .toggle-icon {
-  opacity: 1;
-}
-
-.toggle-active > .toggle-icon-container > .toggle-icon {
-  opacity: 1;
-}
-
-.card-gradient-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+.upload-form-container {
+  max-width: 1200px;
   height: 100%;
-  background: linear-gradient(
-    to bottom,
-    rgba(2, 8, 9, 0.3) 0%,
-    rgba(2, 8, 9, 0.8) 50%,
-    rgba(2, 8, 9, 0.9) 75%,
-    rgba(2, 8, 9, 1) 100%
-  );
-  z-index: 2;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.upload-form-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.upload-form-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.upload-form-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.upload-form-container:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.config-section {
+  width: 100%;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  padding: 4px 0px;
+}
+
+.config-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.config-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.config-card-header {
+  margin-bottom: 24px;
+}
+
+.config-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.strategy-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.toggle-button {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toggle-button:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.toggle-button.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.submit-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.submit-button {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-button:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+.submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Input Styles */
+.number-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.number-input input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+}
+
+.number-input input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 768px) {
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .config-card {
+    padding: 16px;
+  }
+}
+
+/* Add new styles for disabled state */
+.config-section.disabled {
+  opacity: 0.5;
   pointer-events: none;
+  position: relative;
 }
 
-.toggle-active .card-gradient-overlay {
-  background: linear-gradient(
-    to bottom,
-    rgba(2, 8, 9, 0.15) 0%,
-    rgba(2, 8, 9, 0.6) 50%,
-    rgba(2, 8, 9, 0.75) 75%,
-    rgba(2, 8, 9, 0.85) 100%
-  );
-}
-
-.card-image {
+.config-section.disabled::after {
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-size: 100%;
-  background-position: center;
-  transition: background-size 0.2s ease-in-out;
-}
-
-.toggle:hover .card-image {
-  background-size: 105%;
-}
-
-.run {
-  background: hsl(0, 0%, 100%, 0.1);
-  color: hsl(0, 0%, 100%, 0.6);
-  width: 50%;
-  transition:
-    background 0.2s ease-in-out,
-    color 0.2s ease-in-out;
-}
-
-.run-active {
-  background: hsl(0, 0%, 100%, 0.9);
-  color: #020809;
-  width: 50%;
-  transition: background 0.2s ease-in-out;
-}
-
-.run-active:hover {
-  background: hsl(0, 0%, 100%);
-}
-
-.ocr-strategy {
-  background-color: transparent;
-}
-
-.ocr-strategy-active {
-  background-color: hsla(180, 100%, 100%, 0.9);
-}
-
-.ocr-strategy:hover {
-  background-color: hsla(180, 100%, 100%, 0.15);
-}
-
-@media (max-width: 1036px) {
-  .toggle-container {
-    flex-direction: column !important;
-  }
-
-  .toggle {
-    width: 100%;
-  }
-
-  .toggle-active {
-    width: 100%;
-  }
-}
-
-@media (max-width: 718px) {
-  .toggle-container {
-    width: 100%;
-  }
-
-  .toggle {
-    width: 100%;
-    min-height: fit-content;
-    aspect-ratio: unset;
-    border: 1px solid hsla(180, 100%, 100%, 0.08);
-  }
-
-  .toggle-active {
-    width: 100%;
-    min-height: fit-content;
-    aspect-ratio: unset;
-    border: 1px solid hsla(180, 100%, 100%, 0.15);
-  }
-}
-
-@media (max-width: 718px) {
-  .card-image {
-    display: none;
-  }
-
-  .card-gradient-overlay {
-    display: none;
-  }
-}
-
-.chunk-length-container {
-  margin-top: 40px;
-}
-
-.chunk-length-toggle {
-  background-color: hsla(180, 100%, 100%, 0.1);
-  border-radius: 8px;
-  padding: 8px;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-}
-
-.chunk-length {
-  background-color: transparent;
-  color: hsl(0, 0%, 0%, 0.7);
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-}
-
-.chunk-length-active {
-  background-color: hsla(180, 100%, 100%, 0.9);
-  color: hsl(0, 0%, 0%);
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-}
-
-.chunk-length:hover {
-  background-color: hsla(180, 100%, 100%, 0.15);
-}
-
-.chunk-length-input {
-  background-color: hsla(180, 100%, 100%);
-  color: hsl(0, 0%, 0%, 0.9);
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: bold;
-  margin-top: 8px;
-  transition:
-    background-color 0.2s ease,
-    opacity 0.2s ease;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-.chunk-length-input:disabled {
-  opacity: 0.5;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
   cursor: not-allowed;
-  background-color: transparent;
 }
 
-.chunk-length-input:focus {
-  outline: none;
-  background-color: hsla(180, 100%, 100%);
-  color: hsl(0, 0%, 0%, 0.9);
+.submit-section.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
-.chunk-length-input::placeholder {
-  color: hsl(0, 0%, 0%, 0.5);
+.config-section > .config-card {
+  margin-top: 24px;
 }
 
-@media (max-width: 718px) {
-  .chunk-length-container {
-    width: 100%;
-  }
+.config-section > .config-grid + .config-card {
+  margin-top: 32px;
 }

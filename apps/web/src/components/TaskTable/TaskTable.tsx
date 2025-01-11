@@ -68,7 +68,7 @@ const TaskTable = () => {
 
   const handleTaskClick = (task: TaskResponse) => {
     navigate(
-      `/newDashboard?taskId=${task.task_id}&pageCount=${task.page_count || 10}&tablePageIndex=${pagination.pageIndex}&tablePageSize=${pagination.pageSize}`
+      `/dashboard?taskId=${task.task_id}&pageCount=${task.page_count || 10}&tablePageIndex=${pagination.pageIndex}&tablePageSize=${pagination.pageSize}`
     );
   };
 
