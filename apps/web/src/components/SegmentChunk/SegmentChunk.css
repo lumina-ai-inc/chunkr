@@ -157,27 +157,29 @@
 .segment-chunk ol {
   margin: 1rem 0 !important;
   padding-left: 1.5rem !important;
+  color: hsla(0, 0%, 100%, 0.9) !important;
+  list-style-position: outside !important;
+}
+
+/* List refinements for unordered lists */
+.segment-chunk ul {
+  list-style-type: disc !important;
+}
+
+/* List refinements for ordered lists */
+.segment-chunk ol {
+  list-style-type: decimal !important;
 }
 
 .segment-chunk li {
   margin-bottom: 0.5rem !important;
   color: hsla(0, 0%, 100%, 0.9) !important;
+  display: list-item !important;
 }
 
-.segment-chunk li:last-child {
-  margin-bottom: 0 !important;
-}
-
-/* List refinements */
-.segment-chunk ul li {
-  position: relative !important;
-}
-
+/* Remove the custom bullet point styling since we're using native list markers */
 .segment-chunk ul li::before {
-  content: "•" !important;
-  position: absolute !important;
-  left: -1.2em !important;
-  color: hsla(0, 0%, 100%, 0.9) !important;
+  display: none !important;
 }
 
 /* Horizontal rule */

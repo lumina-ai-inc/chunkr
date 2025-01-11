@@ -5,17 +5,34 @@ import { AuthContextProps } from "react-oidc-context";
 import "./UploadDialog.css";
 import UploadMain from "./UploadMain";
 import { UploadFormData } from "../../models/newTask.model";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function UploadDialog({ auth }: { auth: AuthContextProps }) {
+interface UploadDialogProps {
+  auth: AuthContextProps;
+  onUploadComplete?: () => void;
+}
+
+export default function UploadDialog({
+  auth,
+  onUploadComplete,
+}: UploadDialogProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const isAuthenticated = auth.isAuthenticated;
+  const navigate = useNavigate();
 
   const handleSubmit = (formData: UploadFormData) => {
-    // Add your submit logic here
     console.log(formData);
   };
 
+  const handleUploadSuccess = () => {
+    setIsOpen(false);
+    navigate("/dashboard?tablePageIndex=0&tablePageSize=20", { replace: true });
+    onUploadComplete?.();
+  };
+
   return (
-    <Dialog.Root>
+    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
       <Dialog.Trigger>
         <BetterButton>
           <svg
@@ -72,7 +89,11 @@ export default function UploadDialog({ auth }: { auth: AuthContextProps }) {
         </BetterButton>
       </Dialog.Trigger>
       <Dialog.Content className="dialog-overlay">
-        <UploadMain onSubmit={handleSubmit} isAuthenticated={isAuthenticated} />
+        <UploadMain
+          onSubmit={handleSubmit}
+          isAuthenticated={isAuthenticated}
+          onUploadSuccess={handleUploadSuccess}
+        />
       </Dialog.Content>
     </Dialog.Root>
   );

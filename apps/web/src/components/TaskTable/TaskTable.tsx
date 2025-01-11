@@ -3,6 +3,7 @@ import {
   MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_PaginationState,
+  type MRT_Row,
 } from "material-react-table";
 import { IconButton, Tooltip, createTheme, ThemeProvider } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -75,28 +76,80 @@ const TaskTable = () => {
   const columns = useMemo<MRT_ColumnDef<TaskResponse>[]>(
     () => [
       {
+        accessorKey: "file_name",
+        header: "File Name",
+        Cell: ({ cell }) => (
+          <Tooltip arrow title={cell.getValue<string>()}>
+            <div
+              style={{
+                maxWidth: "200px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {cell.getValue<string>()}
+            </div>
+          </Tooltip>
+        ),
+      },
+      {
         accessorKey: "task_id",
         header: "Task ID",
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-      },
-      {
-        accessorKey: "configuration.model",
-        header: "Model",
+        Cell: ({ cell }) => {
+          const fullId = cell.getValue<string>();
+          return (
+            <Tooltip arrow title={fullId}>
+              <div>{fullId.substring(0, 8)}...</div>
+            </Tooltip>
+          );
+        },
       },
       {
         accessorKey: "page_count",
         header: "Pages",
       },
       {
+        accessorKey: "message",
+        header: "Status",
+      },
+      {
         accessorKey: "created_at",
         header: "Created At",
         Cell: ({ cell }) => new Date(cell.getValue<string>()).toLocaleString(),
       },
+      {
+        accessorKey: "finished_at",
+        header: "Finished At",
+        Cell: ({ cell }) => new Date(cell.getValue<string>()).toLocaleString(),
+      },
+      {
+        accessorKey: "expires_at",
+        header: "Expires At",
+        Cell: ({ cell }) => new Date(cell.getValue<string>()).toLocaleString(),
+      },
     ],
     []
+  );
+
+  const renderDetailPanel = ({ row }: { row: MRT_Row<TaskResponse> }) => (
+    <div
+      style={{
+        padding: "16px",
+        borderRadius: "8px",
+        backgroundColor: "rgb(255, 255, 255, 0.05)",
+      }}
+    >
+      <pre
+        style={{
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-all",
+          color: "rgba(255, 255, 255, 0.85)",
+        }}
+      >
+        {JSON.stringify(row.original.configuration, null, 2)}
+      </pre>
+    </div>
   );
 
   const tableTheme = useMemo(
@@ -276,7 +329,6 @@ const TaskTable = () => {
         <MaterialReactTable
           columns={columns}
           data={tasks || []}
-          enableColumnOrdering
           enableColumnPinning
           enableRowSelection
           enablePagination
@@ -316,9 +368,27 @@ const TaskTable = () => {
               </IconButton>
             </Tooltip>
           )}
+          enableExpanding
+          renderDetailPanel={renderDetailPanel}
           muiTableBodyRowProps={({ row }) => ({
-            onClick: () => handleTaskClick(row.original),
-            sx: { cursor: "pointer" },
+            onClick: (event) => {
+              if (
+                !(event.target as HTMLElement)
+                  .closest(".MuiTableCell-root")
+                  ?.classList.contains("MuiTableCell-paddingNone")
+              ) {
+                handleTaskClick(row.original);
+              }
+            },
+            sx: {
+              cursor: "pointer",
+              "&.Mui-TableBodyCell-DetailPanel": {
+                height: 0,
+                "& > td": {
+                  padding: 0,
+                },
+              },
+            },
           })}
         />
       </ThemeProvider>

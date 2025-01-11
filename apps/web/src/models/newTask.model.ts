@@ -23,6 +23,12 @@ export enum SegmentationStrategy {
  */
 export interface ChunkProcessing {
   /**
+   * Whether to ignore headers and footers when chunking.
+   * @default true
+   */
+  ignore_headers_and_footers?: boolean;
+
+  /**
    * The target number of words in each chunk.
    * If 0, each chunk will contain a single segment.
    * @default 512
