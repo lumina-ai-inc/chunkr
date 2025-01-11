@@ -2,6 +2,7 @@ use crate::models::chunkr::output::OutputResponse;
 use crate::models::chunkr::task::{Status, TaskPayload};
 use crate::utils::services::file_operations::{check_file_type, convert_to_pdf};
 use crate::utils::services::log::log_task;
+use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use std::error::Error;
 use std::sync::Arc;
@@ -83,6 +84,38 @@ impl Pipeline {
             status.clone(),
             Some(&message.unwrap_or_default()),
             None,
+            None,
+        )
+        .await?;
+        self.status = Some(status);
+        Ok(())
+    }
+
+    pub async fn finish_and_update_status(
+        &mut self,
+        status: Status,
+        message: Option<String>,
+    ) -> Result<(), Box<dyn Error>> {
+        let task_id = self
+            .task_payload
+            .as_ref()
+            .ok_or("Task payload is not initialized")?
+            .task_id
+            .clone();
+        let finished_at = Utc::now();
+        let expires_at: Option<DateTime<Utc>> = self
+            .task_payload
+            .as_ref()
+            .unwrap()
+            .current_configuration
+            .expires_in
+            .map(|seconds| finished_at + chrono::Duration::seconds(seconds as i64));
+        log_task(
+            &task_id,
+            status.clone(),
+            Some(&message.unwrap_or_default()),
+            Some(finished_at),
+            expires_at,
         )
         .await?;
         self.status = Some(status);

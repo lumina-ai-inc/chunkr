@@ -1,3 +1,4 @@
+use crate::configs::expiration_config::Config as ExpirationConfig;
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::task::Configuration;
 use crate::models::chunkr::task::TaskResponse;
@@ -77,9 +78,13 @@ pub async fn create_extraction_task(
 ) -> Result<HttpResponse, Error> {
     let form = form.into_inner();
     let file_data = &form.file;
+    let expiration_config = ExpirationConfig::from_env().unwrap();
     let configuration = Configuration {
         chunk_processing: form.get_chunk_processing().unwrap_or_default(),
-        expires_in: form.expires_in.map(|e| e.into_inner()),
+        expires_in: form
+            .expires_in
+            .map(|e| e.into_inner())
+            .or(expiration_config.time),
         high_resolution: form
             .high_resolution
             .map(|e| e.into_inner())

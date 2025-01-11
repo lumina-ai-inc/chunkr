@@ -1,4 +1,3 @@
-use crate::configs::expiration_config::Config as ExpirationConfig;
 use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::task::{Configuration, Status, TaskPayload, TaskResponse};
@@ -6,7 +5,7 @@ use crate::utils::clients;
 use crate::utils::services::payload::produce_extraction_payloads;
 use crate::utils::storage::services::{generate_presigned_url, upload_to_s3};
 use actix_multipart::form::tempfile::TempFile;
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use std::{
     error::Error,
     path::{Path, PathBuf},
@@ -26,10 +25,6 @@ pub async fn create_task(
     let created_at = Utc::now();
     let client = clients::get_pg_client().await?;
     let worker_config = WorkerConfig::from_env()?;
-    let expiration_config = ExpirationConfig::from_env()?;
-    let expires_in: Option<i32> = configuration.expires_in.or(expiration_config.time);
-    let expiration_time: Option<DateTime<Utc>> =
-        expires_in.map(|seconds| Utc::now() + chrono::Duration::seconds(seconds as i64));
     let bucket_name = worker_config.s3_bucket;
     let base_url = worker_config.server_url;
     let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
@@ -68,11 +63,11 @@ pub async fn create_task(
                 .execute(
                     "INSERT INTO TASKS (
                     task_id, user_id, api_key, file_name, file_size, 
-                    page_count, segment_count, expires_at,
+                    page_count, segment_count,
                     status, task_url, input_location, output_location, image_folder_location,
                     configuration, message, pdf_location, input_file_type
                 ) VALUES (
-                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
                 ) ON CONFLICT (task_id) DO NOTHING",
                     &[
                         &task_id,
@@ -82,7 +77,6 @@ pub async fn create_task(
                         &(file_size as i64),
                         &page_count,
                         &0i32,
-                        &expiration_time,
                         &Status::Starting.to_string(),
                         &task_url,
                         &input_location,
@@ -174,7 +168,7 @@ pub async fn create_task(
                 status: Status::Starting,
                 created_at,
                 finished_at: None,
-                expires_at: expiration_time,
+                expires_at: None,
                 output: None,
                 input_file_url,
                 task_url: Some(task_url),

@@ -8,16 +8,19 @@ pub async fn log_task(
     status: Status,
     message: Option<&str>,
     finished_at: Option<DateTime<Utc>>,
+    expires_at: Option<DateTime<Utc>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client: Client = get_pg_client().await?;
 
     let finished_at_str = finished_at.map_or("NULL".to_string(), |dt| format!("'{}'", dt));
+    let expires_at_str = expires_at.map_or("NULL".to_string(), |dt| format!("'{}'", dt));
 
     let task_query = format!(
-        "UPDATE tasks SET status = '{:?}', message = '{}', finished_at = {} WHERE task_id = '{}'",
+        "UPDATE tasks SET status = '{:?}', message = '{}', finished_at = {}, expires_at = {} WHERE task_id = '{}'",
         status,
         message.unwrap_or_default(),
         finished_at_str,
+        expires_at_str,
         task_id
     );
 
