@@ -1,25 +1,21 @@
-@keyframes jitter {
-  0% {
-    transform: translate(0, 0);
+.loader-icon {
+  .bottom-cta-icon {
+    position: relative;
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.03) 45%,
+      rgba(255, 255, 255, 0.01) 65%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    border-radius: 12px;
+    padding: 24px;
+    overflow: hidden;
+    box-shadow:
+      0 4px 32px -4px rgba(0, 0, 0, 0.6),
+      0 8px 40px -4px rgba(255, 255, 255, 0.05),
+      inset 0 1px 1px rgba(255, 255, 255, 0.08),
+      inset 0 0 8px rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(12px);
   }
-  25% {
-    transform: translate(-2px, 2px);
-  }
-  50% {
-    transform: translate(2px, -2px);
-  }
-  75% {
-    transform: translate(-2px, -2px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
-}
-.jitter-animation {
-  animation: jitter 0.2s ease-in-out infinite;
-  animation-play-state: paused;
-  animation-delay: calc(2s - 0.2s);
-}
-.jitter-animation:hover {
-  animation-play-state: running;
 }
