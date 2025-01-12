@@ -229,9 +229,9 @@ def post_image_to_async(server_url, img_bytes, ocr_data_json):
 
 
 if __name__ == "__main__":
-    pdf_path = "figures/test_batch4.pdf"
+    pdf_path = "figures/test_batch3.pdf"
     server_url = "http://localhost:8000/batch_async"
-    for use_tesseract_ocr in [False]:
+    for use_tesseract_ocr in [True]:
         for use_reading_order in [False]:
             ocr_mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
             subfolder_path = ANNOTATED_IMAGES_DIR / ocr_mode 
