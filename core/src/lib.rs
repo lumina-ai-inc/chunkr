@@ -33,7 +33,9 @@ use routes::stripe::{
     create_setup_intent, create_stripe_session, get_invoice_detail, get_monthly_usage,
     get_user_invoices, stripe_webhook,
 };
-use routes::task::{cancel_task_route, create_task_route, delete_task_route, get_task_route};
+use routes::task::{
+    cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
+};
 use routes::tasks::get_tasks_route;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
@@ -62,10 +64,12 @@ fn run_migrations(url: &str) {
     ),
     servers((url = "https://api.chunkr.ai", description = "Production server")),
     paths(
+        routes::health::health_check,
         routes::task::create_task_route,
         routes::task::get_task_route,
         routes::task::delete_task_route,
-        routes::health::health_check,
+        routes::task::cancel_task_route,
+        routes::task::update_task_route,
     ),
     components(
         schemas(
@@ -92,7 +96,8 @@ fn run_migrations(url: &str) {
             models::chunkr::task::TaskResponse,
             models::chunkr::upload::OcrStrategy,
             models::chunkr::upload::SegmentationStrategy,
-            models::chunkr::upload::UploadForm,
+            models::chunkr::upload::CreateForm,
+            models::chunkr::upload::UpdateForm,
         )
     ),
     modifiers(&SecurityAddon),
@@ -173,10 +178,14 @@ pub fn main() -> std::io::Result<()> {
             let api_scope = web::scope("/api/v1")
                 .wrap(AuthMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
-                .route("/task", web::post().to(create_task_route))
-                .route("/task/{task_id}", web::get().to(get_task_route))
-                .route("/task/{task_id}", web::delete().to(delete_task_route))
-                .route("/task/{task_id}/cancel", web::post().to(cancel_task_route))
+                .service(
+                    web::scope("/task")
+                        .route("", web::post().to(create_task_route))
+                        .route("/{task_id}", web::get().to(get_task_route))
+                        .route("/{task_id}", web::delete().to(delete_task_route))
+                        .route("/{task_id}", web::patch().to(update_task_route))
+                        .route("/{task_id}/cancel", web::get().to(cancel_task_route)),
+                )
                 .route("/tasks", web::get().to(get_tasks_route))
                 .route("/usage", web::get().to(get_usage))
                 .route("/usage/monthly", web::get().to(get_monthly_usage));

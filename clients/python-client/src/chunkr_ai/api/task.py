@@ -109,6 +109,72 @@ class TaskResponse(BaseModel):
                 if content:
                     parts.append(content)
         return "\n".join(parts)
+    
+    def update(self, config: Configuration) -> 'TaskResponse':
+        files, data = self._client._prepare_upload_data(None, config)
+        if files:
+            r = self._client._session.patch(
+                f"{self.task_url}",
+                files=files,
+                data=data,  
+                headers=self._client._headers()
+            )
+        else:
+            r = self._client._session.patch(
+                f"{self.task_url}",
+                data=data,  
+                headers=self._client._headers()
+            )
+        r.raise_for_status()
+        return TaskResponse(**r.json()).with_client(self._client)
+    
+    async def update_async(self, config: Configuration) -> 'TaskResponse':
+        files, data = self._client._prepare_upload_data(None, config)
+        if files:
+            r = await self._client._client.patch(
+                f"{self.task_url}",
+                files=files,
+                data=data,  
+                headers=self._client._headers()
+            )   
+        else:
+            r = await self._client._client.patch(
+                f"{self.task_url}",
+                data=data,  
+                headers=self._client._headers()
+            )
+        r.raise_for_status()
+        return TaskResponse(**r.json()).with_client(self._client)
+    
+    def cancel(self):
+        r = self._client._session.get(
+            f"{self.task_url}/cancel",
+            headers=self._client._headers()
+        )
+        r.raise_for_status()
+        self.poll()
+    
+    async def cancel_async(self):
+        r = await self._client._client.get(
+            f"{self.task_url}/cancel",
+            headers=self._client._headers()
+        )
+        r.raise_for_status()
+        await self.poll_async()
+
+    def delete(self):
+        r = self._client._session.delete(
+            f"{self.task_url}",
+            headers=self._client._headers()
+        )
+        r.raise_for_status()
+    
+    async def delete_async(self):
+        r = await self._client._client.delete(
+            f"{self.task_url}",
+            headers=self._client._headers()
+        )
+        r.raise_for_status()
 
     def html(self) -> str:
         """Get full HTML for the task"""

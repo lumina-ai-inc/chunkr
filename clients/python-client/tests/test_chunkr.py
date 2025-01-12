@@ -226,12 +226,29 @@ async def test_delete_task(chunkr_client, sample_path):
         client.delete_task(response.task_id)
         with pytest.raises(Exception):  
             client.get_task(response.task_id)
-
+            
+@pytest.mark.asyncio
+async def test_delete_task_direct(chunkr_client, sample_path):
+    client_type, client = chunkr_client
+    task = await client.upload(sample_path) if client_type == "async" else client.upload(sample_path)
+    assert isinstance(task, TaskResponse)
+    assert task.task_id is not None
+    assert task.status == "Succeeded"
+    assert task.output is not None
+    
+    if client_type == "async":
+        await client.delete_task(task.task_id)
+        with pytest.raises(Exception):  
+            await client.get_task(task.task_id)
+    else:
+        client.delete_task(task.task_id)
+        with pytest.raises(Exception):  
+            client.get_task(task.task_id)
     
 @pytest.mark.asyncio
 async def test_cancel_task(chunkr_client, sample_path):
     client_type, client = chunkr_client
-    response = await client.start_upload(sample_path) if client_type == "async" else client.start_upload(sample_path)
+    response = await client.create_task(sample_path) if client_type == "async" else client.create_task(sample_path)
     assert isinstance(response, TaskResponse)
     assert response.task_id is not None
     assert response.status == "Starting"
@@ -246,3 +263,79 @@ async def test_cancel_task(chunkr_client, sample_path):
         response.poll()
         
     assert response.output is None
+    
+@pytest.mark.asyncio
+async def test_cancel_task_direct(chunkr_client, sample_path):
+    client_type, client = chunkr_client
+    task = await client.create_task(sample_path) if client_type == "async" else client.create_task(sample_path)
+    assert isinstance(task, TaskResponse)
+    assert task.task_id is not None
+    assert task.status == "Starting"
+    
+    if client_type == "async":
+        await task.cancel_async()
+    else:
+        task.cancel()
+    
+    assert task.status == "Cancelled"
+    assert task.output is None
+    
+@pytest.mark.asyncio
+async def test_update_task(chunkr_client, sample_path):
+    client_type, client = chunkr_client
+    response = await client.upload(sample_path) if client_type == "async" else client.upload(sample_path)
+    assert isinstance(response, TaskResponse)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+    
+    if client_type == "async":
+        await client.update_task(response.task_id, Configuration(
+            segmentation_strategy=SegmentationStrategy.PAGE,
+            chunk_processing=ChunkProcessing(
+                target_length=1024
+            )
+        ))
+        task = await client.get_task(response.task_id)
+    else:
+        client.update_task(response.task_id, Configuration(
+            segmentation_strategy=SegmentationStrategy.PAGE,
+            chunk_processing=ChunkProcessing(
+                target_length=1024
+            )
+        ))
+        task = client.get_task(response.task_id)
+
+    assert task.status == "Succeeded"
+    assert task.output is not None
+    assert task.configuration.segmentation_strategy == SegmentationStrategy.PAGE
+    
+@pytest.mark.asyncio
+async def test_update_task_direct(chunkr_client, sample_path):
+    client_type, client = chunkr_client
+    task = await client.upload(sample_path) if client_type == "async" else client.upload(sample_path)
+    assert isinstance(task, TaskResponse)
+    assert task.task_id is not None
+    assert task.status == "Succeeded"
+    assert task.output is not None
+    
+    if client_type == "async":
+        await task.update_async(Configuration(
+            segmentation_strategy=SegmentationStrategy.PAGE,
+            chunk_processing=ChunkProcessing(
+                target_length=1024
+            )
+        ))
+        await task.poll_async()
+    else:
+        task.update(Configuration(
+            segmentation_strategy=SegmentationStrategy.PAGE,
+            chunk_processing=ChunkProcessing(
+                target_length=1024
+            )
+        ))
+        task.poll()
+
+    assert task.status == "Succeeded"
+    assert task.output is not None
+    assert task.configuration.segmentation_strategy == SegmentationStrategy.PAGE

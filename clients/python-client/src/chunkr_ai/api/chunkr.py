@@ -43,10 +43,10 @@ class Chunkr(ChunkrBase):
         Returns:
             TaskResponse: The completed task response
         """
-        task = self.start_upload(file, config)
+        task = self.create_task(file, config)
         return task.poll()
 
-    def start_upload(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
+    def create_task(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
         """Upload a file for processing and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll()`
 
         Args:
@@ -125,8 +125,37 @@ class Chunkr(ChunkrBase):
         Args:
             task_id: The ID of the task to cancel
         """
-        r = self._session.post(
+        r = self._session.get(
             f"{self.url}/api/v1/task/{task_id}/cancel",
             headers=self._headers()
         )
         r.raise_for_status()
+
+    def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
+        """Update a task by its ID.
+        
+        Args:
+            task_id: The ID of the task to update
+            config: The new configuration to use
+
+        Returns:
+            TaskResponse: The updated task response
+        """
+        files, data = self._prepare_upload_data(None, config)
+        if files:
+            r = self._session.patch(
+                f"{self.url}/api/v1/task/{task_id}",
+                files=files,
+                data=data,  
+                headers=self._headers()
+            )
+        else:
+            r = self._session.patch(
+                f"{self.url}/api/v1/task/{task_id}",
+                data=data,  
+                headers=self._headers()
+            )
+        r.raise_for_status()
+        return TaskResponse(**r.json()).with_client(self)
+    
+
