@@ -14,7 +14,7 @@
   border: 1px solid transparent;
   transition: all 0.2s ease;
   z-index: 1000;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .viewer-header-config-button:hover {
@@ -27,7 +27,7 @@
   flex-direction: column;
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
+  right: 0;
   padding: 4px;
   width: max-content;
   min-width: 300px;
@@ -79,25 +79,34 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.view-options-popup {
+.download-options-container {
+  position: relative;
+}
+
+.download-dropdown-container {
+  position: relative;
+  z-index: 1000;
+}
+
+.download-options-popup {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
+  right: 0;
   background: rgb(30, 36, 37);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 1001;
   min-width: 150px;
   width: max-content;
 }
 
-.view-options-menu {
+.download-options-menu {
   width: 100%;
   padding: 8px;
 }
 
-.view-options-menu-item {
+.download-options-menu-item {
   width: 100%;
   padding: 8px 12px;
   border-radius: 4px;
@@ -105,7 +114,7 @@
   transition: all 0.2s ease;
 }
 
-.view-options-menu-item:hover {
+.download-options-menu-item:hover {
   background: rgba(255, 255, 255, 0.05);
 }
 

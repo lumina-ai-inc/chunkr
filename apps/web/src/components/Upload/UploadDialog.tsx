@@ -4,7 +4,7 @@ import BetterButton from "../BetterButton/BetterButton";
 import { AuthContextProps } from "react-oidc-context";
 import "./UploadDialog.css";
 import UploadMain from "./UploadMain";
-import { UploadFormData } from "../../models/newTask.model";
+import { UploadFormData } from "../../models/taskConfig.model";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

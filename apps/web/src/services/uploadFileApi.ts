@@ -1,6 +1,6 @@
 import axiosInstance from "./axios.config";
 import { UploadForm } from "../models/upload.model";
-import { TaskResponse } from "../models/task.model";
+import { TaskResponse } from "../models/taskResponse.model";
 
 export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
   const formData = new FormData();
