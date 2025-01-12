@@ -84,6 +84,7 @@ export const PDF = memo(
     activeSegment,
     loadedPages,
     onLoadSuccess,
+    structureExtractionView = false,
   }: {
     content: Chunk[];
     inputFileUrl: string;
@@ -91,6 +92,7 @@ export const PDF = memo(
     activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
     loadedPages: number;
     onLoadSuccess?: (numPages: number) => void;
+    structureExtractionView?: boolean;
   }) => {
     const [numPages, setNumPages] = useState<number>();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -150,6 +152,7 @@ export const PDF = memo(
                   onSegmentClick={onSegmentClick}
                   width={pdfWidth}
                   activeSegment={activeSegment}
+                  structureExtractionView={structureExtractionView}
                 />
               )
             )}
@@ -169,32 +172,42 @@ function CurrentPage({
   onSegmentClick,
   width,
   activeSegment,
+  structureExtractionView,
 }: {
   index: number;
   segments: Chunk[];
   onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
   width: number;
   activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
+  structureExtractionView: boolean;
 }) {
   const pageNumber = index + 1;
 
   const pageSegments = useMemo(
     () =>
-      segments.flatMap((chunk, chunkIndex) =>
-        chunk.segments
-          .filter((segment) => segment.page_number === pageNumber)
-          .map((segment, segmentIndex) => (
-            <MemoizedSegmentOverlay
-              key={`${chunkIndex}-${segmentIndex}`}
-              segment={segment}
-              chunkIndex={chunkIndex}
-              segmentIndex={segmentIndex}
-              onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
-              isActive={activeSegment?.chunkIndex === chunkIndex}
-            />
-          ))
-      ),
-    [segments, pageNumber, onSegmentClick, activeSegment]
+      !structureExtractionView
+        ? segments.flatMap((chunk, chunkIndex) =>
+            chunk.segments
+              .filter((segment) => segment.page_number === pageNumber)
+              .map((segment, segmentIndex) => (
+                <MemoizedSegmentOverlay
+                  key={`${chunkIndex}-${segmentIndex}`}
+                  segment={segment}
+                  chunkIndex={chunkIndex}
+                  segmentIndex={segmentIndex}
+                  onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
+                  isActive={activeSegment?.chunkIndex === chunkIndex}
+                />
+              ))
+          )
+        : [],
+    [
+      segments,
+      pageNumber,
+      onSegmentClick,
+      activeSegment,
+      structureExtractionView,
+    ]
   );
 
   return (
