@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 from PIL import Image
 import requests
-from typing import BinaryIO, Tuple, Union
+from typing import BinaryIO, Optional, Tuple, Union
 
 class ChunkrBase(HeadersMixin):
     """Base class with shared functionality for Chunkr API clients."""
@@ -122,8 +122,8 @@ class ChunkrBase(HeadersMixin):
 
     def _prepare_upload_data(
         self,
-        file: Union[str, Path, BinaryIO, Image.Image],
-        config: Configuration = None
+        file: Optional[Union[str, Path, BinaryIO, Image.Image]] = None,
+        config: Optional[Configuration] = None
     ) -> Tuple[dict, dict]:
         """Prepare files and data dictionaries for upload.
         
@@ -134,8 +134,11 @@ class ChunkrBase(HeadersMixin):
         Returns:
             Tuple[dict, dict]: (files dict, data dict) ready for upload
         """
-        filename, file_obj = self._prepare_file(file)
-        files = {"file": (filename, file_obj)}
+        if file:
+            filename, file_obj = self._prepare_file(file)
+            files = {"file": (filename, file_obj)}
+        else:
+            files = {}
         data = {}
         
         if config:
@@ -157,7 +160,7 @@ class ChunkrBase(HeadersMixin):
         pass
 
     @abstractmethod
-    def start_upload(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
+    def create_task(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
         """Upload a file for processing and immediately return the task response.
         
         Must be implemented by subclasses.
@@ -183,6 +186,14 @@ class ChunkrBase(HeadersMixin):
     @abstractmethod
     def cancel_task(self, task_id: str) -> None:
         """Cancel a task by its ID.
+        
+        Must be implemented by subclasses.
+        """
+        pass
+
+    @abstractmethod
+    def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
+        """Update a task by its ID.
         
         Must be implemented by subclasses.
         """

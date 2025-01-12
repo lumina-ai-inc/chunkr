@@ -43,10 +43,10 @@ class ChunkrAsync(ChunkrBase):
         Returns:
             TaskResponse: The completed task response
         """
-        task = await self.start_upload(file, config)
+        task = await self.create_task(file, config)
         return await task.poll_async()
 
-    async def start_upload(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
+    async def create_task(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
         """Upload a file for processing and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll_async()`.
 
         Args:
@@ -84,7 +84,7 @@ class ChunkrAsync(ChunkrBase):
         r = await self._client.post(
             f"{self.url}/api/v1/task",
             files=files,
-            json=config.model_dump() if config else {},
+            data=data,
             headers=self._headers()
         )
         r.raise_for_status()
@@ -106,12 +106,30 @@ class ChunkrAsync(ChunkrBase):
         r.raise_for_status()
     
     async def cancel_task(self, task_id: str) -> None:
-        r = await self._client.post(
+        r = await self._client.get(
             f"{self.url}/api/v1/task/{task_id}/cancel",
             headers=self._headers()
         )
         r.raise_for_status()
 
+    async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
+        files, data = self._prepare_upload_data(None, config)
+        if files:
+            r = await self._client.patch(
+                f"{self.url}/api/v1/task/{task_id}",
+                files=files,
+                data=data,  
+                headers=self._headers()
+            )
+        else:
+            r = await self._client.patch(
+                f"{self.url}/api/v1/task/{task_id}",
+                data=data,  
+                headers=self._headers()
+            )
+        r.raise_for_status()
+        return TaskResponse(**r.json()).with_client(self)
+    
     async def __aenter__(self):
         return self
 

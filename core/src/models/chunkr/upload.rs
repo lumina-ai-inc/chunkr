@@ -9,10 +9,9 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::{IntoParams, ToSchema};
 
-// TODO: Add url and base_64 for file upload
 #[derive(Debug, MultipartForm, ToSchema, IntoParams)]
 #[into_params(parameter_in = Query)]
-pub struct UploadForm {
+pub struct CreateForm {
     #[param(style = Form, value_type = Option<ChunkProcessing>)]
     #[schema(value_type = Option<ChunkProcessing>)]
     pub chunk_processing: Option<MPJson<ChunkProcessing>>,
@@ -51,7 +50,7 @@ pub struct UploadForm {
     pub target_chunk_length: Option<Text<i32>>,
 }
 
-impl UploadForm {
+impl CreateForm {
     pub fn get_chunk_processing(&self) -> Option<ChunkProcessing> {
         self.chunk_processing
             .as_ref()
@@ -65,6 +64,43 @@ impl UploadForm {
                     chunk_processing
                 })
             })
+    }
+}
+
+#[derive(Debug, MultipartForm, ToSchema, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub struct UpdateForm {
+    #[param(style = Form, value_type = Option<ChunkProcessing>)]
+    #[schema(value_type = Option<ChunkProcessing>)]
+    pub chunk_processing: Option<MPJson<ChunkProcessing>>,
+    #[param(style = Form, value_type = Option<i32>)]
+    #[schema(value_type = Option<i32>)]
+    /// The number of seconds until task is deleted.
+    /// Expried tasks can **not** be updated, polled or accessed via web interface.
+    pub expires_in: Option<Text<i32>>,
+    #[param(style = Form, value_type = Option<bool>)]
+    #[schema(value_type = Option<bool>, default = false)]
+    /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
+    pub high_resolution: Option<Text<bool>>,
+    #[param(style = Form, value_type = Option<JsonSchema>)]
+    #[schema(value_type = Option<JsonSchema>)]
+    pub json_schema: Option<MPJson<JsonSchema>>,
+    #[param(style = Form, value_type = Option<OcrStrategy>)]
+    #[schema(value_type = Option<OcrStrategy>, default = "All")]
+    pub ocr_strategy: Option<Text<OcrStrategy>>,
+    #[param(style = Form, value_type = Option<SegmentProcessing>)]
+    #[schema(value_type = Option<SegmentProcessing>)]
+    pub segment_processing: Option<MPJson<SegmentProcessing>>,
+    #[param(style = Form, value_type = Option<SegmentationStrategy>)]
+    #[schema(value_type = Option<SegmentationStrategy>, default = "LayoutAnalysis")]
+    pub segmentation_strategy: Option<Text<SegmentationStrategy>>,
+}
+
+impl UpdateForm {
+    pub fn get_chunk_processing(&self) -> Option<ChunkProcessing> {
+        self.chunk_processing
+            .as_ref()
+            .map(|mp_json| mp_json.0.clone())
     }
 }
 

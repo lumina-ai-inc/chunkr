@@ -10,7 +10,7 @@ pub async fn expire() -> Result<(), Box<dyn std::error::Error>> {
 
     let expired_tasks = client
         .query(
-            "SELECT user_id, task_id FROM tasks WHERE expires_at < CURRENT_TIMESTAMP and finished_at > CURRENT_TIMESTAMP",
+            "SELECT user_id, task_id FROM tasks WHERE expires_at < CURRENT_TIMESTAMP and finished_at > CURRENT_TIMESTAMP and status != 'Starting' and status != 'Processing'",
             &[],
         )
         .await?;
@@ -31,7 +31,7 @@ pub async fn expire() -> Result<(), Box<dyn std::error::Error>> {
 
     let rows_affected = client
         .execute(
-            "DELETE FROM tasks WHERE expires_at < CURRENT_TIMESTAMP and finished_at > CURRENT_TIMESTAMP",
+            "DELETE FROM tasks WHERE expires_at < CURRENT_TIMESTAMP and finished_at > CURRENT_TIMESTAMP and status != 'Starting' and status != 'Processing'",
             &[],
         )
         .await?;
