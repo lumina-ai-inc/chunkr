@@ -1,5 +1,6 @@
 from .protocol import ChunkrClientProtocol
 from .config import Configuration, OutputResponse
+from .misc import prepare_upload_data
 import asyncio
 from datetime import datetime
 from enum import Enum
@@ -111,7 +112,7 @@ class TaskResponse(BaseModel):
         return "\n".join(parts)
     
     def update(self, config: Configuration) -> 'TaskResponse':
-        files, data = self._client._prepare_upload_data(None, config)
+        files, data = prepare_upload_data(None, config)
         if files:
             r = self._client._session.patch(
                 f"{self.task_url}",
@@ -129,7 +130,7 @@ class TaskResponse(BaseModel):
         return TaskResponse(**r.json()).with_client(self._client)
     
     async def update_async(self, config: Configuration) -> 'TaskResponse':
-        files, data = self._client._prepare_upload_data(None, config)
+        files, data = prepare_upload_data(None, config)
         if files:
             r = await self._client._client.patch(
                 f"{self.task_url}",

@@ -248,7 +248,7 @@ pub async fn cancel_task_route(
 /// Can only update a task that is not currently processing.
 /// Use the `GET /task/{task_id}`` endpoint to poll for completion.
 #[utoipa::path(
-    post,
+    patch,
     path = "/task/{task_id}",
     context_path = "/api/v1",
     tag = "Task",

@@ -5,6 +5,7 @@ import httpx
 from pathlib import Path
 from PIL import Image
 from typing import Union, BinaryIO
+from .misc import prepare_upload_data
 
 class ChunkrAsync(ChunkrBase):
     """Asynchronous Chunkr API client"""
@@ -80,7 +81,7 @@ class ChunkrAsync(ChunkrBase):
         Returns:
             TaskResponse: The initial task response
         """
-        files, data = self._prepare_upload_data(file, config)
+        files, data = prepare_upload_data(file, config)
         r = await self._client.post(
             f"{self.url}/api/v1/task",
             files=files,
@@ -90,6 +91,24 @@ class ChunkrAsync(ChunkrBase):
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self)
 
+    async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
+        files, data = prepare_upload_data(None, config)
+        if files:
+            r = await self._client.patch(
+                f"{self.url}/api/v1/task/{task_id}",
+                files=files,
+                data=data,  
+                headers=self._headers()
+            )
+        else:
+            r = await self._client.patch(
+                f"{self.url}/api/v1/task/{task_id}",
+                data=data,  
+                headers=self._headers()
+            )
+        r.raise_for_status()
+        return TaskResponse(**r.json()).with_client(self)
+    
     async def get_task(self, task_id: str) -> TaskResponse:
         r = await self._client.get(
             f"{self.url}/api/v1/task/{task_id}",
@@ -112,23 +131,6 @@ class ChunkrAsync(ChunkrBase):
         )
         r.raise_for_status()
 
-    async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
-        files, data = self._prepare_upload_data(None, config)
-        if files:
-            r = await self._client.patch(
-                f"{self.url}/api/v1/task/{task_id}",
-                files=files,
-                data=data,  
-                headers=self._headers()
-            )
-        else:
-            r = await self._client.patch(
-                f"{self.url}/api/v1/task/{task_id}",
-                data=data,  
-                headers=self._headers()
-            )
-        r.raise_for_status()
-        return TaskResponse(**r.json()).with_client(self)
     
     async def __aenter__(self):
         return self
