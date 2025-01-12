@@ -60,32 +60,51 @@ async def process_ocr_batch(tasks: List[OCRTask]) -> List[OCRResponse]:
 
 async def batch_processor():
     while True:
-        await batch_event.wait()
-        batch_event.clear()
-        
-        await asyncio.sleep(batch_wait_time)
-        
-        async with processing_lock:
-            if not pending_tasks:
-                continue
-            
-            current_batch = list(pending_tasks)
-            pending_tasks.clear()
-        
         try:
-            results = []
-            if max_batch_size is None:
-                results.extend(await process_ocr_batch(current_batch))
-            else:
-                for i in range(0, len(current_batch), max_batch_size):
-                    batch = current_batch[i:i+max_batch_size]
-                    results.extend(await process_ocr_batch(batch))  
+            await batch_event.wait()
             
-            for task, result in zip(current_batch, results):
-                task.future.set_result(result)
+            async with processing_lock:
+                if not pending_tasks:
+                    batch_event.clear()
+                    continue
+                
+                # Take only max_batch_size tasks
+                current_batch = []
+                for _ in range(max_batch_size):
+                    if not pending_tasks:
+                        break
+                    current_batch.append(pending_tasks.popleft())
+            
+            try:
+                # Process single chunk
+                chunk_results = await process_ocr_batch(current_batch)
+                
+                # Set results immediately
+                for task, result in zip(current_batch, chunk_results):
+                    if not task.future.done():
+                        task.future.set_result(result)
+                
+                # Clear memory
+                del chunk_results
+                del current_batch
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                    
+            except Exception as e:
+                print(f"Error processing batch: {e}")
+                for task in current_batch:
+                    if not task.future.done():
+                        task.future.set_exception(e)
+            
+            # Clear the event if no more tasks
+            async with processing_lock:
+                if not pending_tasks:
+                    batch_event.clear()
+            
         except Exception as e:
-            for task in current_batch:
-                task.future.set_exception(e)
+            print(f"Error in batch processor: {e}")
+            batch_event.clear()
+            await asyncio.sleep(0.1)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
