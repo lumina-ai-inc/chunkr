@@ -5,6 +5,7 @@ from pathlib import Path
 from PIL import Image
 import requests
 from typing import Union, BinaryIO
+from .misc import prepare_upload_data
 
 class Chunkr(ChunkrBase):
     """Chunkr API client"""
@@ -80,7 +81,7 @@ class Chunkr(ChunkrBase):
         Returns:
             TaskResponse: The initial task response
         """
-        files, data = self._prepare_upload_data(file, config)
+        files, data = prepare_upload_data(file, config)
         r = self._session.post(
             f"{self.url}/api/v1/task",
             files=files,
@@ -89,7 +90,34 @@ class Chunkr(ChunkrBase):
         )
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self)
+    
+    def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
+        """Update a task by its ID.
+        
+        Args:
+            task_id: The ID of the task to update
+            config: The new configuration to use
 
+        Returns:
+            TaskResponse: The updated task response
+        """
+        files, data = prepare_upload_data(None, config)
+        if files:
+            r = self._session.patch(
+                f"{self.url}/api/v1/task/{task_id}",
+                files=files,
+                data=data,  
+                headers=self._headers()
+            )
+        else:
+            r = self._session.patch(
+                f"{self.url}/api/v1/task/{task_id}",
+                data=data,  
+                headers=self._headers()
+            )
+        r.raise_for_status()
+        return TaskResponse(**r.json()).with_client(self)
+    
     def get_task(self, task_id: str) -> TaskResponse:
         """Get a task response by its ID.
         
@@ -131,31 +159,4 @@ class Chunkr(ChunkrBase):
         )
         r.raise_for_status()
 
-    def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
-        """Update a task by its ID.
-        
-        Args:
-            task_id: The ID of the task to update
-            config: The new configuration to use
-
-        Returns:
-            TaskResponse: The updated task response
-        """
-        files, data = self._prepare_upload_data(None, config)
-        if files:
-            r = self._session.patch(
-                f"{self.url}/api/v1/task/{task_id}",
-                files=files,
-                data=data,  
-                headers=self._headers()
-            )
-        else:
-            r = self._session.patch(
-                f"{self.url}/api/v1/task/{task_id}",
-                data=data,  
-                headers=self._headers()
-            )
-        r.raise_for_status()
-        return TaskResponse(**r.json()).with_client(self)
-    
-
+  
