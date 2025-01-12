@@ -8,7 +8,7 @@ import {
   Property,
   JsonSchema,
   DEFAULT_SEGMENT_PROCESSING,
-} from "../../models/newTask.model";
+} from "../../models/taskConfig.model";
 
 interface ToggleGroupProps {
   value: string;

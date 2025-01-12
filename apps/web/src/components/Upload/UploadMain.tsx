@@ -6,7 +6,7 @@ import {
   SegmentationStrategy,
   DEFAULT_UPLOAD_CONFIG,
   DEFAULT_SEGMENT_PROCESSING,
-} from "../../models/newTask.model";
+} from "../../models/taskConfig.model";
 import "./UploadMain.css";
 import Upload from "./Upload";
 import {

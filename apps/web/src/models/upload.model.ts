@@ -4,7 +4,7 @@ import {
   OcrStrategy,
   SegmentProcessing,
   SegmentationStrategy,
-} from "./newTask.model";
+} from "./taskConfig.model";
 
 export interface UploadForm {
   /** The file to be uploaded */

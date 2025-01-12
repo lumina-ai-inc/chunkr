@@ -1,6 +1,6 @@
 import { Progress, Text, Flex, Code } from "@radix-ui/themes";
 import "./Statusview.css";
-import { TaskResponse, Status } from "../../models/task.model";
+import { TaskResponse, Status } from "../../models/taskConfig.model";
 import { Link, useNavigate } from "react-router-dom";
 
 interface StatusViewProps {

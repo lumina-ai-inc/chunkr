@@ -1,5 +1,5 @@
 import axiosInstance from "./axios.config";
-import { TaskResponse } from "../models/task.model";
+import { TaskResponse } from "../models/taskConfig.model";
 
 export async function getTask(taskId: string): Promise<TaskResponse> {
   const { data } = await axiosInstance.get(`/api/v1/task/${taskId}`);

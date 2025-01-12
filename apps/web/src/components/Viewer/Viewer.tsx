@@ -4,11 +4,12 @@ import { SegmentChunk } from "../SegmentChunk/SegmentChunk";
 import { PDF } from "../PDF/PDF";
 import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
-import { TaskResponse, Chunk } from "../../models/task.model";
+import { TaskResponse, Chunk } from "../../models/taskResponse.model";
 import ReactJson from "react-json-view";
 import DOMPurify from "dompurify";
 import BetterButton from "../BetterButton/BetterButton";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import StructuredExtractionView from "../StructuredExtractionView/StructuredExtractionView";
 
 const MemoizedPDF = memo(PDF);
 
@@ -17,7 +18,7 @@ const PAGE_CHUNK_SIZE = 5; // Number of pages to load at a time
 
 export default function Viewer({ task }: { task: TaskResponse }) {
   const output = task.output;
-  const inputFileUrl = task.pdf_url;
+  const inputFileUrl = task.input_file_url;
   const memoizedOutput = useMemo(() => output, [output]);
   const [showConfig, setShowConfig] = useState(false);
   const [leftPanelWidth, setLeftPanelWidth] = useState(0);
@@ -28,11 +29,6 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   const [selectedView, setSelectedView] = useState<
     "html" | "markdown" | "json" | "structured"
   >("html");
-
-  const viewOptions = useMemo(
-    () => ["HTML", "Markdown", "Structured Extraction"],
-    []
-  );
 
   const [activeSegment, setActiveSegment] = useState<{
     chunkIndex: number;
@@ -136,7 +132,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
     }, 150);
   };
 
-  const handleDownloadPDF = useCallback(() => {
+  const handleDownloadOriginalFile = useCallback(() => {
     if (inputFileUrl) {
       fetch(inputFileUrl)
         .then((response) => response.blob())
@@ -167,9 +163,11 @@ export default function Viewer({ task }: { task: TaskResponse }) {
           console.error("Error downloading PDF:", error);
         });
     }
+    console.log("inputFileUrl", inputFileUrl);
   }, [inputFileUrl]);
 
   const handleDownloadJSON = useCallback(() => {
+    console.log("handle JSON clicked", output);
     if (output) {
       const jsonString = JSON.stringify(output, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
@@ -261,103 +259,6 @@ export default function Viewer({ task }: { task: TaskResponse }) {
     }
   }, [output, inputFileUrl]);
 
-  const getViewDisplayText = (view: string): string => {
-    switch (view.toLowerCase()) {
-      case "html":
-        return "HTML";
-      case "markdown":
-        return "Markdown";
-      case "structured":
-        return "Structured Extraction";
-      default:
-        return view;
-    }
-  };
-
-  const renderViewDropdown = () => (
-    <Flex
-      className="viewer-header-view-button"
-      gap="2"
-      onClick={() => setShowViewOptions(!showViewOptions)}
-      style={{ position: "relative" }}
-    >
-      <svg
-        width="20x"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9ZM11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12C13 12.5523 12.5523 13 12 13C11.4477 13 11 12.5523 11 12Z"
-          fill="white"
-        />
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M21.83 11.2807C19.542 7.15186 15.8122 5 12 5C8.18777 5 4.45796 7.15186 2.17003 11.2807C1.94637 11.6844 1.94361 12.1821 2.16029 12.5876C4.41183 16.8013 8.1628 19 12 19C15.8372 19 19.5882 16.8013 21.8397 12.5876C22.0564 12.1821 22.0536 11.6844 21.83 11.2807ZM12 17C9.06097 17 6.04052 15.3724 4.09173 11.9487C6.06862 8.59614 9.07319 7 12 7C14.9268 7 17.9314 8.59614 19.9083 11.9487C17.9595 15.3724 14.939 17 12 17Z"
-          fill="white"
-        />
-      </svg>
-      <Flex align="center" gap="2">
-        <Text
-          size="2"
-          weight="medium"
-          style={{ color: "rgba(255, 255, 255, 0.95)" }}
-        >
-          {getViewDisplayText(selectedView)}
-        </Text>
-      </Flex>
-      {showViewOptions && (
-        <div className="view-options-popup">
-          <Flex className="view-options-menu" direction="column">
-            {viewOptions.map((option) => (
-              <Flex
-                key={option}
-                className="view-options-menu-item"
-                onClick={() =>
-                  setSelectedView(
-                    option.toLowerCase() as
-                      | "html"
-                      | "markdown"
-                      | "json"
-                      | "structured"
-                  )
-                }
-              >
-                <Text size="2" weight="medium" style={{ color: "#FFF" }}>
-                  {option}
-                </Text>
-              </Flex>
-            ))}
-          </Flex>
-        </div>
-      )}
-    </Flex>
-  );
-
-  // Add state for view options dropdown
-  const [showViewOptions, setShowViewOptions] = useState(false);
-
-  // Add click outside handler
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        !event.target ||
-        !(event.target as Element).closest(".viewer-header-view-button")
-      ) {
-        setShowViewOptions(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   // Add scroll handler for PDF container to load more pages
   const handleScroll = useCallback(
     (e: Event) => {
@@ -406,6 +307,147 @@ export default function Viewer({ task }: { task: TaskResponse }) {
     };
   }, [handleScroll]);
 
+  // Change the state name to match our new dropdown
+  const [showDownloadOptions, setShowDownloadOptions] = useState(false);
+
+  // Add click outside handler for download dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        !event.target ||
+        !(event.target as Element).closest(".download-dropdown-container")
+      ) {
+        setShowDownloadOptions(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const renderDownloadDropdown = () => (
+    <div
+      className="download-dropdown-container"
+      style={{ position: "relative" }}
+    >
+      <BetterButton
+        onClick={() => setShowDownloadOptions(!showDownloadOptions)}
+        active={showDownloadOptions}
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g clip-path="url(#clip0_304_23621)">
+            <path
+              d="M19.25 9.25V20.25C19.25 20.8 18.8 21.25 18.25 21.25H5.75C5.2 21.25 4.75 20.8 4.75 20.25V3.75C4.75 3.2 5.2 2.75 5.75 2.75H12.75"
+              stroke="#FFFFFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M12.75 9.25H19.25L12.75 2.75V9.25Z"
+              stroke="#FFFFFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M14.5 15.75L12 18.25L9.5 15.75"
+              stroke="#FFFFFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M12 18V12.75"
+              stroke="#FFFFFF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_304_23621">
+              <rect width="24" height="24" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+        <Text
+          size="2"
+          weight="medium"
+          style={{ color: "rgba(255, 255, 255, 0.95)" }}
+        >
+          Download
+        </Text>
+      </BetterButton>
+      {showDownloadOptions && (
+        <div
+          className="download-options-popup"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Flex className="download-options-menu" direction="column">
+            <div
+              className="download-options-menu-item"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event from bubbling up
+                handleDownloadOriginalFile();
+                setShowDownloadOptions(false);
+              }}
+            >
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Original File
+              </Text>
+            </div>
+            <div
+              className="download-options-menu-item"
+              onClick={(e) => {
+                console.log("JSON menu item clicked");
+                e.stopPropagation();
+                handleDownloadJSON();
+                setShowDownloadOptions(false);
+              }}
+            >
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                JSON
+              </Text>
+            </div>
+            <div
+              className="download-options-menu-item"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event from bubbling up
+                handleDownloadHTML();
+                setShowDownloadOptions(false);
+              }}
+            >
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                HTML
+              </Text>
+            </div>
+            <div
+              className="download-options-menu-item"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event from bubbling up
+                handleDownloadMarkdown();
+                setShowDownloadOptions(false);
+              }}
+            >
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Markdown
+              </Text>
+            </div>
+          </Flex>
+        </div>
+      )}
+    </div>
+  );
+
   if (!output) {
     return <Loader />;
   }
@@ -419,6 +461,79 @@ export default function Viewer({ task }: { task: TaskResponse }) {
         className="viewer-header"
       >
         <Flex className="viewer-header-left-buttons" gap="16px">
+          <BetterButton
+            onClick={() => setSelectedView("html")}
+            active={selectedView === "html"}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4.17456 5.15007C4.08271 4.54492 4.55117 4 5.16324 4H18.8368C19.4488 4 19.9173 4.54493 19.8254 5.15007L18.0801 16.6489C18.03 16.9786 17.8189 17.2617 17.5172 17.4037L12.4258 19.7996C12.1561 19.9265 11.8439 19.9265 11.5742 19.7996L6.4828 17.4037C6.18107 17.2617 5.96997 16.9786 5.91993 16.6489L4.17456 5.15007Z"
+                stroke="#FFFFFF"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M15 7.5H9.5V11H14.5V14.5L12.3714 15.3514C12.133 15.4468 11.867 15.4468 11.6286 15.3514L9.5 14.5"
+                stroke="#FFFFFF"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <Text
+              size="2"
+              weight="medium"
+              style={{ color: "rgba(255, 255, 255, 0.95)" }}
+            >
+              HTML
+            </Text>
+          </BetterButton>
+          <BetterButton
+            onClick={() => setSelectedView("markdown")}
+            active={selectedView === "markdown"}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 15 15"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2.5 5.5L2.85355 5.14645C2.71055 5.00345 2.4955 4.96067 2.30866 5.03806C2.12182 5.11545 2 5.29777 2 5.5H2.5ZM4.5 7.5L4.14645 7.85355L4.5 8.20711L4.85355 7.85355L4.5 7.5ZM6.5 5.5H7C7 5.29777 6.87818 5.11545 6.69134 5.03806C6.5045 4.96067 6.28945 5.00345 6.14645 5.14645L6.5 5.5ZM10.5 9.5L10.1464 9.85355L10.5 10.2071L10.8536 9.85355L10.5 9.5ZM1.5 3H13.5V2H1.5V3ZM14 3.5V11.5H15V3.5H14ZM13.5 12H1.5V13H13.5V12ZM1 11.5V3.5H0V11.5H1ZM1.5 12C1.22386 12 1 11.7761 1 11.5H0C0 12.3284 0.671574 13 1.5 13V12ZM14 11.5C14 11.7761 13.7761 12 13.5 12V13C14.3284 13 15 12.3284 15 11.5H14ZM13.5 3C13.7761 3 14 3.22386 14 3.5H15C15 2.67157 14.3284 2 13.5 2V3ZM1.5 2C0.671573 2 0 2.67157 0 3.5H1C1 3.22386 1.22386 3 1.5 3V2ZM3 10V5.5H2V10H3ZM2.14645 5.85355L4.14645 7.85355L4.85355 7.14645L2.85355 5.14645L2.14645 5.85355ZM4.85355 7.85355L6.85355 5.85355L6.14645 5.14645L4.14645 7.14645L4.85355 7.85355ZM6 5.5V10H7V5.5H6ZM10 5V9.5H11V5H10ZM8.14645 7.85355L10.1464 9.85355L10.8536 9.14645L8.85355 7.14645L8.14645 7.85355ZM10.8536 9.85355L12.8536 7.85355L12.1464 7.14645L10.1464 9.14645L10.8536 9.85355Z"
+                fill="#FFFFFF"
+              />
+            </svg>
+            <Text
+              size="2"
+              weight="medium"
+              style={{ color: "rgba(255, 255, 255, 0.95)" }}
+            >
+              Markdown
+            </Text>
+          </BetterButton>
+          <BetterButton
+            onClick={() => setSelectedView("structured")}
+            active={selectedView === "structured"}
+          >
+            <Text
+              size="2"
+              weight="medium"
+              style={{ color: "rgba(255, 255, 255, 0.95)" }}
+            >
+              Structured Extraction
+            </Text>
+          </BetterButton>
+        </Flex>
+        <Flex className="viewer-header-right-buttons" gap="16px">
+          {renderDownloadDropdown()}
           <Flex
             className="viewer-header-config-button"
             onMouseEnter={handleMouseEnter}
@@ -480,143 +595,6 @@ export default function Viewer({ task }: { task: TaskResponse }) {
               </div>
             )}
           </Flex>
-          {renderViewDropdown()}
-        </Flex>
-        <Flex className="viewer-header-right-buttons" gap="16px">
-          <BetterButton onClick={handleDownloadPDF}>
-            <Flex align="center" gap="2">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clip-path="url(#clip0_304_23621)">
-                  <path
-                    d="M19.25 9.25V20.25C19.25 20.8 18.8 21.25 18.25 21.25H5.75C5.2 21.25 4.75 20.8 4.75 20.25V3.75C4.75 3.2 5.2 2.75 5.75 2.75H12.75"
-                    stroke="#FFFFFF"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M12.75 9.25H19.25L12.75 2.75V9.25Z"
-                    stroke="#FFFFFF"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M14.5 15.75L12 18.25L9.5 15.75"
-                    stroke="#FFFFFF"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M12 18V12.75"
-                    stroke="#FFFFFF"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_304_23621">
-                    <rect width="24" height="24" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-              <Text
-                size="2"
-                weight="medium"
-                style={{ color: "rgba(255, 255, 255, 0.95)" }}
-              >
-                File
-              </Text>
-            </Flex>
-          </BetterButton>
-          <BetterButton onClick={handleDownloadJSON}>
-            <Flex align="center" gap="2">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect width="24" height="24" fill="none" />
-                <path
-                  d="M5,3H7V5H5v5a2,2,0,0,1-2,2,2,2,0,0,1,2,2v5H7v2H5c-1.07-.27-2-.9-2-2V15a2,2,0,0,0-2-2H0V11H1A2,2,0,0,0,3,9V5A2,2,0,0,1,5,3M19,3a2,2,0,0,1,2,2V9a2,2,0,0,0,2,2h1v2H23a2,2,0,0,0-2,2v4a2,2,0,0,1-2,2H17V19h2V14a2,2,0,0,1,2-2,2,2,0,0,1-2-2V5H17V3h2M12,15a1,1,0,1,1-1,1,1,1,0,0,1,1-1M8,15a1,1,0,1,1-1,1,1,1,0,0,1,1-1m8,0a1,1,0,1,1-1,1A1,1,0,0,1,16,15Z"
-                  fill="#FFFFFF"
-                />
-              </svg>
-              <Text
-                size="2"
-                weight="medium"
-                style={{ color: "rgba(255, 255, 255, 0.95)" }}
-              >
-                JSON
-              </Text>
-            </Flex>
-          </BetterButton>
-          <BetterButton onClick={handleDownloadHTML}>
-            <Flex align="center" gap="2">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M4.17456 5.15007C4.08271 4.54492 4.55117 4 5.16324 4H18.8368C19.4488 4 19.9173 4.54493 19.8254 5.15007L18.0801 16.6489C18.03 16.9786 17.8189 17.2617 17.5172 17.4037L12.4258 19.7996C12.1561 19.9265 11.8439 19.9265 11.5742 19.7996L6.4828 17.4037C6.18107 17.2617 5.96997 16.9786 5.91993 16.6489L4.17456 5.15007Z"
-                  stroke="#FFFFFF"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M15 7.5H9.5V11H14.5V14.5L12.3714 15.3514C12.133 15.4468 11.867 15.4468 11.6286 15.3514L9.5 14.5"
-                  stroke="#FFFFFF"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <Text
-                size="2"
-                weight="medium"
-                style={{ color: "rgba(255, 255, 255, 0.95)" }}
-              >
-                HTML
-              </Text>
-            </Flex>
-          </BetterButton>
-          <BetterButton onClick={handleDownloadMarkdown}>
-            <Flex align="center" gap="2">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 15 15"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M2.5 5.5L2.85355 5.14645C2.71055 5.00345 2.4955 4.96067 2.30866 5.03806C2.12182 5.11545 2 5.29777 2 5.5H2.5ZM4.5 7.5L4.14645 7.85355L4.5 8.20711L4.85355 7.85355L4.5 7.5ZM6.5 5.5H7C7 5.29777 6.87818 5.11545 6.69134 5.03806C6.5045 4.96067 6.28945 5.00345 6.14645 5.14645L6.5 5.5ZM10.5 9.5L10.1464 9.85355L10.5 10.2071L10.8536 9.85355L10.5 9.5ZM1.5 3H13.5V2H1.5V3ZM14 3.5V11.5H15V3.5H14ZM13.5 12H1.5V13H13.5V12ZM1 11.5V3.5H0V11.5H1ZM1.5 12C1.22386 12 1 11.7761 1 11.5H0C0 12.3284 0.671574 13 1.5 13V12ZM14 11.5C14 11.7761 13.7761 12 13.5 12V13C14.3284 13 15 12.3284 15 11.5H14ZM13.5 3C13.7761 3 14 3.22386 14 3.5H15C15 2.67157 14.3284 2 13.5 2V3ZM1.5 2C0.671573 2 0 2.67157 0 3.5H1C1 3.22386 1.22386 3 1.5 3V2ZM3 10V5.5H2V10H3ZM2.14645 5.85355L4.14645 7.85355L4.85355 7.14645L2.85355 5.14645L2.14645 5.85355ZM4.85355 7.85355L6.85355 5.85355L6.14645 5.14645L4.14645 7.14645L4.85355 7.85355ZM6 5.5V10H7V5.5H6ZM10 5V9.5H11V5H10ZM8.14645 7.85355L10.1464 9.85355L10.8536 9.14645L8.85355 7.14645L8.14645 7.85355ZM10.8536 9.85355L12.8536 7.85355L12.1464 7.14645L10.1464 9.14645L10.8536 9.85355Z"
-                  fill="#FFFFFF"
-                />
-              </svg>
-              <Text
-                size="2"
-                weight="medium"
-                style={{ color: "rgba(255, 255, 255, 0.95)" }}
-              >
-                Markdown
-              </Text>
-            </Flex>
-          </BetterButton>
         </Flex>
       </Flex>
       <PanelGroup
@@ -634,7 +612,9 @@ export default function Viewer({ task }: { task: TaskResponse }) {
           }}
         >
           <div className="scrollable-content">
-            {output.chunks.length === 0 ? (
+            {selectedView === "structured" ? (
+              <StructuredExtractionView task={task} />
+            ) : output.chunks.length === 0 ? (
               <Text
                 size="4"
                 weight="medium"

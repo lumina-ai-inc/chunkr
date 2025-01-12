@@ -9,7 +9,7 @@ import {
   SegmentType,
   OCRResult,
   BoundingBox,
-} from "../../models/task.model";
+} from "../../models/taskResponse.model";
 import "./PDF.css";
 import { debounce } from "lodash";
 
