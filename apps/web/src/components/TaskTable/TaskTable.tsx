@@ -8,7 +8,7 @@ import {
 import { IconButton, Tooltip, createTheme, ThemeProvider } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
-import { TaskResponse } from "../../models/task.model";
+import { TaskResponse } from "../../models/taskResponse.model";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
 import "./TaskTable.css";

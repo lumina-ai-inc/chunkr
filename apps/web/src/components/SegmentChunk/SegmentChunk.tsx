@@ -1,5 +1,5 @@
 import { forwardRef, memo, useCallback, useMemo, useState } from "react";
-import { Chunk, Segment } from "../../models/task.model";
+import { Chunk, Segment } from "../../models/taskResponse.model";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "./SegmentChunk.css";
@@ -307,9 +307,7 @@ export const SegmentChunk = memo(
                   }}
                 >
                   <div className="segment-type">{segment.segment_type}</div>
-                  <div className="segment-content">
-                    {segment.content || segment.markdown || segment.html}
-                  </div>
+                  <div className="segment-content">{segment.content}</div>
                 </div>
               )
             );

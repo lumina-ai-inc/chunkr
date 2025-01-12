@@ -24,7 +24,7 @@ export enum SegmentationStrategy {
 export interface ChunkProcessing {
   /**
    * Whether to ignore headers and footers when chunking.
-   * @default true
+   * @default
    */
   ignore_headers_and_footers?: boolean;
 

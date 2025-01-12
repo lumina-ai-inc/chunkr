@@ -4,7 +4,7 @@ import {
   ChunkProcessing,
   SegmentProcessing,
   JsonSchema,
-} from "./newTask.model";
+} from "./taskConfig.model";
 
 export enum Status {
   Starting = "Starting",

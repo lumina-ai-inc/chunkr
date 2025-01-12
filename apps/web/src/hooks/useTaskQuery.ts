@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
 import { getTask, getTasks } from "../services/taskApi";
-import { TaskResponse, Status } from "../models/task.model";
+import { TaskResponse, Status } from "../models/taskResponse.model";
 import { useState } from "react";
 
 export function useTaskQuery(taskId: string | undefined) {
