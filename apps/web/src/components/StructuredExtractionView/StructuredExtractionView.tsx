@@ -16,7 +16,12 @@ export default function StructuredExtractionView({
   return (
     <Flex p="16px" width="100%" height="100%">
       <div className="extraction-container">
-        <Text size="6" weight="bold" className="white">
+        <Text
+          size="6"
+          weight="bold"
+          ml="4px"
+          style={{ color: "rgba(255, 255, 255, 0.95)" }}
+        >
           {extractedData.title}
         </Text>
         <div className="extraction-fields">
