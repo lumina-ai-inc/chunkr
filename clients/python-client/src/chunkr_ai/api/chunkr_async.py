@@ -46,6 +46,19 @@ class ChunkrAsync(ChunkrBase):
         """
         task = await self.create_task(file, config)
         return await task.poll_async()
+    
+    async def update(self, task_id: str, config: Configuration) -> TaskResponse:
+        """Update a task by its ID and wait for processing to complete.
+        
+        Args:
+            task_id: The ID of the task to update
+            config: Configuration options for processing. Optional.
+
+        Returns:
+            TaskResponse: The updated task response
+        """
+        task = await self.update_task(task_id, config)
+        return await task.poll_async()
 
     async def create_task(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
         """Upload a file for processing and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll_async()`.
@@ -81,31 +94,23 @@ class ChunkrAsync(ChunkrBase):
         Returns:
             TaskResponse: The initial task response
         """
-        files, data = prepare_upload_data(file, config)
+        files = prepare_upload_data(file, config)
         r = await self._client.post(
             f"{self.url}/api/v1/task",
             files=files,
-            data=data,
             headers=self._headers()
         )
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self)
 
     async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
-        files, data = prepare_upload_data(None, config)
-        if files:
-            r = await self._client.patch(
-                f"{self.url}/api/v1/task/{task_id}",
-                files=files,
-                data=data,  
-                headers=self._headers()
-            )
-        else:
-            r = await self._client.patch(
-                f"{self.url}/api/v1/task/{task_id}",
-                data=data,  
-                headers=self._headers()
-            )
+        files = prepare_upload_data(None, config)
+        r = await self._client.patch(
+            f"{self.url}/api/v1/task/{task_id}",
+            files=files,
+            headers=self._headers()
+        )
+     
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self)
     

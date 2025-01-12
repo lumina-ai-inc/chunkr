@@ -34,6 +34,14 @@ class ChunkrBase(HeadersMixin):
         Must be implemented by subclasses.
         """
         pass
+    
+    @abstractmethod
+    def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
+        """Update a task by its ID.
+        
+        Must be implemented by subclasses.
+        """
+        pass
 
     @abstractmethod
     def create_task(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:

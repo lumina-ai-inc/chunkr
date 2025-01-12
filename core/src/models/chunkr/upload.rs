@@ -19,7 +19,7 @@ pub struct CreateForm {
     #[schema(value_type = Option<i32>)]
     /// The number of seconds until task is deleted.
     /// Expried tasks can **not** be updated, polled or accessed via web interface.
-    pub expires_in: Option<Text<i32>>,
+    pub expires_in: Option<MPJson<i32>>,
     #[param(style = Form, value_type = String, format = "binary")]
     #[schema(value_type = String, format = "binary")]
     /// The file to be uploaded.
@@ -27,19 +27,19 @@ pub struct CreateForm {
     #[param(style = Form, value_type = Option<bool>)]
     #[schema(value_type = Option<bool>, default = false)]
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
-    pub high_resolution: Option<Text<bool>>,
+    pub high_resolution: Option<MPJson<bool>>,
     #[param(style = Form, value_type = Option<JsonSchema>)]
     #[schema(value_type = Option<JsonSchema>)]
     pub json_schema: Option<MPJson<JsonSchema>>,
     #[param(style = Form, value_type = Option<OcrStrategy>)]
     #[schema(value_type = Option<OcrStrategy>, default = "All")]
-    pub ocr_strategy: Option<Text<OcrStrategy>>,
+    pub ocr_strategy: Option<MPJson<OcrStrategy>>,
     #[param(style = Form, value_type = Option<SegmentProcessing>)]
     #[schema(value_type = Option<SegmentProcessing>)]
     pub segment_processing: Option<MPJson<SegmentProcessing>>,
     #[param(style = Form, value_type = Option<SegmentationStrategy>)]
     #[schema(value_type = Option<SegmentationStrategy>, default = "LayoutAnalysis")]
-    pub segmentation_strategy: Option<Text<SegmentationStrategy>>,
+    pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
     #[param(style = Form, value_type = Option<i32>)]
     #[schema(value_type = Option<i32>, default = 512)]
     #[deprecated = "Use `chunk_processing` instead"]
@@ -77,23 +77,23 @@ pub struct UpdateForm {
     #[schema(value_type = Option<i32>)]
     /// The number of seconds until task is deleted.
     /// Expried tasks can **not** be updated, polled or accessed via web interface.
-    pub expires_in: Option<Text<i32>>,
+    pub expires_in: Option<MPJson<i32>>,
     #[param(style = Form, value_type = Option<bool>)]
     #[schema(value_type = Option<bool>, default = false)]
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
-    pub high_resolution: Option<Text<bool>>,
+    pub high_resolution: Option<MPJson<bool>>,
     #[param(style = Form, value_type = Option<JsonSchema>)]
     #[schema(value_type = Option<JsonSchema>)]
     pub json_schema: Option<MPJson<JsonSchema>>,
     #[param(style = Form, value_type = Option<OcrStrategy>)]
     #[schema(value_type = Option<OcrStrategy>, default = "All")]
-    pub ocr_strategy: Option<Text<OcrStrategy>>,
+    pub ocr_strategy: Option<MPJson<OcrStrategy>>,
     #[param(style = Form, value_type = Option<SegmentProcessing>)]
     #[schema(value_type = Option<SegmentProcessing>)]
     pub segment_processing: Option<MPJson<SegmentProcessing>>,
     #[param(style = Form, value_type = Option<SegmentationStrategy>)]
     #[schema(value_type = Option<SegmentationStrategy>, default = "LayoutAnalysis")]
-    pub segmentation_strategy: Option<Text<SegmentationStrategy>>,
+    pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
 }
 
 impl UpdateForm {
