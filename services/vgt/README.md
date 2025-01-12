@@ -1,6 +1,6 @@
-# Doctr Docker Setup
+# VGT Docker Setup
 
-This guide explains how to set up and manage a Doctr Docker container.
+This guide explains how to set up and manage a VGT Docker container.
 
 
 ## Initial Setup
@@ -67,3 +67,4 @@ sudo docker stop vgt
 # Optional: Remove the container and volume (run this after exiting)
 sudo docker rm -v vgt
 ```
+
