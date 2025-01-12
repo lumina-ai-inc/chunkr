@@ -83,7 +83,7 @@ def prepare_file(
 def prepare_upload_data(
     file: Optional[Union[str, Path, BinaryIO, Image.Image]] = None,
     config: Optional[Configuration] = None
-) -> Tuple[dict, dict]:
+) -> dict:
     """Prepare files and data dictionaries for upload.
     
     Args:
@@ -91,21 +91,16 @@ def prepare_upload_data(
         config: Optional configuration settings
         
     Returns:
-        Tuple[dict, dict]: (files dict, data dict) ready for upload
+        dict: (files dict) ready for upload
     """
+    files = {}
     if file:
         filename, file_obj = prepare_file(file)
         files = {"file": (filename, file_obj)}
-    else:
-        files = {}
-    data = {}
-    
+
     if config:
         config_dict = config.model_dump(mode="json", exclude_none=True)
         for key, value in config_dict.items():
-            if isinstance(value, dict):
-                files[key] = (None, json.dumps(value), 'application/json')
-            else:
-                data[key] = value
+            files[key] = (None, json.dumps(value), 'application/json')
                 
-    return files, data
+    return files

@@ -112,38 +112,22 @@ class TaskResponse(BaseModel):
         return "\n".join(parts)
     
     def update(self, config: Configuration) -> 'TaskResponse':
-        files, data = prepare_upload_data(None, config)
-        if files:
-            r = self._client._session.patch(
-                f"{self.task_url}",
-                files=files,
-                data=data,  
-                headers=self._client._headers()
-            )
-        else:
-            r = self._client._session.patch(
-                f"{self.task_url}",
-                data=data,  
-                headers=self._client._headers()
-            )
+        files = prepare_upload_data(None, config)
+        r = self._client._session.patch(
+            f"{self.task_url}",
+            files=files,
+            headers=self._client._headers()
+        )
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self._client)
     
     async def update_async(self, config: Configuration) -> 'TaskResponse':
-        files, data = prepare_upload_data(None, config)
-        if files:
-            r = await self._client._client.patch(
-                f"{self.task_url}",
-                files=files,
-                data=data,  
-                headers=self._client._headers()
-            )   
-        else:
-            r = await self._client._client.patch(
-                f"{self.task_url}",
-                data=data,  
-                headers=self._client._headers()
-            )
+        files = prepare_upload_data(None, config)
+        r = await self._client._client.patch(
+            f"{self.task_url}",
+            files=files,
+            headers=self._client._headers()
+        )   
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self._client)
     

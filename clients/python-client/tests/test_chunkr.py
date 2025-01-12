@@ -290,19 +290,13 @@ async def test_update_task(chunkr_client, sample_path):
     assert response.output is not None
     
     if client_type == "async":
-        await client.update_task(response.task_id, Configuration(
+        await client.update(response.task_id, Configuration(
             segmentation_strategy=SegmentationStrategy.PAGE,
-            chunk_processing=ChunkProcessing(
-                target_length=1024
-            )
         ))
         task = await client.get_task(response.task_id)
     else:
-        client.update_task(response.task_id, Configuration(
+        client.update(response.task_id, Configuration(
             segmentation_strategy=SegmentationStrategy.PAGE,
-            chunk_processing=ChunkProcessing(
-                target_length=1024
-            )
         ))
         task = client.get_task(response.task_id)
 
@@ -326,7 +320,6 @@ async def test_update_task_direct(chunkr_client, sample_path):
                 target_length=1024
             )
         ))
-        await task.poll_async()
     else:
         task.update(Configuration(
             segmentation_strategy=SegmentationStrategy.PAGE,
@@ -334,7 +327,6 @@ async def test_update_task_direct(chunkr_client, sample_path):
                 target_length=1024
             )
         ))
-        task.poll()
 
     assert task.status == "Succeeded"
     assert task.output is not None
