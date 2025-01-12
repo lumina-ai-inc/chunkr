@@ -21,6 +21,7 @@ import collections
 from transformers import AutoTokenizer
 from sklearn.cluster import KMeans
 # from configuration import MODELS_PATH
+import gc
 
 
 warnings.filterwarnings("ignore", category=UserWarning, module='torch')
@@ -445,55 +446,66 @@ async def decode_image(file_data):
 async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePrediction]]:
     print(f"Processing batch of {len(tasks)} tasks | {time.time()}")
     try:
-        # Concurrent image decoding
-        images = await asyncio.gather(*[
-            decode_image(t.file_data) for t in tasks
-        ])
-        grid_dicts_data = [t.grid_dict for t in tasks]
+        results = []
+        for i in range(0, len(tasks), max_batch_size):
+            sub_batch = tasks[i:i + max_batch_size]
+            images = await asyncio.gather(*[decode_image(t.file_data) for t in sub_batch])
+            grid_dicts_data = [t.grid_dict for t in sub_batch]
 
-        try:
-            raw_predictions = process_image_batch(
-                predictor, 
-                images, 
-                dataset_name="doclaynet", 
-                grid_dicts=grid_dicts_data
-            )
-        except Exception as e:
-            if "out of memory" in str(e).lower():
-                print("Detected 'out of memory' error - killing server.")
-                kill_server()
-                import sys
-                sys.exit(1)
-            raise e
-
-        # Process predictions in parallel
-        predictions_list = []
-        for pred in raw_predictions:
-            instances = pred["instances"].to("cpu")
-            boxes = instances.pred_boxes.tensor.tolist()
-            
-            serializable_pred = SerializablePrediction(
-                instances=Instance(
-                    boxes=[BoundingBox(x1=b[0], y1=b[1], x2=b[2], y2=b[3]) 
-                           for b in boxes],
-                    scores=instances.scores.tolist(),
-                    classes=instances.pred_classes.tolist(),
-                    image_size=list(instances.image_size)
+            try:
+                raw_predictions = process_image_batch(
+                    predictor, 
+                    images,
+                    dataset_name="doclaynet",
+                    grid_dicts=grid_dicts_data
                 )
-            )
-            predictions_list.append(serializable_pred)
+            except Exception as e:
+                if "out of memory" in str(e).lower():
+                    print("Detected 'out of memory' error - killing server.")
+                    kill_server()
+                    import sys
+                    sys.exit(1)
+                raise e
 
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+            predictions_list = []
+            for pred in raw_predictions:
+                instances = pred["instances"].to("cpu")
+                boxes = instances.pred_boxes.tensor.tolist()
+                
+                serializable_pred = SerializablePrediction(
+                    instances=Instance(
+                        boxes=[BoundingBox(x1=b[0], y1=b[1], x2=b[2], y2=b[3]) 
+                               for b in boxes],
+                        scores=instances.scores.tolist(),
+                        classes=instances.pred_classes.tolist(),
+                        image_size=list(instances.image_size)
+                    )
+                )
+                predictions_list.append(serializable_pred)
 
-        results_for_tasks = []
-        for i, t in enumerate(tasks):
-            grid_dicts_obj = GridDicts(grid_dicts=[t.grid_dict])
-            final_predictions = find_best_segments([predictions_list[i]], grid_dicts_obj)
-            ordered_predictions = get_reading_order(final_predictions)
-            results_for_tasks.append(ordered_predictions)
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+
+            sub_batch_results = []
+            for t, pred in zip(sub_batch, predictions_list):
+                grid_dicts_obj = GridDicts(grid_dicts=[t.grid_dict])
+                final_predictions = find_best_segments([pred], grid_dicts_obj)
+                ordered_predictions = get_reading_order(final_predictions)
+                sub_batch_results.append(ordered_predictions)
             
-        return results_for_tasks
+            results.extend(sub_batch_results)
+
+            # Clear memory after each sub-batch
+            del images
+            del raw_predictions
+            del predictions_list
+            del sub_batch_results
+            import gc
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+
+        return results
 
     finally:
         if torch.cuda.is_available():
@@ -501,32 +513,51 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
 
 async def batch_processor():
     while True:
-        await batch_event.wait()
-        batch_event.clear()
-        
-        await asyncio.sleep(batch_wait_time)
-
-        async with processing_lock:
-            if not pending_tasks:
-                continue
-            current_batch = list(pending_tasks)
-            pending_tasks.clear()
-        
         try:
-            results = []
-            if max_batch_size is None or max_batch_size <= 0:
-                results.extend(await process_od_batch(current_batch))
-            else:
-                for i in range(0, len(current_batch), max_batch_size):
-                    chunk = current_batch[i:i+max_batch_size]
-                    chunk_results = await process_od_batch(chunk)
-                    results.extend(chunk_results)
-
-            for task, result in zip(current_batch, results):
-                task.future.set_result(result)
+            await batch_event.wait()
+            
+            async with processing_lock:
+                if not pending_tasks:
+                    batch_event.clear()
+                    continue
+                
+                # Take only max_batch_size tasks
+                current_batch = []
+                for _ in range(max_batch_size):
+                    if not pending_tasks:
+                        break
+                    current_batch.append(pending_tasks.popleft())
+            
+            try:
+                chunk_results = await process_od_batch(current_batch)
+                
+                # Set results immediately for this chunk
+                for task, result in zip(current_batch, chunk_results):
+                    if not task.future.done():
+                        task.future.set_result(result)
+                
+                # Clear memory after processing
+                del chunk_results
+                del current_batch
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                    
+            except Exception as e:
+                print(f"Error processing batch: {e}")
+                for task in current_batch:
+                    if not task.future.done():
+                        task.future.set_exception(e)
+            
+            # Clear the event if no more tasks
+            async with processing_lock:
+                if not pending_tasks:
+                    batch_event.clear()
+            
         except Exception as e:
-            for task in current_batch:
-                task.future.set_exception(e)
+            print(f"Error in batch processor: {e}")
+            batch_event.clear()
+            await asyncio.sleep(0.1)  # Prevent tight loop on error
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
