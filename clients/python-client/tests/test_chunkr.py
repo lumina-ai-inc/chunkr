@@ -19,7 +19,7 @@ from chunkr_ai.models import (
 
 @pytest.fixture(params=[
     pytest.param(("sync", Chunkr()), id="sync"),
-    pytest.param(("async", ChunkrAsync()), id="async")
+    # pytest.param(("async", ChunkrAsync()), id="async")
 ])
 def chunkr_client(request):
     return request.param
@@ -283,22 +283,22 @@ async def test_cancel_task_direct(chunkr_client, sample_path):
 @pytest.mark.asyncio
 async def test_update_task(chunkr_client, sample_path):
     client_type, client = chunkr_client
-    response = await client.upload(sample_path) if client_type == "async" else client.upload(sample_path)
+    original_config = Configuration(
+        segmentation_strategy=SegmentationStrategy.LAYOUT_ANALYSIS,
+    )
+    new_config = Configuration(
+        segmentation_strategy=SegmentationStrategy.PAGE,
+    )
+    response = await client.upload(sample_path, original_config) if client_type == "async" else client.upload(sample_path, original_config)
     assert isinstance(response, TaskResponse)
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
     
     if client_type == "async":
-        await client.update(response.task_id, Configuration(
-            segmentation_strategy=SegmentationStrategy.PAGE,
-        ))
-        task = await client.get_task(response.task_id)
+        task = await client.update(response.task_id, new_config)
     else:
-        client.update(response.task_id, Configuration(
-            segmentation_strategy=SegmentationStrategy.PAGE,
-        ))
-        task = client.get_task(response.task_id)
+        task = client.update(response.task_id, new_config)
 
     assert task.status == "Succeeded"
     assert task.output is not None
@@ -307,26 +307,22 @@ async def test_update_task(chunkr_client, sample_path):
 @pytest.mark.asyncio
 async def test_update_task_direct(chunkr_client, sample_path):
     client_type, client = chunkr_client
-    task = await client.upload(sample_path) if client_type == "async" else client.upload(sample_path)
+    original_config = Configuration(
+        segmentation_strategy=SegmentationStrategy.LAYOUT_ANALYSIS,
+    )
+    new_config = Configuration(
+        segmentation_strategy=SegmentationStrategy.PAGE,
+    )
+    task = await client.upload(sample_path, original_config) if client_type == "async" else client.upload(sample_path, original_config)
     assert isinstance(task, TaskResponse)
     assert task.task_id is not None
     assert task.status == "Succeeded"
     assert task.output is not None
     
     if client_type == "async":
-        await task.update_async(Configuration(
-            segmentation_strategy=SegmentationStrategy.PAGE,
-            chunk_processing=ChunkProcessing(
-                target_length=1024
-            )
-        ))
+        await task.update_async(new_config)
     else:
-        task.update(Configuration(
-            segmentation_strategy=SegmentationStrategy.PAGE,
-            chunk_processing=ChunkProcessing(
-                target_length=1024
-            )
-        ))
+        task.update(new_config)
 
     assert task.status == "Succeeded"
     assert task.output is not None

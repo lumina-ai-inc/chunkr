@@ -29,6 +29,8 @@ pub async fn update_task(
     let pdf_location: String = row.get("pdf_location");
     let user_id: String = row.get("user_id");
     let file_name: String = row.get("file_name");
+    let base_url = worker_config.server_url;
+    let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
 
     let extraction_payload = TaskPayload {
         current_configuration: current_configuration.clone(),
@@ -70,7 +72,7 @@ pub async fn update_task(
         expires_at: None,
         output: None,
         input_file_url,
-        task_url: None,
+        task_url: Some(task_url),
         message: "Task queued".to_string(),
         configuration: current_configuration.clone(),
         file_name: Some(file_name.to_string()),
