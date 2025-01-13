@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 from enum import Enum
 from typing import Optional, List, Dict
 
@@ -22,18 +22,20 @@ class GenerationConfig(BaseModel):
     crop_image: Optional[CroppingStrategy] = None
 
 class SegmentProcessing(BaseModel):
-    title: Optional[GenerationConfig] = None
-    section_header: Optional[GenerationConfig] = None
-    text: Optional[GenerationConfig] = None
-    list_item: Optional[GenerationConfig] = None
-    table: Optional[GenerationConfig] = None
-    picture: Optional[GenerationConfig] = None
-    caption: Optional[GenerationConfig] = None
-    formula: Optional[GenerationConfig] = None
-    footnote: Optional[GenerationConfig] = None
-    page_header: Optional[GenerationConfig] = None
-    page_footer: Optional[GenerationConfig] = None
-    page: Optional[GenerationConfig] = None
+    model_config = ConfigDict(populate_by_name=True)
+    
+    Title: Optional[GenerationConfig] = Field(default=None, alias="Title")
+    SectionHeader: Optional[GenerationConfig] = Field(default=None, alias="SectionHeader")
+    Text: Optional[GenerationConfig] = Field(default=None, alias="Text")
+    ListItem: Optional[GenerationConfig] = Field(default=None, alias="ListItem")
+    Table: Optional[GenerationConfig] = Field(default=None, alias="Table")
+    Picture: Optional[GenerationConfig] = Field(default=None, alias="Picture")
+    Caption: Optional[GenerationConfig] = Field(default=None, alias="Caption")
+    Formula: Optional[GenerationConfig] = Field(default=None, alias="Formula")
+    Footnote: Optional[GenerationConfig] = Field(default=None, alias="Footnote")
+    PageHeader: Optional[GenerationConfig] = Field(default=None, alias="PageHeader")
+    PageFooter: Optional[GenerationConfig] = Field(default=None, alias="PageFooter")
+    Page: Optional[GenerationConfig] = Field(default=None, alias="Page")
 
 class ChunkProcessing(BaseModel):
     target_length: Optional[int] = None

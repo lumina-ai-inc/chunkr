@@ -1,2 +1,0 @@
-ALTER TABLE TASKS 
-    DROP COLUMN started_at;

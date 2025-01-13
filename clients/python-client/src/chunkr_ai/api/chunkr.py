@@ -47,7 +47,7 @@ class Chunkr(ChunkrBase):
         task = self.create_task(file, config)
         return task.poll()
     
-    async def update(self, task_id: str, config: Configuration) -> TaskResponse:
+    def update(self, task_id: str, config: Configuration) -> TaskResponse:
         """Update a task by its ID and wait for processing to complete.
         
         Args:

@@ -81,7 +81,8 @@ class TaskResponse(BaseModel):
         """Poll the task for completion."""
         while True:
             response = self._poll_request_sync()
-            self.__dict__.update(response)
+            updated_task = TaskResponse(**response).with_client(self._client)
+            self.__dict__.update(updated_task.__dict__)
             
             if result := self._check_status():
                 return result
@@ -92,7 +93,8 @@ class TaskResponse(BaseModel):
         """Poll the task for completion asynchronously."""
         while True:
             response = await self._poll_request_async()
-            self.__dict__.update(response)
+            updated_task = TaskResponse(**response).with_client(self._client)
+            self.__dict__.update(updated_task.__dict__)
             
             if result := self._check_status():
                 return result
