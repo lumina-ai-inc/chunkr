@@ -42,16 +42,10 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
 
     let transaction = client.transaction().await?;
 
+    let usage_query = "SELECT usage_limit FROM tiers WHERE name = 'Free'";
+    let usage_limit = transaction.query_one(usage_query, &[]).await?.get::<_, i32>("usage_limit");
     let mut usage_limits: HashMap<UsageType, i32> = HashMap::from([
-        (UsageType::Fast, UsageType::Fast.get_usage_limit(&tier)),
-        (
-            UsageType::HighQuality,
-            UsageType::HighQuality.get_usage_limit(&tier),
-        ),
-        (
-            UsageType::Segment,
-            UsageType::Segment.get_usage_limit(&tier),
-        ),
+        (UsageType::Page, usage_limit),
     ]);
     let check_query = r#"SELECT 1 FROM pre_applied_free_pages WHERE email = $1"#;
     let check_result = transaction
@@ -109,26 +103,25 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         .await?;
 
     let usage_query = r#"
-    INSERT INTO USAGE (user_id, usage, usage_limit, usage_type, unit)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO USAGE (user_id, usage, usage_type, unit)
+    VALUES ($1, $2, $3, $4)
     "#;
 
-    for (usage_type, limit) in &usage_limits {
-        transaction
+
+    transaction
             .execute(
                 usage_query,
                 &[
                     &user_info.user_id,
                     &0i32,
-                    &limit,
-                    &usage_type.to_string(),
-                    &usage_type.get_unit(),
+                    &UsageType::Page.to_string(),     
+                    &UsageType::Page.get_unit(),
                 ],
             )
             .await?;
-    }
 
     transaction.commit().await?;
+    
     if check_result.is_some() {
         let transaction2 = client.transaction().await?;
         let update_pre_applied_query = r#"
