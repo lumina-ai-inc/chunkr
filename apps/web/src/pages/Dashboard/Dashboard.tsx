@@ -271,7 +271,7 @@ export default function Dashboard() {
       case "Tasks":
         if (taskId) {
           return {
-            title: `Your Tasks > ${taskResponse?.file_name || taskId}`,
+            title: `Tasks > ${taskResponse?.file_name || taskId}`,
             component: (
               <Suspense fallback={<Loader />}>
                 {isLoading ? (
@@ -287,7 +287,7 @@ export default function Dashboard() {
         }
 
         return {
-          title: "Your Tasks",
+          title: "Tasks",
           component: <TaskTable key="task-table" />,
         };
       case "Usage":
@@ -310,7 +310,7 @@ export default function Dashboard() {
         };
       default:
         return {
-          title: "Your Tasks",
+          title: "Tasks",
           component: <TaskTable />,
         };
     }
@@ -529,7 +529,7 @@ export default function Dashboard() {
               style={{ cursor: "pointer" }}
             >
               <Text size="5" weight="bold" className="main-header-text">
-                {taskId ? "Your Tasks" : content.title}
+                {taskId ? "Tasks" : content.title}
               </Text>
             </Flex>
             {taskId && taskResponse?.file_name && (
