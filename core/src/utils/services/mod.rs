@@ -10,5 +10,5 @@ pub mod payload;
 pub mod pdf;
 pub mod search;
 pub mod segmentation;
-pub mod status;
 pub mod structured_extraction;
+pub mod task;

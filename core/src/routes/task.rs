@@ -10,8 +10,7 @@ use crate::utils::routes::delete_task::delete_task;
 use crate::utils::routes::get_task::get_task;
 use crate::utils::routes::update_task::update_task;
 use actix_multipart::form::MultipartForm;
-use actix_web::{web, Error, HttpRequest, HttpResponse};
-use uuid::Uuid;
+use actix_web::{web, Error, HttpResponse};
 
 /// Get Task
 ///
@@ -46,15 +45,8 @@ use uuid::Uuid;
 pub async fn get_task_route(
     task_id: web::Path<String>,
     user_info: web::ReqData<UserInfo>,
-    _req: HttpRequest,
 ) -> Result<HttpResponse, Error> {
     let task_id = task_id.into_inner();
-
-    // Validate task_id as UUID
-    if Uuid::parse_str(&task_id).is_err() {
-        return Ok(HttpResponse::BadRequest().body("Invalid task ID format"));
-    }
-
     let user_id = user_info.user_id.clone();
 
     match get_task(task_id, user_id).await {
@@ -80,8 +72,8 @@ pub async fn get_task_route(
 /// - Creation timestamp
 /// - Presigned URLs for file access
 ///
-/// The returned task will typically be in a "starting" or "processing" state.
-/// Use the `GET /task/{task_id}`` endpoint to poll for completion.
+/// The returned task will typically be in a `Starting` or `Processing` state.
+/// Use the `GET /task/{task_id}` endpoint to poll for completion.
 #[utoipa::path(
     post,
     path = "/task",
@@ -154,99 +146,16 @@ pub async fn create_task_route(
     }
 }
 
-/// Delete Task
-///
-/// Delete a task by its ID.
-/// Can not delete a task that is currently processing.
-#[utoipa::path(
-    delete,
-    path = "/task/{task_id}",
-    context_path = "/api/v1",
-    tag = "Task",
-    params(
-        ("task_id" = Option<String>, Path, description = "Id of the task to delete")
-    ),
-    responses(
-        (status = 200, description = "Task deleted successfully"),
-        (status = 500, description = "Internal server error related to deleting the task", body = String),
-    ),
-    security(
-        ("api_key" = []),
-    )
-)]
-pub async fn delete_task_route(
-    task_id: web::Path<String>,
-    user_info: web::ReqData<UserInfo>,
-    _req: HttpRequest,
-) -> Result<HttpResponse, Error> {
-    let task_id = task_id.into_inner();
-
-    // Validate task_id as UUID
-    if Uuid::parse_str(&task_id).is_err() {
-        return Ok(HttpResponse::BadRequest().body("Invalid task ID format"));
-    }
-
-    let user_id = user_info.user_id.clone();
-
-    match delete_task(task_id, user_id).await {
-        Ok(_) => Ok(HttpResponse::Ok().body("Task deleted")),
-        Err(e) => {
-            eprintln!("Error getting task status: {:?}", e);
-            if e.to_string().contains("expired") || e.to_string().contains("not found") {
-                Ok(HttpResponse::NotFound().body("Task not found"))
-            } else {
-                Ok(HttpResponse::InternalServerError().body(e.to_string()))
-            }
-        }
-    }
-}
-
-/// Cancel Task
-///
-/// Cancel a task by its ID.
-/// Can only cancel a task that is not currently processing.
-#[utoipa::path(
-    get,
-    path = "/task/{task_id}/cancel",
-    context_path = "/api/v1",
-    tag = "Task",
-    params(
-        ("task_id" = Option<String>, Path, description = "Id of the task to cancel")
-    ),
-    responses(
-        (status = 200, description = "Task cancelled successfully"),
-        (status = 500, description = "Internal server error related to cancelling the task", body = String),
-    ),
-    security(
-        ("api_key" = []),
-    )
-)]
-pub async fn cancel_task_route(
-    task_id: web::Path<String>,
-    _req: HttpRequest,
-) -> Result<HttpResponse, Error> {
-    let task_id = task_id.into_inner();
-
-    match cancel_task(task_id).await {
-        Ok(_) => Ok(HttpResponse::Ok().body("Task cancelled")),
-        Err(e) => {
-            eprintln!("Error cancelling task: {:?}", e);
-            if e.to_string().contains("not found") {
-                Ok(HttpResponse::NotFound().body("Task not found"))
-            } else if e.to_string().contains("cannot be cancelled") {
-                Ok(HttpResponse::BadRequest().body(e.to_string()))
-            } else {
-                Ok(HttpResponse::InternalServerError().body(e.to_string()))
-            }
-        }
-    }
-}
-
 /// Update Task
 ///
-/// Updates a task by its ID. All configuration options can be updated.
-/// Can only update a task that is not currently processing.
-/// Use the `GET /task/{task_id}`` endpoint to poll for completion.
+/// Updates an existing task's configuration and reprocesses the document.
+///
+/// Requirements:
+/// - Task must have status `Succeeded` or `Failed`
+/// - New configuration must be different from the current one
+///
+/// The returned task will typically be in a `Starting` or `Processing` state.
+/// Use the `GET /task/{task_id}` endpoint to poll for completion.
 #[utoipa::path(
     patch,
     path = "/task/{task_id}",
@@ -262,11 +171,12 @@ pub async fn cancel_task_route(
     )
 )]
 pub async fn update_task_route(
-    task_id: web::Path<String>,
     form: MultipartForm<UpdateForm>,
+    task_id: web::Path<String>,
+    user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let task_id = task_id.into_inner();
-    println!("task_id: {:?}", task_id);
+    let user_id = user_info.user_id.clone();
     let form = form.into_inner();
     let expiration_config = ExpirationConfig::from_env().unwrap();
     let configuration = Configuration {
@@ -296,7 +206,7 @@ pub async fn update_task_route(
         target_chunk_length: None,
     };
 
-    let result = update_task(&task_id, &configuration).await;
+    let result = update_task(&task_id, &user_id, &configuration).await;
 
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
@@ -304,9 +214,97 @@ pub async fn update_task_route(
             let error_message = e.to_string();
             if error_message.contains("Usage limit exceeded") {
                 Ok(HttpResponse::TooManyRequests().body("Usage limit exceeded"))
+            } else if error_message.contains("Task cannot be updated") {
+                Ok(HttpResponse::BadRequest().body(error_message))
             } else {
                 eprintln!("Error creating task: {:?}", e);
                 Ok(HttpResponse::InternalServerError().body("Failed to create task"))
+            }
+        }
+    }
+}
+
+/// Delete Task
+///
+/// Delete a task by its ID.
+///
+/// Requirements:
+/// - Task must have status `Succeeded` or `Failed`
+#[utoipa::path(
+    delete,
+    path = "/task/{task_id}",
+    context_path = "/api/v1",
+    tag = "Task",
+    params(
+        ("task_id" = Option<String>, Path, description = "Id of the task to delete")
+    ),
+    responses(
+        (status = 200, description = "Task deleted successfully"),
+        (status = 500, description = "Internal server error related to deleting the task", body = String),
+    ),
+    security(
+        ("api_key" = []),
+    )
+)]
+pub async fn delete_task_route(
+    task_id: web::Path<String>,
+    user_info: web::ReqData<UserInfo>,
+) -> Result<HttpResponse, Error> {
+    let task_id = task_id.into_inner();
+    let user_id = user_info.user_id.clone();
+    match delete_task(task_id, user_id).await {
+        Ok(_) => Ok(HttpResponse::Ok().body("Task deleted")),
+        Err(e) => {
+            eprintln!("Error getting task status: {:?}", e);
+            if e.to_string().contains("expired") || e.to_string().contains("not found") {
+                Ok(HttpResponse::NotFound().body("Task not found"))
+            } else {
+                Ok(HttpResponse::InternalServerError().body(e.to_string()))
+            }
+        }
+    }
+}
+
+/// Cancel Task
+///
+/// Cancel a task that hasn't started processing yet:
+/// - For new tasks: Status will be updated to `Cancelled`
+/// - For updating tasks: Task will revert to the previous state
+///
+/// Requirements:
+/// - Task must have status `Starting`
+#[utoipa::path(
+    get,
+    path = "/task/{task_id}/cancel",
+    context_path = "/api/v1",
+    tag = "Task",
+    params(
+        ("task_id" = Option<String>, Path, description = "Id of the task to cancel")
+    ),
+    responses(
+        (status = 200, description = "Task cancelled successfully"),
+        (status = 500, description = "Internal server error related to cancelling the task", body = String),
+    ),
+    security(
+        ("api_key" = []),
+    )
+)]
+pub async fn cancel_task_route(
+    task_id: web::Path<String>,
+    user_info: web::ReqData<UserInfo>,
+) -> Result<HttpResponse, Error> {
+    let task_id = task_id.into_inner();
+    let user_id = user_info.user_id.clone();
+    match cancel_task(&task_id, &user_id).await {
+        Ok(_) => Ok(HttpResponse::Ok().body("Task cancelled")),
+        Err(e) => {
+            eprintln!("Error cancelling task: {:?}", e);
+            if e.to_string().contains("not found") {
+                Ok(HttpResponse::NotFound().body("Task not found"))
+            } else if e.to_string().contains("cannot be cancelled") {
+                Ok(HttpResponse::BadRequest().body(e.to_string()))
+            } else {
+                Ok(HttpResponse::InternalServerError().body(e.to_string()))
             }
         }
     }

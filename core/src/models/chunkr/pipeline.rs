@@ -1,7 +1,7 @@
 use crate::models::chunkr::output::OutputResponse;
 use crate::models::chunkr::task::{Status, TaskPayload};
 use crate::utils::services::file_operations::{check_file_type, convert_to_pdf};
-use crate::utils::services::status::{get_task, update_status};
+use crate::utils::services::task::{get_status, update_status};
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use std::error::Error;
@@ -66,11 +66,13 @@ impl Pipeline {
         };
         update_status(
             &self.get_task_id(),
+            &self.get_user_id(),
             Status::Processing,
             Some("Task started"),
             Some(Utc::now()),
             None,
             None,
+            Some(self.mime_type.as_ref().unwrap()),
         )
         .await?;
         self.status = Some(Status::Processing);
@@ -86,9 +88,17 @@ impl Pipeline {
             .clone()
     }
 
+    fn get_user_id(&self) -> String {
+        self.task_payload
+            .as_ref()
+            .ok_or("Task payload is not initialized")
+            .unwrap()
+            .user_id
+            .clone()
+    }
+
     async fn get_remote_status(&mut self) -> Result<Status, Box<dyn std::error::Error>> {
-        let task_id = self.get_task_id();
-        let status = get_task(&task_id).await?;
+        let status = get_status(&self.get_task_id(), &self.get_user_id()).await?;
         self.status = Some(status.clone());
         Ok(status)
     }
@@ -98,11 +108,12 @@ impl Pipeline {
         status: Status,
         message: Option<String>,
     ) -> Result<(), Box<dyn Error>> {
-        let task_id = self.get_task_id();
         update_status(
-            &task_id,
+            &self.get_task_id(),
+            &self.get_user_id(),
             status.clone(),
             Some(&message.unwrap_or_default()),
+            None,
             None,
             None,
             None,
@@ -117,7 +128,6 @@ impl Pipeline {
         status: Status,
         message: Option<String>,
     ) -> Result<(), Box<dyn Error>> {
-        let task_id = self.get_task_id();
         let finished_at = Utc::now();
         let expires_at: Option<DateTime<Utc>> = self
             .task_payload
@@ -127,12 +137,14 @@ impl Pipeline {
             .expires_in
             .map(|seconds| finished_at + chrono::Duration::seconds(seconds as i64));
         update_status(
-            &task_id,
+            &self.get_task_id(),
+            &self.get_user_id(),
             status.clone(),
             Some(&message.unwrap_or_default()),
             None,
             Some(finished_at),
             expires_at,
+            None,
         )
         .await?;
         self.status = Some(status);

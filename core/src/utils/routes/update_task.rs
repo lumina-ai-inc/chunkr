@@ -2,22 +2,34 @@ use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::task::{Configuration, Status, TaskPayload, TaskResponse};
 use crate::utils::clients;
 use crate::utils::services::payload::produce_extraction_payloads;
+use crate::utils::services::task::get_status;
 use crate::utils::storage::services::generate_presigned_url;
+
 use chrono::Utc;
 use std::error::Error;
 
 pub async fn update_task(
     task_id: &str,
+    user_id: &str,
     current_configuration: &Configuration,
 ) -> Result<TaskResponse, Box<dyn Error>> {
     let client = clients::get_pg_client().await?;
     let worker_config = WorkerConfig::from_env()?;
 
+    let status = get_status(&task_id, &user_id).await?;
+    match Some(status) {
+        None => return Err("Task not found".into()),
+        Some(status) if status != Status::Succeeded && status != Status::Failed => {
+            return Err(format!("Task cannot be updated: status is {}", status).into())
+        }
+        _ => {}
+    }
+
     let row = client
         .query_one(
             "SELECT configuration, input_location, output_location, image_folder_location, pdf_location, user_id, file_name 
-            FROM tasks WHERE task_id = $1",
-            &[&task_id],
+            FROM tasks WHERE task_id = $1 AND user_id = $2",
+            &[&task_id, &user_id],
         )
         .await?;
 
@@ -41,14 +53,19 @@ pub async fn update_task(
         pdf_location,
         previous_configuration: Some(previous_configuration),
         task_id: task_id.to_string(),
-        user_id,
+        user_id: user_id.clone(),
     };
 
     let configuration_json = serde_json::to_string(current_configuration)?;
     client
         .execute(
-            "UPDATE tasks SET configuration = $1, status = $2 WHERE task_id = $3",
-            &[&configuration_json, &Status::Starting.to_string(), &task_id],
+            "UPDATE tasks SET configuration = $1, status = $2 WHERE task_id = $3 AND user_id = $4",
+            &[
+                &configuration_json,
+                &Status::Starting.to_string(),
+                &task_id,
+                &user_id,
+            ],
         )
         .await?;
 
