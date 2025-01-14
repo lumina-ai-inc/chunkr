@@ -327,6 +327,11 @@ export default function Viewer({ task }: { task: TaskResponse }) {
     };
   }, []);
 
+  // Add a check for structured extraction availability
+  const hasStructuredExtraction = useMemo(() => {
+    return !!output?.extracted_json;
+  }, [output?.extracted_json]);
+
   const renderDownloadDropdown = () => (
     <div
       className="download-dropdown-container"
@@ -519,35 +524,37 @@ export default function Viewer({ task }: { task: TaskResponse }) {
               Markdown
             </Text>
           </BetterButton>
-          <BetterButton
-            onClick={() => setSelectedView("structured")}
-            active={selectedView === "structured"}
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 48 48"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
+          {hasStructuredExtraction && (
+            <BetterButton
+              onClick={() => setSelectedView("structured")}
+              active={selectedView === "structured"}
             >
-              <title>split</title>
-              <g id="Layer_2" data-name="Layer 2">
-                <g id="icons_Q2" data-name="icons Q2">
-                  <path
-                    fill="#fff"
-                    d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"
-                  />
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+              >
+                <title>split</title>
+                <g id="Layer_2" data-name="Layer 2">
+                  <g id="icons_Q2" data-name="icons Q2">
+                    <path
+                      fill="#fff"
+                      d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"
+                    />
+                  </g>
                 </g>
-              </g>
-            </svg>
-            <Text
-              size="2"
-              weight="medium"
-              style={{ color: "rgba(255, 255, 255, 0.95)" }}
-            >
-              Structured Extraction
-            </Text>
-          </BetterButton>
+              </svg>
+              <Text
+                size="2"
+                weight="medium"
+                style={{ color: "rgba(255, 255, 255, 0.95)" }}
+              >
+                Structured Extraction
+              </Text>
+            </BetterButton>
+          )}
         </Flex>
         <Flex className="viewer-header-right-buttons" gap="16px">
           {renderDownloadDropdown()}
