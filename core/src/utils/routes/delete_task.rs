@@ -2,17 +2,17 @@ use crate::configs::postgres_config::Client;
 use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::task::Status;
 use crate::utils::clients::get_pg_client;
-use crate::utils::services::status::get_task;
+use crate::utils::services::task::get_status;
 use crate::utils::storage::services::delete_folder;
 
 pub async fn delete_task(
     task_id: String,
     user_id: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let status = get_task(&task_id).await?;
+    let status = get_status(&task_id, &user_id).await?;
     match Some(status) {
         None => return Err("Task not found".into()),
-        Some(status) if status == Status::Processing => {
+        Some(status) if status != Status::Succeeded || status != Status::Failed => {
             return Err(format!("Task cannot be deleted: status is {}", status).into())
         }
         _ => {}

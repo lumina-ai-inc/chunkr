@@ -1,4 +1,5 @@
 ALTER TABLE TASKS 
+    DROP COLUMN mime_type,
     DROP COLUMN started_at;
 
 CREATE OR REPLACE FUNCTION handle_task_invoice() RETURNS TRIGGER AS $$

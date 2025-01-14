@@ -1,4 +1,5 @@
 ALTER TABLE TASKS 
+    ADD COLUMN mime_type VARCHAR(255),
     ADD COLUMN started_at TIMESTAMP WITH TIME ZONE;
 
 UPDATE TASKS SET started_at = created_at;
