@@ -22,6 +22,9 @@ pub enum Tier {
     PayAsYouGo,
     Enterprise,
     SelfHosted,
+    Developer,
+    Startup,
+    Basic,
 }
 
 #[derive(
@@ -43,6 +46,7 @@ pub enum UsageType {
     Fast,
     HighQuality,
     Segment,
+    Page,
 }
 
 impl UsageType {
@@ -51,6 +55,7 @@ impl UsageType {
             UsageType::Fast => "Page".to_string(),
             UsageType::HighQuality => "Page".to_string(),
             UsageType::Segment => "Segment".to_string(),
+            UsageType::Page => "Page".to_string(),
         }
     }
 
@@ -60,11 +65,37 @@ impl UsageType {
                 UsageType::Fast => 1000,
                 UsageType::HighQuality => 500,
                 UsageType::Segment => 250,
+                UsageType::Page => 1000,
             },
             Tier::PayAsYouGo => match self {
                 UsageType::Fast => 1000000,
                 UsageType::HighQuality => 1000000,
                 UsageType::Segment => 1000000,
+                UsageType::Page => 10000000,
+            },
+            Tier::Enterprise => match self {
+                UsageType::Fast => 10000000,
+                UsageType::HighQuality => 10000000,
+                UsageType::Segment => 10000000,
+                UsageType::Page => 10000000,
+            },
+            Tier::Startup => match self {
+                UsageType::Fast => 100000,
+                UsageType::HighQuality => 100000,
+                UsageType::Segment => 100000,
+                UsageType::Page => 100000,
+            },
+            Tier::Developer => match self {
+                UsageType::Fast => 100000,
+                UsageType::HighQuality => 100000,
+                UsageType::Segment => 100000,
+                UsageType::Page => 100000,
+            },
+            Tier::Basic => match self {
+                UsageType::Fast => 25000,
+                UsageType::HighQuality => 25000,
+                UsageType::Segment => 25000,
+                UsageType::Page => 25000,
             },
             _ => i32::MAX,
         }
@@ -84,13 +115,14 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
     pub usage: Vec<UsageLimit>,
     pub task_count: Option<i32>,
+    pub last_paid_status: Option<String>
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, ToSql, FromSql)]
 pub struct UsageLimit {
     pub usage_type: UsageType,
     pub usage_limit: i32,
-    pub discounts: Option<Vec<Discount>>,
+    pub overage_usage: i32,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, ToSql, FromSql)]
