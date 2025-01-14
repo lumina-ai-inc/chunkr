@@ -91,7 +91,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
             }
           }
         },
-        needsMorePages || needsMoreChunks ? 100 : 0
+        needsMorePages || needsMoreChunks ? 300 : 100
       );
     },
     [output?.chunks, loadedPages, loadedChunks]
