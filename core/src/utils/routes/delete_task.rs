@@ -12,7 +12,7 @@ pub async fn delete_task(
     let status = get_status(&task_id, &user_id).await?;
     match Some(status) {
         None => return Err("Task not found".into()),
-        Some(status) if status != Status::Succeeded || status != Status::Failed => {
+        Some(status) if status != Status::Succeeded && status != Status::Failed => {
             return Err(format!("Task cannot be deleted: status is {}", status).into())
         }
         _ => {}
