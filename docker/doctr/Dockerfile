@@ -18,7 +18,6 @@ COPY services/doctr/.python-version .
 COPY services/doctr/download_models.py .
 COPY services/doctr/main.py .
 COPY services/doctr/pyproject.toml .
-COPY services/doctr/uv.lock .
 
 RUN uv run download_models.py
 
