@@ -13,6 +13,11 @@ import { useTasksQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
 import "./TaskTable.css";
 import { Flex } from "@radix-ui/themes";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { deleteTasks } from "../../services/crudApi";
+import toast from "react-hot-toast";
+import { Box } from "@mui/material";
+import { Status } from "../../models/taskResponse.model";
 
 const TaskTable = () => {
   const navigate = useNavigate();
@@ -110,8 +115,28 @@ const TaskTable = () => {
         header: "Pages",
       },
       {
-        accessorKey: "message",
+        accessorKey: "status",
         header: "Status",
+        Cell: ({ row }) => (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                backgroundColor:
+                  row.original.status === Status.Starting
+                    ? "#3498db" // blue
+                    : row.original.status === Status.Processing
+                      ? "#f39c12" // orange
+                      : row.original.status === Status.Failed
+                        ? "#e74c3c" // red
+                        : "transparent",
+              }}
+            />
+            {row.original.status}
+          </Box>
+        ),
       },
       {
         accessorKey: "created_at",
@@ -201,6 +226,7 @@ const TaskTable = () => {
                   padding: "14px",
                   paddingBottom: "16px",
                   paddingTop: "18px",
+                  alignContent: "center",
                 },
               },
             },
@@ -323,6 +349,29 @@ const TaskTable = () => {
     []
   );
 
+  // Add this function to handle deletion of selected rows
+  const handleDeleteSelected = async () => {
+    const selectedTaskIds = Object.keys(rowSelection);
+    if (selectedTaskIds.length === 0) return;
+
+    try {
+      setRowSelection({});
+      await deleteTasks(selectedTaskIds);
+
+      toast.success(
+        `Successfully deleted ${selectedTaskIds.length} task${selectedTaskIds.length === 1 ? "" : "s"}`
+      );
+
+      refetch();
+    } catch (error) {
+      console.error("Error deleting tasks:", error);
+      toast.error("Failed to delete tasks. Please try again.");
+    }
+  };
+
+  // Add state for row selection
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+
   return (
     <Flex p="24px" direction="column" width="100%" height="100%">
       <ThemeProvider theme={tableTheme}>
@@ -335,6 +384,8 @@ const TaskTable = () => {
           manualPagination
           enableStickyHeader
           enableStickyFooter
+          rowPinningDisplayMode="select-sticky"
+          getRowId={(row) => row.task_id}
           muiPaginationProps={{
             rowsPerPageOptions: [10, 20, 50, 100],
             defaultValue: 20,
@@ -352,6 +403,7 @@ const TaskTable = () => {
             pagination,
             showAlertBanner: isError,
             showProgressBars: isRefetching,
+            rowSelection,
           }}
           muiToolbarAlertBannerProps={
             isError
@@ -362,17 +414,27 @@ const TaskTable = () => {
               : undefined
           }
           renderTopToolbarCustomActions={() => (
-            <Tooltip arrow title="Refresh Data">
-              <IconButton onClick={() => refetch()}>
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
+            <Flex gap="2">
+              <Tooltip arrow title="Refresh Data">
+                <IconButton onClick={() => refetch()}>
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
+              {Object.keys(rowSelection).length > 0 && (
+                <Tooltip arrow title="Delete Selected">
+                  <IconButton color="error" onClick={handleDeleteSelected}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Flex>
           )}
           enableExpanding
           renderDetailPanel={renderDetailPanel}
           muiTableBodyRowProps={({ row }) => ({
             onClick: (event) => {
               if (
+                row.original.message === "Task succeeded" &&
                 !(event.target as HTMLElement)
                   .closest(".MuiTableCell-root")
                   ?.classList.contains("MuiTableCell-paddingNone")
@@ -381,7 +443,16 @@ const TaskTable = () => {
               }
             },
             sx: {
-              cursor: "pointer",
+              cursor:
+                row.original.message === "Task succeeded"
+                  ? "pointer"
+                  : "default",
+              "&:hover": {
+                backgroundColor:
+                  row.original.message === "Task succeeded"
+                    ? "rgba(255, 255, 255, 0.05) !important"
+                    : "rgb(2, 8, 9) !important",
+              },
               "&.Mui-TableBodyCell-DetailPanel": {
                 height: 0,
                 "& > td": {
@@ -390,6 +461,7 @@ const TaskTable = () => {
               },
             },
           })}
+          onRowSelectionChange={setRowSelection}
         />
       </ThemeProvider>
     </Flex>

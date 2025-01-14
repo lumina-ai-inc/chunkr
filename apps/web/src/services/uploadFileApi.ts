@@ -9,7 +9,7 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
 
     if (value instanceof File) {
       formData.append(key, value, value.name);
-    } else if (typeof value === "object") {
+    } else {
       // Convert object to JSON and create a Blob/File with application/json type
       const jsonBlob = new Blob([JSON.stringify(value)], {
         type: "application/json",
@@ -18,8 +18,6 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
         type: "application/json",
       });
       formData.append(key, jsonFile);
-    } else {
-      formData.append(key, value);
     }
   }
   const { data } = await axiosInstance.post("/api/v1/task", formData, {
