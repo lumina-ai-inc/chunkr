@@ -39,6 +39,7 @@ use routes::task::{
 use routes::tasks::get_tasks_route;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
+use routes::structured_extraction::handle_structured_extraction_route;
 use utils::clients::initialize;
 use utils::routes::admin_user::get_or_create_admin_user;
 
@@ -90,6 +91,8 @@ fn run_migrations(url: &str) {
             models::chunkr::structured_extraction::ExtractedJson,
             models::chunkr::structured_extraction::JsonSchema,
             models::chunkr::structured_extraction::Property,
+            models::chunkr::structured_extraction::ExtractionRequest,
+            models::chunkr::structured_extraction::ExtractionResponse,
             models::chunkr::task::Configuration,
             models::chunkr::task::Model,
             models::chunkr::task::Status,
@@ -178,6 +181,7 @@ pub fn main() -> std::io::Result<()> {
             let api_scope = web::scope("/api/v1")
                 .wrap(AuthMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
+                .route("/structured_extract", web::post().to(handle_structured_extraction_route))
                 .service(
                     web::scope("/task")
                         .route("", web::post().to(create_task_route))

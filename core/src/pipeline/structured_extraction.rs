@@ -3,9 +3,6 @@ use crate::models::chunkr::task::Status;
 use crate::utils::services::structured_extraction::perform_structured_extraction;
 use std::error::Error;
 
-/// Perform structured extraction on the output of the pipeline
-///
-/// This function performs structured extraction on the output of the pipeline and updates the pipeline with the structured results
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
     let mut output_response = pipeline.output.clone();
     let json_schema = pipeline.get_task()?.configuration.json_schema.clone();
@@ -23,9 +20,20 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
             )
             .await?;
 
+        let texts: Vec<String> = output_response.chunks
+            .iter()
+            .map(|chunk| {
+                chunk.segments
+                    .iter()
+                    .map(|segment| segment.content.clone())
+                    .collect::<Vec<String>>()
+                    .join(" ")
+            })
+            .collect();
+
         let structured_results = match perform_structured_extraction(
             json_schema.ok_or("JSON schema is missing")?,
-            output_response.chunks.clone(),
+            texts,
             "markdown".to_string(),
         )
         .await

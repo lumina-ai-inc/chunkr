@@ -5,6 +5,18 @@ use serde_json;
 use std::error::Error;
 use utoipa::ToSchema;
 
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ExtractionRequest {
+    pub json_schema: JsonSchema,
+    pub contents: Vec<String>,
+    pub content_type: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct ExtractionResponse {
+    pub extracted_json: ExtractedJson,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 /// The JSON schema to be used for structured extraction.
 pub struct JsonSchema {

@@ -7,3 +7,4 @@ pub mod get_task;
 pub mod get_tasks;
 pub mod get_user;
 pub mod update_task;
+pub mod structured_extraction;
