@@ -33,7 +33,7 @@ impl Pipeline {
     }
 
     pub async fn init(&mut self, task_payload: TaskPayload) -> Result<(), Box<dyn Error>> {
-        let mut task = Task::get_by_id(&task_payload.task_id, &task_payload.user_id).await?;
+        let mut task = Task::get(&task_payload.task_id, &task_payload.user_id).await?;
         if task.status == Status::Cancelled {
             if task_payload.previous_status.is_some() && task_payload.previous_message.is_some() {
                 task.update(
@@ -98,10 +98,8 @@ impl Pipeline {
     ) -> Result<(), Box<dyn Error>> {
         let finished_at = Utc::now();
         let expires_at: Option<DateTime<Utc>> = self
-            .task_payload
-            .as_ref()
-            .unwrap()
-            .current_configuration
+            .get_task()
+            .configuration
             .expires_in
             .map(|seconds| finished_at + chrono::Duration::seconds(seconds as i64));
         self.get_task()
@@ -114,9 +112,8 @@ impl Pipeline {
                 None,
             )
             .await?;
-
         self.get_task()
-            .upload_pipeline_output(
+            .upload_artifacts(
                 self.page_images.clone().unwrap(),
                 &self.segment_images,
                 &self.output,

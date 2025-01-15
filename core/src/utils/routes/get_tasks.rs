@@ -22,7 +22,7 @@ pub async fn get_tasks(
     let futures = task_ids.iter().map(|task_id| {
         let user_id = user_id.clone();
         async move {
-            let task = Task::get_by_id(&task_id, &user_id).await?;
+            let task = Task::get(&task_id, &user_id).await?;
             task.to_task_response().await
         }
     });

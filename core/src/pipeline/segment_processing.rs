@@ -276,13 +276,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         )
         .await?;
 
-    let configuration = pipeline
-        .task_payload
-        .as_ref()
-        .unwrap()
-        .current_configuration
-        .clone();
-
+    let configuration = pipeline.get_task().configuration.clone();
     let segment_images = pipeline.segment_images.clone();
     let futures: Vec<_> = pipeline
         .output

@@ -11,7 +11,7 @@ pub async fn create_task(
 ) -> Result<TaskResponse, Box<dyn Error>> {
     let task = Task::new(
         user_info.user_id.as_str(),
-        user_info.clone().api_key.as_deref().unwrap_or(""),
+        user_info.clone().api_key,
         configuration,
         file,
     )

@@ -1,6 +1,6 @@
 use crate::models::chunkr::output::{BoundingBox, OCRResult, Segment, SegmentType};
 use crate::models::chunkr::pipeline::Pipeline;
-use crate::models::chunkr::task::{Status, TaskPayload};
+use crate::models::chunkr::task::{Configuration, Status};
 use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::services::chunking;
 use crate::utils::services::images;
@@ -48,16 +48,16 @@ async fn page_segmentation(
 
 async fn process_page(
     page: &NamedTempFile,
-    task_payload: TaskPayload,
+    configuration: Configuration,
     extracted_ocr_result: Vec<OCRResult>,
     page_number: u32,
 ) -> Result<Vec<Segment>, Box<dyn std::error::Error + Send + Sync>> {
-    let ocr_results = match task_payload.current_configuration.ocr_strategy {
+    let ocr_results = match configuration.ocr_strategy {
         OcrStrategy::All => ocr_page_all(&page).await,
         OcrStrategy::Auto => ocr_page_auto(&page, extracted_ocr_result).await,
     }?;
 
-    let segments = match task_payload.current_configuration.segmentation_strategy {
+    let segments = match configuration.segmentation_strategy {
         SegmentationStrategy::LayoutAnalysis => {
             segmentation::perform_segmentation(page, ocr_results, page_number).await
         }
@@ -100,7 +100,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             .map(|(page_idx, page)| {
                 process_page(
                     page,
-                    pipeline.task_payload.clone().unwrap(),
+                    pipeline.get_task().configuration.clone(),
                     pdf_ocr_results[page_idx].clone(),
                     page_idx as u32 + 1,
                 )
@@ -128,13 +128,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         )
         .await?;
 
-    let chunk_processing = pipeline
-        .task_payload
-        .as_ref()
-        .unwrap()
-        .current_configuration
-        .chunk_processing
-        .clone();
+    let chunk_processing = pipeline.get_task().configuration.chunk_processing.clone();
 
     let chunks = chunking::hierarchical_chunking(
         page_segments.into_iter().flatten().collect(),
