@@ -138,7 +138,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    usage_limits (id) {
+    usage_limits (id) {Hobby
         id -> Int4,
         usage_type -> Text,
         tier -> Text,

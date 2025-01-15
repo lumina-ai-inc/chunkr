@@ -40,37 +40,37 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         false => Tier::Free,
     };
 
-    let transaction = client.transaction().await?;
+    // let transaction = client.transaction().await?;
 
-    let usage_query = "SELECT usage_limit FROM tiers WHERE name = 'Free'";
-    let usage_limit = transaction.query_one(usage_query, &[]).await?.get::<_, i32>("usage_limit");
-    let mut usage_limits: HashMap<UsageType, i32> = HashMap::from([
-        (UsageType::Page, usage_limit),
-    ]);
-    let check_query = r#"SELECT 1 FROM pre_applied_free_pages WHERE email = $1"#;
-    let check_result = transaction
-        .query_opt(check_query, &[&user_info.email])
-        .await?;
+    // let usage_query = "SELECT usage_limit FROM tiers WHERE name = 'Free'";
+    // let usage_limit = transaction.query_one(usage_query, &[]).await?.get::<_, i32>("usage_limit");
+    // let mut usage_limits: HashMap<UsageType, i32> = HashMap::from([
+    //     (UsageType::Page, usage_limit),
+    // ]);
+    // let check_query = r#"SELECT 1 FROM pre_applied_free_pages WHERE email = $1"#;
+    // let check_result = transaction
+    //     .query_opt(check_query, &[&user_info.email])
+    //     .await?;
 
-    if check_result.is_some() {
-        let pre_applied_discount_pages_query =
-            r#"SELECT usage_type, amount FROM pre_applied_free_pages WHERE email = $1"#;
+    // if check_result.is_some() {
+    //     let pre_applied_discount_pages_query =
+    //         r#"SELECT usage_type, amount FROM pre_applied_free_pages WHERE email = $1"#;
 
-        let pre_applied_pages: Vec<PreAppliedPages> = transaction
-            .query(pre_applied_discount_pages_query, &[&user_info.email])
-            .await?
-            .into_iter()
-            .map(PreAppliedPages::from)
-            .collect();
+    //     let pre_applied_pages: Vec<PreAppliedPages> = transaction
+    //         .query(pre_applied_discount_pages_query, &[&user_info.email])
+    //         .await?
+    //         .into_iter()
+    //         .map(PreAppliedPages::from)
+    //         .collect();
 
-        for pre_applied_page in pre_applied_pages {
-            if let Ok(usage_type) = UsageType::from_str(&pre_applied_page.usage_type) {
-                usage_limits.insert(usage_type, pre_applied_page.amount);
-            }
-        }
-    }
+    //     for pre_applied_page in pre_applied_pages {
+    //         if let Ok(usage_type) = UsageType::from_str(&pre_applied_page.usage_type) {
+    //             usage_limits.insert(usage_type, pre_applied_page.amount);
+    //         }
+    //     }
+    // }
 
-    transaction.commit().await?;
+    // transaction.commit().await?;
 
     let transaction = client.transaction().await?;
 
@@ -120,10 +120,40 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
             )
             .await?;
 
-    transaction.commit().await?;
-    
+    let monthly_usage_query = r#"
+    INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier, overage_usage)
+    SELECT $1, $2, $3, 
+        CASE 
+            WHEN EXISTS (SELECT 1 FROM pre_applied_free_pages p WHERE p.email = $5) 
+            THEN (SELECT amount FROM pre_applied_free_pages p WHERE p.email = $5 LIMIT 1)
+            ELSE t.usage_limit
+        END,
+        EXTRACT(YEAR FROM CURRENT_TIMESTAMP), 
+        EXTRACT(MONTH FROM CURRENT_TIMESTAMP), 
+        t.tier,
+        0
+    FROM tiers t
+    WHERE t.tier = $4
+    "#;
+
+    transaction
+        .execute(
+            monthly_usage_query,
+            &[
+                &user_info.user_id,
+                &UsageType::Page.to_string(),
+                &0i32,
+                &tier.to_string(),
+                &user_info.email,
+            ],
+        )
+        .await?;
+
+    let check_result = transaction
+        .query_opt("SELECT 1 FROM pre_applied_free_pages WHERE email = $1", &[&user_info.email])
+        .await?;
+
     if check_result.is_some() {
-        let transaction2 = client.transaction().await?;
         let update_pre_applied_query = r#"
         UPDATE pre_applied_free_pages 
         SET consumed = TRUE,
@@ -131,11 +161,20 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         WHERE email = $1
         "#;
 
-        transaction2
+        transaction
             .execute(update_pre_applied_query, &[&user_info.email])
             .await?;
-        transaction2.commit().await?;
     }
+
+    transaction.commit().await?;
+
+    let usage_limit = client
+        .query_one(
+            "SELECT usage_limit FROM monthly_usage WHERE user_id = $1 AND usage_type = $2",
+            &[&user_info.user_id, &UsageType::Page.to_string()]
+        )
+        .await?
+        .get::<_, i32>("usage_limit");
 
     let user = User {
         user_id: user_row.get("user_id"),
@@ -152,28 +191,13 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         updated_at: user_row.get("updated_at"),
         usage: vec![
             UsageLimit {
-                usage_type: UsageType::Fast,
-                usage_limit: usage_limits.get(&UsageType::Fast).copied().unwrap_or(1000),
-                discounts: None,
-            },
-            UsageLimit {
-                usage_type: UsageType::HighQuality,
-                usage_limit: usage_limits
-                    .get(&UsageType::HighQuality)
-                    .copied()
-                    .unwrap_or(500),
-                discounts: None,
-            },
-            UsageLimit {
-                usage_type: UsageType::Segment,
-                usage_limit: usage_limits
-                    .get(&UsageType::Segment)
-                    .copied()
-                    .unwrap_or(250),
-                discounts: None,
+                usage_type: UsageType::Page,
+                usage_limit,
+                overage_usage: 0,
             },
         ],
         task_count: Some(0),
+        last_paid_status: None,
     };
 
     Ok(user)
