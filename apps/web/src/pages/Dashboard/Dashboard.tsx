@@ -475,7 +475,7 @@ export default function Dashboard() {
               {isProfileMenuOpen && (
                 <Flex className="profile-popup">
                   <Flex className="profile-menu" direction="column">
-                    <Flex className="profile-menu-item">
+                    {/* <Flex className="profile-menu-item">
                       <Text size="2" weight="medium" style={{ color: "#FFF" }}>
                         Support
                       </Text>
@@ -484,7 +484,7 @@ export default function Dashboard() {
                       <Text size="2" weight="medium" style={{ color: "#FFF" }}>
                         Terms of Service
                       </Text>
-                    </Flex>
+                    </Flex> */}
                     <Flex
                       className="profile-menu-item"
                       onClick={() => auth.signoutRedirect()}
