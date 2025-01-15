@@ -10,7 +10,7 @@ use std::sync::Arc;
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
     let worker_config = WorkerConfig::from_env()?;
     pipeline
-        .get_task()
+        .get_task()?
         .update(
             Some(Status::Processing),
             Some("Converting to images".to_string()),
@@ -20,7 +20,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             None,
         )
         .await?;
-    let scaling_factor = match pipeline.get_task().configuration.high_resolution {
+    let scaling_factor = match pipeline.get_task()?.configuration.high_resolution {
         true => worker_config.high_res_scaling_factor,
         false => 1.0,
     };

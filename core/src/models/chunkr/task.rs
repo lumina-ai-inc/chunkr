@@ -64,17 +64,17 @@ impl Task {
         let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
         let file_size = file.size;
         let status = Status::Starting;
-        let base_url  = worker_config.server_url;
+        let base_url = worker_config.server_url;
         let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
         let (input_location, pdf_location, output_location, image_folder_location) =
-        Self::generate_s3_paths(user_id, &task_id, file_name);
+            Self::generate_s3_paths(user_id, &task_id, file_name);
         let message = "Task queued".to_string();
         let created_at = Utc::now();
         let version = worker_config.version;
 
-        let file_path  = PathBuf::from(file.file.path());
+        let file_path = PathBuf::from(file.file.path());
         upload_to_s3(&input_location, &file_path).await?;
-        
+
         let configuration_json = serde_json::to_string(&configuration)?;
         client
             .execute(
@@ -95,7 +95,7 @@ impl Task {
                     task_id,
                     task_url,
                     user_id,
-                    version,
+                    version
                 ) VALUES (
                     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
                 ) ON CONFLICT (task_id) DO NOTHING",
@@ -141,14 +141,11 @@ impl Task {
             task_id: task_id.clone(),
             task_url: Some(task_url),
             user_id: user_id.to_string(),
-            version: Some(version),  
+            version: Some(version),
         })
     }
 
-    pub async fn get(
-        task_id: &str,
-        user_id: &str,
-    ) -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn get(task_id: &str, user_id: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let client = get_pg_client().await?;
         let row = client
             .query_one(
@@ -185,9 +182,11 @@ impl Task {
             Self::generate_s3_paths(user_id, task_id, file_name);
         let page_count: Option<i32> = row.get("page_count");
         let page_count = page_count.map(|count| count as u32);
+        let config_str = row.get::<_, String>("configuration");
+        let configuration = serde_json::from_str(&config_str)?;
         Ok(Self {
             api_key: row.get("api_key"),
-            configuration: serde_json::from_str(&row.get::<_, String>("configuration"))?,
+            configuration,
             created_at: row.get("created_at"),
             expires_at: row.get("expires_at"),
             file_size: row.get("file_size"),
@@ -256,7 +255,6 @@ impl Task {
     ) -> Result<(), Box<dyn std::error::Error>> {
         let client = get_pg_client().await?;
         let mut update_parts = vec![];
-
         if let Some(status) = status {
             update_parts.push(format!("status = '{:?}'", status));
             self.status = status;
@@ -386,14 +384,28 @@ impl Task {
         Ok(())
     }
 
-    pub async fn get_artifacts(&self) -> Result<(NamedTempFile, NamedTempFile, Vec<NamedTempFile>, DashMap<String, NamedTempFile>, OutputResponse), Box<dyn std::error::Error>> {
+    pub async fn get_artifacts(
+        &self,
+    ) -> Result<
+        (
+            NamedTempFile,
+            NamedTempFile,
+            Vec<NamedTempFile>,
+            DashMap<String, NamedTempFile>,
+            OutputResponse,
+        ),
+        Box<dyn std::error::Error>,
+    > {
         let output_temp_file = download_to_tempfile(&self.output_location, None).await?;
-        let output: OutputResponse = serde_json::from_str(&tokio::fs::read_to_string(output_temp_file.path()).await?)?;
+        let output: OutputResponse =
+            serde_json::from_str(&tokio::fs::read_to_string(output_temp_file.path()).await?)?;
 
         let input_future = download_to_tempfile(&self.input_location, None);
         let pdf_future = download_to_tempfile(&self.pdf_location, None);
 
-        let page_count = self.page_count.ok_or("Page count is required but not found")?;
+        let page_count = self
+            .page_count
+            .ok_or("Page count is required but not found")?;
         let page_futures: Vec<_> = (0..page_count)
             .map(|idx| {
                 let s3_key = format!(
@@ -408,8 +420,10 @@ impl Task {
                 }
             })
             .collect();
-        
-        let segment_futures: Vec<_> = output.chunks.iter()
+
+        let segment_futures: Vec<_> = output
+            .chunks
+            .iter()
             .flat_map(|chunk| chunk.segments.iter())
             .filter_map(|segment| {
                 segment.image.as_ref().map(|image_path| {

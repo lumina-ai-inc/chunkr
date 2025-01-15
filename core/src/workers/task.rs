@@ -34,7 +34,7 @@ async fn execute_step(
         "Step {} took {:?} with page count {:?}",
         step,
         duration,
-        pipeline.get_task().page_count.unwrap_or(0)
+        pipeline.get_task()?.page_count.unwrap_or(0)
     );
     Ok(())
 }
@@ -58,11 +58,10 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     let result: Result<(), Box<dyn std::error::Error>> = (async {
         let task_payload: TaskPayload = serde_json::from_value(payload.payload)?;
         pipeline.init(task_payload).await?;
-
-        if pipeline.get_task().status != Status::Processing {
+        if pipeline.get_task()?.status != Status::Processing {
             println!(
                 "Skipping task as status is {:?}",
-                pipeline.get_task().status
+                pipeline.get_task()?.status
             );
             return Ok(());
         }
@@ -70,7 +69,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         let start_time = std::time::Instant::now();
         for step in orchestrate_task() {
             execute_step(step, &mut pipeline).await?;
-            if pipeline.get_task().status != Status::Processing {
+            if pipeline.get_task()?.status != Status::Processing {
                 return Ok(());
             }
         }
@@ -78,21 +77,12 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         println!(
             "Task took {:?} to complete with page count {:?}",
             end_time.duration_since(start_time),
-            pipeline.get_task().page_count.unwrap_or(0)
+            pipeline.get_task()?.page_count.unwrap_or(0)
         );
 
         pipeline
-            .get_task()
-            .update(
-                Some(Status::Succeeded),
-                Some("Task succeeded".to_string()),
-                None,
-                None,
-                None,
-                None,
-            )
+            .complete(Status::Succeeded, Some("Task succeeded".to_string()))
             .await?;
-
         Ok(())
     })
     .await;
@@ -104,10 +94,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
                 true => "Task failed".to_string(),
                 false => format!("Retrying task {}/{}", payload.attempt, payload.max_attempts),
             };
-            pipeline
-                .get_task()
-                .update(Some(Status::Failed), Some(message), None, None, None, None)
-                .await?;
+            pipeline.complete(Status::Failed, Some(message)).await?;
             Err(e)
         }
     }

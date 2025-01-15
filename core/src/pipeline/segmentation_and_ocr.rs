@@ -72,7 +72,7 @@ async fn process_page(
 /// This function will perform OCR, segmentation and chunking on the pages
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
     pipeline
-        .get_task()
+        .get_task()?
         .update(
             Some(Status::Processing),
             Some("Segmentation and OCR".to_string()),
@@ -86,7 +86,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         Ok(ocr_results) => ocr_results,
         Err(e) => {
             println!("Error getting pdf ocr results: {:?}", e);
-            vec![vec![]; pipeline.get_task().page_count.unwrap_or(0) as usize]
+            vec![vec![]; pipeline.get_task()?.page_count.unwrap_or(0) as usize]
         }
     };
 
@@ -98,9 +98,10 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             .par_iter()
             .enumerate()
             .map(|(page_idx, page)| {
+                let task = pipeline.get_task().unwrap();
                 process_page(
                     page,
-                    pipeline.get_task().configuration.clone(),
+                    task.configuration.clone(),
                     pdf_ocr_results[page_idx].clone(),
                     page_idx as u32 + 1,
                 )
@@ -117,7 +118,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     };
 
     pipeline
-        .get_task()
+        .get_task()?
         .update(
             Some(Status::Processing),
             Some("Chunking".to_string()),
@@ -129,13 +130,13 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .await?;
 
     // If segmentation is performed differently, we need to update the chunking step
-    // TODO: Move to a separate step - need to figure out how to add segmentation results to pipeline to be able to use it in the chunking step. 
-    // add segmentation output as if chunking is off and then: 
+    // TODO: Move to a separate step - need to figure out how to add segmentation results to pipeline to be able to use it in the chunking step.
+    // add segmentation output as if chunking is off and then:
     // 1.  the orchestrator optionally adds the segmentation step and optionally adds the chunking step (theoretically faster)
     //      - Requires diff check of segmentation and chunking
     // 2. the orchestrator optionally adds the segmentation step and we can always chunk (is very fast so prob doesn't matter)
     //      - Only diff check of segmentation
-    let chunk_processing = pipeline.get_task().configuration.chunk_processing.clone();
+    let chunk_processing = pipeline.get_task()?.configuration.chunk_processing.clone();
 
     let chunks = chunking::hierarchical_chunking(
         page_segments.into_iter().flatten().collect(),

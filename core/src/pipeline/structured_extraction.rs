@@ -8,11 +8,11 @@ use std::error::Error;
 /// This function performs structured extraction on the output of the pipeline and updates the pipeline with the structured results
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
     let mut output_response = pipeline.output.clone();
-    let json_schema = pipeline.get_task().configuration.json_schema.clone();
+    let json_schema = pipeline.get_task()?.configuration.json_schema.clone();
 
     if json_schema.is_some() {
         pipeline
-            .get_task()
+            .get_task()?
             .update(
                 Some(Status::Processing),
                 Some("Structured extraction started".to_string()),
