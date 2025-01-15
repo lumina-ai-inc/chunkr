@@ -59,6 +59,8 @@ pub struct Segment {
     pub html: Option<String>,
     /// Presigned URL to the image of the segment.
     pub image: Option<String>,
+    /// LLM representation of the segment.
+    pub llm: Option<String>,
     /// Markdown representation of the segment.
     pub markdown: Option<String>,
     /// OCR results for the segment.
@@ -94,6 +96,7 @@ impl Segment {
             bbox,
             confidence,
             content,
+            llm: None,
             page_height,
             page_number,
             page_width,

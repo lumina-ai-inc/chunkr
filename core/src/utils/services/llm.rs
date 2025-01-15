@@ -154,9 +154,14 @@ pub async fn llm_ocr(
     }
 }
 
-fn extract_fenced_content(content: &str, fence_type: &str) -> Option<String> {
+fn extract_fenced_content(content: &str, fence_type: Option<&str>) -> Option<String> {
+    let split_pattern = match fence_type {
+        Some(ft) => format!("```{}", ft),
+        None => "```".to_string(),
+    };
+
     content
-        .split(&format!("```{}", fence_type))
+        .split(&split_pattern)
         .nth(1)
         .and_then(|content| content.split("```").next())
         .map(|content| content.trim().to_string())
@@ -166,7 +171,7 @@ fn extract_fenced_content(content: &str, fence_type: &str) -> Option<String> {
 async fn retry_ocr_with_temperature(
     temp_file: &NamedTempFile,
     prompt: String,
-    fence_type: &str,
+    fence_type: Option<&str>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let worker_config = WorkerConfig::from_env().unwrap();
     let max_retries = worker_config.max_retries;
@@ -175,8 +180,8 @@ async fn retry_ocr_with_temperature(
         let temperature = (attempt as f32) * 0.2;
         if temperature > 1.0 {
             return Err(Box::new(LLMError(format!(
-                "Failed to extract {} content after {} attempts",
-                fence_type, attempt
+                "Temperature too high after {} attempts",
+                attempt
             ))));
         }
 
@@ -188,7 +193,8 @@ async fn retry_ocr_with_temperature(
         if attempt >= max_retries {
             return Err(Box::new(LLMError(format!(
                 "No {} content found after {} attempts",
-                fence_type, attempt
+                fence_type.unwrap_or(""),
+                attempt
             ))));
         }
     }
@@ -198,19 +204,26 @@ pub async fn html_ocr(
     temp_file: &NamedTempFile,
     prompt: String,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    retry_ocr_with_temperature(temp_file, prompt, "html").await
+    retry_ocr_with_temperature(temp_file, prompt, Some("html")).await
 }
 
 pub async fn markdown_ocr(
     temp_file: &NamedTempFile,
     prompt: String,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    retry_ocr_with_temperature(temp_file, prompt, "markdown").await
+    retry_ocr_with_temperature(temp_file, prompt, Some("markdown")).await
 }
 
 pub async fn latex_ocr(
     temp_file: &NamedTempFile,
     prompt: String,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    retry_ocr_with_temperature(temp_file, prompt, "latex").await
+    retry_ocr_with_temperature(temp_file, prompt, Some("latex")).await
+}
+
+pub async fn llm_segment(
+    temp_file: &NamedTempFile,
+    prompt: String,
+) -> Result<String, Box<dyn Error + Send + Sync>> {
+    retry_ocr_with_temperature(temp_file, prompt, None).await
 }

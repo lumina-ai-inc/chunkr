@@ -10,14 +10,9 @@ class CroppingStrategy(str, Enum):
     ALL = "All" 
     AUTO = "Auto"
 
-class LlmConfig(BaseModel):
-    model: str
-    prompt: str
-    temperature: float = 0.0
-
 class GenerationConfig(BaseModel):
     html: Optional[GenerationStrategy] = None
-    llm: Optional[LlmConfig] = None
+    llm: Optional[str] = None
     markdown: Optional[GenerationStrategy] = None
     crop_image: Optional[CroppingStrategy] = None
 

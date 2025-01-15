@@ -119,6 +119,7 @@ mod tests {
                 segment_id: "1".to_string(),
                 confidence: Some(1.0),
                 content: "Today is a nice day".to_string(),
+                llm: None,
                 bbox: BoundingBox {
                     left: 0.0,
                     top: 0.0,
@@ -138,6 +139,7 @@ mod tests {
                 segment_id: "2".to_string(),
                 confidence: Some(1.0),
                 content: "I like you".to_string(),
+                llm: None,
                 bbox: BoundingBox {
                     left: 0.0,
                     top: 0.0,
