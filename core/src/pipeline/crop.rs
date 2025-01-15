@@ -21,24 +21,30 @@ async fn crop_segment(
                 SegmentType::Formula => &configuration.segment_processing.formula,
                 _ => unreachable!(),
             };
-            match config.crop_image {
-                CroppingStrategy::All => true,
-                CroppingStrategy::Auto => {
-                    config.html == GenerationStrategy::LLM
-                        || config.markdown == GenerationStrategy::LLM
-                        || config.llm.is_some()
-                }
+            match config {
+                Some(config) => match config.crop_image {
+                    CroppingStrategy::All => true,
+                    CroppingStrategy::Auto => {
+                        config.html == GenerationStrategy::LLM
+                            || config.markdown == GenerationStrategy::LLM
+                            || config.llm.is_some()
+                    }
+                },
+                None => false,
             }
         }
         SegmentType::Picture => {
             let config = &configuration.segment_processing.picture;
-            match config.crop_image {
-                PictureCroppingStrategy::All => true,
-                PictureCroppingStrategy::Auto => {
-                    config.html == GenerationStrategy::LLM
-                        || config.markdown == GenerationStrategy::LLM
-                        || config.llm.is_some()
-                }
+            match config {
+                Some(config) => match config.crop_image {
+                    PictureCroppingStrategy::All => true,
+                    PictureCroppingStrategy::Auto => {
+                        config.html == GenerationStrategy::LLM
+                            || config.markdown == GenerationStrategy::LLM
+                            || config.llm.is_some()
+                    }
+                },
+                None => false,
             }
         }
         _ => {
@@ -54,13 +60,16 @@ async fn crop_segment(
                 SegmentType::Page => &configuration.segment_processing.page,
                 _ => unreachable!(),
             };
-            match config.crop_image {
-                CroppingStrategy::All => true,
-                CroppingStrategy::Auto => {
-                    config.html == GenerationStrategy::LLM
-                        || config.markdown == GenerationStrategy::LLM
-                        || config.llm.is_some()
-                }
+            match config {
+                Some(config) => match config.crop_image {
+                    CroppingStrategy::All => true,
+                    CroppingStrategy::Auto => {
+                        config.html == GenerationStrategy::LLM
+                            || config.markdown == GenerationStrategy::LLM
+                            || config.llm.is_some()
+                    }
+                },
+                None => false,
             }
         }
     };

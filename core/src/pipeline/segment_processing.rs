@@ -211,27 +211,44 @@ async fn process_segment(
     let (html_strategy, markdown_strategy) = match segment.segment_type.clone() {
         SegmentType::Table | SegmentType::Formula => {
             let config: &LlmGenerationConfig = match segment.segment_type {
-                SegmentType::Table => &configuration.segment_processing.table,
-                SegmentType::Formula => &configuration.segment_processing.formula,
+                SegmentType::Table => &configuration.segment_processing.table.as_ref().unwrap(),
+                SegmentType::Formula => &configuration.segment_processing.formula.as_ref().unwrap(),
                 _ => unreachable!(),
             };
             (&config.html, &config.markdown)
         }
         SegmentType::Picture => {
-            let config: &PictureGenerationConfig = &configuration.segment_processing.picture;
+            let config: &PictureGenerationConfig =
+                &configuration.segment_processing.picture.as_ref().unwrap();
             (&config.html, &config.markdown)
         }
         segment_type => {
             let config: &AutoGenerationConfig = match segment_type {
-                SegmentType::Title => &configuration.segment_processing.title,
-                SegmentType::SectionHeader => &configuration.segment_processing.section_header,
-                SegmentType::Text => &configuration.segment_processing.text,
-                SegmentType::ListItem => &configuration.segment_processing.list_item,
-                SegmentType::Caption => &configuration.segment_processing.caption,
-                SegmentType::Footnote => &configuration.segment_processing.footnote,
-                SegmentType::PageHeader => &configuration.segment_processing.page_header,
-                SegmentType::PageFooter => &configuration.segment_processing.page_footer,
-                SegmentType::Page => &configuration.segment_processing.page,
+                SegmentType::Title => &configuration.segment_processing.title.as_ref().unwrap(),
+                SegmentType::SectionHeader => &configuration
+                    .segment_processing
+                    .section_header
+                    .as_ref()
+                    .unwrap(),
+                SegmentType::Text => &configuration.segment_processing.text.as_ref().unwrap(),
+                SegmentType::ListItem => {
+                    &configuration.segment_processing.list_item.as_ref().unwrap()
+                }
+                SegmentType::Caption => &configuration.segment_processing.caption.as_ref().unwrap(),
+                SegmentType::Footnote => {
+                    &configuration.segment_processing.footnote.as_ref().unwrap()
+                }
+                SegmentType::PageHeader => &configuration
+                    .segment_processing
+                    .page_header
+                    .as_ref()
+                    .unwrap(),
+                SegmentType::PageFooter => &configuration
+                    .segment_processing
+                    .page_footer
+                    .as_ref()
+                    .unwrap(),
+                SegmentType::Page => &configuration.segment_processing.page.as_ref().unwrap(),
                 _ => unreachable!(),
             };
             (&config.html, &config.markdown)

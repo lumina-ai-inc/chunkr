@@ -11,47 +11,47 @@ use utoipa::ToSchema;
 /// You can optionally configure custom LLM prompts and models to generate an additional `llm` field
 /// with LLM-processed content for each segment type.
 pub struct SegmentProcessing {
-    #[serde(rename = "Title", alias = "title", default)]
-    pub title: AutoGenerationConfig,
-    #[serde(rename = "SectionHeader", alias = "section_header", default)]
-    pub section_header: AutoGenerationConfig,
-    #[serde(rename = "Text", alias = "text", default)]
-    pub text: AutoGenerationConfig,
-    #[serde(rename = "ListItem", alias = "list_item", default)]
-    pub list_item: AutoGenerationConfig,
-    #[serde(rename = "Table", alias = "table", default)]
-    pub table: LlmGenerationConfig,
-    #[serde(rename = "Picture", alias = "picture", default)]
-    pub picture: PictureGenerationConfig,
-    #[serde(rename = "Caption", alias = "caption", default)]
-    pub caption: AutoGenerationConfig,
-    #[serde(rename = "Formula", alias = "formula", default)]
-    pub formula: LlmGenerationConfig,
-    #[serde(rename = "Footnote", alias = "footnote", default)]
-    pub footnote: AutoGenerationConfig,
-    #[serde(rename = "PageHeader", alias = "page_header", default)]
-    pub page_header: AutoGenerationConfig,
-    #[serde(rename = "PageFooter", alias = "page_footer", default)]
-    pub page_footer: AutoGenerationConfig,
-    #[serde(rename = "Page", alias = "page", default)]
-    pub page: AutoGenerationConfig,
+    #[serde(rename = "Title", alias = "title")]
+    pub title: Option<AutoGenerationConfig>,
+    #[serde(rename = "SectionHeader", alias = "section_header")]
+    pub section_header: Option<AutoGenerationConfig>,
+    #[serde(rename = "Text", alias = "text")]
+    pub text: Option<AutoGenerationConfig>,
+    #[serde(rename = "ListItem", alias = "list_item")]
+    pub list_item: Option<AutoGenerationConfig>,
+    #[serde(rename = "Table", alias = "table")]
+    pub table: Option<LlmGenerationConfig>,
+    #[serde(rename = "Picture", alias = "picture")]
+    pub picture: Option<PictureGenerationConfig>,
+    #[serde(rename = "Caption", alias = "caption")]
+    pub caption: Option<AutoGenerationConfig>,
+    #[serde(rename = "Formula", alias = "formula")]
+    pub formula: Option<LlmGenerationConfig>,
+    #[serde(rename = "Footnote", alias = "footnote")]
+    pub footnote: Option<AutoGenerationConfig>,
+    #[serde(rename = "PageHeader", alias = "page_header")]
+    pub page_header: Option<AutoGenerationConfig>,
+    #[serde(rename = "PageFooter", alias = "page_footer")]
+    pub page_footer: Option<AutoGenerationConfig>,
+    #[serde(rename = "Page", alias = "page")]
+    pub page: Option<AutoGenerationConfig>,
 }
 
 impl Default for SegmentProcessing {
     fn default() -> Self {
         Self {
-            title: AutoGenerationConfig::default(),
-            section_header: AutoGenerationConfig::default(),
-            text: AutoGenerationConfig::default(),
-            list_item: AutoGenerationConfig::default(),
-            table: LlmGenerationConfig::default(),
-            picture: PictureGenerationConfig::default(),
-            caption: AutoGenerationConfig::default(),
-            formula: LlmGenerationConfig::default(),
-            footnote: AutoGenerationConfig::default(),
-            page_header: AutoGenerationConfig::default(),
-            page_footer: AutoGenerationConfig::default(),
-            page: AutoGenerationConfig::default(),
+            title: Some(AutoGenerationConfig::default()),
+            section_header: Some(AutoGenerationConfig::default()),
+            text: Some(AutoGenerationConfig::default()),
+            list_item: Some(AutoGenerationConfig::default()),
+            table: Some(LlmGenerationConfig::default()),
+            picture: Some(PictureGenerationConfig::default()),
+            caption: Some(AutoGenerationConfig::default()),
+            formula: Some(LlmGenerationConfig::default()),
+            footnote: Some(AutoGenerationConfig::default()),
+            page_header: Some(AutoGenerationConfig::default()),
+            page_footer: Some(AutoGenerationConfig::default()),
+            page: Some(AutoGenerationConfig::default()),
         }
     }
 }
@@ -72,7 +72,8 @@ pub struct AutoGenerationConfig {
     #[serde(default = "default_auto_generation_strategy")]
     #[schema(default = "Auto")]
     pub html: GenerationStrategy,
-    pub llm: Option<LlmConfig>,
+    /// Prompt for the LLM model
+    pub llm: Option<String>,
     #[serde(default = "default_auto_generation_strategy")]
     #[schema(default = "Auto")]
     pub markdown: GenerationStrategy,
@@ -93,7 +94,8 @@ pub struct LlmGenerationConfig {
     #[serde(default = "default_llm_generation_strategy")]
     #[schema(default = "LLM")]
     pub html: GenerationStrategy,
-    pub llm: Option<LlmConfig>,
+    /// Prompt for the LLM model
+    pub llm: Option<String>,
     #[serde(default = "default_llm_generation_strategy")]
     #[schema(default = "LLM")]
     pub markdown: GenerationStrategy,
@@ -114,7 +116,8 @@ pub struct PictureGenerationConfig {
     #[serde(default = "default_auto_generation_strategy")]
     #[schema(default = "Auto")]
     pub html: GenerationStrategy,
-    pub llm: Option<LlmConfig>,
+    /// Prompt for the LLM model
+    pub llm: Option<String>,
     #[serde(default = "default_auto_generation_strategy")]
     #[schema(default = "Auto")]
     pub markdown: GenerationStrategy,
@@ -185,17 +188,4 @@ impl Default for PictureGenerationConfig {
 pub enum GenerationStrategy {
     LLM,
     Auto,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
-/// Controls the LLM-generated output for the segment.
-pub struct LlmConfig {
-    pub model: String,
-    pub prompt: String,
-    #[serde(default = "default_temperature")]
-    pub temperature: f32,
-}
-
-fn default_temperature() -> f32 {
-    0.0
 }

@@ -1,7 +1,10 @@
-use crate::models::chunkr::chunk_processing::ChunkProcessing;
+use crate::configs::expiration_config;
+use crate::models::chunkr::chunk_processing::{
+    default_ignore_headers_and_footers, ChunkProcessing,
+};
 use crate::models::chunkr::segment_processing::SegmentProcessing;
 use crate::models::chunkr::structured_extraction::JsonSchema;
-
+use crate::models::chunkr::task::Configuration;
 use actix_multipart::form::json::Json as MPJson;
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use postgres_types::{FromSql, ToSql};
@@ -51,19 +54,113 @@ pub struct CreateForm {
 }
 
 impl CreateForm {
-    pub fn get_chunk_processing(&self) -> Option<ChunkProcessing> {
+    fn get_chunk_processing(&self) -> ChunkProcessing {
         self.chunk_processing
             .as_ref()
             .map(|mp_json| mp_json.0.clone())
             .or_else(|| {
                 // For backwards compatibility: if chunk_processing is not set but target_chunk_length is,
-                // create a ChunkProcessing with defaults and override target_length
+                // create a ChunkProcessing with target_length as target_chunk_length
                 self.target_chunk_length.as_ref().map(|length| {
-                    let mut chunk_processing = ChunkProcessing::default();
-                    chunk_processing.target_length = length.0;
+                    let chunk_processing = ChunkProcessing {
+                        ignore_headers_and_footers: default_ignore_headers_and_footers(),
+                        target_length: length.0,
+                    };
                     chunk_processing
                 })
             })
+            .unwrap_or_else(ChunkProcessing::default)
+    }
+
+    fn get_expires_in(&self) -> Option<i32> {
+        let expiration_config = expiration_config::Config::from_env().unwrap();
+        self.expires_in
+            .as_ref()
+            .map(|e| e.0)
+            .or(expiration_config.time)
+    }
+
+    fn get_high_resolution(&self) -> bool {
+        self.high_resolution.as_ref().map(|e| e.0).unwrap_or(false)
+    }
+
+    fn get_json_schema(&self) -> Option<JsonSchema> {
+        self.json_schema.as_ref().map(|e| e.0.clone())
+    }
+
+    fn get_ocr_strategy(&self) -> OcrStrategy {
+        self.ocr_strategy
+            .as_ref()
+            .map(|e| e.0.clone())
+            .unwrap_or(OcrStrategy::All)
+    }
+
+    fn get_segment_processing(&self) -> SegmentProcessing {
+        let user_config = self
+            .segment_processing
+            .as_ref()
+            .map(|e| e.0.clone())
+            .unwrap_or_default();
+
+        SegmentProcessing {
+            title: user_config
+                .title
+                .or_else(|| SegmentProcessing::default().title),
+            section_header: user_config
+                .section_header
+                .or_else(|| SegmentProcessing::default().section_header),
+            text: user_config
+                .text
+                .or_else(|| SegmentProcessing::default().text),
+            list_item: user_config
+                .list_item
+                .or_else(|| SegmentProcessing::default().list_item),
+            table: user_config
+                .table
+                .or_else(|| SegmentProcessing::default().table),
+            picture: user_config
+                .picture
+                .or_else(|| SegmentProcessing::default().picture),
+            caption: user_config
+                .caption
+                .or_else(|| SegmentProcessing::default().caption),
+            formula: user_config
+                .formula
+                .or_else(|| SegmentProcessing::default().formula),
+            footnote: user_config
+                .footnote
+                .or_else(|| SegmentProcessing::default().footnote),
+            page_header: user_config
+                .page_header
+                .or_else(|| SegmentProcessing::default().page_header),
+            page_footer: user_config
+                .page_footer
+                .or_else(|| SegmentProcessing::default().page_footer),
+            page: user_config
+                .page
+                .or_else(|| SegmentProcessing::default().page),
+        }
+    }
+
+    fn get_segmentation_strategy(&self) -> SegmentationStrategy {
+        self.segmentation_strategy
+            .as_ref()
+            .map(|e| e.0.clone())
+            .unwrap_or(SegmentationStrategy::LayoutAnalysis)
+    }
+
+    pub fn to_configuration(&self) -> Configuration {
+        Configuration {
+            chunk_processing: self.get_chunk_processing(),
+            expires_in: self.get_expires_in(),
+            high_resolution: self.get_high_resolution(),
+            json_schema: self.get_json_schema(),
+            model: None,
+            ocr_strategy: self.get_ocr_strategy(),
+            segment_processing: self.get_segment_processing(),
+            segmentation_strategy: self.get_segmentation_strategy(),
+            target_chunk_length: None,
+        }
     }
 }
 
@@ -97,10 +194,89 @@ pub struct UpdateForm {
 }
 
 impl UpdateForm {
-    pub fn get_chunk_processing(&self) -> Option<ChunkProcessing> {
-        self.chunk_processing
+    fn get_segment_processing(&self, current_config: &Configuration) -> SegmentProcessing {
+        let user_config = self
+            .segment_processing
             .as_ref()
-            .map(|mp_json| mp_json.0.clone())
+            .map(|e| e.0.clone())
+            .unwrap_or_default();
+
+        SegmentProcessing {
+            title: user_config
+                .title
+                .or(current_config.segment_processing.title.clone()),
+            section_header: user_config
+                .section_header
+                .or(current_config.segment_processing.section_header.clone()),
+            text: user_config
+                .text
+                .or(current_config.segment_processing.text.clone()),
+            list_item: user_config
+                .list_item
+                .or(current_config.segment_processing.list_item.clone()),
+            table: user_config
+                .table
+                .or(current_config.segment_processing.table.clone()),
+            picture: user_config
+                .picture
+                .or(current_config.segment_processing.picture.clone()),
+            caption: user_config
+                .caption
+                .or(current_config.segment_processing.caption.clone()),
+            formula: user_config
+                .formula
+                .or(current_config.segment_processing.formula.clone()),
+            footnote: user_config
+                .footnote
+                .or(current_config.segment_processing.footnote.clone()),
+            page_header: user_config
+                .page_header
+                .or(current_config.segment_processing.page_header.clone()),
+            page_footer: user_config
+                .page_footer
+                .or(current_config.segment_processing.page_footer.clone()),
+            page: user_config
+                .page
+                .or(current_config.segment_processing.page.clone()),
+        }
+    }
+
+    pub fn to_configuration(&self, current_config: &Configuration) -> Configuration {
+        Configuration {
+            chunk_processing: self
+                .chunk_processing
+                .as_ref()
+                .map(|e| e.0.clone())
+                .unwrap_or_else(|| current_config.chunk_processing.clone()),
+            expires_in: self
+                .expires_in
+                .as_ref()
+                .map(|e| e.0)
+                .or(current_config.expires_in),
+            high_resolution: self
+                .high_resolution
+                .as_ref()
+                .map(|e| e.0)
+                .unwrap_or(current_config.high_resolution),
+            json_schema: self
+                .json_schema
+                .as_ref()
+                .map(|e| e.0.clone())
+                .or(current_config.json_schema.clone()),
+            model: None,
+            ocr_strategy: self
+                .ocr_strategy
+                .as_ref()
+                .map(|e| e.0.clone())
+                .unwrap_or(current_config.ocr_strategy.clone()),
+            segment_processing: self.get_segment_processing(current_config),
+            segmentation_strategy: self
+                .segmentation_strategy
+                .as_ref()
+                .map(|e| e.0.clone())
+                .unwrap_or(current_config.segmentation_strategy.clone()),
+            target_chunk_length: None,
+        }
     }
 }
 
@@ -114,12 +290,6 @@ pub enum OcrStrategy {
     All,
     #[serde(alias = "Off")]
     Auto,
-}
-
-impl Default for OcrStrategy {
-    fn default() -> Self {
-        OcrStrategy::All
-    }
 }
 
 #[derive(
@@ -141,10 +311,4 @@ impl Default for OcrStrategy {
 pub enum SegmentationStrategy {
     LayoutAnalysis,
     Page,
-}
-
-impl Default for SegmentationStrategy {
-    fn default() -> Self {
-        SegmentationStrategy::LayoutAnalysis
-    }
 }
