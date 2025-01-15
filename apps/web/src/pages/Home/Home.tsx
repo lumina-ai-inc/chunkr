@@ -12,41 +12,40 @@ import { Flex, Text } from "@radix-ui/themes";
 import "./Home.css";
 
 // Component Imports
-// import PricingCard from "../../components/PricingCard/PricingCard";
-// import CodeBlock from "../../components/CodeBlock/CodeBlock";
-// import BetterButton from "../../components/BetterButton/BetterButton";
-// import {
-//   curlExample,
-//   nodeExample,
-//   pythonExample,
-//   rustExample,
-// } from "../../components/CodeBlock/exampleScripts";
-// import Dropdown from "../../components/Dropdown/Dropdown";
+import PricingCard from "../../components/PricingCard/PricingCard";
+import CodeBlock from "../../components/CodeBlock/CodeBlock";
+import BetterButton from "../../components/BetterButton/BetterButton";
+import {
+  curlExample,
+  nodeExample,
+  pythonExample,
+  rustExample,
+} from "../../components/CodeBlock/exampleScripts";
+import Dropdown from "../../components/Dropdown/Dropdown";
 import MomentumScroll from "../../components/MomentumScroll/MomentumScroll";
 import Header from "../../components/Header/Header";
-// import UploadMain from "../../components/Upload/UploadMain";
-// import Footer from "../../components/Footer/Footer";
+import Footer from "../../components/Footer/Footer";
 
 // Animation Imports
-// import Lottie from "lottie-react";
+import Lottie from "lottie-react";
 import { LottieRefCurrentProps } from "lottie-react";
-// import timerAnimation from "../../assets/animations/timer.json";
-// import fileuploadAnimation from "../../assets/animations/fileupload.json";
-// import bargraphAnimation from "../../assets/animations/bargraph.json";
-// import codeAnimation from "../../assets/animations/code.json";
-// import secureAnimation from "../../assets/animations/secure.json";
-// import rustAnimation from "../../assets/animations/rust.json";
-// import ocrAnimation from "../../assets/animations/ocr.json";
-// import chunkingAnimation from "../../assets/animations/chunking.json";
-// import vlmAnimation from "../../assets/animations/vlm.json";
-// import layoutAnimation from "../../assets/animations/layout.json";
+import timerAnimation from "../../assets/animations/timer.json";
+import fileuploadAnimation from "../../assets/animations/fileupload.json";
+import bargraphAnimation from "../../assets/animations/bargraph.json";
+import codeAnimation from "../../assets/animations/code.json";
+import secureAnimation from "../../assets/animations/secure.json";
+import rustAnimation from "../../assets/animations/rust.json";
+import ocrAnimation from "../../assets/animations/ocr.json";
+import chunkingAnimation from "../../assets/animations/chunking.json";
+import vlmAnimation from "../../assets/animations/vlm.json";
+import layoutAnimation from "../../assets/animations/layout.json";
 
 const Home = () => {
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
   const navigate = useNavigate();
 
-  // const terminalRef = useRef<HTMLDivElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const timerLottieRef = useRef<LottieRefCurrentProps>(null);
@@ -66,37 +65,37 @@ const Home = () => {
   const chunkingLottieRef = useRef<LottieRefCurrentProps>(null);
   const layoutLottieRef = useRef<LottieRefCurrentProps>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  // const [selectedScript, setSelectedScript] = useState("curl");
-  // const [segmentationStrategy, setSegmentationStrategy] = useState<
-  //   "LayoutAnalysis" | "Page"
-  // >("LayoutAnalysis");
-  // const [selectedModel, setSelectedModel] = useState<
-  //   "ChunkrVGT" | "AzureDocIntelligence"
-  // >("ChunkrVGT");
-  // const [ocrMode, setOcrMode] = useState<"ALL" | "OFF">("ALL");
-  // const [vlmMode, setVlmMode] = useState<"SegmentType" | "ALL" | "OFF">(
-  //   "SegmentType"
-  // );
-  // const [schemaMode, setSchemaMode] = useState<"JSON" | "OFF">("JSON");
-  // const [selectedSegmentTypes, setSelectedSegmentTypes] = useState<string[]>([
-  //   "Formula",
-  //   "Picture",
-  //   "Table",
-  // ]);
+  const [selectedScript, setSelectedScript] = useState("curl");
+  const [segmentationStrategy, setSegmentationStrategy] = useState<
+    "LayoutAnalysis" | "Page"
+  >("LayoutAnalysis");
+  const [selectedModel, setSelectedModel] = useState<
+    "ChunkrVGT" | "AzureDocIntelligence"
+  >("ChunkrVGT");
+  const [ocrMode, setOcrMode] = useState<"ALL" | "OFF">("ALL");
+  const [vlmMode, setVlmMode] = useState<"SegmentType" | "ALL" | "OFF">(
+    "SegmentType"
+  );
+  const [schemaMode, setSchemaMode] = useState<"JSON" | "OFF">("JSON");
+  const [selectedSegmentTypes, setSelectedSegmentTypes] = useState<string[]>([
+    "Formula",
+    "Picture",
+    "Table",
+  ]);
 
-  // const allSegmentTypes = [
-  //   "Caption",
-  //   "Formula",
-  //   "Footnote",
-  //   "List item",
-  //   "Page footer",
-  //   "Page header",
-  //   "Picture",
-  //   "Section header",
-  //   "Table",
-  //   "Text",
-  //   "Title",
-  // ];
+  const allSegmentTypes = [
+    "Caption",
+    "Formula",
+    "Footnote",
+    "List item",
+    "Page footer",
+    "Page header",
+    "Picture",
+    "Section header",
+    "Table",
+    "Text",
+    "Title",
+  ];
 
   useEffect(() => {
     if (lottieRef.current) {
@@ -161,23 +160,23 @@ const Home = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // const handleScriptSwitch = (script: string) => {
-  //   setSelectedScript(script);
-  // };
+  const handleScriptSwitch = (script: string) => {
+    setSelectedScript(script);
+  };
 
-  // const scripts = {
-  //   curl: curlExample,
-  //   node: nodeExample,
-  //   python: pythonExample,
-  //   rust: rustExample,
-  // };
+  const scripts = {
+    curl: curlExample,
+    node: nodeExample,
+    python: pythonExample,
+    rust: rustExample,
+  };
 
-  // const languageMap = {
-  //   curl: "bash",
-  //   node: "javascript",
-  //   python: "python",
-  //   rust: "rust",
-  // };
+  const languageMap = {
+    curl: "bash",
+    node: "javascript",
+    python: "python",
+    rust: "rust",
+  };
 
   const handleGetStarted = () => {
     if (auth.isAuthenticated) {
@@ -217,64 +216,64 @@ const Home = () => {
     };
   }, []);
 
-  // const handleLottieHover = (ref: React.RefObject<LottieRefCurrentProps>) => {
-  //   if (ref.current) {
-  //     ref.current.goToAndPlay(0);
-  //   }
-  // };
+  const handleLottieHover = (ref: React.RefObject<LottieRefCurrentProps>) => {
+    if (ref.current) {
+      ref.current.goToAndPlay(0);
+    }
+  };
 
-  // const FeatureBox = ({
-  //   icon,
-  //   title,
-  //   description,
-  //   onMouseEnter,
-  // }: {
-  //   icon: React.ReactNode;
-  //   title: string;
-  //   description: string;
-  //   onMouseEnter?: () => void;
-  // }) => {
-  //   return (
-  //     <Flex
-  //       direction="column"
-  //       className="feature-bottom-box"
-  //       onMouseEnter={onMouseEnter}
-  //     >
-  //       <Flex
-  //         align="center"
-  //         justify="center"
-  //         className="feature-bottom-box-icon"
-  //       >
-  //         {icon}
-  //       </Flex>
+  const FeatureBox = ({
+    icon,
+    title,
+    description,
+    onMouseEnter,
+  }: {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    onMouseEnter?: () => void;
+  }) => {
+    return (
+      <Flex
+        direction="column"
+        className="feature-bottom-box"
+        onMouseEnter={onMouseEnter}
+      >
+        <Flex
+          align="center"
+          justify="center"
+          className="feature-bottom-box-icon"
+        >
+          {icon}
+        </Flex>
 
-  //       <Text
-  //         size="6"
-  //         weight="bold"
-  //         style={{
-  //           color: "white",
-  //           marginTop: "32px",
-  //           transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-  //         }}
-  //         className="feature-box-title"
-  //       >
-  //         {title}
-  //       </Text>
-  //       <Text
-  //         size="3"
-  //         weight="medium"
-  //         style={{
-  //           color: "rgba(255, 255, 255, 0.7)",
-  //           marginTop: "12px",
-  //           transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-  //         }}
-  //         className="feature-box-description"
-  //       >
-  //         {description}
-  //       </Text>
-  //     </Flex>
-  //   );
-  // };
+        <Text
+          size="6"
+          weight="bold"
+          style={{
+            color: "white",
+            marginTop: "32px",
+            transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+          className="feature-box-title"
+        >
+          {title}
+        </Text>
+        <Text
+          size="3"
+          weight="medium"
+          style={{
+            color: "rgba(255, 255, 255, 0.7)",
+            marginTop: "12px",
+            transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+          className="feature-box-description"
+        >
+          {description}
+        </Text>
+      </Flex>
+    );
+  };
 
   return (
     <>
@@ -360,7 +359,7 @@ const Home = () => {
                 </Flex>
               </Flex>
             </div>
-            {/* <Flex px="24px" width="100%" align="center" justify="center">
+            <Flex px="24px" width="100%" align="center" justify="center">
               <div className="hero-content-container">
                 <div className="hero-content">
                   <div className="placeholder-window">
@@ -502,16 +501,16 @@ const Home = () => {
                       weight="medium"
                       className="feature-left-box-subtitle"
                     >
-                      SOTA models connected and optimized end-to-end.<br></br>
+                      We connect SOTA models and optimize end-to-end.<br></br>
                       <span
                         style={{
                           color: "#ffffffbc",
-                          maxWidth: "380px",
+                          maxWidth: "428px",
                           display: "inline-block",
                         }}
                       >
-                        Customize our enterprise-grade pipeline with simple
-                        controls for your use-case.
+                        Configure our enterprise-grade pipeline to dial in the
+                        perfect mix of speed, quality, and features.
                       </span>{" "}
                     </Text>
                   </Flex>
@@ -1562,10 +1561,10 @@ const Home = () => {
                   Get started for free
                 </Text>
               </button>
-            </Flex> */}
+            </Flex>
           </Flex>
 
-          {/* <Footer /> */}
+          <Footer />
         </Flex>
       </MomentumScroll>
     </>
