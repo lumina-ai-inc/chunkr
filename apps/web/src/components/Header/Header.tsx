@@ -1,26 +1,18 @@
 import { useState, useEffect } from "react";
-import { DropdownMenu, Flex, Text, Button } from "@radix-ui/themes";
+import { Flex, Text } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
 import "./Header.css";
 import Dashboard from "../../pages/Dashboard/Dashboard";
-import useUser from "../../hooks/useUser";
 import { getRepoStats } from "../../services/githubApi";
 import { AuthContextProps } from "react-oidc-context";
 
 interface HeaderProps {
-  download?: boolean;
-  home?: boolean;
   auth?: AuthContextProps;
 }
 
-export default function Header({
-  download = false,
-  home = false,
-  auth,
-}: HeaderProps) {
+export default function Header({ auth }: HeaderProps) {
   const [showAccount, setShowAccount] = useState(false);
   const isAuthenticated = auth?.isAuthenticated;
-  const { data: user } = useUser();
   const [repoStats, setRepoStats] = useState({ stars: 0, forks: 0 });
 
   useEffect(() => {
@@ -138,7 +130,7 @@ export default function Header({
             </a>
           </Flex>
 
-          <Flex direction="row" gap="2" py="12px" px="16px" align="center">
+          {/* <Flex direction="row" gap="2" py="12px" px="16px" align="center">
             <Link to="/pricing" style={{ textDecoration: "none" }}>
               <Text size="2" weight="medium" className="nav-item">
                 Upload
@@ -154,7 +146,7 @@ export default function Header({
                 </Text>
               </Link>
             </Flex>
-          )}
+          )} */}
 
           {/* <BetterButton onClick={handleGithubRedirect}></BetterButton> */}
 
@@ -201,7 +193,7 @@ export default function Header({
           )}
         </Flex>
 
-        <div className="dropdown-container">
+        {/* <div className="dropdown-container">
           <DropdownMenu.Root>
             <DropdownMenu.Trigger style={{ backgroundColor: "transparent" }}>
               <Button>Menu</Button>
@@ -247,12 +239,12 @@ export default function Header({
               </DropdownMenu.Item>
               {isAuthenticated && (
                 <DropdownMenu.Item>
-                  {/* <ApiKeyDialog
+                  <ApiKeyDialog
                     user={user as User}
                     showApiKey={showApiKey}
                     setShowApiKey={setShowApiKey}
                     phone={true}
-                  /> */}
+                  />
                 </DropdownMenu.Item>
               )}
               <DropdownMenu.Item>
@@ -290,7 +282,7 @@ export default function Header({
               )}
             </DropdownMenu.Content>
           </DropdownMenu.Root>
-        </div>
+        </div> */}
       </Flex>
       {showAccount && <Dashboard />}
     </Flex>
