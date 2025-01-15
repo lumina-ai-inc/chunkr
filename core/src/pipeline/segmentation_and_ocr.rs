@@ -72,13 +72,21 @@ async fn process_page(
 /// This function will perform OCR, segmentation and chunking on the pages
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
     pipeline
-        .update_remote_status(Status::Processing, Some("Segmentation and OCR".to_string()))
+        .get_task()
+        .update(
+            Some(Status::Processing),
+            Some("Segmentation and OCR"),
+            None,
+            None,
+            None,
+            None,
+        )
         .await?;
     let pdf_ocr_results = match pdf::extract_ocr_results(pipeline.pdf_file.as_ref().unwrap()) {
         Ok(ocr_results) => ocr_results,
         Err(e) => {
             println!("Error getting pdf ocr results: {:?}", e);
-            vec![vec![]; pipeline.page_count.unwrap_or(0) as usize]
+            vec![vec![]; pipeline.get_task().page_count.unwrap_or(0) as usize]
         }
     };
 
@@ -109,7 +117,15 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     };
 
     pipeline
-        .update_remote_status(Status::Processing, Some("Chunking".to_string()))
+        .get_task()
+        .update(
+            Some(Status::Processing),
+            Some("Chunking"),
+            None,
+            None,
+            None,
+            None,
+        )
         .await?;
 
     let chunk_processing = pipeline

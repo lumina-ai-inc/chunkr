@@ -18,11 +18,17 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
 
     if json_schema.is_some() {
         pipeline
-            .update_remote_status(
-                Status::Processing,
-                Some("Structured extraction started".to_string()),
+            .get_task()
+            .update(
+                Some(Status::Processing),
+                Some("Structured extraction started"),
+                None,
+                None,
+                None,
+                None,
             )
             .await?;
+
         let structured_results = match perform_structured_extraction(
             json_schema.ok_or("JSON schema is missing")?,
             output_response.chunks.clone(),

@@ -265,7 +265,15 @@ async fn process_segment(
 /// Depending on the configuration, each segment will either be processed using heuristic or by a LLM.
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
     pipeline
-        .update_remote_status(Status::Processing, Some("Processing segments".to_string()))
+        .get_task()
+        .update(
+            Some(Status::Processing),
+            Some("Processing segments"),
+            None,
+            None,
+            None,
+            None,
+        )
         .await?;
 
     let configuration = pipeline
