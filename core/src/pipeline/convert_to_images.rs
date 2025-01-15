@@ -20,8 +20,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             None,
         )
         .await?;
-    let task_payload = pipeline.task_payload.as_mut().unwrap();
-    let scaling_factor = match task_payload.current_configuration.high_resolution {
+    let scaling_factor = match pipeline.get_task().configuration.high_resolution {
         true => worker_config.high_res_scaling_factor,
         false => 1.0,
     };

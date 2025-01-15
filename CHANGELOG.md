@@ -12,14 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `high_resolution` config to control image density
 - Added `segmentation_processing` config to control LLM processing on the segments
 - Added `segmentation_strategy` to control segmentation
+- Added `expires_in` to API and self deployment config, it is the number of seconds before the task expires and is deleted
 - Concurrent OCR and segmentation
 - Concurrent page processing
 - CPU support - run with `docker compose up -f compose-cpu.yaml -d`
 - Python client - `pip install chunkr-ai`
+- PATCH `/task/{task_id}` - allows you to update the configuration for a task. Only the steps that are updated will be re-run.
+- DELETE `/task/{task_id}` - allows you to delete a task as long as it Status is not `Processing`
+- GET `/task/{task_id}/cancel` - allows you to cancel a task before Status is `Processing`
+- Helm chart
+- Cloudflared tunnel support for https
+- Azure support for self deployment
+- Minio support for storage
 
 ### Changed
 - Combined all workers into a `task` worker. See [279](https://github.com/lumina-ai-inc/chunkr/issues/279)
-- Changed `expires_at` to `expires_in`
+- Redis is now part of the kubernetes deployment
 
 ### Fixed
 - List items incorrect heuristics. See [276](https://github.com/lumina-ai-inc/chunkr/issues/276)

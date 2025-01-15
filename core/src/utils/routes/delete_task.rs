@@ -4,7 +4,7 @@ pub async fn delete_task(
     task_id: String,
     user_id: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let task = match Task::get_by_id(&task_id, &user_id).await {
+    let task = match Task::get(&task_id, &user_id).await {
         Ok(task) => task,
         Err(_) => return Err("Task not found".into()),
     };

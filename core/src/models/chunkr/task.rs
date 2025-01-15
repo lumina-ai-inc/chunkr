@@ -25,7 +25,7 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Task {
-    pub api_key: String,
+    pub api_key: Option<String>,
     pub configuration: Configuration,
     pub created_at: DateTime<Utc>,
     pub expires_at: Option<DateTime<Utc>>,
@@ -50,30 +50,81 @@ pub struct Task {
 impl Task {
     pub async fn new(
         user_id: &str,
-        api_key: &str,
+        api_key: Option<String>,
         configuration: &Configuration,
         file: &TempFile,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let temp_file = &file.file;
         let mime_type = check_file_type(temp_file)?;
-        let task_id = Uuid::new_v4().to_string();
+
+        let client = get_pg_client().await?;
         let worker_config = worker_config::Config::from_env().unwrap();
-        let base_url = worker_config.server_url;
-        let file_path: PathBuf = PathBuf::from(file.file.path());
-        let file_size = file.size;
+
+        let task_id = Uuid::new_v4().to_string();
         let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
-        let (input_location, pdf_location, output_location, image_folder_location) =
-            Self::generate_s3_paths(user_id, &task_id, file_name);
-
-        let message = "Task queued".to_string();
+        let file_size = file.size;
+        let status = Status::Starting;
+        let base_url  = worker_config.server_url;
         let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
+        let (input_location, pdf_location, output_location, image_folder_location) =
+        Self::generate_s3_paths(user_id, &task_id, file_name);
+        let message = "Task queued".to_string();
+        let created_at = Utc::now();
+        let version = worker_config.version;
 
+        let file_path  = PathBuf::from(file.file.path());
         upload_to_s3(&input_location, &file_path).await?;
+        
+        let configuration_json = serde_json::to_string(&configuration)?;
+        client
+            .execute(
+                "INSERT INTO TASKS (
+                    api_key,
+                    configuration,
+                    created_at,
+                    file_name,
+                    file_size,
+                    image_folder_location,
+                    input_location,
+                    message,
+                    mime_type,
+                    output_location,
+                    page_count,
+                    pdf_location,
+                    status,
+                    task_id,
+                    task_url,
+                    user_id,
+                    version,
+                ) VALUES (
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+                ) ON CONFLICT (task_id) DO NOTHING",
+                &[
+                    &api_key,
+                    &configuration_json,
+                    &created_at,
+                    &file_name,
+                    &(file_size as i64),
+                    &image_folder_location,
+                    &input_location,
+                    &message,
+                    &mime_type,
+                    &output_location,
+                    &(0 as i32),
+                    &pdf_location,
+                    &status.to_string(),
+                    &task_id,
+                    &task_url,
+                    &user_id,
+                    &version,
+                ],
+            )
+            .await?;
 
         Ok(Self {
-            api_key: api_key.to_string(),
+            api_key,
             configuration: configuration.clone(),
-            created_at: Utc::now(),
+            created_at,
             expires_at: None,
             file_name: Some(file_name.to_string()),
             file_size: file_size as i64,
@@ -85,28 +136,46 @@ impl Task {
             output_location,
             page_count: Some(0),
             pdf_location,
-            status: Status::Starting,
+            status,
             started_at: None,
             task_id: task_id.clone(),
             task_url: Some(task_url),
             user_id: user_id.to_string(),
-            version: None,
+            version: Some(version),  
         })
     }
 
-    pub async fn get_by_id(
+    pub async fn get(
         task_id: &str,
         user_id: &str,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let client = get_pg_client().await?;
         let row = client
             .query_one(
-                "SELECT task_id, user_id, api_key, file_name, file_size, 
-                        page_count, segment_count, status, task_url, input_location, 
-                        output_location, image_folder_location, configuration, 
-                        message, pdf_location, mime_type, version, created_at, 
-                        expires_at, finished_at, started_at 
-                 FROM tasks WHERE task_id = $1 AND user_id = $2",
+                "SELECT 
+                    api_key,
+                    configuration,
+                    created_at,
+                    expires_at,
+                    file_name,
+                    file_size,
+                    finished_at,
+                    image_folder_location,
+                    input_location,
+                    message,
+                    mime_type,
+                    output_location,
+                    page_count,
+                    pdf_location,
+                    status,
+                    started_at,
+                    task_id,
+                    task_url,
+                    user_id,
+                    version
+                FROM tasks 
+                WHERE task_id = $1 
+                AND user_id = $2",
                 &[&task_id, &user_id],
             )
             .await?;
@@ -148,59 +217,7 @@ impl Task {
         })
     }
 
-    pub async fn upload_to_pg(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let client = get_pg_client().await?;
-        let configuration_json = serde_json::to_string(&self.configuration)?;
-
-        match client
-            .execute(
-                "INSERT INTO TASKS (
-                    task_id, user_id, api_key, file_name, file_size, 
-                    page_count, status, task_url, input_location, output_location, 
-                    image_folder_location, configuration, message, pdf_location, 
-                    mime_type, version, created_at, expires_at, finished_at
-                ) VALUES (
-                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
-                ) ON CONFLICT (task_id) DO NOTHING",
-                &[
-                    &self.task_id,
-                    &self.user_id,
-                    &self.api_key,
-                    &self.file_name,
-                    &self.file_size,
-                    &self.page_count,
-                    &self.status.to_string(),
-                    &self.task_url,
-                    &self.input_location,
-                    &self.output_location,
-                    &self.image_folder_location,
-                    &configuration_json,
-                    &self.message,
-                    &self.pdf_location,
-                    &self.mime_type,
-                    &self.version,
-                    &self.created_at,
-                    &self.expires_at,
-                    &self.finished_at,
-                ],
-            )
-            .await
-        {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                if e.to_string().contains("usage limit exceeded") {
-                    Err(Box::new(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        "429 Rate Limit Error: Usage limit exceeded",
-                    )))
-                } else {
-                    Err(Box::new(e))
-                }
-            }
-        }
-    }
-
-    async fn process_output(&self) -> Result<OutputResponse, Box<dyn std::error::Error>> {
+    async fn create_output(&self) -> Result<OutputResponse, Box<dyn std::error::Error>> {
         let temp_file = download_to_tempfile(&self.output_location, None).await?;
         let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
         let mut output_response: OutputResponse = serde_json::from_str(&json_content)?;
@@ -226,56 +243,6 @@ impl Task {
 
         try_join_all(futures).await?;
         Ok(output_response)
-    }
-
-    pub async fn to_task_response(&self) -> Result<TaskResponse, Box<dyn std::error::Error>> {
-        let input_file_url = generate_presigned_url(&self.input_location, true, None)
-            .await
-            .map_err(|_| "Error getting input file url")?;
-        let mut pdf_url = None;
-        let mut output = None;
-        if self.status == Status::Succeeded {
-            pdf_url = Some(
-                generate_presigned_url(&self.pdf_location, true, None)
-                    .await
-                    .map_err(|_| "Error getting pdf url")?,
-            );
-            output = Some(self.process_output().await?);
-        }
-        Ok(TaskResponse {
-            task_id: self.task_id.clone(),
-            status: self.status.clone(),
-            created_at: self.created_at,
-            finished_at: self.finished_at,
-            expires_at: self.expires_at,
-            output,
-            input_file_url: Some(input_file_url),
-            task_url: self.task_url.clone(),
-            message: self.message.clone().unwrap_or_default(),
-            configuration: self.configuration.clone(),
-            file_name: self.file_name.clone(),
-            page_count: self.page_count,
-            pdf_url,
-            started_at: self.started_at,
-        })
-    }
-
-    pub fn to_task_payload(
-        &self,
-        previous_configuration: Option<Configuration>,
-        previous_status: Option<Status>,
-        previous_message: Option<String>,
-        previous_version: Option<String>,
-    ) -> TaskPayload {
-        TaskPayload {
-            current_configuration: self.configuration.clone(),
-            previous_configuration,
-            previous_status,
-            previous_message,
-            previous_version,
-            task_id: self.task_id.clone(),
-            user_id: self.user_id.clone(),
-        }
     }
 
     pub async fn update(
@@ -366,7 +333,7 @@ impl Task {
         Ok(())
     }
 
-    pub async fn upload_pipeline_output(
+    pub async fn upload_artifacts(
         &mut self,
         page_images: Vec<Arc<NamedTempFile>>,
         segment_images: &DashMap<String, Arc<NamedTempFile>>,
@@ -414,7 +381,6 @@ impl Task {
         let mut output_temp_file = NamedTempFile::new()?;
         output_temp_file.write(serde_json::to_string(&output_response)?.as_bytes())?;
         upload_to_s3(&self.output_location, output_temp_file.path()).await?;
-
         upload_to_s3(&self.pdf_location, pdf_file.path()).await?;
 
         Ok(())
@@ -440,6 +406,55 @@ impl Task {
             format!("{}/{}.json", base_path, file_stem), // output_location
             format!("{}/images", base_path),             // image_folder_location
         )
+    }
+
+    pub async fn to_task_response(&self) -> Result<TaskResponse, Box<dyn std::error::Error>> {
+        let input_file_url = generate_presigned_url(&self.input_location, true, None)
+            .await
+            .map_err(|_| "Error getting input file url")?;
+        let mut pdf_url = None;
+        let mut output = None;
+        if self.status == Status::Succeeded {
+            pdf_url = Some(
+                generate_presigned_url(&self.pdf_location, true, None)
+                    .await
+                    .map_err(|_| "Error getting pdf url")?,
+            );
+            output = Some(self.create_output().await?);
+        }
+        Ok(TaskResponse {
+            task_id: self.task_id.clone(),
+            status: self.status.clone(),
+            created_at: self.created_at,
+            finished_at: self.finished_at,
+            expires_at: self.expires_at,
+            output,
+            input_file_url: Some(input_file_url),
+            task_url: self.task_url.clone(),
+            message: self.message.clone().unwrap_or_default(),
+            configuration: self.configuration.clone(),
+            file_name: self.file_name.clone(),
+            page_count: self.page_count,
+            pdf_url,
+            started_at: self.started_at,
+        })
+    }
+
+    pub fn to_task_payload(
+        &self,
+        previous_configuration: Option<Configuration>,
+        previous_status: Option<Status>,
+        previous_message: Option<String>,
+        previous_version: Option<String>,
+    ) -> TaskPayload {
+        TaskPayload {
+            previous_configuration,
+            previous_status,
+            previous_message,
+            previous_version,
+            task_id: self.task_id.clone(),
+            user_id: self.user_id.clone(),
+        }
     }
 }
 
@@ -518,6 +533,8 @@ pub struct Configuration {
     pub target_chunk_length: Option<i32>,
 }
 
+// TODO: Move to output
+
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
 #[deprecated]
 pub enum Model {
@@ -527,7 +544,6 @@ pub enum Model {
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct TaskPayload {
-    pub current_configuration: Configuration,
     pub previous_configuration: Option<Configuration>,
     pub previous_message: Option<String>,
     pub previous_status: Option<Status>,

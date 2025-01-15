@@ -7,7 +7,7 @@ pub async fn update_task(
     user_id: &str,
     current_configuration: &Configuration,
 ) -> Result<TaskResponse, Box<dyn Error>> {
-    let previous_task = match Task::get_by_id(&task_id, &user_id).await {
+    let previous_task = match Task::get(&task_id, &user_id).await {
         Ok(task) => task,
         Err(_) => return Err("Task not found".into()),
     };
