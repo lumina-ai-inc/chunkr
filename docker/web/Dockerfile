@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY apps/web/ .
 
-# Install pnpm and dependencies
+# Install pnpm, turbo, and required type definitions
 RUN npm install -g pnpm turbo
 RUN pnpm install
 

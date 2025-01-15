@@ -6,7 +6,6 @@ import "./Viewer.css";
 import Loader from "../../pages/Loader/Loader";
 import { TaskResponse, Chunk } from "../../models/taskResponse.model";
 import ReactJson from "react-json-view";
-import DOMPurify from "dompurify";
 import BetterButton from "../BetterButton/BetterButton";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import StructuredExtractionView from "../StructuredExtractionView/StructuredExtractionView";
@@ -206,7 +205,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
         )
         .join("<hr>");
 
-      const sanitizedHtml = DOMPurify.sanitize(combinedHtml);
+      const sanitizedHtml = combinedHtml;
       const blob = new Blob([sanitizedHtml], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
