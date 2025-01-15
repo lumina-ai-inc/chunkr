@@ -3,7 +3,6 @@ import { Chunk, Segment } from "../../models/taskResponse.model";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "./SegmentChunk.css";
-import DOMPurify from "dompurify";
 import ReactMarkdown from "react-markdown";
 import ReactJson from "react-json-view";
 import "katex/dist/katex.min.css";
@@ -59,39 +58,7 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
     <div
       className="latex-content"
       dangerouslySetInnerHTML={{
-        __html: DOMPurify.sanitize(processedHtml, {
-          ADD_TAGS: [
-            "math",
-            "semantics",
-            "annotation",
-            "mrow",
-            "mi",
-            "mo",
-            "mtext",
-            "mspace",
-            "msup",
-            "msub",
-            "mfrac",
-            "span",
-            "svg",
-            "path",
-            "mstyle",
-            "mn",
-            "munderover",
-            "mover",
-            "munder",
-            "mroot",
-          ],
-          ADD_ATTR: [
-            "encoding",
-            "class",
-            "style",
-            "viewBox",
-            "d",
-            "xmlns",
-            "mathvariant",
-          ],
-        }),
+        __html: processedHtml,
       }}
     />
   );
