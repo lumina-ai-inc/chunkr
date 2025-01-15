@@ -268,7 +268,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .get_task()
         .update(
             Some(Status::Processing),
-            Some("Processing segments"),
+            Some("Processing segments".to_string()),
             None,
             None,
             None,

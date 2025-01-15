@@ -82,7 +82,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
         .get_task()
         .update(
             Some(Status::Processing),
-            Some("Cropping segments"),
+            Some("Cropping segments".to_string()),
             None,
             None,
             None,

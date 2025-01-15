@@ -248,7 +248,7 @@ impl Task {
     pub async fn update(
         &mut self,
         status: Option<Status>,
-        message: Option<&str>,
+        message: Option<String>,
         configuration: Option<Configuration>,
         started_at: Option<DateTime<Utc>>,
         finished_at: Option<DateTime<Utc>>,
@@ -342,7 +342,7 @@ impl Task {
     ) -> Result<(), Box<dyn std::error::Error>> {
         self.update(
             Some(Status::Processing),
-            Some("Finishing up"),
+            Some("Finishing up".to_string()),
             None,
             None,
             Some(Utc::now()),
@@ -384,6 +384,57 @@ impl Task {
         upload_to_s3(&self.pdf_location, pdf_file.path()).await?;
 
         Ok(())
+    }
+
+    pub async fn get_artifacts(&self) -> Result<(NamedTempFile, NamedTempFile, Vec<NamedTempFile>, DashMap<String, NamedTempFile>, OutputResponse), Box<dyn std::error::Error>> {
+        let output_temp_file = download_to_tempfile(&self.output_location, None).await?;
+        let output: OutputResponse = serde_json::from_str(&tokio::fs::read_to_string(output_temp_file.path()).await?)?;
+
+        let input_future = download_to_tempfile(&self.input_location, None);
+        let pdf_future = download_to_tempfile(&self.pdf_location, None);
+
+        let page_count = self.page_count.ok_or("Page count is required but not found")?;
+        let page_futures: Vec<_> = (0..page_count)
+            .map(|idx| {
+                let s3_key = format!(
+                    "{}/{}/page_{}.jpg",
+                    self.image_folder_location, "pages", idx
+                );
+                let s3_key = s3_key.clone();
+                async move {
+                    download_to_tempfile(&s3_key, None)
+                        .await
+                        .map_err(|e| e.into())
+                }
+            })
+            .collect();
+        
+        let segment_futures: Vec<_> = output.chunks.iter()
+            .flat_map(|chunk| chunk.segments.iter())
+            .filter_map(|segment| {
+                segment.image.as_ref().map(|image_path| {
+                    let segment_id = segment.segment_id.clone();
+                    async move {
+                        let segment_image = download_to_tempfile(image_path, None).await?;
+                        Result::<_, Box<dyn std::error::Error>>::Ok((segment_id, segment_image))
+                    }
+                })
+            })
+            .collect();
+
+        let (input_file, pdf_file, page_images, segment_results) = tokio::try_join!(
+            input_future,
+            pdf_future,
+            try_join_all(page_futures),
+            try_join_all(segment_futures)
+        )?;
+
+        let segment_images = DashMap::new();
+        for (segment_id, image) in segment_results {
+            segment_images.insert(segment_id, image);
+        }
+
+        Ok((input_file, pdf_file, page_images, segment_images, output))
     }
 
     fn generate_s3_paths(
@@ -501,7 +552,6 @@ pub struct TaskResponse {
     ToSchema,
 )]
 /// The status of the task.
-
 pub enum Status {
     Starting,
     Processing,

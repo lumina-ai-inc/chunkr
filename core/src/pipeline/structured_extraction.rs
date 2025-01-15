@@ -15,7 +15,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
             .get_task()
             .update(
                 Some(Status::Processing),
-                Some("Structured extraction started"),
+                Some("Structured extraction started".to_string()),
                 None,
                 None,
                 None,

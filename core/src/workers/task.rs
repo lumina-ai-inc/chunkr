@@ -85,7 +85,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             .get_task()
             .update(
                 Some(Status::Succeeded),
-                Some("Task succeeded"),
+                Some("Task succeeded".to_string()),
                 None,
                 None,
                 None,
@@ -106,7 +106,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             };
             pipeline
                 .get_task()
-                .update(Some(Status::Failed), Some(&message), None, None, None, None)
+                .update(Some(Status::Failed), Some(message), None, None, None, None)
                 .await?;
             Err(e)
         }

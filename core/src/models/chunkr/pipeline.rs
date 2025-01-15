@@ -10,8 +10,8 @@ use tempfile::NamedTempFile;
 
 #[derive(Debug, Clone)]
 pub struct Pipeline {
-    pub output: OutputResponse,
     pub input_file: Option<Arc<NamedTempFile>>,
+    pub output: OutputResponse,
     pub page_images: Option<Vec<Arc<NamedTempFile>>>,
     pub pdf_file: Option<Arc<NamedTempFile>>,
     pub segment_images: DashMap<String, Arc<NamedTempFile>>,
@@ -22,8 +22,8 @@ pub struct Pipeline {
 impl Pipeline {
     pub fn new() -> Self {
         Self {
-            output: OutputResponse::default(),
             input_file: None,
+            output: OutputResponse::default(),
             page_images: None,
             pdf_file: None,
             segment_images: DashMap::new(),
@@ -35,11 +35,11 @@ impl Pipeline {
     pub async fn init(&mut self, task_payload: TaskPayload) -> Result<(), Box<dyn Error>> {
         let mut task = Task::get(&task_payload.task_id, &task_payload.user_id).await?;
         if task.status == Status::Cancelled {
-            if task_payload.previous_status.is_some() && task_payload.previous_message.is_some() {
+            if task_payload.previous_configuration.is_some() {
                 task.update(
                     task_payload.previous_status,
-                    task_payload.previous_message.as_deref(),
-                    None,
+                    task_payload.previous_message,
+                    task_payload.previous_configuration,
                     None,
                     None,
                     None,
@@ -48,18 +48,27 @@ impl Pipeline {
             }
             return Ok(());
         }
-        self.input_file = Some(Arc::new(
-            download_to_tempfile(&task.input_location, None).await?,
-        ));
-        self.pdf_file = match task.mime_type.as_ref().unwrap().as_str() {
-            "application/pdf" => Some(self.input_file.clone().unwrap()),
-            _ => Some(Arc::new(convert_to_pdf(
-                &self.input_file.as_ref().unwrap(),
-            )?)),
-        };
+        if task_payload.previous_configuration.is_some() {
+            let (input_file, pdf_file, page_images, segment_images, output) = task.get_artifacts().await?;
+            self.input_file = Some(Arc::new(input_file));
+            self.pdf_file = Some(Arc::new(pdf_file));
+            self.page_images = Some(page_images.into_iter().map(|file| Arc::new(file)).collect());
+            self.segment_images = segment_images.into_iter().map(|(k, v)| (k, Arc::new(v))).collect();
+            self.output = output;
+        } else {
+            self.input_file = Some(Arc::new(
+                download_to_tempfile(&task.input_location, None).await?,
+            ));
+            self.pdf_file = match task.mime_type.as_ref().unwrap().as_str() {
+                "application/pdf" => Some(self.input_file.clone().unwrap()),
+                _ => Some(Arc::new(convert_to_pdf(
+                    &self.input_file.as_ref().unwrap(),
+                )?)),
+            };
+        }
         task.update(
             Some(Status::Processing),
-            Some("Task started"),
+            Some("Task started".to_string()),
             None,
             Some(Utc::now()),
             None,
@@ -105,7 +114,7 @@ impl Pipeline {
         self.get_task()
             .update(
                 Some(status),
-                Some(&message.unwrap_or_default()),
+                message,
                 None,
                 Some(finished_at),
                 expires_at,

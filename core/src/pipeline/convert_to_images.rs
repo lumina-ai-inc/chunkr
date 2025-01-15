@@ -13,7 +13,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .get_task()
         .update(
             Some(Status::Processing),
-            Some("Converting to images"),
+            Some("Converting to images".to_string()),
             None,
             None,
             None,
