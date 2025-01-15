@@ -88,10 +88,6 @@ impl Pipeline {
             .clone()
     }
 
-    pub fn update_task(&mut self, task: Task) {
-        self.task = Some(task);
-    }
-
     pub fn get_task_payload(&self) -> TaskPayload {
         self.task_payload
             .as_ref()
@@ -100,35 +96,89 @@ impl Pipeline {
             .clone()
     }
 
-    pub async fn finish_and_update_task(
+    pub async fn complete(
         &mut self,
         status: Status,
         message: Option<String>,
     ) -> Result<(), Box<dyn Error>> {
+        let mut task = self.get_task();
+        let task_payload = self.get_task_payload();
         let finished_at = Utc::now();
-        let expires_at: Option<DateTime<Utc>> = self
-            .get_task()
+        let expires_at = task
             .configuration
             .expires_in
             .map(|seconds| finished_at + chrono::Duration::seconds(seconds as i64));
-        self.get_task()
-            .update(
+
+        async fn revert_to_previous(task: &mut Task, payload: &TaskPayload) -> Result<(), Box<dyn Error>> {
+            if payload.previous_configuration.is_some() {
+                task.update(
+                    payload.previous_status.clone(),
+                    payload.previous_message.clone(),
+                    payload.previous_configuration.clone(),
+                    None,
+                    None,
+                    None,
+                ).await?;
+            }
+            Ok(())
+        }
+
+        async fn update_success(
+            task: &mut Task, 
+            status: Status,
+            message: Option<String>,
+            page_images: Vec<Arc<NamedTempFile>>,
+            segment_images: &DashMap<String, Arc<NamedTempFile>>,
+            output: &OutputResponse,
+            pdf_file: Arc<NamedTempFile>,
+            finished_at: DateTime<Utc>,
+            expires_at: Option<DateTime<Utc>>,
+        ) -> Result<(), Box<dyn Error>> {
+            task.upload_artifacts(page_images, segment_images, output, &pdf_file).await?;
+            task.update(
                 Some(status),
                 message,
                 None,
                 Some(finished_at),
                 expires_at,
                 None,
-            )
-            .await?;
-        self.get_task()
-            .upload_artifacts(
+            ).await?;
+            Ok(())
+        }
+
+        if status == Status::Failed {
+            if task_payload.previous_configuration.is_none() {
+                task.update(
+                    Some(status),
+                    message,
+                    None,
+                    None,
+                    Some(finished_at),
+                    expires_at,
+                ).await?;
+                return Ok(());
+            } else {
+                return revert_to_previous(&mut task, &task_payload).await;
+            }
+        } else {
+            match update_success(
+                &mut task,
+                status,
+                message,
                 self.page_images.clone().unwrap(),
                 &self.segment_images,
                 &self.output,
-                &self.pdf_file.clone().unwrap(),
-            )
-            .await?;
-        Ok(())
+                self.pdf_file.clone().unwrap(),
+                finished_at,
+                expires_at,
+            ).await {
+                Ok(_) => Ok(()),
+                Err(e) => {
+                    println!("Error in completing task: {:?}", e);
+                    revert_to_previous(&mut task, &task_payload).await?;
+                    Err(e)
+                }
+            }
+        }
     }
 }
