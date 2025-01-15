@@ -11,7 +11,8 @@ pub async fn update_task(
     let previous_message = previous_task.message.clone();
     let previous_version = previous_task.version.clone();
 
-    if previous_task.status != Status::Starting && previous_task.status != Status::Failed {
+    if previous_task.status != Status::Succeeded && previous_task.status != Status::Failed {
+        println!("Task cannot be updated: status is {}", previous_task.status);
         return Err(format!("Task cannot be updated: status is {}", previous_task.status).into());
     }
 

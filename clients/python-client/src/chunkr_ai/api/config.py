@@ -22,20 +22,23 @@ class GenerationConfig(BaseModel):
     crop_image: Optional[CroppingStrategy] = None
 
 class SegmentProcessing(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=str.title
+    )
     
-    Title: Optional[GenerationConfig] = Field(default=None, alias="Title")
-    SectionHeader: Optional[GenerationConfig] = Field(default=None, alias="SectionHeader")
-    Text: Optional[GenerationConfig] = Field(default=None, alias="Text")
-    ListItem: Optional[GenerationConfig] = Field(default=None, alias="ListItem")
-    Table: Optional[GenerationConfig] = Field(default=None, alias="Table")
-    Picture: Optional[GenerationConfig] = Field(default=None, alias="Picture")
-    Caption: Optional[GenerationConfig] = Field(default=None, alias="Caption")
-    Formula: Optional[GenerationConfig] = Field(default=None, alias="Formula")
-    Footnote: Optional[GenerationConfig] = Field(default=None, alias="Footnote")
-    PageHeader: Optional[GenerationConfig] = Field(default=None, alias="PageHeader")
-    PageFooter: Optional[GenerationConfig] = Field(default=None, alias="PageFooter")
-    Page: Optional[GenerationConfig] = Field(default=None, alias="Page")
+    title: Optional[GenerationConfig] = Field(default=None, alias="Title")
+    section_header: Optional[GenerationConfig] = Field(default=None, alias="SectionHeader")
+    text: Optional[GenerationConfig] = Field(default=None, alias="Text")
+    list_item: Optional[GenerationConfig] = Field(default=None, alias="ListItem")
+    table: Optional[GenerationConfig] = Field(default=None, alias="Table")
+    picture: Optional[GenerationConfig] = Field(default=None, alias="Picture")
+    caption: Optional[GenerationConfig] = Field(default=None, alias="Caption")
+    formula: Optional[GenerationConfig] = Field(default=None, alias="Formula")
+    footnote: Optional[GenerationConfig] = Field(default=None, alias="Footnote")
+    page_header: Optional[GenerationConfig] = Field(default=None, alias="PageHeader")
+    page_footer: Optional[GenerationConfig] = Field(default=None, alias="PageFooter")
+    page: Optional[GenerationConfig] = Field(default=None, alias="Page")
 
 class ChunkProcessing(BaseModel):
     target_length: Optional[int] = None
