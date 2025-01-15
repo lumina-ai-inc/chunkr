@@ -249,6 +249,16 @@ export default function Dashboard() {
     setSelectedNav("Tasks");
   }, [searchParams, navigate]);
 
+  const handleGithubNav = useCallback(() => {
+    console.log("GitHub button clicked");
+    window.open("https://github.com/lumina-ai-inc/chunkr", "_blank");
+  }, []);
+
+  const handleDocsNav = useCallback(() => {
+    console.log("Docs button clicked");
+    window.open("https://docs.chunkr.ai", "_blank");
+  }, []);
+
   const userDisplayName =
     user?.data?.first_name && user?.data?.last_name
       ? `${user.data.first_name} ${user.data.last_name}`
@@ -564,7 +574,7 @@ export default function Dashboard() {
                 refetchTasks();
               }}
             />
-            <BetterButton>
+            <BetterButton onClick={handleDocsNav}>
               <svg
                 width="18"
                 height="18"
@@ -641,7 +651,7 @@ export default function Dashboard() {
                 Discord
               </Text>
             </BetterButton>
-            <BetterButton>
+            <BetterButton onClick={handleGithubNav}>
               <svg
                 width="18"
                 height="18"

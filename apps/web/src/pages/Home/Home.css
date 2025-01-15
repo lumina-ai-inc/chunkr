@@ -554,10 +554,7 @@ button:focus-visible {
   font-size: 60px;
   width: 100%;
   max-width: 624px;
-  background: linear-gradient(90deg, #fff 0%, #dce4dd 80%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #fff;
   filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.08))
     drop-shadow(0 0 6px rgba(255, 255, 255, 0.06))
     drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
