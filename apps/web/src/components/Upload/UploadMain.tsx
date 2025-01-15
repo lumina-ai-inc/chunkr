@@ -11,9 +11,9 @@ import "./UploadMain.css";
 import Upload from "./Upload";
 import {
   ToggleGroup,
-  NumberInput,
   SegmentProcessingControls,
   JsonSchemaControls,
+  ChunkProcessingControls,
 } from "./ConfigControls";
 import { uploadFile } from "../../services/uploadFileApi";
 import { UploadForm } from "../../models/upload.model";
@@ -205,66 +205,14 @@ export default function UploadMain({
               ]}
             />
 
-            <NumberInput
-              label={
-                <Flex gap="2" align="center">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <g clip-path="url(#clip0_305_31854)">
-                      <path
-                        d="M9.25 16C9.25 14.2051 7.79493 12.75 6 12.75C4.20507 12.75 2.75 14.2051 2.75 16C2.75 17.7949 4.20507 19.25 6 19.25C7.79493 19.25 9.25 17.7949 9.25 16Z"
-                        stroke="#FFF"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M16.8699 4.75L8.85994 17.55L8.68994 17.82"
-                        stroke="#FFF"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M14.75 16C14.75 17.7949 16.2051 19.25 18 19.25C19.7949 19.25 21.25 17.7949 21.25 16C21.25 14.2051 19.7949 12.75 18 12.75C16.2051 12.75 14.75 14.2051 14.75 16Z"
-                        stroke="#FFF"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M15.3099 17.82L15.1399 17.55L7.12988 4.75"
-                        stroke="#FFF"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_305_31854">
-                        <rect width="24" height="24" fill="white" />
-                      </clipPath>
-                    </defs>
-                  </svg>
-                  <span>Target Chunk Length</span>
-                </Flex>
-              }
-              value={config.chunk_processing?.target_length || 512}
+            <ChunkProcessingControls
+              value={config.chunk_processing || { target_length: 512 }}
               onChange={(value) =>
                 setConfig({
                   ...config,
-                  chunk_processing: {
-                    ...config.chunk_processing,
-                    target_length: value,
-                  },
+                  chunk_processing: value,
                 })
               }
-              min={0}
             />
 
             <ToggleGroup
