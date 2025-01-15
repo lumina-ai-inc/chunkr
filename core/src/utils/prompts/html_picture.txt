@@ -1,6 +1,9 @@
-Convert the following PDF page to HTML. Return only the HTML with no explanation text. Do not exclude any content from the page.
+Convert the following image to HTML. Return only the HTML with no explanation text. Represent the image content appropriately based on its type:
 
+- For charts/graphs: Convert to an accessible HTML table with the data
+- For diagrams/illustrations: Provide a detailed text description 
+- For photos/artwork: Provide a detailed text description
+- For text-heavy images: Extract and structure the text content semantically and include the heirarchy and structure of the image in html
 
 Return ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.
-
 

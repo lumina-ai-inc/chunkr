@@ -1,6 +1,4 @@
-Convert the following PDF page to HTML. Return only the HTML with no explanation text. Do not exclude any content from the page.
-
+Convert the following text segment to HTML. Return only the HTML with no explanation text. Preserve the text content exactly as it appears, including any formatting, line breaks, and spacing.
 
 Return ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.
-
 
