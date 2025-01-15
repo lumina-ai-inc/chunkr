@@ -9,7 +9,7 @@ use std::error::Error;
 /// This function calculates the page count for the task and updates the database with the page count
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
     pipeline
-        .get_task()
+        .get_task()?
         .update(
             Some(Status::Processing),
             Some("Counting pages".to_string()),
@@ -21,7 +21,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
         .await?;
     let client = get_pg_client().await?;
     let pdf_file = pipeline.pdf_file.as_ref().unwrap();
-    let mut task = pipeline.get_task();
+    let mut task = pipeline.get_task()?;
     let task_id = task.task_id.clone();
     let page_count = count_pages(pdf_file)?;
     let task_query = format!(
@@ -37,7 +37,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
         Err(e) => {
             if e.to_string().contains("usage limit exceeded") {
                 pipeline
-                    .get_task()
+                    .get_task()?
                     .update(
                         Some(Status::Failed),
                         Some("Page limit exceeded".to_string()),

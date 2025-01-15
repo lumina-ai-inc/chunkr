@@ -21,12 +21,30 @@ pub async fn get_tasks(
 
     let futures = task_ids.iter().map(|task_id| {
         let user_id = user_id.clone();
+        let task_id = task_id.clone();
         async move {
-            let task = Task::get(&task_id, &user_id).await?;
-            task.to_task_response().await
+            match Task::get(&task_id, &user_id).await {
+                Ok(task) => match task.to_task_response().await {
+                    Ok(response) => {
+                        Ok::<Option<TaskResponse>, Box<dyn std::error::Error>>(Some(response))
+                    }
+                    Err(e) => {
+                        println!("Error converting task {}: {}", task_id, e);
+                        Ok(None)
+                    }
+                },
+                Err(e) => {
+                    println!("Error fetching task {}: {}", task_id, e);
+                    Ok(None)
+                }
+            }
         }
     });
 
-    let task_responses = try_join_all(futures).await?;
+    let task_responses = try_join_all(futures)
+        .await?
+        .into_iter()
+        .filter_map(|x| x)
+        .collect();
     Ok(task_responses)
 }

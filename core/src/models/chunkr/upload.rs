@@ -79,20 +79,20 @@ pub struct UpdateForm {
     /// Expried tasks can **not** be updated, polled or accessed via web interface.
     pub expires_in: Option<MPJson<i32>>,
     #[param(style = Form, value_type = Option<bool>)]
-    #[schema(value_type = Option<bool>, default = false)]
+    #[schema(value_type = Option<bool>)]
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
     pub high_resolution: Option<MPJson<bool>>,
     #[param(style = Form, value_type = Option<JsonSchema>)]
     #[schema(value_type = Option<JsonSchema>)]
     pub json_schema: Option<MPJson<JsonSchema>>,
     #[param(style = Form, value_type = Option<OcrStrategy>)]
-    #[schema(value_type = Option<OcrStrategy>, default = "All")]
+    #[schema(value_type = Option<OcrStrategy>)]
     pub ocr_strategy: Option<MPJson<OcrStrategy>>,
     #[param(style = Form, value_type = Option<SegmentProcessing>)]
     #[schema(value_type = Option<SegmentProcessing>)]
     pub segment_processing: Option<MPJson<SegmentProcessing>>,
     #[param(style = Form, value_type = Option<SegmentationStrategy>)]
-    #[schema(value_type = Option<SegmentationStrategy>, default = "LayoutAnalysis")]
+    #[schema(value_type = Option<SegmentationStrategy>)]
     pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
 }
 
