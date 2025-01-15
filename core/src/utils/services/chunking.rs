@@ -221,6 +221,7 @@ mod tests {
             content: content.to_string(),
             html: None,
             image: None,
+            llm: None,
             markdown: None,
             ocr: vec![],
             page_height: 0.0,

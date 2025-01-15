@@ -203,24 +203,42 @@ async fn generate_markdown(
     ))
 }
 
+async fn generate_llm(
+    segment_type: SegmentType,
+    segment_image: Option<Arc<NamedTempFile>>,
+    llm_prompt: Option<String>,
+) -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
+    if llm_prompt.is_none() || segment_image.is_none() {
+        return Ok(None);
+    }
+
+    let mut values = HashMap::new();
+    values.insert("segment_type".to_string(), segment_type.to_string());
+    values.insert("user_prompt".to_string(), llm_prompt.unwrap());
+    let prompt = get_prompt("llm_segment", &values)?;
+    let result = llm::llm_segment(segment_image.as_ref().unwrap(), prompt).await?;
+
+    Ok(Some(result))
+}
+
 async fn process_segment(
     segment: &mut Segment,
     configuration: &Configuration,
     segment_image: Option<Arc<NamedTempFile>>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let (html_strategy, markdown_strategy) = match segment.segment_type.clone() {
+    let (html_strategy, markdown_strategy, llm_prompt) = match segment.segment_type.clone() {
         SegmentType::Table | SegmentType::Formula => {
             let config: &LlmGenerationConfig = match segment.segment_type {
                 SegmentType::Table => &configuration.segment_processing.table.as_ref().unwrap(),
                 SegmentType::Formula => &configuration.segment_processing.formula.as_ref().unwrap(),
                 _ => unreachable!(),
             };
-            (&config.html, &config.markdown)
+            (&config.html, &config.markdown, &config.llm)
         }
         SegmentType::Picture => {
             let config: &PictureGenerationConfig =
                 &configuration.segment_processing.picture.as_ref().unwrap();
-            (&config.html, &config.markdown)
+            (&config.html, &config.markdown, &config.llm)
         }
         segment_type => {
             let config: &AutoGenerationConfig = match segment_type {
@@ -251,11 +269,11 @@ async fn process_segment(
                 SegmentType::Page => &configuration.segment_processing.page.as_ref().unwrap(),
                 _ => unreachable!(),
             };
-            (&config.html, &config.markdown)
+            (&config.html, &config.markdown, &config.llm)
         }
     };
 
-    let (html, markdown) = futures::try_join!(
+    let (html, markdown, llm) = futures::try_join!(
         generate_html(
             segment.segment_type.clone(),
             segment.content.clone(),
@@ -267,12 +285,17 @@ async fn process_segment(
             segment.content.clone(),
             segment_image.clone(),
             markdown_strategy
+        ),
+        generate_llm(
+            segment.segment_type.clone(),
+            segment_image.clone(),
+            llm_prompt.clone()
         )
     )?;
 
     segment.html = Some(html);
     segment.markdown = Some(markdown);
-
+    segment.llm = llm;
     Ok(())
 }
 

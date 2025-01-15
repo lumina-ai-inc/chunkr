@@ -57,7 +57,6 @@ impl Config {
     }
 }
 
-
 macro_rules! prompt_templates {
     ($($name:expr),* $(,)?) => {
         &[
@@ -81,6 +80,7 @@ const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
     "html_table",
     "html_text",
     "html_title",
+    "llm_segment",
     "md_caption",
     "md_footnote",
     "md_list_item",
@@ -100,10 +100,12 @@ fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
         .iter()
         .find(|&&(name, _)| name == prompt_name)
         .map(|(_, content)| content.to_string())
-        .ok_or_else(|| std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            format!("Prompt '{}' not found", prompt_name)
-        ))
+        .ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("Prompt '{}' not found", prompt_name),
+            )
+        })
 }
 
 fn fill_prompt(template: &str, values: &std::collections::HashMap<String, String>) -> String {
