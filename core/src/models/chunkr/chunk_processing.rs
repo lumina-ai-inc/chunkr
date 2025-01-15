@@ -16,8 +16,8 @@ pub struct ChunkProcessing {
     pub target_length: i32,
 }
 
-impl Default for ChunkProcessing {
-    fn default() -> Self {
+impl ChunkProcessing {
+    pub fn default() -> Self {
         Self {
             ignore_headers_and_footers: default_ignore_headers_and_footers(),
             target_length: default_target_length(),

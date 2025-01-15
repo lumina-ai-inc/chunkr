@@ -1,7 +1,5 @@
-use crate::configs::expiration_config::Config as ExpirationConfig;
 use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::task::Configuration;
-use crate::models::chunkr::task::TaskResponse;
+use crate::models::chunkr::task::{Task, TaskResponse};
 use crate::models::chunkr::upload::CreateForm;
 use crate::models::chunkr::upload::UpdateForm;
 use crate::utils::routes::cancel_task::cancel_task;
@@ -94,36 +92,8 @@ pub async fn create_task_route(
 ) -> Result<HttpResponse, Error> {
     let form = form.into_inner();
     let file_data = &form.file;
-    let expiration_config = ExpirationConfig::from_env().unwrap();
-    let configuration = Configuration {
-        chunk_processing: form.get_chunk_processing().unwrap_or_default(),
-        expires_in: form
-            .expires_in
-            .map(|e| e.into_inner())
-            .or(expiration_config.time),
-        high_resolution: form
-            .high_resolution
-            .map(|e| e.into_inner())
-            .unwrap_or(false),
-        json_schema: form.json_schema.map(|js| js.into_inner()),
-        model: None,
-        ocr_strategy: form
-            .ocr_strategy
-            .map(|e| e.into_inner())
-            .unwrap_or_default(),
-        segment_processing: form
-            .segment_processing
-            .map(|e| e.into_inner())
-            .unwrap_or_default(),
-        segmentation_strategy: form
-            .segmentation_strategy
-            .map(|e| e.into_inner())
-            .unwrap_or_default(),
-        target_chunk_length: None,
-    };
-
+    let configuration = form.to_configuration();
     let result = create_task(file_data, &user_info, &configuration).await;
-
     if let Ok(metadata) = std::fs::metadata(file_data.file.path()) {
         if metadata.is_file() {
             if let Err(e) = std::fs::remove_file(file_data.file.path()) {
@@ -131,7 +101,6 @@ pub async fn create_task_route(
             }
         }
     }
-
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
@@ -186,36 +155,12 @@ pub async fn update_task_route(
     let task_id = task_id.into_inner();
     let user_id = user_info.user_id.clone();
     let form = form.into_inner();
-    let expiration_config = ExpirationConfig::from_env().unwrap();
-    let configuration = Configuration {
-        chunk_processing: form.get_chunk_processing().unwrap_or_default(),
-        expires_in: form
-            .expires_in
-            .map(|e| e.into_inner())
-            .or(expiration_config.time),
-        high_resolution: form
-            .high_resolution
-            .map(|e| e.into_inner())
-            .unwrap_or(false),
-        json_schema: form.json_schema.map(|js| js.into_inner()),
-        model: None,
-        ocr_strategy: form
-            .ocr_strategy
-            .map(|e| e.into_inner())
-            .unwrap_or_default(),
-        segment_processing: form
-            .segment_processing
-            .map(|e| e.into_inner())
-            .unwrap_or_default(),
-        segmentation_strategy: form
-            .segmentation_strategy
-            .map(|e| e.into_inner())
-            .unwrap_or_default(),
-        target_chunk_length: None,
+    let previous_task = match Task::get(&task_id, &user_id).await {
+        Ok(task) => task,
+        Err(_) => return Err(actix_web::error::ErrorNotFound("Task not found")),
     };
-
-    let result = update_task(&task_id, &user_id, &configuration).await;
-
+    let configuration = form.to_configuration(&previous_task.configuration);
+    let result = update_task(&previous_task, &configuration).await;
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {

@@ -3,14 +3,9 @@ use crate::utils::services::payload::produce_extraction_payloads;
 use std::error::Error;
 
 pub async fn update_task(
-    task_id: &str,
-    user_id: &str,
+    previous_task: &Task,
     current_configuration: &Configuration,
 ) -> Result<TaskResponse, Box<dyn Error>> {
-    let previous_task = match Task::get(&task_id, &user_id).await {
-        Ok(task) => task,
-        Err(_) => return Err("Task not found".into()),
-    };
     let previous_configuration = previous_task.configuration.clone();
     let previous_status = previous_task.status.clone();
     let previous_message = previous_task.message.clone();
