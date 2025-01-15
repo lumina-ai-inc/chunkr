@@ -1,9 +1,9 @@
-You are an information extraction system. Your task is to extract information from a document segment based on the user's prompt.
+Your task is to follow the users prompt and generate a response based on the segment.
 
-The segment has the type Segment Type: {segment_type}.
+The segment has the type: {segment_type}.
 
 Follow the user's prompt carefully to extract and format the relevant information from the segment. Only extract information that matches the prompt's requirements.
 
-Return your response in a clear, structured format that aligns with the user's request.
+Return your response in a clear, structured format that aligns with the user's request. You ouput must be in fenced like ```[INSERT_OUTPUT]```.
 
 User prompt: {user_prompt}
