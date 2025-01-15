@@ -24,7 +24,7 @@ pub async fn update_task(
     current_task
         .update(
             Some(Status::Starting),
-            Some("Task queued"),
+            Some("Task queued for update".to_string()),
             Some(current_configuration.clone()),
             None,
             None,

@@ -12,7 +12,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
         .get_task()
         .update(
             Some(Status::Processing),
-            Some("Counting pages"),
+            Some("Counting pages".to_string()),
             None,
             None,
             None,
@@ -40,7 +40,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
                     .get_task()
                     .update(
                         Some(Status::Failed),
-                        Some("Page limit exceeded"),
+                        Some("Page limit exceeded".to_string()),
                         None,
                         None,
                         None,

@@ -75,7 +75,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .get_task()
         .update(
             Some(Status::Processing),
-            Some("Segmentation and OCR"),
+            Some("Segmentation and OCR".to_string()),
             None,
             None,
             None,
@@ -120,7 +120,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .get_task()
         .update(
             Some(Status::Processing),
-            Some("Chunking"),
+            Some("Chunking".to_string()),
             None,
             None,
             None,
@@ -128,6 +128,13 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         )
         .await?;
 
+    // If segmentation is performed differently, we need to update the chunking step
+    // TODO: Move to a separate step - need to figure out how to add segmentation results to pipeline to be able to use it in the chunking step. 
+    // add segmentation output as if chunking is off and then: 
+    // 1.  the orchestrator optionally adds the segmentation step and optionally adds the chunking step (theoretically faster)
+    //      - Requires diff check of segmentation and chunking
+    // 2. the orchestrator optionally adds the segmentation step and we can always chunk (is very fast so prob doesn't matter)
+    //      - Only diff check of segmentation
     let chunk_processing = pipeline.get_task().configuration.chunk_processing.clone();
 
     let chunks = chunking::hierarchical_chunking(

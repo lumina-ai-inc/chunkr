@@ -8,7 +8,6 @@ pub mod pipeline;
 pub mod segment_processing;
 pub mod segmentation;
 pub mod structured_extraction;
-pub mod table_ocr;
 pub mod task;
 pub mod tasks;
 pub mod upload;
