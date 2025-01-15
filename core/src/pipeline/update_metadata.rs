@@ -31,7 +31,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
     match client.execute(&task_query, &[]).await {
         Ok(_) => {
             task.page_count = Some(page_count);
-            pipeline.update_task(task.clone());
+            pipeline.task = Some(task.clone());
             Ok(())
         }
         Err(e) => {
