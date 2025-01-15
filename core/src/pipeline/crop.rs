@@ -79,7 +79,15 @@ async fn crop_segment(
 /// It will use the configuration to determine if cropping is enabled or required for downstream processing.
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
     pipeline
-        .update_remote_status(Status::Processing, Some("Cropping segments".to_string()))
+        .get_task()
+        .update(
+            Some(Status::Processing),
+            Some("Cropping segments"),
+            None,
+            None,
+            None,
+            None,
+        )
         .await?;
 
     let page_images = pipeline.page_images.as_ref().unwrap();

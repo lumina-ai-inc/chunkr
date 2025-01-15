@@ -114,9 +114,13 @@ diesel::table! {
         output_location -> Nullable<Text>,
         configuration -> Nullable<Text>,
         message -> Nullable<Text>,
-        image_folder_location -> Nullable<Text>,
         pdf_location -> Nullable<Text>,
         input_file_type -> Nullable<Text>,
+        #[max_length = 255]
+        mime_type -> Nullable<Varchar>,
+        started_at -> Nullable<Timestamptz>,
+        #[max_length = 255]
+        image_folder_location -> Nullable<Varchar>,
     }
 }
 

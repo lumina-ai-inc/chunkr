@@ -1,0 +1,5 @@
+ALTER TABLE TASKS 
+    ADD COLUMN version VARCHAR(255);
+    
+ALTER TABLE TASKS 
+    DROP COLUMN input_file_type;

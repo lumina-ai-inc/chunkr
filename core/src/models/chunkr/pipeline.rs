@@ -1,7 +1,7 @@
 use crate::models::chunkr::output::OutputResponse;
-use crate::models::chunkr::task::{Status, TaskPayload};
-use crate::utils::services::file_operations::{check_file_type, convert_to_pdf};
-use crate::utils::services::task::{get_status, update_status};
+use crate::models::chunkr::task::{Status, Task, TaskPayload};
+use crate::utils::services::file_operations::convert_to_pdf;
+use crate::utils::storage::services::download_to_tempfile;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use std::error::Error;
@@ -12,12 +12,10 @@ use tempfile::NamedTempFile;
 pub struct Pipeline {
     pub output: OutputResponse,
     pub input_file: Option<Arc<NamedTempFile>>,
-    pub mime_type: Option<String>,
-    pub page_count: Option<u32>,
     pub page_images: Option<Vec<Arc<NamedTempFile>>>,
     pub pdf_file: Option<Arc<NamedTempFile>>,
     pub segment_images: DashMap<String, Arc<NamedTempFile>>,
-    pub status: Option<Status>,
+    pub task: Option<Task>,
     pub task_payload: Option<TaskPayload>,
 }
 
@@ -26,104 +24,74 @@ impl Pipeline {
         Self {
             output: OutputResponse::default(),
             input_file: None,
-            mime_type: None,
-            page_count: None,
             page_images: None,
             pdf_file: None,
             segment_images: DashMap::new(),
-            status: None,
+            task: None,
             task_payload: None,
         }
     }
 
-    pub async fn init(
-        &mut self,
-        file: NamedTempFile,
-        task_payload: TaskPayload,
-    ) -> Result<(), Box<dyn Error>> {
-        self.task_payload = Some(task_payload);
-        if self.get_remote_status().await? == Status::Cancelled {
+    pub async fn init(&mut self, task_payload: TaskPayload) -> Result<(), Box<dyn Error>> {
+        let mut task = Task::get_by_id(&task_payload.task_id, &task_payload.user_id).await?;
+        if task.status == Status::Cancelled {
+            if task_payload.previous_status.is_some() && task_payload.previous_message.is_some() {
+                task.update(
+                    task_payload.previous_status,
+                    task_payload.previous_message.as_deref(),
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+                .await?;
+            }
             return Ok(());
         }
-        self.input_file = Some(Arc::new(file));
-        self.mime_type = Some(match check_file_type(&self.input_file.as_ref().unwrap()) {
-            Ok(mime_type) => mime_type,
-            Err(e) => {
-                if e.to_string().contains("Unsupported file type") {
-                    self.update_remote_status(Status::Failed, Some(e.to_string()))
-                        .await?;
-                    return Ok(());
-                }
-                println!("Error checking file type: {:?}", e);
-                return Err(e.to_string().into());
-            }
-        });
-        self.pdf_file = match self.mime_type.as_ref().unwrap().as_str() {
+        self.input_file = Some(Arc::new(
+            download_to_tempfile(&task.input_location, None).await?,
+        ));
+        self.pdf_file = match task.mime_type.as_ref().unwrap().as_str() {
             "application/pdf" => Some(self.input_file.clone().unwrap()),
             _ => Some(Arc::new(convert_to_pdf(
                 &self.input_file.as_ref().unwrap(),
             )?)),
         };
-        update_status(
-            &self.get_task_id(),
-            &self.get_user_id(),
-            Status::Processing,
+        task.update(
+            Some(Status::Processing),
             Some("Task started"),
+            None,
             Some(Utc::now()),
             None,
             None,
-            Some(self.mime_type.as_ref().unwrap()),
         )
         .await?;
-        self.status = Some(Status::Processing);
+        self.task_payload = Some(task_payload);
+        self.task = Some(task);
         Ok(())
     }
 
-    fn get_task_id(&self) -> String {
+    pub fn get_task(&self) -> Task {
+        self.task
+            .as_ref()
+            .ok_or("Task is not initialized")
+            .unwrap()
+            .clone()
+    }
+
+    pub fn update_task(&mut self, task: Task) {
+        self.task = Some(task);
+    }
+
+    pub fn get_task_payload(&self) -> TaskPayload {
         self.task_payload
             .as_ref()
             .ok_or("Task payload is not initialized")
             .unwrap()
-            .task_id
             .clone()
     }
 
-    fn get_user_id(&self) -> String {
-        self.task_payload
-            .as_ref()
-            .ok_or("Task payload is not initialized")
-            .unwrap()
-            .user_id
-            .clone()
-    }
-
-    async fn get_remote_status(&mut self) -> Result<Status, Box<dyn std::error::Error>> {
-        let status = get_status(&self.get_task_id(), &self.get_user_id()).await?;
-        self.status = Some(status.clone());
-        Ok(status)
-    }
-
-    pub async fn update_remote_status(
-        &mut self,
-        status: Status,
-        message: Option<String>,
-    ) -> Result<(), Box<dyn Error>> {
-        update_status(
-            &self.get_task_id(),
-            &self.get_user_id(),
-            status.clone(),
-            Some(&message.unwrap_or_default()),
-            None,
-            None,
-            None,
-            None,
-        )
-        .await?;
-        self.status = Some(status);
-        Ok(())
-    }
-
-    pub async fn finish_and_update_remote_status(
+    pub async fn finish_and_update_task(
         &mut self,
         status: Status,
         message: Option<String>,
@@ -136,18 +104,25 @@ impl Pipeline {
             .current_configuration
             .expires_in
             .map(|seconds| finished_at + chrono::Duration::seconds(seconds as i64));
-        update_status(
-            &self.get_task_id(),
-            &self.get_user_id(),
-            status.clone(),
-            Some(&message.unwrap_or_default()),
-            None,
-            Some(finished_at),
-            expires_at,
-            None,
-        )
-        .await?;
-        self.status = Some(status);
+        self.get_task()
+            .update(
+                Some(status),
+                Some(&message.unwrap_or_default()),
+                None,
+                Some(finished_at),
+                expires_at,
+                None,
+            )
+            .await?;
+
+        self.get_task()
+            .upload_pipeline_output(
+                self.page_images.clone().unwrap(),
+                &self.segment_images,
+                &self.output,
+                &self.pdf_file.clone().unwrap(),
+            )
+            .await?;
         Ok(())
     }
 }

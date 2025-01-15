@@ -136,8 +136,16 @@ pub async fn create_task_route(
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
             let error_message = e.to_string();
-            if error_message.contains("Usage limit exceeded") {
+            if error_message
+                .to_lowercase()
+                .contains("usage limit exceeded")
+            {
                 Ok(HttpResponse::TooManyRequests().body("Usage limit exceeded"))
+            } else if error_message
+                .to_lowercase()
+                .contains("unsupported file type")
+            {
+                Ok(HttpResponse::BadRequest().body("Unsupported file type"))
             } else {
                 eprintln!("Error creating task: {:?}", e);
                 Ok(HttpResponse::InternalServerError().body("Failed to create task"))
