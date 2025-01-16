@@ -31,14 +31,12 @@ ENV_PATH = BASE_DIR / '.env'
 
 load_dotenv(dotenv_path=ENV_PATH)
 
-batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.5))
+batch_wait_time = float(os.getenv("BATCH_WAIT_TIME", 0.1))
 max_batch_size = int(os.getenv("MAX_BATCH_SIZE", 4))
 overlap_threshold = float(os.getenv("OVERLAP_THRESHOLD", 0.1))
 score_threshold = float(os.getenv("SCORE_THRESHOLD", 0.2))
 print(f"Max batch size: {max_batch_size}")
 print(f"Overlap threshold: {overlap_threshold}")
-
-app = FastAPI()  
 
 predictor = None
 
@@ -548,12 +546,7 @@ async def batch_processor():
                 for task in current_batch:
                     if not task.future.done():
                         task.future.set_exception(e)
-            
-            # Clear the event if no more tasks
-            async with processing_lock:
-                if not pending_tasks:
-                    batch_event.clear()
-            
+                        
         except Exception as e:
             print(f"Error in batch processor: {e}")
             batch_event.clear()
