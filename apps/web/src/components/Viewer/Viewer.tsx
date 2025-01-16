@@ -49,13 +49,13 @@ export default function Viewer({ task }: { task: TaskResponse }) {
       // Calculate how many page chunks we need to load to reach the target page
       if (needsMorePages) {
         setLoadedPages(
-          Math.ceil(targetPage / PAGE_CHUNK_SIZE) * PAGE_CHUNK_SIZE,
+          Math.ceil(targetPage / PAGE_CHUNK_SIZE) * PAGE_CHUNK_SIZE
         );
       }
 
       if (needsMoreChunks) {
         setLoadedChunks(
-          Math.ceil((chunkIndex + 1) / CHUNK_LOAD_SIZE) * CHUNK_LOAD_SIZE,
+          Math.ceil((chunkIndex + 1) / CHUNK_LOAD_SIZE) * CHUNK_LOAD_SIZE
         );
       }
 
@@ -67,7 +67,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
           // Scroll PDF container to target page
           const pdfContainer = document.querySelector(".pdf-container");
           const targetPageElement = pdfContainer?.querySelector(
-            `[data-page-number="${targetPage}"]`,
+            `[data-page-number="${targetPage}"]`
           );
           if (targetPageElement) {
             targetPageElement.scrollIntoView({ behavior: "smooth" });
@@ -89,10 +89,10 @@ export default function Viewer({ task }: { task: TaskResponse }) {
             }
           }
         },
-        needsMorePages || needsMoreChunks ? 300 : 100,
+        needsMorePages || needsMoreChunks ? 300 : 100
       );
     },
-    [output?.chunks, loadedPages, loadedChunks],
+    [output?.chunks, loadedPages, loadedChunks]
   );
 
   // Add a handler for PDF segment clicks that ensures chunks are loaded
@@ -101,7 +101,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
       // Ensure we load enough chunks
       if (chunkIndex >= loadedChunks) {
         setLoadedChunks(
-          Math.ceil((chunkIndex + 1) / CHUNK_LOAD_SIZE) * CHUNK_LOAD_SIZE,
+          Math.ceil((chunkIndex + 1) / CHUNK_LOAD_SIZE) * CHUNK_LOAD_SIZE
         );
 
         // Wait for next render cycle when chunks are loaded
@@ -114,7 +114,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
         scrollToSegment(chunkIndex, segmentIndex);
       }
     },
-    [loadedChunks, scrollToSegment],
+    [loadedChunks, scrollToSegment]
   );
 
   const handleMouseEnter = () => {
@@ -145,7 +145,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
           // Extract filename from URL - look for the last segment before query parameters
           // that ends with .pdf and decode it
           const filename = decodeURIComponent(
-            inputFileUrl.split("?")[0].split("/").pop() || "document.pdf",
+            inputFileUrl.split("?")[0].split("/").pop() || "document.pdf"
           );
           link.download = filename;
 
@@ -174,7 +174,6 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   }, [task]);
 
   const handleDownloadJSON = useCallback(() => {
-
     if (task) {
       const jsonString = JSON.stringify(task, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
@@ -184,7 +183,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
 
       // Extract original filename from inputFileUrl and create new JSON filename
       const originalFilename = decodeURIComponent(
-        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf",
+        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf"
       );
       const baseFilename = originalFilename.replace(".pdf", "");
       a.download = `chunkr_json_${baseFilename}.json`;
@@ -209,7 +208,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
               return segment.html || "";
             })
             .filter(Boolean)
-            .join(""),
+            .join("")
         )
         .join("<hr>");
 
@@ -220,7 +219,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
       a.href = url;
 
       const originalFilename = decodeURIComponent(
-        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf",
+        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf"
       );
       const baseFilename = originalFilename.replace(".pdf", "");
       a.download = `chunkr_html_${baseFilename}.html`;
@@ -246,7 +245,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
               return segment.markdown ? segment.markdown : textContent;
             })
             .filter(Boolean)
-            .join("\n\n"),
+            .join("\n\n")
         )
         .join("\n\n---\n\n");
 
@@ -256,7 +255,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
       a.href = url;
 
       const originalFilename = decodeURIComponent(
-        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf",
+        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf"
       );
       const baseFilename = originalFilename.replace(".pdf", "");
       a.download = `chunkr_markdown_${baseFilename}.md`;
@@ -277,19 +276,19 @@ export default function Viewer({ task }: { task: TaskResponse }) {
         // Handle chunk loading
         if (scrolledToBottom && loadedChunks < (output?.chunks?.length || 0)) {
           setLoadedChunks((prev) =>
-            Math.min(prev + CHUNK_LOAD_SIZE, output?.chunks?.length || 0),
+            Math.min(prev + CHUNK_LOAD_SIZE, output?.chunks?.length || 0)
           );
         }
       } else if (target.classList.contains("pdf-container")) {
         // Handle page loading
         if (scrolledToBottom && loadedPages < (numPages || 0)) {
           setLoadedPages((prev) =>
-            Math.min(prev + PAGE_CHUNK_SIZE, numPages || 0),
+            Math.min(prev + PAGE_CHUNK_SIZE, numPages || 0)
           );
         }
       }
     },
-    [loadedChunks, output?.chunks?.length, loadedPages, numPages],
+    [loadedChunks, output?.chunks?.length, loadedPages, numPages]
   );
 
   // Add scroll listeners to both containers
@@ -335,7 +334,6 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   }, []);
 
   // Add a check for structured extraction availability
-
 
   const renderDownloadDropdown = () => (
     <div
@@ -541,7 +539,6 @@ export default function Viewer({ task }: { task: TaskResponse }) {
               Markdown
             </Text>
           </BetterButton>
-
         </Flex>
         <Flex className="viewer-header-right-buttons" gap="16px">
           {renderDownloadDropdown()}
