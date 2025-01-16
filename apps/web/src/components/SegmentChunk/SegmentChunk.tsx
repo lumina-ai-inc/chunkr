@@ -12,7 +12,6 @@ import { useHorizontalDragScroll } from "../../hooks/useHorizontalDragScroll";
 import BetterButton from "../BetterButton/BetterButton";
 import { Flex, Text } from "@radix-ui/themes";
 import toast from "react-hot-toast";
-
 // Memoized content renderers
 const MemoizedHtml = memo(({ html }: { html: string }) => {
   const processedHtml = useMemo(() => {
