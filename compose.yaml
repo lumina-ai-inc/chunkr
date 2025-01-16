@@ -97,7 +97,7 @@ services:
     restart: always
 
   server:
-    image: luminainc/server:7e834504
+    image: luminainc/server:7cafa002
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -108,11 +108,11 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   task:
-    image: luminainc/task:7e834504
+    image: luminainc/task:7cafa002
     platform: linux/amd64
     depends_on:
       - postgres
@@ -121,7 +121,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 20
     restart: always
 
   web:
