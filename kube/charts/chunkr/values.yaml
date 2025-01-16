@@ -172,7 +172,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: "7e834504"
+      tag: "920ed2db"
     port: 8000
     targetPort: 8000
     useGPU: true
@@ -199,7 +199,7 @@ services:
     enabled: true
     image:
       repository: segmentation
-      tag: "1bcb587f"
+      tag: "920ed2db"
     port: 8000
     targetPort: 8000
     useGPU: true
