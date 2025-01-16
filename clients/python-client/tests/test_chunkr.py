@@ -19,7 +19,7 @@ from chunkr_ai.models import (
 
 @pytest.fixture(params=[
     pytest.param(("sync", Chunkr()), id="sync"),
-    # pytest.param(("async", ChunkrAsync()), id="async")
+    pytest.param(("async", ChunkrAsync()), id="async")
 ])
 def chunkr_client(request):
     return request.param
