@@ -18,18 +18,18 @@ class Status(str, Enum):
 class TaskResponse(BaseModel):
     configuration: Configuration
     created_at: datetime
-    expires_at: Optional[datetime]
-    file_name: Optional[str]
-    finished_at: Optional[datetime]
-    input_file_url: Optional[str]
+    expires_at: Optional[datetime] = None
+    file_name: Optional[str] = None
+    finished_at: Optional[datetime] = None
+    input_file_url: Optional[str] = None
     message: str
-    output: Optional[OutputResponse]
-    page_count: Optional[int]
-    pdf_url: Optional[str]
-    started_at: Optional[datetime]
+    output: Optional[OutputResponse] = None
+    page_count: Optional[int] = None
+    pdf_url: Optional[str] = None
+    started_at: Optional[datetime] = None
     status: Status
     task_id: str
-    task_url: Optional[str]
+    task_url: Optional[str] = None
     _client: Optional[Union[ChunkrClientProtocol]] = PrivateAttr(default=None)
 
     def with_client(self, client: Union[ChunkrClientProtocol]) -> 'TaskResponse':
