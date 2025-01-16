@@ -98,7 +98,7 @@ services:
     restart: always
 
   server:
-    image: luminainc/server:e383dd65
+    image: luminainc/server:ed2710dd
     platform: linux/amd64
     ports:
       - "8000:8000"
