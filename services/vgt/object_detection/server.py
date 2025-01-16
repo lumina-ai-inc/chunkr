@@ -18,13 +18,13 @@ from fastapi.responses import JSONResponse
 import torch
 import psutil
 import collections
+import uuid
+from pydantic import Field
 from transformers import AutoTokenizer
 from sklearn.cluster import KMeans
 # from configuration import MODELS_PATH
 import gc
 
-
-warnings.filterwarnings("ignore", category=UserWarning, module='torch')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR / '.env'
@@ -99,6 +99,7 @@ class ODTask(BaseModel):
     file_data: bytes
     grid_dict: dict
     future: asyncio.Future
+    task_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
 
     class Config:
         arbitrary_types_allowed = True
@@ -447,6 +448,7 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
         results = []
         for i in range(0, len(tasks), max_batch_size):
             sub_batch = tasks[i:i + max_batch_size]
+            print(f"Processing task IDs: {[task.task_id for task in sub_batch]}")
             images = await asyncio.gather(*[decode_image(t.file_data) for t in sub_batch])
             grid_dicts_data = [t.grid_dict for t in sub_batch]
 
@@ -518,34 +520,35 @@ async def batch_processor():
                 if not pending_tasks:
                     batch_event.clear()
                     continue
-                
+                print(f"Pending tasks: {len(pending_tasks)}")
                 # Take only max_batch_size tasks
                 current_batch = []
                 for _ in range(max_batch_size):
                     if not pending_tasks:
                         break
                     current_batch.append(pending_tasks.popleft())
-            
-            try:
-                chunk_results = await process_od_batch(current_batch)
-                
-                # Set results immediately for this chunk
-                for task, result in zip(current_batch, chunk_results):
-                    if not task.future.done():
-                        task.future.set_result(result)
-                
-                # Clear memory after processing
-                del chunk_results
-                del current_batch
-                gc.collect()
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+                print(f"Pending tasks after: {len(pending_tasks)}")
+
+                try:
+                    chunk_results = await process_od_batch(current_batch)
                     
-            except Exception as e:
-                print(f"Error processing batch: {e}")
-                for task in current_batch:
-                    if not task.future.done():
-                        task.future.set_exception(e)
+                    # Set results immediately for this chunk
+                    for task, result in zip(current_batch, chunk_results):
+                        if not task.future.done():
+                            task.future.set_result(result)
+                    
+                    # Clear memory after processing
+                    del chunk_results
+                    del current_batch
+                    gc.collect()
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                    
+                except Exception as e:
+                    print(f"Error processing batch: {e}")
+                    for task in current_batch:
+                        if not task.future.done():
+                            task.future.set_exception(e)
                         
         except Exception as e:
             print(f"Error in batch processor: {e}")
