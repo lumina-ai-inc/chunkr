@@ -524,21 +524,21 @@ async def batch_processor():
             current_batch = list(pending_tasks)
             pending_tasks.clear()
         
-        try:
-            results = []
-            if max_batch_size is None or max_batch_size <= 0:
-                results.extend(await process_od_batch(current_batch))
-            else:
-                for i in range(0, len(current_batch), max_batch_size):
-                    chunk = current_batch[i:i+max_batch_size]
-                    chunk_results = await process_od_batch(chunk)
-                    results.extend(chunk_results)
+            try:
+                results = []
+                if max_batch_size is None or max_batch_size <= 0:
+                    results.extend(await process_od_batch(current_batch))
+                else:
+                    for i in range(0, len(current_batch), max_batch_size):
+                        chunk = current_batch[i:i+max_batch_size]
+                        chunk_results = await process_od_batch(chunk)
+                        results.extend(chunk_results)
 
-            for task, result in zip(current_batch, results):
-                task.future.set_result(result)
-        except Exception as e:
-            for task in current_batch:
-                task.future.set_exception(e)
+                for task, result in zip(current_batch, results):
+                    task.future.set_result(result)
+            except Exception as e:
+                for task in current_batch:
+                    task.future.set_exception(e)
 
 
 @asynccontextmanager
