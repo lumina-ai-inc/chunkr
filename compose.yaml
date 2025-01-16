@@ -121,11 +121,7 @@ services:
     env_file:
       - .env
     deploy:
-<<<<<<< HEAD
-      replicas: 20
-=======
       replicas: 5
->>>>>>> ed80b182 (updated deps for client)
     restart: always
 
   web:
