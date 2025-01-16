@@ -1,3 +1,4 @@
+# THIS IS UNDER DEVELOPMENT
 services:
   postgres:
     build:
@@ -97,7 +98,7 @@ services:
     restart: always
 
   server:
-    image: luminainc/server:4f69dfd8
+    image: luminainc/server:e383dd65
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -112,7 +113,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:4f69dfd8
+    image: luminainc/task:e383dd65
     platform: linux/amd64
     depends_on:
       - postgres
@@ -125,7 +126,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:3c8cc0be
+    image: luminainc/web:e383dd65
     platform: linux/amd64
     ports:
       - "5173:8000"
