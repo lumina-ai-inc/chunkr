@@ -91,7 +91,7 @@ With GPU (recommended):
 docker compose up -d
 ```
 
-Only CPU:
+Only CPU (under development):
 ```bash
 docker compose -f compose-cpu.yaml up -d
 ```
