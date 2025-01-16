@@ -86,9 +86,9 @@ class Segment(BaseModel):
     bbox: BoundingBox
     content: str
     page_height: float
-    html: Optional[str]
-    image: Optional[str]
-    markdown: Optional[str]
+    html: Optional[str] = None
+    image: Optional[str] = None
+    markdown: Optional[str] = None
     ocr: List[OCRResult]
     page_number: int
     page_width: float
@@ -104,8 +104,8 @@ class ExtractedJson(BaseModel):
     data: Dict
 
 class OutputResponse(BaseModel):
-    chunks: List[Chunk] = []
-    extracted_json: Optional[ExtractedJson]
+    chunks: List[Chunk]
+    extracted_json: Optional[ExtractedJson] = Field(default=None)
 
 class Model(str, Enum):
     FAST = "Fast"
