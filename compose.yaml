@@ -140,7 +140,7 @@ services:
     ports:
       - "8001:8000"
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
@@ -191,7 +191,7 @@ services:
     platform: linux/amd64
     ports:
       - "8003:80"
-    command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "51", "--max-batch-tokens", "5120", "--payload-limit", "1000000", "--auto-truncate" ]
+    command: [ "--model-id", "BAAI/bge-m3", "--auto-truncate", "--payload-limit", "100000000" ]
     deploy:
       replicas: 1
       resources:

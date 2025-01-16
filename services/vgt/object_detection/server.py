@@ -599,6 +599,41 @@ async def create_od_task(
     
     return final_pred
 
+@app.post("/batch", response_model=List[FinalPrediction])
+async def batch_predict(files: List[UploadFile] = File(...)):
+    results = []
+    for file in files:
+        image_data = await file.read()
+        future = asyncio.Future()
+        task = ODTask(file_data=image_data, grid_dict=None, future=future)
+        pending_tasks.append(task)
+        batch_event.set()
+        result = await future
+        
+        serializable_pred = result[0]
+        converted_boxes = []
+        for box in serializable_pred.instances.boxes:
+            converted_boxes.append(BoundingBoxOutput(
+                left=box.x1,
+                top=box.y1, 
+                width=box.x2 - box.x1,
+                height=box.y2 - box.y1
+            ))
+            
+        final_pred = FinalPrediction(
+            instances=InstanceOutput(
+                boxes=converted_boxes,
+                scores=serializable_pred.instances.scores,
+                classes=serializable_pred.instances.classes,
+                image_size=serializable_pred.instances.image_size
+            )
+        )
+        results.append(final_pred)
+        
+    return results
+
+
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
