@@ -102,6 +102,14 @@ fn should_pair_with_caption(
     }
 }
 
+fn get_hierarchy_level(segment_type: &SegmentType) -> i32 {
+    match segment_type {
+        SegmentType::Title => 3,
+        SegmentType::SectionHeader => 2,
+        _ => 1,
+    }
+}
+
 pub fn hierarchical_chunking(
     segments: Vec<Segment>,
     target_length: i32,
@@ -127,21 +135,26 @@ pub fn hierarchical_chunking(
 
     let mut skip_indices = std::collections::HashSet::new();
 
+    let mut prev_hierarchy_level = 1;
+
     for (i, segment) in segments.iter().enumerate() {
         if skip_indices.contains(&i) {
             continue;
         }
 
         let segment_word_count = segment.content.split_whitespace().count() as i32;
+        let current_hierarchy_level = get_hierarchy_level(&segment.segment_type);
+
         match segment.segment_type {
-            // titles and section headers must start a new chunk
             SegmentType::Title | SegmentType::SectionHeader => {
-                finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                if current_hierarchy_level > prev_hierarchy_level {
+                    finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                }
                 current_segments.push(segment.clone());
                 current_word_count = segment_word_count;
+                prev_hierarchy_level = current_hierarchy_level;
                 continue;
             }
-            // headers and footers are 1 chunk each
             SegmentType::PageHeader | SegmentType::PageFooter => {
                 if ignore_headers_and_footers {
                     continue;
@@ -153,6 +166,7 @@ pub fn hierarchical_chunking(
                 continue;
             }
             _ => {
+                prev_hierarchy_level = current_hierarchy_level;
                 if let Some((caption_idx, caption_word_count)) =
                     should_pair_with_caption(&segments, i, segment)
                 {
@@ -321,5 +335,46 @@ mod tests {
         assert_eq!(chunks[0].segments[0].segment_type, SegmentType::Picture);
         assert_eq!(chunks[0].segments[1].segment_type, SegmentType::Text);
         assert_eq!(chunks[0].segments[2].segment_type, SegmentType::Caption);
+    }
+
+    #[test]
+    fn test_hierarchical_chunking() {
+        let segments = vec![
+            create_segment("Title 1", SegmentType::Title),
+            create_segment("Section 1", SegmentType::SectionHeader),
+            create_segment("Some text", SegmentType::Text),
+            create_segment("Section 2", SegmentType::SectionHeader),
+            create_segment("More text", SegmentType::Text),
+            create_segment("Title 2", SegmentType::Title),
+            create_segment("Section 3", SegmentType::SectionHeader),
+        ];
+
+        let chunks = hierarchical_chunking(segments, 100, true).unwrap();
+
+        // Debug print
+        for (i, chunk) in chunks.iter().enumerate() {
+            println!("Chunk {}:", i);
+            for segment in &chunk.segments {
+                println!("  {:?}", segment.segment_type);
+            }
+        }
+
+        assert_eq!(chunks.len(), 3); // Updated expectation
+
+        // First chunk: Title 1 + Section 1 + text
+        assert_eq!(chunks[0].segments.len(), 3);
+        assert_eq!(chunks[0].segments[0].segment_type, SegmentType::Title);
+        assert_eq!(chunks[0].segments[1].segment_type, SegmentType::SectionHeader);
+        assert_eq!(chunks[0].segments[2].segment_type, SegmentType::Text);
+
+        // Second chunk: Section 2 + text
+        assert_eq!(chunks[1].segments.len(), 2);
+        assert_eq!(chunks[1].segments[0].segment_type, SegmentType::SectionHeader);
+        assert_eq!(chunks[1].segments[1].segment_type, SegmentType::Text);
+
+        // Third chunk: Title 2 + Section 3
+        assert_eq!(chunks[2].segments.len(), 2);
+        assert_eq!(chunks[2].segments[0].segment_type, SegmentType::Title);
+        assert_eq!(chunks[2].segments[1].segment_type, SegmentType::SectionHeader);
     }
 }
