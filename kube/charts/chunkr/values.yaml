@@ -190,7 +190,7 @@ services:
       registry: ghcr.io/huggingface
     port: 8000
     targetPort: 80
-    args: ["--model-id", "BAAI/bge-m3", "--max-client-batch-size", "512", "--max-batch-tokens", "5120000", "--payload-limit", "100000000", "--auto-truncate"]
+    args: ["--model-id", "BAAI/bge-m3", "--max-client-batch-size", "512", "--max-batch-tokens", "512000", "--payload-limit", "100000000", "--auto-truncate"]
     useGPU: true
     labels:
       workload-type: chunkr-gpu
@@ -205,6 +205,9 @@ services:
     useGPU: true
     labels:
       workload-type: chunkr-gpu
+    env:
+      - name: MAX_BATCH_SIZE
+        value: "24"
 
  # Supporting services
   keycloak:
