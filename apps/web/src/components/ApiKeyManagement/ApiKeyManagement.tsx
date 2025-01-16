@@ -48,16 +48,16 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
 
   const [expandedKeyId, setExpandedKeyId] = useState<number | null>(null);
 
-  const createNewApiKey = async () => {
-    // TODO: API call to create new key
-    const newKey = {
-      id: crypto.randomUUID(),
-      key: "new-api-key-" + Math.random().toString(36).substring(7),
-      usage: 0,
-      limit: 10000,
-    };
-    setApiKeys([...apiKeys, newKey]);
-  };
+  //   const createNewApiKey = async () => {
+  //     // TODO: API call to create new key
+  //     const newKey = {
+  //       id: crypto.randomUUID(),
+  //       key: "new-api-key-" + Math.random().toString(36).substring(7),
+  //       usage: 0,
+  //       limit: 10000,
+  //     };
+  //     setApiKeys([...apiKeys, newKey]);
+  //   };
 
   const deleteApiKey = async (keyId: string) => {
     // TODO: API call to delete key
@@ -163,7 +163,9 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
                   >
                     <Text size="1">Copy</Text>
                   </BetterButton>
-                  <BetterButton onClick={() => deleteApiKey(apiKey.id)}>
+                  <BetterButton
+                    onClick={() => deleteApiKey(apiKey.id.toString())}
+                  >
                     <Text size="1">Delete</Text>
                   </BetterButton>
                 </Flex>
