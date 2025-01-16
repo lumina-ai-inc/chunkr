@@ -64,11 +64,11 @@ pub async fn perform_general_ocr(
 ) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
     let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
     Ok(retry_with_backoff(|| async {
-        rate_limiter
-            .acquire_token_with_timeout(std::time::Duration::from_secs(
-                *TOKEN_TIMEOUT.get().unwrap(),
-            ))
-            .await?;
+        // rate_limiter
+        //     .acquire_token_with_timeout(std::time::Duration::from_secs(
+        //         *TOKEN_TIMEOUT.get().unwrap(),
+        //     ))
+        //     .await?;
         doctr_ocr(temp_file).await
     })
     .await?)
