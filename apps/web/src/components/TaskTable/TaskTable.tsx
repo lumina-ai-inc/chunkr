@@ -78,6 +78,8 @@ const TaskTable = () => {
     );
   };
 
+  console.log(tasks);
+
   const columns = useMemo<MRT_ColumnDef<TaskResponse>[]>(
     () => [
       {
@@ -132,11 +134,18 @@ const TaskTable = () => {
                       : row.original.status === Status.Failed
                         ? "#e74c3c" // red
                         : "transparent",
+                display:
+                  row.original.status === Status.Succeeded ? "none" : "block",
               }}
             />
             {row.original.status}
           </Box>
         ),
+      },
+      {
+        accessorKey: "message",
+        header: "Message",
+        Cell: ({ cell }) => cell.getValue<string>(),
       },
       {
         accessorKey: "created_at",
@@ -151,7 +160,12 @@ const TaskTable = () => {
       {
         accessorKey: "expires_at",
         header: "Expires At",
-        Cell: ({ cell }) => new Date(cell.getValue<string>()).toLocaleString(),
+        Cell: ({ cell }) => {
+          const dateValue = cell.getValue<string>();
+          return dateValue && dateValue !== "Null"
+            ? new Date(dateValue).toLocaleString()
+            : "N/A";
+        },
       },
     ],
     []

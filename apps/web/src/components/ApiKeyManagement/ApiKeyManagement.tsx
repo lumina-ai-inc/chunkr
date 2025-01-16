@@ -41,13 +41,12 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
   //     user?.api_keys?.map((key: string) => ({
   //       id: crypto.randomUUID(),
   //       key,
-  //       usage: Math.floor(Math.random() * 1000), // Replace with actual usage data
+  //       usage: Math.floor(Math.random() * 1000),
   //       limit: 10000,
   //     })) || []
   //   );
 
-  const apiKeys = user?.api_keys;
-  console.log(apiKeys);
+  const apiKeys = user?.api_keys || [];
 
   const [expandedKeyId, setExpandedKeyId] = useState<string | null>(null);
 
@@ -76,13 +75,17 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
         className="api-key-header"
       >
         <Text size="5" weight="bold" style={{ color: "#FFF" }}>
-          Manage API Keys
+          Manage Keys
         </Text>
-        {/* <BetterButton onClick={() => {}}>
+        <BetterButton
+          onClick={() => {
+            /* TODO: Add create key handler */
+          }}
+        >
           <Text size="2" weight="medium" style={{ color: "#FFF" }}>
             Create New Key
           </Text>
-        </BetterButton> */}
+        </BetterButton>
       </Flex>
 
       <table className="api-key-table">
@@ -111,7 +114,7 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
           </tr>
         </thead>
         <tbody>
-          {apiKeys?.map((apiKey) => (
+          {apiKeys.map((apiKey) => (
             <tr key={apiKey}>
               {/* <td>
                 <Text
@@ -119,7 +122,7 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
                   weight="medium"
                   style={{ color: "rgba(255, 255, 255, 0.8)" }}
                 >
-                  {apiKey || "API Key"}
+                  {apiKey.key || "API Key"}
                 </Text>
               </td> */}
               <td>
