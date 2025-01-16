@@ -24,7 +24,6 @@ import "./Home.css";
 // import Dropdown from "../../components/Dropdown/Dropdown";
 import MomentumScroll from "../../components/MomentumScroll/MomentumScroll";
 import Header from "../../components/Header/Header";
-// import UploadMain from "../../components/Upload/UploadMain";
 // import Footer from "../../components/Footer/Footer";
 
 // Animation Imports
@@ -502,16 +501,16 @@ const Home = () => {
                       weight="medium"
                       className="feature-left-box-subtitle"
                     >
-                      SOTA models connected and optimized end-to-end.<br></br>
+                      We connect SOTA models and optimize end-to-end.<br></br>
                       <span
                         style={{
                           color: "#ffffffbc",
-                          maxWidth: "380px",
+                          maxWidth: "428px",
                           display: "inline-block",
                         }}
                       >
-                        Customize our enterprise-grade pipeline with simple
-                        controls for your use-case.
+                        Configure our enterprise-grade pipeline to dial in the
+                        perfect mix of speed, quality, and features.
                       </span>{" "}
                     </Text>
                   </Flex>
@@ -549,7 +548,8 @@ const Home = () => {
                         weight="light"
                         style={{ color: "#ffffff" }}
                       >
-                        We've built a modular pipeline that can be used as
+                        Semantic tagging and bounding boxes for 12 document
+                        features
                       </Text>
                       <Flex direction="column" gap="16px">
                         <Flex className="control-switches">
@@ -618,7 +618,8 @@ const Home = () => {
                         weight="light"
                         style={{ color: "#ffffff" }}
                       >
-                        We've built a modular pipeline that can be used as
+                        Multilingual OCR (14 languages) with auto text-layer
+                        correction
                       </Text>
                       <Flex className="control-switches">
                         <button
@@ -671,7 +672,7 @@ const Home = () => {
                         weight="light"
                         style={{ color: "#ffffff" }}
                       >
-                        We've built a modular pipeline that can be used as a
+                        Vision models for complex HTML/Md/Custom processing
                       </Text>
                       <Flex direction="column" gap="16px">
                         <Flex className="control-switches">

@@ -2,6 +2,7 @@ import { forwardRef, memo, useCallback, useMemo, useState } from "react";
 import { Chunk, Segment } from "../../models/taskResponse.model";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
 import "./SegmentChunk.css";
 import ReactMarkdown from "react-markdown";
 import ReactJson from "react-json-view";
@@ -11,7 +12,6 @@ import { useHorizontalDragScroll } from "../../hooks/useHorizontalDragScroll";
 import BetterButton from "../BetterButton/BetterButton";
 import { Flex, Text } from "@radix-ui/themes";
 import toast from "react-hot-toast";
-
 // Memoized content renderers
 const MemoizedHtml = memo(({ html }: { html: string }) => {
   const processedHtml = useMemo(() => {
@@ -67,7 +67,7 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
 const MemoizedMarkdown = memo(({ content }: { content: string }) => (
   <ReactMarkdown
     className="cyan-2"
-    remarkPlugins={[remarkMath]}
+    remarkPlugins={[remarkMath, remarkGfm]}
     rehypePlugins={[rehypeKatex]}
   >
     {content}

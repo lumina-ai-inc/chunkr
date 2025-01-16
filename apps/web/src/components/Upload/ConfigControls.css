@@ -78,7 +78,7 @@
   border-radius: 8px;
   padding: 10px 12px;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
+  font-size: 12px;
   transition: all 0.2s ease;
 }
 
@@ -94,6 +94,11 @@
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.number-input.fit-content {
+  width: 64px;
+  min-width: 48px;
 }
 
 /* Switch Control Styles */
@@ -294,4 +299,43 @@ select.number-input {
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
+}
+
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle-switch input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.toggle-switch input[type="checkbox"]:checked {
+  background-color: #ffffff;
+  position: relative;
+}
+
+.toggle-switch input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  color: #000000;
+  font-size: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.ml-2 {
+  margin-left: 8px;
 }
