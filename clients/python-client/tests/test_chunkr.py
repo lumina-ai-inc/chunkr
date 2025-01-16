@@ -206,9 +206,9 @@ async def test_json_schema(chunkr_client, sample_path):
     
     assert isinstance(response, TaskResponse)
     assert response.task_id is not None
-    assert response.status == "Succeeded"
+    if response.status != "Succeeded":
+        raise ValueError(f"Task failed with message: {response.message}")
     assert response.output is not None
-    
 @pytest.mark.asyncio
 async def test_delete_task(chunkr_client, sample_path):
     client_type, client = chunkr_client
