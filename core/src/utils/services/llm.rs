@@ -3,7 +3,7 @@ use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::open_ai::{
     ContentPart, ImageUrl, Message, MessageContent, OpenAiRequest, OpenAiResponse,
 };
-use crate::utils::rate_limit::{LLM_RATE_LIMITER, TOKEN_TIMEOUT};
+use crate::utils::rate_limit::{LLM_OCR_TIMEOUT, LLM_RATE_LIMITER, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
 use base64::{engine::general_purpose, Engine as _};
 use std::error::Error;
@@ -37,10 +37,18 @@ pub async fn open_ai_call(
         temperature,
     };
     let client = reqwest::Client::new();
-    let response = client
+    let mut openai_request = client
         .post(url)
         .header("Content-Type", "application/json")
-        .header("Authorization", format!("Bearer {}", key))
+        .header("Authorization", format!("Bearer {}", key));
+
+    if let Some(timeout) = LLM_OCR_TIMEOUT.get() {
+        if let Some(timeout_value) = timeout {
+            openai_request = openai_request.timeout(std::time::Duration::from_secs(*timeout_value));
+        }
+    }
+
+    let response = openai_request
         .json(&request)
         .send()
         .await?
