@@ -52,7 +52,7 @@ async fn process_page(
     extracted_ocr_result: Vec<OCRResult>,
     page_number: u32,
 ) -> Result<Vec<Segment>, Box<dyn std::error::Error + Send + Sync>> {
-    let ocr_results = match configuration.ocr_strategy {
+    let ocr_results: Vec<OCRResult> = match configuration.ocr_strategy {
         OcrStrategy::All => ocr_page_all(&page).await,
         OcrStrategy::Auto => ocr_page_auto(&page, extracted_ocr_result).await,
     }?;

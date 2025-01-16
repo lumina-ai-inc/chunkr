@@ -113,7 +113,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:7cafa002
+    image: luminainc/task:59e4506d
     platform: linux/amd64
     depends_on:
       - postgres
