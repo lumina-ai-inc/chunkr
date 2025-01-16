@@ -48,7 +48,9 @@ pub async fn doctr_ocr(
     let mut request = client.post(&url).multipart(form);
 
     if let Some(timeout) = GENERAL_OCR_TIMEOUT.get() {
-        request = request.timeout(std::time::Duration::from_secs(timeout.unwrap()));
+        if let Some(timeout_value) = timeout {
+            request = request.timeout(std::time::Duration::from_secs(*timeout_value));
+        }
     }
 
     let response = request.send().await?.error_for_status()?;
