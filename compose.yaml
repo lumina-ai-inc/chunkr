@@ -136,7 +136,7 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:1bcb587f
+    image: luminainc/segmentation:920ed2db
     ports:
       - "8001:8000"
     deploy:
@@ -152,7 +152,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr:7e834504
+    image: luminainc/doctr:920ed2db
     platform: linux/amd64
     ports:
       - "8002:8000"
