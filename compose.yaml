@@ -191,8 +191,7 @@ services:
     platform: linux/amd64
     ports:
       - "8003:80"
-    command: ["--model-id", "BAAI/bge-m3", "--max-client-batch-size", "512", "--max-batch-tokens", "5120000", "--payload-limit", "100000000", "--auto-truncate"]
-
+    command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "512", "--max-batch-tokens", "5120000", "--payload-limit", "100000000", "--auto-truncate" ]
     deploy:
       replicas: 1
       resources:
