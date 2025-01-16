@@ -55,7 +55,36 @@ pub async fn perform_segmentation(
                 *TOKEN_TIMEOUT.get().unwrap(),
             ))
             .await?;
+        println!("Acquired token");
         vgt_segmentation(temp_file, ocr_results.clone(), page_number).await
     })
     .await?)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use futures::future::try_join_all;
+    use tempfile::NamedTempFile;
+    use std::path::Path;
+    use crate::utils::services::ocr::perform_general_ocr;
+    use crate::utils::clients::initialize;
+    #[tokio::test]
+    async fn test_perform_segmentation() {
+        initialize().await;
+        let path = Path::new("/home/ishaan/Documents/repos/chunkr/services/vgt/tests/figures/test.png");
+        let temp_file = NamedTempFile::new().unwrap();
+        std::fs::copy(path, temp_file.path()).unwrap();
+        let ocr_results = perform_general_ocr(&temp_file).await.unwrap();
+        let page_number = 1;
+
+        let futures: Vec<_> = (0..100)
+            .map(|_| perform_segmentation(&temp_file, ocr_results.clone(), page_number))
+            .collect();
+        
+        let results = try_join_all(futures).await.unwrap();
+        for segments in results {
+            assert!(!segments.is_empty());
+        }
+    }
 }

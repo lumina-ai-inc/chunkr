@@ -75,31 +75,26 @@ async def batch_processor():
                         break
                     current_batch.append(pending_tasks.popleft())
             
-            try:
-                # Process single chunk
-                chunk_results = await process_ocr_batch(current_batch)
-                
-                # Set results immediately
-                for task, result in zip(current_batch, chunk_results):
-                    if not task.future.done():
-                        task.future.set_result(result)
-                
-                # Clear memory
-                del chunk_results
-                del current_batch
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+                try:
+                    # Process single chunk
+                    chunk_results = await process_ocr_batch(current_batch)
                     
-            except Exception as e:
-                print(f"Error processing batch: {e}")
-                for task in current_batch:
-                    if not task.future.done():
-                        task.future.set_exception(e)
-            
-            # Clear the event if no more tasks
-            async with processing_lock:
-                if not pending_tasks:
-                    batch_event.clear()
+                    # Set results immediately
+                    for task, result in zip(current_batch, chunk_results):
+                        if not task.future.done():
+                            task.future.set_result(result)
+                    
+                    # Clear memory
+                    del chunk_results
+                    del current_batch
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                        
+                except Exception as e:
+                    print(f"Error processing batch: {e}")
+                    for task in current_batch:
+                        if not task.future.done():
+                            task.future.set_exception(e)
             
         except Exception as e:
             print(f"Error in batch processor: {e}")
