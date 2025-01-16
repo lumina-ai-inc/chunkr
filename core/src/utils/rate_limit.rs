@@ -6,12 +6,13 @@ use once_cell::sync::OnceCell;
 use std::time::Duration;
 
 pub static GENERAL_OCR_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
-pub static SEGMENTATION_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
-pub static POOL: OnceCell<Pool> = OnceCell::new();
-pub static GENERAL_OCR_TIMEOUT: OnceCell<u64> = OnceCell::new();
-pub static SEGMENTATION_TIMEOUT: OnceCell<u64> = OnceCell::new();
-pub static TOKEN_TIMEOUT: OnceCell<u64> = OnceCell::new();
+pub static GENERAL_OCR_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
 pub static LLM_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
+pub static LLM_OCR_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
+pub static POOL: OnceCell<Pool> = OnceCell::new();
+pub static SEGMENTATION_RATE_LIMITER: OnceCell<RateLimiter> = OnceCell::new();
+pub static SEGMENTATION_TIMEOUT: OnceCell<Option<u64>> = OnceCell::new();
+pub static TOKEN_TIMEOUT: OnceCell<u64> = OnceCell::new();
 
 pub struct RateLimiter {
     pool: Pool,
@@ -105,14 +106,29 @@ fn create_general_ocr_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter
     RateLimiter::new(pool, throttle_config.general_ocr_rate_limit, bucket_name)
 }
 
+fn create_general_ocr_timeout() -> Option<u64> {
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    throttle_config.general_ocr_timeout
+}
+
 fn create_llm_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
     RateLimiter::new(pool, throttle_config.llm_ocr_rate_limit, bucket_name)
 }
 
+fn create_llm_ocr_timeout() -> Option<u64> {
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    throttle_config.llm_ocr_timeout
+}
+
 fn create_segmentation_rate_limiter(pool: Pool, bucket_name: &str) -> RateLimiter {
     let throttle_config = ThrottleConfig::from_env().unwrap();
     RateLimiter::new(pool, throttle_config.segmentation_rate_limit, bucket_name)
+}
+
+fn create_segmentation_timeout() -> Option<u64> {
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    throttle_config.segmentation_timeout
 }
 
 pub fn init_throttle() {
@@ -121,11 +137,11 @@ pub fn init_throttle() {
     GENERAL_OCR_RATE_LIMITER.get_or_init(|| {
         create_general_ocr_rate_limiter(POOL.get().unwrap().clone(), "general_ocr")
     });
-    GENERAL_OCR_TIMEOUT.get_or_init(|| 120);
+    GENERAL_OCR_TIMEOUT.get_or_init(|| create_general_ocr_timeout());
     SEGMENTATION_RATE_LIMITER.get_or_init(|| {
         create_segmentation_rate_limiter(POOL.get().unwrap().clone(), "segmentation")
     });
-    SEGMENTATION_TIMEOUT.get_or_init(|| 120);
+    SEGMENTATION_TIMEOUT.get_or_init(|| create_segmentation_timeout());
     let llm_config = LlmConfig::from_env().unwrap();
     let llm_ocr_url = llm_config.ocr_url.unwrap_or(llm_config.url);
     let domain_name = llm_ocr_url

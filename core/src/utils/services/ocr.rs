@@ -45,15 +45,13 @@ pub async fn doctr_ocr(
             .mime_str("image/jpeg")?,
     );
 
-    let response = client
-        .post(&url)
-        .multipart(form)
-        .timeout(std::time::Duration::from_secs(
-            *GENERAL_OCR_TIMEOUT.get().unwrap(),
-        ))
-        .send()
-        .await?
-        .error_for_status()?;
+    let mut request = client.post(&url).multipart(form);
+
+    if let Some(timeout) = GENERAL_OCR_TIMEOUT.get() {
+        request = request.timeout(std::time::Duration::from_secs(timeout.unwrap()));
+    }
+
+    let response = request.send().await?.error_for_status()?;
 
     let doctr_response: DoctrResponse = response.json().await?;
     Ok(Vec::from(doctr_response))
