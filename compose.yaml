@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 5
     deploy:
-      replicas: 1
+      replicas: 0
 
   adminer:
     image: adminer:latest
@@ -191,7 +191,8 @@ services:
     platform: linux/amd64
     ports:
       - "8003:80"
-    command: [ "--model-id", "BAAI/bge-m3", "--auto-truncate", "--payload-limit", "100000000" ]
+    command: ["--model-id", "BAAI/bge-m3", "--max-client-batch-size", "512", "--max-batch-tokens", "5120000", "--payload-limit", "100000000", "--auto-truncate"]
+
     deploy:
       replicas: 1
       resources:

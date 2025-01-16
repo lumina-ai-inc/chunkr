@@ -72,7 +72,8 @@ class TaskResponse(BaseModel):
     def _check_status(self) -> Optional['TaskResponse']:
         """Helper method to check task status and handle completion/failure"""
         if self.status == "Failed":
-            raise ValueError(self.message)
+            print(self.message)
+            raise ValueError(self.status)
         if self.status not in ("Starting", "Processing"):
             return self
         return None
