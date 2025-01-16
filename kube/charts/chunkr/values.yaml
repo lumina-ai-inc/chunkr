@@ -159,7 +159,7 @@ services:
     useStandardEnv: true
     image:
       repository: task
-      tag: "7cafa002"
+      tag: "59e4506d"
     envFrom:
       - secretRef:
           name: chunkr-secret
