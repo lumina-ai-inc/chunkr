@@ -513,47 +513,33 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
 
 async def batch_processor():
     while True:
-        try:
-            await batch_event.wait()
-            
-            async with processing_lock:
-                if not pending_tasks:
-                    batch_event.clear()
-                    continue
-                print(f"Pending tasks: {len(pending_tasks)}")
-                # Take only max_batch_size tasks
-                current_batch = []
-                for _ in range(max_batch_size):
-                    if not pending_tasks:
-                        break
-                    current_batch.append(pending_tasks.popleft())
-                print(f"Pending tasks after: {len(pending_tasks)}")
+        await batch_event.wait()
+        batch_event.clear()
+        
+        await asyncio.sleep(batch_wait_time)
 
-                try:
-                    chunk_results = await process_od_batch(current_batch)
-                    
-                    # Set results immediately for this chunk
-                    for task, result in zip(current_batch, chunk_results):
-                        if not task.future.done():
-                            task.future.set_result(result)
-                    
-                    # Clear memory after processing
-                    del chunk_results
-                    del current_batch
-                    gc.collect()
-                    if torch.cuda.is_available():
-                        torch.cuda.empty_cache()
-                    
-                except Exception as e:
-                    print(f"Error processing batch: {e}")
-                    for task in current_batch:
-                        if not task.future.done():
-                            task.future.set_exception(e)
-                        
+        async with processing_lock:
+            if not pending_tasks:
+                continue
+            current_batch = list(pending_tasks)
+            pending_tasks.clear()
+        
+        try:
+            results = []
+            if max_batch_size is None or max_batch_size <= 0:
+                results.extend(await process_od_batch(current_batch))
+            else:
+                for i in range(0, len(current_batch), max_batch_size):
+                    chunk = current_batch[i:i+max_batch_size]
+                    chunk_results = await process_od_batch(chunk)
+                    results.extend(chunk_results)
+
+            for task, result in zip(current_batch, results):
+                task.future.set_result(result)
         except Exception as e:
-            print(f"Error in batch processor: {e}")
-            batch_event.clear()
-            await asyncio.sleep(0.1)  # Prevent tight loop on error
+            for task in current_batch:
+                task.future.set_exception(e)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
