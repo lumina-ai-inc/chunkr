@@ -25,15 +25,15 @@ async fn vgt_segmentation(
             "data": ocr_results
         }))?,
     );
-    let response = client
+    let mut request = client
         .post(format!("{}/batch_async", worker_config.segmentation_url))
-        .multipart(form)
-        .timeout(std::time::Duration::from_secs(
-            *SEGMENTATION_TIMEOUT.get().unwrap(),
-        ))
-        .send()
-        .await?
-        .error_for_status()?;
+        .multipart(form);
+
+    if let Some(timeout) = SEGMENTATION_TIMEOUT.get() {
+        request = request.timeout(std::time::Duration::from_secs(timeout.unwrap()));
+    }
+
+    let response = request.send().await?.error_for_status()?;
     let object_detection_response: ObjectDetectionResponse = response.json().await?;
     let segments = object_detection_response
         .instances
