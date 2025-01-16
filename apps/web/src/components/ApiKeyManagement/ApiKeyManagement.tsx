@@ -37,18 +37,6 @@ const dummyApiKeys = [
 ];
 
 export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
-<<<<<<< HEAD
-  //   const [apiKeys, setApiKeys] = useState<ApiKey[]>(
-  //     user?.api_keys?.map((key: string) => ({
-  //       id: crypto.randomUUID(),
-  //       key,
-  //       usage: Math.floor(Math.random() * 1000),
-  //       limit: 10000,
-  //     })) || []
-  //   );
-
-  const apiKeys = user?.api_keys || [];
-=======
   const [apiKeys, setApiKeys] = useState<ApiKey[]>(
     user?.api_keys?.map((key: string) => ({
       id: crypto.randomUUID(),
@@ -59,7 +47,6 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
   );
 
   const [expandedKeyId, setExpandedKeyId] = useState<number | null>(null);
->>>>>>> 96597301 (Fix for tables in markdown view - switching to new branch)
 
   const createNewApiKey = async () => {
     // TODO: API call to create new key
@@ -125,25 +112,15 @@ export default function ApiKeyManagement({ user }: ApiKeyManagementProps) {
           </tr>
         </thead>
         <tbody>
-<<<<<<< HEAD
-          {apiKeys.map((apiKey) => (
-            <tr key={apiKey}>
-              {/* <td>
-=======
           {dummyApiKeys.map((apiKey) => (
             <tr key={apiKey.id}>
               <td>
->>>>>>> 96597301 (Fix for tables in markdown view - switching to new branch)
                 <Text
                   size="2"
                   weight="medium"
                   style={{ color: "rgba(255, 255, 255, 0.8)" }}
                 >
-<<<<<<< HEAD
-                  {apiKey.key || "API Key"}
-=======
                   {apiKey.name || "API Key"}
->>>>>>> 96597301 (Fix for tables in markdown view - switching to new branch)
                 </Text>
               </td>
               <td>

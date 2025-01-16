@@ -24,11 +24,7 @@ import {
 import Dropdown from "../../components/Dropdown/Dropdown";
 import MomentumScroll from "../../components/MomentumScroll/MomentumScroll";
 import Header from "../../components/Header/Header";
-<<<<<<< HEAD
-// import Footer from "../../components/Footer/Footer";
-=======
 import Footer from "../../components/Footer/Footer";
->>>>>>> 96597301 (Fix for tables in markdown view - switching to new branch)
 
 // Animation Imports
 import Lottie from "lottie-react";
