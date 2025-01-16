@@ -156,6 +156,7 @@ pub fn init_throttle() {
         .unwrap_or_else(|_| "localhost");
     LLM_RATE_LIMITER
         .get_or_init(|| create_llm_rate_limiter(POOL.get().unwrap().clone(), domain_name));
+    LLM_OCR_TIMEOUT.get_or_init(|| create_llm_ocr_timeout());
 }
 
 #[cfg(test)]

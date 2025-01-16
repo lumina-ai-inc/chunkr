@@ -30,7 +30,9 @@ async fn vgt_segmentation(
         .multipart(form);
 
     if let Some(timeout) = SEGMENTATION_TIMEOUT.get() {
-        request = request.timeout(std::time::Duration::from_secs(timeout.unwrap()));
+        if let Some(timeout_value) = timeout {
+            request = request.timeout(std::time::Duration::from_secs(*timeout_value));
+        }
     }
 
     let response = request.send().await?.error_for_status()?;
