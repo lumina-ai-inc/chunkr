@@ -417,7 +417,7 @@ async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<Http
         "Successfully updated segment usage for customer_id: {}",
         user_id
     );
-
+ 
     // Update users table to change tier to 'PayAsYouGo'
     let update_user_tier_query = "
         UPDATE users
