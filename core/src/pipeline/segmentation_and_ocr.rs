@@ -7,26 +7,7 @@ use crate::utils::services::images;
 use crate::utils::services::ocr;
 use crate::utils::services::pdf;
 use crate::utils::services::segmentation;
-use futures::future::try_join_all;
-use rayon::prelude::*;
 use tempfile::NamedTempFile;
-
-async fn ocr_page_all(
-    page: &NamedTempFile,
-) -> Result<Vec<OCRResult>, Box<dyn std::error::Error + Send + Sync>> {
-    Ok(ocr::perform_general_ocr(&page).await?)
-}
-
-async fn ocr_page_auto(
-    page: &NamedTempFile,
-    extracted_ocr_result: Vec<OCRResult>,
-) -> Result<Vec<OCRResult>, Box<dyn std::error::Error + Send + Sync>> {
-    if extracted_ocr_result.is_empty() {
-        Ok(ocr::perform_general_ocr(&page).await?)
-    } else {
-        Ok(extracted_ocr_result)
-    }
-}
 
 async fn page_segmentation(
     page: &NamedTempFile,
@@ -46,25 +27,40 @@ async fn page_segmentation(
     Ok(segments)
 }
 
-async fn process_page(
-    page: &NamedTempFile,
+async fn ocr_pages_batch(
+    pages: &[&NamedTempFile],
+) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error + Send + Sync>> {
+    Ok(ocr::perform_general_ocr_batch(pages).await?)
+}
+
+async fn process_pages_batch(
+    pages: &[&NamedTempFile],
     configuration: Configuration,
-    extracted_ocr_result: Vec<OCRResult>,
-    page_number: u32,
-) -> Result<Vec<Segment>, Box<dyn std::error::Error + Send + Sync>> {
-    let ocr_results: Vec<OCRResult> = match configuration.ocr_strategy {
-        OcrStrategy::All => ocr_page_all(&page).await,
-        OcrStrategy::Auto => ocr_page_auto(&page, extracted_ocr_result).await,
-    }?;
-
-    let segments = match configuration.segmentation_strategy {
-        SegmentationStrategy::LayoutAnalysis => {
-            segmentation::perform_segmentation(page, ocr_results, page_number).await
+    extracted_ocr_results: Vec<Vec<OCRResult>>,
+) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error + Send + Sync>> {
+    let ocr_results: Vec<Vec<OCRResult>> = match configuration.ocr_strategy {
+        OcrStrategy::All => ocr_pages_batch(pages).await?,
+        OcrStrategy::Auto => {
+            if extracted_ocr_results.iter().all(|r| r.is_empty()) {
+                ocr_pages_batch(pages).await?
+            } else {
+                extracted_ocr_results
+            }
         }
-        SegmentationStrategy::Page => page_segmentation(page, ocr_results, page_number).await,
-    }?;
+    };
 
-    Ok(segments)
+    match configuration.segmentation_strategy {
+        SegmentationStrategy::LayoutAnalysis => {
+            segmentation::perform_segmentation_batch(pages, ocr_results).await
+        }
+        SegmentationStrategy::Page => {
+            let mut segments = Vec::new();
+            for (idx, (page, ocr)) in pages.iter().zip(ocr_results.into_iter()).enumerate() {
+                segments.push(page_segmentation(page, ocr, idx as u32 + 1).await?);
+            }
+            Ok(segments)
+        }
+    }
 }
 
 /// Process the pages
@@ -90,27 +86,16 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         }
     };
 
-    let page_segments = match try_join_all(
-        pipeline
-            .page_images
-            .as_ref()
-            .unwrap()
-            .par_iter()
-            .enumerate()
-            .map(|(page_idx, page)| {
-                let task = pipeline.get_task().unwrap();
-                process_page(
-                    page,
-                    task.configuration.clone(),
-                    pdf_ocr_results[page_idx].clone(),
-                    page_idx as u32 + 1,
-                )
-            })
-            .collect::<Vec<_>>(),
+    let pages: Vec<_> = pipeline.page_images.as_ref().unwrap().iter().map(|x| x.as_ref()).collect();
+    
+    let page_segments = match process_pages_batch(
+        &pages,
+        pipeline.get_task()?.configuration.clone(),
+        pdf_ocr_results,
     )
     .await
     {
-        Ok(page_segments) => page_segments,
+        Ok(segments) => segments,
         Err(e) => {
             println!("Error in performing segmentation and OCR: {:?}", e);
             return Err(e.to_string().into());
