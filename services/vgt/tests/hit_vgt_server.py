@@ -225,58 +225,67 @@ def post_image_to_async(server_url, img_bytes, ocr_data_json):
     return response, elapsed
 
 
-
+from concurrent.futures import ThreadPoolExecutor
 
 
 if __name__ == "__main__":
     pdf_path = "figures/test_batch3.pdf"
-    server_url = "http://localhost:8001/batch_async"
+    server_url = "http://localhost:8001/batch"
+
+    # Create output directories in parallel
+    with ThreadPoolExecutor() as executor:
+        dirs = [ANNOTATED_IMAGES_DIR / "with_ocr", ANNOTATED_IMAGES_DIR / "without_ocr"]
+        executor.map(lambda d: d.mkdir(parents=True, exist_ok=True), dirs)
+
     for use_tesseract_ocr in [True]:
         for use_reading_order in [False]:
             ocr_mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
-            subfolder_path = ANNOTATED_IMAGES_DIR / ocr_mode 
-            subfolder_path.mkdir(parents=True, exist_ok=True)
+            subfolder_path = ANNOTATED_IMAGES_DIR / ocr_mode
+            
             start_time = time.time()
             pdf_images = convert_from_path(str(pdf_path), dpi=300, fmt="jpg")
             end_time = time.time()
-            request_data_list = []
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                if use_tesseract_ocr:
-                    request_data_list = list(executor.map(lambda pil_img: (
-                        (img_byte_arr := io.BytesIO(), pil_img.save(img_byte_arr, format='JPEG'), img_byte_arr.getvalue(), get_tesseract_ocr_data(pil_img))
-                    )[2:4], pdf_images))
-                else:
-                    ocr_words, bounding_boxes = get_pdfplumber_ocr_data(pdf_path)
-                    grid_dict = get_grid_words_dict([word["text"] for word in ocr_words], bounding_boxes)
-                    request_data_list = [(None, json.dumps({"data": ocr_words}))] * len(pdf_images)
-            all_predictions = []
-            request_times = []
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                futures = [
-                    executor.submit(post_image_to_async, server_url, d[0], d[1])
-                    for d in request_data_list
-                ]
-            for i, fut in enumerate(futures):
-                try:
-                    response, req_time = fut.result()
-                    request_times.append(req_time)
-                    if response.status_code == 200:
-                        all_predictions.append(response.json())
-                    else:
-                        all_predictions.append({"instances": {}})
-                except:
-                    all_predictions.append({"instances": {}})
-                    
-            total_duration = max(request_times) if request_times else 0
-            avg_request_time = total_duration / len(request_times) if request_times else 0
-            pages_per_sec = len(request_times) / total_duration if total_duration else 0
+
+            # Prepare batch data
+            files_data = []
+            ocr_data_list = []
+            
+            if use_tesseract_ocr:
+                # Process OCR in parallel
+                with ThreadPoolExecutor() as executor:
+                    ocr_data_list = list(executor.map(
+                        lambda img: json.loads(get_tesseract_ocr_data(img))["data"], 
+                        pdf_images
+                    ))
+            else:
+                ocr_words, bounding_boxes = get_pdfplumber_ocr_data(pdf_path)
+                ocr_data_list = [ocr_words] * len(pdf_images)
+
+            # Prepare image data
+            for pil_img in pdf_images:
+                img_byte_arr = io.BytesIO()
+                pil_img.save(img_byte_arr, format='JPEG')
+                files_data.append(('files', ('image.jpg', img_byte_arr.getvalue(), 'image/jpeg')))
+
+            # Send batch request
+            start_time = time.time()
+            response = requests.post(
+                server_url,
+                files=files_data,
+                data={"ocr_data": json.dumps({"data": ocr_data_list})}
+            )
+            elapsed = time.time() - start_time
+
+            if response.status_code == 200:
+                all_predictions = response.json()
+            else:
+                all_predictions = [{"instances": {}}] * len(pdf_images)
+
             table_data = [
-                ["OCR Mode","Reqs","Total(s)","Avg(s)","PPS"],
-                [ocr_mode, len(request_times),
-                 f"{total_duration:.2f}", f"{avg_request_time:.2f}", f"{pages_per_sec:.2f}"]
+                ["OCR Mode", "Pages", "Total(s)", "PPS"],
+                [ocr_mode, len(pdf_images), f"{elapsed:.2f}", f"{len(pdf_images)/elapsed:.2f}"]
             ]
             print(tabulate(table_data, headers="firstrow", tablefmt="grid"))
+
             if all_predictions:
-                # if use_tesseract_ocr:
-                #     all_predictions = [get_best_segments(pred, ocr_data) for pred, ocr_data in zip(all_predictions, request_data_list)]
                 visualize_predictions(pdf_images, all_predictions, subfolder_path)
