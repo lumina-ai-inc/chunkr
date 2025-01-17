@@ -1,6 +1,6 @@
 from typing import Optional, runtime_checkable, Protocol
 from requests import Session
-from aiohttp import ClientSession
+from httpx import AsyncClient
 
 @runtime_checkable
 class ChunkrClientProtocol(Protocol):
@@ -8,7 +8,7 @@ class ChunkrClientProtocol(Protocol):
     url: str
     _api_key: str
     _session: Optional[Session] = None
-    _client: Optional[ClientSession] = None
+    _client: Optional[AsyncClient] = None
 
     def get_api_key(self) -> str:
         """Get the API key"""
