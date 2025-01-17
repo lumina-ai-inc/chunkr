@@ -43,8 +43,9 @@ impl std::str::FromStr for JsonSchema {
 pub struct Property {
     /// The identifier for the property in the extracted data.
     pub name: String,
-    /// A human-readable title for the property.
-    /// This is optional and can be used to increase the accuracy of the extraction.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated]
+    /// A human-readable title for the property. [deprecated]
     pub title: Option<String>,
     #[serde(alias = "type")]
     /// The data type of the property
