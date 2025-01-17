@@ -1,31 +1,83 @@
-from abc import ABC, abstractmethod
 from .config import Configuration
+from .protocol import ChunkrClientProtocol
+from ..models import Status, OutputResponse
+from abc import ABC, abstractmethod
+from typing import TypeVar, Optional, Generic, Union
+from pydantic import BaseModel, PrivateAttr
+from datetime import datetime
 
-class TaskBase(ABC):
+T = TypeVar('T', bound='TaskBase')
+
+class TaskBase(BaseModel, ABC, Generic[T]):
+    configuration: Configuration
+    created_at: datetime
+    expires_at: Optional[datetime]
+    file_name: Optional[str]
+    finished_at: Optional[datetime]
+    input_file_url: Optional[str]
+    message: str
+    output: Optional[OutputResponse]
+    page_count: Optional[int]
+    pdf_url: Optional[str]
+    started_at: Optional[datetime]
+    status: Status
+    task_id: str
+    task_url: Optional[str]
+    _client: Optional[Union[ChunkrClientProtocol]] = PrivateAttr(default=None)
+
     @abstractmethod
-    def poll(self):
+    def _poll_request(self) -> dict:
+        """Helper method to make polling request with retry logic (synchronous)"""
         pass
 
     @abstractmethod
-    def update(self, config: Configuration):
+    def poll(self) -> T:
+        """Poll the task for completion."""
         pass
 
     @abstractmethod
-    def cancel(self):
+    def update(self, config: Configuration) -> T:
+        """Update the task configuration."""
         pass
 
     @abstractmethod
-    def delete(self):
+    def cancel(self) -> T:
+        """Cancel the task."""
         pass
 
     @abstractmethod
+    def delete(self) -> T:
+        """Delete the task."""
+        pass
+
+    def with_client(self, client: Union[ChunkrClientProtocol]) -> T:
+        self._client = client
+        return self
+
+    def _check_status(self) -> Optional[T]:
+        """Helper method to check task status and handle completion/failure"""
+        if self.status == "Failed":
+            raise ValueError(self.message)
+        if self.status not in ("Starting", "Processing"):
+            return self
+        return None
+
     def html(self) -> str:
-        pass
+        return self._get_content("html")
 
-    @abstractmethod
     def markdown(self) -> str:
-        pass
+        return self._get_content("markdown")
 
-    @abstractmethod
     def content(self) -> str:
-        pass
+        return self._get_content("content")
+
+    def _get_content(self, t: str) -> str:
+        if not self.output:
+            return ""
+        parts = []
+        for c in self.output.chunks:
+            for s in c.segments:
+                v = getattr(s, t)
+                if v:
+                    parts.append(v)
+        return "\n".join(parts)
