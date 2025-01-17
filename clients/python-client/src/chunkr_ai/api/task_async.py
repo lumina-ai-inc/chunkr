@@ -1,19 +1,11 @@
 import asyncio
 from pydantic import BaseModel, PrivateAttr
 from datetime import datetime
-from enum import Enum
 from typing import Optional, Union
 from .task_base import TaskBase
 from .protocol import ChunkrClientProtocol
-from .config import Configuration, OutputResponse
+from .config import Configuration, OutputResponse, Status
 from .misc import prepare_upload_data
-
-class Status(str, Enum):
-    STARTING = "Starting"
-    PROCESSING = "Processing"
-    SUCCEEDED = "Succeeded"
-    FAILED = "Failed"
-    CANCELLED = "Cancelled"
 
 class TaskResponseAsync(BaseModel, TaskBase):
     configuration: Configuration

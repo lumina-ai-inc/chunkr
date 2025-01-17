@@ -129,3 +129,10 @@ class Configuration(BaseModel):
                 values["chunk_processing"] = values.get("chunk_processing", {}) or {}
                 values["chunk_processing"]["target_length"] = target_length
         return values
+
+class Status(str, Enum):
+    STARTING = "Starting"
+    PROCESSING = "Processing"
+    SUCCEEDED = "Succeeded"
+    FAILED = "Failed"
+    CANCELLED = "Cancelled"

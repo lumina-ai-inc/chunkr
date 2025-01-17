@@ -17,9 +17,11 @@ from .api.config import (
     SegmentProcessing,
     SegmentType,
     SegmentationStrategy,
+    Status,
 )
 
-from .api.task import TaskResponse, Status
+from .api.task import TaskResponse
+from .api.task_async import TaskResponseAsync
 
 __all__ = [
     'BoundingBox',
@@ -42,5 +44,6 @@ __all__ = [
     'SegmentType',
     'SegmentationStrategy',
     'Status',
-    'TaskResponse'
+    'TaskResponse',
+    'TaskResponseAsync',
 ]

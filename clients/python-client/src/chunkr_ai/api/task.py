@@ -1,20 +1,12 @@
 from .protocol import ChunkrClientProtocol
-from .config import Configuration, OutputResponse
+from .config import Configuration, OutputResponse, Status
 from .misc import prepare_upload_data
 import asyncio
 from datetime import datetime
-from enum import Enum
 from pydantic import BaseModel, PrivateAttr
 import time
 from typing import Optional, Union
 
-class Status(str, Enum):
-    STARTING = "Starting"
-    PROCESSING = "Processing"
-    SUCCEEDED = "Succeeded"
-    FAILED = "Failed"
-    CANCELLED = "Cancelled"
-    
 class TaskResponse(BaseModel):
     configuration: Configuration
     created_at: datetime
