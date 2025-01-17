@@ -6,6 +6,8 @@ import asyncio
 class TaskResponseAsync(TaskBase):
     async def _poll_request(self) -> dict:
         try:
+            if not self._client._client:
+                raise ValueError("Client not found")
             r = await self._client._client.get(self.task_url, headers=self._client._headers())
             r.raise_for_status()
             return r.json()
@@ -18,6 +20,8 @@ class TaskResponseAsync(TaskBase):
     async def poll(self) -> 'TaskResponseAsync':
         if not self.task_url:
             raise ValueError("Task URL not found")
+        if not self._client._client:
+            raise ValueError("Client not found")
         while True:
             j = await self._poll_request()
             updated = TaskResponseAsync(**j).with_client(self._client)
@@ -29,6 +33,8 @@ class TaskResponseAsync(TaskBase):
     async def update(self, config: Configuration) -> 'TaskResponseAsync':
         if not self.task_url:
             raise ValueError("Task URL not found")
+        if not self._client._client:
+            raise ValueError("Client not found")
         f = prepare_upload_data(None, config)
         r = await self._client._client.patch(self.task_url, files=f, headers=self._client._headers())
         r.raise_for_status()
@@ -39,6 +45,8 @@ class TaskResponseAsync(TaskBase):
     async def cancel(self):
         if not self.task_url:
             raise ValueError("Task URL not found")
+        if not self._client._client:
+            raise ValueError("Client not found")
         r = await self._client._client.get(f"{self.task_url}/cancel", headers=self._client._headers())
         r.raise_for_status()
         return await self.poll()
@@ -46,5 +54,7 @@ class TaskResponseAsync(TaskBase):
     async def delete(self):
         if not self.task_url:
             raise ValueError("Task URL not found")
+        if not self._client._client:
+            raise ValueError("Client not found")
         r = await self._client._client.delete(self.task_url, headers=self._client._headers())
         r.raise_for_status()

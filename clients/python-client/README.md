@@ -62,7 +62,7 @@ async def process_document():
     # If you want to upload without waiting for processing
     task = await chunkr.start_upload("document.pdf")
     # ... do other things ...
-    await task.poll_async()  # Check status when needed
+    await task.poll()  # Check status when needed
 ```
 
 ### Additional Features

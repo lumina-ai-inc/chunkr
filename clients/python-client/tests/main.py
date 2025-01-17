@@ -172,7 +172,7 @@ async def test_enrollment_schema():
     task = await chunkr.upload("../../tests/files/test.pdf", Configuration(
         json_schema=instance_schema
     ))
-    await task.poll_async()
+    await task.poll()
 
 if __name__ == "__main__":
     asyncio.run(test_enrollment_schema())
