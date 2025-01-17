@@ -1,4 +1,4 @@
-from .base import ChunkrBase
+from .chunkr_base import ChunkrBase
 from .task import TaskResponse
 from .config import Configuration
 import httpx

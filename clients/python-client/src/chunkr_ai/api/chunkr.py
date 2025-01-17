@@ -1,4 +1,4 @@
-from .base import ChunkrBase
+from .chunkr_base import ChunkrBase
 from .config import Configuration
 from .task import TaskResponse
 from pathlib import Path
@@ -163,5 +163,3 @@ class Chunkr(ChunkrBase):
             headers=self._headers()
         )
         r.raise_for_status()
-
-  

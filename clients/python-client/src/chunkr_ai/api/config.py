@@ -40,7 +40,6 @@ class ChunkProcessing(BaseModel):
 
 class Property(BaseModel):
     name: str
-    title: Optional[str] = None
     prop_type: str
     description: Optional[str] = None
     default: Optional[str] = None
