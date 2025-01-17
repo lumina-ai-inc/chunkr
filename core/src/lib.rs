@@ -25,6 +25,7 @@ pub mod pipeline;
 pub mod routes;
 pub mod utils;
 
+use configs::worker_config;
 use jobs::init::init_jobs;
 use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
@@ -33,13 +34,13 @@ use routes::stripe::{
     create_setup_intent, create_stripe_session, get_invoice_detail, get_monthly_usage,
     get_user_invoices, stripe_webhook,
 };
+use routes::structured_extraction::handle_structured_extraction_route;
 use routes::task::{
     cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
 };
 use routes::tasks::get_tasks_route;
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
-use routes::structured_extraction::handle_structured_extraction_route;
 use utils::clients::initialize;
 use utils::routes::admin_user::get_or_create_admin_user;
 
@@ -180,7 +181,10 @@ pub fn main() -> std::io::Result<()> {
             let api_scope = web::scope("/api/v1")
                 .wrap(AuthMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
-                .route("/structured_extract", web::post().to(handle_structured_extraction_route))
+                .route(
+                    "/structured_extract",
+                    web::post().to(handle_structured_extraction_route),
+                )
                 .service(
                     web::scope("/task")
                         .route("", web::post().to(create_task_route))

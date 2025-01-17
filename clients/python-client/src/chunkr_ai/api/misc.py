@@ -1,11 +1,11 @@
+from .config import Configuration, Property, JsonSchema
 import io
 import json
 from pathlib import Path
 from PIL import Image
 import requests
 from typing import Union, Tuple, BinaryIO, Optional
-from .config import Configuration
-
+from pydantic import BaseModel
 
 def prepare_file(
     file: Union[str, Path, BinaryIO, Image.Image]
@@ -15,8 +15,31 @@ def prepare_file(
     if isinstance(file, str) and (file.startswith('http://') or file.startswith('https://')):
         response = requests.get(file)
         response.raise_for_status()
+        
+        # Try to get filename from Content-Disposition header first
+        filename = None
+        content_disposition = response.headers.get('Content-Disposition')
+        if content_disposition and 'filename=' in content_disposition:
+            filename = content_disposition.split('filename=')[-1].strip('"\'')
+        
+        # If no Content-Disposition, try to get clean filename from URL path
+        if not filename:
+            from urllib.parse import urlparse, unquote
+            parsed_url = urlparse(file)
+            path = unquote(parsed_url.path)
+            filename = Path(path).name if path else None
+        
+        # Fallback to default name if we couldn't extract one
+        filename = filename or 'downloaded_file'
+        
+        # Sanitize filename: remove invalid characters and limit length
+        import re
+        filename = re.sub(r'[<>:"/\\|?*%]', '_', filename)  # Replace invalid chars with underscore
+        filename = re.sub(r'\s+', '_', filename)            # Replace whitespace with underscore
+        filename = filename.strip('._')                     # Remove leading/trailing dots and underscores
+        filename = filename[:255]                           # Limit length to 255 characters
+        
         file_obj = io.BytesIO(response.content)
-        filename = Path(file.split('/')[-1]).name or 'downloaded_file'
         return filename, file_obj
 
     # Handle base64 strings
@@ -104,3 +127,33 @@ def prepare_upload_data(
             files[key] = (None, json.dumps(value), 'application/json')
                 
     return files
+
+def from_pydantic(pydantic: BaseModel) -> dict:
+    """Convert a Pydantic model to a Chunk json schema.
+    
+    Args:
+        pydantic: A Pydantic BaseModel class or instance
+        
+    Returns:
+        dict: A JSON schema compatible with Chunk's format
+    """
+    model = pydantic if isinstance(pydantic, type) else pydantic.__class__
+    schema = model.model_json_schema()
+    print(schema)
+    properties = []
+    for name, details in schema.get('properties', {}).items():
+        prop = Property(
+            name=name,
+            title=details.get('title'),
+            prop_type=details.get('type', 'string'),
+            description=details.get('description'),
+            default=str(details.get('default')) if details.get('default') is not None else None
+        )
+        properties.append(prop)
+    
+    json_schema = JsonSchema(
+        title=schema.get('title', model.__name__),
+        properties=properties
+    )
+    
+    return json_schema.model_dump(mode="json", exclude_none=True)
