@@ -1,11 +1,11 @@
 from .chunkr_base import ChunkrBase
-from .task import TaskResponse
 from .config import Configuration
+from .misc import prepare_upload_data
+from .task_async import TaskResponseAsync
 import httpx
 from pathlib import Path
 from PIL import Image
 from typing import Union, BinaryIO
-from .misc import prepare_upload_data
 
 class ChunkrAsync(ChunkrBase):
     """Asynchronous Chunkr API client"""
@@ -14,129 +14,99 @@ class ChunkrAsync(ChunkrBase):
         super().__init__(url, api_key)
         self._client = httpx.AsyncClient()
 
-    async def upload(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
-        """Upload a file and wait for processing to complete.
-
-        Args:
-            file: The file to upload. 
-            config: Configuration options for processing. Optional.
-
-        Examples:
-        ```python
-        # Upload from file path
-        await chunkr.upload("document.pdf")
-
-        # Upload from opened file
-        with open("document.pdf", "rb") as f:
-            await chunkr.upload(f)
-        
-        # Upload from URL
-        await chunkr.upload("https://example.com/document.pdf")
-
-        # Upload from base64 string (must include MIME type header)
-        await chunkr.upload("data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmo...")
-
-        # Upload an image
-        from PIL import Image
-        img = Image.open("photo.jpg")
-        await chunkr.upload(img)
-        ```
-        Returns:
-            TaskResponse: The completed task response
-        """
-        task = await self.create_task(file, config)
-        return await task.poll_async()
+    async def upload(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponseAsync:
+        if not self._client or self._client.is_closed:
+            self._client = httpx.AsyncClient()
+        try:
+            task = await self.create_task(file, config)
+            return await task.poll()
+        except Exception as e:
+            await self._client.aclose()
+            raise e
     
-    async def update(self, task_id: str, config: Configuration) -> TaskResponse:
-        """Update a task by its ID and wait for processing to complete.
-        
-        Args:
-            task_id: The ID of the task to update
-            config: Configuration options for processing. Optional.
+    async def update(self, task_id: str, config: Configuration) -> TaskResponseAsync:
+        if not self._client or self._client.is_closed:
+            self._client = httpx.AsyncClient()
+        try:
+            task = await self.update_task(task_id, config)
+            return await task.poll()
+        except Exception as e:
+            await self._client.aclose()
+            raise e
 
-        Returns:
-            TaskResponse: The updated task response
-        """
-        task = await self.update_task(task_id, config)
-        return await task.poll_async()
+    async def create_task(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponseAsync:
+        if not self._client or self._client.is_closed:
+            self._client = httpx.AsyncClient()
+        try:
+            files = prepare_upload_data(file, config)
+            r = await self._client.post(
+                f"{self.url}/api/v1/task",
+                files=files,
+                headers=self._headers()
+            )
+            r.raise_for_status()
+            return TaskResponseAsync(**r.json()).with_client(self)
+        except Exception as e:
+            await self._client.aclose()
+            raise e
 
-    async def create_task(self, file: Union[str, Path, BinaryIO, Image.Image], config: Configuration = None) -> TaskResponse:
-        """Upload a file for processing and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll_async()`.
-
-        Args:
-            file: The file to upload.
-            config: Configuration options for processing. Optional.
-
-        Examples:
-        ```
-        # Upload from file path
-        task = await chunkr.start_upload("document.pdf")
-
-        # Upload from opened file
-        with open("document.pdf", "rb") as f:
-            task = await chunkr.start_upload(f)
-    
-        # Upload from URL
-        task = await chunkr.start_upload("https://example.com/document.pdf")
-
-        # Upload from base64 string (must include MIME type header)
-        task = await chunkr.start_upload("data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmo...")
-
-        # Upload an image
-        from PIL import Image
-        img = Image.open("photo.jpg")
-        task = await chunkr.start_upload(img)
-
-        # Wait for the task to complete - this can be done when needed
-        await task.poll_async()
-        ```
-
-        Returns:
-            TaskResponse: The initial task response
-        """
-        files = prepare_upload_data(file, config)
-        r = await self._client.post(
-            f"{self.url}/api/v1/task",
-            files=files,
-            headers=self._headers()
-        )
-        r.raise_for_status()
-        return TaskResponse(**r.json()).with_client(self)
-
-    async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
-        files = prepare_upload_data(None, config)
-        r = await self._client.patch(
-            f"{self.url}/api/v1/task/{task_id}",
-            files=files,
-            headers=self._headers()
-        )
+    async def update_task(self, task_id: str, config: Configuration) -> TaskResponseAsync:
+        if not self._client or self._client.is_closed:
+            self._client = httpx.AsyncClient()
+        try:
+            files = prepare_upload_data(None, config)
+            r = await self._client.patch(
+                f"{self.url}/api/v1/task/{task_id}",
+                files=files,
+                headers=self._headers()
+            )
      
-        r.raise_for_status()
-        return TaskResponse(**r.json()).with_client(self)
+            r.raise_for_status()
+            return TaskResponseAsync(**r.json()).with_client(self)
+        except Exception as e:
+            await self._client.aclose()
+            raise e
     
-    async def get_task(self, task_id: str) -> TaskResponse:
-        r = await self._client.get(
-            f"{self.url}/api/v1/task/{task_id}",
-            headers=self._headers()
-        )
-        r.raise_for_status()
-        return TaskResponse(**r.json()).with_client(self)
+    async def get_task(self, task_id: str) -> TaskResponseAsync:
+        if not self._client or self._client.is_closed:
+            self._client = httpx.AsyncClient()
+        try:
+            r = await self._client.get(
+                f"{self.url}/api/v1/task/{task_id}",
+                headers=self._headers()
+            )
+            r.raise_for_status()
+            return TaskResponseAsync(**r.json()).with_client(self)
+        except Exception as e:
+            await self._client.aclose()
+            raise e
     
     async def delete_task(self, task_id: str) -> None:
-        r = await self._client.delete(
-            f"{self.url}/api/v1/task/{task_id}",
-            headers=self._headers()
-        )
-        r.raise_for_status()
+        if not self._client or self._client.is_closed:
+            self._client = httpx.AsyncClient()
+        try:
+            r = await self._client.delete(
+                f"{self.url}/api/v1/task/{task_id}",
+                headers=self._headers()
+            )
+            r.raise_for_status()
+        except Exception as e:
+            await self._client.aclose()
+            raise e
     
     async def cancel_task(self, task_id: str) -> None:
-        r = await self._client.get(
-            f"{self.url}/api/v1/task/{task_id}/cancel",
-            headers=self._headers()
-        )
-        r.raise_for_status()
+        if not self._client or self._client.is_closed:
+            self._client = httpx.AsyncClient()
+        try:
+            r = await self._client.get(
+                f"{self.url}/api/v1/task/{task_id}/cancel",
+                headers=self._headers()
+            )
+            r.raise_for_status()
+        except Exception as e:
+            await self._client.aclose()
+            raise e
 
-    
     async def __aenter__(self):
         return self
 

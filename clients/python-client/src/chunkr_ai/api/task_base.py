@@ -1,8 +1,7 @@
-from .config import Configuration
+from .config import Configuration, Status, OutputResponse
 from .protocol import ChunkrClientProtocol
-from ..models import Status, OutputResponse
 from abc import ABC, abstractmethod
-from typing import TypeVar, Optional, Generic, Union
+from typing import TypeVar, Optional, Generic
 from pydantic import BaseModel, PrivateAttr
 from datetime import datetime
 
@@ -23,7 +22,7 @@ class TaskBase(BaseModel, ABC, Generic[T]):
     status: Status
     task_id: str
     task_url: Optional[str]
-    _client: Optional[Union[ChunkrClientProtocol]] = PrivateAttr(default=None)
+    _client: Optional[ChunkrClientProtocol] = PrivateAttr(default=None)
 
     @abstractmethod
     def _poll_request(self) -> dict:
@@ -50,7 +49,7 @@ class TaskBase(BaseModel, ABC, Generic[T]):
         """Delete the task."""
         pass
 
-    def with_client(self, client: Union[ChunkrClientProtocol]) -> T:
+    def with_client(self, client: ChunkrClientProtocol) -> T:
         self._client = client
         return self
 
