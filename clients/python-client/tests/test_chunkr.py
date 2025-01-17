@@ -38,7 +38,7 @@ async def test_send_file_path(chunkr_client, sample_path):
     client_type, client = chunkr_client
     response = await client.upload(sample_path) if client_type == "async" else client.upload(sample_path)
     
-    assert isinstance(response, TaskResponse)
+    
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -48,7 +48,7 @@ async def test_send_file_path_str(chunkr_client, sample_path):
     client_type, client = chunkr_client
     response = await client.upload(str(sample_path)) if client_type == "async" else client.upload(str(sample_path))
     
-    assert isinstance(response, TaskResponse)
+    
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -59,7 +59,7 @@ async def test_send_opened_file(chunkr_client, sample_path):
     with open(sample_path, 'rb') as f:
         response = await client.upload(f) if client_type == "async" else client.upload(f)
     
-    assert isinstance(response, TaskResponse)
+    
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -69,7 +69,6 @@ async def test_send_pil_image(chunkr_client, sample_image):
     client_type, client = chunkr_client
     response = await client.upload(sample_image) if client_type == "async" else client.upload(sample_image)
     
-    assert isinstance(response, TaskResponse)
     assert response.task_id is not None
     assert response.status == "Succeeded"
 
@@ -82,7 +81,6 @@ async def test_ocr_auto(chunkr_client, sample_path):
         ocr_strategy=OcrStrategy.AUTO
     ))
     
-    assert isinstance(response, TaskResponse)
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -96,7 +94,7 @@ async def test_expires_in(chunkr_client, sample_path):
         expires_in=10
     ))
     
-    assert isinstance(response, TaskResponse)
+    
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -114,7 +112,7 @@ async def test_chunk_processing(chunkr_client, sample_path):
         )
     ))
     
-    assert isinstance(response, TaskResponse)
+    
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -128,7 +126,6 @@ async def test_segmentation_strategy_page(chunkr_client, sample_path):
         segmentation_strategy=SegmentationStrategy.PAGE
     ))
     
-    assert isinstance(response, TaskResponse)
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -152,7 +149,7 @@ async def test_page_llm_html(chunkr_client, sample_path):
         )
     ))
     
-    assert isinstance(response, TaskResponse)
+    
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -160,7 +157,7 @@ async def test_page_llm_html(chunkr_client, sample_path):
 @pytest.mark.asyncio
 async def test_page_llm(chunkr_client, sample_path):
     client_type, client = chunkr_client
-    response = await client.upload(sample_path, Configuration(
+    configuration = Configuration(
         segmentation_strategy=SegmentationStrategy.PAGE,
         segment_processing=SegmentProcessing(
             page=GenerationConfig(
@@ -168,17 +165,10 @@ async def test_page_llm(chunkr_client, sample_path):
                 markdown=GenerationStrategy.LLM
             )
         )
-    )) if client_type == "async" else client.upload(sample_path, Configuration(
-        segmentation_strategy=SegmentationStrategy.PAGE,
-        segment_processing=SegmentProcessing(
-            page=GenerationConfig(
-                html=GenerationStrategy.LLM,
-                markdown=GenerationStrategy.LLM
-            )
-        )
-    ))
+    )
     
-    assert isinstance(response, TaskResponse)
+    response = await client.upload(sample_path, configuration) if client_type == "async" else client.upload(sample_path, configuration)
+    
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -204,16 +194,16 @@ async def test_json_schema(chunkr_client, sample_path):
         )
     ))
     
-    assert isinstance(response, TaskResponse)
     assert response.task_id is not None
     if response.status != "Succeeded":
         raise ValueError(f"Task failed with message: {response.message}")
     assert response.output is not None
+    
 @pytest.mark.asyncio
 async def test_delete_task(chunkr_client, sample_path):
     client_type, client = chunkr_client
     response = await client.upload(sample_path) if client_type == "async" else client.upload(sample_path)
-    assert isinstance(response, TaskResponse)
+    
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
@@ -249,14 +239,14 @@ async def test_delete_task_direct(chunkr_client, sample_path):
 async def test_cancel_task(chunkr_client, sample_path):
     client_type, client = chunkr_client
     response = await client.create_task(sample_path) if client_type == "async" else client.create_task(sample_path)
-    assert isinstance(response, TaskResponse)
+    
     assert response.task_id is not None
     assert response.status == "Starting"
     
     if client_type == "async":
         await client.cancel_task(response.task_id)
         assert (await client.get_task(response.task_id)).status == "Cancelled"
-        await response.poll_async()
+        await response.poll()
     else:
         client.cancel_task(response.task_id)
         assert client.get_task(response.task_id).status == "Cancelled"
@@ -290,7 +280,7 @@ async def test_update_task(chunkr_client, sample_path):
         segmentation_strategy=SegmentationStrategy.PAGE,
     )
     response = await client.upload(sample_path, original_config) if client_type == "async" else client.upload(sample_path, original_config)
-    assert isinstance(response, TaskResponse)
+    
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None

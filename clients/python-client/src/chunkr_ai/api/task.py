@@ -7,6 +7,10 @@ class TaskResponse(TaskBase):
     def _poll_request(self) -> dict:
         while True:
             try:
+                if not self.task_url:
+                   raise ValueError("Task URL not found in response")
+                if not self._client._session:
+                    raise ValueError("Client session not found")
                 r = self._client._session.get(self.task_url, headers=self._client._headers())
                 r.raise_for_status()
                 return r.json()
@@ -17,10 +21,8 @@ class TaskResponse(TaskBase):
                 raise
 
     def poll(self) -> 'TaskResponse':
-        if not self.task_url:
-            raise ValueError("Task URL not found in response")
         while True:
-            response = self._poll_request_sync()
+            response = self._poll_request()
             updated_task = TaskResponse(**response).with_client(self._client)
             self.__dict__.update(updated_task.__dict__)
             if result := self._check_status():
@@ -30,9 +32,11 @@ class TaskResponse(TaskBase):
     def update(self, config: Configuration) -> 'TaskResponse':
         if not self.task_url:
             raise ValueError("Task URL not found")
+        if not self._client._session:
+            raise ValueError("Client session not found")
         files = prepare_upload_data(None, config)
         r = self._client._session.patch(
-            f"{self.task_url}",
+            self.task_url,
             files=files,
             headers=self._client._headers()
         )
@@ -44,6 +48,8 @@ class TaskResponse(TaskBase):
     def cancel(self):
         if not self.task_url:
             raise ValueError("Task URL not found")
+        if not self._client._session:
+            raise ValueError("Client session not found")
         r = self._client._session.get(
             f"{self.task_url}/cancel",
             headers=self._client._headers()
@@ -54,6 +60,8 @@ class TaskResponse(TaskBase):
     def delete(self):
         if not self.task_url:
             raise ValueError("Task URL not found")
+        if not self._client._session:
+            raise ValueError("Client session not found")
         r = self._client._session.delete(
             self.task_url,
             headers=self._client._headers()
