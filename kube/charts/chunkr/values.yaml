@@ -161,7 +161,7 @@ services:
     useStandardEnv: true
     image:
       repository: task
-      tag: "59e4506d"
+      tag: "f1f4891b"
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -174,7 +174,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: "d03718fd"
+      tag: "f1f4891b"
     port: 8000
     targetPort: 8000
     useGPU: true
@@ -188,7 +188,7 @@ services:
     enabled: true
     image:
       repository: segmentation
-      tag: "5e26819a"
+      tag: "f1f4891b"
     port: 8000
     targetPort: 8000
     useGPU: true
