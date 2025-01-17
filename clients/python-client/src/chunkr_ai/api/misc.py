@@ -1,11 +1,10 @@
-from .config import Configuration, Property, JsonSchema
+from .config import Configuration
 import io
 import json
 from pathlib import Path
 from PIL import Image
 import requests
 from typing import Union, Tuple, BinaryIO, Optional
-from pydantic import BaseModel
 
 def prepare_file(
     file: Union[str, Path, BinaryIO, Image.Image]
@@ -127,33 +126,3 @@ def prepare_upload_data(
             files[key] = (None, json.dumps(value), 'application/json')
                 
     return files
-
-def from_pydantic(pydantic: BaseModel) -> dict:
-    """Convert a Pydantic model to a Chunk json schema.
-    
-    Args:
-        pydantic: A Pydantic BaseModel class or instance
-        
-    Returns:
-        dict: A JSON schema compatible with Chunk's format
-    """
-    model = pydantic if isinstance(pydantic, type) else pydantic.__class__
-    schema = model.model_json_schema()
-    print(schema)
-    properties = []
-    for name, details in schema.get('properties', {}).items():
-        prop = Property(
-            name=name,
-            title=details.get('title'),
-            prop_type=details.get('type', 'string'),
-            description=details.get('description'),
-            default=str(details.get('default')) if details.get('default') is not None else None
-        )
-        properties.append(prop)
-    
-    json_schema = JsonSchema(
-        title=schema.get('title', model.__name__),
-        properties=properties
-    )
-    
-    return json_schema.model_dump(mode="json", exclude_none=True)

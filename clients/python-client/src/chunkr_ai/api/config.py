@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 from enum import Enum
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union, Type
+from .schema import from_pydantic
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
@@ -114,7 +115,7 @@ class Configuration(BaseModel):
     chunk_processing: Optional[ChunkProcessing] = Field(default=None)
     expires_in: Optional[int] = Field(default=None)
     high_resolution: Optional[bool] = Field(default=None)
-    json_schema: Optional[JsonSchema] = Field(default=None)
+    json_schema: Optional[Union[JsonSchema, Type[BaseModel], BaseModel]] = Field(default=None)
     model: Optional[Model] = Field(default=None)
     ocr_strategy: Optional[OcrStrategy] = Field(default=None)
     segment_processing: Optional[SegmentProcessing] = Field(default=None)
@@ -128,6 +129,13 @@ class Configuration(BaseModel):
                 values["chunk_processing"] = values.get("chunk_processing", {}) or {}
                 values["chunk_processing"]["target_length"] = target_length
         return values
+
+    @model_validator(mode='after')
+    def convert_json_schema(self) -> 'Configuration':
+        if self.json_schema is not None and not isinstance(self.json_schema, JsonSchema):
+            if isinstance(self.json_schema, (BaseModel, type)) and issubclass(getattr(self.json_schema, '__class__', type), BaseModel):
+                self.json_schema = JsonSchema(**from_pydantic(self.json_schema))
+        return self
 
 class Status(str, Enum):
     STARTING = "Starting"
