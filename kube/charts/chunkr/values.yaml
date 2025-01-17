@@ -180,7 +180,7 @@ services:
     useGPU: true
     env:
       - name: MAX_BATCH_SIZE
-        value: "10"
+        value: "200"
     labels:
       workload-type: chunkr-gpu
 
