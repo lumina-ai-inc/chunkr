@@ -202,14 +202,14 @@ services:
     enabled: true
     image:
       repository: text-embeddings-inference
-      tag: "1.6"
+      tag: "1.5"
       registry: ghcr.io/huggingface
     ingress:
       enabled: false
       subdomain: "embed"
     port: 8000
     targetPort: 80
-    args: [ "--model-id", "mixedbread-ai/mxbai-embed-large-v1", "--auto-truncate", "--payload-limit", "100000000" ]
+    args: [ "--model-id", "BAAI/bge-m3", "--auto-truncate", "--payload-limit", "100000000" ]
     useGPU: true
     labels:
       workload-type: chunkr-gpu
