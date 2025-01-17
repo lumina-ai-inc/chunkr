@@ -112,7 +112,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:70b19e84
+    image: luminainc/task:1d03596e
     platform: linux/amd64
     depends_on:
       - postgres
@@ -121,7 +121,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   web:
@@ -136,11 +136,11 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:70b19e84
+    image: luminainc/segmentation:1d03596e
     ports:
       - "8001:8000"
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
@@ -152,12 +152,12 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr:d03718fd
+    image: luminainc/doctr:1d03596e
     platform: linux/amd64
     ports:
       - "8002:8000"
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
