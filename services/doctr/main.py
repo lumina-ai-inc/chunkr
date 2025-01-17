@@ -56,6 +56,13 @@ async def process_ocr_batch(tasks: List[OCRTask]) -> List[OCRResponse]:
             processing_time=processing_time
         ))
     
+    # Clean up VRAM
+    del doc
+    del result
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+    
     return responses
 
 async def batch_processor():
@@ -123,6 +130,25 @@ async def create_ocr_task(file: UploadFile = File(...), page_number: int = 0):
     
     result = await future
     return result
+
+@app.post("/batch")
+async def batch_ocr(files: List[UploadFile] = File(...)):
+    # Create tasks with futures
+    tasks = []
+    for file in files:
+        image_data = await file.read()
+        future = asyncio.Future()
+        task = OCRTask(image_data=image_data, future=future)
+        tasks.append(task)
+
+    # Process batch
+    results = []
+    for i in range(0, len(tasks), max_batch_size):
+        chunk = tasks[i:i+max_batch_size]
+        chunk_results = await process_ocr_batch(chunk)
+        results.extend(chunk_results)
+
+    return results
 
 @app.get("/")
 async def root():

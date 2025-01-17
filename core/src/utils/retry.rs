@@ -22,7 +22,7 @@ where
                 if retries >= max_retries {
                     return Err(e);
                 }
-                let delay = Duration::from_secs(2u64.pow(retries)).min(Duration::from_secs(10));
+                let delay = Duration::from_millis((2u64.pow(retries) * 250).min(10000));
                 retries += 1;
                 println!(
                     "Error: {:?}. Retrying ({}/{}) in {:?}...",

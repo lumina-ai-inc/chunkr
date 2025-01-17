@@ -12,7 +12,7 @@ touch ~/.bash_history_doctr
 
 2. Create and run the doctr container:
 ```bash
-sudo docker run -it --gpus all -p 8000:8000\
+sudo docker run -it --gpus all -p 8002:8000\
     --name doctr \
     -v $PWD:/doctr \
     -v ~/.bash_history_doctr:/root/.bash_history \

@@ -112,7 +112,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:59e4506d
+    image: luminainc/task:70b19e84
     platform: linux/amd64
     depends_on:
       - postgres
@@ -121,7 +121,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 5
+      replicas: 0
     restart: always
 
   web:
@@ -136,7 +136,7 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:5e26819a
+    image: luminainc/segmentation:70b19e84
     ports:
       - "8001:8000"
     deploy:
@@ -157,7 +157,7 @@ services:
     ports:
       - "8002:8000"
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:

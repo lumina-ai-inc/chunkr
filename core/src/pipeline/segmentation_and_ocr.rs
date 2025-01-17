@@ -7,26 +7,7 @@ use crate::utils::services::images;
 use crate::utils::services::ocr;
 use crate::utils::services::pdf;
 use crate::utils::services::segmentation;
-use futures::future::try_join_all;
-use rayon::prelude::*;
 use tempfile::NamedTempFile;
-
-async fn ocr_page_all(
-    page: &NamedTempFile,
-) -> Result<Vec<OCRResult>, Box<dyn std::error::Error + Send + Sync>> {
-    Ok(ocr::perform_general_ocr(&page).await?)
-}
-
-async fn ocr_page_auto(
-    page: &NamedTempFile,
-    extracted_ocr_result: Vec<OCRResult>,
-) -> Result<Vec<OCRResult>, Box<dyn std::error::Error + Send + Sync>> {
-    if extracted_ocr_result.is_empty() {
-        Ok(ocr::perform_general_ocr(&page).await?)
-    } else {
-        Ok(extracted_ocr_result)
-    }
-}
 
 async fn page_segmentation(
     page: &NamedTempFile,
@@ -46,25 +27,25 @@ async fn page_segmentation(
     Ok(segments)
 }
 
+async fn ocr_pages_batch(
+    pages: &[&NamedTempFile],
+) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error + Send + Sync>> {
+    Ok(ocr::perform_general_ocr_batch(pages).await?)
+}
+
 async fn process_pages_batch(
     pages: &[&NamedTempFile],
     configuration: Configuration,
     extracted_ocr_results: Vec<Vec<OCRResult>>,
 ) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error + Send + Sync>> {
     let ocr_results: Vec<Vec<OCRResult>> = match configuration.ocr_strategy {
-        OcrStrategy::All => {
-            let mut results = Vec::new();
-            for page in pages {
-                results.push(ocr_page_all(page).await?);
-            }
-            results
-        }
+        OcrStrategy::All => ocr_pages_batch(pages).await?,
         OcrStrategy::Auto => {
-            let mut results = Vec::new();
-            for (page, extracted) in pages.iter().zip(extracted_ocr_results.iter()) {
-                results.push(ocr_page_auto(page, extracted.clone()).await?);
+            if extracted_ocr_results.iter().all(|r| r.is_empty()) {
+                ocr_pages_batch(pages).await?
+            } else {
+                extracted_ocr_results
             }
-            results
         }
     };
 

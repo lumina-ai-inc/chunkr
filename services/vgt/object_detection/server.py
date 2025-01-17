@@ -510,9 +510,13 @@ async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePredict
         sub_batch_predictions = await run_inference(sub_batch_images, sub_batch_grids)
         raw_predictions.extend(sub_batch_predictions)
         
-        # Cleanup after each inference
+        # Aggressive VRAM cleanup
         del sub_batch_images
+        del sub_batch_predictions
         gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
     
     # Phase 3: Postprocessing entire batch
     results = postprocess_predictions(raw_predictions, grid_dicts)
