@@ -22,6 +22,7 @@ pub async fn perform_structured_extraction(
     let worker_config = WorkerConfig::from_env().expect("Failed to load WorkerConfig");
     let search_config = SearchConfig::from_env().expect("Failed to load SearchConfig");
     let embedding_url = format!("{}/embed", search_config.dense_vector_url);
+    println!("EMBEDDING URL: {:?}", embedding_url);
     let llm_url = llm_config
         .structured_extraction_url
         .clone()

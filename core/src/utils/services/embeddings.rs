@@ -23,7 +23,6 @@ impl EmbeddingCache {
     pub fn get_embedding(&self, text: &str) -> Option<&Vec<f32>> {
         self.embeddings.get(text)
     }
-
     async fn generate_embeddings(
         &self,
         client: &Client,
@@ -33,7 +32,12 @@ impl EmbeddingCache {
     ) -> Result<Vec<Vec<f32>>, Box<dyn Error + Send + Sync>> {
         let mut all_embeddings = Vec::new();
         let mut futures = Vec::new();
-        for chunk in texts.chunks(batch_size) {
+        
+        let filtered_texts: Vec<String> = texts.into_iter()
+            .filter(|text| !text.trim().is_empty())
+            .collect();
+
+        for chunk in filtered_texts.chunks(batch_size) {
             let request = EmbeddingRequest {
                 inputs: chunk.to_vec(),
             };
