@@ -188,7 +188,7 @@ services:
     enabled: true
     image:
       repository: segmentation
-      tag: "d82eb575"
+      tag: "5e26819a"
     port: 8000
     targetPort: 8000
     useGPU: true

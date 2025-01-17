@@ -1,5 +1,6 @@
 import os
 import warnings
+warnings.filterwarnings("ignore")
 from pathlib import Path
 from dotenv import load_dotenv
 import asyncio
@@ -187,7 +188,7 @@ def apply_reading_order(instances):
     distortions = []
     K = range(1, min(10, len(centers_x) + 1))  # Ensure K is within valid range
     for k in K:
-        kmeans = KMeans(n_clusters=k)
+        kmeans = KMeans(n_clusters=k, n_init="auto")
         kmeans.fit(centers_x)
         distortions.append(kmeans.inertia_)
 
@@ -199,7 +200,7 @@ def apply_reading_order(instances):
             break
 
     # Perform clustering with the optimal number of clusters
-    kmeans = KMeans(n_clusters=optimal_k)
+    kmeans = KMeans(n_clusters=optimal_k, n_init="auto")
     kmeans.fit(centers_x)
     col_boundaries = []
     for i in range(optimal_k):
@@ -609,6 +610,51 @@ async def create_od_task(
     )
     
     return final_pred
+@app.post("/batch")
+async def batch_od(
+    files: List[UploadFile] = File(...),
+    ocr_data: str = Form(...)
+):
+    # Parse OCR data for all images
+    if not ocr_data:
+        ocr_words_list = [[] for _ in files]
+    else:
+        ocr_data_list = json.loads(ocr_data)["data"]
+        ocr_words_list = [[OCRInput(**x) for x in data] for data in ocr_data_list]
+
+    # Create tasks with futures
+    tasks = []
+    for file, ocr_words in zip(files, ocr_words_list):
+        image_data = await file.read()
+        grid_dict = create_grid_dict_from_ocr(ocr_words)
+        future = asyncio.Future()  # Create a future for each task
+        tasks.append(ODTask(file_data=image_data, grid_dict=grid_dict, future=future))
+
+    # Process batch
+    results = await process_od_batch(tasks)
+
+    # Convert results to response format
+    final_predictions = []
+    for pred in results:
+        converted_boxes = []
+        for box in pred[0].instances.boxes:
+            converted_boxes.append(BoundingBoxOutput(
+                left=box.x1,
+                top=box.y1,
+                width=box.x2 - box.x1,
+                height=box.y2 - box.y1
+            ))
+
+        final_predictions.append(FinalPrediction(
+            instances=InstanceOutput(
+                boxes=converted_boxes,
+                scores=pred[0].instances.scores,
+                classes=pred[0].instances.classes,
+                image_size=pred[0].instances.image_size
+            )
+        ))
+
+    return final_predictions
 
 @app.get("/")
 async def root():
