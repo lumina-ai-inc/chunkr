@@ -2,9 +2,11 @@ from typing import Optional, runtime_checkable, Protocol
 from requests import Session
 from httpx import AsyncClient
 
+
 @runtime_checkable
 class ChunkrClientProtocol(Protocol):
     """Protocol defining the interface for Chunkr clients"""
+
     url: str
     _api_key: str
     _session: Optional[Session] = None
