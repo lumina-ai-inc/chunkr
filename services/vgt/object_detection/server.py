@@ -442,74 +442,85 @@ def find_best_segments(predictions: List[SerializablePrediction], grid_dicts: Gr
 async def decode_image(file_data):
     return cv2.imdecode(np.frombuffer(file_data, np.uint8), cv2.IMREAD_COLOR)
 
-async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePrediction]]:
-    print(f"Processing batch of {len(tasks)} tasks | {time.time()}")
+async def preprocess_batch(tasks: List[ODTask]) -> Tuple[List[np.ndarray], List[dict]]:
+    images = await asyncio.gather(*[decode_image(t.file_data) for t in tasks])
+    grid_dicts = [t.grid_dict for t in tasks]
+    return images, grid_dicts
+
+async def run_inference(images: List[np.ndarray], grid_dicts: List[dict]) -> List[dict]:
+    
+    import sys
     try:
-        results = []
-        for i in range(0, len(tasks), max_batch_size):
-            sub_batch = tasks[i:i + max_batch_size]
-            print(f"Processing task IDs: {[task.task_id for task in sub_batch]}")
-            images = await asyncio.gather(*[decode_image(t.file_data) for t in sub_batch])
-            grid_dicts_data = [t.grid_dict for t in sub_batch]
-
-            try:
-                raw_predictions = process_image_batch(
-                    predictor, 
-                    images,
-                    dataset_name="doclaynet",
-                    grid_dicts=grid_dicts_data
-                )
-            except Exception as e:
-                if "out of memory" in str(e).lower():
-                    print("Detected 'out of memory' error - killing server.")
-                    kill_server()
-                    import sys
-                    sys.exit(1)
-                raise e
-
-            predictions_list = []
-            for pred in raw_predictions:
-                instances = pred["instances"].to("cpu")
-                boxes = instances.pred_boxes.tensor.tolist()
-                
-                serializable_pred = SerializablePrediction(
-                    instances=Instance(
-                        boxes=[BoundingBox(x1=b[0], y1=b[1], x2=b[2], y2=b[3]) 
-                               for b in boxes],
-                        scores=instances.scores.tolist(),
-                        classes=instances.pred_classes.tolist(),
-                        image_size=list(instances.image_size)
-                    )
-                )
-                predictions_list.append(serializable_pred)
-
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-
-            sub_batch_results = []
-            for t, pred in zip(sub_batch, predictions_list):
-                grid_dicts_obj = GridDicts(grid_dicts=[t.grid_dict])
-                final_predictions = find_best_segments([pred], grid_dicts_obj)
-                ordered_predictions = get_reading_order(final_predictions)
-                sub_batch_results.append(ordered_predictions)
-            
-            results.extend(sub_batch_results)
-
-            # Clear memory after each sub-batch
-            del images
-            del raw_predictions
-            del predictions_list
-            del sub_batch_results
-            import gc
-            gc.collect()
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-
-        return results
-
+        predictions = process_image_batch(
+            predictor,
+            images,
+            dataset_name="doclaynet",
+            grid_dicts=grid_dicts
+        )
+        return predictions
+    except Exception as e:
+        if "out of memory" in str(e).lower():
+            print("Detected 'out of memory' error - killing server.")
+            kill_server()
+            sys.exit(1)
+        raise e
     finally:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+
+def postprocess_predictions(raw_predictions: List[dict], grid_dicts: List[dict]) -> List[List[SerializablePrediction]]:
+    predictions_list = []
+    for pred in raw_predictions:
+        instances = pred["instances"].to("cpu")
+        boxes = instances.pred_boxes.tensor.tolist()
+        
+        serializable_pred = SerializablePrediction(
+            instances=Instance(
+                boxes=[BoundingBox(x1=b[0], y1=b[1], x2=b[2], y2=b[3]) for b in boxes],
+                scores=instances.scores.tolist(),
+                classes=instances.pred_classes.tolist(),
+                image_size=list(instances.image_size)
+            )
+        )
+        predictions_list.append(serializable_pred)
+
+    results = []
+    for pred, grid_dict in zip(predictions_list, grid_dicts):
+        grid_dicts_obj = GridDicts(grid_dicts=[grid_dict])
+        final_predictions = find_best_segments([pred], grid_dicts_obj)
+        ordered_predictions = get_reading_order(final_predictions)
+        results.append(ordered_predictions)
+    
+    return results
+
+async def process_od_batch(tasks: List[ODTask]) -> List[List[SerializablePrediction]]:
+    print(f"Processing batch of {len(tasks)} tasks | {time.time()}")
+    
+    # Phase 1: Preprocessing entire batch
+    images, grid_dicts = await preprocess_batch(tasks)
+    
+    # Phase 2: GPU Inference in sub-batches
+    raw_predictions = []
+    for i in range(0, len(tasks), max_batch_size):
+        sub_batch_images = images[i:i + max_batch_size]
+        sub_batch_grids = grid_dicts[i:i + max_batch_size]
+        print(f"Processing task IDs: {[task.task_id for task in tasks[i:i + max_batch_size]]}")
+        
+        sub_batch_predictions = await run_inference(sub_batch_images, sub_batch_grids)
+        raw_predictions.extend(sub_batch_predictions)
+        
+        # Cleanup after each inference
+        del sub_batch_images
+        gc.collect()
+    
+    # Phase 3: Postprocessing entire batch
+    results = postprocess_predictions(raw_predictions, grid_dicts)
+    
+    # Final cleanup
+    del images, raw_predictions
+    gc.collect()
+    
+    return results
 
 async def batch_processor():
     while True:
