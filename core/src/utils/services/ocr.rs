@@ -1,7 +1,7 @@
 use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::general_ocr::DoctrResponse;
 use crate::models::chunkr::output::OCRResult;
-use crate::utils::rate_limit::{GENERAL_OCR_RATE_LIMITER, GENERAL_OCR_TIMEOUT, TOKEN_TIMEOUT};
+use crate::utils::rate_limit::GENERAL_OCR_TIMEOUT;
 use crate::utils::retry::retry_with_backoff;
 use std::error::Error;
 use std::fmt;
@@ -62,16 +62,53 @@ pub async fn doctr_ocr(
 pub async fn perform_general_ocr(
     temp_file: &NamedTempFile,
 ) -> Result<Vec<OCRResult>, Box<dyn Error + Send + Sync>> {
-    let rate_limiter = GENERAL_OCR_RATE_LIMITER.get().unwrap();
     Ok(retry_with_backoff(|| async {
-        // rate_limiter
-        //     .acquire_token_with_timeout(std::time::Duration::from_secs(
-        //         *TOKEN_TIMEOUT.get().unwrap(),
-        //     ))
-        //     .await?;
         doctr_ocr(temp_file).await
     })
     .await?)
+}
+
+pub async fn perform_general_ocr_batch(
+    temp_files: &[&NamedTempFile],
+) -> Result<Vec<Vec<OCRResult>>, Box<dyn Error + Send + Sync>> {
+    Ok(retry_with_backoff(|| async {
+        doctr_ocr_batch(temp_files).await
+    })
+    .await?)
+}
+
+pub async fn doctr_ocr_batch(
+    temp_files: &[&NamedTempFile],
+) -> Result<Vec<Vec<OCRResult>>, Box<dyn Error + Send + Sync>> {
+    let client = reqwest::Client::new();
+    let worker_config = WorkerConfig::from_env()
+        .map_err(|e| Box::new(OcrError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
+
+    let general_ocr_url = worker_config.general_ocr_url.unwrap();
+    let url = format!("{}/batch", &general_ocr_url);
+
+    let mut form = reqwest::multipart::Form::new();
+    for temp_file in temp_files.iter() {
+        let file_content = tokio::fs::read(temp_file.path()).await?;
+        form = form.part(
+            "files",
+            reqwest::multipart::Part::bytes(file_content)
+                .file_name(temp_file.path().file_name().unwrap_or_default().to_string_lossy().into_owned())
+                .mime_str("image/jpeg")?,
+        );
+    }
+
+    let mut request = client.post(&url).multipart(form);
+
+    if let Some(timeout) = GENERAL_OCR_TIMEOUT.get() {
+        if let Some(timeout_value) = timeout {
+            request = request.timeout(std::time::Duration::from_secs(*timeout_value));
+        }
+    }
+
+    let response = request.send().await?.error_for_status()?;
+    let doctr_response: Vec<DoctrResponse> = response.json().await?;
+    Ok(doctr_response.into_iter().map(Vec::from).collect())
 }
 
 #[cfg(test)]
