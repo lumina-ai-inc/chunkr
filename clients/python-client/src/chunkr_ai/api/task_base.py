@@ -5,7 +5,8 @@ from typing import TypeVar, Optional, Generic
 from pydantic import BaseModel, PrivateAttr
 from datetime import datetime
 
-T = TypeVar('T', bound='TaskBase')
+T = TypeVar("T", bound="TaskBase")
+
 
 class TaskBase(BaseModel, ABC, Generic[T]):
     configuration: Configuration
