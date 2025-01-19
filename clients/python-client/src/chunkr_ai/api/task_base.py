@@ -7,7 +7,6 @@ from datetime import datetime
 
 T = TypeVar("T", bound="TaskBase")
 
-
 class TaskBase(BaseModel, ABC, Generic[T]):
     configuration: Configuration
     created_at: datetime
@@ -63,12 +62,15 @@ class TaskBase(BaseModel, ABC, Generic[T]):
         return None
 
     def html(self) -> str:
+        """Get the full HTML of the task"""
         return self._get_content("html")
 
     def markdown(self) -> str:
+        """Get the full markdown of the task"""
         return self._get_content("markdown")
 
     def content(self) -> str:
+        """Get the full content of the task"""
         return self._get_content("content")
 
     def _get_content(self, t: str) -> str:
