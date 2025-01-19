@@ -1,5 +1,5 @@
 from chunkr_ai.api.chunkr_async import ChunkrAsync
-from chunkr_ai.api.config import Configuration, JsonSchema
+from chunkr_ai.api.config import Configuration
 from chunkr_ai.api.schema import from_pydantic
 import asyncio
 from pydantic import BaseModel, Field
