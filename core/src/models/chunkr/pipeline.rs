@@ -43,6 +43,7 @@ impl Pipeline {
                     None,
                     None,
                     None,
+                    None,
                 )
                 .await?;
             }
@@ -75,6 +76,7 @@ impl Pipeline {
         task.update(
             Some(Status::Processing),
             Some("Task started".to_string()),
+            None,
             None,
             Some(Utc::now()),
             None,
@@ -125,6 +127,7 @@ impl Pipeline {
                     None,
                     None,
                     None,
+                    None,
                 )
                 .await?;
             }
@@ -148,6 +151,7 @@ impl Pipeline {
                 Some(status),
                 message,
                 None,
+                None,
                 Some(finished_at),
                 expires_at,
                 None,
@@ -161,6 +165,7 @@ impl Pipeline {
                 task.update(
                     Some(status),
                     message,
+                    None,
                     None,
                     None,
                     Some(finished_at),

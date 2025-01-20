@@ -17,13 +17,16 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
                 None,
                 None,
                 None,
+                None,
             )
             .await?;
 
-        let texts: Vec<String> = output_response.chunks
+        let texts: Vec<String> = output_response
+            .chunks
             .iter()
             .map(|chunk| {
-                chunk.segments
+                chunk
+                    .segments
                     .iter()
                     .map(|segment| segment.content.clone())
                     .collect::<Vec<String>>()

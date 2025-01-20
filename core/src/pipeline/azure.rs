@@ -1,7 +1,6 @@
-use crate::models::chunkr::output::Segment;
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::task::Status;
-use crate::utils::services::chunking;
+use crate::utils::services::azure::perform_azure_analysis;
 
 /// Use Azure document layout analysis to perform segmentation and ocr
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
@@ -9,7 +8,8 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .get_task()?
         .update(
             Some(Status::Processing),
-            Some("Chunking".to_string()),
+            Some("Running Azure Analysis".to_string()),
+            None,
             None,
             None,
             None,
@@ -17,22 +17,8 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         )
         .await?;
 
-    let segments: Vec<Segment> = pipeline
-        .output
-        .chunks
-        .clone()
-        .into_iter()
-        .map(|c| c.segments)
-        .flatten()
-        .collect();
-
-    let chunk_processing = pipeline.get_task()?.configuration.chunk_processing.clone();
-
-    let chunks = chunking::hierarchical_chunking(
-        segments,
-        chunk_processing.target_length,
-        chunk_processing.ignore_headers_and_footers,
-    )?;
+    let pdf_file = pipeline.pdf_file.as_ref().ok_or("PDF file not found")?;
+    let chunks = perform_azure_analysis(&pdf_file).await?;
 
     pipeline.output.chunks = chunks;
     Ok(())

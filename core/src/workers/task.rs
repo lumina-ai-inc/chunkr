@@ -4,6 +4,9 @@ use core::models::chunkr::pipeline::Pipeline;
 use core::models::chunkr::task::Status;
 use core::models::chunkr::task::TaskPayload;
 use core::models::rrq::queue::QueuePayload;
+
+#[cfg(feature = "azure")]
+use core::pipeline::azure;
 use core::pipeline::chunking;
 use core::pipeline::convert_to_images;
 use core::pipeline::crop;
@@ -53,7 +56,7 @@ fn orchestrate_task(
     #[cfg(feature = "azure")]
     {
         match pipeline.get_task()?.configuration.pipeline.clone() {
-            core::models::task::pipeline::Pipeline::Azure => steps.push("azure"),
+            Some(core::models::chunkr::task::PipelineType::Azure) => steps.push("azure"),
             _ => steps.push("segmentation_and_ocr"),
         }
     }
@@ -62,9 +65,10 @@ fn orchestrate_task(
         steps.push("segmentation_and_ocr");
     }
     let chunk_processing = pipeline.get_task()?.configuration.chunk_processing.clone();
-    if chunk_processing.target_length == 0 || chunk_processing.target_length == 1 {
+    if chunk_processing.target_length > 1 {
         steps.push("chunking");
     }
+    steps.push("crop");
     steps.push("segment_processing");
     let json_schema = pipeline.get_task()?.configuration.json_schema.clone();
     if json_schema.is_some() {
