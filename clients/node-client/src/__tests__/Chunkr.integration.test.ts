@@ -10,7 +10,7 @@ dotenv.config();
 const INPUT_DIR = path.join(__dirname, "input");
 const OUTPUT_DIR = path.join(__dirname, "output");
 const LOGS_DIR = path.join(__dirname, "logs");
-const POLL_INTERVAL = 5000; // 5 seconds
+const POLL_INTERVAL = 1000; // 5 seconds
 
 interface ProcessingStats {
   fileName: string;
