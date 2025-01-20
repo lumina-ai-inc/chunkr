@@ -4,6 +4,7 @@ use core::models::chunkr::pipeline::Pipeline;
 use core::models::chunkr::task::Status;
 use core::models::chunkr::task::TaskPayload;
 use core::models::rrq::queue::QueuePayload;
+use core::pipeline::chunking;
 use core::pipeline::convert_to_images;
 use core::pipeline::crop;
 use core::pipeline::segment_processing;
@@ -21,6 +22,9 @@ async fn execute_step(
     println!("Executing step: {}", step);
     let start = std::time::Instant::now();
     match step {
+        #[cfg(feature = "azure")]
+        "azure" => azure::process(pipeline).await,
+        "chunking" => chunking::process(pipeline).await,
         "convert_to_images" => convert_to_images::process(pipeline).await,
         "crop" => crop::process(pipeline).await,
         "segmentation_and_ocr" => segmentation_and_ocr::process(pipeline).await,
@@ -42,15 +46,31 @@ async fn execute_step(
 /// Orchestrate the task
 ///
 /// This function defines the order of the steps in the pipeline.
-fn orchestrate_task() -> Vec<&'static str> {
-    vec![
-        "update_metadata",
-        "convert_to_images",
-        "segmentation_and_ocr",
-        "crop",
-        "segment_processing",
-        "structured_extraction",
-    ]
+fn orchestrate_task(
+    pipeline: &mut Pipeline,
+) -> Result<Vec<&'static str>, Box<dyn std::error::Error>> {
+    let mut steps = vec!["update_metadata", "convert_to_images"];
+    #[cfg(feature = "azure")]
+    {
+        match pipeline.get_task()?.configuration.pipeline.clone() {
+            core::models::task::pipeline::Pipeline::Azure => steps.push("azure"),
+            _ => steps.push("segmentation_and_ocr"),
+        }
+    }
+    #[cfg(not(feature = "azure"))]
+    {
+        steps.push("segmentation_and_ocr");
+    }
+    let chunk_processing = pipeline.get_task()?.configuration.chunk_processing.clone();
+    if chunk_processing.target_length == 0 || chunk_processing.target_length == 1 {
+        steps.push("chunking");
+    }
+    steps.push("segment_processing");
+    let json_schema = pipeline.get_task()?.configuration.json_schema.clone();
+    if json_schema.is_some() {
+        steps.push("structured_extraction");
+    }
+    Ok(steps)
 }
 
 pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Error>> {
@@ -67,7 +87,7 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
         }
 
         let start_time = std::time::Instant::now();
-        for step in orchestrate_task() {
+        for step in orchestrate_task(&mut pipeline)? {
             execute_step(step, &mut pipeline).await?;
             if pipeline.get_task()?.status != Status::Processing {
                 return Ok(());

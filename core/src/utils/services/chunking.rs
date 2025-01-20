@@ -116,13 +116,6 @@ pub fn hierarchical_chunking(
     ignore_headers_and_footers: bool,
 ) -> Result<Vec<Chunk>, Box<dyn std::error::Error>> {
     let mut chunks: Vec<Chunk> = Vec::new();
-    if target_length == 0 || target_length == 1 {
-        for segment in segments {
-            chunks.push(Chunk::new(vec![segment.clone()]));
-        }
-        return Ok(chunks);
-    }
-
     let mut current_segments: Vec<Segment> = Vec::new();
     let mut current_word_count = 0;
 
@@ -364,17 +357,26 @@ mod tests {
         // First chunk: Title 1 + Section 1 + text
         assert_eq!(chunks[0].segments.len(), 3);
         assert_eq!(chunks[0].segments[0].segment_type, SegmentType::Title);
-        assert_eq!(chunks[0].segments[1].segment_type, SegmentType::SectionHeader);
+        assert_eq!(
+            chunks[0].segments[1].segment_type,
+            SegmentType::SectionHeader
+        );
         assert_eq!(chunks[0].segments[2].segment_type, SegmentType::Text);
 
         // Second chunk: Section 2 + text
         assert_eq!(chunks[1].segments.len(), 2);
-        assert_eq!(chunks[1].segments[0].segment_type, SegmentType::SectionHeader);
+        assert_eq!(
+            chunks[1].segments[0].segment_type,
+            SegmentType::SectionHeader
+        );
         assert_eq!(chunks[1].segments[1].segment_type, SegmentType::Text);
 
         // Third chunk: Title 2 + Section 3
         assert_eq!(chunks[2].segments.len(), 2);
         assert_eq!(chunks[2].segments[0].segment_type, SegmentType::Title);
-        assert_eq!(chunks[2].segments[1].segment_type, SegmentType::SectionHeader);
+        assert_eq!(
+            chunks[2].segments[1].segment_type,
+            SegmentType::SectionHeader
+        );
     }
 }

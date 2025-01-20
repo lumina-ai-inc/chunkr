@@ -5,31 +5,14 @@ use crate::models::chunkr::chunk_processing::{
 use crate::models::chunkr::segment_processing::SegmentProcessing;
 use crate::models::chunkr::structured_extraction::JsonSchema;
 use crate::models::chunkr::task::Configuration;
+#[cfg(feature = "azure")]
+use crate::models::chunkr::task::Pipeline;
 use actix_multipart::form::json::Json as MPJson;
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::{IntoParams, ToSchema};
-
-#[cfg_attr(
-    feature = "azure",
-    derive(
-        Debug,
-        Serialize,
-        Deserialize,
-        PartialEq,
-        Clone,
-        ToSql,
-        FromSql,
-        ToSchema,
-        Display,
-        EnumString,
-    )
-)]
-pub enum Pipeline {
-    Azure,
-}
 
 #[derive(Debug, MultipartForm, ToSchema, IntoParams)]
 #[into_params(parameter_in = Query)]
