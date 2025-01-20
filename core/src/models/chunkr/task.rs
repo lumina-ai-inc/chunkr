@@ -3,6 +3,8 @@ use crate::models::chunkr::chunk_processing::ChunkProcessing;
 use crate::models::chunkr::output::{OutputResponse, Segment, SegmentType};
 use crate::models::chunkr::segment_processing::SegmentProcessing;
 use crate::models::chunkr::structured_extraction::JsonSchema;
+#[cfg(feature = "azure")]
+use crate::models::chunkr::upload::Pipeline;
 use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
 use crate::utils::services::file_operations::check_file_type;
@@ -585,7 +587,6 @@ pub struct Configuration {
     /// Whether to use high-resolution images for cropping and post-processing.
     pub high_resolution: bool,
     pub json_schema: Option<JsonSchema>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated]
     pub model: Option<Model>,
     pub ocr_strategy: OcrStrategy,
@@ -595,6 +596,9 @@ pub struct Configuration {
     #[deprecated]
     /// The target number of words in each chunk. If 0, each chunk will contain a single segment.
     pub target_chunk_length: Option<i32>,
+    #[cfg(feature = "azure")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pipeline: Option<Pipeline>,
 }
 
 // TODO: Move to output

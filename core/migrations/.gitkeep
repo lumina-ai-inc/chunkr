@@ -1,0 +1,2 @@
+ALTER TABLE TASKS 
+    ADD COLUMN version TEXT;

@@ -12,6 +12,25 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::{IntoParams, ToSchema};
 
+#[cfg_attr(
+    feature = "azure",
+    derive(
+        Debug,
+        Serialize,
+        Deserialize,
+        PartialEq,
+        Clone,
+        ToSql,
+        FromSql,
+        ToSchema,
+        Display,
+        EnumString,
+    )
+)]
+pub enum Pipeline {
+    Azure,
+}
+
 #[derive(Debug, MultipartForm, ToSchema, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub struct CreateForm {
@@ -51,6 +70,13 @@ pub struct CreateForm {
     /// The target chunk length to be used for chunking.
     /// If 0, each chunk will contain a single segment.
     pub target_chunk_length: Option<Text<i32>>,
+    #[cfg(feature = "azure")]
+    #[param(style = Form, value_type = Option<Pipeline>)]
+    #[schema(value_type = Option<Pipeline>)]
+    /// The pipeline to use for processing.
+    /// If pipeline is set to Azure then Azure layout analysis will be used for segmentation and OCR.
+    /// The output will be unified to the Chunkr `output` format.
+    pub pipeline: Option<MPJson<Pipeline>>,
 }
 
 impl CreateForm {
@@ -149,6 +175,11 @@ impl CreateForm {
             .unwrap_or(SegmentationStrategy::LayoutAnalysis)
     }
 
+    #[cfg(feature = "azure")]
+    fn get_pipeline(&self) -> Option<Pipeline> {
+        self.pipeline.as_ref().map(|e| e.0.clone())
+    }
+
     pub fn to_configuration(&self) -> Configuration {
         Configuration {
             chunk_processing: self.get_chunk_processing(),
@@ -160,6 +191,8 @@ impl CreateForm {
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
+            #[cfg(feature = "azure")]
+            pipeline: self.get_pipeline(),
         }
     }
 }
@@ -191,6 +224,13 @@ pub struct UpdateForm {
     #[param(style = Form, value_type = Option<SegmentationStrategy>)]
     #[schema(value_type = Option<SegmentationStrategy>)]
     pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
+    #[cfg(feature = "azure")]
+    #[param(style = Form, value_type = Option<Pipeline>)]
+    #[schema(value_type = Option<Pipeline>)]
+    /// The pipeline to use for processing.
+    /// If pipeline is set to Azure then Azure layout analysis will be used for segmentation and OCR.
+    /// The output will be unified to the Chunkr output.
+    pub pipeline: Option<MPJson<Pipeline>>,
 }
 
 impl UpdateForm {
@@ -276,6 +316,8 @@ impl UpdateForm {
                 .map(|e| e.0.clone())
                 .unwrap_or(current_config.segmentation_strategy.clone()),
             target_chunk_length: None,
+            #[cfg(feature = "azure")]
+            pipeline: None,
         }
     }
 }

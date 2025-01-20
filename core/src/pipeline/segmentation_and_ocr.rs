@@ -86,8 +86,14 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         }
     };
 
-    let pages: Vec<_> = pipeline.page_images.as_ref().unwrap().iter().map(|x| x.as_ref()).collect();
-    
+    let pages: Vec<_> = pipeline
+        .page_images
+        .as_ref()
+        .unwrap()
+        .iter()
+        .map(|x| x.as_ref())
+        .collect();
+
     let page_segments = match process_pages_batch(
         &pages,
         pipeline.get_task()?.configuration.clone(),
