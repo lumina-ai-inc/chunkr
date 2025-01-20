@@ -96,6 +96,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
             None,
             None,
             None,
+            None,
         )
         .await?;
 

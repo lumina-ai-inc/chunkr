@@ -11,3 +11,6 @@ pub mod pdf;
 pub mod search;
 pub mod segmentation;
 pub mod structured_extraction;
+
+#[cfg(feature = "azure")]
+pub mod azure;

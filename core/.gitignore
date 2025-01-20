@@ -41,3 +41,5 @@ cmd.txt
 pdfium-binaries
 
 .cargo
+
+azure-analysis-response.json

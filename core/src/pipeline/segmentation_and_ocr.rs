@@ -75,6 +75,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             None,
             None,
             None,
+            None,
         )
         .await?;
     let pdf_ocr_results = match pdf::extract_ocr_results(pipeline.pdf_file.as_ref().unwrap()) {
@@ -106,18 +107,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             return Err(e.to_string().into());
         }
     };
-
-    pipeline
-        .get_task()?
-        .update(
-            Some(Status::Processing),
-            Some("Chunking".to_string()),
-            None,
-            None,
-            None,
-            None,
-        )
-        .await?;
 
     pipeline.output.chunks = page_segments
         .into_iter()

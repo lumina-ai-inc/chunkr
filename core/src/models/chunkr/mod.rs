@@ -12,3 +12,6 @@ pub mod task;
 pub mod tasks;
 pub mod upload;
 pub mod user;
+
+#[cfg(feature = "azure")]
+pub mod azure;

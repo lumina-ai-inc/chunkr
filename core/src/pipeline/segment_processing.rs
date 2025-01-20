@@ -293,8 +293,12 @@ async fn process_segment(
         )
     )?;
 
-    segment.html = Some(html);
-    segment.markdown = Some(markdown);
+    if segment.html.is_none() {
+        segment.html = Some(html);
+    }
+    if segment.markdown.is_none() {
+        segment.markdown = Some(markdown);
+    }
     segment.llm = llm;
     Ok(())
 }
@@ -309,6 +313,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .update(
             Some(Status::Processing),
             Some("Processing segments".to_string()),
+            None,
             None,
             None,
             None,
