@@ -161,36 +161,6 @@ def create_grid_dict_from_ocr(ocr_results: List[OCRInput]) -> dict:
         "bbox_texts_list": boxes
     }
 
-def find_optimal_columns(centers_x, max_columns=7):
-    if len(centers_x) <= 1:
-        return 1
-        
-    # Only try up to max_columns or number of points, whichever is smaller
-    max_k = min(max_columns, len(centers_x))
-    
-    # Calculate distortions for different k values
-    distortions = []
-    K = range(1, max_k + 1)
-    for k in K:
-        kmeans = KMeans(n_clusters=k, n_init="auto")
-        kmeans.fit(centers_x)
-        distortions.append(kmeans.inertia_)
-    
-    # Find elbow point using rate of change
-    optimal_k = 1
-    max_diff = 0
-    for i in range(len(distortions) - 1):
-        diff = distortions[i] - distortions[i + 1]
-        if diff > max_diff:
-            max_diff = diff
-            optimal_k = i + 1
-            
-    # If the improvement is minimal, prefer fewer columns
-    if optimal_k > 1 and (distortions[optimal_k - 1] - distortions[optimal_k]) < 0.2 * distortions[0]:
-        optimal_k -= 1
-        
-    return optimal_k
-
 def apply_reading_order(instances):
     bxs = instances.get("boxes", [])
     scs = instances.get("scores", [])
@@ -199,7 +169,15 @@ def apply_reading_order(instances):
         return instances
 
     def is_wide_element(box, page_width, threshold=0.7):
-        return box["width"] / page_width > threshold
+        # Check if element spans across multiple column boundaries
+        width_ratio = box["width"] / page_width
+        center_x = box["left"] + box["width"] / 2
+        left_edge = box["left"]
+        right_edge = box["left"] + box["width"]
+        
+        # If element takes up significant width OR crosses column centers, treat as wide
+        return (width_ratio > threshold or 
+                (left_edge < page_width * 0.4 and right_edge > page_width * 0.6))
 
     def get_column_assignment(box, col_boundaries):
         center_x = box["left"] + box["width"] / 2
@@ -263,124 +241,44 @@ def apply_reading_order(instances):
     footers = [s for s in segments if s['class'] in [1, 4]]
     body = [s for s in segments if s['class'] not in [1, 4, 5]]
 
-    def analyze_section_type(segments):
-        # Check if it's a title/header section
-        if any(s['class'] == 5 for s in segments):
-            return "full_width"
-            
-        # Check for strong two-column pattern
-        x_centers = [(s['box']['left'] + s['box']['width']/2) for s in segments]
-        x_gaps = [x2 - x1 for x1, x2 in zip(sorted(x_centers)[:-1], sorted(x_centers)[1:])]
-        
-        if x_gaps:
-            max_gap = max(x_gaps)
-            avg_gap = np.mean(x_gaps)
-            if max_gap > avg_gap * 2:  # Strong column separation
-                return "two_column"
-        
-        return "row_based"
-
     def process_body_segments(segments):
-        if not segments:
-            return
-            
-        # First detect if this is a research paper layout
-        text_segments = [s for s in segments if s['class'] not in [5, 6]]
-        x_centers = [s['box']['left'] + s['box']['width']/2 for s in text_segments]
-        left_count = sum(1 for x in x_centers if x < page_width/2)
-        right_count = sum(1 for x in x_centers if x >= page_width/2)
-        is_research_paper = (min(left_count, right_count) > len(text_segments) * 0.25 and 
-                           len(text_segments) > 10)
-        
-        if is_research_paper:
-            # Research paper handling (unchanged)
-            headers = [s for s in segments if s['class'] == 5 or s['box']['width'] > page_width * 0.7]
-            body = [s for s in segments if s not in headers]
-            
-            yield from sorted(headers, key=lambda s: (s['box']['top'], s['box']['left']))
-            
-            split_point = page_width/2
-            left_col = [s for s in body if s['box']['left'] + s['box']['width']/2 < split_point]
-            right_col = [s for s in body if s['box']['left'] + s['box']['width']/2 >= split_point]
-            
-            yield from sorted(left_col, key=lambda s: s['box']['top'])
-            yield from sorted(right_col, key=lambda s: s['box']['top'])
-        else:
-            # Profile layout - improved column detection
-            segments.sort(key=lambda s: s['box']['top'])
-            rows = []
-            current_row = []
-            last_bottom = segments[0]['box']['top']
-            
-            # First pass: Group into rough vertical bands
-            for segment in segments:
-                if current_row and segment['box']['top'] - last_bottom > 30:
-                    # Before starting new row, check if current row needs column split
-                    centers_x = np.array([[s['center_x']] for s in current_row])
-                    
-                    # Special handling for image + text pairs
-                    has_image = any(s['class'] in [0, 3] for s in current_row)  # Adjust class numbers as needed
-                    if has_image and len(current_row) > 1:
-                        # Sort by x-position to keep image with its adjacent text
-                        current_row.sort(key=lambda s: s['center_x'])
-                        rows.append(current_row)
-                    else:
-                        # Regular column detection for text-only rows
-                        n_columns = find_optimal_columns(centers_x)
-                        if n_columns > 1:
-                            kmeans = KMeans(n_clusters=n_columns, n_init="auto")
-                            labels = kmeans.fit_predict(centers_x)
-                            
-                            # Sort clusters left-to-right
-                            cluster_centers = [(i, np.mean([s['center_x'] for s, l in zip(current_row, labels) if l == i])) 
-                                             for i in range(n_columns)]
-                            cluster_centers.sort(key=lambda x: x[1])
-                            
-                            ordered_row = []
-                            for cluster_idx, _ in cluster_centers:
-                                col = [s for s, l in zip(current_row, labels) if l == cluster_idx]
-                                col.sort(key=lambda s: s['box']['top'])
-                                ordered_row.extend(col)
-                            rows.append(ordered_row)
+        segments.sort(key=lambda s: s['box']['top'])
+        columns = [[] for _ in range(optimal_k)]
+        current_y = float('-inf')
+        temp_segments = []
+
+        for segment in segments:
+            if abs(segment['box']['top'] - current_y) > 20:
+                if temp_segments:
+                    if any(s['is_wide'] for s in temp_segments):
+                        for s in temp_segments:
+                            s['is_wide'] = True
+                    for s in temp_segments:
+                        if s['is_wide']:
+                            for col in columns:
+                                yield from col
+                            columns = [[] for _ in range(optimal_k)]
+                            yield s
                         else:
-                            current_row.sort(key=lambda s: s['center_x'])
-                            rows.append(current_row)
-                    
-                    current_row = []
-                
-                current_row.append(segment)
-                last_bottom = max(last_bottom, segment['box']['top'] + segment['box']['height'])
-            
-            # Handle last row
-            if current_row:
-                has_image = any(s['class'] in [0, 3] for s in current_row)
-                if has_image and len(current_row) > 1:
-                    current_row.sort(key=lambda s: s['center_x'])
-                    rows.append(current_row)
-                else:
-                    centers_x = np.array([[s['center_x']] for s in current_row])
-                    n_columns = find_optimal_columns(centers_x)
-                    if n_columns > 1:
-                        kmeans = KMeans(n_clusters=n_columns, n_init="auto")
-                        labels = kmeans.fit_predict(centers_x)
-                        
-                        cluster_centers = [(i, np.mean([s['center_x'] for s, l in zip(current_row, labels) if l == i])) 
-                                         for i in range(n_columns)]
-                        cluster_centers.sort(key=lambda x: x[1])
-                        
-                        ordered_row = []
-                        for cluster_idx, _ in cluster_centers:
-                            col = [s for s, l in zip(current_row, labels) if l == cluster_idx]
-                            col.sort(key=lambda s: s['box']['top'])
-                            ordered_row.extend(col)
-                        rows.append(ordered_row)
-                    else:
-                        current_row.sort(key=lambda s: s['center_x'])
-                        rows.append(current_row)
-            
-            # Output all rows
-            for row in rows:
-                yield from row
+                            col = get_column_assignment(s['box'], col_boundaries)
+                            columns[col].append(s)
+                temp_segments = [segment]
+                current_y = segment['box']['top']
+            else:
+                temp_segments.append(segment)
+
+        if temp_segments:
+            if any(s['is_wide'] for s in temp_segments):
+                for col in columns:
+                    yield from col
+                yield from temp_segments
+            else:
+                for s in temp_segments:
+                    col = get_column_assignment(s['box'], col_boundaries)
+                    columns[col].append(s)
+
+        for col in columns:
+            yield from col
 
     ordered_segments = []
     ordered_segments.extend(sorted(headers, key=lambda s: s['box']['top']))
