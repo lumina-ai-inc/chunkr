@@ -1,0 +1,50 @@
+{
+  "name": "chunkr-ai",
+  "version": "0.1.0",
+  "description": "Node.js client for Chunkr API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint src --ext .ts",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "chunkr",
+    "document-processing",
+    "document-chunking",
+    "document-splitting",
+    "document-embedding",
+    "document-intelligence",
+    "rag",
+    "llm"
+  ],
+  "author": "Lumina AI Inc.",
+  "license": "AGPL-3.0-only",
+  "files": [
+    "dist/**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lumina-ai-inc/chunkr"
+  },
+  "homepage": "https://chunkr.ai",
+  "bugs": {
+    "url": "https://github.com/lumina-ai-inc/chunkr/issues"
+  },
+  "dependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.7",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "eslint": "^9.18.0",
+    "form-data": "^4.0.1",
+    "prettier": "^3.4.2",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3"
+  }
+}
