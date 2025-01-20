@@ -18,6 +18,7 @@ from .api.config import (
     SegmentType,
     SegmentationStrategy,
     Status,
+    PipelineType,
 )
 
 from .api.task import TaskResponse
@@ -45,4 +46,5 @@ __all__ = [
     "Status",
     "TaskResponse",
     "TaskResponseAsync",
+    "PipelineType",
 ]
