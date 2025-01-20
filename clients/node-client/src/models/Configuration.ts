@@ -52,19 +52,28 @@ export interface ChunkProcessing {
   target_length?: number;
 }
 
-export interface Property {
-  name: string;
-  prop_type: string;
+export class Property {
+  name!: string;
+  prop_type!: string;
   description?: string;
   default?: string;
+
+  constructor(data: Partial<Property>) {
+    Object.assign(this, data);
+  }
 }
 
-export interface JsonSchema {
+export class JsonSchema {
   title: string;
   properties: Property[];
+
+  constructor(data: { title: string; properties: Property[] }) {
+    this.title = data.title;
+    this.properties = data.properties;
+  }
 }
 
-export interface Configuration {
+export class Configuration {
   chunk_processing?: ChunkProcessing;
   expires_in?: number;
   high_resolution?: boolean;
@@ -72,4 +81,8 @@ export interface Configuration {
   ocr_strategy?: OcrStrategy;
   segment_processing?: SegmentProcessing;
   segmentation_strategy?: SegmentationStrategy;
+
+  constructor(config: Partial<Configuration> = {}) {
+    Object.assign(this, config);
+  }
 }

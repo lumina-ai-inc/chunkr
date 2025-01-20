@@ -1,5 +1,5 @@
 import { Chunkr } from "../Chunkr";
-import { Status } from "./Configuration";
+import { Configuration, Status } from "./Configuration";
 import { TaskResult, Output } from "./TaskResult";
 
 /**
@@ -19,6 +19,7 @@ export class TaskResponse implements TaskResult {
   public pdf_url!: string | null;
   public output!: Output | null;
   public task_url!: string | null;
+  public configuration!: Configuration;
   public file_name!: string | null;
   public page_count!: number | null;
   public error?: string;
