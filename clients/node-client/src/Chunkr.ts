@@ -2,8 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { Configuration } from "./models/Configuration";
 import { TaskResponse } from "./models/TaskResponse";
 import { HeadersMixin } from "./auth/HeadersMixin";
-import { prepareUploadData } from "./utils/prepareUploadData";
-import { FileInput } from "./types";
+import { prepareUploadData, FileInput } from "./utils/prepareUploadData";
 import * as dotenv from "dotenv";
 
 export class Chunkr extends HeadersMixin {
