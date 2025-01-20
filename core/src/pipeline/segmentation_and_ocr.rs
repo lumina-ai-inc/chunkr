@@ -1,8 +1,7 @@
-use crate::models::chunkr::output::{BoundingBox, OCRResult, Segment, SegmentType};
+use crate::models::chunkr::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::task::{Configuration, Status};
 use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
-use crate::utils::services::chunking;
 use crate::utils::services::images;
 use crate::utils::services::ocr;
 use crate::utils::services::pdf;
@@ -120,21 +119,11 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         )
         .await?;
 
-    // If segmentation is performed differently, we need to update the chunking step
-    // TODO: Move to a separate step - need to figure out how to add segmentation results to pipeline to be able to use it in the chunking step.
-    // add segmentation output as if chunking is off and then:
-    // 1.  the orchestrator optionally adds the segmentation step and optionally adds the chunking step (theoretically faster)
-    //      - Requires diff check of segmentation and chunking
-    // 2. the orchestrator optionally adds the segmentation step and we can always chunk (is very fast so prob doesn't matter)
-    //      - Only diff check of segmentation
-    let chunk_processing = pipeline.get_task()?.configuration.chunk_processing.clone();
+    pipeline.output.chunks = page_segments
+        .into_iter()
+        .flatten()
+        .map(|s| Chunk::new(vec![s]))
+        .collect();
 
-    let chunks = chunking::hierarchical_chunking(
-        page_segments.into_iter().flatten().collect(),
-        chunk_processing.target_length,
-        chunk_processing.ignore_headers_and_footers,
-    )?;
-
-    pipeline.output.chunks = chunks;
     Ok(())
 }

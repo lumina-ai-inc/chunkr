@@ -1,3 +1,6 @@
+#[cfg(feature = "azure")]
+pub mod azure;
+pub mod chunking;
 pub mod convert_to_images;
 pub mod crop;
 pub mod segment_processing;

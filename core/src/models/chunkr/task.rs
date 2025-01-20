@@ -554,6 +554,8 @@ pub struct TaskResponse {
     pub task_url: Option<String>,
 }
 
+//TODO: Move to configuration
+
 #[derive(
     Debug,
     Clone,
@@ -574,6 +576,25 @@ pub enum Status {
     Succeeded,
     Failed,
     Cancelled,
+}
+
+#[cfg_attr(
+    feature = "azure",
+    derive(
+        Debug,
+        Serialize,
+        Deserialize,
+        PartialEq,
+        Clone,
+        ToSql,
+        FromSql,
+        ToSchema,
+        Display,
+        EnumString,
+    )
+)]
+pub enum Pipeline {
+    Azure,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
