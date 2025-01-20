@@ -1,7 +1,9 @@
 import { createReadStream, statSync } from "fs";
-import { FileInput } from "../types";
 import { Configuration } from "../models/Configuration";
 import FormData from "form-data";
+import { ReadStream } from "fs";
+
+export type FileInput = string | Buffer | ReadStream;
 
 export async function prepareUploadData(
   file: FileInput | null,
