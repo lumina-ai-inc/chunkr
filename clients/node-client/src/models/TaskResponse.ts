@@ -2,6 +2,10 @@ import { Chunkr } from "../Chunkr";
 import { Status } from "./Configuration";
 import { TaskResult, Output } from "./TaskResult";
 
+/**
+ * Represents a response from a Chunkr API task operation.
+ * Contains methods for polling, updating, and managing task state.
+ */
 export class TaskResponse implements TaskResult {
   #chunkr: Chunkr;
 
@@ -42,6 +46,12 @@ export class TaskResponse implements TaskResult {
     };
   }
 
+  /**
+   * Poll the task until it reaches a terminal state (Succeeded, Failed, or Cancelled).
+   * @param {number} [interval=1000] - Polling interval in milliseconds
+   * @returns {Promise<TaskResponse>} The completed task response
+   * @throws {Error} If the task fails or reaches an unexpected state
+   */
   async poll(interval: number = 1000): Promise<TaskResponse> {
     const pollingStates = [Status.STARTING, Status.PROCESSING];
     const terminalStates = [Status.SUCCEEDED, Status.FAILED, Status.CANCELLED];
@@ -71,15 +81,30 @@ export class TaskResponse implements TaskResult {
     return this;
   }
 
+  /**
+   * Cancel the current task. Only works if the task hasn't started processing.
+   * @returns {Promise<void>}
+   * @throws {Error} If the task has already started processing
+   */
   async cancel(): Promise<void> {
     await this.#chunkr.cancelTask(this.task_id);
     await this.poll();
   }
 
+  /**
+   * Delete the current task.
+   * @returns {Promise<void>}
+   * @throws {Error} If the task is currently processing
+   */
   async delete(): Promise<void> {
     await this.#chunkr.deleteTask(this.task_id);
   }
 
+  /**
+   * Get content from the task's output chunks.
+   * @param {"html" | "markdown" | "content"} type - The type of content to retrieve
+   * @returns {string} The concatenated content of all chunks
+   */
   getContent(type: "html" | "markdown" | "content"): string {
     if (!this.output?.chunks) {
       return "";
@@ -92,10 +117,18 @@ export class TaskResponse implements TaskResult {
       .join("\n");
   }
 
+  /**
+   * Get HTML content from the task's output chunks.
+   * @returns {string} The concatenated HTML content of all chunks
+   */
   getHtml(): string {
     return this.getContent("html");
   }
 
+  /**
+   * Get Markdown content from the task's output chunks.
+   * @returns {string} The concatenated Markdown content of all chunks
+   */
   getMarkdown(): string {
     return this.getContent("markdown");
   }
