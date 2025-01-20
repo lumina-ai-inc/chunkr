@@ -134,9 +134,8 @@ services:
     deploy:
       replicas: 1
     restart: always
-
   segmentation:
-    image: luminainc/segmentation:f1f4891b
+    image: luminainc/segmentation:df6e5375
     ports:
       - "8001:8000"
     deploy:
@@ -149,6 +148,11 @@ services:
               capabilities: [ gpu ]
     volumes:
       - /dev/shm:/dev/shm
+    environment:
+      - MAX_BATCH_SIZE=4
+      - BATCH_WAIT_TIME=0.2
+      - OVERLAP_THRESHOLD=0.025
+      - SCORE_THRESHOLD=0.2
     restart: always
 
   ocr:

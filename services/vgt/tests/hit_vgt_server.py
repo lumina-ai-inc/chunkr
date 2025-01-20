@@ -200,12 +200,12 @@ def  visualize_predictions(images, predictions, subfolder_path):
             clabel = class_labels[cls_idx] if cls_idx < len(class_labels) else "Unknown"
             t = f"{order}: {score:.2f} ({clabel})"
             pos = (scaled_box[0], max(0, scaled_box[1]-20))
-            w = len(t)*6
-            h = 15
+            w = len(t)*2  # Reduced from 6 to 2
+            h = 5  # Reduced from 15 to 5
             lb = [pos[0], pos[1], pos[0]+w, pos[1]+h]
             draw.rectangle(lb, fill="red")
             try:
-                font = ImageFont.truetype("DejaVuSans", 50)
+                font = ImageFont.truetype("DejaVuSans", 17)  # Reduced from 50 to 17
             except OSError:
                 font = ImageFont.load_default()
             draw.text((pos[0]+2, pos[1]+2), t, fill="black", font=font)
@@ -246,7 +246,7 @@ if __name__ == "__main__":
                 subfolder_path.mkdir(parents=True, exist_ok=True)
                 
                 start_time = time.time()
-                pdf_images = convert_from_path(str(pdf_path), dpi=300, fmt="jpg")
+                pdf_images = convert_from_path(str(pdf_path), dpi=72, fmt="jpg")
                 end_time = time.time()
 
                 # Prepare batch data
