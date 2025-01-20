@@ -183,12 +183,12 @@ services:
         value: "200"
     labels:
       workload-type: chunkr-gpu
-
+      
   segmentation:
     enabled: true
     image:
       repository: segmentation
-      tag: "f1f4891b"
+      tag: "df6e5375"
     port: 8000
     targetPort: 8000
     useGPU: true
@@ -197,6 +197,12 @@ services:
     env:
       - name: MAX_BATCH_SIZE
         value: "4"
+      - name: BATCH_WAIT_TIME
+        value: "0.2"
+      - name: OVERLAP_THRESHOLD
+        value: "0.025"
+      - name: SCORE_THRESHOLD
+        value: "0.2"
 
   embeddings:
     enabled: true
