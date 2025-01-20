@@ -155,7 +155,14 @@ const TaskTable = () => {
       {
         accessorKey: "finished_at",
         header: "Finished At",
-        Cell: ({ cell }) => new Date(cell.getValue<string>()).toLocaleString(),
+        Cell: ({ row, cell }) => {
+          const dateValue = cell.getValue<string>();
+          return (row.original.status === Status.Succeeded ||
+            row.original.status === Status.Failed) &&
+            dateValue
+            ? new Date(dateValue).toLocaleString()
+            : "N/A";
+        },
       },
       {
         accessorKey: "expires_at",
@@ -448,22 +455,32 @@ const TaskTable = () => {
           muiTableBodyRowProps={({ row }) => ({
             onClick: (event) => {
               if (
-                row.original.message === "Task succeeded" &&
                 !(event.target as HTMLElement)
                   .closest(".MuiTableCell-root")
                   ?.classList.contains("MuiTableCell-paddingNone")
               ) {
-                handleTaskClick(row.original);
+                if (row.original.message === "Task succeeded") {
+                  handleTaskClick(row.original);
+                } else if (
+                  row.original.status !== Status.Failed &&
+                  row.original.status !== Status.Succeeded
+                ) {
+                  refetch();
+                }
               }
             },
             sx: {
               cursor:
-                row.original.message === "Task succeeded"
+                row.original.message === "Task succeeded" ||
+                (row.original.status !== Status.Failed &&
+                  row.original.status !== Status.Succeeded)
                   ? "pointer"
                   : "default",
               "&:hover": {
                 backgroundColor:
-                  row.original.message === "Task succeeded"
+                  row.original.message === "Task succeeded" ||
+                  (row.original.status !== Status.Failed &&
+                    row.original.status !== Status.Succeeded)
                     ? "rgba(255, 255, 255, 0.05) !important"
                     : "rgb(2, 8, 9) !important",
               },

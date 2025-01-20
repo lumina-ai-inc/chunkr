@@ -69,9 +69,6 @@ const Home = () => {
   const [segmentationStrategy, setSegmentationStrategy] = useState<
     "LayoutAnalysis" | "Page"
   >("LayoutAnalysis");
-  const [selectedModel, setSelectedModel] = useState<
-    "ChunkrVGT" | "AzureDocIntelligence"
-  >("ChunkrVGT");
   const [ocrMode, setOcrMode] = useState<"ALL" | "OFF">("ALL");
   const [vlmMode, setVlmMode] = useState<"SegmentType" | "ALL" | "OFF">(
     "SegmentType"
@@ -517,7 +514,7 @@ const Home = () => {
                   <Flex direction="row" gap="96px" justify="between">
                     <Flex
                       direction="column"
-                      gap="32px"
+                      gap="24px"
                       flexGrow="1"
                       style={{ zIndex: 5 }}
                       onMouseEnter={() => handleLottieHover(layoutLottieRef)}
@@ -572,23 +569,12 @@ const Home = () => {
                             </Text>
                           </button>
                         </Flex>
-                        {segmentationStrategy === "LayoutAnalysis" && (
-                          <Dropdown
-                            value={selectedModel}
-                            options={["ChunkrVGT", "AzureDocIntelligence"]}
-                            onChange={(value) =>
-                              setSelectedModel(
-                                value as "AzureDocIntelligence" | "ChunkrVGT"
-                              )
-                            }
-                          />
-                        )}
                       </Flex>
                     </Flex>
 
                     <Flex
                       direction="column"
-                      gap="32px"
+                      gap="24px"
                       flexGrow="1"
                       onMouseEnter={() => handleLottieHover(ocrLottieRef)}
                     >
@@ -635,14 +621,14 @@ const Home = () => {
                           onClick={() => setOcrMode("OFF")}
                         >
                           <Text size="2" weight="bold">
-                            OFF
+                            AUTO
                           </Text>
                         </button>
                       </Flex>
                     </Flex>
                     <Flex
                       direction="column"
-                      gap="32px"
+                      gap="24px"
                       flexGrow="1"
                       onMouseEnter={() => handleLottieHover(vlmLottieRef)}
                     >
@@ -720,7 +706,7 @@ const Home = () => {
                     </Flex>
                     <Flex
                       direction="column"
-                      gap="32px"
+                      gap="24px"
                       flexGrow="1"
                       onMouseEnter={() => handleLottieHover(chunkingLottieRef)}
                     >
@@ -750,7 +736,7 @@ const Home = () => {
                         weight="light"
                         style={{ color: "#ffffff" }}
                       >
-                        We've built a modular pipeline that can be used as a
+                        Custom schema extraction with built-in hybrid search
                       </Text>
                       <Flex className="control-switches">
                         <button
