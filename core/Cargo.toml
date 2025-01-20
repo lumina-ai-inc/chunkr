@@ -4,6 +4,9 @@ version = "0.0.0"
 edition = "2021"
 default-run = "core"
 
+[features]
+azure = []
+
 [dependencies]
 actix-cors = "0.7.0"
 actix-multipart = "0.7.2"

@@ -25,7 +25,6 @@ pub mod pipeline;
 pub mod routes;
 pub mod utils;
 
-use configs::worker_config;
 use jobs::init::init_jobs;
 use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
