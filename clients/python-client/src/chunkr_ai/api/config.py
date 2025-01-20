@@ -127,6 +127,8 @@ class Model(str, Enum):
     FAST = "Fast"
     HIGH_QUALITY = "HighQuality"
 
+class PipelineType(str, Enum):
+    AZURE = "Azure"
 
 class Configuration(BaseModel):
     chunk_processing: Optional[ChunkProcessing] = Field(default=None)
@@ -139,6 +141,7 @@ class Configuration(BaseModel):
     ocr_strategy: Optional[OcrStrategy] = Field(default=None)
     segment_processing: Optional[SegmentProcessing] = Field(default=None)
     segmentation_strategy: Optional[SegmentationStrategy] = Field(default=None)
+    pipeline: Optional[PipelineType] = Field(default=None)
 
     @model_validator(mode="before")
     def map_deprecated_fields(cls, values: Dict) -> Dict:
