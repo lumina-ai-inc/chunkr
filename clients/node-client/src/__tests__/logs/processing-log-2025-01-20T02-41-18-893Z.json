@@ -1,0 +1,26 @@
+{
+  "totalFiles": 2,
+  "successCount": 2,
+  "failureCount": 0,
+  "totalPages": 6,
+  "totalTimeSeconds": 17.783,
+  "pagesPerSecond": 0.33740088848900635,
+  "details": [
+    {
+      "fileName": "(02)+SOW+AC+Replacement+at++Bienville+Ranger+Office.pdf",
+      "taskId": "8833117b-8652-46f4-9a69-73cbe196cca0",
+      "status": "Succeeded",
+      "startTime": 1737340862175,
+      "endTime": 1737340868012,
+      "pageCount": 4
+    },
+    {
+      "fileName": "_9PR2185+Procurement+Summary+Page.pdf",
+      "taskId": "c4dee46d-d868-46e2-ab58-a31396e73ac9",
+      "status": "Succeeded",
+      "startTime": 1737340862351,
+      "endTime": 1737340878889,
+      "pageCount": 2
+    }
+  ]
+}
