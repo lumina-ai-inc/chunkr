@@ -38,12 +38,12 @@
   },
   "dependencies": {
     "axios": "^1.7.9",
-    "form-data": "^4.0.1"
+    "form-data": "^4.0.1",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
-    "dotenv": "^16.4.7",
     "eslint": "^9.18.0",
     "prettier": "^3.4.2",
     "ts-jest": "^29.2.5",
