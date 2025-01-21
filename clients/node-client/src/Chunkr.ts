@@ -4,6 +4,7 @@ import { TaskResponse } from "./models/TaskResponse";
 import { ClientConfig } from "./models/ClientConfig";
 import { prepareUploadData, FileInput } from "./utils/prepareUploadData";
 import * as dotenv from "dotenv";
+import type { TaskResponseData } from "./models/TaskResponseData";
 
 export class Chunkr {
   private client: AxiosInstance;
@@ -98,7 +99,10 @@ export class Chunkr {
     config?: Configuration,
   ): Promise<TaskResponse> {
     const formData = await prepareUploadData(file, config);
-    const response = await this.client.post("/api/v1/task", formData);
+    const response = await this.client.post<TaskResponseData>(
+      "/api/v1/task",
+      formData,
+    );
     return new TaskResponse(response.data, this);
   }
 

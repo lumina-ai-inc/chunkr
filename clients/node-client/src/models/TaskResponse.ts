@@ -1,12 +1,12 @@
 import { Chunkr } from "../Chunkr";
 import { Configuration, Status } from "./Configuration";
-import { TaskResult, Output } from "./TaskResult";
+import { TaskResponseData, Output } from "./TaskResponseData";
 
 /**
  * Represents a response from a Chunkr API task operation.
  * Contains methods for polling, updating, and managing task state.
  */
-export class TaskResponse implements TaskResult {
+export class TaskResponse implements TaskResponseData {
   #chunkr: Chunkr;
 
   public task_id!: string;
@@ -24,7 +24,7 @@ export class TaskResponse implements TaskResult {
   public page_count!: number | null;
   public error?: string;
 
-  constructor(data: TaskResult, chunkr: Chunkr) {
+  constructor(data: TaskResponseData, chunkr: Chunkr) {
     this.#chunkr = chunkr;
     Object.assign(this, data);
   }
