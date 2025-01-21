@@ -178,6 +178,13 @@ export interface UploadFormData {
    * @default 512
    */
   target_chunk_length?: number;
+
+  /** Pipeline to run after processing */
+  pipeline?: Pipeline;
+}
+
+export enum Pipeline {
+  Azure = "Azure",
 }
 
 const DEFAULT_SEGMENT_CONFIG: SegmentProcessingConfig = {
@@ -227,4 +234,5 @@ export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
   json_schema: undefined, // or some default schema if needed
   file: new File([], ""),
+  pipeline: undefined, // Default pipeline
 };
