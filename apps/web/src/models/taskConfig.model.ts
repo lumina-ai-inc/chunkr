@@ -209,8 +209,8 @@ const DEFAULT_FORMULA_CONFIG: SegmentProcessingConfig = {
 
 const DEFAULT_PICTURE_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.All,
-  html: GenerationStrategy.LLM,
-  markdown: GenerationStrategy.LLM,
+  html: GenerationStrategy.Auto,
+  markdown: GenerationStrategy.Auto,
 };
 
 export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
