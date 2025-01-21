@@ -171,21 +171,23 @@ export function SegmentProcessingControls({
   onChange,
   showOnlyPage = false,
 }: SegmentProcessingControlsProps) {
-  const [selectedType, setSelectedType] =
-    useState<keyof SegmentProcessing>("Text");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const segmentTypes = showOnlyPage
     ? (["Page"] as (keyof SegmentProcessing)[])
-    : (Object.keys(value).filter(
-        (key) => key !== "Page"
-      ) as (keyof SegmentProcessing)[]);
+    : (Object.keys(value)
+      .filter((key) => key !== "Page")
+      .sort() as (keyof SegmentProcessing)[]);
+
+  const defaultSegmentType = segmentTypes[0];
+  const [selectedType, setSelectedType] =
+    useState<keyof SegmentProcessing>(defaultSegmentType);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (showOnlyPage && selectedType !== "Page") {
       setSelectedType("Page");
     } else if (!showOnlyPage && selectedType === "Page") {
-      setSelectedType("Text"); // or any other default segment type
+      setSelectedType(defaultSegmentType);
     }
   }, [selectedType, showOnlyPage]);
 
@@ -270,9 +272,8 @@ export function SegmentProcessingControls({
             {segmentTypes.map((type) => (
               <button
                 key={type}
-                className={`segment-dropdown-item ${
-                  selectedType === type ? "active" : ""
-                } ${isSegmentModified(type) ? "modified" : ""}`}
+                className={`segment-dropdown-item ${selectedType === type ? "active" : ""
+                  } ${isSegmentModified(type) ? "modified" : ""}`}
                 onClick={() => handleTypeSelect(type)}
                 type="button"
               >

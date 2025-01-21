@@ -13,7 +13,6 @@ use core::pipeline::crop;
 use core::pipeline::segment_processing;
 use core::pipeline::segmentation_and_ocr;
 use core::pipeline::structured_extraction;
-use core::pipeline::update_metadata;
 use core::utils::clients::initialize;
 use core::utils::rrq::consumer::consumer;
 
@@ -33,7 +32,6 @@ async fn execute_step(
         "segmentation_and_ocr" => segmentation_and_ocr::process(pipeline).await,
         "segment_processing" => segment_processing::process(pipeline).await,
         "structured_extraction" => structured_extraction::process(pipeline).await,
-        "update_metadata" => update_metadata::process(pipeline).await,
         _ => Err(format!("Unknown function: {}", step).into()),
     }?;
     let duration = start.elapsed();
@@ -52,7 +50,7 @@ async fn execute_step(
 fn orchestrate_task(
     pipeline: &mut Pipeline,
 ) -> Result<Vec<&'static str>, Box<dyn std::error::Error>> {
-    let mut steps = vec!["update_metadata", "convert_to_images"];
+    let mut steps = vec!["convert_to_images"];
     #[cfg(feature = "azure")]
     {
         match pipeline.get_task()?.configuration.pipeline.clone() {
@@ -89,7 +87,6 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
             );
             return Ok(());
         }
-
         let start_time = std::time::Instant::now();
         for step in orchestrate_task(&mut pipeline)? {
             execute_step(step, &mut pipeline).await?;
