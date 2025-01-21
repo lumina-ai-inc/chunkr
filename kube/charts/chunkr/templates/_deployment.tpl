@@ -28,10 +28,6 @@ spec:
       tolerations:
         {{- toYaml $.Values.global.gpuWorkload.tolerations | nindent 8 }}
       {{- else if $service.affinity }}
-      {{- if $service.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml $service.imagePullSecrets | nindent 8 }}
-      {{- end }}
       affinity:
         {{- toYaml $service.affinity | nindent 8 }}
       {{- end }}
@@ -46,6 +42,10 @@ spec:
       {{- if $service.volumes }}
       volumes:
         {{- toYaml $service.volumes | nindent 8 }}
+      {{- end }}
+      {{- if $service.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml $service.imagePullSecrets | nindent 8 }}
       {{- end }}
       containers:
       - name: {{ $name }}
