@@ -133,6 +133,8 @@ export interface JsonSchema {
   schema_type?: string;
 }
 
+import { WhenEnabled } from "../config/env.config";
+
 export interface UploadFormData {
   /** Optional chunk processing configuration */
   chunk_processing?: ChunkProcessing;
@@ -180,7 +182,7 @@ export interface UploadFormData {
   target_chunk_length?: number;
 
   /** Pipeline to run after processing */
-  pipeline?: Pipeline;
+  pipeline?: WhenEnabled<"pipeline", Pipeline>;
 }
 
 export enum Pipeline {
@@ -234,5 +236,5 @@ export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
   json_schema: undefined, // or some default schema if needed
   file: new File([], ""),
-  pipeline: undefined, // Default pipeline
+  pipeline: undefined as WhenEnabled<"pipeline", Pipeline>, // Default pipeline
 };
