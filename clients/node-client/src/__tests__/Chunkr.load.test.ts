@@ -1,11 +1,7 @@
 import { Chunkr } from "../Chunkr";
-import { Status } from "../models/Configuration";
+import { Status } from "../models/TaskResponseData";
 import * as fs from "fs/promises";
 import * as path from "path";
-import dotenv from "dotenv";
-
-// Load environment variables
-dotenv.config();
 
 const INPUT_DIR = path.join(__dirname, "input");
 const OUTPUT_DIR = path.join(__dirname, "output");
@@ -63,7 +59,7 @@ describe("Chunkr Load Test", () => {
     // Create output directory if it doesn't exist
     await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
-    chunkr = new Chunkr(process.env.CHUNKR_API_KEY);
+    chunkr = new Chunkr();
   });
 
   it("should process files and track completion status", async () => {

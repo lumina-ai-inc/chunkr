@@ -1,6 +1,6 @@
 import { Chunkr } from "../Chunkr";
-import { Configuration, Status } from "./Configuration";
-import { TaskResponseData, Output } from "./TaskResponseData";
+import { Configuration } from "./Configuration";
+import { TaskResponseData, Output, Status } from "./TaskResponseData";
 
 /**
  * Represents a response from a Chunkr API task operation.
