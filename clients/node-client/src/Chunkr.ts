@@ -12,9 +12,26 @@ export class Chunkr {
 
   /**
    * Initialize a new Chunkr API client
-   * @param {ClientConfig | string} configOrApiKey - Either a configuration object or API key string
-   * @param {string} [url] - Optional API URL override
-   * @throws {Error} If API key is not provided via parameters or environment variables
+   * @param {ClientConfig | string} [configOrApiKey] - Either a configuration object or API key string.
+   *        If omitted, will use CHUNKR_API_KEY from environment.
+   * @param {string} [url] - Optional API URL override.
+   *        If omitted, will use CHUNKR_URL from environment, or default to "https://api.chunkr.ai"
+   * @throws {Error} If API key is not provided via parameters or CHUNKR_API_KEY environment variable
+   *
+   * @example
+   * ```typescript
+   * // Using environment variables (CHUNKR_API_KEY and optionally CHUNKR_URL)
+   * const client = new Chunkr();
+   *
+   * // Using direct API key
+   * const client = new Chunkr("your-api-key");
+   *
+   * // Using configuration object
+   * const client = new Chunkr({
+   *   apiKey: "your-api-key",
+   *   baseUrl: "https://custom-url.example.com"
+   * });
+   * ```
    */
   constructor(configOrApiKey?: ClientConfig | string, url?: string) {
     dotenv.config();

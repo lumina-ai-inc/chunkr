@@ -1,5 +1,3 @@
-import { Status } from "./Configuration";
-
 export interface BoundingBox {
   left: number;
   top: number;
@@ -63,6 +61,14 @@ export interface ExtractedJson {
 export interface Output {
   chunks: Chunk[];
   extracted_json: ExtractedJson | null;
+}
+
+export enum Status {
+  STARTING = "Starting",
+  PROCESSING = "Processing",
+  SUCCEEDED = "Succeeded",
+  FAILED = "Failed",
+  CANCELLED = "Cancelled",
 }
 
 export interface TaskResponseData {
