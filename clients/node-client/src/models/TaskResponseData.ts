@@ -65,7 +65,7 @@ export interface Output {
   extracted_json: ExtractedJson | null;
 }
 
-export interface TaskResult {
+export interface TaskResponseData {
   task_id: string;
   status: Status;
   created_at: string;
