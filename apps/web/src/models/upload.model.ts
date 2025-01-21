@@ -6,6 +6,7 @@ import {
   SegmentationStrategy,
   Pipeline,
 } from "./taskConfig.model";
+import { WhenEnabled } from "../config/env.config";
 
 export interface UploadForm {
   /** The file to be uploaded */
@@ -33,5 +34,5 @@ export interface UploadForm {
   segmentation_strategy?: SegmentationStrategy;
 
   /** Pipeline to run after processing */
-  pipeline?: Pipeline;
+  pipeline?: WhenEnabled<"pipeline", Pipeline>;
 }
