@@ -1,0 +1,60 @@
+services:
+  server:
+    enabled: true
+    useStandardEnv: true
+    image:
+      repository: server-azure
+      tag: "dcaeeec5"
+    imagePullSecrets:
+      - name: regcred
+    port: 8000
+    targetPort: 8000
+    ingress:
+      enabled: true
+      subdomain: "api"
+    envFrom:
+      - secretRef:
+          name: chunkr-secret
+
+  task:
+    enabled: true
+    useStandardEnv: true
+    image:
+      repository: task-azure
+      tag: "dcaeeec5"
+    imagePullSecrets:
+      - name: regcred
+    envFrom:
+      - secretRef:
+          name: chunkr-secret
+    env:
+      - name: PG__POOL__MAX_SIZE
+        value: "3"
+
+  web:
+    enabled: true
+    image:
+      repository: web
+      tag: "dcaeeec5"
+    imagePullSecrets:
+      - name: regcred
+    port: 8000
+    targetPort: 8000
+    ingress:
+      enabled: true
+      subdomain: "www"
+    env:
+      - name: VITE_API_URL
+        value: https://{{ .Values.services.server.ingress.subdomain }}.{{ .Values.ingress.domain }}
+      - name: VITE_FEATURE_FLAG_PIPELINE
+        value: "true"
+      - name: VITE_KEYCLOAK_CLIENT_ID
+        value: chunkr
+      - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
+        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}
+      - name: VITE_KEYCLOAK_REALM
+        value: chunkr
+      - name: VITE_KEYCLOAK_REDIRECT_URI
+        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}
+      - name: VITE_KEYCLOAK_URL
+        value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
