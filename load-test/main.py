@@ -42,7 +42,11 @@ async def write_and_log_worker(output_jsonl: Path, run_dir: Path, completed_queu
             with open(output_jsonl, "a") as f:
                 json.dump(task_data, f)
                 f.write("\n")
-            stats.total_pages += task_data.get("page_count", 0)
+            if task_data.get("status") == Status.SUCCEEDED:
+                stats.successful_tasks += 1
+                stats.total_pages += task_data.get("page_count", 0)
+            else:
+                stats.failed_tasks += 1
             pages_per_second = stats.calculate_pages_per_second()
             log_entry = (
                 f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
@@ -66,18 +70,12 @@ async def process_single_file(file_path: Path, completed_queue: Queue):
             if task.status == Status.SUCCEEDED:
                 if task.page_count is None:
                     stats.total_pages += 1
-                stats.successful_tasks += 1
-            else:
-                logger.error(f"Task failed {task_id}: {task.status}")
-                stats.failed_tasks += 1
         except Exception as e:
-            stats.failed_tasks += 1
             logger.error(f"Task failed {task_id}: {str(e)}")
         task = await chunkr.get_task(task_id)
         task_data = task.model_dump(mode='json')
         await completed_queue.put(task_data)
     except Exception as e:
-        stats.failed_tasks += 1
         logger.error(f"Error processing {file_path}: {str(e)}")
         return
 
