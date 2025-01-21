@@ -74,6 +74,7 @@ export default function UploadMain({
           ocr_strategy: config.ocr_strategy,
           segment_processing: getEffectiveSegmentProcessing(config),
           segmentation_strategy: config.segmentation_strategy,
+          pipeline: config.pipeline,
         };
 
         const response = await uploadFile(uploadPayload);
