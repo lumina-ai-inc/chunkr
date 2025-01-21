@@ -4,6 +4,7 @@ import {
   OcrStrategy,
   SegmentProcessing,
   SegmentationStrategy,
+  Pipeline,
 } from "./taskConfig.model";
 
 export interface UploadForm {
@@ -30,4 +31,7 @@ export interface UploadForm {
 
   /** Strategy for document segmentation */
   segmentation_strategy?: SegmentationStrategy;
+
+  /** Pipeline to run after processing */
+  pipeline?: Pipeline;
 }
