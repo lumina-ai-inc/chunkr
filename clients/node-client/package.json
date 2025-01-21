@@ -1,6 +1,6 @@
 {
   "name": "chunkr-ai",
-  "version": "0.1.1",
+  "version": "0.0.1",
   "description": "Node.js client for Chunkr API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

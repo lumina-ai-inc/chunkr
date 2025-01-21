@@ -51,7 +51,7 @@ async function writeLog(stats: ProcessingStats[], totalTime: number) {
   return logPath;
 }
 
-describe("Chunkr Integration Tests", () => {
+describe("Chunkr Load Test", () => {
   let chunkr: Chunkr;
 
   beforeAll(async () => {
@@ -79,7 +79,7 @@ describe("Chunkr Integration Tests", () => {
       try {
         const result = await chunkr.createTask(content);
         processingStats.push({
-          fileName: file,
+          fileName: result.file_name || file,
           taskId: result.task_id,
           status: result.status,
           startTime: Date.now(),

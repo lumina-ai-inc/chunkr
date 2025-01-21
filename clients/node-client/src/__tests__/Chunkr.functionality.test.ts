@@ -15,13 +15,22 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
-const INPUT_DIR = path.join(__dirname, "input");
-const OUTPUT_DIR = path.join(__dirname, "output");
-const SAMPLE_FILE = path.join(INPUT_DIR, "test.pdf");
-const SAMPLE_IMAGE = path.join(INPUT_DIR, "test.jpg");
+const INPUT_DIR = "./input";
+const OUTPUT_DIR = "./output";
+
+// Helper function to get first file of specific type from input directory
+async function getFirstFileOfType(extension: string): Promise<string> {
+  const files = await fs.readdir(INPUT_DIR);
+  const file = files.find((f) => f.toLowerCase().endsWith(extension));
+  if (!file) {
+    throw new Error(`No ${extension} file found in input directory`);
+  }
+  return path.join(INPUT_DIR, file);
+}
 
 describe("Chunkr Integration Tests", () => {
   let chunkr: Chunkr;
+  let sampleFile: string;
 
   beforeAll(async () => {
     if (!process.env.CHUNKR_API_KEY) {
@@ -29,11 +38,13 @@ describe("Chunkr Integration Tests", () => {
     }
     await fs.mkdir(OUTPUT_DIR, { recursive: true });
     chunkr = new Chunkr(process.env.CHUNKR_API_KEY);
+    // Get first PDF file from input directory
+    sampleFile = await getFirstFileOfType(".pdf");
   });
 
   // Basic upload tests
   it("should upload file from path", async () => {
-    const fileContent = await fs.readFile(SAMPLE_FILE);
+    const fileContent = await fs.readFile(sampleFile);
     const response = await chunkr.createTask(fileContent);
 
     expect(response.task_id).toBeDefined();
@@ -43,7 +54,7 @@ describe("Chunkr Integration Tests", () => {
 
   // Configuration tests
   it("should process with OCR auto strategy", async () => {
-    const fileContent = await fs.readFile(SAMPLE_FILE);
+    const fileContent = await fs.readFile(sampleFile);
     const config = new Configuration({ ocr_strategy: OcrStrategy.AUTO });
     const response = await chunkr.createTask(fileContent, config);
 
@@ -52,7 +63,7 @@ describe("Chunkr Integration Tests", () => {
   });
 
   it("should process with expiration time", async () => {
-    const fileContent = await fs.readFile(SAMPLE_FILE);
+    const fileContent = await fs.readFile(sampleFile);
     const config = new Configuration({ expires_in: 10 });
     const response = await chunkr.createTask(fileContent, config);
 
@@ -61,7 +72,7 @@ describe("Chunkr Integration Tests", () => {
   });
 
   it("should process with page segmentation strategy", async () => {
-    const fileContent = await fs.readFile(SAMPLE_FILE);
+    const fileContent = await fs.readFile(sampleFile);
     const config = new Configuration({
       segmentation_strategy: SegmentationStrategy.PAGE,
     });
@@ -72,7 +83,7 @@ describe("Chunkr Integration Tests", () => {
   });
 
   it("should process with LLM HTML generation", async () => {
-    const fileContent = await fs.readFile(SAMPLE_FILE);
+    const fileContent = await fs.readFile(sampleFile);
     const config = new Configuration({
       segmentation_strategy: SegmentationStrategy.PAGE,
       segment_processing: {
@@ -89,7 +100,7 @@ describe("Chunkr Integration Tests", () => {
 
   // Task management tests
   it("should delete a task", async () => {
-    const fileContent = await fs.readFile(SAMPLE_FILE);
+    const fileContent = await fs.readFile(sampleFile);
     const response = await chunkr.createTask(fileContent);
     expect(response.task_id).toBeDefined();
 
@@ -100,7 +111,7 @@ describe("Chunkr Integration Tests", () => {
   });
 
   it("should cancel a task", async () => {
-    const fileContent = await fs.readFile(SAMPLE_FILE);
+    const fileContent = await fs.readFile(sampleFile);
     const response = await chunkr.createTask(fileContent);
     expect(response.task_id).toBeDefined();
 
@@ -110,7 +121,7 @@ describe("Chunkr Integration Tests", () => {
   });
 
   it("should update task configuration", async () => {
-    const fileContent = await fs.readFile(SAMPLE_FILE);
+    const fileContent = await fs.readFile(sampleFile);
     const originalConfig = new Configuration({
       segmentation_strategy: SegmentationStrategy.LAYOUT_ANALYSIS,
     });
@@ -130,7 +141,7 @@ describe("Chunkr Integration Tests", () => {
 
   // JSON Schema tests
   it("should process with custom JSON schema", async () => {
-    const fileContent = await fs.readFile(SAMPLE_FILE);
+    const fileContent = await fs.readFile(sampleFile);
     const config = new Configuration({
       json_schema: new JsonSchema({
         title: "Sales Data",
