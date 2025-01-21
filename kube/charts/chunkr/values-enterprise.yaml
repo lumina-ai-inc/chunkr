@@ -1,3 +1,34 @@
+ingress:
+  enabled: true
+  type: "cloudflare" # can be "cloudflare" or "nginx"
+  className: "cloudflare"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  domain: "chunkr.ai"
+  subdomains:
+    root: true
+  tls:
+    enabled: false
+    secretName: "tls-secret"
+  cloudflare:
+    enabled: true
+    replicas: 2
+    image:
+      repository: cloudflare/cloudflared
+      tag: "2024.12.1"
+      pullPolicy: Always
+    config:
+      tunnelName: "chunkr"
+      services:
+        - name: "server"
+        - name: "keycloak"
+        - name: "web"
+        - name: "minio"
+        - name: "embeddings"
+        - name: "reranker"
+        - name: "analytics-web"
+        - name: "analytics-server"
+
 services:
   server:
     enabled: true
@@ -35,9 +66,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: "dcaeeec5"
-    imagePullSecrets:
-      - name: regcred
+      tag: "2e8e6e95"
     port: 8000
     targetPort: 8000
     ingress:
@@ -58,3 +87,64 @@ services:
         value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}
       - name: VITE_KEYCLOAK_URL
         value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
+
+  analytics-web:
+    enabled: true
+    image:
+      repository: analytics-web
+      tag: "2e8e6e95"
+    imagePullSecrets:
+      - name: regcred
+    port: 8000
+    targetPort: 8000
+    ingress:
+      enabled: true
+      subdomain: "analytics"
+    env:
+      - name: VITE_API_URL
+        value: https://{{ index .Values.services "analytics-server" "ingress" "subdomain" }}.{{ .Values.ingress.domain }}
+      - name: VITE_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: ANALYTICS__API_KEY
+
+  analytics-server:
+    enabled: true
+    image:
+      repository: analytics-server
+      tag: "2e8e6e95"
+    imagePullSecrets:
+      - name: regcred
+    port: 8000
+    targetPort: 8000
+    ingress:
+      enabled: true
+      subdomain: "analytics-api"
+    env:
+      - name: API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: ANALYTICS__API_KEY
+      - name: DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: PG__URL
+
+  reranker:
+    enabled: false
+    image:
+      repository: text-embeddings-inference
+      tag: "1.6"
+      registry: ghcr.io/huggingface
+    ingress:
+      enabled: false
+      subdomain: "rerank"
+    port: 8000
+    targetPort: 80
+    args: [ "--model-id", "BAAI/bge-reranker-large", "--auto-truncate", "--payload-limit", "100000000" ]
+    useGPU: true
+    labels:
+      workload-type: chunkr-gpu

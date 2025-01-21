@@ -5,9 +5,12 @@ WORKDIR /app
 
 COPY apps/analytics/ .
 
-# Install pnpm and dependencies
-RUN npm install
-RUN npm run build
+# Install pnpm, turbo, and required type definitions
+RUN npm install -g pnpm turbo
+RUN pnpm install
+
+# Build the project using Turbo
+RUN pnpm run build
 
 # Production stage
 FROM nginx:alpine
