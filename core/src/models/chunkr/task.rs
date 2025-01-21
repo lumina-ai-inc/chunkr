@@ -1,7 +1,9 @@
 use crate::configs::worker_config;
 use crate::models::chunkr::chunk_processing::ChunkProcessing;
 use crate::models::chunkr::output::{OutputResponse, Segment, SegmentType};
-use crate::models::chunkr::segment_processing::SegmentProcessing;
+use crate::models::chunkr::segment_processing::{
+    GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
+};
 use crate::models::chunkr::structured_extraction::JsonSchema;
 use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
@@ -220,16 +222,30 @@ impl Task {
         let temp_file = download_to_tempfile(&self.output_location, None).await?;
         let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
         let mut output_response: OutputResponse = serde_json::from_str(&json_content)?;
-        async fn process(segment: &mut Segment) -> Result<String, Box<dyn std::error::Error>> {
+        let picture_generation_config: PictureGenerationConfig = self
+            .configuration
+            .segment_processing
+            .picture
+            .clone()
+            .ok_or(format!("Picture generation config not found"))?;
+        async fn process(
+            segment: &mut Segment,
+            picture_generation_config: &PictureGenerationConfig,
+        ) -> Result<String, Box<dyn std::error::Error>> {
             let url = generate_presigned_url(segment.image.as_ref().unwrap(), true, None)
                 .await
                 .ok();
             if segment.segment_type == SegmentType::Picture {
-                segment.html = Some(format!(
-                    "<img src=\"{}\" />",
-                    url.clone().unwrap_or_default()
-                ));
-                segment.markdown = Some(format!("![Image]({})", url.clone().unwrap_or_default()));
+                if picture_generation_config.html == GenerationStrategy::Auto {
+                    segment.html = Some(format!(
+                        "<img src=\"{}\" />",
+                        url.clone().unwrap_or_default()
+                    ));
+                }
+                if picture_generation_config.markdown == GenerationStrategy::Auto {
+                    segment.markdown =
+                        Some(format!("![Image]({})", url.clone().unwrap_or_default()));
+                }
             }
             Ok(url.clone().unwrap_or_default())
         }
@@ -238,7 +254,7 @@ impl Task {
             .iter_mut()
             .flat_map(|chunk| chunk.segments.iter_mut())
             .filter(|segment| segment.image.is_some())
-            .map(|segment| process(segment));
+            .map(|segment| process(segment, &picture_generation_config));
 
         try_join_all(futures).await?;
         Ok(output_response)
@@ -249,6 +265,7 @@ impl Task {
         status: Option<Status>,
         message: Option<String>,
         configuration: Option<Configuration>,
+        page_count: Option<u32>,
         started_at: Option<DateTime<Utc>>,
         finished_at: Option<DateTime<Utc>>,
         expires_at: Option<DateTime<Utc>>,
@@ -276,6 +293,11 @@ impl Task {
             self.expires_at = Some(dt);
         }
 
+        if let Some(page_count) = page_count {
+            update_parts.push(format!("page_count = {}", page_count));
+            self.page_count = Some(page_count);
+        }
+
         if let Some(configuration) = configuration {
             update_parts.push(format!(
                 "configuration = '{}'",
@@ -291,9 +313,25 @@ impl Task {
             self.user_id
         );
 
-        client.execute(&query, &[]).await?;
-
-        Ok(())
+        match client.execute(&query, &[]).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                if e.to_string().contains("usage limit exceeded") {
+                    Box::pin(self.update(
+                        Some(Status::Failed),
+                        Some("Page limit exceeded".to_string()),
+                        None,
+                        None,
+                        None,
+                        None,
+                        None,
+                    ))
+                    .await
+                } else {
+                    Err(Box::new(e))
+                }
+            }
+        }
     }
 
     pub async fn delete(&self) -> Result<(), Box<dyn std::error::Error>> {
@@ -341,6 +379,7 @@ impl Task {
         self.update(
             Some(Status::Processing),
             Some("Finishing up".to_string()),
+            None,
             None,
             None,
             Some(Utc::now()),
@@ -478,7 +517,7 @@ impl Task {
             .await
             .map_err(|_| "Error getting input file url")?;
         let mut pdf_url = None;
-        let mut output = None;
+        let mut output: Option<OutputResponse> = None;
         if self.status == Status::Succeeded {
             pdf_url = Some(
                 generate_presigned_url(&self.pdf_location, true, None)
@@ -552,6 +591,8 @@ pub struct TaskResponse {
     pub task_url: Option<String>,
 }
 
+//TODO: Move to configuration
+
 #[derive(
     Debug,
     Clone,
@@ -574,6 +615,14 @@ pub enum Status {
     Cancelled,
 }
 
+#[cfg(feature = "azure")]
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Clone, ToSql, FromSql, ToSchema, Display, EnumString,
+)]
+pub enum PipelineType {
+    Azure,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 /// The configuration used for the task.
 pub struct Configuration {
@@ -585,7 +634,6 @@ pub struct Configuration {
     /// Whether to use high-resolution images for cropping and post-processing.
     pub high_resolution: bool,
     pub json_schema: Option<JsonSchema>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated]
     pub model: Option<Model>,
     pub ocr_strategy: OcrStrategy,
@@ -595,6 +643,9 @@ pub struct Configuration {
     #[deprecated]
     /// The target number of words in each chunk. If 0, each chunk will contain a single segment.
     pub target_chunk_length: Option<i32>,
+    #[cfg(feature = "azure")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pipeline: Option<PipelineType>,
 }
 
 // TODO: Move to output

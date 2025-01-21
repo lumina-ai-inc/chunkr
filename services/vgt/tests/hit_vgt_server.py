@@ -200,12 +200,12 @@ def  visualize_predictions(images, predictions, subfolder_path):
             clabel = class_labels[cls_idx] if cls_idx < len(class_labels) else "Unknown"
             t = f"{order}: {score:.2f} ({clabel})"
             pos = (scaled_box[0], max(0, scaled_box[1]-20))
-            w = len(t)*6
-            h = 15
+            w = len(t)*2  # Reduced from 6 to 2
+            h = 5  # Reduced from 15 to 5
             lb = [pos[0], pos[1], pos[0]+w, pos[1]+h]
             draw.rectangle(lb, fill="red")
             try:
-                font = ImageFont.truetype("DejaVuSans", 50)
+                font = ImageFont.truetype("DejaVuSans", 17)  # Reduced from 50 to 17
             except OSError:
                 font = ImageFont.load_default()
             draw.text((pos[0]+2, pos[1]+2), t, fill="black", font=font)
@@ -229,7 +229,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 if __name__ == "__main__":
-    pdf_path = "figures/test_batch3.pdf"
+    pdf_files = ["figures/test_batch5.pdf", "figures/troy.pdf"]
     server_url = "http://localhost:8001/batch"
 
     # Create output directories in parallel
@@ -237,55 +237,58 @@ if __name__ == "__main__":
         dirs = [ANNOTATED_IMAGES_DIR / "with_ocr", ANNOTATED_IMAGES_DIR / "without_ocr"]
         executor.map(lambda d: d.mkdir(parents=True, exist_ok=True), dirs)
 
-    for use_tesseract_ocr in [True]:
-        for use_reading_order in [False]:
-            ocr_mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
-            subfolder_path = ANNOTATED_IMAGES_DIR / ocr_mode
-            
-            start_time = time.time()
-            pdf_images = convert_from_path(str(pdf_path), dpi=300, fmt="jpg")
-            end_time = time.time()
+    for pdf_path in pdf_files:
+        for use_tesseract_ocr in [True]:
+            for use_reading_order in [False]:
+                ocr_mode = "with_ocr" if use_tesseract_ocr else "without_ocr"
+                pdf_name = Path(pdf_path).stem
+                subfolder_path = ANNOTATED_IMAGES_DIR / ocr_mode / pdf_name
+                subfolder_path.mkdir(parents=True, exist_ok=True)
+                
+                start_time = time.time()
+                pdf_images = convert_from_path(str(pdf_path), dpi=72, fmt="jpg")
+                end_time = time.time()
 
-            # Prepare batch data
-            files_data = []
-            ocr_data_list = []
-            
-            if use_tesseract_ocr:
-                # Process OCR in parallel
-                with ThreadPoolExecutor() as executor:
-                    ocr_data_list = list(executor.map(
-                        lambda img: json.loads(get_tesseract_ocr_data(img))["data"], 
-                        pdf_images
-                    ))
-            else:
-                ocr_words, bounding_boxes = get_pdfplumber_ocr_data(pdf_path)
-                ocr_data_list = [ocr_words] * len(pdf_images)
+                # Prepare batch data
+                files_data = []
+                ocr_data_list = []
+                
+                if use_tesseract_ocr:
+                    # Process OCR in parallel
+                    with ThreadPoolExecutor() as executor:
+                        ocr_data_list = list(executor.map(
+                            lambda img: json.loads(get_tesseract_ocr_data(img))["data"], 
+                            pdf_images
+                        ))
+                else:
+                    ocr_words, bounding_boxes = get_pdfplumber_ocr_data(pdf_path)
+                    ocr_data_list = [ocr_words] * len(pdf_images)
 
-            # Prepare image data
-            for pil_img in pdf_images:
-                img_byte_arr = io.BytesIO()
-                pil_img.save(img_byte_arr, format='JPEG')
-                files_data.append(('files', ('image.jpg', img_byte_arr.getvalue(), 'image/jpeg')))
+                # Prepare image data
+                for pil_img in pdf_images:
+                    img_byte_arr = io.BytesIO()
+                    pil_img.save(img_byte_arr, format='JPEG')
+                    files_data.append(('files', ('image.jpg', img_byte_arr.getvalue(), 'image/jpeg')))
 
-            # Send batch request
-            start_time = time.time()
-            response = requests.post(
-                server_url,
-                files=files_data,
-                data={"ocr_data": json.dumps({"data": ocr_data_list})}
-            )
-            elapsed = time.time() - start_time
+                # Send batch request
+                start_time = time.time()
+                response = requests.post(
+                    server_url,
+                    files=files_data,
+                    data={"ocr_data": json.dumps({"data": ocr_data_list})}
+                )
+                elapsed = time.time() - start_time
 
-            if response.status_code == 200:
-                all_predictions = response.json()
-            else:
-                all_predictions = [{"instances": {}}] * len(pdf_images)
+                if response.status_code == 200:
+                    all_predictions = response.json()
+                else:
+                    all_predictions = [{"instances": {}}] * len(pdf_images)
 
-            table_data = [
-                ["OCR Mode", "Pages", "Total(s)", "PPS"],
-                [ocr_mode, len(pdf_images), f"{elapsed:.2f}", f"{len(pdf_images)/elapsed:.2f}"]
-            ]
-            print(tabulate(table_data, headers="firstrow", tablefmt="grid"))
+                table_data = [
+                    ["PDF", "OCR Mode", "Pages", "Total(s)", "PPS"],
+                    [pdf_path, ocr_mode, len(pdf_images), f"{elapsed:.2f}", f"{len(pdf_images)/elapsed:.2f}"]
+                ]
+                print(tabulate(table_data, headers="firstrow", tablefmt="grid"))
 
-            if all_predictions:
-                visualize_predictions(pdf_images, all_predictions, subfolder_path)
+                if all_predictions:
+                    visualize_predictions(pdf_images, all_predictions, subfolder_path)

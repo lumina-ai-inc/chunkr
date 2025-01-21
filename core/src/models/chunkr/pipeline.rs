@@ -1,6 +1,7 @@
 use crate::models::chunkr::output::OutputResponse;
 use crate::models::chunkr::task::{Status, Task, TaskPayload};
 use crate::utils::services::file_operations::convert_to_pdf;
+use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::download_to_tempfile;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
@@ -43,6 +44,7 @@ impl Pipeline {
                     None,
                     None,
                     None,
+                    None,
                 )
                 .await?;
             }
@@ -72,10 +74,12 @@ impl Pipeline {
             };
             println!("Task initialized with input file");
         }
+        let page_count = count_pages(self.pdf_file.as_ref().unwrap())?;
         task.update(
             Some(Status::Processing),
             Some("Task started".to_string()),
             None,
+            Some(page_count),
             Some(Utc::now()),
             None,
             None,
@@ -125,6 +129,7 @@ impl Pipeline {
                     None,
                     None,
                     None,
+                    None,
                 )
                 .await?;
             }
@@ -148,6 +153,7 @@ impl Pipeline {
                 Some(status),
                 message,
                 None,
+                None,
                 Some(finished_at),
                 expires_at,
                 None,
@@ -161,6 +167,7 @@ impl Pipeline {
                 task.update(
                     Some(status),
                     message,
+                    None,
                     None,
                     None,
                     Some(finished_at),

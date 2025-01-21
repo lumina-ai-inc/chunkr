@@ -5,6 +5,8 @@ use crate::models::chunkr::chunk_processing::{
 use crate::models::chunkr::segment_processing::SegmentProcessing;
 use crate::models::chunkr::structured_extraction::JsonSchema;
 use crate::models::chunkr::task::Configuration;
+#[cfg(feature = "azure")]
+use crate::models::chunkr::task::PipelineType;
 use actix_multipart::form::json::Json as MPJson;
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use postgres_types::{FromSql, ToSql};
@@ -51,6 +53,13 @@ pub struct CreateForm {
     /// The target chunk length to be used for chunking.
     /// If 0, each chunk will contain a single segment.
     pub target_chunk_length: Option<Text<i32>>,
+    #[cfg(feature = "azure")]
+    #[param(style = Form, value_type = Option<PipelineType>)]
+    #[schema(value_type = Option<PipelineType>)]
+    /// The PipelineType to use for processing.
+    /// If pipeline is set to Azure then Azure layout analysis will be used for segmentation and OCR.
+    /// The output will be unified to the Chunkr `output` format.
+    pub pipeline: Option<MPJson<PipelineType>>,
 }
 
 impl CreateForm {
@@ -149,6 +158,11 @@ impl CreateForm {
             .unwrap_or(SegmentationStrategy::LayoutAnalysis)
     }
 
+    #[cfg(feature = "azure")]
+    fn get_pipeline(&self) -> Option<PipelineType> {
+        self.pipeline.as_ref().map(|e| e.0.clone())
+    }
+
     pub fn to_configuration(&self) -> Configuration {
         Configuration {
             chunk_processing: self.get_chunk_processing(),
@@ -160,6 +174,8 @@ impl CreateForm {
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
+            #[cfg(feature = "azure")]
+            pipeline: self.get_pipeline(),
         }
     }
 }
@@ -191,6 +207,13 @@ pub struct UpdateForm {
     #[param(style = Form, value_type = Option<SegmentationStrategy>)]
     #[schema(value_type = Option<SegmentationStrategy>)]
     pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
+    #[cfg(feature = "azure")]
+    #[param(style = Form, value_type = Option<PipelineType>)]
+    #[schema(value_type = Option<PipelineType>)]
+    /// The pipeline to use for processing.
+    /// If pipeline is set to Azure then Azure layout analysis will be used for segmentation and OCR.
+    /// The output will be unified to the Chunkr output.
+    pub pipeline: Option<MPJson<PipelineType>>,
 }
 
 impl UpdateForm {
@@ -276,6 +299,8 @@ impl UpdateForm {
                 .map(|e| e.0.clone())
                 .unwrap_or(current_config.segmentation_strategy.clone()),
             target_chunk_length: None,
+            #[cfg(feature = "azure")]
+            pipeline: self.pipeline.as_ref().map(|e| e.0.clone()),
         }
     }
 }

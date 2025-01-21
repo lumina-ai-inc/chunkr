@@ -169,7 +169,15 @@ def apply_reading_order(instances):
         return instances
 
     def is_wide_element(box, page_width, threshold=0.7):
-        return box["width"] / page_width > threshold
+        # Check if element spans across multiple column boundaries
+        width_ratio = box["width"] / page_width
+        center_x = box["left"] + box["width"] / 2
+        left_edge = box["left"]
+        right_edge = box["left"] + box["width"]
+        
+        # If element takes up significant width OR crosses column centers, treat as wide
+        return (width_ratio > threshold or 
+                (left_edge < page_width * 0.4 and right_edge > page_width * 0.6))
 
     def get_column_assignment(box, col_boundaries):
         center_x = box["left"] + box["width"] / 2

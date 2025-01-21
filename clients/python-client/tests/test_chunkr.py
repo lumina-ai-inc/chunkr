@@ -10,6 +10,7 @@ from chunkr_ai.models import (
     GenerationConfig,
     JsonSchema,
     OcrStrategy,
+    PipelineType,
     Property,
     SegmentationStrategy,
     SegmentProcessing,
@@ -411,3 +412,17 @@ async def test_update_task_direct(chunkr_client, sample_path):
     assert task.status == "Succeeded"
     assert task.output is not None
     assert task.configuration.segmentation_strategy == SegmentationStrategy.PAGE
+
+
+@pytest.mark.asyncio
+async def test_pipeline_type(chunkr_client, sample_path):
+    client_type, client = chunkr_client
+    response = (
+        await client.upload(sample_path, Configuration(pipeline=PipelineType.AZURE))
+        if client_type == "async"
+        else client.upload(sample_path, Configuration(pipeline=PipelineType.AZURE))
+    )
+
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None

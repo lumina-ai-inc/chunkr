@@ -133,6 +133,8 @@ export interface JsonSchema {
   schema_type?: string;
 }
 
+import { WhenEnabled } from "../config/env.config";
+
 export interface UploadFormData {
   /** Optional chunk processing configuration */
   chunk_processing?: ChunkProcessing;
@@ -178,6 +180,13 @@ export interface UploadFormData {
    * @default 512
    */
   target_chunk_length?: number;
+
+  /** Pipeline to run after processing */
+  pipeline?: WhenEnabled<"pipeline", Pipeline>;
+}
+
+export enum Pipeline {
+  Azure = "Azure",
 }
 
 const DEFAULT_SEGMENT_CONFIG: SegmentProcessingConfig = {
@@ -200,8 +209,8 @@ const DEFAULT_FORMULA_CONFIG: SegmentProcessingConfig = {
 
 const DEFAULT_PICTURE_CONFIG: SegmentProcessingConfig = {
   crop_image: CroppingStrategy.All,
-  html: GenerationStrategy.LLM,
-  markdown: GenerationStrategy.LLM,
+  html: GenerationStrategy.Auto,
+  markdown: GenerationStrategy.Auto,
 };
 
 export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
@@ -227,4 +236,5 @@ export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
   json_schema: undefined, // or some default schema if needed
   file: new File([], ""),
+  pipeline: undefined as WhenEnabled<"pipeline", Pipeline>, // Default pipeline
 };
