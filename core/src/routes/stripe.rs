@@ -1,4 +1,4 @@
-use crate::configs::postgres_config::Pool;
+use crate::utils::clients::get_pg_client;
 use crate::configs::stripe_config::Config;
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::user::{InvoiceStatus, Tier, UsageType};
@@ -6,7 +6,7 @@ use crate::utils::routes::get_user::get_monthly_usage_count;
 use crate::utils::routes::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe_utils::{
     cancel_stripe_subscription, create_customer_session, create_stripe_customer,
-    create_stripe_invoice_for_overage, create_stripe_setup_intent, create_stripe_subscription,
+create_stripe_setup_intent, create_stripe_subscription,
     set_default_payment_method, update_invoice_status,
 };
 use actix_web::{web, Error, HttpRequest, HttpResponse};
@@ -29,13 +29,13 @@ pub struct SubscriptionRequest {
 }
 
 pub async fn create_setup_intent(
-    pool: web::Data<Pool>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
-    let client = pool.get().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
+
     let stripe_config = Config::from_env().map_err(|e| {
         eprintln!("Error loading Stripe configuration: {:?}", e);
         actix_web::error::ErrorInternalServerError("Configuration error")
@@ -104,14 +104,13 @@ pub async fn create_setup_intent(
 }
 
 pub async fn create_stripe_session(
-    pool: web::Data<Pool>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let stripe_config = Config::from_env().map_err(|e| {
         eprintln!("Error loading Stripe configuration: {:?}", e);
         actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
-    let client = pool.get().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
@@ -171,7 +170,6 @@ pub async fn create_stripe_session(
 }
 
 pub async fn stripe_webhook(
-    pool: web::Data<Pool>,
     req: HttpRequest,
     payload: web::Bytes,
 ) -> Result<HttpResponse, Error> {
@@ -189,65 +187,107 @@ pub async fn stripe_webhook(
         .map_err(|_| actix_web::error::ErrorBadRequest("Invalid Stripe-Signature header"))?;
 
     let endpoint_secret = stripe_config.clone().webhook_secret;
-
     let payload_str = std::str::from_utf8(&payload)
         .map_err(|_| actix_web::error::ErrorBadRequest("Invalid payload"))?;
 
     let event = stripe::Webhook::construct_event(payload_str, &sig_header, &endpoint_secret)
         .map_err(|_| actix_web::error::ErrorBadRequest("Invalid webhook signature"))?;
 
-    let client = pool.get().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("DB connect error: {:?}", e);
         actix_web::error::ErrorInternalServerError("DB error")
     })?;
-    // TODO: update and downgrade subscription
+
+
     match event.type_ {
         EventType::CustomerSubscriptionCreated => {
             if let stripe::EventObject::Subscription(sub) = event.data.object {
-                let user_id_opt = find_user_id_by_customer(&sub.customer, &client).await;
+                let user_id_opt: Option<String> = find_user_id_by_customer(&sub.customer, &client).await;
                 if let Some(user_id) = user_id_opt {
-                    // For demonstration, we set last_paid_status = 'True' if it's active
                     let stripe_sub_id = sub.id.to_string();
-                    let status_str = sub.status.clone();
-                    let last_paid_status = match status_str.as_str() {
+                    let last_paid_status = match sub.status.as_str() {
                         "active" | "trialing" => "True",
                         _ => "False",
                     };
-                    // Update DB
-                    let _ = client
+                    let tier = if let Some(item) = sub.items.data.get(0) {
+                        if let Some(price) = &item.price {
+                            match price.id.as_str() {
+                                x if x == stripe_config.starter_price_id => "Starter",
+                                x if x == stripe_config.dev_price_id => "Dev",
+                                x if x == stripe_config.team_price_id => "Team",
+                                _ => "Free"
+                            }
+                        } else {
+                            "Free"
+                        }
+                    } else {
+                        "Free"
+                    };
+                    let res_one = client
                         .execute(
-                            "WITH sub_update AS (
-                                UPDATE subscriptions
+                            "WITH sub_upsert AS (
+                                INSERT INTO subscriptions (
+                                    stripe_subscription_id,
+                                    user_id,
+                                    tier,
+                                    last_paid_status,
+                                    last_paid_date,
+                                    created_at,
+                                    updated_at
+                                )
+                                VALUES ($1, $3, $4, $2, NOW(), NOW(), NOW())
+                                ON CONFLICT (user_id) DO UPDATE
                                 SET stripe_subscription_id = $1,
-                                    last_paid_status = $2, 
+                                    last_paid_status = $2,
+                                    tier = $4,
+                                    last_paid_date = NOW(),
                                     updated_at = NOW()
-                                WHERE user_id = $3
                                 RETURNING tier
                             )
                             UPDATE users u
-                            SET tier = s.tier
-                            FROM sub_update s
-                            WHERE u.user_id = $3;
-
-                            INSERT INTO monthly_usage (
-                                user_id, usage_type, usage, overage_usage, 
-                                year, month, tier, usage_limit
-                            )
-                            SELECT 
-                                $3, 'Page', 0, 0,
-                                EXTRACT(YEAR FROM CURRENT_TIMESTAMP),
-                                EXTRACT(MONTH FROM CURRENT_TIMESTAMP),
-                                t.tier,
-                                t.usage_limit
-                            FROM tiers t
-                            JOIN sub_update s ON s.tier = t.tier
-                            ON CONFLICT (user_id, usage_type, year, month) 
-                            DO UPDATE SET
-                                tier = EXCLUDED.tier,
-                                usage_limit = EXCLUDED.usage_limit",
-                            &[&stripe_sub_id, &last_paid_status, &user_id],
+                            SET tier = s.tier,
+                                invoice_status = $2
+                            FROM sub_upsert s
+                            WHERE u.user_id = $3",
+                            &[&stripe_sub_id, &last_paid_status, &user_id, &tier],
                         )
                         .await;
+
+                    if let Err(e) = res_one {
+                        eprintln!("Error syncing subscriptions/users: {:?}", e);
+                    }
+
+                    let res_two = client
+                        .execute(
+                            "WITH new_data AS (
+                                SELECT
+                                    $1 as user_id, 
+                                    'Page' as usage_type, 
+                                    0 as usage, 
+                                    0 as overage_usage,
+                                    EXTRACT(YEAR FROM CURRENT_TIMESTAMP) as year,
+                                    EXTRACT(MONTH FROM CURRENT_TIMESTAMP) as month,
+                                    $2 as tier,
+                                    t.usage_limit
+                                FROM tiers t
+                                WHERE t.tier = $2
+                            )
+                            INSERT INTO monthly_usage (
+                                user_id, usage_type, usage, overage_usage,
+                                year, month, tier, usage_limit
+                            )
+                            SELECT * FROM new_data
+                            ON CONFLICT (user_id, usage_type, year, month)
+                            DO UPDATE
+                            SET tier = EXCLUDED.tier,
+                                usage_limit = EXCLUDED.usage_limit",
+                            &[&user_id, &tier],
+                        )
+                        .await;
+
+                    if let Err(e) = res_two {
+                        eprintln!("Error syncing monthly_usage: {:?}", e);
+                    }
                 }
             }
         }
@@ -255,48 +295,89 @@ pub async fn stripe_webhook(
             if let stripe::EventObject::Subscription(sub) = event.data.object {
                 let user_id_opt = find_user_id_by_customer(&sub.customer, &client).await;
                 if let Some(user_id) = user_id_opt {
-                    // Extract the single subscription item's price ID
-                    // (assuming you only have one active item).
-                    let items = sub.items.data; // Access data directly since items is not Option
-                    if let Some(item) = items.get(0) {
+                    if let Some(item) = sub.items.data.get(0) {
                         if let Some(price) = &item.price {
-                            let price_id = price.id.clone();
-                            // match price_id to local tier ...
-                            let new_tier = match price_id.as_str() {
+                            let new_tier = match price.id.as_str() {
                                 x if x == stripe_config.starter_price_id => "Starter",
-                                x if x == stripe_config.dev_price_id => "Dev",
+                                x if x == stripe_config.dev_price_id => "Dev", 
                                 x if x == stripe_config.team_price_id => "Team",
-                                _ => "Free", // or "Unknown"
+                                _ => "Free"
                             };
-
-                            // Then set last_paid_status if sub is active/trialing
-                            let status_str = sub.status.clone();
-                            let last_paid_status = match status_str.as_str() {
+                            let last_paid_status = match sub.status.as_str() {
                                 "active" | "trialing" => "True",
                                 _ => "False",
                             };
 
-                            // Update DB
-                            let _ = client
+                            let res_one = client
                                 .execute(
-                                    "WITH sub_update AS (
-                                    UPDATE subscriptions
-                                    SET stripe_subscription_id = $1,
-                                        last_paid_status = $2,
-                                        tier = $3,
-                                        updated_at = NOW()
-                                    WHERE user_id = $4
-                                    RETURNING tier
-                                )
-                                UPDATE users
-                                SET tier = s.tier
-                                FROM sub_update s
-                                WHERE users.user_id = $4;",
-                                    &[&sub.id.to_string(), &last_paid_status, &new_tier, &user_id],
+                                    "WITH sub_upsert AS (
+                                        INSERT INTO subscriptions (
+                                            stripe_subscription_id,
+                                            user_id,
+                                            tier,
+                                            last_paid_status,
+                                            last_paid_date,
+                                            created_at,
+                                            updated_at
+                                        )
+                                        VALUES ($1, $4, $3, $2, NOW(), NOW(), NOW())
+                                        ON CONFLICT (user_id) DO UPDATE
+                                        SET stripe_subscription_id = $1,
+                                            last_paid_status = $2,
+                                            tier = $3,
+                                            last_paid_date = NOW(),
+                                            updated_at = NOW()
+                                        RETURNING tier
+                                    )
+                                    UPDATE users u
+                                    SET tier = s.tier,
+                                        invoice_status = $2
+                                    FROM sub_upsert s
+                                    WHERE u.user_id = $4",
+                                    &[
+                                        &sub.id.to_string(),
+                                        &last_paid_status,
+                                        &new_tier,
+                                        &user_id,
+                                    ],
                                 )
                                 .await;
 
-                            // Optionally also update monthly_usage if needed.
+                            if let Err(e) = res_one {
+                                eprintln!("Error syncing subscriptions/users: {:?}", e);
+                            }
+
+                            let res_two = client
+                                .execute(
+                                    "WITH new_data AS (
+                                        SELECT
+                                            $1 as user_id, 
+                                            'Page' as usage_type, 
+                                            0 as usage, 
+                                            0 as overage_usage,
+                                            EXTRACT(YEAR FROM CURRENT_TIMESTAMP) as year,
+                                            EXTRACT(MONTH FROM CURRENT_TIMESTAMP) as month,
+                                            $2 as tier,
+                                            t.usage_limit
+                                        FROM tiers t
+                                        WHERE t.tier = $2
+                                    )
+                                    INSERT INTO monthly_usage (
+                                        user_id, usage_type, usage, overage_usage,
+                                        year, month, tier, usage_limit
+                                    )
+                                    SELECT * FROM new_data
+                                    ON CONFLICT (user_id, usage_type, year, month)
+                                    DO UPDATE
+                                    SET tier = EXCLUDED.tier,
+                                        usage_limit = EXCLUDED.usage_limit",
+                                    &[&user_id, &new_tier],
+                                )
+                                .await;
+
+                            if let Err(e) = res_two {
+                                eprintln!("Error syncing monthly_usage: {:?}", e);
+                            }
                         }
                     }
                 }
@@ -306,61 +387,107 @@ pub async fn stripe_webhook(
             if let stripe::EventObject::Subscription(sub) = event.data.object {
                 let user_id_opt = find_user_id_by_customer(&sub.customer, &client).await;
                 if let Some(user_id) = user_id_opt {
-                    // Mark subscription row canceled or remove entirely
-                    let _ = client
+                    let res_one = client
                         .execute(
-                            "UPDATE subscriptions
-                         SET last_paid_status = 'Canceled',
-                             updated_at = NOW()
-                         WHERE user_id = $1",
+                            "UPDATE subscriptions 
+                             SET last_paid_status = 'Canceled',
+                                 updated_at = NOW()
+                             WHERE user_id = $1",
                             &[&user_id],
                         )
                         .await;
+
+                    if let Err(e) = res_one {
+                        eprintln!("Error updating subscription: {:?}", e);
+                    }
+
+                    let res_two = client
+                        .execute(
+                            "UPDATE users 
+                             SET invoice_status = 'Canceled'
+                             WHERE user_id = $1",
+                            &[&user_id],
+                        )
+                        .await;
+
+                    if let Err(e) = res_two {
+                        eprintln!("Error updating user: {:?}", e);
+                    }
+
+                    let res_three = client
+                        .execute(
+                            "UPDATE monthly_usage
+                             SET tier = 'Free',
+                                 usage_limit = (SELECT usage_limit FROM tiers WHERE tier = 'Free')
+                             WHERE user_id = $1 
+                             AND year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+                             AND month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)",
+                            &[&user_id],
+                        )
+                        .await;
+
+                    if let Err(e) = res_three {
+                        eprintln!("Error updating monthly usage: {:?}", e);
+                    }
                 }
             }
         }
         EventType::InvoicePaid => {
             if let stripe::EventObject::Invoice(invoice) = event.data.object {
-                let stripe_invoice_id = invoice.id;
-                let status = invoice.status.clone();
-                let invoice_status = match status {
-                    Some(StripeInvoiceStatus::Paid) => InvoiceStatus::Paid.to_string(),
-                    Some(StripeInvoiceStatus::Open) => InvoiceStatus::Ongoing.to_string(),
-                    Some(StripeInvoiceStatus::Void) => InvoiceStatus::Canceled.to_string(),
-                    Some(StripeInvoiceStatus::Uncollectible) => {
-                        InvoiceStatus::NoInvoice.to_string()
-                    }
-                    _ => "Unknown".to_string(),
+                let user_id_opt = if let Some(customer) = &invoice.customer {
+                    find_user_id_by_customer(customer, &client).await
+                } else {
+                    None
                 };
-                // Update local invoice row
-                let _ = update_invoice_status(&stripe_invoice_id, &invoice_status, &pool).await;
+                if let Some(user_id) = user_id_opt {
+                    let stripe_invoice_id = invoice.id;
+                    let invoice_status = match invoice.status {
+                        Some(StripeInvoiceStatus::Paid) => InvoiceStatus::Paid.to_string(),
+                        Some(StripeInvoiceStatus::Open) => InvoiceStatus::Ongoing.to_string(),
+                        Some(StripeInvoiceStatus::Void) => InvoiceStatus::Canceled.to_string(),
+                        Some(StripeInvoiceStatus::Uncollectible) => InvoiceStatus::NoInvoice.to_string(),
+                        _ => "Unknown".to_string(),
+                    };
+                    let _ = update_invoice_status(&stripe_invoice_id, &user_id, &invoice_status).await;
+                }
             }
         }
         EventType::InvoicePaymentFailed => {
             if let stripe::EventObject::Invoice(invoice) = event.data.object {
-                let stripe_invoice_id = invoice.id;
-                let _ = update_invoice_status(
-                    &stripe_invoice_id,
-                    &InvoiceStatus::PastDue.to_string(),
-                    &pool,
-                )
-                .await;
+                let user_id_opt = if let Some(customer) = &invoice.customer {
+                    find_user_id_by_customer(customer, &client).await
+                } else {
+                    None
+                };
+                if let Some(user_id) = user_id_opt {
+                    let stripe_invoice_id = invoice.id;
+                    let _ = update_invoice_status(
+                        &stripe_invoice_id,
+                        &user_id,
+                        &InvoiceStatus::PastDue.to_string(),
+                    )
+                    .await;
+                }
             }
         }
         EventType::InvoicePaymentSucceeded => {
             if let stripe::EventObject::Invoice(invoice) = event.data.object {
-                let stripe_invoice_id = invoice.id;
-                let status_str = match invoice.status.clone() {
-                    Some(StripeInvoiceStatus::Paid) => InvoiceStatus::Paid.to_string(),
-                    Some(StripeInvoiceStatus::Open) => InvoiceStatus::Ongoing.to_string(),
-                    Some(StripeInvoiceStatus::Void) => InvoiceStatus::Canceled.to_string(),
-                    Some(StripeInvoiceStatus::Uncollectible) => {
-                        InvoiceStatus::NoInvoice.to_string()
-                    }
-                    _ => "Unknown".to_string(),
+                let user_id_opt = if let Some(customer) = &invoice.customer {
+                    find_user_id_by_customer(customer, &client).await
+                } else {
+                    None
                 };
-                // update local DB
-                let _ = update_invoice_status(&stripe_invoice_id, &status_str, &pool).await;
+                if let Some(user_id) = user_id_opt {
+                    let stripe_invoice_id = invoice.id;
+                    let status_str = match invoice.status {
+                        Some(StripeInvoiceStatus::Paid) => InvoiceStatus::Paid.to_string(),
+                        Some(StripeInvoiceStatus::Open) => InvoiceStatus::Ongoing.to_string(),
+                        Some(StripeInvoiceStatus::Void) => InvoiceStatus::Canceled.to_string(),
+                        Some(StripeInvoiceStatus::Uncollectible) => InvoiceStatus::NoInvoice.to_string(),
+                        _ => "Unknown".to_string(),
+                    };
+                    let _ = update_invoice_status(&stripe_invoice_id, &user_id, &status_str).await;
+                }
             }
         }
         _ => {
@@ -368,142 +495,10 @@ pub async fn stripe_webhook(
         }
     }
 
-    // Return 200 OK so Stripe knows we processed the webhook
+    println!("Webhook processed successfully for event type: {:?}", event.type_);
     Ok(HttpResponse::Ok().finish())
 }
 
-async fn upgrade_user(customer_id: String, pool: web::Data<Pool>) -> Result<HttpResponse, Error> {
-    let client = pool.get().await.map_err(|e| {
-        eprintln!("Error connecting to database: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Database connection error")
-    })?;
-    let tier_query = "
-        SELECT tier
-        FROM users
-        WHERE customer_id = $1
-    ";
-    let row = client
-        .query_one(tier_query, &[&customer_id])
-        .await
-        .map_err(|e| {
-            eprintln!("Error querying tier from users table: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Error querying user tier")
-        })?;
-    let user_tier: String = row.get("tier");
-
-    if user_tier == "PayAsYouGo" || user_tier == "SelfHosted" {
-        return Ok(HttpResponse::Ok().body("User does not need to be upgraded"));
-    }
-
-    let user_id_query = "
-        SELECT user_id
-        FROM users
-        WHERE customer_id = $1
-    ";
-    let row = client
-        .query_one(user_id_query, &[&customer_id])
-        .await
-        .map_err(|e| {
-            eprintln!("Error querying user_id from users table: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Error querying user_id")
-        })?;
-    let user_id: String = row.get("user_id");
-    // Calculate remaining pages for each usage type and insert into discounts table
-
-    let remaining_pages_query = "
-    INSERT INTO discounts (user_id, usage_type, amount)
-    SELECT user_id, usage_type, usage_limit AS amount
-    FROM USAGE
-    WHERE user_id = $1;
-    ";
-    client
-        .execute(remaining_pages_query, &[&user_id])
-        .await
-        .map_err(|e| {
-            eprintln!("Error inserting into discounts table: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Error processing discount")
-        })?;
-
-    // Update USAGE table with new usage limits for PayAsYouGo tier
-    let update_fast_usage_query = "
-        UPDATE USAGE
-        SET usage_limit = $1::integer
-        WHERE user_id = $2 AND usage_type = 'Fast';
-    ";
-    let update_high_quality_usage_query = "
-        UPDATE USAGE
-        SET usage_limit = $1::integer
-        WHERE user_id = $2 AND usage_type = 'HighQuality';
-    ";
-    let update_segment_usage_query = "
-        UPDATE USAGE
-        SET usage_limit = $1::integer
-        WHERE user_id = $2 AND usage_type = 'Segment';
-    ";
-
-    let fast_limit = UsageType::Fast.get_usage_limit(&Tier::PayAsYouGo) as i32;
-    let high_quality_limit = UsageType::HighQuality.get_usage_limit(&Tier::PayAsYouGo) as i32;
-    let segment_limit = UsageType::Segment.get_usage_limit(&Tier::PayAsYouGo) as i32;
-
-    println!("Updating fast usage for customer_id: {}", customer_id);
-    client
-        .execute(update_fast_usage_query, &[&fast_limit, &user_id])
-        .await
-        .map_err(|e| {
-            eprintln!("Error updating fast usage table: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Error updating fast usage")
-        })?;
-    println!(
-        "Successfully updated fast usage for customer_id: {}",
-        user_id
-    );
-
-    println!("Updating high quality usage for customer_id: {}", user_id);
-    client
-        .execute(
-            update_high_quality_usage_query,
-            &[&high_quality_limit, &user_id],
-        )
-        .await
-        .map_err(|e| {
-            eprintln!("Error updating high quality usage table: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Error updating high quality usage")
-        })?;
-    println!(
-        "Successfully updated high quality usage for customer_id: {}",
-        user_id
-    );
-
-    println!("Updating segment usage for customer_id: {}", user_id);
-    client
-        .execute(update_segment_usage_query, &[&segment_limit, &user_id])
-        .await
-        .map_err(|e| {
-            eprintln!("Error updating segment usage table: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Error updating segment usage")
-        })?;
-    println!(
-        "Successfully updated segment usage for customer_id: {}",
-        user_id
-    );
-
-    // Update users table to change tier to 'PayAsYouGo'
-    let update_user_tier_query = "
-        UPDATE users
-        SET tier = 'PayAsYouGo'
-        WHERE customer_id = $1
-    ";
-    client
-        .execute(update_user_tier_query, &[&customer_id])
-        .await
-        .map_err(|e| {
-            eprintln!("Error updating users table: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Error updating user tier")
-        })?;
-
-    // Return a valid HttpResponse
-    Ok(HttpResponse::Ok().finish())
-}
 
 // Define a route to get invoices for a user
 pub async fn get_user_invoices(
@@ -533,12 +528,11 @@ pub async fn get_monthly_usage(
 /// POST /subscribe
 /// Creates (or updates) a user subscription in Stripe and stores it in the local subscriptions table.
 pub async fn subscribe_user(
-    pool: web::Data<Pool>,
     user_info: web::ReqData<UserInfo>,
     form: web::Json<SubscriptionRequest>,
 ) -> Result<HttpResponse, Error> {
     // 1) Ensure we have a valid DB client
-    let mut client = pool.get().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Error connecting to DB: {:?}", e);
         actix_web::error::ErrorInternalServerError("DB Connection Error")
     })?;
@@ -624,25 +618,17 @@ pub async fn subscribe_user(
         .to_string();
 
     // 4) Insert or update your local `subscriptions` table
-    //    Example: We store a row keyed by subscription_id = user_id (or random).
-    //    If you prefer each user can have multiple subscriptions, store them separately with unique IDs.
-    let local_subscription_id = Uuid::new_v4().to_string();
     client
         .execute(
             r#"
-            INSERT INTO subscriptions (subscription_id, stripe_subscription_id, user_id, tier, last_paid_date, last_paid_status)
-            VALUES ($1, $2, $3, $4, NOW(), 'True')
+            INSERT INTO subscriptions (user_id, stripe_subscription_id, tier, last_paid_date, last_paid_status)
+            VALUES ($1, $2, $3, NOW(), 'True')
             ON CONFLICT (user_id) DO UPDATE
               SET stripe_subscription_id = EXCLUDED.stripe_subscription_id,
                   tier = EXCLUDED.tier,
                   updated_at = NOW()
             "#,
-            &[
-                &local_subscription_id,
-                &stripe_subscription_id,
-                user_id,
-                &form.tier,
-            ],
+            &[user_id, &stripe_subscription_id, &form.tier],
         )
         .await
         .map_err(|e| {
@@ -663,10 +649,9 @@ pub async fn subscribe_user(
 /// DELETE /subscribe
 /// Cancel the user's subscription in Stripe and mark it canceled in your local DB.
 pub async fn cancel_subscription(
-    pool: web::Data<Pool>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
-    let mut client = pool.get().await.map_err(|e| {
+    let mut client = get_pg_client().await.map_err(|e| {
         eprintln!("DB connection error: {:?}", e);
         actix_web::error::ErrorInternalServerError("DB connection error")
     })?;
@@ -722,18 +707,18 @@ async fn find_user_id_by_customer(
     customer_expandable: &stripe::Expandable<stripe::Customer>,
     client: &tokio_postgres::Client,
 ) -> Option<String> {
-    if let stripe::Expandable::Id(c_id) = customer_expandable {
-        if let Ok(row_opt) = client
-            .query_opt(
-                "SELECT user_id FROM users WHERE customer_id = $1",
-                &[&c_id.to_string()],
-            )
-            .await
-        {
-            if let Some(row) = row_opt {
-                return Some(row.get("user_id"));
-            }
-        }
-    }
-    None
+    let customer_id = match customer_expandable {
+        stripe::Expandable::Id(id) => id.to_string(),
+        stripe::Expandable::Object(customer) => customer.id.to_string(),
+    };
+
+    client
+        .query_opt(
+            "SELECT user_id FROM users WHERE customer_id = $1",
+            &[&customer_id],
+        )
+        .await
+        .ok()
+        .flatten()
+        .map(|row| row.get("user_id"))
 }
