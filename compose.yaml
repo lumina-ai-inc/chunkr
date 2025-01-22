@@ -108,7 +108,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   task:
@@ -121,7 +121,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 5
     restart: always
 
   web:
@@ -132,8 +132,9 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
+    
   segmentation:
     image: luminainc/segmentation:df6e5375
     ports:
