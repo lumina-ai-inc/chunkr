@@ -201,7 +201,7 @@ pub async fn stripe_webhook(
         eprintln!("DB connect error: {:?}", e);
         actix_web::error::ErrorInternalServerError("DB error")
     })?;
-
+    // TODO: update and downgrade subscription
     match event.type_ {
         EventType::CustomerSubscriptionCreated => {
             if let stripe::EventObject::Subscription(sub) = event.data.object {
@@ -217,11 +217,35 @@ pub async fn stripe_webhook(
                     // Update DB
                     let _ = client
                         .execute(
-                            "UPDATE subscriptions
-                         SET stripe_subscription_id = $1,
-                             last_paid_status = $2,
-                             updated_at = NOW()
-                         WHERE user_id = $3",
+                            "WITH sub_update AS (
+                                UPDATE subscriptions
+                                SET stripe_subscription_id = $1,
+                                    last_paid_status = $2, 
+                                    updated_at = NOW()
+                                WHERE user_id = $3
+                                RETURNING tier
+                            )
+                            UPDATE users u
+                            SET tier = s.tier
+                            FROM sub_update s
+                            WHERE u.user_id = $3;
+
+                            INSERT INTO monthly_usage (
+                                user_id, usage_type, usage, overage_usage, 
+                                year, month, tier, usage_limit
+                            )
+                            SELECT 
+                                $3, 'Page', 0, 0,
+                                EXTRACT(YEAR FROM CURRENT_TIMESTAMP),
+                                EXTRACT(MONTH FROM CURRENT_TIMESTAMP),
+                                t.tier,
+                                t.usage_limit
+                            FROM tiers t
+                            JOIN sub_update s ON s.tier = t.tier
+                            ON CONFLICT (user_id, usage_type, year, month) 
+                            DO UPDATE SET
+                                tier = EXCLUDED.tier,
+                                usage_limit = EXCLUDED.usage_limit",
                             &[&stripe_sub_id, &last_paid_status, &user_id],
                         )
                         .await;
@@ -232,22 +256,56 @@ pub async fn stripe_webhook(
             if let stripe::EventObject::Subscription(sub) = event.data.object {
                 let user_id_opt = find_user_id_by_customer(&sub.customer, &client).await;
                 if let Some(user_id) = user_id_opt {
-                    let stripe_sub_id = sub.id.to_string();
-                    let status_str = sub.status.clone();
-                    let last_paid_status = match status_str.as_str() {
-                        "active" | "trialing" => "True",
-                        _ => "False",
-                    };
-                    let _ = client
-                        .execute(
-                            "UPDATE subscriptions
-                         SET stripe_subscription_id = $1,
-                             last_paid_status = $2,
-                             updated_at = NOW()
-                         WHERE user_id = $3",
-                            &[&stripe_sub_id, &last_paid_status, &user_id],
-                        )
-                        .await;
+                    // Extract the single subscription item's price ID
+                    // (assuming you only have one active item).
+                    let items = sub.items.data; // Access data directly since items is not Option
+                    if let Some(item) = items.get(0) {
+                        if let Some(price) = &item.price {
+                            let price_id = price.id.clone();
+                            // match price_id to local tier ...
+                            let new_tier = match price_id.as_str() {
+                                x if x == std::env::var("STARTER_PRICE_ID").unwrap_or_default() => {
+                                    "Starter"
+                                }
+                                x if x == std::env::var("DEV_PRICE_ID").unwrap_or_default() => {
+                                    "Dev"
+                                }
+                                x if x == std::env::var("TEAM_PRICE_ID").unwrap_or_default() => {
+                                    "Team"
+                                }
+                                _ => "Free", // or "Unknown"
+                            };
+
+                            // Then set last_paid_status if sub is active/trialing
+                            let status_str = sub.status.clone();
+                            let last_paid_status = match status_str.as_str() {
+                                "active" | "trialing" => "True",
+                                _ => "False",
+                            };
+
+                            // Update DB
+                            let _ = client
+                                .execute(
+                                    "WITH sub_update AS (
+                                    UPDATE subscriptions
+                                    SET stripe_subscription_id = $1,
+                                        last_paid_status = $2,
+                                        tier = $3,
+                                        updated_at = NOW()
+                                    WHERE user_id = $4
+                                    RETURNING tier
+                                )
+                                UPDATE users
+                                SET tier = s.tier
+                                FROM sub_update s
+                                WHERE users.user_id = $4;",
+                                    &[&sub.id.to_string(), &last_paid_status, &new_tier, &user_id],
+                                )
+                                .await;
+
+                            // Optionally also update monthly_usage if needed.
+                        }
+                    }
                 }
             }
         }
