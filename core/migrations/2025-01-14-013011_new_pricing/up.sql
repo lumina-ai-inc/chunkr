@@ -47,6 +47,10 @@ ALTER TABLE usage DROP COLUMN usage_limit;
 -- Migrate existing users to appropriate tiers
 -- First identify and store PayAsYouGo users
 
+
+
+-- Do we need to migrate if we still support pay as you go?
+
 WITH moved_users AS (
     UPDATE users 
     SET tier = 'Free'
@@ -71,6 +75,27 @@ DO UPDATE SET usage = 0;
 --------------
 -- TRIGGERS --
 --------------
+
+CREATE OR REPLACE FUNCTION decrement_user_task_count() RETURNS TRIGGER AS $$
+BEGIN
+    -- Decrement the task count for the user
+    UPDATE users
+    SET task_count = (
+        SELECT COUNT(*)
+        FROM tasks
+        WHERE user_id = OLD.user_id
+    )
+    WHERE user_id = OLD.user_id;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_decrement_user_task_count
+AFTER DELETE ON tasks
+FOR EACH ROW
+EXECUTE FUNCTION decrement_user_task_count();
+
 
 -- validate usage trigger
 
