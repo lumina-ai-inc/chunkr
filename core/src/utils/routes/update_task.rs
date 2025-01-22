@@ -37,5 +37,5 @@ pub async fn update_task(
     ))
     .await?;
 
-    Ok(previous_task.to_task_response().await?)
+    Ok(previous_task.to_task_response(false).await?)
 }
