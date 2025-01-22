@@ -39,6 +39,14 @@ def sample_image():
     return img
 
 
+@pytest.fixture(params=[
+    pytest.param(None, id="none_pipeline"),
+    pytest.param(PipelineType.AZURE, id="azure_pipeline"),
+])
+def pipeline_type(request):
+    return request.param
+
+
 @pytest.mark.asyncio
 async def test_send_file_path(chunkr_client, sample_path):
     client_type, client = chunkr_client
@@ -415,12 +423,12 @@ async def test_update_task_direct(chunkr_client, sample_path):
 
 
 @pytest.mark.asyncio
-async def test_pipeline_type(chunkr_client, sample_path):
+async def test_pipeline_type(chunkr_client, sample_path, pipeline_type):
     client_type, client = chunkr_client
     response = (
-        await client.upload(sample_path, Configuration(pipeline=PipelineType.AZURE))
+        await client.upload(sample_path, Configuration(pipeline=pipeline_type))
         if client_type == "async"
-        else client.upload(sample_path, Configuration(pipeline=PipelineType.AZURE))
+        else client.upload(sample_path, Configuration(pipeline=pipeline_type))
     )
 
     assert response.task_id is not None

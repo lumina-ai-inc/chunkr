@@ -24,8 +24,6 @@ pub async fn main() -> std::io::Result<()> {
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
 
     HttpServer::new(move || {
-
-
         App::new()
             .wrap(Cors::permissive())
             .wrap(Logger::default())
