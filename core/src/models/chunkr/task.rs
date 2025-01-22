@@ -512,7 +512,7 @@ impl Task {
         )
     }
 
-    pub async fn to_task_response(&self) -> Result<TaskResponse, Box<dyn std::error::Error>> {
+    pub async fn to_task_response(&self, include_output: bool) -> Result<TaskResponse, Box<dyn std::error::Error>> {
         let input_file_url = generate_presigned_url(&self.input_location, true, None)
             .await
             .map_err(|_| "Error getting input file url")?;
@@ -524,7 +524,9 @@ impl Task {
                     .await
                     .map_err(|_| "Error getting pdf url")?,
             );
-            output = Some(self.create_output().await?);
+            if include_output {
+                output = Some(self.create_output().await?);
+            }
         }
         Ok(TaskResponse {
             task_id: self.task_id.clone(),

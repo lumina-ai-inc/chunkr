@@ -18,6 +18,6 @@ pub async fn create_task(
     .await?;
     let extraction_payload = task.to_task_payload(None, None, None, None);
     produce_extraction_payloads(extraction_payload).await?;
-    let task_response = task.to_task_response().await?;
+    let task_response = task.to_task_response(false).await?;
     Ok(task_response)
 }

@@ -24,7 +24,7 @@ pub async fn get_tasks(
         let task_id = task_id.clone();
         async move {
             match Task::get(&task_id, &user_id).await {
-                Ok(task) => match task.to_task_response().await {
+                Ok(task) => match task.to_task_response(false).await {
                     Ok(response) => {
                         Ok::<Option<TaskResponse>, Box<dyn std::error::Error>>(Some(response))
                     }
