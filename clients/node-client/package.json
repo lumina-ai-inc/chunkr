@@ -8,7 +8,7 @@
     "build": "tsc",
     "test": "jest",
     "test:load": "jest --config jest.load.config.js",
-    "test:functionality": "jest --config jest.integration.config.js",
+    "test:functionality": "jest --config jest.functionality.config.js",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint src --ext .ts",
     "prepare": "npm run build"
