@@ -13,3 +13,16 @@ export const deleteTasks = async (taskIds: string[]): Promise<void> => {
     throw error;
   }
 };
+
+export const cancelTasks = async (taskIds: string[]): Promise<void> => {
+  try {
+    // Make parallel cancel requests for all selected tasks
+    const cancelPromises = taskIds.map((taskId) =>
+      axiosInstance.get(`/api/v1/task/${taskId}/cancel`)
+    );
+    await Promise.all(cancelPromises);
+  } catch (error) {
+    console.error("Error cancelling tasks:", error);
+    throw error;
+  }
+};
