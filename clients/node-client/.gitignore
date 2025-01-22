@@ -4,3 +4,4 @@ coverage/
 .env
 *.log
 logs/
+test_input/

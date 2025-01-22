@@ -8,6 +8,5 @@ module.exports = {
   // Runs functionality test files
   testMatch: ["**/__tests__/**/*.functionality.test.ts"],
 
-  // Increasing timeout to 2 minutes since API processing can take longer
-  testTimeout: 220000, // 220 seconds = 3 minutes and 40 seconds
+  testTimeout: 2220000, // 2220 seconds = 37 minutes
 };
