@@ -6,10 +6,7 @@ module.exports = {
   testEnvironment: "node",
 
   // Runs both load and functionality test files
-  testMatch: [
-    "**/__tests__/**/*.load.test.ts",
-    "**/__tests__/**/*.functionality.test.ts",
-  ],
+  testMatch: ["**/__tests__/**/*.functionality.test.ts"],
 
   // Sets timeout to 30 seconds instead of Jest's default 5 seconds
   // because API calls take longer than regular unit tests
