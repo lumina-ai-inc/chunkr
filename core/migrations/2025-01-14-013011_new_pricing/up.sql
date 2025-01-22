@@ -49,15 +49,13 @@ ALTER TABLE usage DROP COLUMN usage_limit;
 
 
 
--- Do we need to migrate if we still support pay as you go?
-
 WITH moved_users AS (
     UPDATE users 
     SET tier = 'Free'
-    WHERE tier = 'PayAsYouGo'
+    WHERE tier IN ('PayAsYouGo', 'SelfHosted')
+    AND user_id != 'admin'
     RETURNING user_id
 )
--- Give 5000 pages to moved users and 200 to everyone else
 INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier)
 SELECT 
     user_id,
@@ -68,8 +66,12 @@ SELECT
     EXTRACT(MONTH FROM CURRENT_TIMESTAMP),
     'Free'
 FROM users
+WHERE user_id != 'admin'
 ON CONFLICT (user_id, usage_type, year, month)
-DO UPDATE SET usage = 0;
+DO UPDATE SET 
+    usage = EXCLUDED.usage,
+    usage_limit = EXCLUDED.usage_limit,
+    tier = EXCLUDED.tier;
 
 
 --------------
