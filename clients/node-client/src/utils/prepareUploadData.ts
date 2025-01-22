@@ -18,28 +18,30 @@ async function prepareFile(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    let filename = "downloaded_file";
-
-    // Try to get filename from Content-Disposition
+    // Try to get filename from Content-Disposition header first
+    let filename = null;
     const contentDisposition = response.headers.get("content-disposition");
     if (contentDisposition?.includes("filename=")) {
       filename = contentDisposition
         .split("filename=")[1]
         .replace(/["']/g, "")
         .trim();
-    } else {
-      // Try to get filename from URL
+    }
+
+    // If no Content-Disposition, try to get clean filename from URL path
+    if (!filename) {
       try {
         const url = new URL(file);
-        const pathSegments = url.pathname.split("/");
-        const lastSegment = pathSegments[pathSegments.length - 1];
-        if (lastSegment) {
-          filename = decodeURIComponent(lastSegment);
-        }
+        const pathName = decodeURIComponent(url.pathname);
+        const pathSegments = pathName.split("/");
+        filename = pathSegments[pathSegments.length - 1] || null;
       } catch (e) {
-        // Keep default filename if URL parsing fails
+        // Keep filename as null if URL parsing fails
       }
     }
+
+    // Fallback to default name if we couldn't extract one
+    filename = filename || "downloaded_file";
 
     // Sanitize filename
     filename = filename
@@ -76,18 +78,28 @@ async function prepareFile(
 
   // Handle file paths
   if (typeof file === "string" && !file.startsWith("http")) {
-    const stream = createReadStream(file);
-    return [file, stream]; // Use the original file path/name directly
+    try {
+      // Verify file exists and get stats
+      statSync(file);
+      const stream = createReadStream(file);
+      const pathSegments = file.split(/[\\/]/);
+      const filename = pathSegments[pathSegments.length - 1];
+      return [filename, stream];
+    } catch (error) {
+      throw new Error(`File not found: ${file}`);
+    }
   }
 
   // Handle Buffer
   if (Buffer.isBuffer(file)) {
-    return ["document", file];
+    return ["document.bin", file]; // Added .bin extension for consistency
   }
 
   // Handle ReadStream
   if (file instanceof ReadStream) {
-    return [file.path?.toString() || "document", file]; // Use the original path if available
+    const filename =
+      file.path?.toString().split(/[\\/]/).pop() || "document.bin";
+    return [filename, file];
   }
 
   throw new TypeError(`Unsupported file type: ${typeof file}`);
@@ -101,11 +113,17 @@ export async function prepareUploadData(
 
   if (file) {
     const [filename, fileData] = await prepareFile(file);
-    formData.append("file", fileData, { filename });
+    formData.append("file", fileData, filename); // Changed to pass filename directly
   }
 
   if (config) {
-    formData.append("config", JSON.stringify(config));
+    Object.entries(config).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, JSON.stringify(value), {
+          contentType: "application/json",
+        });
+      }
+    });
   }
 
   return formData;
