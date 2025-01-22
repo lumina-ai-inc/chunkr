@@ -12,13 +12,13 @@ from .api.config import (
     OCRResult,
     OcrStrategy,
     OutputResponse,
+    PipelineType,
     Property,
     Segment,
     SegmentProcessing,
     SegmentType,
     SegmentationStrategy,
     Status,
-    PipelineType,
 )
 
 from .api.task import TaskResponse
@@ -38,6 +38,7 @@ __all__ = [
     "OCRResult",
     "OcrStrategy",
     "OutputResponse",
+    "PipelineType",
     "Property",
     "Segment",
     "SegmentProcessing",
@@ -46,5 +47,4 @@ __all__ = [
     "Status",
     "TaskResponse",
     "TaskResponseAsync",
-    "PipelineType",
 ]
