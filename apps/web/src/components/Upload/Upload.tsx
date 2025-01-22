@@ -24,7 +24,7 @@ export default function Upload({
     (acceptedFiles: File[]) => {
       onFileUpload(acceptedFiles);
     },
-    [onFileUpload]
+    [onFileUpload],
   );
 
   const { getRootProps, getInputProps, open } = useDropzone({
@@ -41,6 +41,8 @@ export default function Upload({
         ".xlsx",
       ],
       "application/vnd.ms-excel": [".xls"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
     },
     multiple: true,
     noClick: true,
