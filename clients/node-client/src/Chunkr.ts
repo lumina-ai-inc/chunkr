@@ -163,12 +163,28 @@ export class Chunkr {
 
   /**
    * Delete a task by its ID.
-   * @param {string} taskId - The ID of the task to delete
+   * @param {string} taskId - The task ID to delete
    * @returns {Promise<void>}
    * @throws {Error} If the task is currently processing
    */
   async deleteTask(taskId: string): Promise<void> {
-    await this.client.delete(`/api/v1/task/${taskId}`);
+    try {
+      await this.client.delete(`/api/v1/task/${taskId}`);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete multiple tasks by their IDs.
+   * @param {string[]} taskIds - Array of task IDs to delete
+   * @returns {Promise<void>}
+   * @throws {Error} If any task is currently processing
+   */
+  async deleteTasks(taskIds: string[]): Promise<void> {
+    const deletePromises = taskIds.map((taskId) => this.deleteTask(taskId));
+    await Promise.all(deletePromises);
   }
 
   /**
