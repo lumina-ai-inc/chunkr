@@ -4,7 +4,7 @@
 //3. Run the test: Open node-client in terminal and run "npm run prepare && npm run test:load"
 //4. Check the logs directory for the results - saved in logs/processing-log-<timestamp>.json
 //5. Check the output directory for the outputs - saved in output/<timestamp>/<filename>.result.json
-//6. TEST TIMEOUT IS 1 HOUR
+//6. TEST TIMEOUT IS 1 HOUR - if you want to run longer, increase the timeout in the jest.load.config.js file
 
 import { Chunkr } from "../Chunkr";
 import { Status } from "../models/TaskResponseData";
