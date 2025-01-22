@@ -41,7 +41,7 @@ async function prepareFile(
     }
 
     // Fallback to default name if we couldn't extract one
-    filename = filename || "downloaded_file";
+    filename = filename || "document";
 
     // Sanitize filename
     filename = filename
@@ -65,15 +65,21 @@ async function prepareFile(
       "application/pdf": "pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         "docx",
-      "application/msword": "doc",
+      "application/msword": "docx",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+        "pptx",
+      "application/vnd.ms-powerpoint": "pptx",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+        "xlsx",
+      "application/vnd.ms-excel": "xlsx",
       "image/jpeg": "jpg",
       "image/png": "png",
       "image/jpg": "jpg",
-      // Add more MIME types as needed
     };
 
-    const ext = mimeToExt[mimeType] || "bin";
-    return [`file.${ext}`, buffer];
+    const ext = mimeToExt[mimeType];
+
+    return [`document.${ext}`, buffer];
   }
 
   // Handle file paths
@@ -97,8 +103,7 @@ async function prepareFile(
 
   // Handle ReadStream
   if (file instanceof ReadStream) {
-    const filename =
-      file.path?.toString().split(/[\\/]/).pop() || "document.bin";
+    const filename = file.path?.toString().split(/[\\/]/).pop() || "document";
     return [filename, file];
   }
 
