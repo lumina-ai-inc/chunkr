@@ -24,8 +24,6 @@ ingress:
         - name: "keycloak"
         - name: "web"
         - name: "minio"
-        - name: "embeddings"
-        - name: "reranker"
 
 common:
   standardEnv:
@@ -219,24 +217,6 @@ services:
     useGPU: true
     labels:
       workload-type: chunkr-gpu
-
-  reranker:
-    enabled: false
-    image:
-      repository: text-embeddings-inference
-      tag: "1.6"
-      registry: ghcr.io/huggingface
-    ingress:
-      enabled: false
-      subdomain: "rerank"
-    port: 8000
-    targetPort: 80
-    args: [ "--model-id", "BAAI/bge-reranker-large", "--auto-truncate", "--payload-limit", "100000000" ]
-    useGPU: true
-    labels:
-      workload-type: chunkr-gpu
-      
-
 
  # Supporting services
   keycloak:
