@@ -25,8 +25,7 @@ pub struct SetupIntentResponse {
 
 #[derive(Deserialize, ToSchema, ToSql, Debug)]
 pub struct SubscriptionRequest {
-    pub tier: String,            // e.g. "Starter", "Dev", etc.
-    pub stripe_price_id: String, // The corresponding Stripe Price ID for the tier
+    pub tier: String, // e.g. "Starter", "Dev", etc.
 }
 
 pub async fn create_setup_intent(
@@ -264,15 +263,9 @@ pub async fn stripe_webhook(
                             let price_id = price.id.clone();
                             // match price_id to local tier ...
                             let new_tier = match price_id.as_str() {
-                                x if x == std::env::var("STARTER_PRICE_ID").unwrap_or_default() => {
-                                    "Starter"
-                                }
-                                x if x == std::env::var("DEV_PRICE_ID").unwrap_or_default() => {
-                                    "Dev"
-                                }
-                                x if x == std::env::var("TEAM_PRICE_ID").unwrap_or_default() => {
-                                    "Team"
-                                }
+                                x if x == stripe_config.starter_price_id => "Starter",
+                                x if x == stripe_config.dev_price_id => "Dev",
+                                x if x == stripe_config.team_price_id => "Team",
                                 _ => "Free", // or "Unknown"
                             };
 
@@ -555,6 +548,8 @@ pub async fn subscribe_user(
         eprintln!("Stripe configuration error: {:?}", e);
         actix_web::error::ErrorInternalServerError("Stripe Config Error")
     })?;
+
+    let tier = form.tier.clone();
     let user_id = &user_info.user_id;
 
     let row = client
@@ -614,7 +609,7 @@ pub async fn subscribe_user(
     // 3) Create or Update the subscription in Stripe
     let subscription_json = create_stripe_subscription(
         &customer_id,
-        &form.stripe_price_id, // e.g. "price_1234"
+        &tier, // e.g. "price_1234"
         &stripe_config,
     )
     .await
