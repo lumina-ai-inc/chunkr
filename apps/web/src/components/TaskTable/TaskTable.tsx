@@ -12,16 +12,17 @@ import { TaskResponse } from "../../models/taskResponse.model";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
 import "./TaskTable.css";
-import { Flex } from "@radix-ui/themes";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { deleteTasks } from "../../services/crudApi";
+import { Flex, Text } from "@radix-ui/themes";
+import { deleteTasks, cancelTasks } from "../../services/crudApi";
 import toast from "react-hot-toast";
 import { Box } from "@mui/material";
 import { Status } from "../../models/taskResponse.model";
+import BetterButton from "../BetterButton/BetterButton";
 
 const TaskTable = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   // Set default values if params don't exist
   if (!searchParams.has("tablePageIndex"))
@@ -370,17 +371,35 @@ const TaskTable = () => {
     []
   );
 
-  // Add this function to handle deletion of selected rows
   const handleDeleteSelected = async () => {
     const selectedTaskIds = Object.keys(rowSelection);
     if (selectedTaskIds.length === 0) return;
 
+    const deletableTaskIds = selectedTaskIds.filter((taskId) => {
+      const task = tasks?.find((t) => t.task_id === taskId);
+      return (
+        task?.status === Status.Succeeded || task?.status === Status.Failed
+      );
+    });
+
+    if (deletableTaskIds.length === 0) {
+      toast.error(
+        "No tasks can be deleted. Only completed or failed tasks can be deleted."
+      );
+      return;
+    }
+
+    const nonDeletableCount = selectedTaskIds.length - deletableTaskIds.length;
+
     try {
       setRowSelection({});
-      await deleteTasks(selectedTaskIds);
+      await deleteTasks(deletableTaskIds);
 
       toast.success(
-        `Successfully deleted ${selectedTaskIds.length} task${selectedTaskIds.length === 1 ? "" : "s"}`
+        `Successfully deleted ${deletableTaskIds.length} task${deletableTaskIds.length === 1 ? "" : "s"}` +
+          (nonDeletableCount > 0
+            ? `. ${nonDeletableCount} task${nonDeletableCount === 1 ? " was" : "s were"} skipped as ${nonDeletableCount === 1 ? "it wasn't" : "they weren't"} completed.`
+            : "")
       );
 
       refetch();
@@ -390,8 +409,57 @@ const TaskTable = () => {
     }
   };
 
-  // Add state for row selection
-  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const handleCancelSelected = async () => {
+    const selectedTaskIds = Object.keys(rowSelection);
+    if (selectedTaskIds.length === 0) return;
+
+    const cancellableTaskIds = selectedTaskIds.filter((taskId) => {
+      const task = tasks?.find((t) => t.task_id === taskId);
+      return task?.status === Status.Starting;
+    });
+
+    const nonCancellableTaskDetails = selectedTaskIds
+      .filter((taskId) => !cancellableTaskIds.includes(taskId))
+      .map((taskId) => {
+        const task = tasks?.find((t) => t.task_id === taskId);
+        return task?.status === Status.Processing ? "processing" : "completed";
+      });
+
+    if (cancellableTaskIds.length === 0) {
+      const statusMessage =
+        nonCancellableTaskDetails[0] === "processing"
+          ? "already processing"
+          : "already completed";
+      toast.error(
+        `Cannot cancel ${selectedTaskIds.length === 1 ? "this task" : "these tasks"} as ${selectedTaskIds.length === 1 ? "it is" : "they are"} ${statusMessage}.`
+      );
+      return;
+    }
+
+    try {
+      await cancelTasks(cancellableTaskIds);
+      setRowSelection({});
+
+      toast.success(
+        `Successfully cancelled ${cancellableTaskIds.length} task${cancellableTaskIds.length === 1 ? "" : "s"}` +
+          (nonCancellableTaskDetails.length > 0
+            ? `. ${nonCancellableTaskDetails.length} task${nonCancellableTaskDetails.length === 1 ? " was" : "s were"} skipped as ${nonCancellableTaskDetails.length === 1 ? "it was" : "they were"} already ${nonCancellableTaskDetails[0]}.`
+            : "")
+      );
+
+      refetch();
+    } catch (error) {
+      console.error("Error cancelling tasks:", error);
+      toast.error("Failed to cancel tasks. Please try again.");
+    }
+  };
+
+  const hasSelectedCancellableTasks = () => {
+    return Object.keys(rowSelection).some((taskId) => {
+      const task = tasks?.find((t) => t.task_id === taskId);
+      return task?.status === Status.Starting;
+    });
+  };
 
   return (
     <Flex p="24px" direction="column" width="100%" height="100%">
@@ -442,11 +510,110 @@ const TaskTable = () => {
                 </IconButton>
               </Tooltip>
               {Object.keys(rowSelection).length > 0 && (
-                <Tooltip arrow title="Delete Selected">
-                  <IconButton color="error" onClick={handleDeleteSelected}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
+                <>
+                  {hasSelectedCancellableTasks() && (
+                    <Tooltip arrow title="Cancel Selected">
+                      <BetterButton onClick={handleCancelSelected}>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 25 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g clip-path="url(#clip0_113_1439)">
+                            <path
+                              d="M9.25 15.25L15.75 8.75"
+                              stroke="#FFF"
+                              stroke-width="1.5"
+                              stroke-miterlimit="10"
+                              stroke-linecap="round"
+                            />
+                            <path
+                              d="M15.75 15.25L9.25 8.75"
+                              stroke="#FFF"
+                              stroke-width="1.5"
+                              stroke-miterlimit="10"
+                              stroke-linecap="round"
+                            />
+                            <path
+                              d="M12.5 21.25C17.6086 21.25 21.75 17.1086 21.75 12C21.75 6.89137 17.6086 2.75 12.5 2.75C7.39137 2.75 3.25 6.89137 3.25 12C3.25 17.1086 7.39137 21.25 12.5 21.25Z"
+                              stroke="#FFF"
+                              stroke-width="1.5"
+                              stroke-miterlimit="10"
+                              stroke-linecap="round"
+                            />
+                          </g>
+                          <defs>
+                            <clipPath id="clip0_113_1439">
+                              <rect
+                                width="24"
+                                height="24"
+                                fill="white"
+                                transform="translate(0.5)"
+                              />
+                            </clipPath>
+                          </defs>
+                        </svg>
+                        <Text size="1">Cancel Tasks</Text>
+                      </BetterButton>
+                    </Tooltip>
+                  )}
+                  <Tooltip arrow title="Delete Selected">
+                    <BetterButton onClick={handleDeleteSelected}>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 25 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M4.25 4.75H20.75"
+                          stroke="#FFF"
+                          stroke-width="1.5"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                        />
+                        <path
+                          d="M12.5 2.75V4.75"
+                          stroke="#FFF"
+                          stroke-width="1.5"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                        />
+                        <path
+                          d="M14.2402 17.27V12.77"
+                          stroke="#FFF"
+                          stroke-width="1.5"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                        />
+                        <path
+                          d="M10.75 17.25V12.75"
+                          stroke="#FFF"
+                          stroke-width="1.5"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                        />
+                        <path
+                          d="M5.87012 8.75H19.1701"
+                          stroke="#FFF"
+                          stroke-width="1.5"
+                          stroke-miterlimit="10"
+                        />
+                        <path
+                          d="M15.91 21.25H9.09C8.07 21.25 7.21 20.48 7.1 19.47L5.5 4.75H19.5L17.9 19.47C17.79 20.48 16.93 21.25 15.91 21.25V21.25Z"
+                          stroke="#FFF"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>{" "}
+                      <Text size="1">Delete Tasks</Text>
+                    </BetterButton>
+                  </Tooltip>
+                </>
               )}
             </Flex>
           )}
