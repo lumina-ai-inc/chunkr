@@ -11,17 +11,17 @@ CREATE TABLE tiers (
 );
 
 CREATE TABLE subscriptions (
-    subscription_id TEXT PRIMARY KEY,
+    user_id TEXT PRIMARY KEY REFERENCES users(user_id),
     stripe_subscription_id TEXT,
-    user_id TEXT NOT NULL REFERENCES users(user_id),
     tier TEXT NOT NULL REFERENCES tiers(tier),
     last_paid_date TIMESTAMPTZ,
     last_paid_status TEXT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
 -- Insert default tiers
-INSERT INTO tiers (name, price_per_month, usage_limit, overage_rate) VALUES
+INSERT INTO tiers (tier, price_per_month, usage_limit, overage_rate) VALUES
 ('Free', 0.00, 200, 0),
 ('Starter', 50.00, 5000, 0.01),
 ('Dev', 200.00, 25000, 0.008),
@@ -31,8 +31,8 @@ INSERT INTO tiers (name, price_per_month, usage_limit, overage_rate) VALUES
 
 -- Update monthly_usage table
 ALTER TABLE monthly_usage 
-    ADD COLUMN overage_usage INT4 DEFAULT 0;
-    ADD COLUMN tier TEXT REFERENCES tiers(tier);
+    ADD COLUMN overage_usage INT4 DEFAULT 0,
+    ADD COLUMN tier TEXT REFERENCES tiers(tier),
     ADD COLUMN usage_limit INT4;
 
 DROP Table USAGE_LIMITS;
@@ -359,7 +359,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_pre_applied_pages
+CREATE OR REPLACE TRIGGER trigger_pre_applied_pages
     AFTER INSERT ON pre_applied_free_pages
     FOR EACH ROW
     EXECUTE FUNCTION update_pre_applied_pages();

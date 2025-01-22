@@ -1,8 +1,6 @@
-use crate::configs::postgres_config::{Client, Pool};
+use crate::utils::clients::get_pg_client;
 use crate::configs::stripe_config::Config as StripeConfig;
 use reqwest::Client as ReqwestClient;
-use serde_json::json;
-use uuid::Uuid;
 
 pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::error::Error>> {
     let stripe_config = StripeConfig::from_env()?;
@@ -30,14 +28,30 @@ pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::
 }
 pub async fn update_invoice_status(
     stripe_invoice_id: &str,
+    user_id: &str,
     status: &str,
-    db_pool: &Pool,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let client: Client = db_pool.get().await?;
-    client
+    let client = get_pg_client().await.map_err(|e| {
+        eprintln!("Error connecting to database: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Database connection error")
+    })?;    
+    let _ = client
         .execute(
             "UPDATE invoices SET invoice_status = $1 WHERE stripe_invoice_id = $2",
             &[&status, &stripe_invoice_id],
+        )
+        .await?;
+
+    client
+        .execute(
+            "UPDATE subscriptions SET last_paid_status = $1 WHERE user_id = $2",
+            &[&status, &user_id],
+        )
+        .await?;
+    client
+        .execute(
+            "UPDATE users SET invoice_status = $1 WHERE user_id = $2",
+            &[&status, &user_id],
         )
         .await?;
     Ok(())
@@ -316,38 +330,32 @@ pub async fn create_stripe_subscription(
     tier: &str,
     stripe_config: &StripeConfig,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
-    // Map from local tier -> Stripe price
     let price_id = match tier {
         "Starter" => stripe_config.starter_price_id.clone(),
         "Dev" => stripe_config.dev_price_id.clone(),
         "Team" => stripe_config.team_price_id.clone(),
-        _ => return Err("Unsupported tier for subscription".into()),
+        _ => return Err("Unsupported tier".into()),
     };
-
     let client = ReqwestClient::new();
-    let create_subscription_url = "https://api.stripe.com/v1/subscriptions";
-
     let form_data = vec![
         ("customer", customer_id.to_string()),
         ("items[0][price]", price_id),
         ("collection_method", "charge_automatically".to_string()),
-        ("expand[]", "latest_invoice".to_string()),
-        ("expand[]", "pending_setup_intent".to_string()),
+        ("payment_behavior", "default_incomplete".to_string()),
+        ("payment_settings[save_default_payment_method]", "on_subscription".to_string()),
+        ("expand[]", "latest_invoice.payment_intent".to_string()),
     ];
-
-    let stripe_response = client
-        .post(create_subscription_url)
+    let resp = client
+        .post("https://api.stripe.com/v1/subscriptions")
         .header("Authorization", format!("Bearer {}", stripe_config.api_key))
         .form(&form_data)
         .send()
         .await?;
-
-    if !stripe_response.status().is_success() {
-        let err_body = stripe_response.text().await.unwrap_or_default();
+    if !resp.status().is_success() {
+        let err_body = resp.text().await.unwrap_or_default();
         return Err(format!("Failed to create subscription in Stripe: {}", err_body).into());
     }
-
-    let subscription_json: serde_json::Value = stripe_response.json().await?;
+    let subscription_json: serde_json::Value = resp.json().await?;
     Ok(subscription_json)
 }
 
