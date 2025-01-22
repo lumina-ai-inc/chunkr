@@ -71,6 +71,7 @@ fn run_migrations(url: &str) {
         routes::task::delete_task_route,
         routes::task::cancel_task_route,
         routes::task::update_task_route,
+        routes::tasks::get_tasks_route,
     ),
     components(
         schemas(
@@ -105,7 +106,8 @@ fn run_migrations(url: &str) {
     modifiers(&SecurityAddon),
     tags(
         (name = "Health", description = "Endpoint for checking the health of the service."),
-        (name = "Task", description = "Endpoints for creating and getting task status")
+        (name = "Task", description = "Endpoints for managing individual tasks - create, read, update, delete and cancel operations"),
+        (name = "Tasks", description = "Endpoints for listing multiple tasks")
     )
 )]
 pub struct ApiDoc;
