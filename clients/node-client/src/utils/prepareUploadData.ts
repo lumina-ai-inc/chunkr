@@ -13,45 +13,37 @@ async function prepareFile(
     typeof file === "string" &&
     (file.startsWith("http://") || file.startsWith("https://"))
   ) {
-    const response = await fetch(file);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    try {
+      // Download the file
+      const response = await fetch(file);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    // Try to get filename from Content-Disposition header first
-    let filename = null;
-    const contentDisposition = response.headers.get("content-disposition");
-    if (contentDisposition?.includes("filename=")) {
-      filename = contentDisposition
-        .split("filename=")[1]
-        .replace(/["']/g, "")
-        .trim();
-    }
+      // Convert to buffer and process it like a regular buffer input
+      const buffer = Buffer.from(await response.arrayBuffer());
 
-    // If no Content-Disposition, try to get clean filename from URL path
-    if (!filename) {
+      // Get filename from URL or default to "document.pdf"
+      let filename = "document.pdf";
       try {
         const url = new URL(file);
         const pathName = decodeURIComponent(url.pathname);
         const pathSegments = pathName.split("/");
-        filename = pathSegments[pathSegments.length - 1] || null;
+        const urlFilename = pathSegments[pathSegments.length - 1];
+        if (urlFilename && urlFilename.includes(".")) {
+          filename = urlFilename;
+        }
       } catch (e) {
-        // Keep filename as null if URL parsing fails
+        // Keep default filename if URL parsing fails
       }
+
+      // Process as a buffer
+      return [filename, buffer];
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      throw new Error(`Failed to download remote file: ${errorMessage}`);
     }
-
-    // Fallback to default name if we couldn't extract one
-    filename = filename || "document";
-
-    // Sanitize filename
-    filename = filename
-      .replace(/[<>:"/\\|?*%]/g, "_")
-      .replace(/\s+/g, "_")
-      .replace(/^[._]+|[._]+$/g, "")
-      .slice(0, 255);
-
-    const buffer = Buffer.from(await response.arrayBuffer());
-    return [filename, buffer];
   }
 
   // Handle base64 strings
