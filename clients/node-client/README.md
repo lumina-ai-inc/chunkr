@@ -1,18 +1,8 @@
-# Chunkr AI Node.js Client
+# Chunkr AI Node.js SDK
 
-[![npm version](https://badge.fury.io/js/chunkr-ai.svg)](https://badge.fury.io/js/chunkr-ai)
-[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+Official Node.js client for [Chunkr](https://chunkr.ai)
 
-Official Node.js client for the [Chunkr API](https://chunkr.ai) - A powerful document processing and chunking service for RAG applications.
-
-## Features
-
-- 📄 Process documents (PDF, Word, etc.)
-- 🔍 OCR support with configurable strategies
-- 📊 Layout analysis and intelligent segmentation
-- 🔄 Async task management with polling
-- 📝 Multiple output formats (HTML, Markdown, JSON)
-- 🛠️ Configurable processing options
+The Chunkr Node SDK converts complex documents into RAG/LLM-ready data. It provides a simple interface for using the Chunkr API.
 
 ## Installation
 
