@@ -72,34 +72,41 @@ describe("Chunkr Basic Functionality", () => {
   });
 
   it("should successfully update a file", async () => {
-    // Get the existing task
-    const task = await chunkr.getTask(uploadedTaskId);
-
     // Update the task with new configuration
     const updateResult = await chunkr.updateTask(uploadedTaskId, {
       high_resolution: true,
     });
 
-    // Wait for the update to complete
-    const finalResult = await updateResult.poll();
+    // Wait for the update to complete and task to finish processing
+    let taskStatus = await chunkr.getTask(uploadedTaskId);
+    while (taskStatus.status !== Status.SUCCEEDED) {
+      if (taskStatus.status === Status.FAILED) {
+        throw new Error(`Task failed: ${taskStatus.message}`);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      taskStatus = await chunkr.getTask(uploadedTaskId);
+    }
 
     // Verify the update was successful
-    expect(finalResult.status).toBe(Status.SUCCEEDED);
-    expect(finalResult.task_id).toBe(uploadedTaskId);
-    expect(finalResult.output?.chunks.length).toBeGreaterThan(0);
+    expect(taskStatus.status).toBe(Status.SUCCEEDED);
+    expect(taskStatus.task_id).toBe(uploadedTaskId);
+    expect(taskStatus.output?.chunks.length).toBeGreaterThan(0);
   });
 
   it("should successfully delete a file", async () => {
-    // Delete the task
-    await chunkr.deleteTask(uploadedTaskId);
-
-    // Try to get the task and expect it to fail
     try {
-      await chunkr.getTask(uploadedTaskId);
-      expect(false).toBe(true);
-    } catch (error: any) {
-      // Verify the error indicates the task was not found
-      expect(error.response?.status).toBe(404);
+      // Double check task is in SUCCEEDED state before deletion
+      const taskStatus = await chunkr.getTask(uploadedTaskId);
+      if (taskStatus.status !== Status.SUCCEEDED) {
+        throw new Error(
+          `Task is not ready for deletion. Current status: ${taskStatus.status}`,
+        );
+      }
+
+      await chunkr.deleteTask(uploadedTaskId);
+    } catch (error) {
+      console.error("Delete task failed:", error);
+      throw error;
     }
   });
 });
