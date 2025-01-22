@@ -119,27 +119,24 @@ describe("Chunkr Load Test", () => {
     const maxFiles = process.env.MAX_FILES
       ? parseInt(process.env.MAX_FILES)
       : undefined;
-    let files = await fs.readdir(INPUT_DIR);
-
+    let fileNames = await fs.readdir(INPUT_DIR);
     // Shuffle the files array
-    files = files.sort(() => Math.random() - 0.5);
+    fileNames = fileNames.sort(() => Math.random() - 0.5);
 
     if (maxFiles) {
-      files = files.slice(0, maxFiles);
+      fileNames = fileNames.slice(0, maxFiles);
       console.log(
-        `Processing ${files.length} randomly selected files (limited by MAX_FILES=${maxFiles})`,
+        `Processing ${fileNames.length} randomly selected files (limited by MAX_FILES=${maxFiles})`,
       );
     } else {
-      console.log(`Processing all ${files.length} files in random order`);
+      console.log(`Processing all ${fileNames.length} files in random order`);
     }
 
     // Initial upload of all files
-    for (const file of files) {
+    for (const file of fileNames) {
       const inputPath = path.join(INPUT_DIR, file);
-      const content = await fs.readFile(inputPath);
-
       try {
-        const result = await chunkr.createTask(content);
+        const result = await chunkr.createTask(inputPath);
         const stats: ProcessingStats = {
           fileName: result.file_name || file,
           taskId: result.task_id,
