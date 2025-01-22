@@ -313,24 +313,26 @@ pub async fn set_default_payment_method(
 /// Returns the Stripe subscription object in JSON form if successful.
 pub async fn create_stripe_subscription(
     customer_id: &str,
-    price_id: &str,
+    tier: &str,
     stripe_config: &StripeConfig,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
-    let client = ReqwestClient::new();
+    // Map from local tier -> Stripe price
+    let price_id = match tier {
+        "Starter" => std::env::var("STARTER_PRICE_ID")?,
+        "Dev" => std::env::var("DEV_PRICE_ID")?,
+        "Team" => std::env::var("TEAM_PRICE_ID")?,
+        _ => return Err("Unsupported tier for subscription".into()),
+    };
 
+    let client = ReqwestClient::new();
     let create_subscription_url = "https://api.stripe.com/v1/subscriptions";
 
-    // Example of creating a subscription in Stripe for a given price_id.
-    // Adjust items[0][price] to match your tier's actual Stripe price IDs.
     let form_data = vec![
         ("customer", customer_id.to_string()),
-        ("items[0][price]", price_id.to_string()),
+        ("items[0][price]", price_id),
+        ("collection_method", "charge_automatically".to_string()),
         ("expand[]", "latest_invoice".to_string()),
         ("expand[]", "pending_setup_intent".to_string()),
-        // Automatically charge the payment method on file:
-        ("collection_method", "charge_automatically".to_string()),
-        // (Optional) If you want to set the subscription to start immediately with no trial:
-        // ("trial_end", "now".to_string()),
     ];
 
     let stripe_response = client
@@ -439,4 +441,52 @@ pub async fn create_stripe_invoice_for_overage(
 
     let created_invoice: serde_json::Value = invoice_response.json().await?;
     Ok(created_invoice)
+}
+
+/// Update an existing subscription to a new tier
+pub async fn update_stripe_subscription(
+    stripe_subscription_id: &str,
+    new_tier: &str,
+    prorate: bool,
+    stripe_config: &StripeConfig,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let price_id = match new_tier {
+        "Starter" => std::env::var("STARTER_PRICE_ID")?,
+        "Dev" => std::env::var("DEV_PRICE_ID")?,
+        "Team" => std::env::var("TEAM_PRICE_ID")?,
+        _ => return Err("Unsupported tier".into()),
+    };
+
+    let client = ReqwestClient::new();
+    let update_url = format!(
+        "https://api.stripe.com/v1/subscriptions/{}",
+        stripe_subscription_id
+    );
+
+    // Subscriptions with a single "items[0]".
+    // If you had multiple items, you'd manipulate them individually.
+    let form_data = vec![
+        ("items[0][price]", price_id),
+        // "always_invoice" or "none"
+        // This decides how Stripe handles prorations.
+        (
+            "proration_behavior",
+            if prorate { "create_prorations" } else { "none" }.to_string(),
+        ),
+    ];
+
+    let stripe_response = client
+        .post(&update_url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&form_data)
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let err_body = stripe_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to update subscription: {}", err_body).into());
+    }
+
+    let subscription_json: serde_json::Value = stripe_response.json().await?;
+    Ok(subscription_json)
 }
