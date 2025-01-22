@@ -1,6 +1,8 @@
-use crate::configs::stripe_config::Config as StripeConfig;
 use crate::configs::postgres_config::{Client, Pool};
+use crate::configs::stripe_config::Config as StripeConfig;
 use reqwest::Client as ReqwestClient;
+use serde_json::json;
+use uuid::Uuid;
 
 pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::error::Error>> {
     let stripe_config = StripeConfig::from_env()?;
@@ -42,7 +44,7 @@ pub async fn update_invoice_status(
 }
 pub async fn create_stripe_setup_intent(
     customer_id: &str,
-    stripe_config: &StripeConfig,   
+    stripe_config: &StripeConfig,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
@@ -305,4 +307,136 @@ pub async fn set_default_payment_method(
     }
 
     Ok(())
+}
+
+/// Create a subscription in Stripe, specifying the customer_id and a price_id (from your Stripe Dashboard).
+/// Returns the Stripe subscription object in JSON form if successful.
+pub async fn create_stripe_subscription(
+    customer_id: &str,
+    price_id: &str,
+    stripe_config: &StripeConfig,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let create_subscription_url = "https://api.stripe.com/v1/subscriptions";
+
+    // Example of creating a subscription in Stripe for a given price_id.
+    // Adjust items[0][price] to match your tier's actual Stripe price IDs.
+    let form_data = vec![
+        ("customer", customer_id.to_string()),
+        ("items[0][price]", price_id.to_string()),
+        ("expand[]", "latest_invoice".to_string()),
+        ("expand[]", "pending_setup_intent".to_string()),
+        // Automatically charge the payment method on file:
+        ("collection_method", "charge_automatically".to_string()),
+        // (Optional) If you want to set the subscription to start immediately with no trial:
+        // ("trial_end", "now".to_string()),
+    ];
+
+    let stripe_response = client
+        .post(create_subscription_url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&form_data)
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let err_body = stripe_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to create subscription in Stripe: {}", err_body).into());
+    }
+
+    let subscription_json: serde_json::Value = stripe_response.json().await?;
+    Ok(subscription_json)
+}
+
+/// Cancel a Stripe subscription immediately (or at period's end if desired).
+/// Returns the canceled subscription in JSON form if successful.
+pub async fn cancel_stripe_subscription(
+    stripe_subscription_id: &str,
+    invoice_now: bool, // if you want to invoice all pending usage
+    prorate: bool,     // whether to apply proration
+    stripe_config: &StripeConfig,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let cancel_subscription_url = format!(
+        "https://api.stripe.com/v1/subscriptions/{}?{}{}",
+        stripe_subscription_id,
+        if invoice_now { "invoice_now=true&" } else { "" },
+        if prorate {
+            "prorate=true"
+        } else {
+            "prorate=false"
+        },
+    );
+
+    let stripe_response = client
+        .delete(&cancel_subscription_url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let err_body = stripe_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to cancel subscription in Stripe: {}", err_body).into());
+    }
+
+    let canceled_subscription: serde_json::Value = stripe_response.json().await?;
+    Ok(canceled_subscription)
+}
+
+/// (Optional) You may want a helper that creates a standalone overage invoice in Stripe,
+/// if you want the charge to appear in the user's Stripe billing.
+/// Then you can store the returned invoice ID in your local "invoices" table.
+/// Adjust line_items or invoice items as needed.
+pub async fn create_stripe_invoice_for_overage(
+    customer_id: &str,
+    amount_in_cents: i64,
+    stripe_config: &StripeConfig,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    // 1) Create an InvoiceItem (line item) for the overage
+    let invoice_item_url = "https://api.stripe.com/v1/invoiceitems";
+    let invoice_item_form = vec![
+        ("customer", customer_id.to_string()),
+        ("amount", amount_in_cents.to_string()), // e.g. 500 = $5.00
+        ("currency", "usd".to_string()),
+        ("description", "Overage Charges".to_string()),
+    ];
+
+    let ii_response = client
+        .post(invoice_item_url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&invoice_item_form)
+        .send()
+        .await?;
+
+    if !ii_response.status().is_success() {
+        let err_body = ii_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to create invoice item for overage: {}", err_body).into());
+    }
+
+    // 2) Create the invoice
+    let create_invoice_url = "https://api.stripe.com/v1/invoices";
+    let invoice_form = vec![
+        ("customer", customer_id.to_string()),
+        ("auto_advance", "true".to_string()), // automatically try to finalize & pay
+        ("collection_method", "charge_automatically".to_string()),
+    ];
+
+    let invoice_response = client
+        .post(create_invoice_url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&invoice_form)
+        .send()
+        .await?;
+
+    if !invoice_response.status().is_success() {
+        let err_body = invoice_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to create invoice for overage: {}", err_body).into());
+    }
+
+    let created_invoice: serde_json::Value = invoice_response.json().await?;
+    Ok(created_invoice)
 }

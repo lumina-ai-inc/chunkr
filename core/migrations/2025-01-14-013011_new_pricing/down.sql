@@ -202,3 +202,23 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION decrement_user_task_count() RETURNS TRIGGER AS $$
+BEGIN
+    -- Decrement the task count for the user
+    UPDATE users
+    SET task_count = (
+        SELECT COUNT(*)
+        FROM tasks
+        WHERE user_id = OLD.user_id
+    )
+    WHERE user_id = OLD.user_id;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_decrement_user_task_count
+AFTER DELETE ON tasks
+FOR EACH ROW
+EXECUTE FUNCTION decrement_user_task_count();
