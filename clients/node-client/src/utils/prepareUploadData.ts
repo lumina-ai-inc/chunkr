@@ -92,7 +92,7 @@ async function prepareFile(
 
   // Handle Buffer
   if (Buffer.isBuffer(file)) {
-    return ["document.bin", file]; // Added .bin extension for consistency
+    return ["document", file];
   }
 
   // Handle ReadStream
