@@ -6,7 +6,7 @@ pub async fn get_tasks(
     user_id: String,
     page: i64,
     limit: i64,
-    include_output: Option<bool>,
+    include_output: bool,
 ) -> Result<Vec<TaskResponse>, Box<dyn std::error::Error>> {
     let client = get_pg_client().await?;
     let offset = (page - 1) * limit;
@@ -25,7 +25,7 @@ pub async fn get_tasks(
         let task_id = task_id.clone();
         async move {
             match Task::get(&task_id, &user_id).await {
-                Ok(task) => match task.to_task_response(include_output.unwrap_or(false)).await {
+                Ok(task) => match task.to_task_response(include_output).await {
                     Ok(response) => {
                         Ok::<Option<TaskResponse>, Box<dyn std::error::Error>>(Some(response))
                     }
