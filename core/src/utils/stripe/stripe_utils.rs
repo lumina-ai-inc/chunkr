@@ -318,9 +318,9 @@ pub async fn create_stripe_subscription(
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     // Map from local tier -> Stripe price
     let price_id = match tier {
-        "Starter" => std::env::var("STARTER_PRICE_ID")?,
-        "Dev" => std::env::var("DEV_PRICE_ID")?,
-        "Team" => std::env::var("TEAM_PRICE_ID")?,
+        "Starter" => stripe_config.starter_price_id.clone(),
+        "Dev" => stripe_config.dev_price_id.clone(),
+        "Team" => stripe_config.team_price_id.clone(),
         _ => return Err("Unsupported tier for subscription".into()),
     };
 
@@ -451,9 +451,9 @@ pub async fn update_stripe_subscription(
     stripe_config: &StripeConfig,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let price_id = match new_tier {
-        "Starter" => std::env::var("STARTER_PRICE_ID")?,
-        "Dev" => std::env::var("DEV_PRICE_ID")?,
-        "Team" => std::env::var("TEAM_PRICE_ID")?,
+        "Starter" => stripe_config.starter_price_id.clone(),
+        "Dev" => stripe_config.dev_price_id.clone(),
+        "Team" => stripe_config.team_price_id.clone(),
         _ => return Err("Unsupported tier".into()),
     };
 

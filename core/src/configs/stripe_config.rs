@@ -11,6 +11,9 @@ pub struct Config {
     pub page_high_quality_price_id: String,
     pub segment_price_id: String,
     pub webhook_secret: String,
+    pub starter_price_id: String,
+    pub dev_price_id: String,
+    pub team_price_id: String,
 }
 
 fn default_invoice_interval() -> u64 {
