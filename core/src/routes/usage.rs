@@ -1,4 +1,4 @@
-use crate::configs::postgres_config::{Client, Pool};
+use crate::utils::clients::get_pg_client;
 use crate::models::chunkr::auth::UserInfo;
 use actix_web::{web, Error, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -35,12 +35,11 @@ struct TaskCountResponse {
     )
 )]
 pub async fn get_task_count(
-    pool: web::Data<Pool>,
     api_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let user_id = api_info.user_id.clone();
 
-    let client: Client = pool.get().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
@@ -80,13 +79,12 @@ pub async fn get_task_count(
     )
 )]
 pub async fn get_usage(
-    pool: web::Data<Pool>,
     api_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let user_id = api_info.user_id.clone();
     let api_key = api_info.api_key.clone();
 
-    let client: Client = pool.get().await.map_err(|e| {
+    let client = get_pg_client().await.map_err(|e| {
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
