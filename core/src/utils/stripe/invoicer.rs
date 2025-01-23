@@ -8,7 +8,7 @@ use tokio_postgres::Row;
 
 pub async fn invoice() -> Result<(), Box<dyn std::error::Error>> {
     let client: Client = get_pg_client().await?;
-    let today = Utc::now().naive_utc();
+    let today = Utc::now();
 
     // Get all invoices that are not completed and are either ongoing or failed
     // and their bill_date matches today
