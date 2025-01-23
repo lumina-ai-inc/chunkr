@@ -248,14 +248,15 @@ DECLARE
     v_tier TEXT;
 BEGIN
     IF TG_OP = 'UPDATE' AND NEW.status = 'Succeeded' THEN
-        SELECT t.usage_limit, s.tier
-        INTO v_usage_limit, v_tier
-        FROM subscriptions s
-        JOIN tiers t ON s.tier = t.tier
-        WHERE s.user_id = NEW.user_id;
+        -- Get tier from users table instead of subscriptions
+        SELECT u.tier, t.usage_limit 
+        INTO v_tier, v_usage_limit
+        FROM users u
+        JOIN tiers t ON t.tier = u.tier
+        WHERE u.user_id = NEW.user_id;
 
         IF v_tier = 'PayAsYouGo' THEN
-            -- Add all page counts to overage_usage
+            -- For PayAsYouGo, all usage goes to overage
             UPDATE monthly_usage
             SET overage_usage = overage_usage + NEW.page_count,
                 updated_at = CURRENT_TIMESTAMP
@@ -265,10 +266,11 @@ BEGIN
               AND month = v_current_month;
 
             IF NOT FOUND THEN
-                INSERT INTO monthly_usage (user_id, usage, overage_usage, usage_type, year, month)
-                VALUES (NEW.user_id, 0, NEW.page_count, v_usage_type, v_current_year, v_current_month);
+                INSERT INTO monthly_usage (user_id, usage, overage_usage, usage_type, year, month, tier)
+                VALUES (NEW.user_id, 0, NEW.page_count, v_usage_type, v_current_year, v_current_month, v_tier);
             END IF;
         ELSE
+            -- For all other tiers (including Free), check against usage limit
             SELECT usage, overage_usage
             INTO v_current_usage, v_overage_usage
             FROM monthly_usage
@@ -278,14 +280,16 @@ BEGIN
               AND month = v_current_month;
 
             IF v_current_usage IS NULL THEN
-                INSERT INTO monthly_usage (user_id, usage, overage_usage, usage_type, year, month)
+                INSERT INTO monthly_usage (user_id, usage, overage_usage, usage_type, year, month, tier, usage_limit)
                 VALUES (
                     NEW.user_id, 
                     LEAST(NEW.page_count, v_usage_limit), 
                     GREATEST(NEW.page_count - v_usage_limit, 0), 
                     v_usage_type, 
                     v_current_year, 
-                    v_current_month
+                    v_current_month,
+                    v_tier,
+                    v_usage_limit
                 );
             ELSE
                 UPDATE monthly_usage
