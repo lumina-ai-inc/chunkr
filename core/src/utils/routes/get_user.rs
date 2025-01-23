@@ -137,7 +137,7 @@ pub async fn get_monthly_usage_count(
         monthly_usage.push(MonthlyUsage {
             user_id: row.get("user_id"),
             email: row.get("email"),
-            last_paid_status: row.get("last_paid_status"),
+            last_paid_status: row.get("invoice_status"),
             month: row.get("month"),
             total_cost: row.get("total_cost"),
             usage_limit: row.get("usage_limit"),
