@@ -451,11 +451,11 @@ pub async fn create_stripe_invoice_for_overage(
     Ok(created_invoice)
 }
 
+
 /// Update an existing subscription to a new tier
 pub async fn update_stripe_subscription(
     stripe_subscription_id: &str,
     new_tier: &str,
-    prorate: bool,
     stripe_config: &StripeConfig,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let price_id = match new_tier {
@@ -471,16 +471,10 @@ pub async fn update_stripe_subscription(
         stripe_subscription_id
     );
 
-    // Subscriptions with a single "items[0]".
-    // If you had multiple items, you'd manipulate them individually.
     let form_data = vec![
         ("items[0][price]", price_id),
-        // "always_invoice" or "none"
-        // This decides how Stripe handles prorations.
-        (
-            "proration_behavior",
-            if prorate { "create_prorations" } else { "none" }.to_string(),
-        ),
+        ("cancel_at_period_end", "false".to_string()),
+        ("payment_behavior", "default_incomplete".to_string()), // Immediate billing
     ];
 
     let stripe_response = client
