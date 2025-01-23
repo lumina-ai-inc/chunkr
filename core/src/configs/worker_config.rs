@@ -24,10 +24,6 @@ pub struct Config {
     pub segmentation_url: String,
     #[serde(default = "default_server_url")]
     pub server_url: String,
-    #[serde(default = "default_structured_extraction_batch_size")]
-    pub structured_extraction_batch_size: i32,
-    #[serde(default = "default_structured_extraction_top_k")]
-    pub structured_extraction_top_k: i32,
     #[serde(default = "default_version")]
     pub version: String,
 }
@@ -70,14 +66,6 @@ fn default_segmentation_url() -> String {
 
 fn default_server_url() -> String {
     "http://localhost:8000".to_string()
-}
-
-fn default_structured_extraction_batch_size() -> i32 {
-    32
-}
-
-fn default_structured_extraction_top_k() -> i32 {
-    45
 }
 
 fn default_version() -> String {

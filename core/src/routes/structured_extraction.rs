@@ -1,7 +1,8 @@
-use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::structured_extraction::{ExtractionRequest, ExtractionResponse};
+use crate::models::chunkr::structured_extraction::{
+    StructuredExtractionRequest, StructuredExtractionResponse,
+};
+use crate::utils::services::structured_extraction::perform_structured_extraction;
 use actix_web::{web, Error, HttpResponse};
-use crate::utils::routes::structured_extraction::handle_structured_extraction;
 
 /// Extract structured data from a document
 ///
@@ -12,9 +13,9 @@ use crate::utils::routes::structured_extraction::handle_structured_extraction;
     path = "/structured_extract",
     context_path = "/api/v1",
     tag = "Structured Extraction",
-    request_body = ExtractionRequest,
+    request_body = StructuredExtractionRequest,
     responses(
-        (status = 200, description = "Successfully extracted structured data", body = ExtractionResponse),
+        (status = 200, description = "Successfully extracted structured data", body = StructuredExtractionResponse),
         (status = 500, description = "Internal server error during extraction", body = String),
     ),
     security(
@@ -22,12 +23,10 @@ use crate::utils::routes::structured_extraction::handle_structured_extraction;
     )
 )]
 pub async fn handle_structured_extraction_route(
-    user_info: web::ReqData<UserInfo>,
-    req: web::Json<ExtractionRequest>,
+    req: web::Json<StructuredExtractionRequest>,
 ) -> Result<HttpResponse, Error> {
-    let _user_info = user_info.into_inner();
-    
-    match handle_structured_extraction(req.into_inner()).await {
+    let structured_extraction_request = req.into_inner();
+    match perform_structured_extraction(structured_extraction_request).await {
         Ok(response) => Ok(HttpResponse::Ok().json(response)),
         Err(e) => Ok(HttpResponse::InternalServerError().json(format!("Error: {}", e))),
     }

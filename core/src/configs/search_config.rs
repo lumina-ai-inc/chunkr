@@ -8,6 +8,10 @@ pub struct Config {
     pub dense_vector_url: String,
     #[serde(default = "default_dense_vector_api_key")]
     pub dense_vector_api_key: String,
+    #[serde(default = "default_batch_size")]
+    pub batch_size: usize,
+    #[serde(default = "default_top_k")]
+    pub top_k: usize,
 }
 
 fn default_dense_vector_url() -> String {
@@ -16,6 +20,14 @@ fn default_dense_vector_url() -> String {
 
 fn default_dense_vector_api_key() -> String {
     "".to_string()
+}
+
+fn default_batch_size() -> usize {
+    32
+}
+
+fn default_top_k() -> usize {
+    45
 }
 
 impl Config {

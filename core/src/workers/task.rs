@@ -68,8 +68,12 @@ fn orchestrate_task(
     }
     steps.push("crop");
     steps.push("segment_processing");
-    let json_schema = pipeline.get_task()?.configuration.json_schema.clone();
-    if json_schema.is_some() {
+    let structured_extraction = pipeline
+        .get_task()?
+        .configuration
+        .structured_extraction
+        .clone();
+    if structured_extraction.is_some() {
         steps.push("structured_extraction");
     }
     Ok(steps)
