@@ -96,7 +96,7 @@ pub struct MonthlyUsage {
     pub email: Option<String>,
     pub last_paid_status: Option<String>,
     pub month: String,
-    pub total_cost: f32,
+    pub total_cost: f64, // Changed from f32 to f64
     pub usage_limit: i32,
     pub usage: Option<i32>,
     pub overage_usage: i32,
@@ -139,7 +139,7 @@ pub async fn get_monthly_usage_count(
             email: row.get("email"),
             last_paid_status: row.get("invoice_status"),
             month: row.get("month"),
-            total_cost: row.get("total_cost"),
+            total_cost: row.get("total_cost"), 
             usage_limit: row.get("usage_limit"),
             usage: row.get("usage"),
             overage_usage: row.get("overage_usage"),
