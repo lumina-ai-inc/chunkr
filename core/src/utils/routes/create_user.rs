@@ -107,21 +107,20 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
     VALUES ($1, $2, $3, $4)
     "#;
 
-
     transaction
-            .execute(
-                usage_query,
-                &[
-                    &user_info.user_id,
-                    &0i32,
-                    &UsageType::Page.to_string(),     
-                    &UsageType::Page.get_unit(),
-                ],
-            )
-            .await?;
+        .execute(
+            usage_query,
+            &[
+                &user_info.user_id,
+                &0i32,
+                &UsageType::Page.to_string(),
+                &UsageType::Page.get_unit(),
+            ],
+        )
+        .await?;
 
     let monthly_usage_query = r#"
-    INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier, overage_usage)
+    INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier, overage_usage, billing_cycle_start, billing_cycle_end)
     SELECT $1, $2, $3, 
         CASE 
             WHEN EXISTS (SELECT 1 FROM pre_applied_free_pages p WHERE p.email = $5) 
@@ -131,7 +130,9 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         EXTRACT(YEAR FROM CURRENT_TIMESTAMP), 
         EXTRACT(MONTH FROM CURRENT_TIMESTAMP), 
         t.tier,
-        0
+        0,
+        CURRENT_DATE,
+        (CURRENT_DATE + INTERVAL '30 days')::TIMESTAMPTZ
     FROM tiers t
     WHERE t.tier = $4
     "#;
@@ -150,7 +151,10 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         .await?;
 
     let check_result = transaction
-        .query_opt("SELECT 1 FROM pre_applied_free_pages WHERE email = $1", &[&user_info.email])
+        .query_opt(
+            "SELECT 1 FROM pre_applied_free_pages WHERE email = $1",
+            &[&user_info.email],
+        )
         .await?;
 
     if check_result.is_some() {
@@ -170,8 +174,8 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
 
     let usage_limit = client
         .query_one(
-            "SELECT usage_limit FROM monthly_usage WHERE user_id = $1 AND usage_type = $2",
-            &[&user_info.user_id, &UsageType::Page.to_string()]
+            "SELECT usage_limit FROM monthly_usage WHERE user_id = $1 AND usage_type = $2 ORDER BY billing_cycle_start DESC LIMIT 1",
+            &[&user_info.user_id, &UsageType::Page.to_string()],
         )
         .await?
         .get::<_, i32>("usage_limit");
@@ -189,13 +193,11 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
             .unwrap_or(Tier::Free),
         created_at: user_row.get("created_at"),
         updated_at: user_row.get("updated_at"),
-        usage: vec![
-            UsageLimit {
-                usage_type: UsageType::Page,
-                usage_limit,
-                overage_usage: 0,
-            },
-        ],
+        usage: vec![UsageLimit {
+            usage_type: UsageType::Page,
+            usage_limit,
+            overage_usage: 0,
+        }],
         task_count: Some(0),
         last_paid_status: None,
     };

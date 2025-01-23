@@ -1,5 +1,10 @@
 -- Your SQL goes here
+-- Add bill_date to invoices and task_invoices tables
+ALTER TABLE invoices
+    ADD COLUMN bill_date TIMESTAMPTZ;
 
+ALTER TABLE task_invoices
+    ADD COLUMN bill_date TIMESTAMPTZ;
 -- Create tiers table first
 CREATE TABLE tiers (
     tier TEXT NOT NULL UNIQUE PRIMARY KEY,
@@ -33,7 +38,9 @@ INSERT INTO tiers (tier, price_per_month, usage_limit, overage_rate) VALUES
 ALTER TABLE monthly_usage 
     ADD COLUMN overage_usage INT4 DEFAULT 0,
     ADD COLUMN tier TEXT REFERENCES tiers(tier),
-    ADD COLUMN usage_limit INT4;
+    ADD COLUMN usage_limit INT4,
+    ADD COLUMN billing_cycle_start TIMESTAMPTZ,
+    ADD COLUMN billing_cycle_end TIMESTAMPTZ;
 
 DROP Table USAGE_LIMITS;
 
@@ -56,7 +63,7 @@ WITH moved_users AS (
     AND user_id != 'admin'
     RETURNING user_id
 )
-INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier)
+INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier, billing_cycle_start, billing_cycle_end)
 SELECT 
     user_id,
     'Page',
@@ -64,14 +71,18 @@ SELECT
     CASE WHEN user_id IN (SELECT user_id FROM moved_users) THEN 5000 ELSE 200 END,
     EXTRACT(YEAR FROM CURRENT_TIMESTAMP),
     EXTRACT(MONTH FROM CURRENT_TIMESTAMP),
-    'Free'
+    'Free',
+    CURRENT_DATE,
+    (CURRENT_DATE + INTERVAL '30 days')::TIMESTAMPTZ
 FROM users
 WHERE user_id != 'admin'
 ON CONFLICT (user_id, usage_type, year, month)
 DO UPDATE SET 
     usage = EXCLUDED.usage,
     usage_limit = EXCLUDED.usage_limit,
-    tier = EXCLUDED.tier;
+    tier = EXCLUDED.tier,
+    billing_cycle_start = EXCLUDED.billing_cycle_start,
+    billing_cycle_end = EXCLUDED.billing_cycle_end;
 
 
 --------------
@@ -131,8 +142,29 @@ BEGIN
         FROM monthly_usage
         WHERE user_id = NEW.user_id 
         AND usage_type = v_usage_type
-        AND year = v_current_year
-        AND month = v_current_month;
+        AND billing_cycle_start <= NEW.created_at
+        AND billing_cycle_end > NEW.created_at;
+
+        IF v_monthly_usage IS NULL THEN
+            INSERT INTO monthly_usage (
+                user_id,
+                usage_type,
+                usage,
+                usage_limit,
+                billing_cycle_start,
+                billing_cycle_end
+            )
+            SELECT 
+                NEW.user_id,
+                v_usage_type,
+                0,
+                t.usage_limit,
+                date_trunc('day', NOW()),
+                date_trunc('day', NOW() + interval '1 month')
+            FROM tiers t
+            WHERE t.tier_name = 'Free'
+            RETURNING usage, usage_limit INTO v_monthly_usage, v_monthly_limit;
+        END IF;
 
         IF COALESCE(v_monthly_usage, 0) + NEW.page_count > COALESCE(v_monthly_limit, 0) THEN
             RAISE EXCEPTION 'Monthly usage limit exceeded for Free tier';
@@ -177,42 +209,56 @@ DECLARE
     v_invoice_id TEXT;
     v_cost_per_unit FLOAT8;
     v_cost FLOAT;
-    v_current_month INTEGER;
-    v_invoice_month INTEGER;
     v_tier TEXT;
     v_overage_rate FLOAT8;
     v_overage_usage INTEGER;
+    v_bill_date TIMESTAMPTZ;
 BEGIN
     IF NEW.status = 'Succeeded' THEN
         v_user_id := NEW.user_id;
         v_task_id := NEW.task_id;
         v_pages := NEW.page_count;
         v_created_at := NEW.created_at;
-        v_current_month := EXTRACT(MONTH FROM v_created_at);
+
+        -- Get the current billing cycle end date (bill_date)
+        SELECT billing_cycle_end INTO v_bill_date
+        FROM monthly_usage
+        WHERE user_id = v_user_id
+          AND NEW.created_at >= billing_cycle_start 
+          AND NEW.created_at < billing_cycle_end
+        ORDER BY billing_cycle_start DESC
+        LIMIT 1;
 
         SELECT t.tier, t.overage_rate, mu.overage_usage
         INTO v_tier, v_overage_rate, v_overage_usage
         FROM tiers t
-        JOIN monthly_usage mu ON mu.user_id = t.tier
+        JOIN monthly_usage mu ON mu.tier = t.tier
         WHERE mu.user_id = v_user_id
           AND mu.usage_type = v_usage_type
-          AND mu.year = EXTRACT(YEAR FROM v_created_at)
-          AND mu.month = v_current_month;
+          AND mu.billing_cycle_end = v_bill_date;
 
         IF v_overage_usage > 0 THEN
             v_cost_per_unit := v_overage_rate;
 
-            SELECT invoice_id, EXTRACT(MONTH FROM date_created)
-            INTO v_invoice_id, v_invoice_month
+            -- Look for an existing invoice for this billing cycle
+            SELECT invoice_id
+            INTO v_invoice_id
             FROM invoices
-            WHERE user_id = v_user_id AND invoice_status = 'Ongoing'
-            ORDER BY date_created DESC
+            WHERE user_id = v_user_id 
+            AND invoice_status = 'Ongoing'
+            AND bill_date = v_bill_date
             LIMIT 1;
 
-            IF NOT FOUND OR v_invoice_month != v_current_month THEN
+            IF NOT FOUND THEN
                 v_invoice_id := uuid_generate_v4()::TEXT;
-                INSERT INTO invoices (invoice_id, user_id, tasks, invoice_status, amount_due, total_pages, date_created)
-                VALUES (v_invoice_id, v_user_id, ARRAY[v_task_id], 'Ongoing', 0, 0, v_created_at);
+                INSERT INTO invoices (
+                    invoice_id, user_id, tasks, invoice_status, 
+                    amount_due, total_pages, date_created, bill_date
+                )
+                VALUES (
+                    v_invoice_id, v_user_id, ARRAY[v_task_id], 'Ongoing',
+                    0, 0, v_created_at, v_bill_date
+                );
             ELSE
                 UPDATE invoices
                 SET tasks = array_append(tasks, v_task_id)
@@ -221,8 +267,14 @@ BEGIN
 
             v_cost := v_cost_per_unit * v_pages;
 
-            INSERT INTO task_invoices (task_id, invoice_id, usage_type, pages, cost, created_at)
-            VALUES (v_task_id, v_invoice_id, v_usage_type, v_pages, v_cost, v_created_at);
+            INSERT INTO task_invoices (
+                task_id, invoice_id, usage_type, pages, 
+                cost, created_at, bill_date
+            )
+            VALUES (
+                v_task_id, v_invoice_id, v_usage_type, v_pages,
+                v_cost, v_created_at, v_bill_date
+            );
 
             UPDATE invoices
             SET amount_due = amount_due + v_cost,
@@ -246,6 +298,8 @@ DECLARE
     v_current_usage INTEGER;
     v_overage_usage INTEGER;
     v_tier TEXT;
+    v_billing_cycle_start TIMESTAMPTZ;
+    v_billing_cycle_end TIMESTAMPTZ;
 BEGIN
     IF TG_OP = 'UPDATE' AND NEW.status = 'Succeeded' THEN
         -- Get tier from users table instead of subscriptions
@@ -255,19 +309,42 @@ BEGIN
         JOIN tiers t ON t.tier = u.tier
         WHERE u.user_id = NEW.user_id;
 
+        -- Find current billing cycle
+        SELECT billing_cycle_start, billing_cycle_end
+        INTO v_billing_cycle_start, v_billing_cycle_end
+        FROM monthly_usage
+        WHERE user_id = NEW.user_id
+          AND NEW.created_at >= billing_cycle_start 
+          AND NEW.created_at < billing_cycle_end
+        ORDER BY billing_cycle_start DESC
+        LIMIT 1;
+
+        -- If no current billing cycle exists, create new one
+        IF v_billing_cycle_start IS NULL THEN
+            v_billing_cycle_start := NEW.created_at;
+            v_billing_cycle_end := v_billing_cycle_start + INTERVAL '30 days';
+        END IF;
+
         IF v_tier = 'PayAsYouGo' THEN
             -- For PayAsYouGo, all usage goes to overage
             UPDATE monthly_usage
             SET overage_usage = overage_usage + NEW.page_count,
                 updated_at = CURRENT_TIMESTAMP
             WHERE user_id = NEW.user_id
-              AND usage_type = v_usage_type
-              AND year = v_current_year
-              AND month = v_current_month;
+              AND billing_cycle_start = v_billing_cycle_start
+              AND billing_cycle_end = v_billing_cycle_end
+              AND usage_type = v_usage_type;
 
             IF NOT FOUND THEN
-                INSERT INTO monthly_usage (user_id, usage, overage_usage, usage_type, year, month, tier)
-                VALUES (NEW.user_id, 0, NEW.page_count, v_usage_type, v_current_year, v_current_month, v_tier);
+                INSERT INTO monthly_usage (
+                    user_id, usage, overage_usage, usage_type, year, month, tier,
+                    billing_cycle_start, billing_cycle_end
+                )
+                VALUES (
+                    NEW.user_id, 0, NEW.page_count, v_usage_type, 
+                    v_current_year, v_current_month, v_tier,
+                    v_billing_cycle_start, v_billing_cycle_end
+                );
             END IF;
         ELSE
             -- For all other tiers (including Free), check against usage limit
@@ -275,12 +352,15 @@ BEGIN
             INTO v_current_usage, v_overage_usage
             FROM monthly_usage
             WHERE user_id = NEW.user_id
-              AND usage_type = v_usage_type
-              AND year = v_current_year
-              AND month = v_current_month;
+              AND billing_cycle_start = v_billing_cycle_start
+              AND billing_cycle_end = v_billing_cycle_end
+              AND usage_type = v_usage_type;
 
             IF v_current_usage IS NULL THEN
-                INSERT INTO monthly_usage (user_id, usage, overage_usage, usage_type, year, month, tier, usage_limit)
+                INSERT INTO monthly_usage (
+                    user_id, usage, overage_usage, usage_type, year, month, 
+                    tier, usage_limit, billing_cycle_start, billing_cycle_end
+                )
                 VALUES (
                     NEW.user_id, 
                     LEAST(NEW.page_count, v_usage_limit), 
@@ -289,7 +369,9 @@ BEGIN
                     v_current_year, 
                     v_current_month,
                     v_tier,
-                    v_usage_limit
+                    v_usage_limit,
+                    v_billing_cycle_start,
+                    v_billing_cycle_end
                 );
             ELSE
                 UPDATE monthly_usage
@@ -297,9 +379,9 @@ BEGIN
                     overage_usage = overage_usage + GREATEST(NEW.page_count - LEAST(NEW.page_count, GREATEST(v_usage_limit - v_current_usage, 0)), 0),
                     updated_at = CURRENT_TIMESTAMP
                 WHERE user_id = NEW.user_id
-                  AND usage_type = v_usage_type
-                  AND year = v_current_year
-                  AND month = v_current_month;
+                  AND billing_cycle_start = v_billing_cycle_start
+                  AND billing_cycle_end = v_billing_cycle_end
+                  AND usage_type = v_usage_type;
             END IF;
         END IF;
     END IF;
@@ -369,3 +451,4 @@ CREATE OR REPLACE TRIGGER trigger_pre_applied_pages
     AFTER INSERT ON pre_applied_free_pages
     FOR EACH ROW
     EXECUTE FUNCTION update_pre_applied_pages();
+

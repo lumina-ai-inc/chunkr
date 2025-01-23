@@ -30,13 +30,13 @@ use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
 use routes::health::health_check;
 use routes::stripe::{
-    create_setup_intent, create_stripe_session, get_invoice_detail, get_monthly_usage,
-    get_user_invoices, stripe_webhook, subscribe_user, update_subscription_tier, cancel_subscription
+    cancel_subscription, create_setup_intent, create_stripe_session, get_invoice_detail,
+    get_monthly_usage, get_user_invoices, stripe_webhook, subscribe_user, update_subscription_tier,
 };
 use routes::task::{
     cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
 };
-use routes::tasks::get_tasks_route;
+use routes::tasks::{get_task_details_route, get_tasks_route};
 use routes::usage::get_usage;
 use routes::user::get_or_create_user;
 use utils::clients::initialize;
@@ -185,6 +185,7 @@ pub fn main() -> std::io::Result<()> {
                         .route("/{task_id}/cancel", web::get().to(cancel_task_route)),
                 )
                 .route("/tasks", web::get().to(get_tasks_route))
+                .route("/tasks/details", web::get().to(get_task_details_route))
                 .route("/usage", web::get().to(get_usage))
                 .route("/usage/monthly", web::get().to(get_monthly_usage));
 
@@ -198,7 +199,10 @@ pub fn main() -> std::io::Result<()> {
                     .route("/invoices", web::get().to(get_user_invoices))
                     .route("/invoice/{invoice_id}", web::get().to(get_invoice_detail))
                     .route("/subscribe", web::post().to(subscribe_user))
-                    .route("/update-subscription", web::post().to(update_subscription_tier))
+                    .route(
+                        "/update-subscription",
+                        web::post().to(update_subscription_tier),
+                    )
                     .route("/cancel-subscription", web::post().to(cancel_subscription));
 
                 app = app.service(stripe_scope);
