@@ -31,7 +31,7 @@ use routes::github::get_github_repo_info;
 use routes::health::health_check;
 use routes::stripe::{
     create_setup_intent, create_stripe_session, get_invoice_detail, get_monthly_usage,
-    get_user_invoices, stripe_webhook, subscribe_user,
+    get_user_invoices, stripe_webhook, subscribe_user, update_subscription_tier, cancel_subscription
 };
 use routes::task::{
     cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
@@ -197,7 +197,9 @@ pub fn main() -> std::io::Result<()> {
                     .route("/create-session", web::get().to(create_stripe_session))
                     .route("/invoices", web::get().to(get_user_invoices))
                     .route("/invoice/{invoice_id}", web::get().to(get_invoice_detail))
-                    .route("/subscribe", web::post().to(subscribe_user));
+                    .route("/subscribe", web::post().to(subscribe_user))
+                    .route("/update-subscription", web::post().to(update_subscription_tier))
+                    .route("/cancel-subscription", web::post().to(cancel_subscription));
 
                 app = app.service(stripe_scope);
             }
