@@ -1,6 +1,6 @@
 {
   "name": "chunkr-ai",
-  "version": "0.1.1",
+  "version": "0.0.1",
   "description": "Node.js client for Chunkr API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "build": "tsc",
     "test": "jest",
     "test:load": "jest --config jest.load.config.js",
-    "test:functionality": "jest --config jest.integration.config.js",
+    "test:functionality": "jest --config jest.functionality.config.js",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint src --ext .ts",
     "prepare": "npm run build"
@@ -38,8 +38,8 @@
   },
   "dependencies": {
     "axios": "^1.7.9",
-    "form-data": "^4.0.1",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "form-data": "^4.0.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

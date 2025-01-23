@@ -4,6 +4,7 @@ import { TaskResponse } from "./models/TaskResponse";
 import { ClientConfig } from "./models/ClientConfig";
 import { prepareUploadData, FileInput } from "./utils/prepareUploadData";
 import * as dotenv from "dotenv";
+import type { TaskResponseData } from "./models/TaskResponseData";
 
 export class Chunkr {
   private client: AxiosInstance;
@@ -11,9 +12,26 @@ export class Chunkr {
 
   /**
    * Initialize a new Chunkr API client
-   * @param {ClientConfig | string} configOrApiKey - Either a configuration object or API key string
-   * @param {string} [url] - Optional API URL override
-   * @throws {Error} If API key is not provided via parameters or environment variables
+   * @param {ClientConfig | string} [configOrApiKey] - Either a configuration object or API key string.
+   *        If omitted, will use CHUNKR_API_KEY from environment.
+   * @param {string} [url] - Optional API URL override.
+   *        If omitted, will use CHUNKR_URL from environment, or default to "https://api.chunkr.ai"
+   * @throws {Error} If API key is not provided via parameters or CHUNKR_API_KEY environment variable
+   *
+   * @example
+   * ```typescript
+   * // Using environment variables (CHUNKR_API_KEY and optionally CHUNKR_URL)
+   * const client = new Chunkr();
+   *
+   * // Using direct API key
+   * const client = new Chunkr("your-api-key");
+   *
+   * // Using configuration object
+   * const client = new Chunkr({
+   *   apiKey: "your-api-key",
+   *   baseUrl: "https://custom-url.example.com"
+   * });
+   * ```
    */
   constructor(configOrApiKey?: ClientConfig | string, url?: string) {
     dotenv.config();
@@ -98,7 +116,10 @@ export class Chunkr {
     config?: Configuration,
   ): Promise<TaskResponse> {
     const formData = await prepareUploadData(file, config);
-    const response = await this.client.post("/api/v1/task", formData);
+    const response = await this.client.post<TaskResponseData>(
+      "/api/v1/task",
+      formData,
+    );
     return new TaskResponse(response.data, this);
   }
 
@@ -142,12 +163,28 @@ export class Chunkr {
 
   /**
    * Delete a task by its ID.
-   * @param {string} taskId - The ID of the task to delete
+   * @param {string} taskId - The task ID to delete
    * @returns {Promise<void>}
    * @throws {Error} If the task is currently processing
    */
   async deleteTask(taskId: string): Promise<void> {
-    await this.client.delete(`/api/v1/task/${taskId}`);
+    try {
+      await this.client.delete(`/api/v1/task/${taskId}`);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete multiple tasks by their IDs.
+   * @param {string[]} taskIds - Array of task IDs to delete
+   * @returns {Promise<void>}
+   * @throws {Error} If any task is currently processing
+   */
+  async deleteTasks(taskIds: string[]): Promise<void> {
+    const deletePromises = taskIds.map((taskId) => this.deleteTask(taskId));
+    await Promise.all(deletePromises);
   }
 
   /**

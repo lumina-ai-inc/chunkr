@@ -5,8 +5,8 @@ module.exports = {
   // Runs tests in Node.js environment (not browser)
   testEnvironment: "node",
 
-  // Runs both load and functionality test files
-  testMatch: ["**/__tests__/**/*.load.test.ts"],
+  // Runs functionality test files
+  testMatch: ["**/__tests__/**/*.functionality.test.ts"],
 
-  testTimeout: 3600000, // 1 hour timeout for entire test suite
+  testTimeout: 2220000, // 2220 seconds = 37 minutes
 };

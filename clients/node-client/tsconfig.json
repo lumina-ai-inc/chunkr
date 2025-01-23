@@ -9,6 +9,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
+  "include": ["src", "jest.load.config.js"],
   "exclude": ["node_modules", "**/__tests__/*"]
 }

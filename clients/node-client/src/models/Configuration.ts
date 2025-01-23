@@ -18,14 +18,6 @@ export enum SegmentationStrategy {
   PAGE = "Page",
 }
 
-export enum Status {
-  STARTING = "Starting",
-  PROCESSING = "Processing",
-  SUCCEEDED = "Succeeded",
-  FAILED = "Failed",
-  CANCELLED = "Cancelled",
-}
-
 export interface GenerationConfig {
   html?: GenerationStrategy;
   llm?: string;
