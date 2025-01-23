@@ -1,5 +1,5 @@
-use crate::utils::clients::get_pg_client;
 use crate::models::chunkr::auth::UserInfo;
+use crate::utils::clients::get_pg_client;
 use actix_web::{web, Error, HttpResponse};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -34,9 +34,7 @@ struct TaskCountResponse {
         ("api_key" = [])
     )
 )]
-pub async fn get_task_count(
-    api_info: web::ReqData<UserInfo>,
-) -> Result<HttpResponse, Error> {
+pub async fn get_task_count(api_info: web::ReqData<UserInfo>) -> Result<HttpResponse, Error> {
     let user_id = api_info.user_id.clone();
 
     let client = get_pg_client().await.map_err(|e| {
@@ -60,77 +58,4 @@ pub async fn get_task_count(
     let task_count: i64 = row.get(0);
 
     Ok(HttpResponse::Ok().json(TaskCountResponse { task_count }))
-}
-
-/// Get Usage
-///
-/// Retrieve the total API usage and usage limit for the authenticated user
-#[utoipa::path(
-    get,
-    path = "/usage",
-    context_path = "/api",
-    tag = "usage",
-    responses(
-        (status = 200, description = "Successfully retrieved usage information", body = UsageResponse),
-        (status = 500, description = "Internal server error", body = String),
-    ),
-    security(
-        ("api_key" = [])
-    )
-)]
-pub async fn get_usage(
-    api_info: web::ReqData<UserInfo>,
-) -> Result<HttpResponse, Error> {
-    let user_id = api_info.user_id.clone();
-    let api_key = api_info.api_key.clone();
-
-    let client = get_pg_client().await.map_err(|e| {
-        eprintln!("Error connecting to database: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Database connection error")
-    })?;
-
-    let stmt = client
-        .prepare(
-            "SELECT 
-            COALESCE(usage, 0) as total_usage,
-            usage_limit,
-            email,
-            key
-        FROM api_users
-        WHERE user_id = $1 AND key = $2",
-        )
-        .await
-        .map_err(|e| {
-            eprintln!("Error preparing statement: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Database query error")
-        })?;
-
-    let row = client
-        .query_one(&stmt, &[&user_id, &api_key])
-        .await
-        .map_err(|e| {
-            eprintln!("Error executing query: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Database query error")
-        })?;
-
-    let total_usage: i32 = row.get("total_usage");
-    let usage_limit: i32 = row.get("usage_limit");
-    let email: String = row.get("email");
-    let key: String = row.get("key");
-
-    let usage_percentage = if usage_limit > 0 {
-        (total_usage as f64 / usage_limit as f64) * 100.0
-    } else {
-        0.0
-    };
-
-    let usage_response = UsageResponse {
-        email,
-        key,
-        total_usage,
-        usage_limit,
-        usage_percentage,
-    };
-
-    Ok(HttpResponse::Ok().json(usage_response))
 }
