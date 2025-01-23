@@ -1,48 +1,26 @@
 use crate::configs::postgres_config::Client;
 use crate::configs::stripe_config::Config as StripeConfig;
 use crate::utils::clients::get_pg_client;
-use chrono::Datelike;
-use chrono::NaiveDate;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use reqwest::Client as ReqwestClient;
 use serde_json::json;
 use tokio_postgres::Row;
 
-pub async fn invoice(end_of_month: Option<NaiveDate>) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn invoice() -> Result<(), Box<dyn std::error::Error>> {
     let client: Client = get_pg_client().await?;
-    // Determine the end of the month date
     let today = Utc::now().naive_utc();
-    let end_of_month_date = match end_of_month {
-        Some(date) => date,
-        None => {
-            let (_, year) = today.year_ce();
-            let month = today.month();
-            let last_day = match month {
-                1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
-                4 | 6 | 9 | 11 => 30,
-                2 => {
-                    if year % 4 == 0 && (year % 100 != 0 || year % 400 == 0) {
-                        29
-                    } else {
-                        28
-                    }
-                }
-                _ => unreachable!(),
-            };
-            NaiveDate::from_ymd_opt(year as i32, month, last_day).unwrap()
-        }
-    };
 
     // Get all invoices that are not completed and are either ongoing or failed
+    // and their bill_date matches today
     let invoices = client
         .query(
-            "SELECT i.invoice_id, i.invoice_status, MIN(ti.created_at) as oldest_task_date
+            "SELECT i.invoice_id, i.invoice_status, i.bill_date
              FROM invoices i
-             JOIN task_invoices ti ON i.invoice_id = ti.invoice_id
              JOIN users u ON i.user_id = u.user_id
-             WHERE i.invoice_status IN ('Ongoing', 'Failed') AND u.tier = 'PayAsYouGo'
-             GROUP BY i.invoice_id, i.invoice_status",
-            &[],
+             WHERE i.invoice_status IN ('Ongoing', 'Failed') 
+             AND u.tier = 'PayAsYouGo'
+             AND DATE(i.bill_date) = DATE($1)",
+            &[&today],
         )
         .await?;
 
@@ -54,7 +32,7 @@ pub async fn invoice(end_of_month: Option<NaiveDate>) -> Result<(), Box<dyn std:
             continue;
         }
 
-        if invoice_status == "Ongoing" && today.date() == end_of_month_date {
+        if invoice_status == "Ongoing" {
             println!(
                 "creating and sending invoice for invoice id {:?}",
                 invoice_id
@@ -71,14 +49,15 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
 
     // Query to get invoice details, customer info, and usage
     let query = "
-        SELECT i.invoice_id, i.user_id, i.amount_due, i.total_pages,
+        SELECT i.invoice_id, i.user_id, i.amount_due, i.total_pages, i.bill_date,
                u.customer_id,
                ti.usage_type, SUM(ti.pages) as pages
         FROM invoices i
         JOIN users u ON i.user_id = u.user_id
         JOIN task_invoices ti ON i.invoice_id = ti.invoice_id
         WHERE i.invoice_id = $1
-        GROUP BY i.invoice_id, i.user_id, i.amount_due, i.total_pages, u.customer_id, ti.usage_type
+        GROUP BY i.invoice_id, i.user_id, i.amount_due, i.total_pages, 
+                 i.bill_date, u.customer_id, ti.usage_type
     ";
 
     let rows = client.query(query, &[&invoice_id]).await?;
@@ -89,12 +68,16 @@ pub async fn create_and_send_invoice(invoice_id: &str) -> Result<(), Box<dyn std
 
     let row = &rows[0];
     let stripe_customer_id: String = row.get("customer_id");
+    let bill_date: DateTime<Utc> = row.get("bill_date");
 
     // Create line items based on usage
     let mut line_items = Vec::new();
     let mut discount_message = String::new();
     let mut discount_updates = Vec::new();
-    let mut usage_summary = String::new();
+    let mut usage_summary = String::from(format!(
+        "Billing period ending: {}\n\n",
+        bill_date.format("%Y-%m-%d")
+    ));
 
     for row in &rows {
         let usage_type: String = row.get("usage_type");
