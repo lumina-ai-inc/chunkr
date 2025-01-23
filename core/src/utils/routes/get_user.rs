@@ -1,5 +1,5 @@
 use crate::configs::postgres_config::Client;
-use crate::models::chunkr::user::{ InvoiceStatus, Tier, UsageLimit, UsageType, User};
+use crate::models::chunkr::user::{InvoiceStatus, Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
 use std::str::FromStr;
 
@@ -51,7 +51,6 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         let overage_usage: i32 = usage_row.get("overage_usage");
         let usage_limit: i32 = usage_row.get("usage_limit");
 
-
         usage.push(UsageLimit {
             usage_type: UsageType::from_str(&usage_type).unwrap_or(UsageType::Page),
             usage_limit,
@@ -74,7 +73,7 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         updated_at: row.get("updated_at"),
         usage,
         task_count: row.get("task_count"),
-        last_paid_status: row.get("last_paid_status")
+        last_paid_status: row.get("last_paid_status"),
     };
 
     Ok(user)
@@ -101,6 +100,8 @@ pub struct MonthlyUsage {
     pub usage: Option<i32>,
     pub overage_usage: i32,
     pub tier: String,
+    pub billing_cycle_start: Option<chrono::DateTime<chrono::Utc>>,
+    pub billing_cycle_end: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 pub async fn get_monthly_usage_count(
@@ -118,6 +119,8 @@ pub async fn get_monthly_usage_count(
             mu.usage_limit,
             mu.overage_usage,
             mu.tier,
+            mu.billing_cycle_start,
+            mu.billing_cycle_end,
             CAST(t.price_per_month + (mu.overage_usage * t.overage_rate) AS DOUBLE PRECISION) as total_cost
         FROM users u
         LEFT JOIN monthly_usage mu ON u.user_id = mu.user_id
@@ -141,6 +144,8 @@ pub async fn get_monthly_usage_count(
             usage: row.get("usage"),
             overage_usage: row.get("overage_usage"),
             tier: row.get("tier"),
+            billing_cycle_start: row.get("billing_cycle_start"),
+            billing_cycle_end: row.get("billing_cycle_end"),
         });
     }
 
