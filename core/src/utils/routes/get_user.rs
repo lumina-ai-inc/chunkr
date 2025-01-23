@@ -1,7 +1,6 @@
 use crate::configs::postgres_config::Client;
-use crate::models::chunkr::user::{Discount, InvoiceStatus, Tier, UsageLimit, UsageType, User};
+use crate::models::chunkr::user::{ InvoiceStatus, Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
-use serde_json::Value;
 use std::str::FromStr;
 
 pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error>> {
@@ -113,7 +112,7 @@ pub async fn get_monthly_usage_count(
         SELECT 
             u.user_id,
             u.email,
-            u.last_paid_status,
+            u.invoice_status,
             to_char(mu.created_at, 'YYYY-MM') as month,
             mu.usage,
             mu.usage_limit,

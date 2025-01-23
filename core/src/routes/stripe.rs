@@ -7,7 +7,7 @@ use crate::utils::routes::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe_utils::{
     cancel_stripe_subscription, create_customer_session, create_stripe_customer,
 create_stripe_setup_intent, create_stripe_subscription,
-    set_default_payment_method, update_invoice_status,
+    set_default_payment_method, update_invoice_status, update_stripe_subscription
 };
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use postgres_types::ToSql;
@@ -404,7 +404,8 @@ pub async fn stripe_webhook(
                     let res_two = client
                         .execute(
                             "UPDATE users 
-                             SET invoice_status = 'Canceled'
+                             SET invoice_status = 'Canceled', 
+                                 tier = 'Free' 
                              WHERE user_id = $1",
                             &[&user_id],
                         )
@@ -721,4 +722,47 @@ async fn find_user_id_by_customer(
         .ok()
         .flatten()
         .map(|row| row.get("user_id"))
+}
+
+
+
+pub async fn update_subscription_tier(
+    user_info: web::ReqData<UserInfo>,
+    form: web::Json<SubscriptionRequest>,
+) -> Result<HttpResponse, Error> {
+    let client = get_pg_client().await.map_err(|e| {
+        eprintln!("DB connection error: {:?}", e);
+        actix_web::error::ErrorInternalServerError("DB connection error")
+    })?;
+
+    let stripe_config = Config::from_env().map_err(|e| {
+        eprintln!("Stripe config error: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Stripe Config Error")
+    })?;
+
+    let subscription_row = client
+        .query_opt(
+            "SELECT stripe_subscription_id FROM subscriptions WHERE user_id = $1",
+            &[&user_info.user_id],
+        )
+        .await
+        .map_err(|e| {
+            eprintln!("Query error: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Failed to query subscription")
+        })?;
+
+    if let Some(row) = subscription_row {
+        let stripe_sub_id: String = row.get("stripe_subscription_id");
+
+        let updated_subscription = update_stripe_subscription(&stripe_sub_id, &form.tier, &stripe_config)
+            .await
+            .map_err(|e| {
+                eprintln!("Failed to update subscription in Stripe: {:?}", e);
+                actix_web::error::ErrorInternalServerError("Stripe update subscription failed")
+            })?;
+
+        return Ok(HttpResponse::Ok().json(updated_subscription));
+    }
+
+    Ok(HttpResponse::NotFound().json("No active subscription found"))
 }
