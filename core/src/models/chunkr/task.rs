@@ -4,7 +4,7 @@ use crate::models::chunkr::output::{OutputResponse, Segment, SegmentType};
 use crate::models::chunkr::segment_processing::{
     GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
 };
-use crate::models::chunkr::structured_extraction::JsonSchema;
+use crate::models::chunkr::structured_extraction::StructuredExtraction;
 use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
 use crate::utils::services::file_operations::check_file_type;
@@ -237,14 +237,10 @@ impl Task {
                 .ok();
             if segment.segment_type == SegmentType::Picture {
                 if picture_generation_config.html == GenerationStrategy::Auto {
-                    segment.html = Some(format!(
-                        "<img src=\"{}\" />",
-                        url.clone().unwrap_or_default()
-                    ));
+                    segment.html = format!("<img src=\"{}\" />", url.clone().unwrap_or_default());
                 }
                 if picture_generation_config.markdown == GenerationStrategy::Auto {
-                    segment.markdown =
-                        Some(format!("![Image]({})", url.clone().unwrap_or_default()));
+                    segment.markdown = format!("![Image]({})", url.clone().unwrap_or_default());
                 }
             }
             Ok(url.clone().unwrap_or_default())
@@ -512,7 +508,10 @@ impl Task {
         )
     }
 
-    pub async fn to_task_response(&self, include_output: bool) -> Result<TaskResponse, Box<dyn std::error::Error>> {
+    pub async fn to_task_response(
+        &self,
+        include_output: bool,
+    ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
         let input_file_url = generate_presigned_url(&self.input_location, true, None)
             .await
             .map_err(|_| "Error getting input file url")?;
@@ -635,12 +634,15 @@ pub struct Configuration {
     pub expires_in: Option<i32>,
     /// Whether to use high-resolution images for cropping and post-processing.
     pub high_resolution: bool,
-    pub json_schema: Option<JsonSchema>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated]
+    pub json_schema: Option<serde_json::Value>,
     #[deprecated]
     pub model: Option<Model>,
     pub ocr_strategy: OcrStrategy,
     pub segment_processing: SegmentProcessing,
     pub segmentation_strategy: SegmentationStrategy,
+    pub structured_extraction: Option<StructuredExtraction>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated]
     /// The target number of words in each chunk. If 0, each chunk will contain a single segment.

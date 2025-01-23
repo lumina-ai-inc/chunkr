@@ -241,7 +241,7 @@ mod tests {
         }];
 
         let start_time = std::time::Instant::now();
-        match open_ai_call(url, key, model, messages, None, None).await {
+        match open_ai_call(url, key, model, messages, None, None, None).await {
             Ok(_) => Ok(()),
             Err(e) => {
                 println!(
@@ -278,6 +278,7 @@ mod tests {
                 key.clone(),
                 model.clone(),
                 messages.clone(),
+                None,
                 None,
                 None,
             )

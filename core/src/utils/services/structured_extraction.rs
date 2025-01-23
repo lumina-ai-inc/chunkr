@@ -1,270 +1,212 @@
-use crate::configs::llm_config::Config as LlmConfig;
-use crate::configs::search_config::Config as SearchConfig;
-use crate::configs::worker_config::Config as WorkerConfig;
+use crate::configs::{
+    llm_config::{get_prompt, Config as LlmConfig},
+    search_config::Config as SearchConfig,
+};
 use crate::models::chunkr::open_ai::MessageContent;
-use crate::models::chunkr::structured_extraction::{ExtractedField, ExtractedJson, JsonSchema};
-use crate::utils::services::embeddings::EmbeddingCache;
-use crate::utils::services::llm::{get_basic_message, process_openai_request};
-use crate::utils::services::search::search_embeddings;
-
-use reqwest::Client;
-use serde_json;
+use crate::models::chunkr::search::{Search, SearchResult};
+use crate::models::chunkr::structured_extraction::{
+    StructuredExtractionRequest, StructuredExtractionResponse,
+};
+use crate::utils::services::llm::{create_basic_message, process_openai_request};
+use futures::future::try_join_all;
 use std::collections::HashMap;
 use std::error::Error;
-use tokio::task::JoinHandle;
 
-pub async fn perform_structured_extraction(
-    json_schema: JsonSchema,
-    texts: Vec<String>,
-    content_type: String,
-) -> Result<ExtractedJson, Box<dyn Error + Send + Sync>> {
-    let llm_config = LlmConfig::from_env().expect("Failed to load LlmConfig");
-    let worker_config = WorkerConfig::from_env().expect("Failed to load WorkerConfig");
-    let search_config = SearchConfig::from_env().expect("Failed to load SearchConfig");
-    let embedding_url = format!("{}/embed", search_config.dense_vector_url);
-    println!("EMBEDDING URL: {:?}", embedding_url);
-    let llm_url = llm_config
-        .structured_extraction_url
-        .clone()
-        .unwrap_or(llm_config.url.clone());
-    let llm_key = llm_config
-        .structured_extraction_key
-        .clone()
-        .unwrap_or(llm_config.key.clone());
-    let top_k = worker_config.structured_extraction_top_k as usize;
-    let model_name = llm_config
-        .structured_extraction_model
-        .clone()
-        .unwrap_or(llm_config.model.clone());
-    let batch_size = worker_config.structured_extraction_batch_size as usize;
+/// Extracts searchable strings from a JSON schema
+fn extract_search_queries(schema: &serde_json::Value) -> Vec<String> {
+    let mut queries = Vec::new();
 
-    let client = Client::new();
-    let content_type_clone = content_type.clone();
-    let fields = json_schema.to_fields();
+    if let Some(obj) = schema.as_object() {
+        let desc = obj.get("description").and_then(|d| d.as_str());
+        let title = obj.get("title").and_then(|t| t.as_str());
 
-    let mut embedding_cache = EmbeddingCache {
-        embeddings: HashMap::new(),
-    };
-    let text_embeddings: Vec<Vec<f32>> = embedding_cache
-        .get_or_generate_embeddings(&client, &embedding_url, texts.clone(), batch_size)
-        .await?;
+        match (title, desc) {
+            (Some(t), Some(d)) => queries.push(format!("{}: {}", t, d)),
+            (Some(t), None) => queries.push(t.to_string()),
+            (None, Some(d)) => queries.push(d.to_string()),
+            (None, None) => {}
+        }
 
-    let mut handles: Vec<
-        JoinHandle<Result<(String, String, String), Box<dyn Error + Send + Sync>>>,
-    > = Vec::new();
-    for field in fields {
-        let _content_type_clone = content_type_clone.clone();
-        let client = client.clone();
-        let embedding_url = embedding_url.clone();
-        let llm_url = llm_url.clone();
-        let llm_key = llm_key.clone();
-        let model_name = model_name.clone();
-        let mut embedding_cache = embedding_cache.clone();
-        let text_embeddings = text_embeddings.clone();
-        let texts = texts.clone();
-        let field_name = field.name.clone();
-        let field_description = field.description.clone();
-        let field_type = field.field_type.clone();
-        let handle = tokio::spawn(async move {
-            let query = format!("{}: {}", field_name, field_description);
-            let query_embedding = embedding_cache
-                .get_or_generate_embeddings(&client, &embedding_url, vec![query.clone()], 1)
-                .await?
-                .get(0)
-                .ok_or_else(|| {
-                    std::io::Error::new(std::io::ErrorKind::Other, "Failed to get query embedding")
-                })?
-                .clone();
+        if let Some(props) = obj.get("properties").and_then(|p| p.as_object()) {
+            for (_, value) in props {
+                if let Some(prop_obj) = value.as_object() {
+                    let desc = prop_obj.get("description").and_then(|d| d.as_str());
+                    let title = prop_obj.get("title").and_then(|t| t.as_str());
 
-            let search_results = search_embeddings(&query_embedding, &texts, &text_embeddings, top_k);
-            let context = search_results.join("\n");
-
-            let tag_instruction = match field_type.as_str() {
-                "obj" | "object" | "dict" => "Output JSON within <json></json> tags.",
-                "list" => "Output a list within <list></list> tags.",
-                "string" => "Read the context and find what the user is asking for directly. Do not make up any information, and report truthfully what is in the document",
-                _ => "Output the value appropriately. Be direct and to the point, no explanations. Just the required information in the type requested.",
-            };
-
-            let prompt = format!(
-                    "Field Name: {}\nField Description: {}\nField Type: {}
-                    
-                    CONTEXT: {}
-                    
-                    \n\nExtract the information for the field from the context provided. {} Ensure the output adheres to the schema without nesting.
-                    You must accurately find the information for the field based on the name and description. Report the information in the type requested directly. Be intelligent. If the information you are looking for is not in the context provided, or is unrelated to the field, respond with a single <NA> tag. It is better to give a <NA> response rather than ambiously guessing.",
-                    field_name, field_description, field_type, context, tag_instruction,
-                );
-
-            let messages = get_basic_message(prompt).map_err(|e| {
-                Box::new(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    e.to_string(),
-                )) as Box<dyn Error + Send + Sync>
-            })?;
-
-            let extracted = process_openai_request(
-                llm_url,
-                llm_key,
-                model_name,
-                messages,
-                Some(8000),
-                Some(0.0),
-            )
-            .await?;
-
-            let content: String = match &extracted.choices.first().unwrap().message.content {
-                MessageContent::String { content } => {
-                    if content.trim() == "<NA>" {
-                        String::new()
-                    } else {
-                        content.clone()
+                    match (title, desc) {
+                        (Some(t), Some(d)) => queries.push(format!("{}: {}", t, d)),
+                        (Some(t), None) => queries.push(t.to_string()),
+                        (None, Some(d)) => queries.push(d.to_string()),
+                        (None, None) => {}
                     }
                 }
-                _ => {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        "Invalid content type",
-                    )
-                    .into())
-                }
-            };
-            Ok((field_name, field_type, content))
-        });
+            }
+        }
 
-        handles.push(handle);
-    }
-
-    let mut field_results = Vec::new();
-    for handle in handles {
-        match handle.await? {
-            Ok(result) => field_results.push(result),
-            Err(e) => return Err(e),
+        if let Some(defs) = obj.get("$defs").and_then(|d| d.as_object()) {
+            for (_, def_value) in defs {
+                queries.extend(extract_search_queries(def_value));
+            }
         }
     }
 
-    let mut extracted_fields = Vec::new();
-    for (name, field_type, value) in field_results {
-        let parsed_value = match field_type.as_str() {
-            "obj" => {
-                let content = value
-                    .split("<json>")
-                    .nth(1)
-                    .and_then(|s| s.split("</json>").next())
-                    .unwrap_or(&value);
-                serde_json::from_str(content.trim())?
-            }
-            "list" => {
-                let content = value
-                    .split("<list>")
-                    .nth(1)
-                    .and_then(|s| s.split("</list>").next())
-                    .unwrap_or(&value);
+    queries
+}
 
-                let list_items: Vec<&str> = content
-                    .split(|c| c == ',' || c == '\n')
-                    .map(|item| item.trim_matches(|c: char| c == '"' || c.is_whitespace()))
-                    .filter(|item| !item.is_empty())
-                    .collect();
+pub async fn perform_structured_extraction(
+    structured_extraction_request: StructuredExtractionRequest,
+) -> Result<StructuredExtractionResponse, Box<dyn Error>> {
+    let llm_config = LlmConfig::from_env().unwrap();
+    let search_config = SearchConfig::from_env().unwrap();
+    let schema = &structured_extraction_request
+        .structured_extraction
+        .json_schema
+        .schema;
+    let search_queries = extract_search_queries(schema);
+    let search = match Search::new(structured_extraction_request.contents).await {
+        Ok(search) => search,
+        Err(e) => return Err(e.to_string().into()),
+    };
+    let search_futures: Vec<_> = search_queries
+        .iter()
+        .map(|query| search.search(query))
+        .collect();
 
-                serde_json::Value::Array(
-                    list_items
-                        .into_iter()
-                        .map(|item| serde_json::Value::String(item.to_string()))
-                        .collect(),
-                )
-            }
-            "int" => {
-                let num = value.trim().parse::<i64>().unwrap_or(0);
-                serde_json::Value::Number(num.into())
-            }
-            "float" => {
-                let num = value.trim().parse::<f64>().unwrap_or(0.0);
-                serde_json::Value::Number(
-                    serde_json::Number::from_f64(num).unwrap_or(serde_json::Number::from(0)),
-                )
-            }
-            "bool" => {
-                let bool_val = value.trim().to_lowercase();
-                serde_json::Value::Bool(bool_val == "true" || bool_val == "yes" || bool_val == "1")
-            }
-            "string" => serde_json::Value::String(value),
-            _ => serde_json::Value::String(value),
-        };
-        let parsed_value = match parsed_value {
-            serde_json::Value::String(s) => {
-                let s = s.replace("<text>", "").replace("</text>", "");
-                serde_json::Value::String(s)
-            }
-            _ => parsed_value,
-        };
-        extracted_fields.push(ExtractedField {
-            name,
-            field_type,
-            value: parsed_value,
-        });
+    let search_results = match try_join_all(search_futures).await {
+        Ok(search_results) => search_results,
+        Err(e) => return Err(e.to_string().into()),
+    };
+    let mut seen_chunks = HashMap::new();
+    for result in search_results.into_iter().flatten() {
+        seen_chunks
+            .entry(result.chunk.id.clone())
+            .and_modify(|existing: &mut SearchResult| {
+                if result.score > existing.score {
+                    *existing = result.clone();
+                }
+            })
+            .or_insert(result);
     }
-    Ok(ExtractedJson {
-        title: json_schema.title,
-        extracted_fields,
-        schema_type: None,
+
+    let mut final_results: Vec<_> = seen_chunks.values().cloned().collect();
+    final_results.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+    final_results.truncate(search_config.top_k);
+
+    let mut user_values = HashMap::new();
+    user_values.insert(
+        "content".to_string(),
+        final_results
+            .iter()
+            .map(|c| c.chunk.content.clone())
+            .collect::<Vec<String>>()
+            .join("\n"),
+    );
+    let system_message = create_basic_message(
+        "system".to_string(),
+        get_prompt("structured_extraction_system", &HashMap::new())?,
+    )?;
+    let user_message = create_basic_message(
+        "user".to_string(),
+        get_prompt("structured_extraction_user", &user_values)?,
+    )?;
+    println!("System message: {:?}", system_message);
+    println!("User message: {:?}", user_message);
+    let response = match process_openai_request(
+        llm_config.url,
+        llm_config.key,
+        llm_config.model,
+        vec![system_message, user_message],
+        None,
+        None,
+        Some(structured_extraction_request.structured_extraction),
+    )
+    .await
+    {
+        Ok(response) => response,
+        Err(e) => return Err(e.to_string().into()),
+    };
+    let response_text = match &response.choices[0].message.content {
+        MessageContent::String { content } => content.clone(),
+        _ => return Err("Invalid response format".into()),
+    };
+    Ok(StructuredExtractionResponse {
+        response: response_text,
     })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::chunkr::search::{ChunkContent, SimpleChunk};
+    use crate::models::chunkr::structured_extraction::{
+        ExtractionType, JsonSchema, StructuredExtraction,
+    };
+    use crate::utils::clients;
     use tokio;
-    use crate::models::chunkr::structured_extraction::Property;
 
     #[tokio::test]
-    async fn st_extraction() -> Result<(), Box<dyn Error + Send + Sync>> {
-        let texts = vec![
-            "**Apple**: A sweet, edible fruit produced by an apple tree (Malus domestica). Rich in fiber and vitamin C.".to_string(),
-            "**Banana**: A long curved fruit with a thick yellow peel. High in potassium and carbohydrates.".to_string(),
-            "**Carrot**: An orange root vegetable. Excellent source of beta carotene and fiber.".to_string(),
-            "**Broccoli**: A green vegetable with dense clusters of flower buds. High in vitamins C and K.".to_string(),
-            "**Orange**: A citrus fruit with a bright orange peel. Excellent source of vitamin C.".to_string(),
+    async fn test_structured_extraction() {
+        clients::initialize().await;
+        let json_schema = StructuredExtraction {
+            r#type: ExtractionType::JsonSchema,
+            json_schema: JsonSchema {
+                description: "Fruit Facts".to_string(),
+                name: "Fruit Facts".to_string(),
+                schema: serde_json::json!({
+                    "type": "object",
+                    "properties": {
+                        "fruit_name": {
+                            "type": "string",
+                            "description": "The name of the fruit"
+                        },
+                        "color": {
+                            "type": "string",
+                            "description": "The color of the fruit when ripe"
+                        },
+                        "calories_per_100g": {
+                            "type": "number",
+                            "description": "Number of calories per 100g serving"
+                        },
+                        "is_citrus": {
+                            "type": "boolean",
+                            "description": "Whether the fruit is a citrus fruit"
+                        }
+                    },
+                    "required": ["fruit_name", "color", "calories_per_100g", "is_citrus"],
+                    "additionalProperties": false
+                }),
+                strict: true,
+            },
+        };
+
+        let contents = vec![
+            SimpleChunk {
+                id: uuid::Uuid::new_v4().to_string(),
+                content: "Oranges are bright orange citrus fruits that contain about 47 calories per 100g serving.".to_string(),
+            },
+            SimpleChunk {
+                id: uuid::Uuid::new_v4().to_string(),
+                content: "Bananas have a yellow peel and are not citrus fruits. They contain approximately 89 calories per 100g.".to_string(),
+            },
+            SimpleChunk {
+                id: uuid::Uuid::new_v4().to_string(),
+                content: "Lemons are yellow citrus fruits with around 29 calories per 100g.".to_string(),
+            },
         ];
 
-        let json_schema = JsonSchema {
-            title: "Basket".to_string(),
-            schema_type: None,
-            properties: vec![
-                Property {
-                    name: "fruits".to_string(),
-                    title: Some("Fruits".to_string()),
-                    prop_type: "list".to_string(),
-                    description: Some("A list of fruits".to_string()),
-                    default: None,
-                },
-                Property {
-                    name: "greenest_vegetables".to_string(),
-                    title: Some("greenest vegetables".to_string()),
-                    prop_type: "string".to_string(),
-                    description: Some("The greenest vegetable in the list".to_string()),
-                    default: None,
-                },
-                Property {
-                    name: "cars".to_string(),
-                    title: Some("cars".to_string()),
-                    prop_type: "list".to_string(),
-                    description: Some("A list of cars".to_string()),
-                    default: None,
-                },
-            ],
-        };
-        println!("JSON SCHEMA: {:?}", json_schema);
-
-        let results =
-            perform_structured_extraction(json_schema, texts, "content".to_string()).await?;
-
-        println!("{:?}", results);
-        assert!(
-            !results.extracted_fields.is_empty(),
-            "Should return at least one extracted field"
-        );
-
-        Ok(())
+        let response = perform_structured_extraction(StructuredExtractionRequest {
+            contents: contents
+                .iter()
+                .map(|c| ChunkContent::Simple(c.clone()))
+                .collect(),
+            structured_extraction: json_schema,
+        })
+        .await;
+        println!("Response: {:?}", response);
+        assert!(response.is_ok());
     }
 }

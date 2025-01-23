@@ -201,8 +201,8 @@ impl AzureAnalysisResponse {
                                     bbox,
                                     confidence: None,
                                     content: table_to_text(table),
-                                    html: Some(table_to_html(table)),
-                                    markdown: Some(table_to_markdown(table)),
+                                    html: table_to_html(table),
+                                    markdown: table_to_markdown(table),
                                     image: None,
                                     llm: None,
                                     ocr: Vec::new(),
@@ -259,8 +259,8 @@ impl AzureAnalysisResponse {
                                 bbox,
                                 confidence: None,
                                 content: String::new(),
-                                html: None,
-                                markdown: None,
+                                html: String::new(),
+                                markdown: String::new(),
                                 image: None,
                                 llm: None,
                                 ocr: Vec::new(),
@@ -324,8 +324,8 @@ impl AzureAnalysisResponse {
                                     .clone()
                                     .unwrap_or_default()
                                     .replace(":selected:", ""),
-                                html: None,
-                                markdown: None,
+                                html: String::new(),
+                                markdown: String::new(),
                                 image: None,
                                 llm: None,
                                 ocr: Vec::new(),
@@ -425,8 +425,8 @@ fn process_caption(
                             .clone()
                             .unwrap_or_default()
                             .replace(":selected:", ""),
-                        html: None,
-                        markdown: None,
+                        html: String::new(),
+                        markdown: String::new(),
                         image: None,
                         llm: None,
                         ocr: Vec::new(),
