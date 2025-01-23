@@ -30,8 +30,9 @@ use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
 use routes::health::health_check;
 use routes::stripe::{
-    cancel_subscription, create_setup_intent, create_stripe_session, get_invoice_detail,
-    get_monthly_usage, get_user_invoices, stripe_webhook, subscribe_user, update_subscription_tier,
+    create_checkout_session, create_setup_intent, create_stripe_session,
+    get_billing_portal_session, get_checkout_session, get_invoice_detail, get_monthly_usage,
+    get_user_invoices, stripe_webhook,
 };
 use routes::structured_extraction::handle_structured_extraction_route;
 use routes::task::{
@@ -209,12 +210,12 @@ pub fn main() -> std::io::Result<()> {
                     .route("/create-session", web::get().to(create_stripe_session))
                     .route("/invoices", web::get().to(get_user_invoices))
                     .route("/invoice/{invoice_id}", web::get().to(get_invoice_detail))
-                    .route("/subscribe", web::post().to(subscribe_user))
+                    .route("/checkout", web::post().to(create_checkout_session))
                     .route(
-                        "/update-subscription",
-                        web::post().to(update_subscription_tier),
+                        "/checkout/{session_id}",
+                        web::get().to(get_checkout_session),
                     )
-                    .route("/cancel-subscription", web::post().to(cancel_subscription));
+                    .route("/billing-portal", web::get().to(get_billing_portal_session));
 
                 app = app.service(stripe_scope);
             }

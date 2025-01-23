@@ -1,5 +1,5 @@
-use crate::utils::clients::get_pg_client;
 use crate::configs::stripe_config::Config as StripeConfig;
+use crate::utils::clients::get_pg_client;
 use reqwest::Client as ReqwestClient;
 
 pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -34,7 +34,7 @@ pub async fn update_invoice_status(
     let client = get_pg_client().await.map_err(|e| {
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
-    })?;    
+    })?;
     let _ = client
         .execute(
             "UPDATE invoices SET invoice_status = $1 WHERE stripe_invoice_id = $2",
@@ -342,7 +342,10 @@ pub async fn create_stripe_subscription(
         ("items[0][price]", price_id),
         ("collection_method", "charge_automatically".to_string()),
         ("payment_behavior", "default_incomplete".to_string()),
-        ("payment_settings[save_default_payment_method]", "on_subscription".to_string()),
+        (
+            "payment_settings[save_default_payment_method]",
+            "on_subscription".to_string(),
+        ),
         ("expand[]", "latest_invoice.payment_intent".to_string()),
     ];
     let resp = client
@@ -395,63 +398,6 @@ pub async fn cancel_stripe_subscription(
     Ok(canceled_subscription)
 }
 
-/// (Optional) You may want a helper that creates a standalone overage invoice in Stripe,
-/// if you want the charge to appear in the user's Stripe billing.
-/// Then you can store the returned invoice ID in your local "invoices" table.
-/// Adjust line_items or invoice items as needed.
-pub async fn create_stripe_invoice_for_overage(
-    customer_id: &str,
-    amount_in_cents: i64,
-    stripe_config: &StripeConfig,
-) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
-    let client = ReqwestClient::new();
-
-    // 1) Create an InvoiceItem (line item) for the overage
-    let invoice_item_url = "https://api.stripe.com/v1/invoiceitems";
-    let invoice_item_form = vec![
-        ("customer", customer_id.to_string()),
-        ("amount", amount_in_cents.to_string()), // e.g. 500 = $5.00
-        ("currency", "usd".to_string()),
-        ("description", "Overage Charges".to_string()),
-    ];
-
-    let ii_response = client
-        .post(invoice_item_url)
-        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
-        .form(&invoice_item_form)
-        .send()
-        .await?;
-
-    if !ii_response.status().is_success() {
-        let err_body = ii_response.text().await.unwrap_or_default();
-        return Err(format!("Failed to create invoice item for overage: {}", err_body).into());
-    }
-
-    // 2) Create the invoice
-    let create_invoice_url = "https://api.stripe.com/v1/invoices";
-    let invoice_form = vec![
-        ("customer", customer_id.to_string()),
-        ("auto_advance", "true".to_string()), // automatically try to finalize & pay
-        ("collection_method", "charge_automatically".to_string()),
-    ];
-
-    let invoice_response = client
-        .post(create_invoice_url)
-        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
-        .form(&invoice_form)
-        .send()
-        .await?;
-
-    if !invoice_response.status().is_success() {
-        let err_body = invoice_response.text().await.unwrap_or_default();
-        return Err(format!("Failed to create invoice for overage: {}", err_body).into());
-    }
-
-    let created_invoice: serde_json::Value = invoice_response.json().await?;
-    Ok(created_invoice)
-}
-
-
 /// Update an existing subscription to a new tier
 pub async fn update_stripe_subscription(
     stripe_subscription_id: &str,
@@ -491,4 +437,94 @@ pub async fn update_stripe_subscription(
 
     let subscription_json: serde_json::Value = stripe_response.json().await?;
     Ok(subscription_json)
+}
+
+pub async fn create_stripe_checkout_session(
+    customer_id: &str,
+    tier: &str,
+    stripe_config: &StripeConfig,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let price_id = match tier {
+        "Starter" => stripe_config.starter_price_id.clone(),
+        "Dev" => stripe_config.dev_price_id.clone(),
+        "Team" => stripe_config.team_price_id.clone(),
+        _ => return Err("Unsupported tier".into()),
+    };
+
+    let client = ReqwestClient::new();
+
+    let form_data = vec![
+        ("mode", "subscription"),
+        ("customer", customer_id),
+        ("line_items[0][price]", &price_id),
+        ("line_items[0][quantity]", "1"),
+        ("ui_mode", "embedded"),
+        ("return_url", &stripe_config.return_url),
+    ];
+
+    let stripe_response = client
+        .post("https://api.stripe.com/v1/checkout/sessions")
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&form_data)
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let err_body = stripe_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to create checkout session: {}", err_body).into());
+    }
+
+    let checkout_session: serde_json::Value = stripe_response.json().await?;
+    Ok(checkout_session)
+}
+
+pub async fn get_stripe_checkout_session(
+    session_id: &str,
+    stripe_config: &StripeConfig,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let stripe_response = client
+        .get(&format!(
+            "https://api.stripe.com/v1/checkout/sessions/{}/",
+            session_id
+        ))
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let err_body = stripe_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to get checkout session line items: {}", err_body).into());
+    }
+
+    let line_items: serde_json::Value = stripe_response.json().await?;
+    Ok(line_items)
+}
+
+pub async fn create_stripe_billing_portal_session(
+    customer_id: &str,
+    stripe_config: &StripeConfig,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let form_data = vec![
+        ("customer", customer_id),
+        ("return_url", &stripe_config.return_url),
+    ];
+
+    let stripe_response = client
+        .post("https://api.stripe.com/v1/billing_portal/sessions")
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&form_data)
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let err_body = stripe_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to create billing portal session: {}", err_body).into());
+    }
+
+    let portal_session: serde_json::Value = stripe_response.json().await?;
+    Ok(portal_session)
 }

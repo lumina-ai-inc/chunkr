@@ -1,13 +1,13 @@
 use crate::configs::stripe_config::Config;
 use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::user::{InvoiceStatus, Tier, UsageType};
+use crate::models::chunkr::user::InvoiceStatus;
 use crate::utils::clients::get_pg_client;
 use crate::utils::routes::get_user::get_monthly_usage_count;
 use crate::utils::routes::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe_utils::{
-    cancel_stripe_subscription, create_customer_session, create_stripe_customer,
-    create_stripe_setup_intent, create_stripe_subscription, set_default_payment_method,
-    update_invoice_status, update_stripe_subscription,
+    create_customer_session, create_stripe_billing_portal_session, create_stripe_checkout_session,
+    create_stripe_customer, create_stripe_setup_intent, get_stripe_checkout_session,
+    update_invoice_status,
 };
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use postgres_types::ToSql;
@@ -15,7 +15,6 @@ use serde::{Deserialize, Serialize};
 use stripe::EventType;
 use stripe::InvoiceStatus as StripeInvoiceStatus;
 use utoipa::ToSchema;
-use uuid::Uuid;
 
 #[derive(Serialize)]
 pub struct SetupIntentResponse {
@@ -165,6 +164,15 @@ pub async fn create_stripe_session(
         })?;
 
     Ok(HttpResponse::Ok().json(session))
+}
+
+pub async fn get_checkout_session(session_id: web::Path<String>) -> Result<HttpResponse, Error> {
+    let stripe_config = Config::from_env().map_err(|e| {
+        eprintln!("Error loading Stripe configuration: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Configuration error")
+    })?;
+    let line_items = get_stripe_checkout_session(&session_id.into_inner(), &stripe_config).await?;
+    Ok(HttpResponse::Ok().json(line_items))
 }
 
 pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<HttpResponse, Error> {
@@ -528,178 +536,75 @@ pub async fn get_monthly_usage(
     Ok(HttpResponse::Ok().json(monthly_usage))
 }
 
-/// POST /subscribe
-/// Creates (or updates) a user subscription in Stripe and stores it in the local subscriptions table.
-pub async fn subscribe_user(
+pub async fn create_checkout_session(
     user_info: web::ReqData<UserInfo>,
     form: web::Json<SubscriptionRequest>,
 ) -> Result<HttpResponse, Error> {
-    // 1) Ensure we have a valid DB client
     let client = get_pg_client().await.map_err(|e| {
-        eprintln!("Error connecting to DB: {:?}", e);
-        actix_web::error::ErrorInternalServerError("DB Connection Error")
+        eprintln!("Error connecting to database: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
 
-    // 2) Load or create Stripe Customer
     let stripe_config = Config::from_env().map_err(|e| {
-        eprintln!("Stripe configuration error: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Stripe Config Error")
+        eprintln!("Error loading Stripe configuration: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
 
-    let tier = form.tier.clone();
-    let user_id = &user_info.user_id;
-
+    // Get customer ID from database or create new customer
     let row = client
         .query_opt(
             "SELECT customer_id FROM users WHERE user_id = $1",
-            &[user_id],
-        )
-        .await
-        .map_err(|_| actix_web::error::ErrorInternalServerError("Failed to query user"))?;
-
-    let customer_id = match row {
-        Some(r) => {
-            let cid: Option<String> = r.get("customer_id");
-            if let Some(c) = cid {
-                c
-            } else {
-                // Create a new Stripe customer
-                let email = user_info.email.clone().unwrap_or_default();
-                let ncid = create_stripe_customer(&email).await.map_err(|e| {
-                    eprintln!("Stripe create customer error: {:?}", e);
-                    actix_web::error::ErrorInternalServerError("Could not create stripe customer")
-                })?;
-                client
-                    .execute(
-                        "UPDATE users SET customer_id = $1 WHERE user_id = $2",
-                        &[&ncid, user_id],
-                    )
-                    .await
-                    .map_err(|e| {
-                        eprintln!("Failed to update user with new customer_id: {:?}", e);
-                        actix_web::error::ErrorInternalServerError("DB error updating user")
-                    })?;
-                ncid
-            }
-        }
-        None => {
-            // No record found, create new customer
-            let email = user_info.email.clone().unwrap_or_default();
-            let ncid = create_stripe_customer(&email).await.map_err(|e| {
-                eprintln!("Stripe create customer error: {:?}", e);
-                actix_web::error::ErrorInternalServerError("Could not create stripe customer")
-            })?;
-            client
-                .execute(
-                    "UPDATE users SET customer_id = $1 WHERE user_id = $2",
-                    &[&ncid, user_id],
-                )
-                .await
-                .map_err(|e| {
-                    eprintln!("Failed to update user with new customer_id: {:?}", e);
-                    actix_web::error::ErrorInternalServerError("DB error updating user")
-                })?;
-            ncid
-        }
-    };
-
-    // 3) Create or Update the subscription in Stripe
-    let subscription_json = create_stripe_subscription(
-        &customer_id,
-        &tier, // e.g. "price_1234"
-        &stripe_config,
-    )
-    .await
-    .map_err(|e| {
-        eprintln!("Error creating subscription in stripe: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Could not create subscription")
-    })?;
-
-    let stripe_subscription_id = subscription_json["id"]
-        .as_str()
-        .unwrap_or_default()
-        .to_string();
-
-    // 4) Insert or update your local `subscriptions` table
-    client
-        .execute(
-            r#"
-            INSERT INTO subscriptions (user_id, stripe_subscription_id, tier, last_paid_date, last_paid_status)
-            VALUES ($1, $2, $3, NOW(), 'True')
-            ON CONFLICT (user_id) DO UPDATE
-              SET stripe_subscription_id = EXCLUDED.stripe_subscription_id,
-                  tier = EXCLUDED.tier,
-                  updated_at = NOW()
-            "#,
-            &[user_id, &stripe_subscription_id, &form.tier],
-        )
-        .await
-        .map_err(|e| {
-            eprintln!("Failed inserting subscription locally: {:?}", e);
-            actix_web::error::ErrorInternalServerError("DB error inserting subscription")
-        })?;
-
-    // 5) Optionally set the new default payment method from user's setup if desired
-    //    e.g., if the user just added a card via setup_intent, etc.
-    if let Err(e) = set_default_payment_method(&customer_id, &stripe_config).await {
-        eprintln!("Could not set default payment method: {:?}", e);
-    }
-
-    // 6) Return subscription object from Stripe
-    Ok(HttpResponse::Ok().json(subscription_json))
-}
-
-/// DELETE /subscribe
-/// Cancel the user's subscription in Stripe and mark it canceled in your local DB.
-pub async fn cancel_subscription(user_info: web::ReqData<UserInfo>) -> Result<HttpResponse, Error> {
-    let mut client = get_pg_client().await.map_err(|e| {
-        eprintln!("DB connection error: {:?}", e);
-        actix_web::error::ErrorInternalServerError("DB connection error")
-    })?;
-
-    let stripe_config = Config::from_env().map_err(|e| {
-        eprintln!("Stripe config error: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Stripe Config Error")
-    })?;
-
-    // Get the user's subscription
-    let subscription_row = client
-        .query_opt(
-            "SELECT stripe_subscription_id FROM subscriptions WHERE user_id = $1",
             &[&user_info.user_id],
         )
         .await
         .map_err(|e| {
-            eprintln!("Query error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to query subscription")
+            eprintln!("Database error: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Database error")
         })?;
 
-    if let Some(row) = subscription_row {
-        let stripe_sub_id: String = row.get("stripe_subscription_id");
-        // Cancel in Stripe
-        let canceled_sub = cancel_stripe_subscription(&stripe_sub_id, false, false, &stripe_config)
-            .await
-            .map_err(|e| {
-                eprintln!("Failed to cancel subscription in Stripe: {:?}", e);
-                actix_web::error::ErrorInternalServerError("Stripe cancel subscription failed")
+    let customer_id = if let Some(row) = row {
+        row.get::<_, Option<String>>("customer_id")
+    } else {
+        None
+    };
+
+    let customer_id = match customer_id {
+        Some(id) if !id.is_empty() => id,
+        _ => {
+            // Create new Stripe customer
+            let email = user_info
+                .email
+                .as_ref()
+                .ok_or_else(|| actix_web::error::ErrorBadRequest("User email is required"))?;
+            let new_customer_id = create_stripe_customer(email).await.map_err(|e| {
+                eprintln!("Error creating Stripe customer: {:?}", e);
+                actix_web::error::ErrorInternalServerError("Error creating Stripe customer")
             })?;
 
-        // Mark local subscription as canceled
-        client
-            .execute(
-                "UPDATE subscriptions SET last_paid_status = 'Canceled', updated_at = NOW() WHERE user_id = $1",
-                &[&user_info.user_id],
-            )
-            .await
-            .map_err(|e| {
-                eprintln!("Failed to update local subscription: {:?}", e);
-                actix_web::error::ErrorInternalServerError("DB update failed")
-            })?;
+            // Update user with new customer_id
+            client
+                .execute(
+                    "UPDATE users SET customer_id = $1 WHERE user_id = $2",
+                    &[&new_customer_id, &user_info.user_id],
+                )
+                .await
+                .map_err(|e| {
+                    eprintln!("Error updating user with customer_id: {:?}", e);
+                    actix_web::error::ErrorInternalServerError("Database error")
+                })?;
 
-        return Ok(HttpResponse::Ok().json(canceled_sub));
-    }
+            new_customer_id
+        }
+    };
 
-    Ok(HttpResponse::NotFound().json("No active subscription found"))
+    let session = create_stripe_checkout_session(&customer_id, &form.tier, &stripe_config)
+        .await
+        .map_err(|e| {
+            eprintln!("Error creating checkout session: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Error creating checkout session")
+        })?;
+
+    Ok(HttpResponse::Ok().json(session))
 }
 
 /// Helper to find user_id from a Stripe "Expandable<Customer>".
@@ -724,44 +629,34 @@ async fn find_user_id_by_customer(
         .map(|row| row.get("user_id"))
 }
 
-pub async fn update_subscription_tier(
+pub async fn get_billing_portal_session(
     user_info: web::ReqData<UserInfo>,
-    form: web::Json<SubscriptionRequest>,
 ) -> Result<HttpResponse, Error> {
     let client = get_pg_client().await.map_err(|e| {
-        eprintln!("DB connection error: {:?}", e);
-        actix_web::error::ErrorInternalServerError("DB connection error")
+        eprintln!("Error connecting to database: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Database connection error")
     })?;
 
     let stripe_config = Config::from_env().map_err(|e| {
-        eprintln!("Stripe config error: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Stripe Config Error")
+        eprintln!("Error loading Stripe configuration: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Configuration error")
     })?;
 
-    let subscription_row = client
+    let row = client
         .query_opt(
-            "SELECT stripe_subscription_id FROM subscriptions WHERE user_id = $1",
+            "SELECT customer_id FROM users WHERE user_id = $1",
             &[&user_info.user_id],
         )
         .await
         .map_err(|e| {
-            eprintln!("Query error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to query subscription")
+            eprintln!("Error querying database: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Database error")
         })?;
 
-    if let Some(row) = subscription_row {
-        let stripe_sub_id: String = row.get("stripe_subscription_id");
+    let customer_id = row
+        .and_then(|r| r.get::<_, Option<String>>("customer_id"))
+        .ok_or_else(|| actix_web::error::ErrorBadRequest("No customer ID found for user"))?;
 
-        let updated_subscription =
-            update_stripe_subscription(&stripe_sub_id, &form.tier, &stripe_config)
-                .await
-                .map_err(|e| {
-                    eprintln!("Failed to update subscription in Stripe: {:?}", e);
-                    actix_web::error::ErrorInternalServerError("Stripe update subscription failed")
-                })?;
-
-        return Ok(HttpResponse::Ok().json(updated_subscription));
-    }
-
-    Ok(HttpResponse::NotFound().json("No active subscription found"))
+    let session = create_stripe_billing_portal_session(&customer_id, &stripe_config).await?;
+    Ok(HttpResponse::Ok().json(session))
 }
