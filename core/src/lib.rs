@@ -37,7 +37,7 @@ use routes::stripe::{
 use routes::task::{
     cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
 };
-use routes::tasks::{get_task_details_route, get_tasks_route};
+use routes::tasks::get_tasks_route;
 use routes::user::get_or_create_user;
 use utils::clients::initialize;
 use utils::routes::admin_user::get_or_create_admin_user;
@@ -184,8 +184,7 @@ pub fn main() -> std::io::Result<()> {
                         .route("/{task_id}", web::patch().to(update_task_route))
                         .route("/{task_id}/cancel", web::get().to(cancel_task_route)),
                 )
-                .route("/tasks", web::get().to(get_tasks_route))
-                .route("/tasks/details", web::get().to(get_task_details_route))
+                .route("/tasks", web::post().to(get_tasks_route))
                 .route("/usage/monthly", web::get().to(get_monthly_usage));
 
             if std::env::var("STRIPE__API_KEY").is_ok() {
