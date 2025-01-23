@@ -1,13 +1,13 @@
-use crate::utils::clients::get_pg_client;
 use crate::configs::stripe_config::Config;
 use crate::models::chunkr::auth::UserInfo;
 use crate::models::chunkr::user::{InvoiceStatus, Tier, UsageType};
+use crate::utils::clients::get_pg_client;
 use crate::utils::routes::get_user::get_monthly_usage_count;
 use crate::utils::routes::get_user::{get_invoice_information, get_invoices};
 use crate::utils::stripe::stripe_utils::{
     cancel_stripe_subscription, create_customer_session, create_stripe_customer,
-create_stripe_setup_intent, create_stripe_subscription,
-    set_default_payment_method, update_invoice_status, update_stripe_subscription
+    create_stripe_setup_intent, create_stripe_subscription, set_default_payment_method,
+    update_invoice_status, update_stripe_subscription,
 };
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use postgres_types::ToSql;
@@ -28,9 +28,7 @@ pub struct SubscriptionRequest {
     pub tier: String, // e.g. "Starter", "Dev", etc.
 }
 
-pub async fn create_setup_intent(
-    user_info: web::ReqData<UserInfo>,
-) -> Result<HttpResponse, Error> {
+pub async fn create_setup_intent(user_info: web::ReqData<UserInfo>) -> Result<HttpResponse, Error> {
     let client = get_pg_client().await.map_err(|e| {
         eprintln!("Error connecting to database: {:?}", e);
         actix_web::error::ErrorInternalServerError("Database connection error")
@@ -169,10 +167,7 @@ pub async fn create_stripe_session(
     Ok(HttpResponse::Ok().json(session))
 }
 
-pub async fn stripe_webhook(
-    req: HttpRequest,
-    payload: web::Bytes,
-) -> Result<HttpResponse, Error> {
+pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<HttpResponse, Error> {
     let stripe_config = Config::from_env().map_err(|e| {
         eprintln!("Error loading Stripe configuration: {:?}", e);
         actix_web::error::ErrorInternalServerError("Configuration error")
@@ -198,11 +193,11 @@ pub async fn stripe_webhook(
         actix_web::error::ErrorInternalServerError("DB error")
     })?;
 
-
     match event.type_ {
         EventType::CustomerSubscriptionCreated => {
             if let stripe::EventObject::Subscription(sub) = event.data.object {
-                let user_id_opt: Option<String> = find_user_id_by_customer(&sub.customer, &client).await;
+                let user_id_opt: Option<String> =
+                    find_user_id_by_customer(&sub.customer, &client).await;
                 if let Some(user_id) = user_id_opt {
                     let stripe_sub_id = sub.id.to_string();
                     let last_paid_status = match sub.status.as_str() {
@@ -215,7 +210,7 @@ pub async fn stripe_webhook(
                                 x if x == stripe_config.starter_price_id => "Starter",
                                 x if x == stripe_config.dev_price_id => "Dev",
                                 x if x == stripe_config.team_price_id => "Team",
-                                _ => "Free"
+                                _ => "Free",
                             }
                         } else {
                             "Free"
@@ -268,19 +263,24 @@ pub async fn stripe_webhook(
                                     EXTRACT(YEAR FROM CURRENT_TIMESTAMP) as year,
                                     EXTRACT(MONTH FROM CURRENT_TIMESTAMP) as month,
                                     $2 as tier,
-                                    t.usage_limit
+                                    t.usage_limit,
+                                    CURRENT_TIMESTAMP as billing_cycle_start,
+                                    CURRENT_TIMESTAMP + INTERVAL '30 days' as billing_cycle_end
                                 FROM tiers t
                                 WHERE t.tier = $2
                             )
                             INSERT INTO monthly_usage (
                                 user_id, usage_type, usage, overage_usage,
-                                year, month, tier, usage_limit
+                                year, month, tier, usage_limit,
+                                billing_cycle_start, billing_cycle_end
                             )
                             SELECT * FROM new_data
                             ON CONFLICT (user_id, usage_type, year, month)
                             DO UPDATE
                             SET tier = EXCLUDED.tier,
-                                usage_limit = EXCLUDED.usage_limit",
+                                usage_limit = EXCLUDED.usage_limit,
+                                billing_cycle_start = EXCLUDED.billing_cycle_start,
+                                billing_cycle_end = EXCLUDED.billing_cycle_end",
                             &[&user_id, &tier],
                         )
                         .await;
@@ -299,9 +299,9 @@ pub async fn stripe_webhook(
                         if let Some(price) = &item.price {
                             let new_tier = match price.id.as_str() {
                                 x if x == stripe_config.starter_price_id => "Starter",
-                                x if x == stripe_config.dev_price_id => "Dev", 
+                                x if x == stripe_config.dev_price_id => "Dev",
                                 x if x == stripe_config.team_price_id => "Team",
-                                _ => "Free"
+                                _ => "Free",
                             };
                             let last_paid_status = match sub.status.as_str() {
                                 "active" | "trialing" => "True",
@@ -334,12 +334,7 @@ pub async fn stripe_webhook(
                                         invoice_status = $2
                                     FROM sub_upsert s
                                     WHERE u.user_id = $4",
-                                    &[
-                                        &sub.id.to_string(),
-                                        &last_paid_status,
-                                        &new_tier,
-                                        &user_id,
-                                    ],
+                                    &[&sub.id.to_string(), &last_paid_status, &new_tier, &user_id],
                                 )
                                 .await;
 
@@ -446,10 +441,13 @@ pub async fn stripe_webhook(
                         Some(StripeInvoiceStatus::Paid) => InvoiceStatus::Paid.to_string(),
                         Some(StripeInvoiceStatus::Open) => InvoiceStatus::Ongoing.to_string(),
                         Some(StripeInvoiceStatus::Void) => InvoiceStatus::Canceled.to_string(),
-                        Some(StripeInvoiceStatus::Uncollectible) => InvoiceStatus::NoInvoice.to_string(),
+                        Some(StripeInvoiceStatus::Uncollectible) => {
+                            InvoiceStatus::NoInvoice.to_string()
+                        }
                         _ => "Unknown".to_string(),
                     };
-                    let _ = update_invoice_status(&stripe_invoice_id, &user_id, &invoice_status).await;
+                    let _ =
+                        update_invoice_status(&stripe_invoice_id, &user_id, &invoice_status).await;
                 }
             }
         }
@@ -484,7 +482,9 @@ pub async fn stripe_webhook(
                         Some(StripeInvoiceStatus::Paid) => InvoiceStatus::Paid.to_string(),
                         Some(StripeInvoiceStatus::Open) => InvoiceStatus::Ongoing.to_string(),
                         Some(StripeInvoiceStatus::Void) => InvoiceStatus::Canceled.to_string(),
-                        Some(StripeInvoiceStatus::Uncollectible) => InvoiceStatus::NoInvoice.to_string(),
+                        Some(StripeInvoiceStatus::Uncollectible) => {
+                            InvoiceStatus::NoInvoice.to_string()
+                        }
                         _ => "Unknown".to_string(),
                     };
                     let _ = update_invoice_status(&stripe_invoice_id, &user_id, &status_str).await;
@@ -496,10 +496,12 @@ pub async fn stripe_webhook(
         }
     }
 
-    println!("Webhook processed successfully for event type: {:?}", event.type_);
+    println!(
+        "Webhook processed successfully for event type: {:?}",
+        event.type_
+    );
     Ok(HttpResponse::Ok().finish())
 }
-
 
 // Define a route to get invoices for a user
 pub async fn get_user_invoices(
@@ -649,9 +651,7 @@ pub async fn subscribe_user(
 
 /// DELETE /subscribe
 /// Cancel the user's subscription in Stripe and mark it canceled in your local DB.
-pub async fn cancel_subscription(
-    user_info: web::ReqData<UserInfo>,
-) -> Result<HttpResponse, Error> {
+pub async fn cancel_subscription(user_info: web::ReqData<UserInfo>) -> Result<HttpResponse, Error> {
     let mut client = get_pg_client().await.map_err(|e| {
         eprintln!("DB connection error: {:?}", e);
         actix_web::error::ErrorInternalServerError("DB connection error")
@@ -724,8 +724,6 @@ async fn find_user_id_by_customer(
         .map(|row| row.get("user_id"))
 }
 
-
-
 pub async fn update_subscription_tier(
     user_info: web::ReqData<UserInfo>,
     form: web::Json<SubscriptionRequest>,
@@ -754,12 +752,13 @@ pub async fn update_subscription_tier(
     if let Some(row) = subscription_row {
         let stripe_sub_id: String = row.get("stripe_subscription_id");
 
-        let updated_subscription = update_stripe_subscription(&stripe_sub_id, &form.tier, &stripe_config)
-            .await
-            .map_err(|e| {
-                eprintln!("Failed to update subscription in Stripe: {:?}", e);
-                actix_web::error::ErrorInternalServerError("Stripe update subscription failed")
-            })?;
+        let updated_subscription =
+            update_stripe_subscription(&stripe_sub_id, &form.tier, &stripe_config)
+                .await
+                .map_err(|e| {
+                    eprintln!("Failed to update subscription in Stripe: {:?}", e);
+                    actix_web::error::ErrorInternalServerError("Stripe update subscription failed")
+                })?;
 
         return Ok(HttpResponse::Ok().json(updated_subscription));
     }

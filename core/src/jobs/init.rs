@@ -33,7 +33,7 @@ pub fn run_invoice_job() {
         loop {
             interval.tick().await;
             println!("Processing daily invoices");
-            if let Err(e) = invoice(None).await {
+            if let Err(e) = invoice().await {
                 eprintln!("Error processing daily invoices: {}", e);
             }
         }
