@@ -33,7 +33,6 @@ use routes::stripe::{
     create_setup_intent, create_stripe_session, get_invoice_detail, get_monthly_usage,
     get_user_invoices, stripe_webhook,
 };
-use routes::structured_extraction::handle_structured_extraction_route;
 use routes::task::{
     cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
 };
@@ -87,11 +86,6 @@ fn run_migrations(url: &str) {
             models::chunkr::segment_processing::GenerationStrategy,
             models::chunkr::segment_processing::LlmGenerationConfig,
             models::chunkr::segment_processing::SegmentProcessing,
-            models::chunkr::structured_extraction::ExtractionType,
-            models::chunkr::structured_extraction::JsonSchema,
-            models::chunkr::structured_extraction::StructuredExtraction,
-            models::chunkr::structured_extraction::StructuredExtractionRequest,
-            models::chunkr::structured_extraction::StructuredExtractionResponse,
             models::chunkr::task::Configuration,
             models::chunkr::task::Model,
             models::chunkr::task::Status,
@@ -181,10 +175,6 @@ pub fn main() -> std::io::Result<()> {
             let api_scope = web::scope("/api/v1")
                 .wrap(AuthMiddlewareFactory)
                 .route("/user", web::get().to(get_or_create_user))
-                .route(
-                    "/structured_extract",
-                    web::post().to(handle_structured_extraction_route),
-                )
                 .service(
                     web::scope("/task")
                         .route("", web::post().to(create_task_route))

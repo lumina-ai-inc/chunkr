@@ -4,7 +4,6 @@ use crate::models::chunkr::output::{OutputResponse, Segment, SegmentType};
 use crate::models::chunkr::segment_processing::{
     GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
 };
-use crate::models::chunkr::structured_extraction::StructuredExtraction;
 use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::clients::get_pg_client;
 use crate::utils::services::file_operations::check_file_type;
@@ -624,6 +623,7 @@ pub enum PipelineType {
     Azure,
 }
 
+// Note: Configuration requires depreacted fields for backwards compatiblity
 #[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
 /// The configuration used for the task.
 pub struct Configuration {
@@ -642,7 +642,6 @@ pub struct Configuration {
     pub ocr_strategy: OcrStrategy,
     pub segment_processing: SegmentProcessing,
     pub segmentation_strategy: SegmentationStrategy,
-    pub structured_extraction: Option<StructuredExtraction>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated]
     /// The target number of words in each chunk. If 0, each chunk will contain a single segment.

@@ -1,5 +1,4 @@
 use crate::models::chunkr::search::SimpleChunk;
-use crate::models::chunkr::structured_extraction::StructuredExtractionResponse;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
@@ -10,15 +9,11 @@ use utoipa::ToSchema;
 pub struct OutputResponse {
     /// Collection of document chunks, where each chunk contains one or more segments
     pub chunks: Vec<Chunk>,
-    pub structured_extraction: Option<StructuredExtractionResponse>,
 }
 
 impl Default for OutputResponse {
     fn default() -> Self {
-        Self {
-            chunks: vec![],
-            structured_extraction: None,
-        }
+        Self { chunks: vec![] }
     }
 }
 
