@@ -1,0 +1,43 @@
+output
+test
+output-gpu
+staging
+examples
+annotated
+annotated-gpu
+sample
+.DS_Store
+# Ignore Rust build artifacts
+target/
+**/*.rs.bk
+
+# Ignore environment variable files
+.env
+
+# Ignore specific IDE/editor files
+.idea/
+.vscode/
+*.swp
+
+# Ignore compiled libraries
+*.rlib
+
+# Ignore Cargo.lock if it's a library
+Cargo.lock
+
+# Ignore backup files
+*.bak
+*.tmp
+
+.lh
+
+.env.local
+.env.loc
+.env.prod.DS_Store
+.env.loc
+.DS_Store
+cmd.txt
+
+pdfium-binaries
+
+.cargo
