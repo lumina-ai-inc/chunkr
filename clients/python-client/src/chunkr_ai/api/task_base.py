@@ -1,4 +1,4 @@
-from .config import Configuration, Status, OutputResponse
+from .config import Configuration, OutputConfiguration, OutputResponse, Status
 from .protocol import ChunkrClientProtocol
 from abc import ABC, abstractmethod
 from typing import TypeVar, Optional, Generic
@@ -8,16 +8,12 @@ from datetime import datetime
 T = TypeVar("T", bound="TaskBase")
 
 class TaskBase(BaseModel, ABC, Generic[T]):
-    configuration: Configuration
+    configuration: OutputConfiguration
     created_at: datetime
     expires_at: Optional[datetime]
-    file_name: Optional[str]
     finished_at: Optional[datetime]
-    input_file_url: Optional[str]
     message: str
     output: Optional[OutputResponse]
-    page_count: Optional[int]
-    pdf_url: Optional[str]
     started_at: Optional[datetime]
     status: Status
     task_id: str
