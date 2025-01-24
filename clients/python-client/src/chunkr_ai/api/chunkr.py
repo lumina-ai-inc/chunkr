@@ -1,78 +1,85 @@
-from .chunkr_base import ChunkrBase
-from .config import Configuration
-from .task import TaskResponse
 from pathlib import Path
 from PIL import Image
-import requests
 from typing import Union, BinaryIO
-from .misc import prepare_upload_data
 
+from .config import Configuration
+from .decorators import anywhere, ensure_client
+from .misc import prepare_upload_data
+from .task_response import TaskResponse
+from .chunkr_base import ChunkrBase
 
 class Chunkr(ChunkrBase):
-    """Chunkr API client"""
-
-    def __init__(self, url: str = None, api_key: str = None):
-        super().__init__(url, api_key)
-        self._session = requests.Session()
-
-    def upload(
+    """Chunkr API client that works in both sync and async contexts"""
+    
+    @anywhere()
+    @ensure_client()
+    async def upload(
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
     ) -> TaskResponse:
-        task = self.create_task(file, config)
-        return task.poll()
+        task = await self.create_task(file, config)
+        return await task.poll()
 
-    def update(self, task_id: str, config: Configuration) -> TaskResponse:
-        task = self.update_task(task_id, config)
-        return task.poll()
+    @anywhere()
+    @ensure_client()
+    async def update(self, task_id: str, config: Configuration) -> TaskResponse:
+        task = await self.update_task(task_id, config)
+        return await task.poll()
 
-    def create_task(
+    @anywhere()
+    @ensure_client()
+    async def create_task(
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
     ) -> TaskResponse:
         files = prepare_upload_data(file, config)
-        if not self._session:
-            raise ValueError("Session not found")
-        r = self._session.post(
+        r = await self._client.post(
             f"{self.url}/api/v1/task", files=files, headers=self._headers()
         )
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self)
 
-    def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
+    @anywhere()
+    @ensure_client()
+    async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
         files = prepare_upload_data(None, config)
-        if not self._session:
-            raise ValueError("Session not found")
-        r = self._session.patch(
-            f"{self.url}/api/v1/task/{task_id}", files=files, headers=self._headers()
+        r = await self._client.patch(
+            f"{self.url}/api/v1/task/{task_id}",
+            files=files,
+            headers=self._headers(),
         )
-
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self)
 
-    def get_task(self, task_id: str) -> TaskResponse:
-        if not self._session:
-            raise ValueError("Session not found")
-        r = self._session.get(
+    @anywhere()
+    @ensure_client()
+    async def get_task(self, task_id: str) -> TaskResponse:
+        r = await self._client.get(
             f"{self.url}/api/v1/task/{task_id}", headers=self._headers()
         )
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self)
 
-    def delete_task(self, task_id: str) -> None:
-        if not self._session:
-            raise ValueError("Session not found")
-        r = self._session.delete(
+    @anywhere()
+    @ensure_client()
+    async def delete_task(self, task_id: str) -> None:
+        r = await self._client.delete(
             f"{self.url}/api/v1/task/{task_id}", headers=self._headers()
         )
         r.raise_for_status()
 
-    def cancel_task(self, task_id: str) -> None:
-        if not self._session:
-            raise ValueError("Session not found")
-        r = self._session.get(
+    @ensure_client()
+    @anywhere()
+    async def cancel_task(self, task_id: str) -> None:
+        r = await self._client.get(
             f"{self.url}/api/v1/task/{task_id}/cancel", headers=self._headers()
         )
         r.raise_for_status()
+
+    @anywhere()
+    async def close(self):
+        if self._client:
+            await self._client.aclose()
+            self._client = None

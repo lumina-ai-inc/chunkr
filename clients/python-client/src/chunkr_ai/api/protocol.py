@@ -1,5 +1,4 @@
 from typing import Optional, runtime_checkable, Protocol
-from requests import Session
 from httpx import AsyncClient
 
 
@@ -9,7 +8,6 @@ class ChunkrClientProtocol(Protocol):
 
     url: str
     _api_key: str
-    _session: Optional[Session] = None
     _client: Optional[AsyncClient] = None
 
     def get_api_key(self) -> str:
