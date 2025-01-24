@@ -1,8 +1,6 @@
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 from enum import Enum
 from typing import Optional, List, Dict, Union, Type
-from .schema import from_pydantic
-
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
@@ -113,7 +111,7 @@ class Model(str, Enum):
     FAST = "Fast"
     HIGH_QUALITY = "HighQuality"
 
-class PipelineType(str, Enum):
+class Pipeline(str, Enum):
     AZURE = "Azure"
 
 class Configuration(BaseModel):
@@ -124,7 +122,7 @@ class Configuration(BaseModel):
     ocr_strategy: Optional[OcrStrategy] = None
     segment_processing: Optional[SegmentProcessing] = None
     segmentation_strategy: Optional[SegmentationStrategy] = None
-    pipeline: Optional[PipelineType] = None
+    pipeline: Optional[Pipeline] = None
     
 class OutputConfiguration(Configuration):
     input_file_url: Optional[str] = None
