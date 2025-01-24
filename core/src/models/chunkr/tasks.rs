@@ -1,5 +1,4 @@
-use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct TasksQuery {
