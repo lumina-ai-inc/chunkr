@@ -1,4 +1,4 @@
-use crate::models::chunkr::output::OutputResponse;
+use crate::models::chunkr::output::Chunk;
 use crate::models::chunkr::task::{Status, Task, TaskPayload};
 use crate::utils::services::file_operations::convert_to_pdf;
 use crate::utils::services::pdf::count_pages;
@@ -12,7 +12,7 @@ use tempfile::NamedTempFile;
 #[derive(Debug, Clone)]
 pub struct Pipeline {
     pub input_file: Option<Arc<NamedTempFile>>,
-    pub output: OutputResponse,
+    pub chunks: Vec<Chunk>,
     pub page_images: Option<Vec<Arc<NamedTempFile>>>,
     pub pdf_file: Option<Arc<NamedTempFile>>,
     pub segment_images: DashMap<String, Arc<NamedTempFile>>,
@@ -24,7 +24,7 @@ impl Pipeline {
     pub fn new() -> Self {
         Self {
             input_file: None,
-            output: OutputResponse::default(),
+            chunks: Vec::new(),
             page_images: None,
             pdf_file: None,
             segment_images: DashMap::new(),
@@ -60,7 +60,7 @@ impl Pipeline {
                 .into_iter()
                 .map(|(k, v)| (k, Arc::new(v)))
                 .collect();
-            self.output = output;
+            self.chunks = output.chunks;
             println!("Task initialized with artifacts");
         } else {
             self.input_file = Some(Arc::new(
@@ -142,12 +142,12 @@ impl Pipeline {
             message: Option<String>,
             page_images: Vec<Arc<NamedTempFile>>,
             segment_images: &DashMap<String, Arc<NamedTempFile>>,
-            output: &OutputResponse,
+            chunks: Vec<Chunk>,
             pdf_file: Arc<NamedTempFile>,
             finished_at: DateTime<Utc>,
             expires_at: Option<DateTime<Utc>>,
         ) -> Result<(), Box<dyn Error>> {
-            task.upload_artifacts(page_images, segment_images, output, &pdf_file)
+            task.upload_artifacts(page_images, segment_images, chunks, &pdf_file)
                 .await?;
             task.update(
                 Some(status),
@@ -185,7 +185,7 @@ impl Pipeline {
                 message,
                 self.page_images.clone().unwrap(),
                 &self.segment_images,
-                &self.output,
+                self.chunks.clone(),
                 self.pdf_file.clone().unwrap(),
                 finished_at,
                 expires_at,

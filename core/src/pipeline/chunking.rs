@@ -21,7 +21,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .await?;
 
     let segments: Vec<Segment> = pipeline
-        .output
         .chunks
         .clone()
         .into_iter()
@@ -37,6 +36,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         chunk_processing.ignore_headers_and_footers,
     )?;
 
-    pipeline.output.chunks = chunks;
+    pipeline.chunks = chunks;
     Ok(())
 }
