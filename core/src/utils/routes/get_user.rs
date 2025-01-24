@@ -95,7 +95,7 @@ pub struct MonthlyUsage {
     pub email: Option<String>,
     pub last_paid_status: Option<String>,
     pub month: String,
-    pub total_cost: f64,
+    pub subscription_cost: f64,
     pub usage_limit: i32,
     pub usage: Option<i32>,
     pub overage_cost: f64,
@@ -121,7 +121,7 @@ pub async fn get_monthly_usage_count(
             mu.tier,
             mu.billing_cycle_start,
             mu.billing_cycle_end,
-            CAST(t.price_per_month + (mu.overage_usage * t.overage_rate) AS DOUBLE PRECISION) as total_cost
+            CAST(t.price_per_month AS DOUBLE PRECISION) as subscription_cost
         FROM users u
         LEFT JOIN monthly_usage mu ON u.user_id = mu.user_id
         LEFT JOIN tiers t ON mu.tier = t.tier
@@ -139,7 +139,7 @@ pub async fn get_monthly_usage_count(
             email: row.get("email"),
             last_paid_status: row.get("invoice_status"),
             month: row.get("month"),
-            total_cost: row.get::<_, f64>("total_cost"),
+            subscription_cost: row.get::<_, f64>("subscription_cost"),
             usage_limit: row.get("usage_limit"),
             usage: row.get("usage"),
             tier: row.get("tier"),
