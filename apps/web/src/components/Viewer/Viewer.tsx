@@ -17,7 +17,7 @@ const PAGE_CHUNK_SIZE = 5; // Number of pages to load at a time
 
 export default function Viewer({ task }: { task: TaskResponse }) {
   const output = task.output;
-  const inputFileUrl = task.input_file_url;
+  const inputFileUrl = task.configuration.input_file_url;
   const memoizedOutput = useMemo(() => output, [output]);
   const [showConfig, setShowConfig] = useState(false);
   const [leftPanelWidth, setLeftPanelWidth] = useState(0);
@@ -166,8 +166,8 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   }, [inputFileUrl]);
 
   const handleDownloadPDF = useCallback(() => {
-    if (task.pdf_url) {
-      const pdfURL = task.pdf_url;
+    if (task.output?.pdf_url) {
+      const pdfURL = task.output.pdf_url;
       if (pdfURL) {
         window.open(pdfURL, "_blank");
       }
@@ -175,9 +175,9 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   }, [task]);
 
   const handleDownloadJSON = useCallback(() => {
-    console.log("handle JSON clicked", output);
-    if (output) {
-      const jsonString = JSON.stringify(output, null, 2);
+
+    if (task) {
+      const jsonString = JSON.stringify(task, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -193,7 +193,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
       a.click();
       URL.revokeObjectURL(url);
     }
-  }, [output, inputFileUrl]);
+  }, [task, inputFileUrl]);
 
   const handleDownloadHTML = useCallback(() => {
     if (output) {
@@ -336,9 +336,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   }, []);
 
   // Add a check for structured extraction availability
-  const hasStructuredExtraction = useMemo(() => {
-    return !!output?.extracted_json;
-  }, [output?.extracted_json]);
+
 
   const renderDownloadDropdown = () => (
     <div
@@ -544,37 +542,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
               Markdown
             </Text>
           </BetterButton>
-          {hasStructuredExtraction && (
-            <BetterButton
-              onClick={() => setSelectedView("structured")}
-              active={selectedView === "structured"}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 48 48"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-              >
-                <title>split</title>
-                <g id="Layer_2" data-name="Layer 2">
-                  <g id="icons_Q2" data-name="icons Q2">
-                    <path
-                      fill="#fff"
-                      d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"
-                    />
-                  </g>
-                </g>
-              </svg>
-              <Text
-                size="2"
-                weight="medium"
-                style={{ color: "rgba(255, 255, 255, 0.95)" }}
-              >
-                Structured Extraction
-              </Text>
-            </BetterButton>
-          )}
+
         </Flex>
         <Flex className="viewer-header-right-buttons" gap="16px">
           {renderDownloadDropdown()}
@@ -709,10 +677,10 @@ export default function Viewer({ task }: { task: TaskResponse }) {
           minSize={20}
           style={{ backgroundColor: "rgba(255, 255, 255, 0.03)" }}
         >
-          {inputFileUrl && memoizedOutput && (
+          {memoizedOutput && memoizedOutput.pdf_url && (
             <MemoizedPDF
               content={memoizedOutput.chunks}
-              inputFileUrl={inputFileUrl}
+              inputFileUrl={memoizedOutput.pdf_url}
               onSegmentClick={handlePDFSegmentClick}
               activeSegment={activeSegment}
               loadedPages={loadedPages}

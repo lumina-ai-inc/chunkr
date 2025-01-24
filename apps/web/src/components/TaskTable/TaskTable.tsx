@@ -74,7 +74,7 @@ const TaskTable = () => {
 
   const handleTaskClick = (task: TaskResponse) => {
     navigate(
-      `/dashboard?taskId=${task.task_id}&pageCount=${task.page_count || 10}&tablePageIndex=${pagination.pageIndex}&tablePageSize=${pagination.pageSize}`
+      `/dashboard?taskId=${task.task_id}&pageCount=${task.output?.page_count || 10}&tablePageIndex=${pagination.pageIndex}&tablePageSize=${pagination.pageSize}`
     );
   };
 
@@ -83,7 +83,7 @@ const TaskTable = () => {
   const columns = useMemo<MRT_ColumnDef<TaskResponse>[]>(
     () => [
       {
-        accessorKey: "file_name",
+        accessorKey: "output.file_name",
         header: "File Name",
         Cell: ({ cell }) => (
           <Tooltip arrow title={cell.getValue<string>()}>
@@ -113,7 +113,7 @@ const TaskTable = () => {
         },
       },
       {
-        accessorKey: "page_count",
+        accessorKey: "output.page_count",
         header: "Pages",
       },
       {
@@ -422,9 +422,9 @@ const TaskTable = () => {
           muiToolbarAlertBannerProps={
             isError
               ? {
-                  color: "error",
-                  children: "Error loading data",
-                }
+                color: "error",
+                children: "Error loading data",
+              }
               : undefined
           }
           renderTopToolbarCustomActions={() => (

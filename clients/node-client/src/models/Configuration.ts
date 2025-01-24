@@ -73,6 +73,7 @@ export class Configuration {
   ocr_strategy?: OcrStrategy;
   segment_processing?: SegmentProcessing;
   segmentation_strategy?: SegmentationStrategy;
+  input_file_url?: string | null;
 
   constructor(config: Partial<Configuration> = {}) {
     Object.assign(this, config);

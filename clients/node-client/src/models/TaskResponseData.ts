@@ -1,3 +1,5 @@
+import { Configuration } from "./Configuration";
+
 export interface BoundingBox {
   left: number;
   top: number;
@@ -46,21 +48,11 @@ export interface Chunk {
   segments: Segment[];
 }
 
-export interface ExtractedField {
-  name: string;
-  field_type: string;
-  value: JsonValue;
-}
-
-export interface ExtractedJson {
-  title: string;
-  schema_type: string;
-  extracted_fields: ExtractedField[];
-}
-
 export interface Output {
+  file_name: string | null;
+  pdf_url: string | null;
+  page_count: number | null;
   chunks: Chunk[];
-  extracted_json: ExtractedJson | null;
 }
 
 export enum Status {
@@ -74,23 +66,13 @@ export enum Status {
 export interface TaskResponseData {
   task_id: string;
   status: Status;
+  configuration: Configuration;
   created_at: string;
   finished_at: string | null;
   expires_at: string | null;
   message: string;
-  input_file_url: string | null;
-  pdf_url: string | null;
   output: Output | null;
   task_url: string | null;
-  file_name: string | null;
-  page_count: number | null;
   error?: string;
 }
 
-type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
