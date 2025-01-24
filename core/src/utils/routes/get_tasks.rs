@@ -1,34 +1,54 @@
-use crate::models::chunkr::task::{Task, TaskDetails, TaskResponse};
+use crate::models::chunkr::task::{Task, TaskResponse};
+use crate::models::chunkr::tasks::TasksQuery;
 use crate::utils::clients::get_pg_client;
 use futures::future::try_join_all;
+
 pub async fn get_tasks(
     user_id: String,
-    page: i64,
-    limit: i64,
-    include_output: bool,
-    start: chrono::DateTime<chrono::Utc>,
-    end: chrono::DateTime<chrono::Utc>,
+    task_query: TasksQuery,
 ) -> Result<Vec<TaskResponse>, Box<dyn std::error::Error>> {
     let client = get_pg_client().await?;
-    let offset = (page - 1) * limit;
+
+    let mut conditions = vec![format!("user_id = '{}'", user_id)];
+    conditions.push("(expires_at > NOW() OR expires_at IS NULL)".to_string());
+
+    if let Some(start) = task_query.start {
+        conditions.push(format!("created_at >= '{}'", start));
+    }
+
+    if let Some(end) = task_query.end {
+        conditions.push(format!("created_at <= '{}'", end));
+    }
+
+    let pagination = match (task_query.page, task_query.limit) {
+        (Some(p), Some(l)) => Ok(format!("OFFSET {} LIMIT {}", (p - 1) * l, l)),
+        (None, Some(l)) => Ok(format!("LIMIT {}", l)),
+        (Some(_), None) => Err(format!("Limit is required when page is provided")),
+        _ => Ok("".to_string()),
+    };
+
+    let query = format!(
+        "SELECT task_id FROM TASKS WHERE {} ORDER BY created_at DESC {}",
+        conditions.join(" AND "),
+        pagination?
+    );
+
     let task_ids = client
-        .query(
-            "SELECT task_id FROM TASKS WHERE user_id = $1 AND (expires_at > NOW() OR expires_at IS NULL) AND created_at >= $4 AND created_at <= $5 ORDER BY created_at DESC OFFSET $2 LIMIT $3",
-            &[&user_id, &offset, &limit, &start, &end]
-        )
+        .query(&query, &[])
         .await?
         .into_iter()
         .map(|row| row.get::<_, String>("task_id"))
         .collect::<Vec<String>>();
-    println!("user_id: {:?}", user_id);
-    println!("task_ids: {:?}", task_ids);
 
     let futures = task_ids.iter().map(|task_id| {
         let user_id = user_id.clone();
         let task_id = task_id.clone();
         async move {
             match Task::get(&task_id, &user_id).await {
-                Ok(task) => match task.to_task_response(include_output).await {
+                Ok(task) => match task
+                    .to_task_response(task_query.include_output.unwrap_or(false))
+                    .await
+                {
                     Ok(response) => {
                         Ok::<Option<TaskResponse>, Box<dyn std::error::Error>>(Some(response))
                     }
