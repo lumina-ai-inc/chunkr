@@ -35,10 +35,9 @@ class TaskResponse(BaseModel, Generic[T]):
             return self
         return None
 
+    @require_task()
     async def _poll_request(self) -> dict:
         try:
-            if not self._client._client:
-                raise ValueError("Client not found")
             r = await self._client._client.get(
                 self.task_url, headers=self._client._headers()
             )
@@ -51,7 +50,6 @@ class TaskResponse(BaseModel, Generic[T]):
             raise
 
     @anywhere()
-    @require_task()
     async def poll(self) -> T:
         """Poll the task for completion."""
         while True:
@@ -66,7 +64,7 @@ class TaskResponse(BaseModel, Generic[T]):
     @require_task()
     async def update(self, config: Configuration) -> T:
         """Update the task configuration."""
-        f = prepare_upload_data(None, config)
+        f = await prepare_upload_data(None, config, self._client._client)
         r = await self._client._client.patch(
             self.task_url, files=f, headers=self._client._headers()
         )
