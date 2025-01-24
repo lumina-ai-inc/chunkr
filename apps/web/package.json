@@ -48,7 +48,6 @@
     "npm": "^10.8.2",
     "oidc-client-ts": "^3.0.1",
     "pdfjs-dist": "^2.6.347",
-    "posthog-js": "^1.167.0",
     "prism-react-renderer": "^2.4.1",
     "prismjs": "^1.29.0",
     "react": "^18.3.1",

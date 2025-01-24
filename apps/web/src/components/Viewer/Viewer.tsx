@@ -8,7 +8,6 @@ import { TaskResponse, Chunk } from "../../models/taskResponse.model";
 import ReactJson from "react-json-view";
 import BetterButton from "../BetterButton/BetterButton";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import StructuredExtractionView from "../StructuredExtractionView/StructuredExtractionView";
 
 const MemoizedPDF = memo(PDF);
 
@@ -624,9 +623,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
           }}
         >
           <div className="scrollable-content">
-            {selectedView === "structured" ? (
-              <StructuredExtractionView task={task} />
-            ) : output.chunks.length === 0 ? (
+            {output.chunks.length === 0 ? (
               <Text
                 size="4"
                 weight="medium"
