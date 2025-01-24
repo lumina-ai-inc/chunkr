@@ -193,13 +193,13 @@ pub async fn create_stripe_checkout_session(
         ("line_items[0][price]", &price_id),
         ("line_items[0][quantity]", "1"),
         ("ui_mode", "embedded"),
-        ("return_url", &return_url),
     ];
 
     let stripe_response = client
         .post("https://api.stripe.com/v1/checkout/sessions")
         .header("Authorization", format!("Bearer {}", stripe_config.api_key))
         .form(&form_data)
+        .query(&[("return_url", return_url)])
         .send()
         .await?;
 
