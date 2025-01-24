@@ -11,10 +11,10 @@ import Loader from "../Loader/Loader";
 import Usage from "../../components/Usage/Usage";
 import { useLocation, useNavigate } from "react-router-dom";
 import UploadDialog from "../../components/Upload/UploadDialog";
-import {
-  createCustomerSession,
-  createSetupIntent,
-} from "../../services/stripeService";
+// import {
+//   createCustomerSession,
+//   createSetupIntent,
+// } from "../../services/stripeService";
 import ApiKeyManagement from "../../components/ApiKeyManagement/ApiKeyManagement";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
 
@@ -27,12 +27,12 @@ export default function Dashboard() {
   const [selectedNav, setSelectedNav] = useState("Tasks");
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  const [showPaymentSetup, setShowPaymentSetup] = useState(false);
-  const [customerSessionSecret, setCustomerSessionSecret] = useState<
-    string | null
-  >(null);
-  const [customerSessionClientSecret, setCustomerSessionClientSecret] =
-    useState<string | null>(null);
+  // const [showPaymentSetup, setShowPaymentSetup] = useState(false);
+  // const [customerSessionSecret, setCustomerSessionSecret] = useState<
+  //   string | null
+  // >(null);
+  // const [customerSessionClientSecret, setCustomerSessionClientSecret] =
+  //   useState<string | null>(null);
   const [isNavOpen, setIsNavOpen] = useState(true);
 
   const location = useLocation();
@@ -264,17 +264,17 @@ export default function Dashboard() {
       ? `${user.data.first_name} ${user.data.last_name}`
       : user?.data?.email || "User";
 
-  const handleAddPaymentMethod = useCallback(async () => {
-    const setupIntent = await createSetupIntent(
-      auth.user?.access_token as string
-    );
-    const customerSession = await createCustomerSession(
-      auth.user?.access_token as string
-    );
-    setCustomerSessionSecret(customerSession.customer_session_secret);
-    setCustomerSessionClientSecret(setupIntent.client_secret);
-    setShowPaymentSetup(true);
-  }, [auth.user?.access_token]);
+  // const handleAddPaymentMethod = useCallback(async () => {
+  //   const setupIntent = await createSetupIntent(
+  //     auth.user?.access_token as string
+  //   );
+  //   const customerSession = await createCustomerSession(
+  //     auth.user?.access_token as string
+  //   );
+  //   setCustomerSessionSecret(customerSession.customer_session_secret);
+  //   setCustomerSessionClientSecret(setupIntent.client_secret);
+  //   setShowPaymentSetup(true);
+  // }, [auth.user?.access_token]);
 
   const content = useMemo(() => {
     switch (selectedNav) {
@@ -303,15 +303,7 @@ export default function Dashboard() {
       case "Usage":
         return {
           title: "Usage",
-          component: (
-            <Usage
-              showPaymentSetup={showPaymentSetup}
-              setShowPaymentSetup={setShowPaymentSetup}
-              customerSessionSecret={customerSessionSecret}
-              customerSessionClientSecret={customerSessionClientSecret}
-              handleAddPaymentMethod={handleAddPaymentMethod}
-            />
-          ),
+          component: <Usage />,
         };
       case "API Keys":
         return {
@@ -324,17 +316,7 @@ export default function Dashboard() {
           component: <TaskTable />,
         };
     }
-  }, [
-    selectedNav,
-    taskId,
-    taskResponse,
-    isLoading,
-    customerSessionClientSecret,
-    customerSessionSecret,
-    showPaymentSetup,
-    handleAddPaymentMethod,
-    user,
-  ]);
+  }, [selectedNav, taskId, taskResponse, isLoading, user]);
 
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);

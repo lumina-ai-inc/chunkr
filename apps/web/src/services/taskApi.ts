@@ -7,12 +7,18 @@ export async function getTask(taskId: string): Promise<TaskResponse> {
 }
 
 export async function getTasks(
-  page: number,
-  limit: number
+  page?: number,
+  limit?: number,
+  start?: string,
+  end?: string
 ): Promise<TaskResponse[]> {
-  const { data } = await axiosInstance.get<TaskResponse[]>(
-    "/api/v1/tasks?page=" + page + "&limit=" + limit
-  );
+  const params = new URLSearchParams();
+  if (page) params.append("page", page.toString());
+  if (limit) params.append("limit", limit.toString());
+  if (start) params.append("start", start);
+  if (end) params.append("end", end);
 
+  const url = `/api/v1/tasks?${params.toString()}`;
+  const { data } = await axiosInstance.get<TaskResponse[]>(url);
   return data;
 }
