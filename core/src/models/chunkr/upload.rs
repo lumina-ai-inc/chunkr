@@ -139,6 +139,7 @@ impl CreateForm {
             chunk_processing: self.get_chunk_processing(),
             expires_in: self.get_expires_in(),
             high_resolution: self.get_high_resolution(),
+            input_file_url: None,
             json_schema: None,
             model: None,
             ocr_strategy: self.get_ocr_strategy(),
@@ -249,6 +250,7 @@ impl UpdateForm {
                 .as_ref()
                 .map(|e| e.0)
                 .unwrap_or(current_config.high_resolution),
+            input_file_url: None,
             json_schema: None,
             model: None,
             ocr_strategy: self
