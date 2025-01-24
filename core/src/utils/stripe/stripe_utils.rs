@@ -187,7 +187,7 @@ pub async fn create_stripe_checkout_session(
         stripe_config.return_url.trim_end_matches('/')
     );
 
-    let mut form_data = vec![
+    let form_data = vec![
         ("mode", "subscription"),
         ("customer", customer_id),
         ("line_items[0][price]", &price_id),
