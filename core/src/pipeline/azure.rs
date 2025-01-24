@@ -20,6 +20,6 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
     let pdf_file = pipeline.pdf_file.as_ref().ok_or("PDF file not found")?;
     let chunks = perform_azure_analysis(&pdf_file).await?;
 
-    pipeline.output.chunks = chunks;
+    pipeline.chunks = chunks;
     Ok(())
 }
