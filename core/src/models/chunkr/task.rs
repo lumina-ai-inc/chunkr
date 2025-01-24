@@ -539,10 +539,9 @@ impl Task {
         let input_file_url = generate_presigned_url(&self.input_location, true, None)
             .await
             .map_err(|_| "Error getting input file url")?;
-        let mut output: Option<OutputResponse> = None;
-        if self.status == Status::Succeeded {
-            output = Some(self.create_output(include_chunks).await?);
-        }
+        let output = self
+            .create_output(include_chunks && self.status == Status::Succeeded)
+            .await?;
         let mut configuration = self.configuration.clone();
         configuration.input_file_url = Some(input_file_url);
         Ok(TaskResponse {
@@ -551,7 +550,7 @@ impl Task {
             created_at: self.created_at,
             finished_at: self.finished_at,
             expires_at: self.expires_at,
-            output,
+            output: Some(output),
             task_url: self.task_url.clone(),
             message: self.message.clone().unwrap_or_default(),
             configuration: self.configuration.clone(),
