@@ -19,6 +19,8 @@ use actix_web::{web, Error, HttpResponse};
         ("page" = Option<i64>, Query, description = "Page number"),
         ("limit" = Option<i64>, Query, description = "Number of tasks per page"),
         ("include_output" = Option<bool>, Query, description = "Whether to include task output in the response"),
+        ("start" = Option<chrono::DateTime<chrono::Utc>>, Query, description = "Start date"),
+        ("end" = Option<chrono::DateTime<chrono::Utc>>, Query, description = "End date"),
     ),
     responses(
         (status = 200, description = "Detailed information describing the task", body = Vec<TaskResponse>),
@@ -32,13 +34,14 @@ pub async fn get_tasks_route(
     query: web::Query<TasksQuery>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
-    let page = query.page.unwrap_or(1);
-    let limit = query.limit.unwrap_or(20);
-    let start = query
-        .start
-        .unwrap_or_else(|| chrono::Utc::now() - chrono::Duration::days(30));
-    let end = query.end.unwrap_or_else(chrono::Utc::now);
-
-    let tasks = get_tasks(user_info.user_id.clone(), page, limit, false, start, end).await?;
+    let tasks = match get_tasks(user_info.user_id.clone(), query.into_inner()).await {
+        Ok(tasks) => tasks,
+        Err(e) => match e.to_string().to_lowercase().as_str() {
+            "limit is required when page is provided" => {
+                return Err(actix_web::error::ErrorBadRequest(e.to_string()));
+            }
+            _ => return Err(actix_web::error::ErrorInternalServerError(e.to_string())),
+        },
+    };
     Ok(HttpResponse::Ok().json(tasks))
 }

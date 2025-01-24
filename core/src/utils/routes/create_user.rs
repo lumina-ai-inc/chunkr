@@ -5,7 +5,6 @@ use crate::models::chunkr::user::{Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
 use prefixed_api_key::PrefixedApiKeyController;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::str::FromStr;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -39,38 +38,6 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         true => Tier::SelfHosted,
         false => Tier::Free,
     };
-
-    // let transaction = client.transaction().await?;
-
-    // let usage_query = "SELECT usage_limit FROM tiers WHERE name = 'Free'";
-    // let usage_limit = transaction.query_one(usage_query, &[]).await?.get::<_, i32>("usage_limit");
-    // let mut usage_limits: HashMap<UsageType, i32> = HashMap::from([
-    //     (UsageType::Page, usage_limit),
-    // ]);
-    // let check_query = r#"SELECT 1 FROM pre_applied_free_pages WHERE email = $1"#;
-    // let check_result = transaction
-    //     .query_opt(check_query, &[&user_info.email])
-    //     .await?;
-
-    // if check_result.is_some() {
-    //     let pre_applied_discount_pages_query =
-    //         r#"SELECT usage_type, amount FROM pre_applied_free_pages WHERE email = $1"#;
-
-    //     let pre_applied_pages: Vec<PreAppliedPages> = transaction
-    //         .query(pre_applied_discount_pages_query, &[&user_info.email])
-    //         .await?
-    //         .into_iter()
-    //         .map(PreAppliedPages::from)
-    //         .collect();
-
-    //     for pre_applied_page in pre_applied_pages {
-    //         if let Ok(usage_type) = UsageType::from_str(&pre_applied_page.usage_type) {
-    //             usage_limits.insert(usage_type, pre_applied_page.amount);
-    //         }
-    //     }
-    // }
-
-    // transaction.commit().await?;
 
     let transaction = client.transaction().await?;
 

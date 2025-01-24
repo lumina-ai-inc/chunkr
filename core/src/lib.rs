@@ -127,7 +127,7 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
-        env_logger::init_from_env(Env::default().default_filter_or("debug"));
+        env_logger::init_from_env(Env::default().default_filter_or("info"));
         initialize().await;
         run_migrations(&std::env::var("PG__URL").expect("PG__URL must be set in .env file"));
         get_or_create_admin_user()
@@ -184,7 +184,7 @@ pub fn main() -> std::io::Result<()> {
                         .route("/{task_id}", web::patch().to(update_task_route))
                         .route("/{task_id}/cancel", web::get().to(cancel_task_route)),
                 )
-                .route("/tasks", web::post().to(get_tasks_route))
+                .route("/tasks", web::get().to(get_tasks_route))
                 .route("/usage/monthly", web::get().to(get_monthly_usage));
 
             if std::env::var("STRIPE__API_KEY").is_ok() {
