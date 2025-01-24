@@ -187,19 +187,19 @@ pub async fn create_stripe_checkout_session(
         stripe_config.return_url.trim_end_matches('/')
     );
 
-    let form_data = vec![
+    let mut form_data = vec![
         ("mode", "subscription"),
         ("customer", customer_id),
         ("line_items[0][price]", &price_id),
         ("line_items[0][quantity]", "1"),
         ("ui_mode", "embedded"),
-        ("return_url", &return_url),
     ];
 
     let stripe_response = client
         .post("https://api.stripe.com/v1/checkout/sessions")
         .header("Authorization", format!("Bearer {}", stripe_config.api_key))
         .form(&form_data)
+        .query(&[("return_url", return_url)])
         .send()
         .await?;
 
@@ -220,7 +220,6 @@ pub async fn get_stripe_checkout_session(
 
     let url = format!("https://api.stripe.com/v1/checkout/sessions/{}", session_id);
     let auth = format!("Bearer {}", stripe_config.api_key);
-    println!("curl -X GET '{}' -H 'Authorization: {}'", url, auth);
     let stripe_response = client
         .get(&url)
         .header("Authorization", auth)
