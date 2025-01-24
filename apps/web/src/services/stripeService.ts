@@ -3,14 +3,14 @@ import axiosInstance from "./axios.config";
 export async function createSetupIntent(accessToken: string) {
   try {
     const response = await axiosInstance.get(
-      "/stripe/create-setup-intent",
+      "/api/v1/stripe/create-setup-intent",
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       }
     );
-    return response.data.setup_intent.client_secret; // Return the client secret directly
+    return response.data.setup_intent.client_secret;
   } catch (error) {
     console.error("Error creating setup intent:", error);
     throw error;
@@ -19,7 +19,7 @@ export async function createSetupIntent(accessToken: string) {
 
 export async function createCustomerSession(accessToken: string) {
   try {
-    const response = await axiosInstance.get("/stripe/create-session", {
+    const response = await axiosInstance.get("/api/v1/stripe/create-session", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

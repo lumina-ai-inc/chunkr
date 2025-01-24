@@ -8,8 +8,9 @@ export interface Usage {
 }
 
 export interface UserUsage {
-  usage_type: "Fast" | "HighQuality" | "Segment";
+  usage_type: "Page";
   usage_limit: number;
+  overage_usage?: number;
   discounts: Discount[];
 }
 
@@ -30,6 +31,7 @@ export interface User {
   created_at: string;
   updated_at: string;
   usage: UserUsage[];
+  last_paid_status: string | null;
 }
 
 export interface AuthUser {
@@ -59,9 +61,4 @@ export interface JWTProfile extends User {
   preferred_username: string;
   given_name: string;
   family_name: string;
-}
-
-export interface Discount {
-  usage_type: "Fast" | "HighQuality" | "Segment";
-  amount: number;
 }
