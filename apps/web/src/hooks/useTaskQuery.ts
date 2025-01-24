@@ -24,13 +24,21 @@ export function useTaskQuery(taskId: string | undefined) {
   );
 }
 
-export function useTasksQuery(page: number, limit: number) {
+export function useTasksQuery(
+  page?: number,
+  limit?: number,
+  start?: string,
+  end?: string
+) {
   return useQuery<TaskResponse[], Error>(
-    [`tasks-${page}-${limit}`],
-    () => getTasks(page, limit),
+    ["tasks", page, limit, start, end],
+    () => getTasks(page, limit, start, end),
     {
       staleTime: 50000,
-      refetchInterval: 50000,
+      refetchInterval:
+        start && new Date(start) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+          ? 50000 // Refetch every 50s for recent data
+          : false, // Don't refetch for historical data
       refetchIntervalInBackground: false,
     }
   );
