@@ -3,7 +3,6 @@ import {
   SegmentationStrategy,
   ChunkProcessing,
   SegmentProcessing,
-  JsonSchema,
 } from "./taskConfig.model";
 
 export enum Status {
@@ -45,12 +44,9 @@ export interface Configuration {
   high_resolution?: boolean;
   chunk_processing?: ChunkProcessing;
   segment_processing?: SegmentProcessing;
-  json_schema?: JsonSchema;
 }
 
-
 // Define a JSON value type that matches serde_json::Value capabilities
-
 
 export interface BoundingBox {
   height: number;
