@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 import logging
-from chunkr_ai import ChunkrAsync
+from chunkr_ai import Chunkr
 from chunkr_ai.models import Status
 from asyncio import Queue
 from dataclasses import dataclass, field
@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
-chunkr = ChunkrAsync()
+chunkr = Chunkr()
 file_lock = asyncio.Lock()
 
 @dataclass
@@ -44,7 +44,7 @@ async def write_and_log_worker(output_jsonl: Path, run_dir: Path, completed_queu
                 f.write("\n")
             if task_data.get("status") == Status.SUCCEEDED:
                 stats.successful_tasks += 1
-                stats.total_pages += task_data.get("page_count", 0)
+                stats.total_pages += task_data.get("output", {}).get("page_count", 0)
             else:
                 stats.failed_tasks += 1
             pages_per_second = stats.calculate_pages_per_second()
@@ -63,16 +63,7 @@ async def write_and_log_worker(output_jsonl: Path, run_dir: Path, completed_queu
 
 async def process_single_file(file_path: Path, completed_queue: Queue):
     try:
-        task = await chunkr.create_task(file_path)
-        task_id = task.task_id
-        try:
-            await task.poll()
-            if task.status == Status.SUCCEEDED:
-                if task.page_count is None:
-                    stats.total_pages += 1
-        except Exception as e:
-            logger.error(f"Task failed {task_id}: {str(e)}")
-        task = await chunkr.get_task(task_id)
+        task = await chunkr.upload(file_path)
         task_data = task.model_dump(mode='json')
         await completed_queue.put(task_data)
     except Exception as e:
@@ -108,6 +99,8 @@ async def process_all_files(input_folder: str, output_dir: str, max_concurrent: 
     tasks = [bounded_process(file_path) for file_path in files]
     await asyncio.gather(*tasks)
     
+    await chunkr.close()
+    
     await completed_queue.join()
     
     writer_task.cancel()
@@ -120,9 +113,9 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description='Process files using Chunkr')
-    parser.add_argument('--input', default="input",
+    parser.add_argument('--input', default="./input",
                       help='Input folder path (default: input)')
-    parser.add_argument('--output', default="output",
+    parser.add_argument('--output', default="./output",
                       help='Output directory name (default: output)')
     parser.add_argument('--concurrent', type=int, default=None,
                       help='Maximum number of concurrent processes (default: all files)')
