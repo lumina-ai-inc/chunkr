@@ -92,7 +92,8 @@ const PROMPT_TEMPLATES: &[(&str, &str)] = prompt_templates![
     "md_table",
     "md_text",
     "md_title",
-    "structured_extraction"
+    "structured_extraction_system",
+    "structured_extraction_user"
 ];
 
 fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {

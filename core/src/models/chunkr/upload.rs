@@ -1,14 +1,11 @@
 use crate::configs::expiration_config;
-use crate::models::chunkr::chunk_processing::{
-    default_ignore_headers_and_footers, ChunkProcessing,
-};
+use crate::models::chunkr::chunk_processing::ChunkProcessing;
 use crate::models::chunkr::segment_processing::SegmentProcessing;
-use crate::models::chunkr::structured_extraction::JsonSchema;
 use crate::models::chunkr::task::Configuration;
 #[cfg(feature = "azure")]
 use crate::models::chunkr::task::PipelineType;
 use actix_multipart::form::json::Json as MPJson;
-use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
+use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
@@ -33,26 +30,9 @@ pub struct CreateForm {
     #[schema(value_type = Option<bool>, default = false)]
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
     pub high_resolution: Option<MPJson<bool>>,
-    #[param(style = Form, value_type = Option<JsonSchema>)]
-    #[schema(value_type = Option<JsonSchema>)]
-    pub json_schema: Option<MPJson<JsonSchema>>,
     #[param(style = Form, value_type = Option<OcrStrategy>)]
     #[schema(value_type = Option<OcrStrategy>, default = "All")]
     pub ocr_strategy: Option<MPJson<OcrStrategy>>,
-    #[param(style = Form, value_type = Option<SegmentProcessing>)]
-    #[schema(value_type = Option<SegmentProcessing>)]
-    pub segment_processing: Option<MPJson<SegmentProcessing>>,
-    #[param(style = Form, value_type = Option<SegmentationStrategy>)]
-    #[schema(value_type = Option<SegmentationStrategy>, default = "LayoutAnalysis")]
-    pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
-    #[param(style = Form, value_type = Option<i32>)]
-    #[schema(value_type = Option<i32>, default = 512)]
-    #[deprecated = "Use `chunk_processing` instead"]
-    /// Deprecated: Use `chunk_processing.target_length` instead.
-    ///
-    /// The target chunk length to be used for chunking.
-    /// If 0, each chunk will contain a single segment.
-    pub target_chunk_length: Option<Text<i32>>,
     #[cfg(feature = "azure")]
     #[param(style = Form, value_type = Option<PipelineType>)]
     #[schema(value_type = Option<PipelineType>)]
@@ -60,6 +40,12 @@ pub struct CreateForm {
     /// If pipeline is set to Azure then Azure layout analysis will be used for segmentation and OCR.
     /// The output will be unified to the Chunkr `output` format.
     pub pipeline: Option<MPJson<PipelineType>>,
+    #[param(style = Form, value_type = Option<SegmentProcessing>)]
+    #[schema(value_type = Option<SegmentProcessing>)]
+    pub segment_processing: Option<MPJson<SegmentProcessing>>,
+    #[param(style = Form, value_type = Option<SegmentationStrategy>)]
+    #[schema(value_type = Option<SegmentationStrategy>, default = "LayoutAnalysis")]
+    pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
 }
 
 impl CreateForm {
@@ -67,18 +53,7 @@ impl CreateForm {
         self.chunk_processing
             .as_ref()
             .map(|mp_json| mp_json.0.clone())
-            .or_else(|| {
-                // For backwards compatibility: if chunk_processing is not set but target_chunk_length is,
-                // create a ChunkProcessing with target_length as target_chunk_length
-                self.target_chunk_length.as_ref().map(|length| {
-                    let chunk_processing = ChunkProcessing {
-                        ignore_headers_and_footers: default_ignore_headers_and_footers(),
-                        target_length: length.0,
-                    };
-                    chunk_processing
-                })
-            })
-            .unwrap_or_else(ChunkProcessing::default)
+            .unwrap_or(ChunkProcessing::default())
     }
 
     fn get_expires_in(&self) -> Option<i32> {
@@ -91,10 +66,6 @@ impl CreateForm {
 
     fn get_high_resolution(&self) -> bool {
         self.high_resolution.as_ref().map(|e| e.0).unwrap_or(false)
-    }
-
-    fn get_json_schema(&self) -> Option<JsonSchema> {
-        self.json_schema.as_ref().map(|e| e.0.clone())
     }
 
     fn get_ocr_strategy(&self) -> OcrStrategy {
@@ -168,14 +139,14 @@ impl CreateForm {
             chunk_processing: self.get_chunk_processing(),
             expires_in: self.get_expires_in(),
             high_resolution: self.get_high_resolution(),
-            json_schema: self.get_json_schema(),
+            json_schema: None,
             model: None,
             ocr_strategy: self.get_ocr_strategy(),
+            #[cfg(feature = "azure")]
+            pipeline: self.get_pipeline(),
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
             target_chunk_length: None,
-            #[cfg(feature = "azure")]
-            pipeline: self.get_pipeline(),
         }
     }
 }
@@ -195,18 +166,9 @@ pub struct UpdateForm {
     #[schema(value_type = Option<bool>)]
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
     pub high_resolution: Option<MPJson<bool>>,
-    #[param(style = Form, value_type = Option<JsonSchema>)]
-    #[schema(value_type = Option<JsonSchema>)]
-    pub json_schema: Option<MPJson<JsonSchema>>,
     #[param(style = Form, value_type = Option<OcrStrategy>)]
     #[schema(value_type = Option<OcrStrategy>)]
     pub ocr_strategy: Option<MPJson<OcrStrategy>>,
-    #[param(style = Form, value_type = Option<SegmentProcessing>)]
-    #[schema(value_type = Option<SegmentProcessing>)]
-    pub segment_processing: Option<MPJson<SegmentProcessing>>,
-    #[param(style = Form, value_type = Option<SegmentationStrategy>)]
-    #[schema(value_type = Option<SegmentationStrategy>)]
-    pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
     #[cfg(feature = "azure")]
     #[param(style = Form, value_type = Option<PipelineType>)]
     #[schema(value_type = Option<PipelineType>)]
@@ -214,6 +176,12 @@ pub struct UpdateForm {
     /// If pipeline is set to Azure then Azure layout analysis will be used for segmentation and OCR.
     /// The output will be unified to the Chunkr output.
     pub pipeline: Option<MPJson<PipelineType>>,
+    #[param(style = Form, value_type = Option<SegmentProcessing>)]
+    #[schema(value_type = Option<SegmentProcessing>)]
+    pub segment_processing: Option<MPJson<SegmentProcessing>>,
+    #[param(style = Form, value_type = Option<SegmentationStrategy>)]
+    #[schema(value_type = Option<SegmentationStrategy>)]
+    pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
 }
 
 impl UpdateForm {
@@ -281,17 +249,15 @@ impl UpdateForm {
                 .as_ref()
                 .map(|e| e.0)
                 .unwrap_or(current_config.high_resolution),
-            json_schema: self
-                .json_schema
-                .as_ref()
-                .map(|e| e.0.clone())
-                .or(current_config.json_schema.clone()),
+            json_schema: None,
             model: None,
             ocr_strategy: self
                 .ocr_strategy
                 .as_ref()
                 .map(|e| e.0.clone())
                 .unwrap_or(current_config.ocr_strategy.clone()),
+            #[cfg(feature = "azure")]
+            pipeline: self.pipeline.as_ref().map(|e| e.0.clone()),
             segment_processing: self.get_segment_processing(current_config),
             segmentation_strategy: self
                 .segmentation_strategy
@@ -299,8 +265,6 @@ impl UpdateForm {
                 .map(|e| e.0.clone())
                 .unwrap_or(current_config.segmentation_strategy.clone()),
             target_chunk_length: None,
-            #[cfg(feature = "azure")]
-            pipeline: self.pipeline.as_ref().map(|e| e.0.clone()),
         }
     }
 }

@@ -12,7 +12,7 @@ use core::pipeline::convert_to_images;
 use core::pipeline::crop;
 use core::pipeline::segment_processing;
 use core::pipeline::segmentation_and_ocr;
-use core::pipeline::structured_extraction;
+// use core::pipeline::structured_extraction;
 use core::utils::clients::initialize;
 use core::utils::rrq::consumer::consumer;
 
@@ -31,7 +31,7 @@ async fn execute_step(
         "crop" => crop::process(pipeline).await,
         "segmentation_and_ocr" => segmentation_and_ocr::process(pipeline).await,
         "segment_processing" => segment_processing::process(pipeline).await,
-        "structured_extraction" => structured_extraction::process(pipeline).await,
+        // "structured_extraction" => structured_extraction::process(pipeline).await,
         _ => Err(format!("Unknown function: {}", step).into()),
     }?;
     let duration = start.elapsed();
@@ -68,10 +68,14 @@ fn orchestrate_task(
     }
     steps.push("crop");
     steps.push("segment_processing");
-    let json_schema = pipeline.get_task()?.configuration.json_schema.clone();
-    if json_schema.is_some() {
-        steps.push("structured_extraction");
-    }
+    // let structured_extraction = pipeline
+    //     .get_task()?
+    //     .configuration
+    //     .structured_extraction
+    //     .clone();
+    // if structured_extraction.is_some() {
+    //     steps.push("structured_extraction");
+    // }
     Ok(steps)
 }
 

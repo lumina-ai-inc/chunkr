@@ -80,4 +80,5 @@ pub struct OpenAiRequest {
     pub messages: Vec<Message>,
     pub max_completion_tokens: Option<u32>,
     pub temperature: Option<f32>,
+    pub response_format: Option<serde_json::Value>,
 }

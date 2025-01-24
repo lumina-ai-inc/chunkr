@@ -1,4 +1,4 @@
-use crate::models::chunkr::structured_extraction::ExtractedJson;
+use crate::models::chunkr::search::SimpleChunk;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
@@ -9,15 +9,11 @@ use utoipa::ToSchema;
 pub struct OutputResponse {
     /// Collection of document chunks, where each chunk contains one or more segments
     pub chunks: Vec<Chunk>,
-    pub extracted_json: Option<ExtractedJson>,
 }
 
 impl Default for OutputResponse {
     fn default() -> Self {
-        Self {
-            chunks: vec![],
-            extracted_json: None,
-        }
+        Self { chunks: vec![] }
     }
 }
 
@@ -31,6 +27,7 @@ pub struct Chunk {
     /// that fit within that length (segments remain intact).
     /// Otherwise, contains exactly one segment.
     pub segments: Vec<Segment>,
+    pub embed: String,
 }
 
 impl Chunk {
@@ -40,10 +37,32 @@ impl Chunk {
             .iter()
             .map(|s| s.content.split_whitespace().count())
             .sum::<usize>() as i32;
+        let embed = segments
+            .iter()
+            .map(|s| {
+                if !s.markdown.is_empty() {
+                    s.markdown.clone()
+                } else if !s.html.is_empty() {
+                    s.html.clone()
+                } else {
+                    s.content.clone()
+                }
+            })
+            .collect::<Vec<String>>()
+            .join(" ");
         Self {
             chunk_id,
             chunk_length,
             segments,
+            embed,
+        }
+    }
+
+    /// Converts this Chunk into a SimpleChunk, containing just the ID and embed content
+    pub fn to_simple(&self) -> SimpleChunk {
+        SimpleChunk {
+            id: self.chunk_id.clone(),
+            content: self.embed.clone(),
         }
     }
 }
@@ -56,13 +75,13 @@ pub struct Segment {
     /// Text content of the segment.
     pub content: String,
     /// HTML representation of the segment.
-    pub html: Option<String>,
+    pub html: String,
     /// Presigned URL to the image of the segment.
     pub image: Option<String>,
     /// LLM representation of the segment.
     pub llm: Option<String>,
     /// Markdown representation of the segment.
-    pub markdown: Option<String>,
+    pub markdown: String,
     /// OCR results for the segment.
     pub ocr: Vec<OCRResult>,
     /// Height of the page containing the segment.
@@ -104,8 +123,8 @@ impl Segment {
             segment_type,
             ocr: ocr_results,
             image: None,
-            html: None,
-            markdown: None,
+            html: String::new(),
+            markdown: String::new(),
         }
     }
 

@@ -175,7 +175,13 @@ async fn generate_content<T: ContentGenerator>(
 
             Ok(generator.process_llm_result(&result))
         }
-        GenerationStrategy::Auto => Ok(generator.generate_auto(content)),
+        GenerationStrategy::Auto => {
+            if !content.is_empty() {
+                Ok(content.to_string())
+            } else {
+                Ok(generator.generate_auto(content))
+            }
+        }
     }
 }
 
@@ -293,12 +299,8 @@ async fn process_segment(
         )
     )?;
 
-    if segment.html.is_none() {
-        segment.html = Some(html);
-    }
-    if segment.markdown.is_none() {
-        segment.markdown = Some(markdown);
-    }
+    segment.html = html;
+    segment.markdown = markdown;
     segment.llm = llm;
     Ok(())
 }

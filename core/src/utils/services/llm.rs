@@ -29,12 +29,14 @@ pub async fn open_ai_call(
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
+    response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let request = OpenAiRequest {
         model,
         messages,
         max_completion_tokens,
         temperature,
+        response_format,
     };
     let client = reqwest::Client::new();
     let mut openai_request = client
@@ -73,6 +75,7 @@ pub async fn process_openai_request(
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
+    response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
     Ok(retry_with_backoff(|| async {
@@ -88,23 +91,25 @@ pub async fn process_openai_request(
             messages.clone(),
             max_completion_tokens.clone(),
             temperature.clone(),
+            response_format.clone(),
         )
         .await
     })
     .await?)
 }
 
-pub fn get_basic_message(prompt: String) -> Result<Vec<Message>, Box<dyn Error>> {
-    Ok(vec![Message {
-        role: "user".to_string(),
+pub fn create_basic_message(role: String, prompt: String) -> Result<Message, Box<dyn Error>> {
+    Ok(Message {
+        role,
         content: MessageContent::String { content: prompt },
-    }])
+    })
 }
 
-pub fn get_basic_image_message(
-    temp_file: &NamedTempFile,
+pub fn create_basic_image_message(
+    role: String,
     prompt: String,
-) -> Result<Vec<Message>, Box<dyn Error>> {
+    temp_file: &NamedTempFile,
+) -> Result<Message, Box<dyn Error>> {
     let mut buffer = Vec::new();
     let mut file = temp_file.reopen()?;
     file.read_to_end(&mut buffer)?;
@@ -115,8 +120,8 @@ pub fn get_basic_image_message(
             buffer.len()
         ))));
     }
-    Ok(vec![Message {
-        role: "user".to_string(),
+    Ok(Message {
+        role,
         content: MessageContent::Array {
             content: vec![
                 ContentPart {
@@ -133,7 +138,7 @@ pub fn get_basic_image_message(
                 },
             ],
         },
-    }])
+    })
 }
 
 pub async fn llm_ocr(
@@ -141,7 +146,7 @@ pub async fn llm_ocr(
     prompt: String,
     temperature: Option<f32>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let messages = get_basic_image_message(temp_file, prompt)
+    let message = create_basic_image_message("user".to_string(), prompt, temp_file)
         .map_err(|e| Box::new(LLMError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
     let llm_config = LlmConfig::from_env().unwrap();
 
@@ -149,9 +154,10 @@ pub async fn llm_ocr(
         llm_config.ocr_url.unwrap_or(llm_config.url),
         llm_config.ocr_key.unwrap_or(llm_config.key),
         llm_config.ocr_model.unwrap_or(llm_config.model),
-        messages.clone(),
+        vec![message],
         None,
         temperature,
+        None,
     )
     .await?;
 
