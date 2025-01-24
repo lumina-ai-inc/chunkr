@@ -20,8 +20,10 @@ export interface Chunk {
 }
 
 export interface Output {
+  pdf_url: string | null;
+  file_name: string | null;
+  page_count: number | null;
   chunks: Chunk[];
-  extracted_json: ExtractedJson | null;
 }
 
 export interface TaskResponse {
@@ -31,16 +33,13 @@ export interface TaskResponse {
   finished_at: string | null;
   expires_at: string | null;
   message: string;
-  input_file_url: string | null;
-  pdf_url: string | null;
   output: Output | null;
   task_url: string | null;
   configuration: Configuration;
-  file_name: string | null;
-  page_count: number | null;
 }
 
 export interface Configuration {
+  input_file_url: string | null;
   ocr_strategy: OcrStrategy;
   segmentation_strategy: SegmentationStrategy;
   high_resolution?: boolean;
@@ -49,26 +48,9 @@ export interface Configuration {
   json_schema?: JsonSchema;
 }
 
-export interface ExtractedJson {
-  title: string;
-  schema_type: string;
-  extracted_fields: ExtractedField[];
-}
 
 // Define a JSON value type that matches serde_json::Value capabilities
-export type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
 
-export interface ExtractedField {
-  name: string;
-  field_type: string;
-  value: JsonValue;
-}
 
 export interface BoundingBox {
   height: number;

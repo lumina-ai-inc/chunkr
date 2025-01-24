@@ -57,14 +57,14 @@ describe("Chunkr Basic Functionality", () => {
       if (result.status === Status.SUCCEEDED) {
         console.log("File processed successfully:", {
           taskId: result.task_id,
-          fileName: result.file_name,
+          fileName: result.output?.file_name,
           status: result.status,
-          pageCount: result.page_count,
+          pageCount: result.output?.page_count,
         });
       } else {
         console.error("File processing failed:", {
           taskId: result.task_id,
-          fileName: result.file_name,
+          fileName: result.output?.file_name,
           status: result.status,
           error: result.error,
         });
@@ -72,7 +72,7 @@ describe("Chunkr Basic Functionality", () => {
       }
 
       expect(result.status).toBe(Status.SUCCEEDED);
-      expect(result.page_count).toBeGreaterThan(0);
+      expect(result.output?.page_count).toBeGreaterThan(0);
       expect(result.output?.chunks.length).toBeGreaterThan(0);
     } catch (error) {
       console.error("Test failed:", error);
@@ -167,9 +167,9 @@ describe("Chunkr Advanced Functionality", () => {
         const testResult = {
           Strategy: strategy,
           "Task ID": result.task_id,
-          "File Name": result.file_name,
+          "File Name": result.output?.file_name,
           Status: result.status,
-          "Page Count": result.page_count,
+          "Page Count": result.output?.page_count,
           "Chunk Count": result.output?.chunks.length,
         };
 

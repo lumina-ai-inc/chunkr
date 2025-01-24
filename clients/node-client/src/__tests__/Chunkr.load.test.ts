@@ -139,7 +139,7 @@ describe("Chunkr Load Test", () => {
       try {
         const result = await chunkr.createTask(inputPath);
         const stats: ProcessingStats = {
-          fileName: result.file_name || file,
+          fileName: result.output?.file_name || file,
           taskId: result.task_id,
           status: result.status,
           startTime: Date.now(),
@@ -174,7 +174,7 @@ describe("Chunkr Load Test", () => {
 
             if (taskResponse.status === Status.SUCCEEDED) {
               stat.endTime = Date.now();
-              stat.pageCount = taskResponse.page_count;
+              stat.pageCount = taskResponse.output?.page_count;
 
               // Save the complete TaskResponse object
               const outputPath = path.join(

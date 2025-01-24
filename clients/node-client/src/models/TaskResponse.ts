@@ -15,13 +15,10 @@ export class TaskResponse implements TaskResponseData {
   public finished_at!: string | null;
   public expires_at!: string | null;
   public message!: string;
-  public input_file_url!: string | null;
-  public pdf_url!: string | null;
   public output!: Output | null;
   public task_url!: string | null;
   public configuration!: Configuration;
-  public file_name!: string | null;
-  public page_count!: number | null;
+
   public error?: string;
 
   constructor(data: TaskResponseData, chunkr: Chunkr) {
@@ -37,12 +34,8 @@ export class TaskResponse implements TaskResponseData {
       finished_at: this.finished_at,
       expires_at: this.expires_at,
       message: this.message,
-      input_file_url: this.input_file_url,
-      pdf_url: this.pdf_url,
       output: this.output,
       task_url: this.task_url,
-      file_name: this.file_name,
-      page_count: this.page_count,
       error: this.error,
     };
   }
