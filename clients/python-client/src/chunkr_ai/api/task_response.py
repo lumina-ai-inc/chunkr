@@ -13,14 +13,14 @@ T = TypeVar("T", bound="TaskResponse")
 class TaskResponse(BaseModel, Generic[T]):
     configuration: OutputConfiguration
     created_at: datetime
-    expires_at: Optional[datetime]
-    finished_at: Optional[datetime]
-    message: str
-    output: Optional[OutputResponse]
-    started_at: Optional[datetime]
+    expires_at: Optional[datetime] = None
+    finished_at: Optional[datetime] = None
+    message: Optional[str] = None
+    output: Optional[OutputResponse] = None
+    started_at: Optional[datetime] = None
     status: Status
     task_id: str
-    task_url: Optional[str]
+    task_url: Optional[str] = None
     _client: Optional[ChunkrClientProtocol] = PrivateAttr(default=None)
 
     def with_client(self, client: ChunkrClientProtocol) -> T:
