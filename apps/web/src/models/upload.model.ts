@@ -1,6 +1,5 @@
 import {
   ChunkProcessing,
-  JsonSchema,
   OcrStrategy,
   SegmentProcessing,
   SegmentationStrategy,
@@ -20,9 +19,6 @@ export interface UploadForm {
 
   /** Use high-res images for processing */
   high_resolution?: boolean;
-
-  /** Schema for structured data extraction */
-  json_schema?: JsonSchema;
 
   /** OCR processing strategy */
   ocr_strategy?: OcrStrategy;
