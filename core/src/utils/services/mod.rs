@@ -8,7 +8,7 @@ pub mod ocr;
 pub mod payload;
 pub mod pdf;
 pub mod segmentation;
-pub mod structured_extraction;
+// pub mod structured_extraction;
 
 #[cfg(feature = "azure")]
 pub mod azure;

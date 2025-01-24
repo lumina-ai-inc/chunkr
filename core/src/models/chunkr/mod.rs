@@ -8,7 +8,7 @@ pub mod pipeline;
 pub mod search;
 pub mod segment_processing;
 pub mod segmentation;
-pub mod structured_extraction;
+// pub mod structured_extraction;
 pub mod task;
 pub mod tasks;
 pub mod upload;
