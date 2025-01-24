@@ -243,7 +243,6 @@ pub async fn create_stripe_billing_portal_session(
 
     let form_data = vec![
         ("customer", customer_id),
-        ("features[invoice_history][enabled]", "true"),
         ("return_url", &stripe_config.return_url),
     ];
 
