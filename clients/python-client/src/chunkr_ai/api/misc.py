@@ -3,16 +3,36 @@ import io
 import json
 from pathlib import Path
 from PIL import Image
-import requests
+import httpx
 from typing import Union, Tuple, BinaryIO, Optional
 
-def prepare_file(file: Union[str, Path, BinaryIO, Image.Image]) -> Tuple[str, BinaryIO]:
-    """Convert various file types into a tuple of (filename, file-like object)."""
+async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image], client: httpx.AsyncClient = None) -> Tuple[str, BinaryIO]:
+    """Convert various file types into a tuple of (filename, file-like object).
+
+        Args:
+            file: Input file, can be:
+                - String or Path to a file
+                - URL string starting with http:// or https://
+                - Base64 string
+                - Opened binary file (mode='rb')
+                - PIL/Pillow Image object
+
+        Returns:
+            Tuple[str, BinaryIO]: (filename, file-like object) ready for upload
+
+        Raises:
+            FileNotFoundError: If the file path doesn't exist
+            TypeError: If the file type is not supported
+            ValueError: If the URL is invalid or unreachable
+            ValueError: If the MIME type is unsupported
+    """  
     # Handle URLs
     if isinstance(file, str) and (
         file.startswith("http://") or file.startswith("https://")
     ):
-        response = requests.get(file)
+        if not client:
+            raise ValueError("Client must be provided to download files from URLs")
+        response = client.get(file)
         response.raise_for_status()
 
         # Try to get filename from Content-Disposition header first
@@ -108,9 +128,10 @@ def prepare_file(file: Union[str, Path, BinaryIO, Image.Image]) -> Tuple[str, Bi
     raise TypeError(f"Unsupported file type: {type(file)}")
 
 
-def prepare_upload_data(
+async def prepare_upload_data(
     file: Optional[Union[str, Path, BinaryIO, Image.Image]] = None,
     config: Optional[Configuration] = None,
+    client: httpx.AsyncClient = None,
 ) -> dict:
     """Prepare files and data dictionaries for upload.
 
@@ -123,7 +144,7 @@ def prepare_upload_data(
     """
     files = {}
     if file:
-        filename, file_obj = prepare_file(file)
+        filename, file_obj = await prepare_file(file, client)
         files = {"file": (filename, file_obj)}
 
     if config:

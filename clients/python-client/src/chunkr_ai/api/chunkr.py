@@ -34,7 +34,7 @@ class Chunkr(ChunkrBase):
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
     ) -> TaskResponse:
-        files = prepare_upload_data(file, config)
+        files = await prepare_upload_data(file, config, self._client)
         r = await self._client.post(
             f"{self.url}/api/v1/task", files=files, headers=self._headers()
         )
@@ -44,7 +44,7 @@ class Chunkr(ChunkrBase):
     @anywhere()
     @ensure_client()
     async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
-        files = prepare_upload_data(None, config)
+        files = await prepare_upload_data(None, config, self._client)
         r = await self._client.patch(
             f"{self.url}/api/v1/task/{task_id}",
             files=files,
