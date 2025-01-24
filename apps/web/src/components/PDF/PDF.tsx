@@ -187,19 +187,19 @@ function CurrentPage({
     () =>
       !structureExtractionView
         ? segments.flatMap((chunk, chunkIndex) =>
-            chunk.segments
-              .filter((segment) => segment.page_number === pageNumber)
-              .map((segment, segmentIndex) => (
-                <MemoizedSegmentOverlay
-                  key={`${chunkIndex}-${segmentIndex}`}
-                  segment={segment}
-                  chunkIndex={chunkIndex}
-                  segmentIndex={segmentIndex}
-                  onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
-                  isActive={activeSegment?.chunkIndex === chunkIndex}
-                />
-              ))
-          )
+          chunk.segments
+            .filter((segment) => segment.page_number === pageNumber)
+            .map((segment, segmentIndex) => (
+              <MemoizedSegmentOverlay
+                key={`${chunkIndex}-${segmentIndex}`}
+                segment={segment}
+                chunkIndex={chunkIndex}
+                segmentIndex={segmentIndex}
+                onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
+                isActive={activeSegment?.chunkIndex === chunkIndex}
+              />
+            ))
+        )
         : [],
     [
       segments,

@@ -108,7 +108,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         }
     };
 
-    pipeline.output.chunks = page_segments
+    pipeline.chunks = page_segments
         .into_iter()
         .flatten()
         .map(|s| Chunk::new(vec![s]))

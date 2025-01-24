@@ -1,6 +1,6 @@
 use crate::configs::worker_config;
 use crate::models::chunkr::chunk_processing::ChunkProcessing;
-use crate::models::chunkr::output::{OutputResponse, Segment, SegmentType};
+use crate::models::chunkr::output::{Chunk, OutputResponse, Segment, SegmentType};
 use crate::models::chunkr::segment_processing::{
     GenerationStrategy, PictureGenerationConfig, SegmentProcessing,
 };
@@ -228,41 +228,52 @@ impl Task {
         })
     }
 
-    async fn create_output(&self) -> Result<OutputResponse, Box<dyn std::error::Error>> {
-        let temp_file = download_to_tempfile(&self.output_location, None).await?;
-        let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
-        let mut output_response: OutputResponse = serde_json::from_str(&json_content)?;
-        let picture_generation_config: PictureGenerationConfig = self
-            .configuration
-            .segment_processing
-            .picture
-            .clone()
-            .ok_or(format!("Picture generation config not found"))?;
-        async fn process(
-            segment: &mut Segment,
-            picture_generation_config: &PictureGenerationConfig,
-        ) -> Result<String, Box<dyn std::error::Error>> {
-            let url = generate_presigned_url(segment.image.as_ref().unwrap(), true, None)
-                .await
-                .ok();
-            if segment.segment_type == SegmentType::Picture {
-                if picture_generation_config.html == GenerationStrategy::Auto {
-                    segment.html = format!("<img src=\"{}\" />", url.clone().unwrap_or_default());
+    async fn create_output(
+        &self,
+        include_chunks: bool,
+    ) -> Result<OutputResponse, Box<dyn std::error::Error>> {
+        let pdf_url = generate_presigned_url(&self.pdf_location, true, None).await?;
+        let mut output_response = OutputResponse::default();
+        if include_chunks {
+            let temp_file = download_to_tempfile(&self.output_location, None).await?;
+            let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
+            output_response = serde_json::from_str(&json_content)?;
+            let picture_generation_config: PictureGenerationConfig = self
+                .configuration
+                .segment_processing
+                .picture
+                .clone()
+                .ok_or(format!("Picture generation config not found"))?;
+            async fn process(
+                segment: &mut Segment,
+                picture_generation_config: &PictureGenerationConfig,
+            ) -> Result<String, Box<dyn std::error::Error>> {
+                let url = generate_presigned_url(segment.image.as_ref().unwrap(), true, None)
+                    .await
+                    .ok();
+                if segment.segment_type == SegmentType::Picture {
+                    if picture_generation_config.html == GenerationStrategy::Auto {
+                        segment.html =
+                            format!("<img src=\"{}\" />", url.clone().unwrap_or_default());
+                    }
+                    if picture_generation_config.markdown == GenerationStrategy::Auto {
+                        segment.markdown = format!("![Image]({})", url.clone().unwrap_or_default());
+                    }
                 }
-                if picture_generation_config.markdown == GenerationStrategy::Auto {
-                    segment.markdown = format!("![Image]({})", url.clone().unwrap_or_default());
-                }
+                Ok(url.clone().unwrap_or_default())
             }
-            Ok(url.clone().unwrap_or_default())
-        }
-        let futures = output_response
-            .chunks
-            .iter_mut()
-            .flat_map(|chunk| chunk.segments.iter_mut())
-            .filter(|segment| segment.image.is_some())
-            .map(|segment| process(segment, &picture_generation_config));
+            let futures = output_response
+                .chunks
+                .iter_mut()
+                .flat_map(|chunk| chunk.segments.iter_mut())
+                .filter(|segment| segment.image.is_some())
+                .map(|segment| process(segment, &picture_generation_config));
 
-        try_join_all(futures).await?;
+            try_join_all(futures).await?;
+        }
+        output_response.pdf_url = Some(pdf_url.clone());
+        output_response.page_count = self.page_count;
+        output_response.file_name = self.file_name.clone();
         Ok(output_response)
     }
 
@@ -379,7 +390,7 @@ impl Task {
         &mut self,
         page_images: Vec<Arc<NamedTempFile>>,
         segment_images: &DashMap<String, Arc<NamedTempFile>>,
-        output: &OutputResponse,
+        chunks: Vec<Chunk>,
         pdf_file: &NamedTempFile,
     ) -> Result<(), Box<dyn std::error::Error>> {
         self.update(
@@ -392,9 +403,12 @@ impl Task {
             None,
         )
         .await?;
-
-        let mut output_response = output.clone();
-
+        let mut output_response = OutputResponse {
+            chunks,
+            file_name: self.file_name.clone(),
+            page_count: self.page_count,
+            pdf_url: Some(self.pdf_location.clone()),
+        };
         for (idx, page) in page_images.iter().enumerate() {
             let s3_key = format!(
                 "{}/{}/page_{}.jpg",
@@ -520,23 +534,17 @@ impl Task {
 
     pub async fn to_task_response(
         &self,
-        include_output: bool,
+        include_chunks: bool,
     ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
         let input_file_url = generate_presigned_url(&self.input_location, true, None)
             .await
             .map_err(|_| "Error getting input file url")?;
-        let mut pdf_url = None;
         let mut output: Option<OutputResponse> = None;
         if self.status == Status::Succeeded {
-            pdf_url = Some(
-                generate_presigned_url(&self.pdf_location, true, None)
-                    .await
-                    .map_err(|_| "Error getting pdf url")?,
-            );
-            if include_output {
-                output = Some(self.create_output().await?);
-            }
+            output = Some(self.create_output(include_chunks).await?);
         }
+        let mut configuration = self.configuration.clone();
+        configuration.input_file_url = Some(input_file_url);
         Ok(TaskResponse {
             task_id: self.task_id.clone(),
             status: self.status.clone(),
@@ -544,13 +552,9 @@ impl Task {
             finished_at: self.finished_at,
             expires_at: self.expires_at,
             output,
-            input_file_url: Some(input_file_url),
             task_url: self.task_url.clone(),
             message: self.message.clone().unwrap_or_default(),
             configuration: self.configuration.clone(),
-            file_name: self.file_name.clone(),
-            page_count: self.page_count,
-            pdf_url,
             started_at: self.started_at,
         })
     }
@@ -580,19 +584,11 @@ pub struct TaskResponse {
     pub created_at: DateTime<Utc>,
     /// The date and time when the task will expire.
     pub expires_at: Option<DateTime<Utc>>,
-    /// The name of the file.
-    pub file_name: Option<String>,
     /// The date and time when the task was finished.
     pub finished_at: Option<DateTime<Utc>>,
-    /// The presigned URL of the input file.
-    pub input_file_url: Option<String>,
     /// A message describing the task's status or any errors that occurred.
     pub message: String,
     pub output: Option<OutputResponse>,
-    /// The number of pages in the file.
-    pub page_count: Option<u32>,
-    /// The presigned URL of the PDF file.
-    pub pdf_url: Option<String>,
     /// The date and time when the task was started.
     pub started_at: Option<DateTime<Utc>>,
     pub status: Status,
@@ -601,8 +597,6 @@ pub struct TaskResponse {
     /// The presigned URL of the task.
     pub task_url: Option<String>,
 }
-
-//TODO: Move to configuration
 
 #[derive(
     Debug,
@@ -645,6 +639,8 @@ pub struct Configuration {
     pub expires_in: Option<i32>,
     /// Whether to use high-resolution images for cropping and post-processing.
     pub high_resolution: bool,
+    /// The presigned URL of the input file.
+    pub input_file_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated]
     pub json_schema: Option<serde_json::Value>,
@@ -661,8 +657,6 @@ pub struct Configuration {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pipeline: Option<PipelineType>,
 }
-
-// TODO: Move to output
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
 #[deprecated]

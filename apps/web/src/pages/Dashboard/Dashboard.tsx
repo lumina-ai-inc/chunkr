@@ -281,13 +281,13 @@ export default function Dashboard() {
       case "Tasks":
         if (taskId) {
           return {
-            title: `Tasks > ${taskResponse?.file_name || taskId}`,
+            title: `Tasks > ${taskResponse?.output?.file_name || taskId}`,
             component: (
               <Suspense fallback={<Loader />}>
                 {isLoading ? (
                   <Loader />
                 ) : taskResponse?.output &&
-                  taskResponse?.pdf_url &&
+                  taskResponse?.output?.pdf_url &&
                   taskResponse?.output ? (
                   <Viewer key={taskId} task={taskResponse} />
                 ) : null}
@@ -542,7 +542,7 @@ export default function Dashboard() {
                 {taskId ? "Tasks" : content.title}
               </Text>
             </Flex>
-            {taskId && taskResponse?.file_name && (
+            {taskId && taskResponse?.output?.file_name && (
               <>
                 <svg
                   width="24"
@@ -561,7 +561,7 @@ export default function Dashboard() {
                 </svg>
                 <Flex className="header-task-tag">
                   <Text size="2" weight="medium" style={{ color: "#FFF" }}>
-                    {taskResponse?.file_name || taskId}
+                    {taskResponse?.output?.file_name || taskId}
                   </Text>
                 </Flex>
               </>
