@@ -70,8 +70,8 @@ class Chunkr(ChunkrBase):
         )
         r.raise_for_status()
 
-    @ensure_client()
     @anywhere()
+    @ensure_client()
     async def cancel_task(self, task_id: str) -> None:
         r = await self._client.get(
             f"{self.url}/api/v1/task/{task_id}/cancel", headers=self._headers()
