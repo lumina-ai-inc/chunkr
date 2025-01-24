@@ -1,7 +1,11 @@
 import functools
 import asyncio
 import httpx
-from typing import Callable, Any, TypeVar, Awaitable, ParamSpec, Union, overload
+from typing import Callable, Any, TypeVar, Awaitable, Union, overload
+try:
+    from typing import ParamSpec
+except ImportError:
+    from typing_extensions import ParamSpec
 
 T = TypeVar('T')
 P = ParamSpec('P')
