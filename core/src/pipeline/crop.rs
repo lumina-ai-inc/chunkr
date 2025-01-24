@@ -103,7 +103,7 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn Error>> {
     let page_images = pipeline.page_images.as_ref().unwrap();
     let configuration = pipeline.get_task()?.configuration.clone();
     let segment_images = pipeline.segment_images.clone();
-    pipeline.output.chunks.par_iter().for_each(|chunk| {
+    pipeline.chunks.par_iter().for_each(|chunk| {
         chunk.segments.par_iter().for_each(|segment| {
             let page_image = page_images
                 .get(segment.page_number as usize - 1)
