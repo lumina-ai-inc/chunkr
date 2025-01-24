@@ -1,7 +1,7 @@
 interface MonthlyUsage {
   user_id: string;
   email: string;
-  last_paid_status: "paid" | "failed" | "cancelled" | null;
+  last_paid_status?: boolean;
   month: string;
   subscription_cost: number;
   usage_limit: number;
