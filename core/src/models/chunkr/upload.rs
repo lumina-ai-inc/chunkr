@@ -1,14 +1,11 @@
 use crate::configs::expiration_config;
-use crate::models::chunkr::chunk_processing::{
-    default_ignore_headers_and_footers, ChunkProcessing,
-};
+use crate::models::chunkr::chunk_processing::ChunkProcessing;
 use crate::models::chunkr::segment_processing::SegmentProcessing;
-use crate::models::chunkr::structured_extraction::StructuredExtraction;
 use crate::models::chunkr::task::Configuration;
 #[cfg(feature = "azure")]
 use crate::models::chunkr::task::PipelineType;
 use actix_multipart::form::json::Json as MPJson;
-use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
+use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
@@ -33,10 +30,6 @@ pub struct CreateForm {
     #[schema(value_type = Option<bool>, default = false)]
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
     pub high_resolution: Option<MPJson<bool>>,
-    #[param(style = Form, value_type = Option<serde_json::Value>)]
-    #[schema(value_type = Option<serde_json::Value>)]
-    #[deprecated = "Use `structured_extraction` instead"]
-    pub json_schema: Option<MPJson<serde_json::Value>>,
     #[param(style = Form, value_type = Option<OcrStrategy>)]
     #[schema(value_type = Option<OcrStrategy>, default = "All")]
     pub ocr_strategy: Option<MPJson<OcrStrategy>>,
@@ -53,17 +46,6 @@ pub struct CreateForm {
     #[param(style = Form, value_type = Option<SegmentationStrategy>)]
     #[schema(value_type = Option<SegmentationStrategy>, default = "LayoutAnalysis")]
     pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
-    #[param(style = Form, value_type = Option<StructuredExtraction>)]
-    #[schema(value_type = Option<StructuredExtraction>)]
-    pub structured_extraction: Option<MPJson<StructuredExtraction>>,
-    #[param(style = Form, value_type = Option<i32>)]
-    #[schema(value_type = Option<i32>, default = 512)]
-    #[deprecated = "Use `chunk_processing` instead"]
-    /// Deprecated: Use `chunk_processing.target_length` instead.
-    ///
-    /// The target chunk length to be used for chunking.
-    /// If 0, each chunk will contain a single segment.
-    pub target_chunk_length: Option<Text<i32>>,
 }
 
 impl CreateForm {
@@ -71,18 +53,7 @@ impl CreateForm {
         self.chunk_processing
             .as_ref()
             .map(|mp_json| mp_json.0.clone())
-            .or_else(|| {
-                // For backwards compatibility: if chunk_processing is not set but target_chunk_length is,
-                // create a ChunkProcessing with target_length as target_chunk_length
-                self.target_chunk_length.as_ref().map(|length| {
-                    let chunk_processing = ChunkProcessing {
-                        ignore_headers_and_footers: default_ignore_headers_and_footers(),
-                        target_length: length.0,
-                    };
-                    chunk_processing
-                })
-            })
-            .unwrap_or_else(ChunkProcessing::default)
+            .unwrap_or(ChunkProcessing::default())
     }
 
     fn get_expires_in(&self) -> Option<i32> {
@@ -95,10 +66,6 @@ impl CreateForm {
 
     fn get_high_resolution(&self) -> bool {
         self.high_resolution.as_ref().map(|e| e.0).unwrap_or(false)
-    }
-
-    fn get_structured_extraction(&self) -> Option<StructuredExtraction> {
-        self.structured_extraction.as_ref().map(|e| e.0.clone())
     }
 
     fn get_ocr_strategy(&self) -> OcrStrategy {
@@ -179,7 +146,6 @@ impl CreateForm {
             pipeline: self.get_pipeline(),
             segment_processing: self.get_segment_processing(),
             segmentation_strategy: self.get_segmentation_strategy(),
-            structured_extraction: self.get_structured_extraction(),
             target_chunk_length: None,
         }
     }
@@ -216,9 +182,6 @@ pub struct UpdateForm {
     #[param(style = Form, value_type = Option<SegmentationStrategy>)]
     #[schema(value_type = Option<SegmentationStrategy>)]
     pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
-    #[param(style = Form, value_type = Option<StructuredExtraction>)]
-    #[schema(value_type = Option<StructuredExtraction>)]
-    pub structured_extraction: Option<MPJson<StructuredExtraction>>,
 }
 
 impl UpdateForm {
@@ -301,11 +264,6 @@ impl UpdateForm {
                 .as_ref()
                 .map(|e| e.0.clone())
                 .unwrap_or(current_config.segmentation_strategy.clone()),
-            structured_extraction: self
-                .structured_extraction
-                .as_ref()
-                .map(|e| e.0.clone())
-                .or_else(|| current_config.structured_extraction.clone()),
             target_chunk_length: None,
         }
     }

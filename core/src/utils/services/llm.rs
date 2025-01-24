@@ -3,7 +3,6 @@ use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::open_ai::{
     ContentPart, ImageUrl, Message, MessageContent, OpenAiRequest, OpenAiResponse,
 };
-use crate::models::chunkr::structured_extraction::StructuredExtraction;
 use crate::utils::rate_limit::{LLM_OCR_TIMEOUT, LLM_RATE_LIMITER, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
 use base64::{engine::general_purpose, Engine as _};
@@ -30,7 +29,7 @@ pub async fn open_ai_call(
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
-    response_format: Option<StructuredExtraction>,
+    response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let request = OpenAiRequest {
         model,
@@ -76,7 +75,7 @@ pub async fn process_openai_request(
     messages: Vec<Message>,
     max_completion_tokens: Option<u32>,
     temperature: Option<f32>,
-    response_format: Option<StructuredExtraction>,
+    response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
     Ok(retry_with_backoff(|| async {
