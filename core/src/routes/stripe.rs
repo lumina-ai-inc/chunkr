@@ -413,7 +413,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                     let res_one = client
                         .execute(
                             "UPDATE subscriptions 
-                             SET last_paid_status = 'Canceled',
+                             SET last_paid_status = 'False',
                                  updated_at = NOW()
                              WHERE user_id = $1",
                             &[&user_id],
@@ -427,7 +427,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                     let res_two = client
                         .execute(
                             "UPDATE users 
-                             SET invoice_status = 'Canceled', 
+                             SET invoice_status = 'False', 
                                  tier = 'Free' 
                              WHERE user_id = $1",
                             &[&user_id],
