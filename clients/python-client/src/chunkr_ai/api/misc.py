@@ -3,10 +3,8 @@ import io
 import json
 from pathlib import Path
 from PIL import Image
-from pydantic import BaseModel
 import requests
 from typing import Union, Tuple, BinaryIO, Optional
-
 
 def prepare_file(file: Union[str, Path, BinaryIO, Image.Image]) -> Tuple[str, BinaryIO]:
     """Convert various file types into a tuple of (filename, file-like object)."""
