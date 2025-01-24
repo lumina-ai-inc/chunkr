@@ -358,18 +358,38 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                             'Page' as usage_type, 
                                             0 as usage, 
                                             0 as overage_usage,
-                                            EXTRACT(YEAR FROM CURRENT_TIMESTAMP) as year,
-                                            EXTRACT(MONTH FROM CURRENT_TIMESTAMP) as month,
+                                            CASE 
+                                                WHEN CURRENT_TIMESTAMP BETWEEN mu.billing_cycle_start AND mu.billing_cycle_end THEN
+                                                    EXTRACT(YEAR FROM mu.billing_cycle_start)
+                                                ELSE 
+                                                    EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+                                            END as year,
+                                            CASE
+                                                WHEN CURRENT_TIMESTAMP BETWEEN mu.billing_cycle_start AND mu.billing_cycle_end THEN
+                                                    EXTRACT(MONTH FROM mu.billing_cycle_start) 
+                                                ELSE
+                                                    EXTRACT(MONTH FROM CURRENT_TIMESTAMP)
+                                            END as month,
                                             $2 as tier,
-                                            t.usage_limit
+                                            t.usage_limit,
+                                            mu.billing_cycle_start,
+                                            mu.billing_cycle_end
                                         FROM tiers t
+                                        LEFT JOIN monthly_usage mu ON mu.user_id = $1 
+                                            AND mu.year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+                                            AND mu.month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)
                                         WHERE t.tier = $2
                                     )
                                     INSERT INTO monthly_usage (
                                         user_id, usage_type, usage, overage_usage,
-                                        year, month, tier, usage_limit
+                                        year, month, tier, usage_limit,
+                                        billing_cycle_start, billing_cycle_end
                                     )
-                                    SELECT * FROM new_data
+                                    SELECT 
+                                        user_id, usage_type, usage, overage_usage,
+                                        year, month, tier, usage_limit,
+                                        billing_cycle_start, billing_cycle_end
+                                    FROM new_data
                                     ON CONFLICT (user_id, usage_type, year, month)
                                     DO UPDATE
                                     SET tier = EXCLUDED.tier,
