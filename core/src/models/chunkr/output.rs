@@ -38,7 +38,7 @@ pub struct Chunk {
     /// that fit within that length (segments remain intact).
     /// Otherwise, contains exactly one segment.
     pub segments: Vec<Segment>,
-    pub embed: String,
+    pub embed: Option<String>,
 }
 
 impl Chunk {
@@ -65,7 +65,7 @@ impl Chunk {
             chunk_id,
             chunk_length,
             segments,
-            embed,
+            embed: Some(embed),
         }
     }
 
@@ -73,7 +73,7 @@ impl Chunk {
     pub fn to_simple(&self) -> SimpleChunk {
         SimpleChunk {
             id: self.chunk_id.clone(),
-            content: self.embed.clone(),
+            content: self.embed.clone().unwrap_or_default().to_string(),
         }
     }
 }
