@@ -1150,9 +1150,9 @@ const Home = () => {
                   />
 
                   <PricingCard
-                    title="Dev"
+                    title="Starter"
                     credits={10000}
-                    price={49}
+                    price={50}
                     period="month"
                     features={[
                       "10,000 pages per month",
@@ -1163,9 +1163,9 @@ const Home = () => {
                   />
 
                   <PricingCard
-                    title="Startup"
+                    title="Dev"
                     credits={150000}
-                    price={249}
+                    price={200}
                     period="month"
                     features={[
                       "150,000 pages per month",
@@ -1176,9 +1176,9 @@ const Home = () => {
                   />
 
                   <PricingCard
-                    title="Enterprise"
+                    title="Teams"
                     credits={500000}
-                    price={449}
+                    price={500}
                     period="month"
                     features={[
                       "500,000 pages per month",

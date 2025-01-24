@@ -70,16 +70,18 @@ const PricingCard = ({
               justify="center"
               className="feature-checkmark-container"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                 <path
                   d="M13.3 4.3L6 11.6L2.7 8.3L3.3 7.7L6 10.4L12.7 3.7L13.3 4.3Z"
-                  fill="#ffffffd0"
-                  stroke="#ffffffd0"
+                  fill="#000000"
+                  stroke="#000000"
                 />
               </svg>
             </Flex>
 
-            <Text size="2">{feature}</Text>
+            <Text size="2" style={{ color: "#ffffffe4" }}>
+              {feature}
+            </Text>
           </Flex>
         ))}
       </Flex>

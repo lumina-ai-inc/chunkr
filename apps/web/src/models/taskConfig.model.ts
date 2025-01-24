@@ -85,54 +85,6 @@ export interface SegmentProcessing {
   Page: SegmentProcessingConfig;
 }
 
-/**
- * Represents a property in the JSON schema
- */
-export interface Property {
-  /** The identifier for the property in the extracted data */
-  name: string;
-
-  /**
-   * A human-readable title for the property.
-   * This is optional and can be used to increase the accuracy of the extraction.
-   */
-  title?: string;
-
-  /**
-   * The data type of the property
-   */
-  type: string;
-
-  /**
-   * A description of what the property represents.
-   * This is optional and can be used increase the accuracy of the extraction.
-   * Available for string, int, float, bool, list, object.
-   */
-  description?: string;
-
-  /**
-   * The default value for the property if no data is extracted
-   */
-  default?: string;
-}
-
-/**
- * The JSON schema to be used for structured extraction
- */
-export interface JsonSchema {
-  /** The title of the JSON schema. This can be used to identify the schema */
-  title: string;
-
-  /** The properties of the JSON schema. Each property is a field to be extracted from the document */
-  properties: Property[];
-
-  /**
-   * @deprecated
-   * The type of the JSON schema
-   */
-  schema_type?: string;
-}
-
 import { WhenEnabled } from "../config/env.config";
 
 export interface UploadFormData {
@@ -154,9 +106,6 @@ export interface UploadFormData {
    * @default false
    */
   high_resolution?: boolean;
-
-  /** Optional JSON schema configuration for structured data extraction */
-  json_schema?: JsonSchema;
 
   /**
    * OCR strategy to use for document processing
@@ -234,7 +183,6 @@ export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   ocr_strategy: OcrStrategy.All,
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
-  json_schema: undefined, // or some default schema if needed
   file: new File([], ""),
   pipeline: undefined as WhenEnabled<"pipeline", Pipeline>, // Default pipeline
 };

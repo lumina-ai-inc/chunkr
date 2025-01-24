@@ -13,7 +13,6 @@ import Upload from "./Upload";
 import {
   ToggleGroup,
   SegmentProcessingControls,
-  JsonSchemaControls,
   ChunkProcessingControls,
 } from "./ConfigControls";
 import { uploadFile } from "../../services/uploadFileApi";
@@ -70,7 +69,6 @@ export default function UploadMain({
           file,
           chunk_processing: config.chunk_processing,
           high_resolution: config.high_resolution,
-          json_schema: config.json_schema,
           ocr_strategy: config.ocr_strategy,
           segment_processing: getEffectiveSegmentProcessing(config),
           segmentation_strategy: config.segmentation_strategy,
@@ -442,7 +440,7 @@ export default function UploadMain({
             />
           </div>
 
-          <Flex direction="column" mt="32px">
+          {/* <Flex direction="column" mt="32px">
             <JsonSchemaControls
               value={config.json_schema}
               onChange={(newSchema) =>
@@ -452,7 +450,7 @@ export default function UploadMain({
                 })
               }
             />
-          </Flex>
+          </Flex> */}
         </section>
 
         <section
