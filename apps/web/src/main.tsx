@@ -5,7 +5,6 @@ import { AuthProvider, AuthProviderProps } from "react-oidc-context";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Theme } from "@radix-ui/themes";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { PostHogProvider } from "posthog-js/react";
 import "@radix-ui/themes/styles.css";
 import "./index.css";
 import Auth from "./auth/Auth.tsx";
@@ -26,10 +25,6 @@ const oidcConfig: AuthProviderProps = {
   onSigninCallback: () => {
     window.history.replaceState({}, document.title, window.location.pathname);
   },
-};
-
-const options = {
-  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
 };
 
 const router = createBrowserRouter([
@@ -62,18 +57,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     }}
   >
     <QueryClientProvider client={queryClient}>
-      <PostHogProvider
-        apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
-        options={options}
-      >
-        <AuthProvider {...oidcConfig}>
-          <Provider store={store}>
-            <Auth>
-              <RouterProvider router={router} />
-            </Auth>
-          </Provider>
-        </AuthProvider>
-      </PostHogProvider>
+      <AuthProvider {...oidcConfig}>
+        <Provider store={store}>
+          <Auth>
+            <RouterProvider router={router} />
+          </Auth>
+        </Provider>
+      </AuthProvider>
     </QueryClientProvider>
     <Toaster
       position="bottom-right"
