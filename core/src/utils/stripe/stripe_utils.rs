@@ -42,16 +42,21 @@ pub async fn update_invoice_status(
         )
         .await?;
 
+    let is_paid = match status {
+        "Paid" | "Open" => true,
+        _ => false,
+    };
+
     client
         .execute(
             "UPDATE subscriptions SET last_paid_status = $1 WHERE user_id = $2",
-            &[&status, &user_id],
+            &[&is_paid, &user_id],
         )
         .await?;
     client
         .execute(
             "UPDATE users SET invoice_status = $1 WHERE user_id = $2",
-            &[&status, &user_id],
+            &[&is_paid, &user_id],
         )
         .await?;
     Ok(())
