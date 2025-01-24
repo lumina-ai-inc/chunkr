@@ -5,7 +5,6 @@ use crate::models::chunkr::user::{Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
 use prefixed_api_key::PrefixedApiKeyController;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::str::FromStr;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -42,44 +41,6 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
 
     let transaction = client.transaction().await?;
 
-    let mut usage_limits: HashMap<UsageType, i32> = HashMap::from([
-        (UsageType::Fast, UsageType::Fast.get_usage_limit(&tier)),
-        (
-            UsageType::HighQuality,
-            UsageType::HighQuality.get_usage_limit(&tier),
-        ),
-        (
-            UsageType::Segment,
-            UsageType::Segment.get_usage_limit(&tier),
-        ),
-    ]);
-    let check_query = r#"SELECT 1 FROM pre_applied_free_pages WHERE email = $1"#;
-    let check_result = transaction
-        .query_opt(check_query, &[&user_info.email])
-        .await?;
-
-    if check_result.is_some() {
-        let pre_applied_discount_pages_query =
-            r#"SELECT usage_type, amount FROM pre_applied_free_pages WHERE email = $1"#;
-
-        let pre_applied_pages: Vec<PreAppliedPages> = transaction
-            .query(pre_applied_discount_pages_query, &[&user_info.email])
-            .await?
-            .into_iter()
-            .map(PreAppliedPages::from)
-            .collect();
-
-        for pre_applied_page in pre_applied_pages {
-            if let Ok(usage_type) = UsageType::from_str(&pre_applied_page.usage_type) {
-                usage_limits.insert(usage_type, pre_applied_page.amount);
-            }
-        }
-    }
-
-    transaction.commit().await?;
-
-    let transaction = client.transaction().await?;
-
     let user_query = r#"
     INSERT INTO users (user_id, email, first_name, last_name, tier)
     VALUES ($1, $2, $3, $4, $5)
@@ -109,28 +70,61 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         .await?;
 
     let usage_query = r#"
-    INSERT INTO USAGE (user_id, usage, usage_limit, usage_type, unit)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO USAGE (user_id, usage, usage_type, unit)
+    VALUES ($1, $2, $3, $4)
     "#;
 
-    for (usage_type, limit) in &usage_limits {
-        transaction
-            .execute(
-                usage_query,
-                &[
-                    &user_info.user_id,
-                    &0i32,
-                    &limit,
-                    &usage_type.to_string(),
-                    &usage_type.get_unit(),
-                ],
-            )
-            .await?;
-    }
+    transaction
+        .execute(
+            usage_query,
+            &[
+                &user_info.user_id,
+                &0i32,
+                &UsageType::Page.to_string(),
+                &UsageType::Page.get_unit(),
+            ],
+        )
+        .await?;
 
-    transaction.commit().await?;
+    let monthly_usage_query = r#"
+    INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier, overage_usage, billing_cycle_start, billing_cycle_end)
+    SELECT $1, $2, $3, 
+        CASE 
+            WHEN EXISTS (SELECT 1 FROM pre_applied_free_pages p WHERE p.email = $5) 
+            THEN (SELECT amount FROM pre_applied_free_pages p WHERE p.email = $5 LIMIT 1)
+            ELSE t.usage_limit
+        END,
+        EXTRACT(YEAR FROM CURRENT_TIMESTAMP), 
+        EXTRACT(MONTH FROM CURRENT_TIMESTAMP), 
+        t.tier,
+        0,
+        CURRENT_DATE,
+        (CURRENT_DATE + INTERVAL '30 days')::TIMESTAMPTZ
+    FROM tiers t
+    WHERE t.tier = $4
+    "#;
+
+    transaction
+        .execute(
+            monthly_usage_query,
+            &[
+                &user_info.user_id,
+                &UsageType::Page.to_string(),
+                &0i32,
+                &tier.to_string(),
+                &user_info.email,
+            ],
+        )
+        .await?;
+
+    let check_result = transaction
+        .query_opt(
+            "SELECT 1 FROM pre_applied_free_pages WHERE email = $1",
+            &[&user_info.email],
+        )
+        .await?;
+
     if check_result.is_some() {
-        let transaction2 = client.transaction().await?;
         let update_pre_applied_query = r#"
         UPDATE pre_applied_free_pages 
         SET consumed = TRUE,
@@ -138,11 +132,20 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         WHERE email = $1
         "#;
 
-        transaction2
+        transaction
             .execute(update_pre_applied_query, &[&user_info.email])
             .await?;
-        transaction2.commit().await?;
     }
+
+    transaction.commit().await?;
+
+    let usage_limit = client
+        .query_one(
+            "SELECT usage_limit FROM monthly_usage WHERE user_id = $1 AND usage_type = $2 ORDER BY billing_cycle_start DESC LIMIT 1",
+            &[&user_info.user_id, &UsageType::Page.to_string()],
+        )
+        .await?
+        .get::<_, i32>("usage_limit");
 
     let user = User {
         user_id: user_row.get("user_id"),
@@ -157,30 +160,13 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
             .unwrap_or(Tier::Free),
         created_at: user_row.get("created_at"),
         updated_at: user_row.get("updated_at"),
-        usage: vec![
-            UsageLimit {
-                usage_type: UsageType::Fast,
-                usage_limit: usage_limits.get(&UsageType::Fast).copied().unwrap_or(1000),
-                discounts: None,
-            },
-            UsageLimit {
-                usage_type: UsageType::HighQuality,
-                usage_limit: usage_limits
-                    .get(&UsageType::HighQuality)
-                    .copied()
-                    .unwrap_or(500),
-                discounts: None,
-            },
-            UsageLimit {
-                usage_type: UsageType::Segment,
-                usage_limit: usage_limits
-                    .get(&UsageType::Segment)
-                    .copied()
-                    .unwrap_or(250),
-                discounts: None,
-            },
-        ],
+        usage: vec![UsageLimit {
+            usage_type: UsageType::Page,
+            usage_limit,
+            overage_usage: 0,
+        }],
         task_count: Some(0),
+        last_paid_status: None,
     };
 
     Ok(user)

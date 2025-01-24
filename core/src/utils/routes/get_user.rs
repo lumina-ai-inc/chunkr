@@ -1,7 +1,6 @@
 use crate::configs::postgres_config::Client;
-use crate::models::chunkr::user::{Discount, InvoiceStatus, Tier, UsageLimit, UsageType, User};
+use crate::models::chunkr::user::{InvoiceStatus, Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
-use serde_json::Value;
 use std::str::FromStr;
 
 pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error>> {
@@ -18,17 +17,18 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         u.created_at,
         u.updated_at,
         u.task_count,
-        COALESCE(json_agg(json_build_object('usage_type', d.usage_type, 'amount', d.amount))::text, '[]') as discounts
+        s.last_paid_status
     FROM 
         users u
     LEFT JOIN 
         api_keys ak ON u.user_id = ak.user_id
-    LEFT JOIN 
-        discounts d ON u.user_id = d.user_id AND d.usage_type IN ('Fast', 'HighQuality', 'Segment')
+    LEFT JOIN
+        subscriptions s ON u.user_id = s.user_id
     WHERE 
         u.user_id = $1
     GROUP BY 
-        u.user_id;
+        u.user_id,
+        s.last_paid_status;
     "#;
 
     let row = client.query_opt(query, &[&user_id]).await?.ok_or_else(|| {
@@ -37,26 +37,25 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
             format!("User with id {} not found", user_id),
         )
     })?;
-    let discounts_json: String = row.get("discounts");
-    let discounts: Vec<Discount> = serde_json::from_str::<Vec<Value>>(&discounts_json)?
-        .into_iter()
-        .filter(|d| d["usage_type"] != Value::Null && d["amount"] != Value::Null)
-        .map(|v| serde_json::from_value(v).unwrap())
-        .collect();
 
-    // Get usage limits from database
     let usage_limits = client
         .query(
-            "SELECT usage_type, usage_limit FROM usage WHERE user_id = $1",
+            "SELECT usage_type, usage_limit, overage_usage FROM monthly_usage WHERE user_id = $1",
             &[&user_id],
         )
         .await?;
 
-    let mut usage_map = std::collections::HashMap::new();
+    let mut usage = Vec::new();
     for usage_row in usage_limits {
         let usage_type: String = usage_row.get("usage_type");
-        let limit: i32 = usage_row.try_get("usage_limit").unwrap_or(0);
-        usage_map.insert(usage_type, limit);
+        let overage_usage: i32 = usage_row.get("overage_usage");
+        let usage_limit: i32 = usage_row.get("usage_limit");
+
+        usage.push(UsageLimit {
+            usage_type: UsageType::from_str(&usage_type).unwrap_or(UsageType::Page),
+            usage_limit,
+            overage_usage,
+        });
     }
 
     let user = User {
@@ -72,53 +71,9 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
             .unwrap_or(Tier::Free),
         created_at: row.get("created_at"),
         updated_at: row.get("updated_at"),
-        usage: vec![
-            UsageLimit {
-                usage_type: UsageType::Fast,
-                usage_limit: *usage_map.get("Fast").unwrap_or(&0),
-                discounts: if discounts.is_empty() {
-                    None
-                } else {
-                    Some(
-                        discounts
-                            .clone()
-                            .into_iter()
-                            .filter(|d| d.usage_type == UsageType::Fast)
-                            .collect(),
-                    )
-                },
-            },
-            UsageLimit {
-                usage_type: UsageType::HighQuality,
-                usage_limit: *usage_map.get("HighQuality").unwrap_or(&0),
-                discounts: if discounts.is_empty() {
-                    None
-                } else {
-                    Some(
-                        discounts
-                            .clone()
-                            .into_iter()
-                            .filter(|d| d.usage_type == UsageType::HighQuality)
-                            .collect(),
-                    )
-                },
-            },
-            UsageLimit {
-                usage_type: UsageType::Segment,
-                usage_limit: *usage_map.get("Segment").unwrap_or(&0),
-                discounts: if discounts.is_empty() {
-                    None
-                } else {
-                    Some(
-                        discounts
-                            .into_iter()
-                            .filter(|d| d.usage_type == UsageType::Segment)
-                            .collect(),
-                    )
-                },
-            },
-        ],
+        usage,
         task_count: row.get("task_count"),
+        last_paid_status: row.get("last_paid_status"),
     };
 
     Ok(user)
@@ -131,21 +86,22 @@ pub struct InvoiceSummary {
     pub invoice_id: String,
     pub status: InvoiceStatus,
     pub date_created: Option<chrono::NaiveDateTime>,
-    pub amount_due: f32, // Added amount_due field
+    pub amount_due: f32,
 }
 
 #[derive(Serialize, Clone)]
 pub struct MonthlyUsage {
+    pub user_id: String,
+    pub email: Option<String>,
+    pub last_paid_status: Option<String>,
     pub month: String,
-    pub total_cost: f32,
-    pub usage_details: Vec<UsageDetail>,
-}
-
-#[derive(Serialize, Clone)]
-pub struct UsageDetail {
-    pub usage_type: String,
-    pub count: i64,
-    pub cost: f32,
+    pub subscription_cost: f64,
+    pub usage_limit: i32,
+    pub usage: Option<i32>,
+    pub overage_cost: f64,
+    pub tier: String,
+    pub billing_cycle_start: Option<chrono::DateTime<chrono::Utc>>,
+    pub billing_cycle_end: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 pub async fn get_monthly_usage_count(
@@ -153,73 +109,47 @@ pub async fn get_monthly_usage_count(
 ) -> Result<Vec<MonthlyUsage>, Box<dyn std::error::Error>> {
     let client: Client = get_pg_client().await?;
 
-    // Check user tier
-    let tier_query = "SELECT tier FROM users WHERE user_id = $1";
-    let user_tier: Option<String> = client.query_one(tier_query, &[&user_id]).await?.get(0);
     let query = r#"
-        SELECT
-            to_char(created_at, 'YYYY-MM') AS month,
-            'Page' AS usage_type,
-            SUM(page_count) AS total_pages
-        FROM
-            tasks
-        WHERE
-            user_id = $1
-            AND status = 'Succeeded'
-        GROUP BY
-            month, usage_type
-        ORDER BY
-            month DESC, usage_type;
-        "#;
+        SELECT 
+            u.user_id,
+            u.email,
+            u.invoice_status,
+            to_char(mu.created_at, 'YYYY-MM') as month,
+            mu.usage,
+            mu.usage_limit,
+            CAST(mu.overage_usage * t.overage_rate AS DOUBLE PRECISION) as overage_cost,
+            mu.tier,
+            mu.billing_cycle_start,
+            mu.billing_cycle_end,
+            CAST(t.price_per_month AS DOUBLE PRECISION) as subscription_cost
+        FROM users u
+        LEFT JOIN monthly_usage mu ON u.user_id = mu.user_id
+        LEFT JOIN tiers t ON mu.tier = t.tier
+        WHERE u.user_id = $1
+        ORDER BY mu.created_at DESC
+    "#;
 
     let rows = client.query(query, &[&user_id]).await?;
 
-    let mut monthly_usage_map: std::collections::HashMap<String, MonthlyUsage> =
-        std::collections::HashMap::new();
+    let mut monthly_usage: Vec<MonthlyUsage> = Vec::new();
 
     for row in rows {
-        let month: String = row.get("month");
-        let usage_type: String = row.get("usage_type");
-        let total_pages: i64 = row.get("total_pages");
-
-        let (_, cost) = if user_tier.as_deref() == Some("Free") {
-            (0.0, 0.0) // Hardcode cost per type and total cost to 0 for Free tier
-        } else {
-            match usage_type.as_str() {
-                "Fast" => (0.005, (total_pages as f64) * 0.005),
-                "HighQuality" => (0.01, (total_pages as f64) * 0.01),
-                "Segment" => (0.01, (total_pages as f64) * 0.01),
-                _ => (0.0, 0.0),
-            }
-        };
-
-        monthly_usage_map
-            .entry(month.clone())
-            .or_insert(MonthlyUsage {
-                month: month.clone(),
-                total_cost: 0.0,
-                usage_details: Vec::new(),
-            })
-            .total_cost += cost as f32;
-
-        monthly_usage_map
-            .get_mut(&month)
-            .unwrap()
-            .usage_details
-            .push(UsageDetail {
-                usage_type,
-                count: total_pages,
-                cost: cost as f32,
-            });
+        monthly_usage.push(MonthlyUsage {
+            user_id: row.get("user_id"),
+            email: row.get("email"),
+            last_paid_status: row.get("invoice_status"),
+            month: row.get("month"),
+            subscription_cost: row.get::<_, f64>("subscription_cost"),
+            usage_limit: row.get("usage_limit"),
+            usage: row.get("usage"),
+            tier: row.get("tier"),
+            overage_cost: row.get("overage_cost"),
+            billing_cycle_start: row.get("billing_cycle_start"),
+            billing_cycle_end: row.get("billing_cycle_end"),
+        });
     }
 
-    let monthly_usage_counts: Vec<MonthlyUsage> =
-        monthly_usage_map.into_iter().map(|(_, v)| v).collect();
-    // Sort monthly_usage_counts in descending order by month
-    let mut monthly_usage_counts = monthly_usage_counts.clone();
-    monthly_usage_counts.sort_by(|a, b| b.month.cmp(&a.month));
-
-    Ok(monthly_usage_counts)
+    Ok(monthly_usage)
 }
 
 #[derive(Serialize)]

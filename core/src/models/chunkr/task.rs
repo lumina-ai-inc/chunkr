@@ -25,6 +25,17 @@ use tempfile::NamedTempFile;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskDetails {
+    pub task_id: String,
+    pub user_id: String,
+    pub email: Option<String>,
+    pub name: String,
+    pub page_count: i32,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub status: String,
+}
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Task {
     pub api_key: Option<String>,

@@ -30,7 +30,8 @@ use middleware::auth::AuthMiddlewareFactory;
 use routes::github::get_github_repo_info;
 use routes::health::health_check;
 use routes::stripe::{
-    create_setup_intent, create_stripe_session, get_invoice_detail, get_monthly_usage,
+    create_checkout_session, create_setup_intent, create_stripe_session,
+    get_billing_portal_session, get_checkout_session, get_invoice_detail, get_monthly_usage,
     get_user_invoices, stripe_webhook,
 };
 use routes::structured_extraction::handle_structured_extraction_route;
@@ -38,7 +39,6 @@ use routes::task::{
     cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
 };
 use routes::tasks::get_tasks_route;
-use routes::usage::get_usage;
 use routes::user::get_or_create_user;
 use utils::clients::initialize;
 use utils::routes::admin_user::get_or_create_admin_user;
@@ -141,6 +141,7 @@ pub fn main() -> std::io::Result<()> {
             .await
             .expect("Failed to create admin user");
         init_jobs();
+
         fn handle_multipart_error(err: MultipartError, _: &HttpRequest) -> Error {
             println!("Multipart error: {}", err);
             Error::from(err)
@@ -195,7 +196,6 @@ pub fn main() -> std::io::Result<()> {
                         .route("/{task_id}/cancel", web::get().to(cancel_task_route)),
                 )
                 .route("/tasks", web::get().to(get_tasks_route))
-                .route("/usage", web::get().to(get_usage))
                 .route("/usage/monthly", web::get().to(get_monthly_usage));
 
             if std::env::var("STRIPE__API_KEY").is_ok() {
@@ -206,7 +206,13 @@ pub fn main() -> std::io::Result<()> {
                     .route("/create-setup-intent", web::get().to(create_setup_intent))
                     .route("/create-session", web::get().to(create_stripe_session))
                     .route("/invoices", web::get().to(get_user_invoices))
-                    .route("/invoice/{invoice_id}", web::get().to(get_invoice_detail));
+                    .route("/invoice/{invoice_id}", web::get().to(get_invoice_detail))
+                    .route("/checkout", web::post().to(create_checkout_session))
+                    .route(
+                        "/checkout/{session_id}",
+                        web::get().to(get_checkout_session),
+                    )
+                    .route("/billing-portal", web::get().to(get_billing_portal_session));
 
                 app = app.service(stripe_scope);
             }
