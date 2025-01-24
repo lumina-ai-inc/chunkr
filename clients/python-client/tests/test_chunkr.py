@@ -70,9 +70,9 @@ async def test_expires_in(client, sample_path):
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
-    await asyncio.sleep(10)
+    await asyncio.sleep(11)
     try:
-        task = await client.get_task(response.task_id)
+        await client.get_task(response.task_id)
         assert False
     except Exception as e:
         print(e)

@@ -22,12 +22,12 @@ def anywhere():
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[Awaitable[T], T]:
             global _sync_loop
             try:
-                loop = asyncio.get_running_loop()
-                return async_func(*args, **kwargs)
+                asyncio.get_running_loop()
+                return async_func(*args, **kwargs) 
             except RuntimeError:
                 if _sync_loop is None:
                     _sync_loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(_sync_loop)
+                asyncio.set_event_loop(_sync_loop) 
                 try:
                     return _sync_loop.run_until_complete(async_func(*args, **kwargs))
                 finally:
