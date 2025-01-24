@@ -9,11 +9,19 @@ use utoipa::ToSchema;
 pub struct OutputResponse {
     /// Collection of document chunks, where each chunk contains one or more segments
     pub chunks: Vec<Chunk>,
+    /// The number of pages in the file.
+    pub page_count: Option<u32>,
+    /// The presigned URL of the PDF file.
+    pub pdf_url: Option<String>,
 }
 
 impl Default for OutputResponse {
     fn default() -> Self {
-        Self { chunks: vec![] }
+        Self {
+            chunks: vec![],
+            page_count: None,
+            pdf_url: None,
+        }
     }
 }
 
