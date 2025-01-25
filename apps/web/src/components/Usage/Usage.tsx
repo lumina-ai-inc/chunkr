@@ -153,13 +153,58 @@ export default function UsagePage({ customerId }: UsageProps) {
         <Flex direction="row" gap="6" style={{ flexWrap: "wrap" }}>
           <Flex direction="column" gap="4" className="usage-card">
             <Flex justify="between" align="center">
-              <Text
-                size="3"
-                weight="bold"
-                style={{ color: "rgba(255,255,255,0.9)" }}
-              >
-                Credits
-              </Text>
+              <Flex direction="row" gap="2" align="center">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g clip-path="url(#clip0_305_27868)">
+                    <path
+                      d="M12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25Z"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeMiterlimit="10"
+                    />
+                    <path
+                      d="M9.88012 14.36C9.88012 15.53 10.8301 16.25 12.0001 16.25C13.1701 16.25 14.1201 15.53 14.1201 14.36C14.1201 13.19 13.3501 12.75 11.5301 11.66C10.6701 11.15 9.87012 10.82 9.87012 9.64C9.87012 8.46 10.8201 7.75 11.9901 7.75C13.1601 7.75 14.1101 8.7 14.1101 9.87"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M12 16.25V18.25"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M12 5.75V7.75"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_305_27868">
+                      <rect width="24" height="24" fill="white" />
+                    </clipPath>
+                  </defs>
+                </svg>
+                <Text
+                  size="3"
+                  weight="bold"
+                  style={{ color: "rgba(255,255,255,0.9)" }}
+                >
+                  Credits
+                </Text>
+              </Flex>
+
               <Text
                 size="1"
                 weight="medium"
@@ -193,13 +238,71 @@ export default function UsagePage({ customerId }: UsageProps) {
           {overage > 0 && (
             <Flex direction="column" gap="4" className="usage-card">
               <Flex justify="between" align="center">
-                <Text
-                  size="3"
-                  weight="bold"
-                  style={{ color: "rgba(255,255,255,0.9)" }}
-                >
-                  Overage
-                </Text>
+                <Flex direction="row" gap="2" align="center">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 25 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clip-path="url(#clip0_113_1447)">
+                      <path
+                        d="M12.5 6.25C17.61 6.25 21.75 10.39 21.75 15.5V18.25H3.25V15.5C3.25 10.39 7.39 6.25 12.5 6.25Z"
+                        stroke="#FFFFFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <circle cx="12.5" cy="14.75" r="1.25" fill="#121331" />
+                      <path
+                        d="M12.5 8.31V6.25"
+                        stroke="#FFFFFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M5.49979 12.8799L3.77979 12.4199"
+                        stroke="#FFFFFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M21.22 12.4199L19.5 12.8799"
+                        stroke="#FFFFFF"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M9.25 13.75L12.4999 14.7501"
+                        stroke="#121331"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_113_1447">
+                        <rect
+                          width="24"
+                          height="24"
+                          fill="white"
+                          transform="translate(0.5)"
+                        />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <Text
+                    size="3"
+                    weight="bold"
+                    style={{ color: "rgba(255,255,255,0.9)" }}
+                  >
+                    Overage
+                  </Text>
+                </Flex>
                 <Text
                   size="1"
                   weight="medium"
@@ -236,13 +339,76 @@ export default function UsagePage({ customerId }: UsageProps) {
         <Flex direction="row" gap="6" style={{ flexWrap: "wrap" }}>
           <Flex direction="column" gap="4" className="usage-card">
             <Flex justify="between" align="center">
-              <Text
-                size="3"
-                weight="bold"
-                style={{ color: "rgba(255,255,255,0.9)" }}
-              >
-                {tier === "Free" ? "Upgrade Plan" : "Payment Status"}
-              </Text>
+              <Flex direction="row" gap="2" align="center">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 25 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g clip-path="url(#clip0_113_1389)">
+                    <path
+                      d="M7.25 9V16.75"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M12.5 9V16.75"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M17.75 9V16.75"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M5.25 16.75H19.75"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeMiterlimit="10"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M4.25 20.25H20.75"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeMiterlimit="10"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M4.25 5.75L12.5 3.75L20.75 5.75V8.25H4.25V5.75Z"
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                      strokeLinejoin="round"
+                    />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_113_1389">
+                      <rect
+                        width="24"
+                        height="24"
+                        fill="white"
+                        transform="translate(0.5)"
+                      />
+                    </clipPath>
+                  </defs>
+                </svg>
+                <Text
+                  size="3"
+                  weight="bold"
+                  style={{ color: "rgba(255,255,255,0.9)" }}
+                >
+                  {tier === "Free" ? "Upgrade Plan" : "Payment Status"}
+                </Text>
+              </Flex>
               {tier !== "Free" && (
                 <div
                   className={`payment-status-badge ${
@@ -288,7 +454,7 @@ export default function UsagePage({ customerId }: UsageProps) {
         </Flex>
       </Flex>
 
-      <Flex direction="row" gap="4" mt="5" align="center">
+      <Flex direction="row" gap="4" mt="56px" align="center">
         <Text size="5" align="center" weight="bold" style={{ color: "#FFF" }}>
           Overview
         </Text>
@@ -320,7 +486,29 @@ export default function UsagePage({ customerId }: UsageProps) {
       </Flex>
 
       <Flex direction="column" gap="4">
-        <Flex justify="between" align="center">
+        <Flex direction="row" gap="2" align="center">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15.75 6.75H21.25V12.25"
+              stroke="#FFFFFF"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2.75 18.25L9.38 11.58L12.92 15.13L21.25 6.75"
+              stroke="#FFFFFF"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           <Text
             size="3"
             weight="bold"

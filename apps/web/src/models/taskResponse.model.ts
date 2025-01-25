@@ -68,6 +68,7 @@ export interface Segment {
   html: string | null;
   image: string | null;
   markdown: string | null;
+  llm: string | null;
   ocr: OCRResult[];
   page_height: number;
   page_number: number;
