@@ -34,8 +34,8 @@ variable "postgres_password" {
   default     = "postgres"
 }
 
-variable "chunkmydocs_db" {
-  default = "chunkmydocs"
+variable "chunkr_db" {
+  default = "chunkr"
 }
 
 variable "keycloak_db" {
@@ -407,8 +407,8 @@ resource "time_sleep" "wait_30_seconds" {
   create_duration = "30s"
 }
 
-resource "google_sql_database" "chunkkmydocs-database" {
-  name     = var.chunkmydocs_db
+resource "google_sql_database" "chunkr-database" {
+  name     = var.chunkr_db
   instance = google_sql_database_instance.postgres.name
 
   depends_on = [google_sql_database_instance.postgres]
@@ -428,7 +428,7 @@ resource "google_sql_user" "users" {
 
   depends_on = [
     time_sleep.wait_30_seconds,
-    google_sql_database.chunkkmydocs-database,
+    google_sql_database.chunkr-database,
     google_sql_database.keycloak-database
   ]
 }
@@ -463,8 +463,8 @@ output "postgres_password" {
   sensitive   = true
 }
 
-output "chunkmydocs_postgresql_url" {
-  value       = "postgresql://${var.postgres_username}:${var.postgres_password}@${google_sql_database_instance.postgres.private_ip_address}:5432/${var.chunkmydocs_db}"
+output "chunkr_postgresql_url" {
+  value       = "postgresql://${var.postgres_username}:${var.postgres_password}@${google_sql_database_instance.postgres.private_ip_address}:5432/${var.chunkr_db}"
   description = "The connection URL for the PostgreSQL database"
   sensitive   = true
 }
