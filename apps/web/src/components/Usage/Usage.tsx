@@ -1,93 +1,58 @@
 import { Flex, Text } from "@radix-ui/themes";
 import "./Usage.css";
-// import useUser from "../../hooks/useUser";
-import PaymentSetup from "../Payments/PaymentSetup";
-// import { useEffect, useState } from "react";
-// import { useTasksQuery } from "../../hooks/useTaskQuery";
-// import { TaskResponse } from "../../models/taskResponse.model";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
-// import { useTasksQuery } from "../../hooks/useTaskQuery";
 import BetterButton from "../BetterButton/BetterButton";
+import { useAuth } from "react-oidc-context";
+import { getBillingPortalSession } from "../../services/stripeService";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function UsagePage() {
+interface UsageProps {
+  customerId?: string;
+}
+
+export default function UsagePage({ customerId }: UsageProps) {
   return (
     <Flex direction="column" className="usage-container">
-      <Billing />
-
-      {/* <UsageOverview /> */}
+      <Billing customerId={customerId} />
     </Flex>
   );
 }
 
-// export function UsageOverview() {
-//   const { data: tasks } = useTasksQuery(
-//     undefined,
-//     undefined,
-//     "2025-01-17T00:00:00Z",
-//     "2025-01-20T23:59:59Z"
-//   );
+interface BillingProps {
+  customerId?: string;
+}
 
-//   interface DailyCount {
-//     total: number;
-//     succeeded: number;
-//     failed: number;
-//     processing: number;
-//     starting: number;
-//   }
-
-//   interface DailyCounts {
-//     [date: string]: DailyCount;
-//   }
-
-//   const dailyCounts = tasks
-//     ? tasks.reduce((acc: DailyCounts, task) => {
-//         const date = task.created_at.split("T")[0];
-
-//         if (!acc[date]) {
-//           acc[date] = {
-//             total: 0,
-//             succeeded: 0,
-//             failed: 0,
-//             processing: 0,
-//             starting: 0,
-//           };
-//         }
-
-//         acc[date].total++;
-
-//         switch (task.status) {
-//           case "Succeeded":
-//             acc[date].succeeded++;
-//             break;
-//           case "Failed":
-//             acc[date].failed++;
-//             break;
-//           case "Processing":
-//             acc[date].processing++;
-//             break;
-//           case "Starting":
-//             acc[date].starting++;
-//             break;
-//         }
-
-//         return acc;
-//       }, {})
-//     : {};
-
-//   return (
-//     <Flex direction="column" className="account-container" gap="4">
-//       <Text size="5" weight="bold" style={{ color: "#FFF" }}>
-//         Usage Overview
-//       </Text>
-//     </Flex>
-//   );
-// }
-
-export function Billing() {
+export function Billing({ customerId }: BillingProps) {
   const { data: monthlyUsage, isLoading } = useMonthlyUsage();
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
+
+  const handleManagePayment = async () => {
+    if (tier === "Free") {
+      navigate("/#pricing");
+      return;
+    }
+
+    try {
+      setIsLoadingPortal(true);
+      const { url } = await getBillingPortalSession(
+        auth.user?.access_token || "",
+        customerId || ""
+      );
+
+      // Redirect to Stripe Customer Portal
+      window.location.href = url;
+    } catch (error) {
+      console.error("Error redirecting to billing portal:", error);
+    } finally {
+      setIsLoadingPortal(false);
+    }
+  };
 
   if (isLoading) {
-    return null; // Or return a loading spinner if you prefer
+    return null;
   }
 
   const usage = monthlyUsage?.[0]?.usage || 0;
@@ -123,7 +88,7 @@ export function Billing() {
         </Text>
         <Flex direction="row" gap="4" className="tier-badge">
           <Text size="2" style={{ color: "rgba(255,255,255,0.9)" }}>
-            {tier} Plan
+            {tier}
           </Text>
         </Flex>
       </Flex>
@@ -135,36 +100,6 @@ export function Billing() {
       <Flex direction="column" gap="6" mt="5" style={{ flexWrap: "wrap" }}>
         {/* Tier Card */}
         <Flex direction="row" gap="6" style={{ flexWrap: "wrap" }}>
-          <Flex direction="column" gap="4" className="usage-card">
-            <Flex justify="between" align="center">
-              <Text
-                size="3"
-                weight="bold"
-                style={{ color: "rgba(255,255,255,0.9)" }}
-              >
-                Billing Dates
-              </Text>
-            </Flex>
-
-            <Flex direction="column" gap="2">
-              <Flex justify="between" align="center">
-                <Text size="2" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  Start
-                </Text>
-                <Text size="2" style={{ color: "rgba(255,255,255,0.9)" }}>
-                  {startDate}
-                </Text>
-              </Flex>
-              <Flex justify="between" align="center">
-                <Text size="2" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  End
-                </Text>
-                <Text size="2" style={{ color: "rgba(255,255,255,0.9)" }}>
-                  {endDate}
-                </Text>
-              </Flex>
-            </Flex>
-          </Flex>
           <Flex direction="column" gap="4" className="usage-card">
             <Flex justify="between" align="center">
               <Text
@@ -199,6 +134,36 @@ export function Billing() {
                   {limit - usage > 0
                     ? `${(limit - usage).toLocaleString()} pages remaining`
                     : "Limit reached"}
+                </Text>
+              </Flex>
+            </Flex>
+          </Flex>
+          <Flex direction="column" gap="4" className="usage-card">
+            <Flex justify="between" align="center">
+              <Text
+                size="3"
+                weight="bold"
+                style={{ color: "rgba(255,255,255,0.9)" }}
+              >
+                Billing Dates
+              </Text>
+            </Flex>
+
+            <Flex direction="column" gap="2">
+              <Flex justify="between" align="center">
+                <Text size="2" style={{ color: "rgba(255,255,255,0.6)" }}>
+                  Start
+                </Text>
+                <Text size="2" style={{ color: "rgba(255,255,255,0.9)" }}>
+                  {startDate}
+                </Text>
+              </Flex>
+              <Flex justify="between" align="center">
+                <Text size="2" style={{ color: "rgba(255,255,255,0.6)" }}>
+                  End
+                </Text>
+                <Text size="2" style={{ color: "rgba(255,255,255,0.9)" }}>
+                  {endDate}
                 </Text>
               </Flex>
             </Flex>
@@ -300,16 +265,15 @@ export function Billing() {
 
               <Flex direction="row" gap="2">
                 <BetterButton
-                  // active={
-                  //   tier === "Free" ||
-                  //   monthlyUsage?.[0]?.last_paid_status === false
-                  // }
-                  onClick={() => {
-                    /* Add your payment management logic */
-                  }}
+                  onClick={handleManagePayment}
+                  disabled={isLoadingPortal}
                 >
                   <Text size="2" className="white">
-                    {tier === "Free" ? "Upgrade Plan" : "Manage Payment Method"}
+                    {isLoadingPortal
+                      ? "Loading..."
+                      : tier === "Free"
+                        ? "Upgrade Plan"
+                        : "Manage Plan & Payment"}
                   </Text>
                 </BetterButton>
               </Flex>
@@ -317,17 +281,6 @@ export function Billing() {
           </Flex>
         </Flex>
       </Flex>
-    </Flex>
-  );
-}
-
-export function PaymentMethod() {
-  return (
-    <Flex direction="column" className="payment-method-container">
-      <Text size="5" weight="bold" style={{ color: "#FFF" }}>
-        Payment Method
-      </Text>
-      <PaymentSetup />
     </Flex>
   );
 }

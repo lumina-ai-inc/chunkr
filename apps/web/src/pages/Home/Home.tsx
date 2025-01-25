@@ -40,6 +40,13 @@ import chunkingAnimation from "../../assets/animations/chunking.json";
 import vlmAnimation from "../../assets/animations/vlm.json";
 import layoutAnimation from "../../assets/animations/layout.json";
 
+// Service Imports
+import { createCheckoutSession } from "../../services/stripeService";
+import { loadStripe } from "@stripe/stripe-js";
+import useMonthlyUsage from "../../hooks/useMonthlyUsage";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_API_KEY, {});
+
 const Home = () => {
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
@@ -79,6 +86,9 @@ const Home = () => {
     "Picture",
     "Table",
   ]);
+  const [checkoutClientSecret, setCheckoutClientSecret] = useState<
+    string | null
+  >(null);
 
   const allSegmentTypes = [
     "Caption",
@@ -93,6 +103,11 @@ const Home = () => {
     "Text",
     "Title",
   ];
+
+  const { data: usageData } = useMonthlyUsage();
+  const currentTier = usageData?.[0]?.tier;
+
+  const pricingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (lottieRef.current) {
@@ -157,6 +172,16 @@ const Home = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    // Check if URL has #pricing hash on mount
+    if (window.location.hash === "#pricing") {
+      // Small delay to ensure component is mounted
+      setTimeout(() => {
+        pricingRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, []);
+
   const handleScriptSwitch = (script: string) => {
     setSelectedScript(script);
   };
@@ -219,57 +244,20 @@ const Home = () => {
     }
   };
 
-  const FeatureBox = ({
-    icon,
-    title,
-    description,
-    onMouseEnter,
-  }: {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    onMouseEnter?: () => void;
-  }) => {
-    return (
-      <Flex
-        direction="column"
-        className="feature-bottom-box"
-        onMouseEnter={onMouseEnter}
-      >
-        <Flex
-          align="center"
-          justify="center"
-          className="feature-bottom-box-icon"
-        >
-          {icon}
-        </Flex>
-
-        <Text
-          size="6"
-          weight="bold"
-          style={{
-            color: "white",
-            marginTop: "32px",
-            transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          }}
-          className="feature-box-title"
-        >
-          {title}
-        </Text>
-        <Text
-          size="3"
-          weight="medium"
-          style={{
-            color: "rgba(255, 255, 255, 0.7)",
-            marginTop: "12px",
-            transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          }}
-          className="feature-box-description"
-        >
-          {description}
-        </Text>
-      </Flex>
-    );
+  const handleCheckout = async (tier: string) => {
+    if (!auth.isAuthenticated) {
+      auth.signinRedirect();
+      return;
+    }
+    try {
+      const session = await createCheckoutSession(
+        auth.user?.access_token || "",
+        tier
+      );
+      setCheckoutClientSecret(session.client_secret);
+    } catch (error) {
+      console.error("Failed to create checkout session:", error);
+    }
   };
 
   return (
@@ -1093,7 +1081,7 @@ const Home = () => {
                 </Flex>
               </Flex>
             </div>
-            <div className="pricing-section">
+            <div id="pricing" ref={pricingRef} className="pricing-section">
               <Flex
                 direction="column"
                 align="center"
@@ -1136,18 +1124,26 @@ const Home = () => {
                     zIndex: 2,
                   }}
                 >
-                  <PricingCard
-                    title="Free"
-                    credits={100}
-                    price={0}
-                    period="month"
-                    features={[
-                      "100 pages per month",
-                      "1 request per second",
-                      "Community support",
-                    ]}
-                    buttonText="Get Started"
-                  />
+                  {(!auth.isAuthenticated || currentTier === "Free") && (
+                    <PricingCard
+                      title="Free"
+                      credits={100}
+                      price={0}
+                      period="month"
+                      features={[
+                        "100 pages per month",
+                        "1 request per second",
+                        "Community support",
+                      ]}
+                      buttonText="Get Started"
+                      tier="Free"
+                      onCheckout={handleCheckout}
+                      stripePromise={stripePromise}
+                      clientSecret={checkoutClientSecret || undefined}
+                      currentTier={currentTier}
+                      isAuthenticated={auth.isAuthenticated}
+                    />
+                  )}
 
                   <PricingCard
                     title="Starter"
@@ -1160,6 +1156,12 @@ const Home = () => {
                       "Email support",
                     ]}
                     buttonText="Get Started"
+                    tier="Starter"
+                    onCheckout={handleCheckout}
+                    stripePromise={stripePromise}
+                    clientSecret={checkoutClientSecret || undefined}
+                    currentTier={currentTier}
+                    isAuthenticated={auth.isAuthenticated}
                   />
 
                   <PricingCard
@@ -1173,6 +1175,12 @@ const Home = () => {
                       "Priority support",
                     ]}
                     buttonText="Get Started"
+                    tier="Dev"
+                    onCheckout={handleCheckout}
+                    stripePromise={stripePromise}
+                    clientSecret={checkoutClientSecret || undefined}
+                    currentTier={currentTier}
+                    isAuthenticated={auth.isAuthenticated}
                   />
 
                   <PricingCard
@@ -1186,6 +1194,12 @@ const Home = () => {
                       "Advanced features",
                     ]}
                     buttonText="Get Started"
+                    tier="Team"
+                    onCheckout={handleCheckout}
+                    stripePromise={stripePromise}
+                    clientSecret={checkoutClientSecret || undefined}
+                    currentTier={currentTier}
+                    isAuthenticated={auth.isAuthenticated}
                   />
                 </Flex>
 
@@ -1556,6 +1570,55 @@ const Home = () => {
         </Flex>
       </MomentumScroll>
     </>
+  );
+};
+
+const FeatureBox = ({
+  icon,
+  title,
+  description,
+  onMouseEnter,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  onMouseEnter?: () => void;
+}) => {
+  return (
+    <Flex
+      direction="column"
+      className="feature-bottom-box"
+      onMouseEnter={onMouseEnter}
+    >
+      <Flex align="center" justify="center" className="feature-bottom-box-icon">
+        {icon}
+      </Flex>
+
+      <Text
+        size="6"
+        weight="bold"
+        style={{
+          color: "white",
+          marginTop: "32px",
+          transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+        className="feature-box-title"
+      >
+        {title}
+      </Text>
+      <Text
+        size="3"
+        weight="medium"
+        style={{
+          color: "rgba(255, 255, 255, 0.7)",
+          marginTop: "12px",
+          transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+        className="feature-box-description"
+      >
+        {description}
+      </Text>
+    </Flex>
   );
 };
 

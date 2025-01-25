@@ -12,6 +12,7 @@ import Home from "./pages/Home/Home.tsx";
 import AuthGuard from "./auth/AuthGuard.tsx";
 import store from "./store/store";
 import Dashboard from "./pages/Dashboard/Dashboard.tsx";
+import Checkout from "./pages/Checkout/Checkout";
 
 const oidcConfig: AuthProviderProps = {
   authority:
@@ -37,6 +38,14 @@ const router = createBrowserRouter([
     element: (
       <AuthGuard>
         <Dashboard />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: "/checkout/return",
+    element: (
+      <AuthGuard>
+        <Checkout />
       </AuthGuard>
     ),
   },
