@@ -31,7 +31,10 @@ export function Billing({ customerId }: BillingProps) {
 
   const handleManagePayment = async () => {
     if (tier === "Free") {
-      navigate("/#pricing");
+      navigate("/");
+      setTimeout(() => {
+        window.location.hash = "pricing";
+      }, 100);
       return;
     }
 
@@ -273,7 +276,7 @@ export function Billing({ customerId }: BillingProps) {
                       ? "Loading..."
                       : tier === "Free"
                         ? "Upgrade Plan"
-                        : "Manage Plan & Payment"}
+                        : "Manage Plan"}
                   </Text>
                 </BetterButton>
               </Flex>
