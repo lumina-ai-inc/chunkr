@@ -408,6 +408,7 @@ impl Task {
             file_name: self.file_name.clone(),
             page_count: self.page_count,
             pdf_url: Some(self.pdf_location.clone()),
+            extracted_json: None,
         };
         for (idx, page) in page_images.iter().enumerate() {
             let s3_key = format!(

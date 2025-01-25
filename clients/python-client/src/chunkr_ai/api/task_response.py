@@ -3,7 +3,7 @@ from typing import TypeVar, Optional, Generic
 from pydantic import BaseModel, PrivateAttr
 import asyncio
 
-from .config import Configuration, OutputConfiguration, OutputResponse, Status
+from .configuration import Configuration, OutputConfiguration, OutputResponse, Status
 from .protocol import ChunkrClientProtocol
 from .misc import prepare_upload_data
 from .decorators import anywhere, require_task

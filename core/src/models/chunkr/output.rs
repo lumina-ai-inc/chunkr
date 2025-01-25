@@ -23,6 +23,9 @@ pub struct OutputResponse {
     pub page_count: Option<u32>,
     /// The presigned URL of the PDF file.
     pub pdf_url: Option<String>,
+    #[deprecated]
+    /// The extracted JSON from the document.
+    pub extracted_json: Option<serde_json::Value>,
 }
 
 impl Default for OutputResponse {
@@ -32,6 +35,7 @@ impl Default for OutputResponse {
             file_name: None,
             page_count: None,
             pdf_url: None,
+            extracted_json: None,
         }
     }
 }

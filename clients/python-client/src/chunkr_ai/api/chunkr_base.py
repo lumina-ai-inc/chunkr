@@ -1,4 +1,4 @@
-from .config import Configuration
+from .configuration import Configuration
 from .task_response import TaskResponse
 from .auth import HeadersMixin
 from abc import abstractmethod
