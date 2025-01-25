@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 import { Box } from "@mui/material";
 import { Status } from "../../models/taskResponse.model";
 import BetterButton from "../BetterButton/BetterButton";
+import ReactJson from "react-json-view";
 
 const TaskTable = () => {
   const navigate = useNavigate();
@@ -188,16 +189,18 @@ const TaskTable = () => {
         borderRadius: "8px",
         backgroundColor: "rgb(255, 255, 255, 0.05)",
       }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
     >
-      <pre
-        style={{
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-all",
-          color: "rgba(255, 255, 255, 0.85)",
-        }}
-      >
-        {JSON.stringify(row.original.configuration, null, 2)}
-      </pre>
+      <ReactJson
+        src={row.original.configuration}
+        theme="monokai"
+        displayDataTypes={false}
+        enableClipboard={false}
+        style={{ backgroundColor: "transparent" }}
+      />
     </div>
   );
 
