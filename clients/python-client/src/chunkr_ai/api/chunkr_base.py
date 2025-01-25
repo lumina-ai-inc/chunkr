@@ -1,9 +1,9 @@
 from .config import Configuration
-from .task import TaskResponse
-from .task_async import TaskResponseAsync
+from .task_response import TaskResponse
 from .auth import HeadersMixin
 from abc import abstractmethod
 from dotenv import load_dotenv
+import httpx
 import os
 from pathlib import Path
 from PIL import Image
@@ -11,25 +11,34 @@ from typing import BinaryIO, Union
 
 
 class ChunkrBase(HeadersMixin):
-    """Base class with shared functionality for Chunkr API clients."""
+    """Base class with shared functionality for Chunkr API clients.
+    
+    Args:
+        url: The base URL of the Chunkr API. Defaults to the value of the CHUNKR_URL environment variable, or "https://api.chunkr.ai" if not set.
+        api_key: The API key to use for authentication. Defaults to the value of the CHUNKR_API_KEY environment variable, or None if not set.
+        raise_on_failure: Whether to raise an exception if the task fails. Defaults to False.
+    """
 
-    def __init__(self, url: str = None, api_key: str = None):
+    def __init__(self, url: str = None, api_key: str = None, raise_on_failure: bool = False):
         load_dotenv()
         self.url = url or os.getenv("CHUNKR_URL") or "https://api.chunkr.ai"
         self._api_key = api_key or os.getenv("CHUNKR_API_KEY")
+        self.raise_on_failure = raise_on_failure
+        
         if not self._api_key:
             raise ValueError(
                 "API key must be provided either directly, in .env file, or as CHUNKR_API_KEY environment variable. You can get an api key at: https://www.chunkr.ai"
             )
 
         self.url = self.url.rstrip("/")
+        self._client = httpx.AsyncClient()
 
     @abstractmethod
     def upload(
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
-    ) -> Union[TaskResponse, TaskResponseAsync]:
+    ) -> TaskResponse:
         """Upload a file and wait for processing to complete.
 
         Args:
@@ -64,7 +73,7 @@ class ChunkrBase(HeadersMixin):
     @abstractmethod
     def update(
         self, task_id: str, config: Configuration
-    ) -> Union[TaskResponse, TaskResponseAsync]:
+    ) -> TaskResponse:
         """Update a task by its ID and wait for processing to complete.
 
         Args:
@@ -81,7 +90,7 @@ class ChunkrBase(HeadersMixin):
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
-    ) -> Union[TaskResponse, TaskResponseAsync]:
+    ) -> TaskResponse:
         """Upload a file for processing and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll()`.
 
         Args:
@@ -117,7 +126,7 @@ class ChunkrBase(HeadersMixin):
     @abstractmethod
     def update_task(
         self, task_id: str, config: Configuration
-    ) -> Union[TaskResponse, TaskResponseAsync]:
+    ) -> TaskResponse:
         """Update a task by its ID and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll()`.
 
         Args:
@@ -130,7 +139,7 @@ class ChunkrBase(HeadersMixin):
         pass
 
     @abstractmethod
-    def get_task(self, task_id: str) -> Union[TaskResponse, TaskResponseAsync]:
+    def get_task(self, task_id: str) -> TaskResponse:
         """Get a task response by its ID.
 
         Args:
@@ -157,4 +166,10 @@ class ChunkrBase(HeadersMixin):
         Args:
             task_id: The ID of the task to cancel
         """
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        """Close the client connection. 
+        This should be called when you're done using the client to properly clean up resources."""
         pass

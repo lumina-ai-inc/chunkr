@@ -4,25 +4,20 @@ from .api.config import (
     ChunkProcessing,
     Configuration,
     CroppingStrategy,
-    ExtractedJson,
     GenerationStrategy,
     GenerationConfig,
-    JsonSchema,
     Model,
     OCRResult,
     OcrStrategy,
     OutputResponse,
-    PipelineType,
-    Property,
     Segment,
     SegmentProcessing,
     SegmentType,
     SegmentationStrategy,
     Status,
+    Pipeline,
 )
-
-from .api.task import TaskResponse
-from .api.task_async import TaskResponseAsync
+from .api.task_response import TaskResponse
 
 __all__ = [
     "BoundingBox",
@@ -30,21 +25,18 @@ __all__ = [
     "ChunkProcessing",
     "Configuration",
     "CroppingStrategy",
-    "ExtractedJson",
     "GenerationConfig",
     "GenerationStrategy",
-    "JsonSchema",
     "Model",
     "OCRResult",
     "OcrStrategy",
     "OutputResponse",
-    "PipelineType",
-    "Property",
     "Segment",
     "SegmentProcessing",
     "SegmentType",
     "SegmentationStrategy",
     "Status",
     "TaskResponse",
-    "TaskResponseAsync",
+    "Pipeline",
 ]
+

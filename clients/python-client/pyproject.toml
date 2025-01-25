@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chunkr-ai"
-version = "0.0.17"
+version = "0.0.24"
 authors = [{"name" = "Ishaan Kapoor", "email" = "ishaan@lumina.sh"}]
 description = "Python client for Chunkr: open source document intelligence"
 readme = "README.md"
@@ -14,14 +14,14 @@ dependencies = [
     "httpx>=0.25.0",
     "pillow>=10.0.0",
     "pydantic>=2.0.0",
-    "pytest-asyncio>=0.21.0",
     "python-dotenv>=0.19.0",
-    "requests>=2.28.0",
 ]
 
 [project.optional-dependencies]
 test = [
     "pytest>=7.0.0",
     "pytest-xdist>=3.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.9.3",
 ]
 
