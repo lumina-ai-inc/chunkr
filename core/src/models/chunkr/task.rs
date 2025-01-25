@@ -200,9 +200,9 @@ impl Task {
             Err(e) => {
                 println!("Error deserializing configuration: {:?}", e);
                 println!("Configuration string: {:?}", config_str);
-                Err(format!("Error deserializing configuration: {:?}", e))
+                return Err(format!("Error deserializing configuration: {:?}", e).into());
             }
-        }?;
+        };
         Ok(Self {
             api_key: row.get("api_key"),
             configuration,
