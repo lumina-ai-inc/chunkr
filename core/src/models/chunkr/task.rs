@@ -195,7 +195,14 @@ impl Task {
         let page_count: Option<i32> = row.get("page_count");
         let page_count = page_count.map(|count| count as u32);
         let config_str = row.get::<_, String>("configuration");
-        let configuration = serde_json::from_str(&config_str)?;
+        let configuration = match serde_json::from_str(&config_str) {
+            Ok(config) => config,
+            Err(e) => {
+                println!("Error deserializing configuration: {:?}", e);
+                println!("Configuration string: {:?}", config_str);
+                Err(format!("Error deserializing configuration: {:?}", e))
+            }
+        }?;
         Ok(Self {
             api_key: row.get("api_key"),
             configuration,
