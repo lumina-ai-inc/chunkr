@@ -4,10 +4,8 @@
   gap: 26px;
   padding: 16px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    1px 0 0 0 rgba(255, 255, 255, 0.05),
-    4px 0 16px -8px rgba(0, 0, 0, 0.2),
-    2px 0 8px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: 1px 0 0 0 rgba(255, 255, 255, 0.05),
+    4px 0 16px -8px rgba(0, 0, 0, 0.2), 2px 0 8px -4px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-nav-container.closed {
@@ -45,8 +43,7 @@
   border-radius: var(--Radius-4-max, 8px);
   padding: 8px;
   gap: 6px;
-  box-shadow:
-    0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
+  box-shadow: 0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
     0px 3px 12px -4px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
     0px 2px 3px -2px var(--Colors-Neutral-Neutral-Alpha-3, rgba(0, 0, 51, 0.06));
 }
@@ -222,6 +219,8 @@
 
 .profile-popup .profile-menu-item {
   width: 100%;
+  align-items: center;
+  gap: 8px;
 }
 
 .main-header-text:has(+ .task-tag):hover {
