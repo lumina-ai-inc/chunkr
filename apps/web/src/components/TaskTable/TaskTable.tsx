@@ -79,8 +79,6 @@ const TaskTable = () => {
     );
   };
 
-  console.log(tasks);
-
   const columns = useMemo<MRT_ColumnDef<TaskResponse>[]>(
     () => [
       {
@@ -497,9 +495,9 @@ const TaskTable = () => {
           muiToolbarAlertBannerProps={
             isError
               ? {
-                color: "error",
-                children: "Error loading data",
-              }
+                  color: "error",
+                  children: "Error loading data",
+                }
               : undefined
           }
           renderTopToolbarCustomActions={() => (
