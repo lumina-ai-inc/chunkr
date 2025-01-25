@@ -60,25 +60,46 @@ UPDATE users
 SET tier = 'Free'
 WHERE tier IN ('PayAsYouGo', 'SelfHosted');
 
-INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier, billing_cycle_start, billing_cycle_end)
-SELECT 
-    user_id,
-    'Page',
-    0,
-    200,
-    EXTRACT(YEAR FROM CURRENT_TIMESTAMP),
-    EXTRACT(MONTH FROM CURRENT_TIMESTAMP),
-    'Free',
-    CURRENT_DATE,
-    (CURRENT_DATE + INTERVAL '30 days')::TIMESTAMPTZ
-FROM users
-ON CONFLICT (user_id, usage_type, year, month)
-DO UPDATE SET 
-    usage = EXCLUDED.usage,
-    usage_limit = EXCLUDED.usage_limit,
-    tier = EXCLUDED.tier,
-    billing_cycle_start = EXCLUDED.billing_cycle_start,
-    billing_cycle_end = EXCLUDED.billing_cycle_end;
+-- First consolidate existing data into single rows per user/month
+WITH latest_usage AS (
+    SELECT DISTINCT ON (user_id, year, month)
+        user_id,
+        'Page' as usage_type,
+        0 as usage,
+        200 as usage_limit,
+        year,
+        month,
+        'Free' as tier,
+        CURRENT_DATE as billing_cycle_start,
+        (CURRENT_DATE + INTERVAL '30 days')::TIMESTAMPTZ as billing_cycle_end,
+        updated_at
+    FROM monthly_usage
+    ORDER BY user_id, year, month, updated_at DESC
+)
+UPDATE monthly_usage m
+SET 
+    usage_type = 'Page',
+    usage = 0,
+    usage_limit = 200,
+    tier = 'Free',
+    billing_cycle_start = CURRENT_DATE,
+    billing_cycle_end = (CURRENT_DATE + INTERVAL '30 days')::TIMESTAMPTZ
+FROM latest_usage l
+WHERE m.user_id = l.user_id 
+AND m.year = l.year 
+AND m.month = l.month
+AND m.updated_at = l.updated_at;
+
+-- Delete the duplicate rows
+DELETE FROM monthly_usage m
+WHERE EXISTS (
+    SELECT 1
+    FROM monthly_usage m2
+    WHERE m2.user_id = m.user_id
+    AND m2.year = m.year
+    AND m2.month = m.month
+    AND m2.updated_at > m.updated_at
+);
 
 
 --------------
