@@ -544,7 +544,11 @@ const Home = () => {
                       <Flex direction="column" gap="16px">
                         <Flex className="control-switches">
                           <button
-                            className={`control-switch ${segmentationStrategy === "LayoutAnalysis" ? "active" : ""}`}
+                            className={`control-switch ${
+                              segmentationStrategy === "LayoutAnalysis"
+                                ? "active"
+                                : ""
+                            }`}
                             onClick={() =>
                               setSegmentationStrategy("LayoutAnalysis")
                             }
@@ -554,7 +558,9 @@ const Home = () => {
                             </Text>
                           </button>
                           <button
-                            className={`control-switch ${segmentationStrategy === "Page" ? "active" : ""}`}
+                            className={`control-switch ${
+                              segmentationStrategy === "Page" ? "active" : ""
+                            }`}
                             onClick={() => setSegmentationStrategy("Page")}
                           >
                             <Text size="2" weight="bold">
@@ -602,7 +608,9 @@ const Home = () => {
                       </Text>
                       <Flex className="control-switches">
                         <button
-                          className={`control-switch ${ocrMode === "ALL" ? "active" : ""}`}
+                          className={`control-switch ${
+                            ocrMode === "ALL" ? "active" : ""
+                          }`}
                           onClick={() => setOcrMode("ALL")}
                         >
                           <Text size="2" weight="bold">
@@ -610,7 +618,9 @@ const Home = () => {
                           </Text>
                         </button>
                         <button
-                          className={`control-switch ${ocrMode === "OFF" ? "active" : ""}`}
+                          className={`control-switch ${
+                            ocrMode === "OFF" ? "active" : ""
+                          }`}
                           onClick={() => setOcrMode("OFF")}
                         >
                           <Text size="2" weight="bold">
@@ -656,7 +666,9 @@ const Home = () => {
                       <Flex direction="column" gap="16px">
                         <Flex className="control-switches">
                           <button
-                            className={`control-switch ${vlmMode === "SegmentType" ? "active" : ""}`}
+                            className={`control-switch ${
+                              vlmMode === "SegmentType" ? "active" : ""
+                            }`}
                             onClick={() => setVlmMode("SegmentType")}
                           >
                             <Text size="2" weight="bold">
@@ -664,7 +676,9 @@ const Home = () => {
                             </Text>
                           </button>
                           <button
-                            className={`control-switch ${vlmMode === "ALL" ? "active" : ""}`}
+                            className={`control-switch ${
+                              vlmMode === "ALL" ? "active" : ""
+                            }`}
                             onClick={() => setVlmMode("ALL")}
                           >
                             <Text size="2" weight="bold">
@@ -672,7 +686,9 @@ const Home = () => {
                             </Text>
                           </button>
                           <button
-                            className={`control-switch ${vlmMode === "OFF" ? "active" : ""}`}
+                            className={`control-switch ${
+                              vlmMode === "OFF" ? "active" : ""
+                            }`}
                             onClick={() => setVlmMode("OFF")}
                           >
                             <Text size="2" weight="bold">
@@ -733,7 +749,9 @@ const Home = () => {
                       </Text>
                       <Flex className="control-switches">
                         <button
-                          className={`control-switch ${schemaMode === "JSON" ? "active" : ""}`}
+                          className={`control-switch ${
+                            schemaMode === "JSON" ? "active" : ""
+                          }`}
                           onClick={() => setSchemaMode("JSON")}
                         >
                           <Text size="2" weight="bold">
@@ -741,7 +759,9 @@ const Home = () => {
                           </Text>
                         </button>
                         <button
-                          className={`control-switch ${schemaMode === "OFF" ? "active" : ""}`}
+                          className={`control-switch ${
+                            schemaMode === "OFF" ? "active" : ""
+                          }`}
                           onClick={() => setSchemaMode("OFF")}
                         >
                           <Text size="2" weight="bold">
