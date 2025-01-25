@@ -22,9 +22,9 @@ pub enum Tier {
     PayAsYouGo,
     Enterprise,
     SelfHosted,
-    Developer,
-    Startup,
-    Basic,
+    Dev,
+    Starter,
+    Team,
 }
 
 #[derive(
