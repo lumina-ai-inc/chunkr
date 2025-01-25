@@ -29,8 +29,8 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   >("html");
 
   const [activeSegment, setActiveSegment] = useState<{
-    chunkIndex: number;
-    segmentIndex: number;
+    chunkId: string;
+    segmentId: string;
   } | null>(null);
 
   const [loadedChunks, setLoadedChunks] = useState(CHUNK_LOAD_SIZE);
@@ -38,15 +38,21 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   const [numPages, setNumPages] = useState<number>();
 
   const scrollToSegment = useCallback(
-    (chunkIndex: number, segmentIndex: number) => {
-      const targetPage =
-        output?.chunks[chunkIndex].segments[segmentIndex].page_number;
+    (chunkId: string, segmentId: string) => {
+      // Find the chunk and segment
+      const chunk = output?.chunks.find((c) => c.chunk_id === chunkId);
+      const segment = chunk?.segments.find((s) => s.segment_id === segmentId);
+
+      if (!chunk || !segment) return;
+
+      const targetPage = segment.page_number;
+      const chunkIndex =
+        output?.chunks.findIndex((c) => c.chunk_id === chunkId) ?? -1;
 
       // First, ensure content is loaded
       const needsMorePages = targetPage && targetPage > loadedPages;
       const needsMoreChunks = chunkIndex >= loadedChunks;
 
-      // Calculate how many page chunks we need to load to reach the target page
       if (needsMorePages) {
         setLoadedPages(
           Math.ceil(targetPage / PAGE_CHUNK_SIZE) * PAGE_CHUNK_SIZE
@@ -62,28 +68,48 @@ export default function Viewer({ task }: { task: TaskResponse }) {
       // Wait for content to load before scrolling
       setTimeout(
         () => {
-          setActiveSegment({ chunkIndex, segmentIndex });
+          setActiveSegment({ chunkId, segmentId });
 
-          // Scroll PDF container to target page
+          // Scroll PDF container to segment (keeping 30% for PDF)
           const pdfContainer = document.querySelector(".pdf-container");
-          const targetPageElement = pdfContainer?.querySelector(
-            `[data-page-number="${targetPage}"]`
+          const targetSegmentElement = pdfContainer?.querySelector(
+            `[data-chunk-id="${chunkId}"][data-segment-id="${segmentId}"]`
           );
-          if (targetPageElement) {
-            targetPageElement.scrollIntoView({ behavior: "smooth" });
+
+          if (targetSegmentElement && pdfContainer) {
+            const containerHeight = pdfContainer.clientHeight;
+            const segmentRect = targetSegmentElement.getBoundingClientRect();
+            const containerRect = pdfContainer.getBoundingClientRect();
+            const relativeTop = segmentRect.top - containerRect.top;
+
+            // Keep 30% for PDF view
+            const targetPosition =
+              pdfContainer.scrollTop + relativeTop - containerHeight * 0.3;
+
+            pdfContainer.scrollTo({
+              top: targetPosition,
+              behavior: "smooth",
+            });
           }
 
-          // Scroll chunk view
-          const chunkElement = chunkRefs.current[chunkIndex];
-          if (chunkElement) {
-            const container = chunkElement.closest(".scrollable-content");
+          // Scroll text content to the specific segment (20% from top)
+          const textSegmentElement = document.querySelector(
+            `.scrollable-content [data-chunk-id="${chunkId}"][data-segment-id="${segmentId}"]`
+          );
+          if (textSegmentElement) {
+            const container = textSegmentElement.closest(".scrollable-content");
             if (container) {
+              const containerHeight = container.clientHeight;
+              const segmentRect = textSegmentElement.getBoundingClientRect();
               const containerRect = container.getBoundingClientRect();
-              const chunkRect = chunkElement.getBoundingClientRect();
-              const scrollTop =
-                chunkRect.top - containerRect.top + container.scrollTop - 24;
+              const relativeTop = segmentRect.top - containerRect.top;
+
+              // Use 20% for text content
+              const targetPosition =
+                container.scrollTop + relativeTop - containerHeight * 0.2;
+
               container.scrollTo({
-                top: scrollTop,
+                top: targetPosition,
                 behavior: "smooth",
               });
             }
@@ -95,9 +121,12 @@ export default function Viewer({ task }: { task: TaskResponse }) {
     [output?.chunks, loadedPages, loadedChunks]
   );
 
-  // Add a handler for PDF segment clicks that ensures chunks are loaded
+  // Update the handler for PDF segment clicks
   const handlePDFSegmentClick = useCallback(
-    (chunkIndex: number, segmentIndex: number) => {
+    (chunkId: string, segmentId: string) => {
+      const chunkIndex =
+        output?.chunks.findIndex((c) => c.chunk_id === chunkId) ?? -1;
+
       // Ensure we load enough chunks
       if (chunkIndex >= loadedChunks) {
         setLoadedChunks(
@@ -107,14 +136,14 @@ export default function Viewer({ task }: { task: TaskResponse }) {
         // Wait for next render cycle when chunks are loaded
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            scrollToSegment(chunkIndex, segmentIndex);
+            scrollToSegment(chunkId, segmentId);
           });
         });
       } else {
-        scrollToSegment(chunkIndex, segmentIndex);
+        scrollToSegment(chunkId, segmentId);
       }
     },
-    [loadedChunks, scrollToSegment]
+    [loadedChunks, scrollToSegment, output?.chunks]
   );
 
   const handleMouseEnter = () => {
@@ -332,6 +361,8 @@ export default function Viewer({ task }: { task: TaskResponse }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Add a check for structured extraction availability
 
   const renderDownloadDropdown = () => (
     <div
@@ -630,14 +661,14 @@ export default function Viewer({ task }: { task: TaskResponse }) {
               <>
                 {output.chunks
                   .slice(0, loadedChunks)
-                  .map((chunk: Chunk, chunkIndex: number) => (
+                  .map((chunk: Chunk, index: number) => (
                     <SegmentChunk
                       key={chunk.chunk_id}
                       chunk={chunk}
-                      chunkIndex={chunkIndex}
+                      chunkId={chunk.chunk_id}
                       containerWidth={leftPanelWidth}
                       selectedView={selectedView}
-                      ref={(el) => (chunkRefs.current[chunkIndex] = el)}
+                      ref={(el) => (chunkRefs.current[index] = el)}
                       onSegmentClick={scrollToSegment}
                       activeSegment={activeSegment}
                     />
