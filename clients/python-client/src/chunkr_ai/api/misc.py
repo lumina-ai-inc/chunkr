@@ -1,4 +1,4 @@
-from .config import Configuration
+from .configuration import Configuration
 import io
 import json
 from pathlib import Path

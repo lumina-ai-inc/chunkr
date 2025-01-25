@@ -2,7 +2,7 @@ from pathlib import Path
 from PIL import Image
 from typing import Union, BinaryIO
 
-from .config import Configuration
+from .configuration import Configuration
 from .decorators import anywhere, ensure_client
 from .misc import prepare_upload_data
 from .task_response import TaskResponse
