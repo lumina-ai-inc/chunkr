@@ -56,26 +56,22 @@ ALTER TABLE usage DROP COLUMN usage_limit;
 
 
 
-WITH moved_users AS (
-    UPDATE users 
-    SET tier = 'Free'
-    WHERE tier IN ('PayAsYouGo', 'SelfHosted')
-    AND user_id != 'admin'
-    RETURNING user_id
-)
+UPDATE users 
+SET tier = 'Free'
+WHERE tier IN ('PayAsYouGo', 'SelfHosted');
+
 INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier, billing_cycle_start, billing_cycle_end)
 SELECT 
     user_id,
     'Page',
     0,
-    CASE WHEN user_id IN (SELECT user_id FROM moved_users) THEN 5000 ELSE 200 END,
+    200,
     EXTRACT(YEAR FROM CURRENT_TIMESTAMP),
     EXTRACT(MONTH FROM CURRENT_TIMESTAMP),
     'Free',
     CURRENT_DATE,
     (CURRENT_DATE + INTERVAL '30 days')::TIMESTAMPTZ
 FROM users
-WHERE user_id != 'admin'
 ON CONFLICT (user_id, usage_type, year, month)
 DO UPDATE SET 
     usage = EXCLUDED.usage,
