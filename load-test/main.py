@@ -47,6 +47,7 @@ async def write_and_log_worker(output_jsonl: Path, run_dir: Path, completed_queu
                 stats.total_pages += task_data.get("output", {}).get("page_count", 0)
             else:
                 stats.failed_tasks += 1
+            stats.total_tasks += 1
             pages_per_second = stats.calculate_pages_per_second()
             log_entry = (
                 f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
@@ -57,6 +58,7 @@ async def write_and_log_worker(output_jsonl: Path, run_dir: Path, completed_queu
                 f"Failed: {stats.failed_tasks}, "
                 f"Total tasks: {stats.total_tasks}\n"
             )
+            print(log_entry)
             with open(stats_file, "a") as f:
                 f.write(log_entry)
         completed_queue.task_done()
@@ -71,6 +73,7 @@ async def process_single_file(file_path: Path, completed_queue: Queue):
         return
 
 async def process_all_files(input_folder: str, output_dir: str, max_concurrent: int = None, max_files: int = None):
+    print(f"Processing {input_folder} to {output_dir} with {max_concurrent} concurrent tasks and {max_files} files")
     completed_queue = Queue()
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -88,6 +91,8 @@ async def process_all_files(input_folder: str, output_dir: str, max_concurrent: 
     files = list(input_path.glob("*.*"))
     if max_files is not None:
         files = files[:max_files]
+        
+    print(f"Processing {len(files)} files")
     
     concurrent_limit = max_concurrent if max_concurrent is not None else len(files)
     semaphore = asyncio.Semaphore(concurrent_limit)

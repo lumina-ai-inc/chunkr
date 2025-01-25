@@ -5,6 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "asyncio>=3.4.3",
-    "chunkr-ai>=0.0.21",
+    "chunkr-ai>=0.0.24",
+    "ruff>=0.9.3",
 ]
