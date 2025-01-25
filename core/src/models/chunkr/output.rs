@@ -4,6 +4,10 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
+fn generate_uuid() -> String {
+    uuid::Uuid::new_v4().to_string()
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 /// The processed results of a document analysis task
 pub struct OutputResponse {
@@ -30,6 +34,8 @@ impl Default for OutputResponse {
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
+    #[serde(default = "generate_uuid")]
+    /// The unique identifier for the chunk.
     pub chunk_id: String,
     /// The total number of words in the chunk.
     pub chunk_length: i32,
@@ -116,7 +122,7 @@ impl Segment {
         page_number: u32,
         segment_type: SegmentType,
     ) -> Self {
-        let segment_id = uuid::Uuid::new_v4().to_string();
+        let segment_id = generate_uuid();
         let content = ocr_results
             .iter()
             .map(|ocr_result| ocr_result.text.clone())
