@@ -8,6 +8,10 @@ fn generate_uuid() -> String {
     uuid::Uuid::new_v4().to_string()
 }
 
+fn generate_content() -> String {
+    String::new()
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 /// The processed results of a document analysis task
 pub struct OutputResponse {
@@ -91,12 +95,14 @@ pub struct Segment {
     pub confidence: Option<f32>,
     /// Text content of the segment.
     pub content: String,
+    #[serde(default = "generate_content")]
     /// HTML representation of the segment.
     pub html: String,
     /// Presigned URL to the image of the segment.
     pub image: Option<String>,
     /// LLM representation of the segment.
     pub llm: Option<String>,
+    #[serde(default = "generate_content")]
     /// Markdown representation of the segment.
     pub markdown: String,
     /// OCR results for the segment.
