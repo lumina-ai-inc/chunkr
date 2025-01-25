@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
-from typing import Optional, List
+from typing import Any, List, Optional
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
@@ -113,7 +113,7 @@ class Configuration(BaseModel):
 class OutputConfiguration(Configuration):
     input_file_url: Optional[str] = None
     # Deprecated
-    json_schema: Optional[any] = None
+    json_schema: Optional[Any] = None
     model: Optional[Model] = None
     target_chunk_length: Optional[int] = None
     
