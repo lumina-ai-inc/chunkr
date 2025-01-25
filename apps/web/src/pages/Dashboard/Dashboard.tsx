@@ -11,12 +11,8 @@ import Loader from "../Loader/Loader";
 import Usage from "../../components/Usage/Usage";
 import { useLocation, useNavigate } from "react-router-dom";
 import UploadDialog from "../../components/Upload/UploadDialog";
-// import {
-//   createCustomerSession,
-//   createSetupIntent,
-// } from "../../services/stripeService";
-import ApiKeyManagement from "../../components/ApiKeyManagement/ApiKeyManagement";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
+import ApiKeyDialog from "../../components/ApiDialog/ApiKeyDialog";
 
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
@@ -27,13 +23,8 @@ export default function Dashboard() {
   const [selectedNav, setSelectedNav] = useState("Tasks");
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  // const [showPaymentSetup, setShowPaymentSetup] = useState(false);
-  // const [customerSessionSecret, setCustomerSessionSecret] = useState<
-  //   string | null
-  // >(null);
-  // const [customerSessionClientSecret, setCustomerSessionClientSecret] =
-  //   useState<string | null>(null);
   const [isNavOpen, setIsNavOpen] = useState(true);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const location = useLocation();
   const searchParams = useMemo(
@@ -159,66 +150,6 @@ export default function Dashboard() {
         </svg>
       </g>
     ),
-    "API Keys": (
-      <g>
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 22 22"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g clip-path="url(#clip0_305_27941)">
-            <path
-              d="M2.75 5.75C2.75 5.19771 3.19772 4.75 3.75 4.75H20.25C20.8023 4.75 21.25 5.19772 21.25 5.75V18.25C21.25 18.8023 20.8023 19.25 20.25 19.25H3.75C3.19772 19.25 2.75 18.8023 2.75 18.25V5.75Z"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M15.75 13.25H18.25"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M8.25 13.25L5.75 10.75"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M5.75 13.25L8.25 10.75"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M13.25 13.25L10.75 10.75"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M10.75 13.25L13.25 10.75"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_305_27941">
-              <rect width="24" height="24" fill="white" />
-            </clipPath>
-          </defs>
-        </svg>
-      </g>
-    ),
   };
 
   const handleNavigation = useCallback(
@@ -312,11 +243,6 @@ export default function Dashboard() {
         return {
           title: "Usage",
           component: <Usage customerId={user.data?.customer_id || ""} />,
-        };
-      case "API Keys":
-        return {
-          title: "API Keys",
-          component: <ApiKeyManagement user={user.data} />,
         };
       default:
         return {
@@ -416,10 +342,12 @@ export default function Dashboard() {
         >
           <Flex direction="column">
             <Flex className="dashboard-nav-items" direction="column">
-              {["Tasks", "API Keys", "Usage"].map((item) => (
+              {["Tasks", "Usage"].map((item) => (
                 <Flex
                   key={item}
-                  className={`dashboard-nav-item ${selectedNav === item ? "selected" : ""}`}
+                  className={`dashboard-nav-item ${
+                    selectedNav === item ? "selected" : ""
+                  }`}
                   onClick={() => handleNavigation(item)}
                 >
                   <svg
@@ -564,6 +492,13 @@ export default function Dashboard() {
                 refetchTasks();
               }}
             />
+            {user.data && (
+              <ApiKeyDialog
+                user={user.data}
+                showApiKey={showApiKey}
+                setShowApiKey={setShowApiKey}
+              />
+            )}
             <BetterButton onClick={handleDocsNav}>
               <svg
                 width="18"

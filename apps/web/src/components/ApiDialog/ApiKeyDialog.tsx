@@ -2,6 +2,7 @@ import { Flex, Text, Dialog } from "@radix-ui/themes";
 import BetterButton from "../BetterButton/BetterButton";
 import { User } from "../../models/user.model";
 import "./ApiKeyDialog.css";
+import { toast } from "react-hot-toast";
 
 interface ApiKeyDialogProps {
   user: User;
@@ -25,11 +26,51 @@ export default function ApiKeyDialog({
           </Text>
         ) : (
           <BetterButton>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 25 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g clip-path="url(#clip0_113_1449)">
+                <path
+                  d="M17.25 7.75L21.75 12.08L17.25 16.25"
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M7.75 16.25L3.25 11.92L7.75 7.75"
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M10.75 19.25L14.25 4.75"
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_113_1449">
+                  <rect
+                    width="24"
+                    height="24"
+                    fill="white"
+                    transform="translate(0.5)"
+                  />
+                </clipPath>
+              </defs>
+            </svg>
             <Text
-              size="1"
+              size="2"
               weight="medium"
-              mt="2px"
-              style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
+              style={{ color: "hsla(0, 0%, 100%)" }}
             >
               API Key
             </Text>
@@ -38,7 +79,7 @@ export default function ApiKeyDialog({
       </Dialog.Trigger>
       <Dialog.Content
         style={{
-          backgroundColor: "hsla(0, 0%, 0%)",
+          backgroundColor: "#020809",
           boxShadow: "0 0 0 1px hsla(0, 0%, 100%, 0.1)",
           border: "1px solid hsla(0, 0%, 100%, 0.1)",
           outline: "none",
@@ -46,7 +87,7 @@ export default function ApiKeyDialog({
           width: "fit-content",
         }}
       >
-        <Flex direction="row" align="center" gap="4">
+        <Flex direction="row" align="center" gap="3">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -63,7 +104,7 @@ export default function ApiKeyDialog({
             />
           </svg>
           <Text
-            size="6"
+            size="5"
             weight="bold"
             style={{ color: "hsla(0, 0%, 100%, 0.9)" }}
           >
@@ -95,6 +136,13 @@ export default function ApiKeyDialog({
             <BetterButton
               onClick={() => {
                 navigator.clipboard.writeText(user.api_keys[0]);
+                toast.success("API key copied to clipboard", {
+                  style: {
+                    background: "#333",
+                    color: "#fff",
+                    borderRadius: "8px",
+                  },
+                });
               }}
             >
               <Text
