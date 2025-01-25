@@ -186,7 +186,6 @@ const TaskTable = () => {
     <div
       style={{
         padding: "16px",
-        borderRadius: "8px",
         backgroundColor: "rgb(255, 255, 255, 0.05)",
       }}
       onClick={(e) => {
@@ -200,6 +199,8 @@ const TaskTable = () => {
         displayDataTypes={false}
         enableClipboard={false}
         style={{ backgroundColor: "transparent" }}
+        collapsed={1}
+        name={false}
       />
     </div>
   );
@@ -483,7 +484,13 @@ const TaskTable = () => {
   };
 
   return (
-    <Flex p="24px" direction="column" width="100%" height="100%">
+    <Flex
+      p="24px"
+      direction="column"
+      width="100%"
+      height="100%"
+      className="task-table-container"
+    >
       <ThemeProvider theme={tableTheme}>
         <MaterialReactTable
           columns={columns}

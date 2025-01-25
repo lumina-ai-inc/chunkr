@@ -445,7 +445,7 @@ export default function UsagePage({ customerId }: UsageProps) {
                       ? "Loading..."
                       : tier === "Free"
                       ? "Upgrade Plan"
-                      : "Manage Plan"}
+                      : "Manage Billing"}
                   </Text>
                 </BetterButton>
               </Flex>

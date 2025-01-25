@@ -81,6 +81,8 @@ const MemoizedJson = memo(({ segment }: { segment: Segment }) => (
     displayDataTypes={false}
     enableClipboard={false}
     style={{ backgroundColor: "transparent" }}
+    collapsed={1}
+    name={false}
   />
 ));
 
