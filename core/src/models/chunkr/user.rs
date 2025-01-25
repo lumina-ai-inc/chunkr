@@ -103,7 +103,6 @@ impl UsageType {
                 UsageType::Segment => 10000000,
                 UsageType::Page => 10000000,
             },
-            _ => i32::MAX,
         }
     }
 }
@@ -121,7 +120,7 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
     pub usage: Vec<UsageLimit>,
     pub task_count: Option<i32>,
-    pub last_paid_status: Option<String>
+    pub last_paid_status: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, ToSchema, ToSql, FromSql)]
