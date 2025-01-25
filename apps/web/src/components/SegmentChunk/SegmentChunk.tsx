@@ -1,4 +1,11 @@
-import { forwardRef, memo, useCallback, useMemo, useState } from "react";
+import {
+  forwardRef,
+  memo,
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+} from "react";
 import { Chunk, Segment } from "../../models/taskResponse.model";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -436,6 +443,18 @@ export const SegmentChunk = memo(
       };
 
       const horizontalScrollRef = useHorizontalDragScroll();
+
+      // Reset segment display mode when it becomes inactive
+      useEffect(() => {
+        chunk.segments.forEach((segment) => {
+          if (activeSegment?.segmentId !== segment.segment_id) {
+            setSegmentDisplayModes((prev) => ({
+              ...prev,
+              [segment.segment_id]: { showJson: false, showLLM: false },
+            }));
+          }
+        });
+      }, [activeSegment, chunk.segments]);
 
       return (
         <div
