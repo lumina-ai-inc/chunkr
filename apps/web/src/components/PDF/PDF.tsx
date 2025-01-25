@@ -88,8 +88,8 @@ export const PDF = memo(
   }: {
     content: Chunk[];
     inputFileUrl: string;
-    onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
-    activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
+    onSegmentClick: (chunkId: string, segmentId: string) => void;
+    activeSegment?: { chunkId: string; segmentId: string } | null;
     loadedPages: number;
     onLoadSuccess?: (numPages: number) => void;
     structureExtractionView?: boolean;
@@ -176,9 +176,9 @@ function CurrentPage({
 }: {
   index: number;
   segments: Chunk[];
-  onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
+  onSegmentClick: (chunkId: string, segmentId: string) => void;
   width: number;
-  activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
+  activeSegment?: { chunkId: string; segmentId: string } | null;
   structureExtractionView: boolean;
 }) {
   const pageNumber = index + 1;
@@ -186,17 +186,22 @@ function CurrentPage({
   const pageSegments = useMemo(
     () =>
       !structureExtractionView
-        ? segments.flatMap((chunk, chunkIndex) =>
+        ? segments.flatMap((chunk) =>
             chunk.segments
               .filter((segment) => segment.page_number === pageNumber)
-              .map((segment, segmentIndex) => (
+              .map((segment) => (
                 <MemoizedSegmentOverlay
-                  key={`${chunkIndex}-${segmentIndex}`}
+                  key={`${chunk.chunk_id}-${segment.segment_id}`}
                   segment={segment}
-                  chunkIndex={chunkIndex}
-                  segmentIndex={segmentIndex}
-                  onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
-                  isActive={activeSegment?.chunkIndex === chunkIndex}
+                  chunkId={chunk.chunk_id}
+                  segmentId={segment.segment_id}
+                  onClick={() =>
+                    onSegmentClick(chunk.chunk_id, segment.segment_id)
+                  }
+                  isActive={
+                    activeSegment?.chunkId === chunk.chunk_id &&
+                    activeSegment?.segmentId === segment.segment_id
+                  }
                 />
               ))
           )
@@ -222,14 +227,14 @@ function CurrentPage({
 function SegmentOverlay({
   segment,
   onClick,
-  chunkIndex,
-  segmentIndex,
+  chunkId,
+  segmentId,
   isActive,
 }: {
   segment: Segment;
   onClick: () => void;
-  chunkIndex: number;
-  segmentIndex: number;
+  chunkId: string;
+  segmentId: string;
   isActive?: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -258,33 +263,7 @@ function SegmentOverlay({
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
     onClick();
-
-    const chunkElement = document.querySelector(
-      `[data-chunk-index="${chunkIndex}"]`
-    );
-
-    if (chunkElement) {
-      const container = chunkElement.closest(".scrollable-content");
-      if (container) {
-        const containerRect = container.getBoundingClientRect();
-        const chunkRect = chunkElement.getBoundingClientRect();
-        const scrollTop =
-          chunkRect.top - containerRect.top + container.scrollTop - 24;
-
-        container.scrollTo({
-          top: scrollTop,
-          behavior: "smooth",
-        });
-      }
-    }
-
-    window.dispatchEvent(
-      new CustomEvent("highlight-segment", {
-        detail: { chunkIndex, segmentIndex },
-      })
-    );
   };
 
   return (
@@ -296,6 +275,8 @@ function SegmentOverlay({
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      data-chunk-id={chunkId}
+      data-segment-id={segmentId}
     >
       <div className="w-full h-full bg-red-500 hidden"></div>
       <div
