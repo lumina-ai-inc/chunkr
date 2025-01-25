@@ -669,6 +669,7 @@ impl<'de> Deserialize<'de> for Configuration {
             chunk_processing: Option<ChunkProcessing>,
             #[serde(alias = "expires_at")]
             expires_in: Option<i32>,
+            #[serde(default)]
             high_resolution: bool,
             input_file_url: Option<String>,
             json_schema: Option<serde_json::Value>,
