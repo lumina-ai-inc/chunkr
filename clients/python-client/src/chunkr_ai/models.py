@@ -1,4 +1,4 @@
-from .api.config import (
+from .api.configuration import (
     BoundingBox,
     Chunk,
     ChunkProcessing,
