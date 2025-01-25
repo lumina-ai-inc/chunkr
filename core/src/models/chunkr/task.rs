@@ -689,11 +689,11 @@ impl<'de> Deserialize<'de> for Configuration {
             json_schema: Option<serde_json::Value>,
             model: Option<Model>,
             #[serde(default)]
-            ocr_strategy: OcrStrategy,
+            ocr_strategy: Option<OcrStrategy>,
             #[serde(default)]
-            segment_processing: SegmentProcessing,
+            segment_processing: Option<SegmentProcessing>,
             #[serde(default)]
-            segmentation_strategy: SegmentationStrategy,
+            segmentation_strategy: Option<SegmentationStrategy>,
             target_chunk_length: Option<i32>,
             #[cfg(feature = "azure")]
             pipeline: Option<PipelineType>,
@@ -720,9 +720,13 @@ impl<'de> Deserialize<'de> for Configuration {
             input_file_url: helper.input_file_url,
             json_schema: helper.json_schema,
             model: helper.model,
-            ocr_strategy: helper.ocr_strategy,
-            segment_processing: helper.segment_processing,
-            segmentation_strategy: helper.segmentation_strategy,
+            ocr_strategy: helper.ocr_strategy.unwrap_or(OcrStrategy::default()),
+            segment_processing: helper
+                .segment_processing
+                .unwrap_or(SegmentProcessing::default()),
+            segmentation_strategy: helper
+                .segmentation_strategy
+                .unwrap_or(SegmentationStrategy::default()),
             target_chunk_length: helper.target_chunk_length,
             #[cfg(feature = "azure")]
             pipeline: helper.pipeline,
