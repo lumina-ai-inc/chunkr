@@ -75,7 +75,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       </AuthProvider>
     </QueryClientProvider>
     <Toaster
-      position="bottom-right"
+      position="bottom-center"
       toastOptions={{
         style: {
           background: "rgba(2, 5, 6, 0.95)",
@@ -87,6 +87,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           fontSize: "14px",
           boxShadow: "0 4px 24px rgba(0, 0, 0, 0.2)",
           maxWidth: "380px",
+          zIndex: 10000,
         },
         success: {
           iconTheme: {

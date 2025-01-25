@@ -4,30 +4,59 @@ import useMonthlyUsage from "../../hooks/useMonthlyUsage";
 import BetterButton from "../BetterButton/BetterButton";
 import { useAuth } from "react-oidc-context";
 import { getBillingPortalSession } from "../../services/stripeService";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+import { format, subDays, startOfDay } from "date-fns";
+import { getTasks } from "../../services/taskApi";
+import { useQuery } from "react-query";
+import { Status } from "../../models/taskResponse.model";
+import Dropdown from "../Dropdown/Dropdown";
 
 interface UsageProps {
   customerId?: string;
 }
 
+type TimeRange = "week" | "14days" | "month";
+
 export default function UsagePage({ customerId }: UsageProps) {
-  return (
-    <Flex direction="column" className="usage-container">
-      <Billing customerId={customerId} />
-    </Flex>
-  );
-}
-
-interface BillingProps {
-  customerId?: string;
-}
-
-export function Billing({ customerId }: BillingProps) {
   const { data: monthlyUsage, isLoading } = useMonthlyUsage();
   const auth = useAuth();
   const navigate = useNavigate();
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
+  const [timeRange, setTimeRange] = useState<TimeRange>("week");
+
+  const { startDate, endDate } = useMemo(() => {
+    const daysToFetch =
+      timeRange === "week" ? 7 : timeRange === "14days" ? 14 : 30;
+    return {
+      endDate: new Date().toISOString(),
+      startDate: subDays(startOfDay(new Date()), daysToFetch).toISOString(),
+    };
+  }, [timeRange]);
+
+  const { data: tasks } = useQuery(
+    ["tasks", startDate, endDate],
+    () => getTasks(undefined, undefined, startDate, endDate),
+    {
+      staleTime: 50000,
+      refetchInterval:
+        new Date(startDate) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+          ? 50000
+          : false,
+      refetchIntervalInBackground: false,
+    }
+  );
+
+  console.log(tasks);
 
   const handleManagePayment = async () => {
     if (tier === "Free") {
@@ -62,20 +91,12 @@ export function Billing({ customerId }: BillingProps) {
   const limit = monthlyUsage?.[0]?.usage_limit || 0;
   const percentage = limit > 0 ? Math.min((usage / limit) * 100, 100) : 0;
   const tier = monthlyUsage?.[0]?.tier || "Free";
+  const overage = Math.max(
+    0,
+    (monthlyUsage?.[0]?.usage || 0) - (monthlyUsage?.[0]?.usage_limit || 0)
+  );
 
-  // Format the date
-  const startDate = monthlyUsage?.[0]?.billing_cycle_start
-    ? new Date(monthlyUsage[0].billing_cycle_start).toLocaleDateString(
-        "en-US",
-        {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-        }
-      )
-    : "N/A";
-
-  const endDate = monthlyUsage?.[0]?.billing_cycle_end
+  const endDateFormatted = monthlyUsage?.[0]?.billing_cycle_end
     ? new Date(monthlyUsage[0].billing_cycle_end).toLocaleDateString("en-US", {
         month: "long",
         day: "numeric",
@@ -83,8 +104,39 @@ export function Billing({ customerId }: BillingProps) {
       })
     : "N/A";
 
+  const getChartData = () => {
+    if (!tasks) return [];
+
+    const dailyPages: {
+      [key: string]: { date: string; successful: number; failed: number };
+    } = {};
+
+    tasks.forEach((task) => {
+      const date = format(new Date(task.created_at), "MMM dd");
+      if (!dailyPages[date]) {
+        dailyPages[date] = { date, successful: 0, failed: 0 };
+      }
+
+      // Get page count from task output
+      const pageCount = task.output?.page_count || 0;
+
+      if (task.status === Status.Succeeded) {
+        dailyPages[date].successful += pageCount;
+      } else if (task.status === Status.Failed) {
+        dailyPages[date].failed += pageCount;
+      }
+    });
+
+    // Sort the data chronologically
+    return Object.values(dailyPages).sort(
+      (a, b) =>
+        new Date(format(new Date(), "yyyy ") + a.date).getTime() -
+        new Date(format(new Date(), "yyyy ") + b.date).getTime()
+    );
+  };
+
   return (
-    <Flex direction="column" className="billing-container" gap="5">
+    <Flex direction="column" className="usage-container" gap="5">
       <Flex direction="row" gap="4" align="center">
         <Text size="5" align="center" weight="bold" style={{ color: "#FFF" }}>
           Current Billing Cycle
@@ -96,11 +148,7 @@ export function Billing({ customerId }: BillingProps) {
         </Flex>
       </Flex>
 
-      <Text size="2" style={{ color: "#FFF" }}>
-        Track your monthly usage, manage your subscription plan, and view
-        detailed billing information.
-      </Text>
-      <Flex direction="column" gap="6" mt="5" style={{ flexWrap: "wrap" }}>
+      <Flex direction="column" gap="5" mt="1" style={{ flexWrap: "wrap" }}>
         {/* Tier Card */}
         <Flex direction="row" gap="6" style={{ flexWrap: "wrap" }}>
           <Flex direction="column" gap="4" className="usage-card">
@@ -141,96 +189,51 @@ export function Billing({ customerId }: BillingProps) {
               </Flex>
             </Flex>
           </Flex>
-          <Flex direction="column" gap="4" className="usage-card">
-            <Flex justify="between" align="center">
-              <Text
-                size="3"
-                weight="bold"
-                style={{ color: "rgba(255,255,255,0.9)" }}
-              >
-                Billing Dates
-              </Text>
-            </Flex>
 
-            <Flex direction="column" gap="2">
+          {overage > 0 && (
+            <Flex direction="column" gap="4" className="usage-card">
               <Flex justify="between" align="center">
-                <Text size="2" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  Start
-                </Text>
-                <Text size="2" style={{ color: "rgba(255,255,255,0.9)" }}>
-                  {startDate}
-                </Text>
-              </Flex>
-              <Flex justify="between" align="center">
-                <Text size="2" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  End
-                </Text>
-                <Text size="2" style={{ color: "rgba(255,255,255,0.9)" }}>
-                  {endDate}
-                </Text>
-              </Flex>
-            </Flex>
-          </Flex>
-        </Flex>
-
-        <Flex direction="row" gap="6" style={{ flexWrap: "wrap" }}>
-          <Flex direction="column" gap="4" className="usage-card">
-            <Flex justify="between" align="center">
-              <Text
-                size="3"
-                weight="bold"
-                style={{ color: "rgba(255,255,255,0.9)" }}
-              >
-                Cost Breakdown
-              </Text>
-            </Flex>
-
-            <Flex direction="column" gap="3">
-              <Flex justify="between" align="center">
-                <Text size="2" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  Subscription Cost
-                </Text>
-                <Text size="2" style={{ color: "rgba(255,255,255,0.9)" }}>
-                  ${monthlyUsage?.[0]?.subscription_cost.toFixed(2)}
-                </Text>
-              </Flex>
-
-              <Flex justify="between" align="center">
-                <Text size="2" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  Overage Cost
-                </Text>
-                <Text size="2" style={{ color: "rgba(255,255,255,0.9)" }}>
-                  ${monthlyUsage?.[0]?.overage_cost.toFixed(2)}
-                </Text>
-              </Flex>
-
-              <Flex
-                justify="between"
-                align="center"
-                className="total-cost-section"
-              >
                 <Text
-                  size="2"
-                  weight="bold"
-                  style={{ color: "rgba(255,255,255,0.8)" }}
-                >
-                  Total Cost
-                </Text>
-                <Text
-                  size="4"
+                  size="3"
                   weight="bold"
                   style={{ color: "rgba(255,255,255,0.9)" }}
                 >
-                  $
-                  {(
-                    (monthlyUsage?.[0]?.subscription_cost || 0) +
-                    (monthlyUsage?.[0]?.overage_cost || 0)
-                  ).toFixed(2)}
+                  Overage
+                </Text>
+                <Text
+                  size="1"
+                  weight="medium"
+                  style={{ color: "rgba(255,255,255,0.9)" }}
+                >
+                  {overage.toLocaleString()} Pages
                 </Text>
               </Flex>
-            </Flex>
-          </Flex>
 
+              <div className="usage-progress-bar">
+                <div
+                  className="usage-progress-fill"
+                  style={{ width: "100%", backgroundColor: "#FF4D4D" }}
+                />
+              </div>
+
+              <Flex justify="between" align="center">
+                <Text size="1" style={{ color: "rgba(255,255,255,0.6)" }}>
+                  Above plan limit
+                </Text>
+                <Flex
+                  className="usage-badge"
+                  style={{ backgroundColor: "#FF4D4D33" }}
+                >
+                  <Text size="1" style={{ color: "#FF4D4D" }}>
+                    Overage charges apply
+                  </Text>
+                </Flex>
+              </Flex>
+            </Flex>
+          )}
+        </Flex>
+
+        <Flex direction="row" gap="6" style={{ flexWrap: "wrap" }}>
           <Flex direction="column" gap="4" className="usage-card">
             <Flex justify="between" align="center">
               <Text
@@ -262,8 +265,8 @@ export function Billing({ customerId }: BillingProps) {
                 {tier === "Free"
                   ? "Upgrade to a paid plan to unlock higher usage limits and additional features."
                   : monthlyUsage?.[0]?.last_paid_status === false
-                    ? "Your last payment was unsuccessful. Please update your payment method."
-                    : "Your payment method is up to date."}
+                  ? "Your last payment was unsuccessful. Please update your payment method."
+                  : `Your payment method is up to date. Next bill due ${endDateFormatted}.`}
               </Text>
 
               <Flex direction="row" gap="2">
@@ -275,13 +278,134 @@ export function Billing({ customerId }: BillingProps) {
                     {isLoadingPortal
                       ? "Loading..."
                       : tier === "Free"
-                        ? "Upgrade Plan"
-                        : "Manage Plan"}
+                      ? "Upgrade Plan"
+                      : "Manage Plan"}
                   </Text>
                 </BetterButton>
               </Flex>
             </Flex>
           </Flex>
+        </Flex>
+      </Flex>
+
+      <Flex direction="row" gap="4" mt="5" align="center">
+        <Text size="5" align="center" weight="bold" style={{ color: "#FFF" }}>
+          Overview
+        </Text>
+        <Flex direction="row" gap="4" width="fit-content">
+          <Dropdown
+            value={
+              timeRange === "week"
+                ? "Last 7 Days"
+                : timeRange === "14days"
+                ? "Last 14 Days"
+                : "Last 30 Days"
+            }
+            options={["Last 7 Days", "Last 14 Days", "Last 30 Days"]}
+            onChange={(value) => {
+              switch (value) {
+                case "Last 7 Days":
+                  setTimeRange("week");
+                  break;
+                case "Last 14 Days":
+                  setTimeRange("14days");
+                  break;
+                case "Last 30 Days":
+                  setTimeRange("month");
+                  break;
+              }
+            }}
+          />
+        </Flex>
+      </Flex>
+
+      <Flex direction="column" gap="4">
+        <Flex justify="between" align="center">
+          <Text
+            size="3"
+            weight="bold"
+            style={{ color: "rgba(255,255,255,0.9)" }}
+          >
+            Pages Processed
+          </Text>
+        </Flex>
+        <Flex className="chart-container">
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart
+              data={getChartData()}
+              margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid
+                horizontal={true}
+                vertical={false}
+                stroke="rgba(255,255,255,0.1)"
+                strokeDasharray="3 3"
+              />
+              <XAxis
+                dataKey="date"
+                stroke="rgba(255,255,255,0.2)"
+                tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
+                axisLine={false}
+                tickLine={false}
+                dy={10}
+              />
+              <YAxis
+                stroke="rgba(255,255,255,0.2)"
+                tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
+                axisLine={false}
+                tickLine={false}
+                dx={-10}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(0,0,0,0.9)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                  padding: "12px",
+                }}
+                itemStyle={{
+                  color: "rgba(255,255,255,0.95)",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                }}
+                labelStyle={{
+                  color: "rgba(255,255,255,0.8)",
+                  fontSize: "12px",
+                  marginBottom: "4px",
+                }}
+                cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="successful"
+                stroke="#00FF9D"
+                strokeWidth={2.5}
+                dot={false}
+                name="Successfully Processed"
+                activeDot={{
+                  r: 4,
+                  fill: "#00FF9D",
+                  stroke: "#00FF9D",
+                  strokeWidth: 2,
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="failed"
+                stroke="#FF4D4D"
+                strokeWidth={2.5}
+                dot={false}
+                name="Failed"
+                activeDot={{
+                  r: 4,
+                  fill: "#FF4D4D",
+                  stroke: "#FF4D4D",
+                  strokeWidth: 2,
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </Flex>
       </Flex>
     </Flex>
