@@ -730,7 +730,7 @@ impl<'de> Deserialize<'de> for Configuration {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql, EnumString, Display)]
 #[deprecated]
 pub enum Model {
     Fast,
