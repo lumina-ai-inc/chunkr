@@ -173,13 +173,18 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    // Check if URL has #pricing hash on mount
-    if (window.location.hash === "#pricing") {
-      // Small delay to ensure component is mounted
-      setTimeout(() => {
-        pricingRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    }
+    const handleHashChange = () => {
+      if (window.location.hash === "#pricing") {
+        setTimeout(() => {
+          pricingRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    };
+
+    // Check hash on mount and hash changes
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
   const handleScriptSwitch = (script: string) => {
