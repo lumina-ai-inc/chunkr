@@ -11,12 +11,20 @@ from typing import BinaryIO, Union
 
 
 class ChunkrBase(HeadersMixin):
-    """Base class with shared functionality for Chunkr API clients."""
+    """Base class with shared functionality for Chunkr API clients.
+    
+    Args:
+        url: The base URL of the Chunkr API. Defaults to the value of the CHUNKR_URL environment variable, or "https://api.chunkr.ai" if not set.
+        api_key: The API key to use for authentication. Defaults to the value of the CHUNKR_API_KEY environment variable, or None if not set.
+        raise_on_failure: Whether to raise an exception if the task fails. Defaults to False.
+    """
 
-    def __init__(self, url: str = None, api_key: str = None):
+    def __init__(self, url: str = None, api_key: str = None, raise_on_failure: bool = False):
         load_dotenv()
         self.url = url or os.getenv("CHUNKR_URL") or "https://api.chunkr.ai"
         self._api_key = api_key or os.getenv("CHUNKR_API_KEY")
+        self.raise_on_failure = raise_on_failure
+        
         if not self._api_key:
             raise ValueError(
                 "API key must be provided either directly, in .env file, or as CHUNKR_API_KEY environment variable. You can get an api key at: https://www.chunkr.ai"
