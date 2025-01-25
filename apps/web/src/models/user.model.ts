@@ -1,22 +1,7 @@
-export interface Usage {
-  usage: number;
-  usage_limit: number;
-  usage_type: "Segment" | "HighQuality" | "Fast";
-  unit: "Segment" | "Page";
-  created_at: string;
-  updated_at: string;
-}
-
 export interface UserUsage {
   usage_type: "Page";
   usage_limit: number;
   overage_usage?: number;
-  discounts: Discount[];
-}
-
-export interface Discount {
-  usage_type: "Fast" | "HighQuality" | "Segment";
-  amount: number;
 }
 
 export interface User {

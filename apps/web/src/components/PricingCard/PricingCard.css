@@ -102,7 +102,7 @@
   padding-top: 8px;
   padding-bottom: 8px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   font-weight: 500;
   cursor: pointer;
@@ -112,7 +112,11 @@
 }
 
 .pricing-button:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.pricing-button:hover .pricing-button-text {
+  color: #000;
 }
 
 .pricing-card-highlighted .pricing-button {
@@ -122,6 +126,28 @@
 .pricing-card-highlighted .pricing-button:hover {
   background: #e27b4c;
 }
+
+.pricing-button.current-plan {
+  background: rgba(255, 255, 255, 0.9);
+  cursor: default;
+}
+
+.pricing-button.current-plan .pricing-button-text {
+  color: #000;
+}
+
+.pricing-button.current-plan:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.pricing-card-highlighted .pricing-button.current-plan {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.pricing-card-highlighted .pricing-button.current-plan:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
 /* Gradient overlay */
 .pricing-card::before {
   content: "";
@@ -139,4 +165,55 @@
   height: 20px;
   border-radius: 100%;
   background: #ffffffdc;
+}
+
+.checkout-overlay {
+  display: flex;
+  /* height: 100vh;
+  width: 100vw; */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.checkout-popover {
+  height: 90vh;
+  width: 90vw;
+  max-width: 1048px;
+  overflow: auto;
+  cursor: default;
+}
+
+.stripe-checkout-wrapper {
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  background: #050609;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  box-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.5),
+    0 12px 48px -8px rgba(0, 0, 0, 0.3);
+
+  /* Webkit scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+  }
 }

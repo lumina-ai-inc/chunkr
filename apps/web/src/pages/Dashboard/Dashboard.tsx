@@ -73,6 +73,14 @@ export default function Dashboard() {
     }
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (location.state?.selectedNav) {
+      setSelectedNav(location.state.selectedNav);
+      // Clear the state after using it
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   const navIcons = {
     Tasks: (
       <g>
@@ -303,7 +311,7 @@ export default function Dashboard() {
       case "Usage":
         return {
           title: "Usage",
-          component: <Usage />,
+          component: <Usage customerId={user.data?.customer_id || ""} />,
         };
       case "API Keys":
         return {
