@@ -72,7 +72,7 @@ impl CreateForm {
         self.ocr_strategy
             .as_ref()
             .map(|e| e.0.clone())
-            .unwrap_or(OcrStrategy::All)
+            .unwrap_or(OcrStrategy::default())
     }
 
     fn get_segment_processing(&self) -> SegmentProcessing {
@@ -126,7 +126,7 @@ impl CreateForm {
         self.segmentation_strategy
             .as_ref()
             .map(|e| e.0.clone())
-            .unwrap_or(SegmentationStrategy::LayoutAnalysis)
+            .unwrap_or(SegmentationStrategy::default())
     }
 
     #[cfg(feature = "azure")]
@@ -283,6 +283,12 @@ pub enum OcrStrategy {
     Auto,
 }
 
+impl Default for OcrStrategy {
+    fn default() -> Self {
+        OcrStrategy::All
+    }
+}
+
 #[derive(
     Serialize,
     Deserialize,
@@ -302,4 +308,10 @@ pub enum OcrStrategy {
 pub enum SegmentationStrategy {
     LayoutAnalysis,
     Page,
+}
+
+impl Default for SegmentationStrategy {
+    fn default() -> Self {
+        SegmentationStrategy::LayoutAnalysis
+    }
 }
