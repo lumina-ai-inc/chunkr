@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import { getCheckoutSession } from "../../services/stripeService";
+import { StripeCheckoutSession } from "../../models/stripe.models";
 import toast from "react-hot-toast";
 import Loader from "../Loader/Loader";
 
@@ -12,46 +13,34 @@ export default function Checkout() {
   const auth = useAuth();
 
   useEffect(() => {
-    const pollSessionStatus = async () => {
+    const checkSession = async () => {
       try {
-        if (!sessionId || !auth.user?.access_token) {
-          throw new Error("Missing session ID or access token");
-        }
+        if (!sessionId || !auth.user?.access_token) return;
 
-        const session = await getCheckoutSession(
+        const session: StripeCheckoutSession = await getCheckoutSession(
           auth.user.access_token,
           sessionId
         );
 
-        if (session.status === "complete") {
-          toast.success(
-            <div
-              onClick={() =>
-                navigate("/dashboard", { state: { selectedNav: "Usage" } })
-              }
-            >
-              Subscription was successful! View new usage details
-            </div>,
-            {
-              duration: 5000,
-              style: { cursor: "pointer" },
-            }
-          );
-          navigate("/dashboard", { state: { selectedNav: "Usage" } });
-        } else if (session.status === "open") {
-          // Payment failed or was canceled
-          toast.error("Payment was not completed. Please try again.");
+        if (
+          session.status === "complete" &&
+          session.payment_status === "paid"
+        ) {
+          toast.success("Payment successful!");
           navigate("/dashboard");
+        } else {
+          toast.error("Payment unsuccessful");
+          navigate("/pricing");
         }
       } catch (error) {
-        console.error("Error checking session status:", error);
-        toast.error("Something went wrong. Please try again.");
-        navigate("/dashboard");
+        console.error("Error:", error);
+        toast.error("An error occurred while processing your payment");
+        navigate("/pricing");
       }
     };
 
-    pollSessionStatus();
-  }, [sessionId, auth.user?.access_token, navigate]);
+    checkSession();
+  }, [sessionId, auth.user, navigate]);
 
   return <Loader />;
 }

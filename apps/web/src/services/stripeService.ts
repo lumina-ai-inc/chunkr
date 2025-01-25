@@ -25,16 +25,13 @@ export async function createCheckoutSession(
 export async function getCheckoutSession(
   accessToken: string,
   sessionId: string
-) {
+): Promise<StripeCheckoutSession> {
   try {
-    const response = await axiosInstance.get(
-      `/api/v1/stripe/checkout/${sessionId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+    const response = await axiosInstance.get(`/stripe/checkout/${sessionId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error getting checkout session:", error);
