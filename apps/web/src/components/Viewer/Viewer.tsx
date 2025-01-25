@@ -623,10 +623,12 @@ export default function Viewer({ task }: { task: TaskResponse }) {
                     displayDataTypes={false}
                     enableClipboard={false}
                     style={{
-                      backgroundColor: "#000000",
+                      backgroundColor: "transparent",
                       padding: "12px",
                       fontSize: "12px",
                     }}
+                    collapsed={1}
+                    name={false}
                   />
                 </Flex>
               </div>
