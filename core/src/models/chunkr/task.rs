@@ -237,7 +237,14 @@ impl Task {
         if include_chunks {
             let temp_file = download_to_tempfile(&self.output_location, None).await?;
             let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
-            output_response = serde_json::from_str(&json_content)?;
+            output_response = match serde_json::from_str(&json_content) {
+                Ok(output) => output,
+                Err(e) => {
+                    println!("Error deserializing output: {:?}", e);
+                    println!("JSON content: {:?}", json_content);
+                    OutputResponse::default()
+                }
+            };
             let picture_generation_config: PictureGenerationConfig = self
                 .configuration
                 .segment_processing
