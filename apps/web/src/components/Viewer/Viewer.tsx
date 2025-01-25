@@ -25,7 +25,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   const hideTimeoutRef = useRef<NodeJS.Timeout>();
 
   const [selectedView, setSelectedView] = useState<
-    "html" | "markdown" | "json" | "structured"
+    "html" | "markdown" | "json"
   >("html");
 
   const [activeSegment, setActiveSegment] = useState<{
@@ -332,8 +332,6 @@ export default function Viewer({ task }: { task: TaskResponse }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  // Add a check for structured extraction availability
 
   const renderDownloadDropdown = () => (
     <div
@@ -679,7 +677,6 @@ export default function Viewer({ task }: { task: TaskResponse }) {
               activeSegment={activeSegment}
               loadedPages={loadedPages}
               onLoadSuccess={(pages) => setNumPages(pages)}
-              structureExtractionView={selectedView === "structured"}
             />
           )}
         </Panel>

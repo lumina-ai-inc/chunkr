@@ -187,19 +187,19 @@ function CurrentPage({
     () =>
       !structureExtractionView
         ? segments.flatMap((chunk, chunkIndex) =>
-          chunk.segments
-            .filter((segment) => segment.page_number === pageNumber)
-            .map((segment, segmentIndex) => (
-              <MemoizedSegmentOverlay
-                key={`${chunkIndex}-${segmentIndex}`}
-                segment={segment}
-                chunkIndex={chunkIndex}
-                segmentIndex={segmentIndex}
-                onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
-                isActive={activeSegment?.chunkIndex === chunkIndex}
-              />
-            ))
-        )
+            chunk.segments
+              .filter((segment) => segment.page_number === pageNumber)
+              .map((segment, segmentIndex) => (
+                <MemoizedSegmentOverlay
+                  key={`${chunkIndex}-${segmentIndex}`}
+                  segment={segment}
+                  chunkIndex={chunkIndex}
+                  segmentIndex={segmentIndex}
+                  onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
+                  isActive={activeSegment?.chunkIndex === chunkIndex}
+                />
+              ))
+          )
         : [],
     [
       segments,
@@ -240,10 +240,15 @@ function SegmentOverlay({
       height: `${(segment.bbox.height / segment.page_height) * 100}%`,
       left: `${(segment.bbox.left / segment.page_width) * 100}%`,
       top: `${(segment.bbox.top / segment.page_height) * 100}%`,
-      borderColor: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"})`,
+      borderColor: `var(${
+        segmentColors[segment.segment_type as SegmentType] || "--border-black"
+      })`,
       backgroundColor:
         isActive || isHovered
-          ? `color-mix(in srgb, var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"}) 30%, transparent)`
+          ? `color-mix(in srgb, var(${
+              segmentLightColors[segment.segment_type as SegmentType] ||
+              "--border-black"
+            }) 30%, transparent)`
           : "transparent",
       transition: "background-color 0.2s ease-in-out",
     }),
@@ -284,7 +289,9 @@ function SegmentOverlay({
 
   return (
     <div
-      className={`segment visible absolute z-50 border-2 ${isActive ? "active" : ""}`}
+      className={`segment visible absolute z-50 border-2 ${
+        isActive ? "active" : ""
+      }`}
       style={style}
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
@@ -294,10 +301,19 @@ function SegmentOverlay({
       <div
         className="segment-overlay"
         style={{
-          borderColor: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"}) !important`,
-          color: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"}) !important`,
+          borderColor: `var(${
+            segmentColors[segment.segment_type as SegmentType] ||
+            "--border-black"
+          }) !important`,
+          color: `var(${
+            segmentColors[segment.segment_type as SegmentType] ||
+            "--border-black"
+          }) !important`,
           backgroundColor: isHovered
-            ? `color-mix(in srgb, var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"}) 100%, transparent)`
+            ? `color-mix(in srgb, var(${
+                segmentLightColors[segment.segment_type as SegmentType] ||
+                "--border-black"
+              }) 100%, transparent)`
             : "transparent",
           opacity: "1 !important",
         }}
@@ -335,7 +351,9 @@ function OCRBoundingBoxes({
           top: `${(result.bbox.top / segmentBBox.height) * 100}%`,
           width: `${(result.bbox.width / segmentBBox.width) * 100}%`,
           height: `${(result.bbox.height / segmentBBox.height) * 100}%`,
-          border: `1px solid var(${segmentColors[segmentType] || "--border-black"})`,
+          border: `1px solid var(${
+            segmentColors[segmentType] || "--border-black"
+          })`,
           zIndex: 40,
         };
 
@@ -354,7 +372,9 @@ function OCRBoundingBoxes({
                   left: -1,
                   top: -4,
                   transform: "translateY(-100%)",
-                  backgroundColor: `color-mix(in srgb, var(${segmentColors[segmentType] || "--border-black"}) 90%, transparent) !important`,
+                  backgroundColor: `color-mix(in srgb, var(${
+                    segmentColors[segmentType] || "--border-black"
+                  }) 90%, transparent) !important`,
                   color: `var(--color-background) !important`,
                   padding: "2px 4px",
                   borderRadius: "2px",

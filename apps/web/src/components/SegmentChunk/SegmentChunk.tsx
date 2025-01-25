@@ -91,7 +91,7 @@ export const SegmentChunk = memo(
       chunk: Chunk;
       chunkIndex: number;
       containerWidth: number;
-      selectedView: "html" | "markdown" | "json" | "structured";
+      selectedView: "html" | "markdown" | "json";
       onSegmentClick?: (chunkIndex: number, segmentIndex: number) => void;
       activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
     }
@@ -203,7 +203,9 @@ export const SegmentChunk = memo(
             (segment: Segment, segmentIndex: number) => (
               <div
                 key={segmentIndex}
-                className={`segment-item ${isSegmentActive(segmentIndex) ? "active" : ""}`}
+                className={`segment-item ${
+                  isSegmentActive(segmentIndex) ? "active" : ""
+                }`}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -222,7 +224,9 @@ export const SegmentChunk = memo(
           case "markdown":
             return (
               <div
-                className={`segment-content-wrapper ${activeSegment?.chunkIndex === chunkIndex ? "active" : ""}`}
+                className={`segment-content-wrapper ${
+                  activeSegment?.chunkIndex === chunkIndex ? "active" : ""
+                }`}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -250,7 +254,9 @@ export const SegmentChunk = memo(
               (segment: Segment, segmentIndex: number) => (
                 <div
                   key={segmentIndex}
-                  className={`segment-item ${isSegmentActive(segmentIndex) ? "active" : ""}`}
+                  className={`segment-item ${
+                    isSegmentActive(segmentIndex) ? "active" : ""
+                  }`}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -258,23 +264,6 @@ export const SegmentChunk = memo(
                   }}
                 >
                   <MemoizedJson segment={segment} />
-                </div>
-              )
-            );
-          case "structured":
-            return chunk.segments.map(
-              (segment: Segment, segmentIndex: number) => (
-                <div
-                  key={segmentIndex}
-                  className={`structured-segment ${isSegmentActive(segmentIndex) ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onSegmentClick?.(chunkIndex, segmentIndex);
-                  }}
-                >
-                  <div className="segment-type">{segment.segment_type}</div>
-                  <div className="segment-content">{segment.content}</div>
                 </div>
               )
             );

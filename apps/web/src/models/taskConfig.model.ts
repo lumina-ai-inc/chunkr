@@ -48,18 +48,11 @@ export enum CroppingStrategy {
   Auto = "Auto",
 }
 
-/** Configuration for LLM-based generation */
-export interface LlmConfig {
-  model: string;
-  prompt: string;
-  temperature: number;
-}
-
 /** Base configuration for automatic content generation */
 export interface SegmentProcessingConfig {
   crop_image: CroppingStrategy;
   html: GenerationStrategy;
-  llm?: LlmConfig;
+  llm?: string;
   markdown: GenerationStrategy;
 }
 
@@ -71,18 +64,18 @@ export interface SegmentProcessingConfig {
  * with LLM-processed content for each segment type.
  */
 export interface SegmentProcessing {
-  Title: SegmentProcessingConfig;
-  SectionHeader: SegmentProcessingConfig;
-  Text: SegmentProcessingConfig;
-  ListItem: SegmentProcessingConfig;
-  Table: SegmentProcessingConfig;
-  Picture: SegmentProcessingConfig;
   Caption: SegmentProcessingConfig;
   Formula: SegmentProcessingConfig;
   Footnote: SegmentProcessingConfig;
-  PageHeader: SegmentProcessingConfig;
-  PageFooter: SegmentProcessingConfig;
+  ListItem: SegmentProcessingConfig;
   Page: SegmentProcessingConfig;
+  PageFooter: SegmentProcessingConfig;
+  PageHeader: SegmentProcessingConfig;
+  Picture: SegmentProcessingConfig;
+  SectionHeader: SegmentProcessingConfig;
+  Table: SegmentProcessingConfig;
+  Text: SegmentProcessingConfig;
+  Title: SegmentProcessingConfig;
 }
 
 import { WhenEnabled } from "../config/env.config";
@@ -163,24 +156,24 @@ const DEFAULT_PICTURE_CONFIG: SegmentProcessingConfig = {
 };
 
 export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
-  Text: { ...DEFAULT_SEGMENT_CONFIG },
-  Title: { ...DEFAULT_SEGMENT_CONFIG },
-  SectionHeader: { ...DEFAULT_SEGMENT_CONFIG },
-  ListItem: { ...DEFAULT_SEGMENT_CONFIG },
-  Table: { ...DEFAULT_TABLE_CONFIG },
-  Picture: { ...DEFAULT_PICTURE_CONFIG },
   Caption: { ...DEFAULT_SEGMENT_CONFIG },
   Formula: { ...DEFAULT_FORMULA_CONFIG },
   Footnote: { ...DEFAULT_SEGMENT_CONFIG },
-  PageHeader: { ...DEFAULT_SEGMENT_CONFIG },
-  PageFooter: { ...DEFAULT_SEGMENT_CONFIG },
+  ListItem: { ...DEFAULT_SEGMENT_CONFIG },
   Page: { ...DEFAULT_SEGMENT_CONFIG },
+  PageFooter: { ...DEFAULT_SEGMENT_CONFIG },
+  PageHeader: { ...DEFAULT_SEGMENT_CONFIG },
+  Picture: { ...DEFAULT_PICTURE_CONFIG },
+  SectionHeader: { ...DEFAULT_SEGMENT_CONFIG },
+  Table: { ...DEFAULT_TABLE_CONFIG },
+  Text: { ...DEFAULT_SEGMENT_CONFIG },
+  Title: { ...DEFAULT_SEGMENT_CONFIG },
 };
 
 export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   chunk_processing: { target_length: 512, ignore_headers_and_footers: true },
   high_resolution: false,
-  ocr_strategy: OcrStrategy.All,
+  ocr_strategy: OcrStrategy.Auto,
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
   file: new File([], ""),

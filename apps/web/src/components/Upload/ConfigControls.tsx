@@ -72,7 +72,9 @@ export function ToggleGroup({
         {options.map((option) => (
           <button
             key={option.value}
-            className={`toggle-button ${value === option.value ? "active" : ""}`}
+            className={`toggle-button ${
+              value === option.value ? "active" : ""
+            }`}
             onClick={() => onChange(option.value)}
           >
             <Text size="1" weight="bold">
@@ -205,16 +207,15 @@ export function SegmentProcessingControls({
     };
   }, []);
 
-  const isSegmentModified = (type: keyof SegmentProcessing) => {
-    const segmentDefaults = {
-      // Default config for most segments
-      ...DEFAULT_SEGMENT_PROCESSING,
-    };
+  const isModified = (type: keyof SegmentProcessing) => {
+    const defaultConfig = DEFAULT_SEGMENT_PROCESSING[type];
+    const currentConfig = value[type];
 
-    const defaultConfig = segmentDefaults[type] || DEFAULT_SEGMENT_PROCESSING;
-
-    return Object.entries(value[type]).some(
-      ([key, val]) => val !== defaultConfig[key as keyof typeof defaultConfig]
+    return (
+      defaultConfig.crop_image !== currentConfig.crop_image ||
+      defaultConfig.html !== currentConfig.html ||
+      defaultConfig.markdown !== currentConfig.markdown ||
+      (currentConfig.llm && currentConfig.llm.trim() !== "")
     );
   };
 
@@ -243,7 +244,7 @@ export function SegmentProcessingControls({
         >
           <Text size="2" weight="medium">
             {selectedType}
-            {isSegmentModified(selectedType) && " (Modified)"}
+            {isModified(selectedType) && " (Modified)"}
           </Text>
           <svg
             width="12"
@@ -272,13 +273,13 @@ export function SegmentProcessingControls({
                 key={type}
                 className={`segment-dropdown-item ${
                   selectedType === type ? "active" : ""
-                } ${isSegmentModified(type) ? "modified" : ""}`}
+                } ${isModified(type) ? "modified" : ""}`}
                 onClick={() => handleTypeSelect(type)}
                 type="button"
               >
                 <Text size="2" weight="medium">
                   {type}
-                  {isSegmentModified(type) && " (Modified)"}
+                  {isModified(type) && " (Modified)"}
                 </Text>
               </button>
             ))}
@@ -319,6 +320,29 @@ export function SegmentProcessingControls({
             { label: "All", value: CroppingStrategy.All },
           ]}
         />
+
+        <div className="config-card">
+          <div className="config-card-header">
+            <Text size="3" weight="bold" className="white">
+              Custom LLM
+            </Text>
+          </div>
+          <input
+            type="text"
+            className="llm-input"
+            placeholder="Enter custom prompt..."
+            value={value[selectedType].llm || ""}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                [selectedType]: {
+                  ...value[selectedType],
+                  llm: e.target.value,
+                },
+              })
+            }
+          />
+        </div>
       </div>
     </div>
   );

@@ -75,7 +75,11 @@ const TaskTable = () => {
 
   const handleTaskClick = (task: TaskResponse) => {
     navigate(
-      `/dashboard?taskId=${task.task_id}&pageCount=${task.output?.page_count || 10}&tablePageIndex=${pagination.pageIndex}&tablePageSize=${pagination.pageSize}`
+      `/dashboard?taskId=${task.task_id}&pageCount=${
+        task.output?.page_count || 10
+      }&tablePageIndex=${pagination.pageIndex}&tablePageSize=${
+        pagination.pageSize
+      }`
     );
   };
 
@@ -129,10 +133,10 @@ const TaskTable = () => {
                   row.original.status === Status.Starting
                     ? "#3498db" // blue
                     : row.original.status === Status.Processing
-                      ? "#f39c12" // orange
-                      : row.original.status === Status.Failed
-                        ? "#e74c3c" // red
-                        : "transparent",
+                    ? "#f39c12" // orange
+                    : row.original.status === Status.Failed
+                    ? "#e74c3c" // red
+                    : "transparent",
                 display:
                   row.original.status === Status.Succeeded ? "none" : "block",
               }}
@@ -394,9 +398,15 @@ const TaskTable = () => {
       await deleteTasks(deletableTaskIds);
 
       toast.success(
-        `Successfully deleted ${deletableTaskIds.length} task${deletableTaskIds.length === 1 ? "" : "s"}` +
+        `Successfully deleted ${deletableTaskIds.length} task${
+          deletableTaskIds.length === 1 ? "" : "s"
+        }` +
           (nonDeletableCount > 0
-            ? `. ${nonDeletableCount} task${nonDeletableCount === 1 ? " was" : "s were"} skipped as ${nonDeletableCount === 1 ? "it wasn't" : "they weren't"} completed.`
+            ? `. ${nonDeletableCount} task${
+                nonDeletableCount === 1 ? " was" : "s were"
+              } skipped as ${
+                nonDeletableCount === 1 ? "it wasn't" : "they weren't"
+              } completed.`
             : "")
       );
 
@@ -429,7 +439,11 @@ const TaskTable = () => {
           ? "already processing"
           : "already completed";
       toast.error(
-        `Cannot cancel ${selectedTaskIds.length === 1 ? "this task" : "these tasks"} as ${selectedTaskIds.length === 1 ? "it is" : "they are"} ${statusMessage}.`
+        `Cannot cancel ${
+          selectedTaskIds.length === 1 ? "this task" : "these tasks"
+        } as ${
+          selectedTaskIds.length === 1 ? "it is" : "they are"
+        } ${statusMessage}.`
       );
       return;
     }
@@ -439,9 +453,15 @@ const TaskTable = () => {
       setRowSelection({});
 
       toast.success(
-        `Successfully cancelled ${cancellableTaskIds.length} task${cancellableTaskIds.length === 1 ? "" : "s"}` +
+        `Successfully cancelled ${cancellableTaskIds.length} task${
+          cancellableTaskIds.length === 1 ? "" : "s"
+        }` +
           (nonCancellableTaskDetails.length > 0
-            ? `. ${nonCancellableTaskDetails.length} task${nonCancellableTaskDetails.length === 1 ? " was" : "s were"} skipped as ${nonCancellableTaskDetails.length === 1 ? "it was" : "they were"} already ${nonCancellableTaskDetails[0]}.`
+            ? `. ${nonCancellableTaskDetails.length} task${
+                nonCancellableTaskDetails.length === 1 ? " was" : "s were"
+              } skipped as ${
+                nonCancellableTaskDetails.length === 1 ? "it was" : "they were"
+              } already ${nonCancellableTaskDetails[0]}.`
             : "")
       );
 

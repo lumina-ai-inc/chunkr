@@ -203,18 +203,6 @@ export default function Dashboard() {
       ? `${user.data.first_name} ${user.data.last_name}`
       : user?.data?.email || "User";
 
-  // const handleAddPaymentMethod = useCallback(async () => {
-  //   const setupIntent = await createSetupIntent(
-  //     auth.user?.access_token as string
-  //   );
-  //   const customerSession = await createCustomerSession(
-  //     auth.user?.access_token as string
-  //   );
-  //   setCustomerSessionSecret(customerSession.customer_session_secret);
-  //   setCustomerSessionClientSecret(setupIntent.client_secret);
-  //   setShowPaymentSetup(true);
-  // }, [auth.user?.access_token]);
-
   const content = useMemo(() => {
     switch (selectedNav) {
       case "Tasks":
@@ -386,7 +374,7 @@ export default function Dashboard() {
                     {userDisplayName}
                   </Text>
                   <Text size="1" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    Free Plan
+                    {user?.data?.tier}
                   </Text>
                 </Flex>
               </Flex>
