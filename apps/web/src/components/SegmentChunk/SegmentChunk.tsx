@@ -91,17 +91,17 @@ export const SegmentChunk = memo(
     HTMLDivElement,
     {
       chunk: Chunk;
-      chunkIndex: number;
+      chunkId: string;
       containerWidth: number;
       selectedView: "html" | "markdown" | "json";
-      onSegmentClick?: (chunkIndex: number, segmentIndex: number) => void;
-      activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
+      onSegmentClick?: (chunkId: string, segmentId: string) => void;
+      activeSegment?: { chunkId: string; segmentId: string } | null;
     }
   >(
     (
       {
         chunk,
-        chunkIndex,
+        chunkId,
         containerWidth,
         selectedView,
         onSegmentClick,
@@ -132,12 +132,20 @@ export const SegmentChunk = memo(
       const combinedHtml = useMemo(() => {
         return chunk.segments
           .map((segment) => {
+            const isActive =
+              activeSegment?.chunkId === chunkId &&
+              activeSegment?.segmentId === segment.segment_id;
+
             // Handle table images
             if (
               segment.segment_type === "Table" &&
               segment.html?.startsWith("<span class=")
             ) {
-              return `<br><img src="${segment.image}" />`;
+              return `<div class="segment-item ${isActive ? "active" : ""}" 
+                data-chunk-id="${chunkId}" 
+                data-segment-id="${segment.segment_id}">
+                <br><img src="${segment.image}" />
+              </div>`;
             }
 
             // Handle formula segments with class="formula"
@@ -152,18 +160,21 @@ export const SegmentChunk = memo(
                   .replace(/&amp;/g, "&")
                   .trim();
                 try {
-                  return katex.renderToString(formula, {
-                    displayMode: true,
-                    throwOnError: false,
-                    strict: false,
-                    trust: true,
-                    macros: {
-                      "\\R": "\\mathbb{R}",
-                    },
-                  });
+                  return `<div class="segment-item ${isActive ? "active" : ""}"
+                    data-chunk-id="${chunkId}" 
+                    data-segment-id="${segment.segment_id}">
+                    ${katex.renderToString(formula, {
+                      displayMode: true,
+                      throwOnError: false,
+                    })}
+                  </div>`;
                 } catch (error) {
                   console.error("KaTeX rendering error:", error);
-                  return `<div class="math math-display">$$\\begin{aligned}${formula}\\end{aligned}$$</div>`;
+                  return `<div class="segment-item ${isActive ? "active" : ""}"
+                    data-chunk-id="${chunkId}" 
+                    data-segment-id="${segment.segment_id}">
+                    <div className="math math-display">$$\\begin{aligned}${formula}\\end{aligned}$$</div>
+                  </div>`;
                 }
               }
             }
@@ -171,58 +182,190 @@ export const SegmentChunk = memo(
             // Handle content with LaTeX delimiters
             if (segment.content && segment.content.includes("\\")) {
               try {
-                return katex.renderToString(segment.content, {
-                  displayMode: true,
-                  throwOnError: false,
-                });
+                return `<div class="segment-item ${isActive ? "active" : ""}"
+                  data-chunk-id="${chunkId}" 
+                  data-segment-id="${segment.segment_id}">
+                  ${katex.renderToString(segment.content, {
+                    displayMode: true,
+                    throwOnError: false,
+                  })}
+                </div>`;
               } catch (error) {
                 console.error("KaTeX rendering error:", error);
-                return `<div class="math math-display">$$${segment.content}$$</div>`;
+                return `<div class="segment-item ${isActive ? "active" : ""}"
+                  data-chunk-id="${chunkId}" 
+                  data-segment-id="${segment.segment_id}">
+                  <div className="math math-display">$$${
+                    segment.content
+                  }$$</div>
+                </div>`;
               }
             }
 
-            return segment.html || "";
+            return `<div class="segment-item ${isActive ? "active" : ""}"
+              data-chunk-id="${chunkId}" 
+              data-segment-id="${segment.segment_id}">
+              ${segment.html || ""}
+            </div>`;
           })
           .filter(Boolean)
           .join("");
-      }, [chunk.segments]);
+      }, [chunk.segments, activeSegment, chunkId]);
 
-      const isSegmentActive = useCallback(
-        (segmentIndex: number) => {
-          return (
-            activeSegment?.chunkIndex === chunkIndex &&
-            activeSegment?.segmentIndex === segmentIndex
-          );
-        },
-        [activeSegment, chunkIndex]
-      );
+      const renderSegmentHtml = useCallback(
+        (segment: Segment) => {
+          const isActive =
+            activeSegment?.chunkId === chunkId &&
+            activeSegment?.segmentId === segment.segment_id;
 
-      const renderContent = () => {
-        const firstPageNumber = chunk.segments[0]?.page_number;
-        const hasLLM = chunk.segments.some((segment) => segment.llm);
-
-        // If showJson is true, always show JSON view regardless of selectedView
-        if (showJson) {
-          return chunk.segments.map(
-            (segment: Segment, segmentIndex: number) => (
+          // Handle table images
+          if (
+            segment.segment_type === "Table" &&
+            segment.html?.startsWith("<span class=")
+          ) {
+            return (
               <div
-                key={segmentIndex}
-                className={`segment-item ${
-                  isSegmentActive(segmentIndex) ? "active" : ""
-                }`}
+                className={`segment-item ${isActive ? "active" : ""}`}
+                data-chunk-id={chunkId}
+                data-segment-id={segment.segment_id}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  onSegmentClick?.(chunkIndex, segmentIndex);
+                  onSegmentClick?.(chunkId, segment.segment_id);
                 }}
+                style={{ maxWidth: `calc(${containerWidth}px - 32px)` }}
               >
-                <MemoizedJson segment={segment} />
+                <img src={segment.image || ""} alt="Table" />
               </div>
-            )
+            );
+          }
+
+          // Handle formula segments
+          if (segment.html?.includes('class="formula"')) {
+            const formulaMatch = segment.html.match(
+              /<span class="formula">(.*?)<\/span>/s
+            );
+            if (formulaMatch) {
+              const formula = formulaMatch[1]
+                .replace(/&gt;/g, ">")
+                .replace(/&lt;/g, "<")
+                .replace(/&amp;/g, "&")
+                .trim();
+              try {
+                const renderedFormula = katex.renderToString(formula, {
+                  displayMode: true,
+                  throwOnError: false,
+                  strict: false,
+                  trust: true,
+                  macros: {
+                    "\\R": "\\mathbb{R}",
+                  },
+                });
+                return (
+                  <div
+                    className={`segment-item ${isActive ? "active" : ""}`}
+                    data-chunk-id={chunkId}
+                    data-segment-id={segment.segment_id}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onSegmentClick?.(chunkId, segment.segment_id);
+                    }}
+                    dangerouslySetInnerHTML={{ __html: renderedFormula }}
+                  />
+                );
+              } catch (error) {
+                console.error("KaTeX rendering error:", error);
+                return (
+                  <div
+                    className={`segment-item ${isActive ? "active" : ""}`}
+                    data-chunk-id={chunkId}
+                    data-segment-id={segment.segment_id}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onSegmentClick?.(chunkId, segment.segment_id);
+                    }}
+                  >
+                    <div className="math math-display">
+                      {`$$\\begin{aligned}${formula}\\end{aligned}$$`}
+                    </div>
+                  </div>
+                );
+              }
+            }
+          }
+
+          // Handle content with LaTeX delimiters
+          if (segment.content && segment.content.includes("\\")) {
+            try {
+              const renderedLatex = katex.renderToString(segment.content, {
+                displayMode: true,
+                throwOnError: false,
+              });
+              return (
+                <div
+                  className={`segment-item ${isActive ? "active" : ""}`}
+                  data-chunk-id={chunkId}
+                  data-segment-id={segment.segment_id}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onSegmentClick?.(chunkId, segment.segment_id);
+                  }}
+                  dangerouslySetInnerHTML={{ __html: renderedLatex }}
+                />
+              );
+            } catch (error) {
+              console.error("KaTeX rendering error:", error);
+              return (
+                <div
+                  className={`segment-item ${isActive ? "active" : ""}`}
+                  data-chunk-id={chunkId}
+                  data-segment-id={segment.segment_id}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onSegmentClick?.(chunkId, segment.segment_id);
+                  }}
+                >
+                  <div className="math math-display">$${segment.content}$$</div>
+                </div>
+              );
+            }
+          }
+
+          // Handle regular HTML content
+          return (
+            <div
+              className={`segment-item ${isActive ? "active" : ""}`}
+              data-chunk-id={chunkId}
+              data-segment-id={segment.segment_id}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onSegmentClick?.(chunkId, segment.segment_id);
+              }}
+              style={{ maxWidth: `calc(${containerWidth}px - 32px)` }}
+            >
+              <MemoizedHtml html={segment.html || ""} />
+            </div>
           );
+        },
+        [chunkId, activeSegment, onSegmentClick, containerWidth]
+      );
+
+      const renderContent = () => {
+        const hasLLM = chunk.segments.some((segment) => segment.llm);
+
+        if (showJson) {
+          return chunk.segments.map((segment, segmentIndex) => (
+            <div key={segmentIndex}>
+              <MemoizedJson segment={segment} />
+            </div>
+          ));
         }
 
-        // If showLLM is true and there's LLM content, show it
         if (showLLM && hasLLM) {
           const llmContent = chunk.segments
             .map((segment) => segment.llm)
@@ -235,56 +378,33 @@ export const SegmentChunk = memo(
           );
         }
 
-        // Original switch statement for other views
-        switch (selectedView) {
-          case "html":
-          case "markdown":
-            return (
-              <div
-                className={`segment-content-wrapper ${
-                  activeSegment?.chunkIndex === chunkIndex ? "active" : ""
-                }`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (firstPageNumber) {
-                    onSegmentClick?.(chunkIndex, 0);
-                    requestAnimationFrame(() => {
-                      window.dispatchEvent(
-                        new CustomEvent("scroll-to-page", {
-                          detail: { pageNumber: firstPageNumber },
-                        })
-                      );
-                    });
-                  }
-                }}
-              >
-                {selectedView === "html" ? (
-                  <MemoizedHtml html={combinedHtml} />
-                ) : (
-                  <MemoizedMarkdown content={combinedMarkdown} />
-                )}
-              </div>
-            );
-          case "json":
-            return chunk.segments.map(
-              (segment: Segment, segmentIndex: number) => (
-                <div
-                  key={segmentIndex}
-                  className={`segment-item ${
-                    isSegmentActive(segmentIndex) ? "active" : ""
-                  }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onSegmentClick?.(chunkIndex, segmentIndex);
-                  }}
-                >
-                  <MemoizedJson segment={segment} />
-                </div>
-              )
-            );
-        }
+        return chunk.segments.map((segment, segmentIndex) =>
+          selectedView === "html" ? (
+            renderSegmentHtml(segment)
+          ) : (
+            <div
+              key={segmentIndex}
+              className={`segment-item ${
+                activeSegment?.chunkId === chunkId &&
+                activeSegment?.segmentId === segment.segment_id
+                  ? "active"
+                  : ""
+              }`}
+              data-chunk-id={chunkId}
+              data-segment-id={segment.segment_id}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onSegmentClick?.(chunkId, segment.segment_id);
+              }}
+              style={{ maxWidth: `calc(${containerWidth}px - 32px)` }}
+            >
+              <MemoizedMarkdown
+                content={segment.markdown || segment.content || ""}
+              />
+            </div>
+          )
+        );
       };
 
       const horizontalScrollRef = useHorizontalDragScroll();
@@ -322,11 +442,9 @@ export const SegmentChunk = memo(
             }
             horizontalScrollRef.current = el;
           }}
-          data-chunk-index={chunkIndex}
+          data-chunk-id={chunkId}
           style={{
-            maxWidth: containerWidth,
             position: "relative",
-            overflow: "auto",
           }}
         >
           <Flex mb="4" gap="4">

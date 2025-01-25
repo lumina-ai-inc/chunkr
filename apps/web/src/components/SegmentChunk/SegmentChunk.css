@@ -21,7 +21,7 @@
 
 /* Typography enhancements */
 .segment-chunk p {
-  margin: 0 0 1em 0;
+  margin: 0;
   /* max-width: 75ch;  */
 }
 
@@ -37,7 +37,7 @@
 .segment-chunk h6 {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   letter-spacing: -0.02em;
-  margin-top: 0.25rem !important;
+  /* margin-top: 0.25rem !important; */
 }
 
 /* Structured view styles */
@@ -68,14 +68,15 @@
   line-height: 2rem !important;
   color: hsl(0, 0%, 100%, 0.98);
   font-weight: 800 !important;
+  margin: 0.5em !important;
 }
 
 .segment-chunk h2 {
   font-size: 1.25rem !important;
   line-height: 1.75rem !important;
   color: hsl(0, 0%, 100%, 0.95);
-  margin-bottom: 1rem !important;
   font-weight: 700 !important;
+  margin: 0.25em !important;
 }
 
 .segment-chunk h3 {
@@ -110,10 +111,11 @@
 .segment-chunk table {
   width: auto !important;
   min-width: 100% !important;
-  margin-bottom: 1rem !important;
+  margin: 1em !important;
+  padding: 1em !important;
   border-collapse: collapse !important;
   border-radius: 0.125rem !important;
-  overflow: visible !important;
+  /* overflow: visible !important; */
   background: hsla(230, 15%, 15%, 0.2) !important;
   outline: 1px solid hsla(0, 0%, 100%, 0.1) !important;
 }
@@ -155,7 +157,7 @@
 /* List styles */
 .segment-chunk ul,
 .segment-chunk ol {
-  margin: 1rem 0 !important;
+  margin: 0 !important;
   padding-left: 1.5rem !important;
   color: hsla(0, 0%, 100%, 0.9) !important;
   list-style-position: outside !important;
@@ -172,7 +174,7 @@
 }
 
 .segment-chunk li {
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0 !important;
   color: hsla(0, 0%, 100%, 0.9) !important;
   display: list-item !important;
 }
@@ -200,9 +202,8 @@
   background: hsla(230, 15%, 15%, 0.8) !important;
   border-radius: 0.5rem !important;
   padding: 1rem 1.25rem !important;
-  overflow-x: auto !important;
   border: 1px solid hsla(0, 0%, 100%, 0.1) !important;
-  margin: 1.5em 0 !important;
+  margin: 0 !important;
 }
 
 .segment-chunk code {
@@ -217,7 +218,7 @@
 /* Blockquotes */
 .segment-chunk blockquote {
   border-left: 0.25rem solid hsla(230, 100%, 70%, 0.5) !important;
-  margin: 1.5em 0 !important;
+  margin: 0 !important;
   padding: 0.5em 0 0.5em 1.5em !important;
   font-style: italic !important;
   background: hsla(230, 15%, 15%, 0.3) !important;
@@ -246,7 +247,7 @@
   max-width: 100% !important;
   height: auto !important;
   border-radius: 2px !important;
-  margin: 1.5em 0 !important;
+  margin: 0 !important;
 }
 
 .segment-item.active,
@@ -264,43 +265,25 @@
 }
 
 .segment-content-wrapper {
-  padding: 16px;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
   width: fit-content;
   min-width: 100%;
 }
 
-.segment-content-wrapper:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.05);
-}
-
-.segment-content-wrapper.active {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.segment-item,
-.structured-segment {
-  padding: 12px;
+.segment-item {
+  padding: 0px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(2, 5, 6, 0.95);
+  /* border: 1px solid rgba(255, 255, 255, 0.08); */
   transition: all 0.2s ease;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+  cursor: pointer;
 }
 
-.segment-item:hover,
-.structured-segment:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
+.segment-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
-.segment-item.active,
-.structured-segment.active {
+.segment-item.active {
   background: rgba(2, 5, 6, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -318,6 +301,33 @@
 
 .latex-content .math-inline {
   padding: 0 0.2em !important;
+}
+
+/* Update LaTeX content container styles */
+.latex-content {
+  width: 100%;
+}
+
+/* Ensure proper spacing for math content within segments */
+.segment-item .katex-display,
+.segment-item .math-display {
+  margin: 0.5em 0 !important;
+}
+
+/* Adjust image margins within segments */
+.segment-item img {
+  margin: 0.5em 0 !important;
+}
+
+/* Ensure proper spacing for lists within segments */
+.segment-item ul,
+.segment-item ol {
+  margin: 0.5em 0 !important;
+}
+
+/* Adjust blockquote margins within segments */
+.segment-item blockquote {
+  margin: 0.5em 0 !important;
 }
 
 /* Add scrollbar styles to match Viewer.css */
@@ -362,4 +372,27 @@
   font-size: 11px !important;
   line-height: 1.4 !important;
   max-width: 100% !important;
+}
+
+/* Add these styles to your CSS */
+.segment-item {
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  overflow: auto;
+}
+
+.segment-item.active {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.segment-item:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+/* Add this new rule to prevent hover effect on active items */
+.segment-item.active:hover {
+  background-color: rgba(255, 255, 255, 0.06);
 }
