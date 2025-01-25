@@ -12,7 +12,7 @@ fn generate_content() -> String {
     String::new()
 }
 
-#[derive(Serialize, Debug, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 /// The processed results of a document analysis task
 pub struct OutputResponse {
     /// Collection of document chunks, where each chunk contains one or more segments
@@ -37,59 +37,6 @@ impl Default for OutputResponse {
             pdf_url: None,
             extracted_json: None,
         }
-    }
-}
-
-// Backwards compatibility for old format
-impl<'de> Deserialize<'de> for OutputResponse {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        #[derive(Deserialize)]
-        struct Helper {
-            #[serde(default)]
-            chunks: serde_json::Value,
-            file_name: Option<String>,
-            page_count: Option<u32>,
-            pdf_url: Option<String>,
-            extracted_json: Option<serde_json::Value>,
-        }
-
-        let helper = Helper::deserialize(deserializer)?;
-
-        let chunks = match helper.chunks {
-            serde_json::Value::Array(arr) => {
-                if arr.is_empty() {
-                    Vec::new()
-                } else {
-                    // Try new format first
-                    if let Ok(chunks) =
-                        serde_json::from_value::<Vec<Chunk>>(serde_json::Value::Array(arr.clone()))
-                    {
-                        chunks
-                    } else {
-                        // Fall back to old format and convert
-                        let segments: Vec<Segment> =
-                            serde_json::from_value(serde_json::Value::Array(arr))
-                                .map_err(serde::de::Error::custom)?;
-                        segments
-                            .into_iter()
-                            .map(|segment| Chunk::new(vec![segment]))
-                            .collect()
-                    }
-                }
-            }
-            _ => Vec::new(),
-        };
-
-        Ok(OutputResponse {
-            chunks,
-            file_name: helper.file_name,
-            page_count: helper.page_count,
-            pdf_url: helper.pdf_url,
-            extracted_json: helper.extracted_json,
-        })
     }
 }
 
@@ -150,6 +97,7 @@ pub struct Segment {
     pub bbox: BoundingBox,
     // Confidence score of the segment
     pub confidence: Option<f32>,
+    #[serde(default = "generate_content")]
     /// Text content of the segment.
     pub content: String,
     #[serde(default = "generate_content")]
