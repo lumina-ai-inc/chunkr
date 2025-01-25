@@ -5,14 +5,9 @@ from httpx import AsyncClient
 @runtime_checkable
 class ChunkrClientProtocol(Protocol):
     """Protocol defining the interface for Chunkr clients"""
-
-    url: str
-    _api_key: str
+    
+    raise_on_failure: bool = True
     _client: Optional[AsyncClient] = None
-
-    def get_api_key(self) -> str:
-        """Get the API key"""
-        ...
 
     def _headers(self) -> dict:
         """Return headers required for API requests"""
