@@ -22,9 +22,9 @@ pub enum Tier {
     PayAsYouGo,
     Enterprise,
     SelfHosted,
-    Developer,
-    Startup,
-    Basic,
+    Dev,
+    Starter,
+    Team,
 }
 
 #[derive(
@@ -79,23 +79,29 @@ impl UsageType {
                 UsageType::Segment => 10000000,
                 UsageType::Page => 10000000,
             },
-            Tier::Startup => match self {
+            Tier::Starter => match self {
                 UsageType::Fast => 100000,
                 UsageType::HighQuality => 100000,
                 UsageType::Segment => 100000,
                 UsageType::Page => 100000,
             },
-            Tier::Developer => match self {
+            Tier::Dev => match self {
                 UsageType::Fast => 100000,
                 UsageType::HighQuality => 100000,
                 UsageType::Segment => 100000,
                 UsageType::Page => 100000,
             },
-            Tier::Basic => match self {
+            Tier::Team => match self {
                 UsageType::Fast => 25000,
                 UsageType::HighQuality => 25000,
                 UsageType::Segment => 25000,
                 UsageType::Page => 25000,
+            },
+            Tier::SelfHosted => match self {
+                UsageType::Fast => 10000000,
+                UsageType::HighQuality => 10000000,
+                UsageType::Segment => 10000000,
+                UsageType::Page => 10000000,
             },
             _ => i32::MAX,
         }
