@@ -242,9 +242,10 @@ pub async fn create_stripe_billing_portal_session(
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
+    let return_url = format!("{}/dashboard", stripe_config.return_url.trim_end_matches('/'));
     let form_data = vec![
         ("customer", customer_id),
-        ("return_url", &stripe_config.return_url),
+        ("return_url", &return_url),
     ];
 
     let stripe_response = client
