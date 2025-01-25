@@ -108,6 +108,7 @@ export const SegmentChunk = memo(
       ref
     ) => {
       const [showJson, setShowJson] = useState(false);
+      const [showLLM, setShowLLM] = useState(false);
 
       const combinedMarkdown = useMemo(() => {
         return chunk.segments
@@ -196,6 +197,7 @@ export const SegmentChunk = memo(
 
       const renderContent = () => {
         const firstPageNumber = chunk.segments[0]?.page_number;
+        const hasLLM = chunk.segments.some((segment) => segment.llm);
 
         // If showJson is true, always show JSON view regardless of selectedView
         if (showJson) {
@@ -215,6 +217,19 @@ export const SegmentChunk = memo(
                 <MemoizedJson segment={segment} />
               </div>
             )
+          );
+        }
+
+        // If showLLM is true and there's LLM content, show it
+        if (showLLM && hasLLM) {
+          const llmContent = chunk.segments
+            .map((segment) => segment.llm)
+            .filter(Boolean)
+            .join("\n\n");
+          return (
+            <div className="segment-content-wrapper">
+              <MemoizedMarkdown content={llmContent} />
+            </div>
           );
         }
 
@@ -273,8 +288,23 @@ export const SegmentChunk = memo(
       const horizontalScrollRef = useHorizontalDragScroll();
 
       const handleCopy = () => {
-        const textToCopy =
-          selectedView === "html" ? combinedHtml : combinedMarkdown;
+        let textToCopy = "";
+
+        if (showJson) {
+          // Copy JSON representation of all segments
+          textToCopy = JSON.stringify(chunk.segments, null, 2);
+        } else if (showLLM) {
+          // Copy LLM content from all segments
+          textToCopy = chunk.segments
+            .map((segment) => segment.llm)
+            .filter(Boolean)
+            .join("\n\n");
+        } else {
+          // Copy based on selected view (html or markdown)
+          textToCopy =
+            selectedView === "html" ? combinedHtml : combinedMarkdown;
+        }
+
         navigator.clipboard.writeText(textToCopy);
         toast.success("Copied to clipboard");
       };
@@ -321,33 +351,107 @@ export const SegmentChunk = memo(
                 Copy
               </Text>
             </BetterButton>
-            <BetterButton
-              active={showJson}
-              onClick={() => setShowJson(!showJson)}
-            >
-              <Flex align="center" gap="2">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+            {showJson || showLLM ? (
+              <BetterButton
+                onClick={() => {
+                  setShowJson(false);
+                  setShowLLM(false);
+                }}
+              >
+                <Flex align="center" gap="2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+                      fill="#FFFFFF"
+                    />
+                  </svg>
+                  <Text
+                    size="1"
+                    weight="medium"
+                    style={{ color: "rgba(255, 255, 255, 0.95)" }}
+                  >
+                    Return
+                  </Text>
+                </Flex>
+              </BetterButton>
+            ) : (
+              <>
+                <BetterButton
+                  active={showJson}
+                  onClick={() => {
+                    setShowJson(!showJson);
+                    if (!showJson) {
+                      setShowLLM(false);
+                    }
+                  }}
                 >
-                  <rect width="24" height="24" fill="none" />
-                  <path
-                    d="M5,3H7V5H5v5a2,2,0,0,1-2,2,2,2,0,0,1,2,2v5H7v2H5c-1.07-.27-2-.9-2-2V15a2,2,0,0,0-2-2H0V11H1A2,2,0,0,0,3,9V5A2,2,0,0,1,5,3M19,3a2,2,0,0,1,2,2V9a2,2,0,0,0,2,2h1v2H23a2,2,0,0,0-2,2v4a2,2,0,0,1-2,2H17V19h2V14a2,2,0,0,1,2-2,2,2,0,0,1-2-2V5H17V3h2M12,15a1,1,0,1,1-1,1,1,1,0,0,1,1-1M8,15a1,1,0,1,1-1,1,1,1,0,0,1,1-1m8,0a1,1,0,1,1-1,1A1,1,0,0,1,16,15Z"
-                    fill="#FFFFFF"
-                  />
-                </svg>
-                <Text
-                  size="1"
-                  weight="medium"
-                  style={{ color: "rgba(255, 255, 255, 0.95)" }}
-                >
-                  JSON
-                </Text>
-              </Flex>
-            </BetterButton>
+                  <Flex align="center" gap="2">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect width="24" height="24" fill="none" />
+                      <path
+                        d="M5,3H7V5H5v5a2,2,0,0,1-2,2,2,2,0,0,1,2,2v5H7v2H5c-1.07-.27-2-.9-2-2V15a2,2,0,0,0-2-2H0V11H1A2,2,0,0,0,3,9V5A2,2,0,0,1,5,3M19,3a2,2,0,0,1,2,2V9a2,2,0,0,0,2,2h1v2H23a2,2,0,0,0-2,2v4a2,2,0,0,1-2,2H17V19h2V14a2,2,0,0,1,2-2,2,2,0,0,1-2-2V5H17V3h2M12,15a1,1,0,1,1-1,1,1,1,0,0,1,1-1M8,15a1,1,0,1,1-1,1,1,1,0,0,1,1-1m8,0a1,1,0,1,1-1,1A1,1,0,0,1,16,15Z"
+                        fill="#FFFFFF"
+                      />
+                    </svg>
+                    <Text
+                      size="1"
+                      weight="medium"
+                      style={{ color: "rgba(255, 255, 255, 0.95)" }}
+                    >
+                      JSON
+                    </Text>
+                  </Flex>
+                </BetterButton>
+                {chunk.segments.some((segment) => segment.llm) && (
+                  <BetterButton
+                    active={showLLM}
+                    onClick={() => {
+                      setShowLLM(!showLLM);
+                      if (!showLLM) {
+                        setShowJson(false);
+                      }
+                    }}
+                  >
+                    <Flex align="center" gap="2">
+                      <svg
+                        width="16px"
+                        height="16px"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M19 3V7M17 5H21M19 17V21M17 19H21M10 5L8.53001 8.72721C8.3421 9.20367 8.24814 9.4419 8.10427 9.64278C7.97675 9.82084 7.82084 9.97675 7.64278 10.1043C7.4419 10.2481 7.20367 10.3421 6.72721 10.53L3 12L6.72721 13.47C7.20367 13.6579 7.4419 13.7519 7.64278 13.8957C7.82084 14.0233 7.97675 14.1792 8.10427 14.3572C8.24814 14.5581 8.3421 14.7963 8.53001 15.2728L10 19L11.47 15.2728C11.6579 14.7963 11.7519 14.5581 11.8957 14.3572C12.0233 14.1792 12.1792 14.0233 12.3572 13.8957C12.5581 13.7519 12.7963 13.6579 13.2728 13.47L17 12L13.2728 10.53C12.7963 10.3421 12.5581 10.2481 12.3572 10.1043C12.1792 9.97675 12.0233 9.82084 11.8957 9.64278C11.7519 9.4419 11.6579 9.20367 11.47 8.72721L10 5Z"
+                          stroke="#FFFFFF"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <Text
+                        size="1"
+                        weight="medium"
+                        style={{ color: "rgba(255, 255, 255, 0.95)" }}
+                      >
+                        LLM
+                      </Text>
+                    </Flex>
+                  </BetterButton>
+                )}
+              </>
+            )}
           </Flex>
           <div className="segment-content">{renderContent()}</div>
         </div>
