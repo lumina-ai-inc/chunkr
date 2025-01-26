@@ -1,6 +1,6 @@
 use crate::utils::clients;
 use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream};
-use base64::{engine::general_purpose::URL_SAFE, Engine as _};
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use bytes::Bytes;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -50,8 +50,8 @@ pub async fn generate_presigned_url(
             .send()
             .await?;
         let image_bytes = output.body.collect().await?.into_bytes();
-        let base64_string = URL_SAFE.encode(&image_bytes);
-        return Ok(format!("data:image/jpeg;base64,{}", base64_string));
+        let base64_string = STANDARD.encode(&image_bytes);
+        return Ok(base64_string);
     }
 
     let expiration = expires_in.unwrap_or(Duration::from_secs(3600));
