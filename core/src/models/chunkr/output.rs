@@ -4,6 +4,14 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
+fn generate_uuid() -> String {
+    uuid::Uuid::new_v4().to_string()
+}
+
+fn generate_content() -> String {
+    String::new()
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 /// The processed results of a document analysis task
 pub struct OutputResponse {
@@ -15,6 +23,9 @@ pub struct OutputResponse {
     pub page_count: Option<u32>,
     /// The presigned URL of the PDF file.
     pub pdf_url: Option<String>,
+    #[deprecated]
+    /// The extracted JSON from the document.
+    pub extracted_json: Option<serde_json::Value>,
 }
 
 impl Default for OutputResponse {
@@ -24,12 +35,15 @@ impl Default for OutputResponse {
             file_name: None,
             page_count: None,
             pdf_url: None,
+            extracted_json: None,
         }
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Chunk {
+    #[serde(default = "generate_uuid")]
+    /// The unique identifier for the chunk.
     pub chunk_id: String,
     /// The total number of words in the chunk.
     pub chunk_length: i32,
@@ -83,14 +97,17 @@ pub struct Segment {
     pub bbox: BoundingBox,
     // Confidence score of the segment
     pub confidence: Option<f32>,
+    #[serde(default = "generate_content")]
     /// Text content of the segment.
     pub content: String,
+    #[serde(default = "generate_content")]
     /// HTML representation of the segment.
     pub html: String,
     /// Presigned URL to the image of the segment.
     pub image: Option<String>,
     /// LLM representation of the segment.
     pub llm: Option<String>,
+    #[serde(default = "generate_content")]
     /// Markdown representation of the segment.
     pub markdown: String,
     /// OCR results for the segment.
@@ -116,7 +133,7 @@ impl Segment {
         page_number: u32,
         segment_type: SegmentType,
     ) -> Self {
-        let segment_id = uuid::Uuid::new_v4().to_string();
+        let segment_id = generate_uuid();
         let content = ocr_results
             .iter()
             .map(|ocr_result| ocr_result.text.clone())

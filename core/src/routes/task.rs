@@ -50,7 +50,7 @@ pub async fn get_task_route(
     match get_task(task_id, user_id).await {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
-            eprintln!("Error getting task status: {:?}", e);
+            eprintln!("Error getting task: {:?}", e);
             if e.to_string().contains("expired") || e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
             } else {
@@ -208,7 +208,7 @@ pub async fn delete_task_route(
     match delete_task(task_id, user_id).await {
         Ok(_) => Ok(HttpResponse::Ok().body("Task deleted")),
         Err(e) => {
-            eprintln!("Error getting task status: {:?}", e);
+            eprintln!("Error deleting task: {:?}", e);
             if e.to_string().contains("expired") || e.to_string().contains("not found") {
                 Ok(HttpResponse::NotFound().body("Task not found"))
             } else {

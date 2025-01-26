@@ -76,8 +76,8 @@ def test_multiprocess_with_async():
     return results
 
 if __name__ == "__main__":
-    task = chunkr.upload("./files/test.pdf")
-    task.update(Configuration(segmentation_strategy=SegmentationStrategy.PAGE))
+    task = chunkr.upload("./files/test.pdf", Configuration(segmentation_strategy=SegmentationStrategy.PAGE))
+    print(task.configuration)
     # upload_file_sync("./files/test.pdf")
     # Test async concurrency
     # asyncio.run(test_async_concurrent())

@@ -195,7 +195,14 @@ impl Task {
         let page_count: Option<i32> = row.get("page_count");
         let page_count = page_count.map(|count| count as u32);
         let config_str = row.get::<_, String>("configuration");
-        let configuration = serde_json::from_str(&config_str)?;
+        let configuration = match serde_json::from_str(&config_str) {
+            Ok(config) => config,
+            Err(e) => {
+                println!("Error deserializing configuration: {:?}", e);
+                println!("Configuration string: {:?}", config_str);
+                return Err(format!("Error deserializing configuration: {:?}", e).into());
+            }
+        };
         Ok(Self {
             api_key: row.get("api_key"),
             configuration,
@@ -237,7 +244,14 @@ impl Task {
         if include_chunks {
             let temp_file = download_to_tempfile(&self.output_location, None).await?;
             let json_content: String = tokio::fs::read_to_string(temp_file.path()).await?;
-            output_response = serde_json::from_str(&json_content)?;
+            output_response = match serde_json::from_str(&json_content) {
+                Ok(output) => output,
+                Err(e) => {
+                    println!("Error deserializing output: {:?}", e);
+                    println!("JSON content: {:?}", json_content);
+                    OutputResponse::default()
+                }
+            };
             let picture_generation_config: PictureGenerationConfig = self
                 .configuration
                 .segment_processing
@@ -408,6 +422,7 @@ impl Task {
             file_name: self.file_name.clone(),
             page_count: self.page_count,
             pdf_url: Some(self.pdf_location.clone()),
+            extracted_json: None,
         };
         for (idx, page) in page_images.iter().enumerate() {
             let s3_key = format!(
@@ -627,8 +642,7 @@ pub enum PipelineType {
     Azure,
 }
 
-// Note: Configuration requires depreacted fields for backwards compatiblity
-#[derive(Debug, Serialize, Deserialize, Clone, ToSql, FromSql, ToSchema)]
+#[derive(Debug, Serialize, Clone, ToSql, FromSql, ToSchema)]
 /// The configuration used for the task.
 pub struct Configuration {
     pub chunk_processing: ChunkProcessing,
@@ -643,6 +657,7 @@ pub struct Configuration {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated]
     pub json_schema: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated]
     pub model: Option<Model>,
     pub ocr_strategy: OcrStrategy,
@@ -657,7 +672,69 @@ pub struct Configuration {
     pub pipeline: Option<PipelineType>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql)]
+impl<'de> Deserialize<'de> for Configuration {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Helper {
+            #[serde(default)]
+            chunk_processing: Option<ChunkProcessing>,
+            #[serde(alias = "expires_at")]
+            expires_in: Option<i32>,
+            #[serde(default)]
+            high_resolution: bool,
+            input_file_url: Option<String>,
+            json_schema: Option<serde_json::Value>,
+            model: Option<Model>,
+            #[serde(default)]
+            ocr_strategy: Option<OcrStrategy>,
+            #[serde(default)]
+            segment_processing: Option<SegmentProcessing>,
+            #[serde(default)]
+            segmentation_strategy: Option<SegmentationStrategy>,
+            target_chunk_length: Option<i32>,
+            #[cfg(feature = "azure")]
+            pipeline: Option<PipelineType>,
+        }
+
+        let helper = Helper::deserialize(deserializer)?;
+
+        // If chunk_processing is None but target_chunk_length exists,
+        // create a default ChunkProcessing with the specified target length
+        let chunk_processing = match (helper.chunk_processing, helper.target_chunk_length) {
+            (Some(cp), _) => cp,
+            (None, Some(target_length)) => {
+                let mut cp = ChunkProcessing::default();
+                cp.target_length = target_length;
+                cp
+            }
+            (None, None) => ChunkProcessing::default(),
+        };
+
+        Ok(Configuration {
+            chunk_processing,
+            expires_in: helper.expires_in,
+            high_resolution: helper.high_resolution,
+            input_file_url: helper.input_file_url,
+            json_schema: helper.json_schema,
+            model: helper.model,
+            ocr_strategy: helper.ocr_strategy.unwrap_or(OcrStrategy::default()),
+            segment_processing: helper
+                .segment_processing
+                .unwrap_or(SegmentProcessing::default()),
+            segmentation_strategy: helper
+                .segmentation_strategy
+                .unwrap_or(SegmentationStrategy::default()),
+            target_chunk_length: helper.target_chunk_length,
+            #[cfg(feature = "azure")]
+            pipeline: helper.pipeline,
+        })
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema, ToSql, FromSql, EnumString, Display)]
 #[deprecated]
 pub enum Model {
     Fast,

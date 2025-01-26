@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field, model_validator, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
-from typing import Optional, List, Dict, Union, Type
+from typing import Any, List, Optional
 
 class GenerationStrategy(str, Enum):
     LLM = "LLM"
@@ -36,16 +36,6 @@ class SegmentProcessing(BaseModel):
 
 class ChunkProcessing(BaseModel):
     target_length: Optional[int] = None
-
-class Property(BaseModel):
-    name: str
-    prop_type: str
-    description: Optional[str] = None
-    default: Optional[str] = None
-
-class JsonSchema(BaseModel):
-    title: str
-    properties: List[Property]
 
 class OcrStrategy(str, Enum):
     ALL = "All"
@@ -98,9 +88,6 @@ class Chunk(BaseModel):
     chunk_length: int
     segments: List[Segment]
 
-class ExtractedJson(BaseModel):
-    data: Dict
-
 class OutputResponse(BaseModel):
     chunks: List[Chunk]
     file_name: Optional[str]
@@ -118,7 +105,6 @@ class Configuration(BaseModel):
     chunk_processing: Optional[ChunkProcessing] = None
     expires_in: Optional[int] = None
     high_resolution: Optional[bool] = None
-    model: Optional[Model] = None
     ocr_strategy: Optional[OcrStrategy] = None
     segment_processing: Optional[SegmentProcessing] = None
     segmentation_strategy: Optional[SegmentationStrategy] = None
@@ -126,16 +112,10 @@ class Configuration(BaseModel):
     
 class OutputConfiguration(Configuration):
     input_file_url: Optional[str] = None
-    json_schema: Optional[Union[JsonSchema, Type[BaseModel], BaseModel]] = None
-    
-    @model_validator(mode="before")
-    def map_deprecated_fields(cls, values: Dict) -> Dict:
-        if isinstance(values, dict) and "target_chunk_length" in values:
-            target_length = values.pop("target_chunk_length")
-            if target_length is not None:
-                values["chunk_processing"] = values.get("chunk_processing", {}) or {}
-                values["chunk_processing"]["target_length"] = target_length
-        return values
+    # Deprecated
+    json_schema: Optional[Any] = None
+    model: Optional[Model] = None
+    target_chunk_length: Optional[int] = None
     
 class Status(str, Enum):
     STARTING = "Starting"
