@@ -1,0 +1,2 @@
+processor: uv run process.py
+writer: uv run writer.py 

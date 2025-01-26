@@ -6,5 +6,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "chunkr-ai>=0.0.24",
+    "honcho>=2.0.0",
+    "redis>=5.2.1",
     "ruff>=0.9.3",
 ]
