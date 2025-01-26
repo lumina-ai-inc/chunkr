@@ -153,7 +153,7 @@ pub async fn get_task_details(
     let query = if let Some(_email) = email {
         "SELECT t.task_id, t.user_id, u.email, 
                 CONCAT(u.first_name, ' ', u.last_name) as name,
-                t.page_count, t.created_at, t.finished_at as completed_at,
+                t.page_count, t.started_at, t.finished_at as completed_at,
                 t.status
          FROM tasks t
          LEFT JOIN users u ON t.user_id = u.user_id
@@ -163,7 +163,7 @@ pub async fn get_task_details(
     } else {
         "SELECT t.task_id, t.user_id, u.email, 
                 CONCAT(u.first_name, ' ', u.last_name) as name,
-                t.page_count, t.created_at, t.finished_at as completed_at,
+                t.page_count, t.started_at, t.finished_at as completed_at,
                 t.status
          FROM tasks t
          LEFT JOIN users u ON t.user_id = u.user_id
@@ -182,7 +182,7 @@ pub async fn get_task_details(
         email: row.get("email"),
         name: row.get("name"),
         page_count: row.get("page_count"),
-        created_at: row.get("created_at"),
+        created_at: row.get("started_at"),
         completed_at: row.get("completed_at"),
         status: row.get("status"),
     }).collect())
