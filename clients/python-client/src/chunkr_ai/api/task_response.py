@@ -6,7 +6,7 @@ import asyncio
 from .configuration import Configuration, OutputConfiguration, OutputResponse, Status
 from .protocol import ChunkrClientProtocol
 from .misc import prepare_upload_data
-from .decorators import anywhere, require_task
+from .decorators import anywhere, require_task, retry_on_429
 
 T = TypeVar("T", bound="TaskResponse")
 
@@ -49,11 +49,12 @@ class TaskResponse(BaseModel, Generic[T]):
             )
             r.raise_for_status()
             return r.json()
-        except (ConnectionError, TimeoutError) as _:
-            print("Connection error while polling the task, retrying...")
+        except (ConnectionError, TimeoutError, OSError) as e:
+            print(f"Connection error while polling the task: {str(e)}, retrying...")
             await asyncio.sleep(0.5)
-        except Exception:
-            raise
+            return await self._poll_request() 
+        except Exception as e:
+            raise e
 
     @anywhere()
     async def poll(self) -> T:
@@ -68,6 +69,7 @@ class TaskResponse(BaseModel, Generic[T]):
 
     @anywhere()
     @require_task()
+    @retry_on_429()
     async def update(self, config: Configuration) -> T:
         """Update the task configuration."""
         f = await prepare_upload_data(None, config, self._client._client)

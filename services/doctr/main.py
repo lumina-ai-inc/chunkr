@@ -13,8 +13,8 @@ from typing import Dict, List
 
 dotenv.load_dotenv(override=True)
 
-batch_wait_time = float(os.getenv('BATCH_WAIT_TIME', 0.5))
-max_batch_size = int(os.getenv('MAX_BATCH_SIZE', 100))
+batch_wait_time = float(os.getenv('OCR_BATCH_WAIT_TIME', 0.5))
+max_batch_size = int(os.getenv('OCR_MAX_BATCH_SIZE', 100))
 
 app = FastAPI()
 

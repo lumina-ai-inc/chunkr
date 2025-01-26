@@ -60,3 +60,33 @@ def require_task() -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitabl
             return await async_func(self, *args, **kwargs)
         return wrapper
     return decorator
+
+def retry_on_429(max_retries: int = 10, initial_delay: float = 0.5) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]:
+    """Decorator that retries the request when encountering 429 Too Many Requests errors.
+    
+    Args:
+        max_retries: Maximum number of retry attempts (default: 3)
+        initial_delay: Initial delay in seconds, will be exponentially increased (default: 1.0)
+    """
+    def decorator(async_func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+        @functools.wraps(async_func)
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            retries = 0
+            while True:
+                try:
+                    return await async_func(*args, **kwargs)
+                except httpx.HTTPStatusError as e:
+                    if e.response.status_code != 429 or retries >= max_retries:
+                        raise
+                    retries += 1
+                    delay = initial_delay
+                    # Use Retry-After header if available
+                    retry_after = e.response.headers.get('Retry-After')
+                    if retry_after:
+                        try:
+                            delay = float(retry_after)
+                        except (ValueError, TypeError):
+                            pass
+                    await asyncio.sleep(delay)
+        return wrapper
+    return decorator
