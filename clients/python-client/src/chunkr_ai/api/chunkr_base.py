@@ -139,11 +139,13 @@ class ChunkrBase(HeadersMixin):
         pass
 
     @abstractmethod
-    def get_task(self, task_id: str) -> TaskResponse:
+    def get_task(self, task_id: str, include_output: bool = True, base64_urls: bool = False) -> TaskResponse:
         """Get a task response by its ID.
 
         Args:
             task_id: The ID of the task to get
+            include_output: Whether to include task output in the response. Defaults to True.
+            base64_urls: Whether to return base64 encoded URLs. If false, the URLs will be returned as presigned URLs. Defaults to False.
 
         Returns:
             TaskResponse: The task response
