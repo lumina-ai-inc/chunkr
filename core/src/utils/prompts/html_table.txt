@@ -1,2 +1,4 @@
 Analyze this image and convert the table to HTML format maintaining the original structure. If the image provided is not a table (for example if it is a image, formula, chart, etc), then represent the information (maintain all the text exactly as it is) but structure it gracefully into html.
-. Output the table directly in ```html``` tags.
+No CSS or styling.
+Sometimes there are graphics or images within the table. If there are, describe the graphic or image in text within the HTML.
+Output the table directly in ```html``` tags.
