@@ -46,7 +46,10 @@ pub async fn get_tasks(
         async move {
             match Task::get(&task_id, &user_id).await {
                 Ok(task) => match task
-                    .to_task_response(task_query.include_chunks.unwrap_or(false))
+                    .to_task_response(
+                        task_query.include_chunks.unwrap_or(false),
+                        task_query.base64_urls.unwrap_or(false),
+                    )
                     .await
                 {
                     Ok(response) => {

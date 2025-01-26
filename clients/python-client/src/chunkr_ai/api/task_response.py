@@ -21,10 +21,14 @@ class TaskResponse(BaseModel, Generic[T]):
     status: Status
     task_id: str
     task_url: Optional[str] = None
+    include_chunks: bool = False
+    _base64_urls: bool = False
     _client: Optional[ChunkrClientProtocol] = PrivateAttr(default=None)
 
-    def with_client(self, client: ChunkrClientProtocol) -> T:
+    def with_client(self, client: ChunkrClientProtocol, include_chunks: bool = False, base64_urls: bool = False) -> T:
         self._client = client
+        self.include_chunks = include_chunks
+        self._base64_urls = base64_urls
         return self
 
     def _check_status(self) -> Optional[T]:
