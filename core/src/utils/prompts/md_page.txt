@@ -1,4 +1,8 @@
 Convert the following PDF page to markdown. Return only the markdown with no explanation text. Do not exclude any content from the page.
-Enclose your output in ```markdown``` code fences.
+IF there are visuals, describe the visual. If there is a table, convert it to a markdown table. If there is a chart, describe the chart.
+If there is a formula, convert it to a markdown formula. If there is a text-heavy image, describe the image. If there is a diagram, describe the diagram.
 
+Do not mix any text within the table.
+Use simple and minimal markdown.
 
+Return ONLY the markdown enclosed in ```markdown``` tags. Do not include any explanations.
