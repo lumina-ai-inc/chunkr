@@ -98,7 +98,7 @@ services:
     restart: always
 
   server:
-    image: luminainc/server:7fa7ddf0
+    image: luminainc/server:2bbf73a2
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -113,7 +113,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:7fa7ddf0
+    image: luminainc/task:2bbf73a2
     platform: linux/amd64
     depends_on:
       - postgres
