@@ -258,8 +258,7 @@ button:focus-visible {
 .home-card {
   border-radius: 4px;
   flex: 1;
-  box-shadow:
-    0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
+  box-shadow: 0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
     0px 3px 12px -4px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
     0px 2px 3px -2px var(--Colors-Neutral-Neutral-Alpha-3, rgba(0, 0, 51, 0.06));
 }
@@ -295,8 +294,7 @@ button:focus-visible {
 .credit-dp {
   border-radius: 50%;
   border: none;
-  box-shadow:
-    0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
+  box-shadow: 0px 4px 16px -8px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
     0px 3px 12px -4px var(--Overlays-Black-Alpha-2, rgba(0, 0, 0, 0.1)),
     0px 2px 3px -2px var(--Colors-Neutral-Neutral-Alpha-3, rgba(0, 0, 51, 0.06));
   transition: border 0.2s ease-in-out;
@@ -321,9 +319,7 @@ button:focus-visible {
   width: fit-content;
   cursor: pointer;
   gap: 12px;
-  transition:
-    background-color 0.2s ease,
-    gap 0.2s ease;
+  transition: background-color 0.2s ease, gap 0.2s ease;
   overflow: hidden;
   border: none;
   outline: none;
@@ -361,18 +357,14 @@ button:focus-visible {
   left: var(--mouse-x, 50%);
   top: var(--mouse-y, 50%);
   box-shadow:
-    /* Inner sphere particles */
-    8px 8px rgba(255, 255, 255, 0.9),
-    -8px -8px rgba(255, 255, 255, 0.9),
-    12px -12px rgba(255, 255, 255, 0.9),
+    /* Inner sphere particles */ 8px 8px rgba(255, 255, 255, 0.9),
+    -8px -8px rgba(255, 255, 255, 0.9), 12px -12px rgba(255, 255, 255, 0.9),
     -10px 10px rgba(255, 255, 255, 0.9),
     /* Middle sphere particles */ 18px 5px rgba(255, 255, 255, 0.7),
-    -20px 8px rgba(255, 255, 255, 0.7),
-    15px -18px rgba(255, 255, 255, 0.7),
+    -20px 8px rgba(255, 255, 255, 0.7), 15px -18px rgba(255, 255, 255, 0.7),
     -16px -12px rgba(255, 255, 255, 0.7),
     /* Outer sphere particles */ 25px 12px rgba(255, 255, 255, 0.5),
-    -28px -15px rgba(255, 255, 255, 0.5),
-    22px -25px rgba(255, 255, 255, 0.5),
+    -28px -15px rgba(255, 255, 255, 0.5), 22px -25px rgba(255, 255, 255, 0.5),
     -24px 20px rgba(255, 255, 255, 0.5);
   animation: sphericalSwarm1 2s infinite linear;
 }
@@ -383,18 +375,14 @@ button:focus-visible {
   left: var(--mouse-x, 50%);
   top: var(--mouse-y, 50%);
   box-shadow:
-    /* Inner sphere particles */
-    -10px -10px rgba(255, 255, 255, 0.9),
-    12px 12px rgba(255, 255, 255, 0.9),
-    -14px 8px rgba(255, 255, 255, 0.9),
+    /* Inner sphere particles */ -10px -10px rgba(255, 255, 255, 0.9),
+    12px 12px rgba(255, 255, 255, 0.9), -14px 8px rgba(255, 255, 255, 0.9),
     10px -14px rgba(255, 255, 255, 0.9),
     /* Middle sphere particles */ -22px -4px rgba(255, 255, 255, 0.7),
-    18px -10px rgba(255, 255, 255, 0.7),
-    -12px 18px rgba(255, 255, 255, 0.7),
+    18px -10px rgba(255, 255, 255, 0.7), -12px 18px rgba(255, 255, 255, 0.7),
     24px 6px rgba(255, 255, 255, 0.7),
     /* Outer sphere particles */ -26px 15px rgba(255, 255, 255, 0.5),
-    30px -20px rgba(255, 255, 255, 0.5),
-    -24px -24px rgba(255, 255, 255, 0.5),
+    30px -20px rgba(255, 255, 255, 0.5), -24px -24px rgba(255, 255, 255, 0.5),
     28px 28px rgba(255, 255, 255, 0.5);
   animation: sphericalSwarm2 2s infinite linear;
 }
@@ -430,10 +418,8 @@ button:focus-visible {
   gap: 16px;
   color: #fff;
   outline: 2px solid #fff;
-  box-shadow:
-    0 0 20px rgba(255, 255, 255, 0.1),
-    0 0 30px rgba(255, 255, 255, 0.05),
-    0 0 40px rgba(255, 255, 255, 0.025);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1),
+    0 0 30px rgba(255, 255, 255, 0.05), 0 0 40px rgba(255, 255, 255, 0.025);
 }
 
 .hero-description {
@@ -535,7 +521,6 @@ button:focus-visible {
   height: 100%;
   width: 100%;
   position: relative;
-  padding-top: 48px;
   z-index: 2;
   display: flex;
 }
@@ -592,12 +577,8 @@ button:focus-visible {
     rgba(255, 255, 255, 0.8) 0%,
     rgba(255, 255, 255, 0) 1%
   );
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -643,11 +624,8 @@ button:focus-visible {
     rgba(255, 255, 255, 0.02) 100%
   );
   backdrop-filter: blur(6px);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 4px 8px -2px rgba(0, 0, 0, 0.05),
-    0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 8px 16px -4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -664,11 +642,8 @@ button:focus-visible {
     rgba(255, 255, 255, 0.02) 100%
   );
   backdrop-filter: blur(6px);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 4px 8px -2px rgba(0, 0, 0, 0.05),
-    0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 8px 16px -4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -685,11 +660,8 @@ button:focus-visible {
     rgba(255, 255, 255, 0.02) 100%
   );
   backdrop-filter: blur(6px);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 4px 8px -2px rgba(0, 0, 0, 0.05),
-    0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 8px 16px -4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -705,11 +677,8 @@ button:focus-visible {
     rgba(255, 255, 255, 0.02) 100%
   );
   backdrop-filter: blur(6px);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 4px 8px -2px rgba(0, 0, 0, 0.05),
-    0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 8px 16px -4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -738,9 +707,7 @@ button:focus-visible {
   transition: all 0.2s ease;
   padding-bottom: 24px;
   overflow: hidden;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.3),
-    0 8px 24px rgba(0, 0, 0, 0.2),
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2),
     0 16px 48px rgba(0, 0, 0, 0.1);
 }
 
@@ -759,12 +726,8 @@ button:focus-visible {
     rgba(255, 255, 255, 0.1) 99%,
     transparent 100%
   );
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -1421,8 +1384,7 @@ button:focus-visible {
   transform: translateY(-8px);
   background: rgba(25, 47, 112, 0.08);
   border-color: rgba(25, 47, 112, 0.2);
-  box-shadow:
-    0 4px 24px -4px rgba(25, 47, 112, 0.15),
+  box-shadow: 0 4px 24px -4px rgba(25, 47, 112, 0.15),
     0 0 0 1px rgba(25, 47, 112, 0.1);
 }
 
@@ -1438,8 +1400,7 @@ button:focus-visible {
   transform: translateY(-8px);
   background: rgba(255, 214, 138, 0.08);
   border-color: rgba(255, 214, 138, 0.2);
-  box-shadow:
-    0 4px 24px -4px rgba(255, 214, 138, 0.15),
+  box-shadow: 0 4px 24px -4px rgba(255, 214, 138, 0.15),
     0 0 0 1px rgba(255, 214, 138, 0.1);
 }
 
@@ -1455,8 +1416,7 @@ button:focus-visible {
   transform: translateY(-8px);
   background: rgba(68, 171, 103, 0.08);
   border-color: rgba(68, 171, 103, 0.2);
-  box-shadow:
-    0 4px 24px -4px rgba(68, 171, 103, 0.15),
+  box-shadow: 0 4px 24px -4px rgba(68, 171, 103, 0.15),
     0 0 0 1px rgba(68, 171, 103, 0.1);
 }
 
@@ -1473,8 +1433,7 @@ button:focus-visible {
   transform: translateY(-8px);
   background: rgba(137, 225, 255, 0.08);
   border-color: rgba(137, 225, 255, 0.2);
-  box-shadow:
-    0 4px 24px -4px rgba(137, 225, 255, 0.15),
+  box-shadow: 0 4px 24px -4px rgba(137, 225, 255, 0.15),
     0 0 0 1px rgba(137, 225, 255, 0.1);
 }
 
@@ -1490,8 +1449,7 @@ button:focus-visible {
   transform: translateY(-8px);
   background: rgba(255, 183, 107, 0.08);
   border-color: rgba(255, 183, 107, 0.2);
-  box-shadow:
-    0 4px 24px -4px rgba(255, 183, 107, 0.15),
+  box-shadow: 0 4px 24px -4px rgba(255, 183, 107, 0.15),
     0 0 0 1px rgba(255, 183, 107, 0.1);
 }
 
@@ -1507,8 +1465,7 @@ button:focus-visible {
   transform: translateY(-8px);
   background: rgba(125, 140, 255, 0.08);
   border-color: rgba(125, 140, 255, 0.2);
-  box-shadow:
-    0 4px 24px -4px rgba(125, 140, 255, 0.15),
+  box-shadow: 0 4px 24px -4px rgba(125, 140, 255, 0.15),
     0 0 0 1px rgba(125, 140, 255, 0.1);
 }
 
@@ -1711,8 +1668,7 @@ button:focus-visible {
   border-radius: 12px;
   padding: 24px;
   overflow: hidden;
-  box-shadow:
-    0 4px 32px -4px rgba(0, 0, 0, 0.6),
+  box-shadow: 0 4px 32px -4px rgba(0, 0, 0, 0.6),
     0 8px 40px -4px rgba(255, 255, 255, 0.05),
     inset 0 1px 1px rgba(255, 255, 255, 0.08),
     inset 0 0 8px rgba(255, 255, 255, 0.02);
@@ -1737,9 +1693,7 @@ button:focus-visible {
     rgba(255, 255, 255, 0.02)
   );
   background-size: 200% 100%;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   animation: borderGlow 4s linear infinite;
@@ -1778,8 +1732,7 @@ button:focus-visible {
   padding: 24px;
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow:
-    0 4px 16px -6px rgba(0, 0, 0, 0.05),
+  box-shadow: 0 4px 16px -6px rgba(0, 0, 0, 0.05),
     0 8px 24px -12px rgba(0, 0, 0, 0.08),
     inset 0 0 0 1px rgba(255, 255, 255, 0.02);
   position: relative;
@@ -1806,8 +1759,7 @@ button:focus-visible {
 }
 
 .bottom-nav-card:hover {
-  box-shadow:
-    0 6px 24px -8px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 6px 24px -8px rgba(0, 0, 0, 0.1),
     0 8px 32px -12px rgba(0, 0, 0, 0.12),
     inset 0 0 0 1px rgba(255, 255, 255, 0.03);
   transform: translateY(-0.5px);
@@ -1816,4 +1768,13 @@ button:focus-visible {
 .bottom-nav-card:hover::before {
   left: 100%;
   transition: 0.6s ease-in-out;
+}
+
+.feature-left-box-controls {
+  flex-wrap: wrap;
+}
+
+.feature-left-box-controls > * {
+  min-width: 260px !important;
+  max-width: 260px !important;
 }
