@@ -1,9 +1,10 @@
-use crate::models::chunkr::task::{Task, TaskResponse};
+use crate::models::chunkr::task::{Task, TaskQuery, TaskResponse};
 use chrono::{DateTime, Utc};
 
 pub async fn get_task(
     task_id: String,
     user_id: String,
+    task_query: TaskQuery,
 ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
     let task = match Task::get(&task_id, &user_id).await {
         Ok(task) => task,
@@ -13,5 +14,7 @@ pub async fn get_task(
     if expires_at.is_some() && expires_at.unwrap() < Utc::now() {
         return Err("Task expired".into());
     }
-    Ok(task.to_task_response(true).await?)
+    Ok(task
+        .to_task_response(task_query.include_chunks, task_query.base64_urls)
+        .await?)
 }

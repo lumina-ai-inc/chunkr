@@ -1,5 +1,5 @@
 use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::task::{Task, TaskResponse};
+use crate::models::chunkr::task::{Task, TaskQuery, TaskResponse};
 use crate::models::chunkr::upload::CreateForm;
 use crate::models::chunkr::upload::UpdateForm;
 use crate::utils::routes::cancel_task::cancel_task;
@@ -42,12 +42,13 @@ use actix_web::{web, Error, HttpResponse};
 )]
 pub async fn get_task_route(
     task_id: web::Path<String>,
+    task_query: web::Query<TaskQuery>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let task_id = task_id.into_inner();
     let user_id = user_info.user_id.clone();
 
-    match get_task(task_id, user_id).await {
+    match get_task(task_id, user_id, task_query.into_inner()).await {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
             eprintln!("Error getting task: {:?}", e);
