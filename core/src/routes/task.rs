@@ -32,7 +32,7 @@ use actix_web::{web, Error, HttpResponse};
     params(
         ("task_id" = Option<String>, Path, description = "Id of the task to retrieve"),
         ("base64_urls" = Option<bool>, Query, description = "Whether to return base64 encoded URLs. If false, the URLs will be returned as presigned URLs."),
-        ("include_output" = Option<bool>, Query, description = "Whether to include task output in the response"),
+        ("include_chunks" = Option<bool>, Query, description = "Whether to include chunks in the output response"),
     ),
     responses(
         (status = 200, description = "Detailed information describing the task", body = TaskResponse),
