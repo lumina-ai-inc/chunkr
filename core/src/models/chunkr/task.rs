@@ -238,8 +238,9 @@ impl Task {
     async fn create_output(
         &self,
         include_chunks: bool,
+        base64_urls: bool,
     ) -> Result<OutputResponse, Box<dyn std::error::Error>> {
-        let pdf_url = generate_presigned_url(&self.pdf_location, true, None).await?;
+        let pdf_url = generate_presigned_url(&self.pdf_location, true, None, base64_urls).await?;
         let mut output_response = OutputResponse::default();
         if include_chunks {
             let temp_file = download_to_tempfile(&self.output_location, None).await?;
@@ -261,10 +262,16 @@ impl Task {
             async fn process(
                 segment: &mut Segment,
                 picture_generation_config: &PictureGenerationConfig,
+                base64_urls: bool,
             ) -> Result<String, Box<dyn std::error::Error>> {
-                let url = generate_presigned_url(segment.image.as_ref().unwrap(), true, None)
-                    .await
-                    .ok();
+                let url = generate_presigned_url(
+                    segment.image.as_ref().unwrap(),
+                    true,
+                    None,
+                    base64_urls,
+                )
+                .await
+                .ok();
                 if segment.segment_type == SegmentType::Picture {
                     if picture_generation_config.html == GenerationStrategy::Auto {
                         segment.html =
@@ -281,7 +288,7 @@ impl Task {
                 .iter_mut()
                 .flat_map(|chunk| chunk.segments.iter_mut())
                 .filter(|segment| segment.image.is_some())
-                .map(|segment| process(segment, &picture_generation_config));
+                .map(|segment| process(segment, &picture_generation_config, base64_urls));
 
             try_join_all(futures).await?;
         }
@@ -550,12 +557,16 @@ impl Task {
     pub async fn to_task_response(
         &self,
         include_chunks: bool,
+        base64_urls: bool,
     ) -> Result<TaskResponse, Box<dyn std::error::Error>> {
-        let input_file_url = generate_presigned_url(&self.input_location, true, None)
+        let input_file_url = generate_presigned_url(&self.input_location, true, None, base64_urls)
             .await
             .map_err(|_| "Error getting input file url")?;
         let output = self
-            .create_output(include_chunks && self.status == Status::Succeeded)
+            .create_output(
+                include_chunks && self.status == Status::Succeeded,
+                base64_urls,
+            )
             .await?;
         let mut configuration = self.configuration.clone();
         configuration.input_file_url = Some(input_file_url);
@@ -749,4 +760,20 @@ pub struct TaskPayload {
     pub previous_version: Option<String>,
     pub task_id: String,
     pub user_id: String,
+}
+
+#[derive(Deserialize)]
+pub struct TaskQuery {
+    #[serde(default = "default_include_chunks")]
+    pub include_chunks: bool,
+    #[serde(default = "default_base64_urls")]
+    pub base64_urls: bool,
+}
+
+fn default_include_chunks() -> bool {
+    true
+}
+
+fn default_base64_urls() -> bool {
+    false
 }
