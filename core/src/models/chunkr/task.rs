@@ -281,6 +281,7 @@ impl Task {
                         segment.markdown = format!("![Image]({})", url.clone().unwrap_or_default());
                     }
                 }
+                segment.image = Some(url.clone().unwrap_or_default());
                 Ok(url.clone().unwrap_or_default())
             }
             let futures = output_response
