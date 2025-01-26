@@ -1,5 +1,6 @@
 use crate::utils::clients;
 use aws_sdk_s3::{presigning::PresigningConfig, primitives::ByteStream};
+use base64::{engine::general_purpose::URL_SAFE, Engine as _};
 use bytes::Bytes;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -32,14 +33,28 @@ pub async fn generate_presigned_url(
     location: &str,
     external: bool,
     expires_in: Option<Duration>,
+    base64_urls: bool,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let s3_client = if external {
         clients::get_external_s3_client()
     } else {
         clients::get_s3_client()
     };
-    let expiration = expires_in.unwrap_or(Duration::from_secs(3600));
     let (bucket, key) = extract_bucket_and_key(location)?;
+
+    if base64_urls {
+        let output = s3_client
+            .get_object()
+            .bucket(bucket)
+            .key(key)
+            .send()
+            .await?;
+        let image_bytes = output.body.collect().await?.into_bytes();
+        let base64_string = URL_SAFE.encode(&image_bytes);
+        return Ok(format!("data:image/jpeg;base64,{}", base64_string));
+    }
+
+    let expiration = expires_in.unwrap_or(Duration::from_secs(3600));
     let mut get_object = s3_client.get_object().bucket(bucket).key(key);
     get_object = get_object
         .response_content_disposition("inline")
@@ -98,7 +113,7 @@ pub async fn download_to_tempfile(
     expires_in: Option<Duration>,
 ) -> Result<NamedTempFile, Box<dyn std::error::Error>> {
     let reqwest_client = clients::get_reqwest_client();
-    let unsigned_url = generate_presigned_url(location, false, expires_in).await?;
+    let unsigned_url = generate_presigned_url(location, false, expires_in, false).await?;
     let mut temp_file = NamedTempFile::new()?;
     let content = reqwest_client
         .get(&unsigned_url)
@@ -116,7 +131,7 @@ pub async fn download_to_given_tempfile(
     expires_in: Option<Duration>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let reqwest_client = clients::get_reqwest_client();
-    let unsigned_url = generate_presigned_url(location, false, expires_in).await?;
+    let unsigned_url = generate_presigned_url(location, false, expires_in, false).await?;
     let content = reqwest_client
         .get(&unsigned_url)
         .send()
