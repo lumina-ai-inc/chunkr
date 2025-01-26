@@ -9,6 +9,7 @@ from asyncio import Queue
 from dataclasses import dataclass, field
 import multiprocessing
 from itertools import islice
+import random
 
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ class ProcessingStats:
 stats = ProcessingStats()
 
 async def write_and_log_worker(output_jsonl: Path, run_dir: Path, completed_queue: Queue):
-    stats_file = run_dir / "stats.log"
+    stats_file = run_dir / f"stats_{random.randint(1, 1000000)}.log"
     while True:
         task_data = await completed_queue.get()
         async with file_lock:
