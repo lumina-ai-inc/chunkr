@@ -3,7 +3,7 @@ from PIL import Image
 from typing import Union, BinaryIO
 
 from .configuration import Configuration
-from .decorators import anywhere, ensure_client
+from .decorators import anywhere, ensure_client, retry_on_429
 from .misc import prepare_upload_data
 from .task_response import TaskResponse
 from .chunkr_base import ChunkrBase
@@ -29,6 +29,7 @@ class Chunkr(ChunkrBase):
 
     @anywhere()
     @ensure_client()
+    @retry_on_429()
     async def create_task(
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
@@ -43,6 +44,7 @@ class Chunkr(ChunkrBase):
 
     @anywhere()
     @ensure_client()
+    @retry_on_429()
     async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
         files = await prepare_upload_data(None, config, self._client)
         r = await self._client.patch(
