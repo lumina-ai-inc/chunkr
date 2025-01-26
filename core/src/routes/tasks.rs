@@ -16,18 +16,19 @@ use actix_web::{web, Error, HttpResponse};
     context_path = "/api/v1",
     tag = "Tasks",
     params(
-        ("page" = Option<i64>, Query, description = "Page number"),
-        ("limit" = Option<i64>, Query, description = "Number of tasks per page"),
-        ("include_output" = Option<bool>, Query, description = "Whether to include task output in the response"),
-        ("start" = Option<chrono::DateTime<chrono::Utc>>, Query, description = "Start date"),
+        ("base64_urls" = Option<bool>, Query, description = "Whether to return base64 encoded URLs. If false, the URLs will be returned as presigned URLs."),
         ("end" = Option<chrono::DateTime<chrono::Utc>>, Query, description = "End date"),
+        ("include_output" = Option<bool>, Query, description = "Whether to include task output in the response"),
+        ("limit" = Option<i64>, Query, description = "Number of tasks per page"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("start" = Option<chrono::DateTime<chrono::Utc>>, Query, description = "Start date"),
     ),
     responses(
         (status = 200, description = "Detailed information describing the task", body = Vec<TaskResponse>),
         (status = 500, description = "Internal server error related to getting the task", body = String),
     ),
     security(
-        ("api_key" = []),
+        ("api_key" = [])
     )
 )]
 pub async fn get_tasks_route(
