@@ -55,12 +55,18 @@ class Chunkr(ChunkrBase):
 
     @anywhere()
     @ensure_client()
-    async def get_task(self, task_id: str, include_output: bool = True, base64_urls: bool = False) -> TaskResponse:
+    async def get_task(self, task_id: str, include_chunks: bool = True, base64_urls: bool = False) -> TaskResponse:
+        params = {
+            "base64_urls": str(base64_urls).lower(),
+            "include_chunks": str(include_chunks).lower()
+        }
         r = await self._client.get(
-            f"{self.url}/api/v1/task/{task_id}?base64_urls={base64_urls}&include_output={include_output}", headers=self._headers()
+            f"{self.url}/api/v1/task/{task_id}",
+            params=params,
+            headers=self._headers()
         )
         r.raise_for_status()
-        return TaskResponse(**r.json()).with_client(self, include_output, base64_urls)
+        return TaskResponse(**r.json()).with_client(self, include_chunks, base64_urls)
 
     @anywhere()
     @ensure_client()

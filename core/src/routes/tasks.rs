@@ -9,7 +9,7 @@ use actix_web::{web, Error, HttpResponse};
 /// Retrieves a list of tasks
 ///
 /// Example usage:
-/// `GET /api/v1/tasks?page=1&limit=10&include_output=false`
+/// `GET /api/v1/tasks?page=1&limit=10&include_chunks=false`
 #[utoipa::path(
     get,
     path = "/tasks",
@@ -18,7 +18,7 @@ use actix_web::{web, Error, HttpResponse};
     params(
         ("base64_urls" = Option<bool>, Query, description = "Whether to return base64 encoded URLs. If false, the URLs will be returned as presigned URLs."),
         ("end" = Option<chrono::DateTime<chrono::Utc>>, Query, description = "End date"),
-        ("include_output" = Option<bool>, Query, description = "Whether to include task output in the response"),
+        ("include_chunks" = Option<bool>, Query, description = "Whether to include chunks in the output response"),
         ("limit" = Option<i64>, Query, description = "Number of tasks per page"),
         ("page" = Option<i64>, Query, description = "Page number"),
         ("start" = Option<chrono::DateTime<chrono::Utc>>, Query, description = "Start date"),
