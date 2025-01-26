@@ -39,7 +39,7 @@ class Chunkr(ChunkrBase):
             f"{self.url}/api/v1/task", files=files, headers=self._headers()
         )
         r.raise_for_status()
-        return TaskResponse(**r.json()).with_client(self)
+        return TaskResponse(**r.json()).with_client(self, True, False)
 
     @anywhere()
     @ensure_client()
@@ -51,16 +51,16 @@ class Chunkr(ChunkrBase):
             headers=self._headers(),
         )
         r.raise_for_status()
-        return TaskResponse(**r.json()).with_client(self)
+        return TaskResponse(**r.json()).with_client(self, True, False)
 
     @anywhere()
     @ensure_client()
-    async def get_task(self, task_id: str) -> TaskResponse:
+    async def get_task(self, task_id: str, include_output: bool = True, base64_urls: bool = False) -> TaskResponse:
         r = await self._client.get(
-            f"{self.url}/api/v1/task/{task_id}", headers=self._headers()
+            f"{self.url}/api/v1/task/{task_id}?base64_urls={base64_urls}&include_output={include_output}", headers=self._headers()
         )
         r.raise_for_status()
-        return TaskResponse(**r.json()).with_client(self)
+        return TaskResponse(**r.json()).with_client(self, include_output, base64_urls)
 
     @anywhere()
     @ensure_client()
