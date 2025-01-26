@@ -12,11 +12,14 @@ for node in $gpu_nodes; do
     
     tmux rename-window -t gpu-info:$window "$node"
     
-    pod=$(kubectl get pods -n chunkmydocs --field-selector spec.nodeName=$node -o jsonpath='{.items[0].metadata.name}')
+    # Get all pods on the node and check if any exist
+    pods=$(kubectl get pods -n chunkmydocs --field-selector spec.nodeName=$node -o name)
     
-    if [ -z "$pod" ]; then
+    if [ -z "$pods" ]; then
         tmux send-keys -t gpu-info:$window "echo 'No GPU pod found on node $node'" C-m
     else
+        # Get the first pod name, stripping the "pod/" prefix
+        pod=$(echo "$pods" | head -n 1 | sed 's/^pod\///')
         tmux send-keys -t gpu-info:$window "echo 'Node: $node, Pod: $pod'" C-m
         tmux send-keys -t gpu-info:$window "kubectl exec -it $pod -n chunkmydocs -- watch -n 0.5 nvidia-smi" C-m
     fi
