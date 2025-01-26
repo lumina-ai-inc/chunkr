@@ -64,7 +64,7 @@ pub async fn get_status_breakdown(
     let query = if let Some(_email) = email {
         "SELECT date_trunc('day', t.created_at)::date AS day,
                 COALESCE(t.status, 'unknown') AS status,
-                COALESCE(SUM(t.page_count),0) AS pages
+                COUNT(*) AS tasks
          FROM tasks t
          JOIN users u ON t.user_id = u.user_id
          WHERE t.created_at >= $1 AND t.created_at <= $2 AND u.email = $3
@@ -73,7 +73,7 @@ pub async fn get_status_breakdown(
     } else {
         "SELECT date_trunc('day', created_at)::date AS day,
                 COALESCE(status, 'unknown') AS status,
-                COALESCE(SUM(page_count),0) AS pages
+                COUNT(*) AS tasks
          FROM tasks
          WHERE created_at >= $1 AND created_at <= $2
          GROUP BY 1, status
@@ -87,7 +87,7 @@ pub async fn get_status_breakdown(
     Ok(rows.iter().map(|r| DayStatusCount {
         day: r.get("day"),
         status: r.get("status"),
-        pages: r.get("pages"),
+        pages: r.get("tasks"),
     }).collect())
 }
 
