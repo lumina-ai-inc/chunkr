@@ -41,39 +41,57 @@ async function writeQueuedLogs(force: boolean = false) {
   if (!force && now - lastLogWrite < LOG_WRITE_INTERVAL) {
     return;
   }
-  lastLogWrite = now;
 
-  if (logQueue.entries.length === 0) {
-    return;
+  try {
+    await fs.mkdir(LOGS_DIR, { recursive: true });
+    const logPath = currentLogPath;
+
+    // Skip if no entries yet
+    if (logQueue.entries.length === 0) {
+      return;
+    }
+
+    const totalPages = logQueue.entries.reduce(
+      (sum, stat) => sum + (stat.pageCount || 0),
+      0,
+    );
+    const successCount = logQueue.entries.filter(
+      (s) => s.status === Status.SUCCEEDED,
+    ).length;
+    const failureCount = logQueue.entries.filter(
+      (s) => s.status === Status.FAILED,
+    ).length;
+    const inProgressCount = logQueue.entries.filter(
+      (s) => ![Status.SUCCEEDED, Status.FAILED].includes(s.status),
+    ).length;
+
+    // Find the earliest start time from all entries
+    const firstStartTime = Math.min(
+      ...logQueue.entries.map((entry) => entry.startTime),
+    );
+
+    const summary = {
+      totalFiles: logQueue.entries.length,
+      successCount,
+      failureCount,
+      inProgressCount,
+      totalPages,
+      totalTimeSeconds: (now - firstStartTime) / 1000,
+      pagesPerSecond: totalPages / ((now - firstStartTime) / 1000),
+      details: logQueue.entries,
+      lastUpdated: new Date().toISOString(),
+    };
+
+    await fs.writeFile(logPath, JSON.stringify(summary, null, 2));
+    lastLogWrite = now;
+
+    // Log progress to console
+    console.log(
+      `Progress: ${successCount} succeeded, ${failureCount} failed, ${inProgressCount} in progress`,
+    );
+  } catch (error) {
+    console.error("Error writing log file:", error);
   }
-
-  await fs.mkdir(LOGS_DIR, { recursive: true });
-  const logPath = currentLogPath;
-
-  const totalPages = logQueue.entries.reduce(
-    (sum, stat) => sum + (stat.pageCount || 0),
-    0,
-  );
-  const successCount = logQueue.entries.filter(
-    (s) => s.status === Status.SUCCEEDED,
-  ).length;
-  const failureCount = logQueue.entries.filter(
-    (s) => s.status === Status.FAILED,
-  ).length;
-
-  const summary = {
-    totalFiles: logQueue.entries.length,
-    successCount,
-    failureCount,
-    totalPages,
-    totalTimeSeconds: (now - logQueue.entries[0].startTime) / 1000,
-    pagesPerSecond: totalPages / ((now - logQueue.entries[0].startTime) / 1000),
-    details: logQueue.entries,
-    lastUpdated: new Date().toISOString(),
-  };
-
-  await fs.writeFile(logPath, JSON.stringify(summary, null, 2));
-  console.log(`Log file updated: ${logPath}`);
 }
 
 describe("Chunkr Load Test", () => {
@@ -136,8 +154,10 @@ describe("Chunkr Load Test", () => {
     // Initial upload of all files
     for (const file of fileNames) {
       const inputPath = path.join(INPUT_DIR, file);
+      console.log(`Uploading file: ${file}`);
       try {
         const result = await chunkr.createTask(inputPath);
+        console.log(`Successfully created task ${result.task_id} for ${file}`);
         const stats: ProcessingStats = {
           fileName: result.output?.file_name || file,
           taskId: result.task_id,
@@ -147,6 +167,7 @@ describe("Chunkr Load Test", () => {
         logQueue.entries.push(stats);
         await writeQueuedLogs();
       } catch (error: any) {
+        console.error(`Failed to upload ${file}:`, error);
         const stats: ProcessingStats = {
           fileName: file,
           taskId: "UPLOAD_FAILED",
@@ -165,29 +186,40 @@ describe("Chunkr Load Test", () => {
 
     while (!allCompleted) {
       allCompleted = true;
+      let updatedEntries = false;
 
       for (const stat of logQueue.entries) {
         if (stat.status !== Status.SUCCEEDED && stat.status !== Status.FAILED) {
           try {
             const taskResponse = await chunkr.getTask(stat.taskId);
-            stat.status = taskResponse.status;
 
-            if (taskResponse.status === Status.SUCCEEDED) {
-              stat.endTime = Date.now();
-              stat.pageCount = taskResponse.output?.page_count;
+            // Only update if status changed
+            if (taskResponse.status !== stat.status) {
+              stat.status = taskResponse.status;
+              updatedEntries = true;
 
-              // Save the complete TaskResponse object
-              const outputPath = path.join(
-                currentOutputDir,
-                `${stat.fileName}.result.json`,
-              );
-              pendingWrites.push(
-                fs.writeFile(outputPath, JSON.stringify(taskResponse, null, 2)),
-              );
-            } else if (taskResponse.status === Status.FAILED) {
-              stat.endTime = Date.now();
-              stat.error = taskResponse.error || "Unknown error";
-            } else {
+              if (taskResponse.status === Status.SUCCEEDED) {
+                stat.endTime = Date.now();
+                stat.pageCount = taskResponse.output?.page_count;
+
+                // Save the complete TaskResponse object
+                const outputPath = path.join(
+                  currentOutputDir,
+                  `${stat.fileName}.result.json`,
+                );
+                pendingWrites.push(
+                  fs.writeFile(
+                    outputPath,
+                    JSON.stringify(taskResponse, null, 2),
+                  ),
+                );
+              } else if (taskResponse.status === Status.FAILED) {
+                stat.endTime = Date.now();
+                stat.error = taskResponse.error || "Unknown error";
+              }
+            }
+
+            if (![Status.SUCCEEDED, Status.FAILED].includes(stat.status)) {
               allCompleted = false;
             }
           } catch (error) {
@@ -197,14 +229,10 @@ describe("Chunkr Load Test", () => {
         }
       }
 
-      // Wait for all pending file writes to complete
-      if (pendingWrites.length > 0) {
-        await Promise.all(pendingWrites);
-        pendingWrites = [];
+      // Force log update if entries changed
+      if (updatedEntries) {
+        await writeQueuedLogs(true);
       }
-
-      // Make writeQueuedLogs awaited
-      await writeQueuedLogs();
 
       if (!allCompleted) {
         await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));

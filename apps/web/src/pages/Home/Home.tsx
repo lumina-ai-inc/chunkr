@@ -459,6 +459,7 @@ const Home = () => {
                 </div>
               </div>
             </Flex>
+
             <div className="features-container">
               <div className="features-gradient-background" />
               <Flex
@@ -476,16 +477,29 @@ const Home = () => {
               >
                 <Flex className="feature-left-box">
                   <Flex direction="column" gap="16px">
+                    <Flex className="yc-tag">
+                      <Text
+                        size="2"
+                        weight="medium"
+                        style={{
+                          color: "#ffffff",
+                          textShadow: "0 0 10px rgba(255, 255, 255, 0.45)",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        Built for devs
+                      </Text>
+                    </Flex>
                     <Text className="feature-left-box-title">
-                      Production-ready document parsing
+                      Lightning fast integration
                     </Text>
-                    <Text
+                    {/* <Text
                       size="6"
                       weight="medium"
                       className="feature-left-box-subtitle"
                     >
                       High quality HTML, Markdown and Schema extraction
-                    </Text>
+                    </Text> */}
                     <Text
                       size="5"
                       weight="medium"
@@ -495,16 +509,22 @@ const Home = () => {
                       <span
                         style={{
                           color: "#ffffffbc",
-                          maxWidth: "428px",
+                          maxWidth: "460px",
                           display: "inline-block",
                         }}
                       >
-                        Configure our enterprise-grade pipeline to dial in the
-                        perfect mix of speed, quality, and features.
+                        Configure your pipeline with simple controls to achieve
+                        the optimal balance of speed and accuracy.
                       </span>{" "}
                     </Text>
                   </Flex>
-                  <Flex direction="row" gap="96px" justify="between">
+                  <Flex
+                    direction="row"
+                    gap="96px"
+                    justify="between"
+                    className="feature-left-box-controls"
+                    style={{ display: "none" }}
+                  >
                     <Flex
                       direction="column"
                       gap="24px"
@@ -629,6 +649,7 @@ const Home = () => {
                         </button>
                       </Flex>
                     </Flex>
+
                     <Flex
                       direction="column"
                       gap="24px"
@@ -713,6 +734,7 @@ const Home = () => {
                         )}
                       </Flex>
                     </Flex>
+
                     <Flex
                       direction="column"
                       gap="24px"
@@ -932,7 +954,6 @@ const Home = () => {
                 </Flex>
               </Flex>
             </div>
-
             <div className="features-container">
               <Flex
                 direction="column"
@@ -941,7 +962,7 @@ const Home = () => {
                   maxWidth: "1424px",
                   height: "100%",
                   margin: "0px auto 0px",
-                  padding: "128px 24px",
+                  padding: "128px 24px 0px 24px",
                 }}
               >
                 <Flex
@@ -950,34 +971,35 @@ const Home = () => {
                   align="center"
                   justify="center"
                 >
-                  <Flex className="yc-tag">
-                    <Text
-                      size="2"
-                      weight="medium"
-                      style={{
-                        color: "#ffffff",
-                        textShadow: "0 0 10px rgba(255, 255, 255, 0.45)",
-                        letterSpacing: "0.02em",
-                      }}
-                    >
-                      Built for scale
-                    </Text>
-                  </Flex>
                   <Text
                     size="9"
                     weight="medium"
                     align="center"
                     className="feature-bottom-box-title"
                   >
-                    Fast by default<br></br>Powerful by design
+                    Your RAG app's <br></br> Secret Weapon
+                  </Text>
+                  <Text
+                    size="5"
+                    weight="medium"
+                    className="feature-left-box-subtitle"
+                    align="center"
+                    mt="24px"
+                  >
+                    Production-ready vision infrastructure<br></br>
+                    for building stand out AI experiences
                   </Text>
                   <Flex
                     className="feature-bottom-box-wrapper"
+                    gap="16px"
+                    justify="between"
                     direction="column"
                   >
                     <Flex
                       direction="row"
                       className="features-bottom-box-container"
+                      justify="between"
+                      gap="16px"
                       style={{
                         width: "100%",
                         marginTop: "56px",
