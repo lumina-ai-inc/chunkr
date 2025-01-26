@@ -30,7 +30,9 @@ use actix_web::{web, Error, HttpResponse};
     context_path = "/api/v1",
     tag = "Task",
     params(
-        ("task_id" = Option<String>, Path, description = "Id of the task to retrieve")
+        ("task_id" = Option<String>, Path, description = "Id of the task to retrieve"),
+        ("base64_urls" = Option<bool>, Query, description = "Whether to return base64 encoded URLs. If false, the URLs will be returned as presigned URLs."),
+        ("include_output" = Option<bool>, Query, description = "Whether to include task output in the response"),
     ),
     responses(
         (status = 200, description = "Detailed information describing the task", body = TaskResponse),
