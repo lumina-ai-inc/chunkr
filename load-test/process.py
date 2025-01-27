@@ -8,27 +8,13 @@ import logging
 logging.basicConfig(level=logging.ERROR)
 
 from chunkr_ai import Chunkr
-from chunkr_ai.models import TaskResponse, Configuration, SegmentProcessing, GenerationConfig, GenerationStrategy, CroppingStrategy
+from chunkr_ai.models import TaskResponse
 from redis_utils import RedisManager
 from models import ProcessPayload, WritePayload
 
 async def process_file(chunkr: Chunkr, file_path: str) -> Optional[TaskResponse]:
     try:    
-        task = await chunkr.upload(file_path, Configuration(
-            segment_processing=SegmentProcessing(
-                Table=GenerationConfig(
-                    html=GenerationStrategy.AUTO,
-                    markdown=GenerationStrategy.AUTO,
-                ),
-                Formula=GenerationConfig(
-                    html=GenerationStrategy.AUTO,
-                    markdown=GenerationStrategy.AUTO,
-                ),
-                Picture=GenerationConfig(
-                    crop_image=CroppingStrategy.AUTO,
-                ),
-            )
-        ))
+        task = await chunkr.upload(file_path)
         return task
     except Exception as e:
         print(f"Error processing file {file_path}: {e}")
