@@ -37,7 +37,7 @@ import chunkingAnimation from "../../assets/animations/chunking.json";
 import vlmAnimation from "../../assets/animations/vlm.json";
 import layoutAnimation from "../../assets/animations/layout.json";
 import rustAnimation from "../../assets/animations/rust.json";
-import devXAnimation from "../../assets/animations/devx.json";
+import devXAnimation from "../../assets/animations/devX.json";
 import checklistAnimation from "../../assets/animations/checklist.json";
 import apiPriceAnimation from "../../assets/animations/apiPrice.json";
 import onPremAnimation from "../../assets/animations/onPrem.json";
