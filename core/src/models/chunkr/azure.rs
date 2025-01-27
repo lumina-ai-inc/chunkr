@@ -205,7 +205,7 @@ impl AzureAnalysisResponse {
                                     markdown: table_to_markdown(table),
                                     image: None,
                                     llm: None,
-                                    ocr: Vec::new(),
+                                    ocr: None,
                                     page_height,
                                     page_width,
                                     page_number,
@@ -263,7 +263,7 @@ impl AzureAnalysisResponse {
                                 markdown: String::new(),
                                 image: None,
                                 llm: None,
-                                ocr: Vec::new(),
+                                ocr: None,
                                 page_height,
                                 page_width,
                                 page_number,
@@ -319,16 +319,12 @@ impl AzureAnalysisResponse {
                             let segment = Segment {
                                 bbox,
                                 confidence: None,
-                                content: paragraph
-                                    .content
-                                    .clone()
-                                    .unwrap_or_default()
-                                    .replace(":selected:", ""),
+                                content: paragraph.content.clone().unwrap_or_default(),
                                 html: String::new(),
                                 markdown: String::new(),
                                 image: None,
                                 llm: None,
-                                ocr: Vec::new(),
+                                ocr: None,
                                 page_height,
                                 page_width,
                                 page_number,
@@ -373,11 +369,11 @@ impl AzureAnalysisResponse {
                                             word_bbox.height,
                                         );
 
-                                        all_segments[idx].ocr.push(OCRResult {
-                                            text: content.clone().replace(":selected:", ""),
+                                        all_segments[idx].ocr = Some(vec![OCRResult {
+                                            text: content.clone(),
                                             confidence: Some(*confidence as f32),
                                             bbox: relative_bbox,
-                                        });
+                                        }]);
                                     }
                                 }
                             }
@@ -420,16 +416,12 @@ fn process_caption(
                     let segment = Segment {
                         bbox,
                         confidence: None,
-                        content: caption
-                            .content
-                            .clone()
-                            .unwrap_or_default()
-                            .replace(":selected:", ""),
+                        content: caption.content.clone().unwrap_or_default(),
                         html: String::new(),
                         markdown: String::new(),
                         image: None,
                         llm: None,
-                        ocr: Vec::new(),
+                        ocr: None,
                         page_height,
                         page_width,
                         page_number,
@@ -494,7 +486,7 @@ fn table_to_text(table: &Table) -> String {
         .map(|cells| {
             cells
                 .iter()
-                .filter_map(|cell| cell.content.as_ref().map(|s| s.replace(":selected:", "")))
+                .filter_map(|cell| cell.content.as_ref().map(|s| s.clone()))
                 .collect::<Vec<String>>()
                 .join(" ")
         })
@@ -521,7 +513,7 @@ fn table_to_html(table: &Table) -> String {
             (cell.row_index, cell.column_index, cell.content.as_ref())
         {
             if (row as usize) < row_count && (col as usize) < col_count {
-                grid[row as usize][col as usize] = Some(content.replace(":selected:", ""));
+                grid[row as usize][col as usize] = Some(content.clone());
             }
         }
     }
