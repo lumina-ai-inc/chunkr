@@ -10,6 +10,8 @@ def main(input_dir: str, max_files: int):
     run_dir.mkdir(parents=True, exist_ok=True)
     log_dir = run_dir
     
+    print(f"Run directory: {run_dir}")
+    
     redis_manager = RedisManager()
 
     input_path = Path(input_dir)

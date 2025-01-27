@@ -42,6 +42,7 @@ class WriterStats:
             self.failed_tasks += 1
     
     def calculate_rates(self, elapsed_seconds: float) -> Dict[str, float]:
+        self.elapsed_seconds = elapsed_seconds
         if elapsed_seconds > 0:
             current_successful_rate = self.successful_pages / elapsed_seconds
             current_failed_rate = self.failed_pages / elapsed_seconds
@@ -72,21 +73,19 @@ class WriterStats:
         """Return a JSON-serializable dictionary representation of the stats."""
         return {
             'run_id': self.run_id,
-            'task_counts': {
-                'successful': self.successful_tasks,
-                'failed': self.failed_tasks,
-                'total': len(self.tasks)
-            },
-            'page_counts': {
-                'total': self.total_pages,
-                'successful': self.successful_pages,
-                'failed': self.failed_pages
-            },
-            'max_rates': {
-                'successful_pages_per_second': self.max_successful_pages_per_second,
-                'failed_pages_per_second': self.max_failed_pages_per_second,
-                'total_pages_per_second': self.max_pages_per_second
-            }
+            'successful': self.successful_tasks,
+            'failed': self.failed_tasks,
+            'total': len(self.tasks),
+            'total_pages': self.total_pages,
+            'successful_pages': self.successful_pages,
+            'failed_pages': self.failed_pages,
+            'successful_pages_per_second': self.successful_pages / self.elapsed_seconds,
+            'failed_pages_per_second': self.failed_pages / self.elapsed_seconds,
+            'total_pages_per_second': self.total_pages / self.elapsed_seconds,
+            'max_successful_pages_per_second': self.max_successful_pages_per_second,
+            'max_failed_pages_per_second': self.max_failed_pages_per_second,
+            'max_pages_per_second': self.max_pages_per_second,
+            'elapsed_seconds': self.elapsed_seconds
         }
 
 def main():
@@ -108,7 +107,7 @@ def main():
             stats_path = Path(payload.log_dir) / "stats.log"
             stats_path.parent.mkdir(parents=True, exist_ok=True)
             
-            logs_path = Path(payload.log_dir) / "logs.jsonl"
+            logs_path = Path(payload.log_dir) / "stats.jsonl"
             logs_path.parent.mkdir(parents=True, exist_ok=True)
             
             start_time = min(datetime.fromisoformat(task.start_time) for task in stats.tasks)
@@ -120,24 +119,25 @@ def main():
             log_entry = (
                 f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                 # Task counts
-                f"Tasks - Succeeded: {stats.successful_tasks}, "
-                f"Failed: {stats.failed_tasks}\n"
+                f"max successful pps: {rates['max_successful_pages_per_second']:.2f} p/s, "
+                f"successful pps: {rates['successful_pages_per_second']:.2f} p/s, "
+                f"succeeded: {stats.successful_tasks}, "
+                f"failed: {stats.failed_tasks} "
+                f"total: {len(stats.tasks)} "
                 # Page counts
-                f"Pages - Total: {stats.total_pages}, "
-                f"Successful: {stats.successful_pages}, "
-                f"Failed: {stats.failed_pages}\n"
+                f"total pages: {stats.total_pages}, "
+                f"successful pages: {stats.successful_pages}, "
+                f"failed pages: {stats.failed_pages} "
                 # Current rates
-                f"Current Rates - Total: {rates['pages_per_second']:.2f}/s, "
-                f"Successful: {rates['successful_pages_per_second']:.2f}/s, "
-                f"Failed: {rates['failed_pages_per_second']:.2f}/s\n"
+                f"total pps: {rates['pages_per_second']:.2f} p/s, "
+                f"failed pps: {rates['failed_pages_per_second']:.2f} p/s "
                 # Peak rates
-                f"Peak Rates - Total: {rates['max_pages_per_second']:.2f}/s, "
-                f"Successful: {rates['max_successful_pages_per_second']:.2f}/s, "
-                f"Failed: {rates['max_failed_pages_per_second']:.2f}/s\n"
-                f"Time elapsed: {elapsed_seconds:.1f}s\n"
+                f"max total pps: {rates['max_pages_per_second']:.2f} p/s, "
+                f"max failed pps: {rates['max_failed_pages_per_second']:.2f} p/s "
+                f"time elapsed: {elapsed_seconds:.1f}s"
             )
             with open(stats_path, 'a') as f:
-                f.write(log_entry)
+                f.write(log_entry + '\n')
                 
             stats_entry = {
                 'timestamp': datetime.now().isoformat(),
