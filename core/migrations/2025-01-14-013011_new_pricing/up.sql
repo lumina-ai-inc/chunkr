@@ -30,7 +30,7 @@ INSERT INTO tiers (tier, price_per_month, usage_limit, overage_rate) VALUES
 ('Free', 0.00, 200, 0),
 ('Starter', 50.00, 5000, 0.01),
 ('Dev', 200.00, 25000, 0.008),
-('Team', 500.00, 100000, 0.005),
+('Growth', 500.00, 100000, 0.005),
 ('SelfHosted', 0, 1000000000, 0),
 ('PayAsYouGo',0,0,0.01);
 
