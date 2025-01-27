@@ -194,7 +194,7 @@ services:
       workload-type: chunkr-gpu
     env:
       - name: MAX_BATCH_SIZE
-        value: "4"
+        value: "3"
       - name: BATCH_WAIT_TIME
         value: "0.2"
       - name: OVERLAP_THRESHOLD

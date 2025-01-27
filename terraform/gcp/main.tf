@@ -269,6 +269,10 @@ resource "google_container_node_pool" "general_purpose_nodes" {
     preemptible  = false
     machine_type = var.general_machine_type
 
+    resource_labels = {
+      "goog-gke-node-pool-provisioning-model" = "on-demand"
+    }
+
     gcfs_config {
       enabled = true
     }
@@ -319,6 +323,11 @@ resource "google_container_node_pool" "gpu_nodes" {
     preemptible  = false
     machine_type = var.gpu_machine_type
     disk_size_gb = 500
+
+    resource_labels = {
+      "goog-gke-accelerator-type"             = "nvidia-tesla-a100"
+      "goog-gke-node-pool-provisioning-model" = "on-demand"
+    }
 
     gcfs_config {
       enabled = true

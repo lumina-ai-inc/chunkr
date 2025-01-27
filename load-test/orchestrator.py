@@ -5,24 +5,24 @@ from redis_utils import RedisManager
 from models import ProcessPayload
 
 def main(input_dir: str, max_files: int):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:19]  
     run_dir = Path("runs").resolve() / timestamp
     run_dir.mkdir(parents=True, exist_ok=True)
-    stats_path = run_dir / "stats.log"
+    log_dir = run_dir
     
     redis_manager = RedisManager()
 
     input_path = Path(input_dir)
     files = list(input_path.resolve().glob("*"))[:max_files] if max_files else list(input_path.resolve().glob("*"))
-
+    print(f"Adding {len(files)} files to processing queue")
     for file_path in files:
         payload = ProcessPayload(
+            run_id=timestamp,
             input_file=str(file_path.resolve()),
             output_dir=str(run_dir.resolve()),
             start_time=datetime.now().isoformat(),
-            stats_path=str(stats_path.resolve()),
+            log_dir=str(log_dir.resolve()),
         ).model_dump_json()
-        
         redis_manager.add_to_processing_queue(payload)
 
 if __name__ == "__main__":

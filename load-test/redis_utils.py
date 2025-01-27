@@ -36,7 +36,6 @@ class RedisManager:
         """
         try:
             self.redis_client.lpush(self.queue_name, json.dumps(data))
-            logger.info("Added message to processing queue")
         except Exception as e:
             logger.error(f"Error adding to queue: {e}")
             raise
@@ -47,13 +46,11 @@ class RedisManager:
         """
         while True:
             try:
-                # Read new messages with blocking operation
                 result = self.redis_client.brpop(self.queue_name, timeout)
                 if result:
                     data = json.loads(result[1])
                     yield data
                 else:
-                    # If timeout occurred, yield None
                     yield None
             except Exception as e:
                 logger.error(f"Error reading from queue: {e}")
