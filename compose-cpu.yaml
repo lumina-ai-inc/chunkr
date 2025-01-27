@@ -1,5 +1,66 @@
 # THIS IS UNDER DEVELOPMENT
 services:
+  server:
+    image: luminainc/server:c2a9a16f
+    platform: linux/amd64
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  task:
+    image: luminainc/task:c2a9a16f
+    platform: linux/amd64
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 5
+    restart: always
+
+  web:
+    image: luminainc/web:952c273a
+    platform: linux/amd64
+    ports:
+      - "5173:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  segmentation:
+    image: luminainc/segmentation:d82eb575
+    platform: linux/amd64
+    ports:
+      - "8001:8000"
+    deploy:
+      replicas: 1
+    volumes:
+      - /dev/shm:/dev/shm
+    restart: always
+
+  ocr:
+    image: luminainc/doctr:d03718fd
+    platform: linux/amd64
+    ports:
+      - "8002:8000"
+    deploy:
+      replicas: 1
+    volumes:
+      - /dev/shm:/dev/shm
+    restart: always
+
   postgres:
     build:
       context: ./docker/postgres
@@ -97,66 +158,6 @@ services:
       - postgres
     restart: always
 
-  server:
-    image: luminainc/server:2bbf73a2
-    platform: linux/amd64
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres
-      - redis
-      - minio
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  task:
-    image: luminainc/task:2bbf73a2
-    platform: linux/amd64
-    depends_on:
-      - postgres
-      - redis
-      - minio
-    env_file:
-      - .env
-    deploy:
-      replicas: 5
-    restart: always
-
-  web:
-    image: luminainc/web:952c273a
-    platform: linux/amd64
-    ports:
-      - "5173:8000"
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  segmentation:
-    image: luminainc/segmentation:d82eb575
-    platform: linux/amd64
-    ports:
-      - "8001:8000"
-    deploy:
-      replicas: 1
-    volumes:
-      - /dev/shm:/dev/shm
-    restart: always
-
-  ocr:
-    image: luminainc/doctr:d03718fd
-    platform: linux/amd64
-    ports:
-      - "8002:8000"
-    deploy:
-      replicas: 1
-    volumes:
-      - /dev/shm:/dev/shm
-    restart: always
 
   rrq:
     image: luminainc/rrq:33cd165
