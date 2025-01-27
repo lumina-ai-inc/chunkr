@@ -90,14 +90,16 @@ pub struct Table {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Cell {
+    pub bounding_regions: Option<Vec<BoundingRegion>>,
+    pub column_index: Option<i64>,
+    pub column_span: Option<i64>,
+    pub content: Option<String>,
+    pub elements: Option<Vec<String>>,
+    #[serde(default)]
     pub kind: Option<String>,
     pub row_index: Option<i64>,
-    pub column_index: Option<i64>,
-    pub content: Option<String>,
-    pub bounding_regions: Option<Vec<BoundingRegion>>,
+    pub row_span: Option<i64>,
     pub spans: Option<Vec<Span>>,
-    #[serde(default)]
-    pub elements: Option<Vec<String>>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -514,23 +516,44 @@ fn table_to_html(table: &Table) -> String {
 
     let mut html = String::from("<table>");
 
-    let mut grid = vec![vec![None; col_count]; row_count];
-    for cell in cells {
-        if let (Some(row), Some(col), Some(content)) =
-            (cell.row_index, cell.column_index, cell.content.as_ref())
-        {
-            if (row as usize) < row_count && (col as usize) < col_count {
-                grid[row as usize][col as usize] = Some(content.clone());
-            }
-        }
-    }
+    let mut covered = vec![vec![false; col_count]; row_count];
 
-    for row in grid {
+    for row_idx in 0..row_count {
         html.push_str("<tr>");
-        for cell in row {
-            html.push_str("<td>");
-            html.push_str(cell.as_deref().unwrap_or(""));
-            html.push_str("</td>");
+        for col_idx in 0..col_count {
+            if covered[row_idx][col_idx] {
+                continue;
+            }
+
+            if let Some(cell) = cells.iter().find(|c| {
+                c.row_index.map_or(false, |r| r as usize == row_idx)
+                    && c.column_index.map_or(false, |c| c as usize == col_idx)
+            }) {
+                let content = cell.content.as_deref().unwrap_or("");
+                let rowspan = cell.row_span.unwrap_or(1);
+                let colspan = cell.column_span.unwrap_or(1);
+
+                for r in 0..rowspan as usize {
+                    for c in 0..colspan as usize {
+                        if row_idx + r < row_count && col_idx + c < col_count {
+                            covered[row_idx + r][col_idx + c] = true;
+                        }
+                    }
+                }
+
+                if rowspan > 1 || colspan > 1 {
+                    html.push_str(&format!(
+                        "<td rowspan=\"{}\" colspan=\"{}\">",
+                        rowspan, colspan
+                    ));
+                } else {
+                    html.push_str("<td>");
+                }
+                html.push_str(content);
+                html.push_str("</td>");
+            } else {
+                html.push_str("<td></td>");
+            }
         }
         html.push_str("</tr>");
     }

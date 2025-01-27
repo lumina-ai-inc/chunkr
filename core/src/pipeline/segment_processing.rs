@@ -153,9 +153,14 @@ impl ContentGenerator for MarkdownGenerator {
 async fn generate_content<T: ContentGenerator>(
     generator: &T,
     content: &str,
+    override_content: String,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    if !override_content.is_empty() {
+        return Ok(override_content);
+    }
+
     if segment_image.is_none() {
         return Ok(generator.generate_auto(content));
     }
@@ -175,37 +180,47 @@ async fn generate_content<T: ContentGenerator>(
 
             Ok(generator.process_llm_result(&result))
         }
-        GenerationStrategy::Auto => {
-            if !content.is_empty() {
-                Ok(content.to_string())
-            } else {
-                Ok(generator.generate_auto(content))
-            }
-        }
+        GenerationStrategy::Auto => Ok(generator.generate_auto(content)),
     }
 }
 
 async fn generate_html(
     segment_type: SegmentType,
     content: String,
+    override_content: String,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = HtmlGenerator { segment_type };
     Ok(html::clean_img_tags(
-        &generate_content(&generator, &content, segment_image, generation_strategy).await?,
+        &generate_content(
+            &generator,
+            &content,
+            override_content,
+            segment_image,
+            generation_strategy,
+        )
+        .await?,
     ))
 }
 
 async fn generate_markdown(
     segment_type: SegmentType,
     content: String,
+    override_content: String,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let generator = MarkdownGenerator { segment_type };
     Ok(markdown::clean_img_tags(
-        &generate_content(&generator, &content, segment_image, generation_strategy).await?,
+        &generate_content(
+            &generator,
+            &content,
+            override_content,
+            segment_image,
+            generation_strategy,
+        )
+        .await?,
     ))
 }
 
@@ -283,12 +298,14 @@ async fn process_segment(
         generate_html(
             segment.segment_type.clone(),
             segment.content.clone(),
+            segment.html.clone(),
             segment_image.clone(),
             html_strategy
         ),
         generate_markdown(
             segment.segment_type.clone(),
             segment.content.clone(),
+            segment.markdown.clone(),
             segment_image.clone(),
             markdown_strategy
         ),
