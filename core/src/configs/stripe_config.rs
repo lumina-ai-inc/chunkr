@@ -13,7 +13,7 @@ pub struct Config {
     pub webhook_secret: String,
     pub starter_price_id: String,
     pub dev_price_id: String,
-    pub team_price_id: String,
+    pub growth_price_id: String,
     pub return_url: String,
 }
 

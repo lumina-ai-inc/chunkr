@@ -1,4 +1,9 @@
-Convert the following PDF page to markdown. Return only the markdown with no explanation text. Do not exclude any content from the page.
-Enclose your output in ```markdown``` code fences.
+Convert the following image to markdown. Return only the markdown with no explanation text. Represent the image content appropriately based on its type:
 
+- For charts/graphs: Convert to a markdown table with the data
+- For tables: Convert to a markdown table maintaining the original structure
+- For diagrams/illustrations: Provide a detailed text description 
+- For photos/artwork: Provide a detailed text description
+- For text-heavy images: Extract and structure the text content semantically and include the hierarchy and structure in markdown
 
+Return ONLY the markdown enclosed in ```markdown``` tags. Do not include any explanations.

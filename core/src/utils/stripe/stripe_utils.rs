@@ -176,7 +176,7 @@ pub async fn create_stripe_checkout_session(
     let price_id = match tier {
         "Starter" => stripe_config.starter_price_id.clone(),
         "Dev" => stripe_config.dev_price_id.clone(),
-        "Team" => stripe_config.team_price_id.clone(),
+        "Growth" => stripe_config.growth_price_id.clone(),
         _ => return Err("Unsupported tier".into()),
     };
 
