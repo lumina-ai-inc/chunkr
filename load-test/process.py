@@ -44,25 +44,25 @@ async def main():
         try:
             data_dict = json.loads(data) if isinstance(data, str) else data
             payload = ProcessPayload.model_validate(data_dict)
+            result = await process_file(chunkr, payload.input_file)
+            if result:
+                output_file = Path(payload.output_dir) / f"output/{result.task_id}.json"
+                output_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(output_file, "w") as f:
+                    json.dump(result.model_dump(mode='json'), f, indent=2)
+                write_payload = WritePayload(
+                    run_id=payload.run_id,
+                    log_dir=payload.log_dir,
+                    task_path=str(output_file),
+                    start_time=payload.start_time,
+                    end_time=str(datetime.now().isoformat())
+                )
+                redis_manager.add_to_writer_queue(write_payload.model_dump())
+            else:
+                print(f"Error processing file {payload.input_file}")
         except Exception as e:
             print(f"Error validating payload: {e}")
             continue
-        result = await process_file(chunkr, payload.input_file)
-        if result:
-            output_file = Path(payload.output_dir) / f"output/{result.task_id}.json"
-            output_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_file, "w") as f:
-                json.dump(result.model_dump(mode='json'), f, indent=2)
-            write_payload = WritePayload(
-                run_id=payload.run_id,
-                log_dir=payload.log_dir,
-                task_path=str(output_file),
-                start_time=payload.start_time,
-                end_time=str(datetime.now().isoformat())
-            )
-            redis_manager.add_to_writer_queue(write_payload.model_dump())
-        else:
-            print(f"Error processing file {payload.input_file}")
 
 if __name__ == "__main__":
     asyncio.run(main())

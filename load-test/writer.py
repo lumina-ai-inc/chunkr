@@ -93,6 +93,7 @@ def main():
     stats_by_run: Dict[str, WriterStats] = {}
     for data in redis_manager.read_from_writer_queue():
         if data is None:
+            print("No data found in the queue")
             continue
         try:
             data_dict = json.loads(data) if isinstance(data, str) else data
@@ -119,20 +120,20 @@ def main():
             log_entry = (
                 f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                 # Task counts
-                f"max successful pps: {rates['max_successful_pages_per_second']:.2f} p/s, "
-                f"successful pps: {rates['successful_pages_per_second']:.2f} p/s, "
+                f"max total pps: {rates['max_pages_per_second']:.2f} p/s, "
+                f"total: {len(stats.tasks)} "
                 f"succeeded: {stats.successful_tasks}, "
                 f"failed: {stats.failed_tasks} "
-                f"total: {len(stats.tasks)} "
                 # Page counts
                 f"total pages: {stats.total_pages}, "
                 f"successful pages: {stats.successful_pages}, "
                 f"failed pages: {stats.failed_pages} "
                 # Current rates
                 f"total pps: {rates['pages_per_second']:.2f} p/s, "
+                f"successful pps: {rates['successful_pages_per_second']:.2f} p/s, "
                 f"failed pps: {rates['failed_pages_per_second']:.2f} p/s "
                 # Peak rates
-                f"max total pps: {rates['max_pages_per_second']:.2f} p/s, "
+                f"max successful pps: {rates['max_successful_pages_per_second']:.2f} p/s, "
                 f"max failed pps: {rates['max_failed_pages_per_second']:.2f} p/s "
                 f"time elapsed: {elapsed_seconds:.1f}s"
             )
