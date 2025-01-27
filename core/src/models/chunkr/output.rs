@@ -111,7 +111,7 @@ pub struct Segment {
     /// Markdown representation of the segment.
     pub markdown: String,
     /// OCR results for the segment.
-    pub ocr: Vec<OCRResult>,
+    pub ocr: Option<Vec<OCRResult>>,
     /// Height of the page containing the segment.
     pub page_height: f32,
     /// Width of the page containing the segment.
@@ -149,7 +149,7 @@ impl Segment {
             page_width,
             segment_id,
             segment_type,
-            ocr: ocr_results,
+            ocr: Some(ocr_results),
             image: None,
             html: String::new(),
             markdown: String::new(),

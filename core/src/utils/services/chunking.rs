@@ -230,7 +230,7 @@ mod tests {
             image: None,
             llm: None,
             markdown: String::new(),
-            ocr: vec![],
+            ocr: None,
             page_height: 0.0,
             page_width: 0.0,
             page_number: 0,
