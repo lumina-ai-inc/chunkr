@@ -9,6 +9,7 @@
   color: #fff;
   backdrop-filter: blur(8px);
   max-width: 420px;
+  min-width: 280px;
 }
 
 .pricing-card:hover {
