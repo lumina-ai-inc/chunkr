@@ -9,7 +9,7 @@ import { getBillingPortalSession } from "../../services/stripeService";
 interface PricingCardProps {
   title: string;
   credits: number;
-  price: number | "Custom";
+  price: number | "Custom" | "Free";
   period: string;
   annualPrice?: number;
   features: string[];
@@ -23,6 +23,9 @@ interface PricingCardProps {
   currentTier?: string;
   isAuthenticated?: boolean;
   customerId?: string;
+  hideButton?: boolean;
+  isCallToAction?: boolean;
+  callToActionUrl?: string;
 }
 
 const PricingCard = ({
@@ -42,6 +45,9 @@ const PricingCard = ({
   currentTier,
   isAuthenticated = false,
   customerId,
+  hideButton = false,
+  isCallToAction = false,
+  callToActionUrl,
 }: PricingCardProps) => {
   const [showCheckout, setShowCheckout] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +58,7 @@ const PricingCard = ({
 
   const getButtonText = () => {
     if (isLoading) return "Loading...";
+    if (isCallToAction) return buttonText;
     if (!isAuthenticated) {
       return tier === "Free" ? "Get Started" : "Subscribe";
     }
@@ -64,10 +71,16 @@ const PricingCard = ({
   const shouldShowCheckout = () => {
     if (!isAuthenticated) return false;
     if (tier === "Free") return false;
+    if (isCallToAction) return false;
     return true;
   };
 
   const handleClick = async () => {
+    if (isCallToAction && callToActionUrl) {
+      window.location.href = callToActionUrl;
+      return;
+    }
+
     if (!isAuthenticated) {
       auth.signinRedirect();
       return;
@@ -105,7 +118,9 @@ const PricingCard = ({
   return (
     <Flex
       direction="column"
-      className={`pricing-card ${highlighted ? "pricing-card-highlighted" : ""}`}
+      className={`pricing-card ${
+        highlighted ? "pricing-card-highlighted" : ""
+      }`}
     >
       {isPopular && (
         <Text className="popular-tag" size="2">
@@ -162,9 +177,11 @@ const PricingCard = ({
         ))}
       </Flex>
 
-      {!showCheckout ? (
+      {!hideButton && !showCheckout ? (
         <button
-          className={`pricing-button ${isCurrentPlan ? "current-plan" : ""}`}
+          className={`pricing-button ${isCurrentPlan ? "current-plan" : ""} ${
+            isCallToAction ? "cta-button" : ""
+          }`}
           onClick={handleClick}
           disabled={isLoading}
         >
