@@ -1153,7 +1153,7 @@ const Home = () => {
                   />
 
                   <PricingCard
-                    title="Teams"
+                    title="Growth"
                     credits={500000}
                     price={500}
                     period="month"
@@ -1163,7 +1163,7 @@ const Home = () => {
                       "Advanced features",
                     ]}
                     buttonText="Get Started"
-                    tier="Team"
+                    tier="Growth"
                     onCheckout={handleCheckout}
                     stripePromise={stripePromise}
                     clientSecret={checkoutClientSecret || undefined}
