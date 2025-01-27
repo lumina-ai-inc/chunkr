@@ -369,11 +369,18 @@ impl AzureAnalysisResponse {
                                             word_bbox.height,
                                         );
 
-                                        all_segments[idx].ocr = Some(vec![OCRResult {
+                                        let ocr_result = OCRResult {
                                             text: content.clone(),
                                             confidence: Some(*confidence as f32),
                                             bbox: relative_bbox,
-                                        }]);
+                                        };
+
+                                        if all_segments[idx].ocr.is_none() {
+                                            all_segments[idx].ocr = Some(Vec::new());
+                                        }
+                                        if let Some(ocr_vec) = &mut all_segments[idx].ocr {
+                                            ocr_vec.push(ocr_result);
+                                        }
                                     }
                                 }
                             }
