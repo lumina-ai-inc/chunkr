@@ -217,7 +217,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                             match price.id.as_str() {
                                 x if x == stripe_config.starter_price_id => "Starter",
                                 x if x == stripe_config.dev_price_id => "Dev",
-                                x if x == stripe_config.team_price_id => "Team",
+                                x if x == stripe_config.growth_price_id => "Growth",
                                 _ => "Free",
                             }
                         } else {
@@ -308,7 +308,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                             let new_tier = match price.id.as_str() {
                                 x if x == stripe_config.starter_price_id => "Starter",
                                 x if x == stripe_config.dev_price_id => "Dev",
-                                x if x == stripe_config.team_price_id => "Team",
+                                x if x == stripe_config.growth_price_id => "Growth",
                                 _ => "Free",
                             };
                             let last_paid_status = match sub.status.as_str() {
