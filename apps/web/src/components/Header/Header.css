@@ -58,6 +58,40 @@
   display: none;
 }
 
+.dropdown-trigger {
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  border: none;
+}
+
+.dropdown-content {
+  min-width: 180px;
+  background-color: rgb(30, 36, 37);
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  outline: none;
+  cursor: pointer;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
+}
+
 .nav-item-right {
   background-color: hsl(0, 0%, 100%, 0.9);
   padding: 8px 12px;
@@ -95,48 +129,12 @@
   color: #fff !important;
 }
 
-@media (max-width: 948px) {
+@media (max-width: 820px) {
   .dropdown-container {
-    display: block;
+    display: flex;
   }
 
-  .auth-container {
-    display: none;
-  }
-
-  .nav-item {
-    display: none;
-  }
-}
-
-@media (max-width: 832px) {
-  .header {
-    padding-left: 32px;
-    padding-right: 32px;
-  }
-}
-
-@media (max-width: 552px) {
-  .header {
-    padding-left: 24px !important;
-    padding-right: 24px !important;
-  }
-}
-
-@media (max-width: 450px) {
-  .signup-button-dropdown {
-    display: none;
-  }
-}
-
-@media (max-width: 384px) {
-  .logo-title {
-    display: none;
-  }
-}
-
-@media (max-width: 767px) {
-  .nav-center {
+  .nav > .rt-Flex:first-child {
     display: none;
   }
 }
