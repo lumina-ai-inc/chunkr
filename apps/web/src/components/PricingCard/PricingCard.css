@@ -2,18 +2,19 @@
   flex: 1;
   padding: 32px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   color: #fff;
   backdrop-filter: blur(8px);
+  max-width: 420px;
 }
 
 .pricing-card:hover {
   transform: translateY(-8px);
   border-color: rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.3),
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
@@ -29,8 +30,7 @@
     rgba(255, 255, 255, 0.02) 0%,
     transparent 100%
   );
-  box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.4),
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
@@ -199,8 +199,7 @@
   overflow: auto;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.5),
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5),
     0 12px 48px -8px rgba(0, 0, 0, 0.3);
 
   /* Webkit scrollbar styling */

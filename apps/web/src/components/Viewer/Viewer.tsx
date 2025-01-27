@@ -502,7 +502,7 @@ export default function Viewer({ task }: { task: TaskResponse }) {
   }
 
   return (
-    <Flex direction="column" width="100%">
+    <Flex direction="column" width="100%" height="100%">
       <Flex
         direction="row"
         width="100%"
