@@ -1,4 +1,80 @@
 services:
+  server:
+    image: luminainc/server:c2a9a16f
+    platform: linux/amd64
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  task:
+    image: luminainc/task:c2a9a16f
+    platform: linux/amd64
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 5
+    restart: always
+
+  web:
+    image: luminainc/web:952c273a
+    platform: linux/amd64
+    ports:
+      - "5173:8000"
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  segmentation:
+    image: luminainc/segmentation:df6e5375
+    ports:
+      - "8001:8000"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      - MAX_BATCH_SIZE=4
+      - BATCH_WAIT_TIME=0.2
+      - OVERLAP_THRESHOLD=0.025
+      - SCORE_THRESHOLD=0.2
+    restart: always
+
+  ocr:
+    image: luminainc/doctr:f1f4891b
+    platform: linux/amd64
+    ports:
+      - "8002:8000"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    volumes:
+      - /dev/shm:/dev/shm
+    restart: always
   postgres:
     build:
       context: ./docker/postgres
@@ -96,6 +172,7 @@ services:
       - postgres
     restart: always
 
+<<<<<<< HEAD
   server:
     image: luminainc/server:9ec0e76d
     platform: linux/amd64
@@ -173,6 +250,8 @@ services:
       - /dev/shm:/dev/shm
     restart: always
 
+=======
+>>>>>>> public/ak/migration-bugs
   rrq:
     image: luminainc/rrq:33cd165
     platform: linux/amd64
