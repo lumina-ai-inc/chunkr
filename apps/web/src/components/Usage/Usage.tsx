@@ -139,6 +139,148 @@ export default function UsagePage({ customerId }: UsageProps) {
     <Flex direction="column" className="usage-container" gap="5">
       <Flex direction="row" gap="4" align="center">
         <Text size="5" align="center" weight="bold" style={{ color: "#FFF" }}>
+          Overview
+        </Text>
+        <Flex direction="row" gap="4" width="fit-content">
+          <Dropdown
+            value={
+              timeRange === "week"
+                ? "Last 7 Days"
+                : timeRange === "14days"
+                ? "Last 14 Days"
+                : "Last 30 Days"
+            }
+            options={["Last 7 Days", "Last 14 Days", "Last 30 Days"]}
+            onChange={(value) => {
+              switch (value) {
+                case "Last 7 Days":
+                  setTimeRange("week");
+                  break;
+                case "Last 14 Days":
+                  setTimeRange("14days");
+                  break;
+                case "Last 30 Days":
+                  setTimeRange("month");
+                  break;
+              }
+            }}
+          />
+        </Flex>
+      </Flex>
+
+      <Flex direction="column" gap="4">
+        <Flex direction="row" gap="2" align="center">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15.75 6.75H21.25V12.25"
+              stroke="#FFFFFF"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2.75 18.25L9.38 11.58L12.92 15.13L21.25 6.75"
+              stroke="#FFFFFF"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <Text
+            size="3"
+            weight="bold"
+            style={{ color: "rgba(255,255,255,0.9)" }}
+          >
+            Pages Processed
+          </Text>
+        </Flex>
+        <Flex className="chart-container">
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart
+              data={getChartData()}
+              margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid
+                horizontal={true}
+                vertical={false}
+                stroke="rgba(255,255,255,0.1)"
+                strokeDasharray="3 3"
+              />
+              <XAxis
+                dataKey="date"
+                stroke="rgba(255,255,255,0.2)"
+                tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
+                axisLine={false}
+                tickLine={false}
+                dy={10}
+              />
+              <YAxis
+                stroke="rgba(255,255,255,0.2)"
+                tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
+                axisLine={false}
+                tickLine={false}
+                dx={-10}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(0,0,0,0.9)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                  padding: "12px",
+                }}
+                itemStyle={{
+                  color: "rgba(255,255,255,0.95)",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                }}
+                labelStyle={{
+                  color: "rgba(255,255,255,0.8)",
+                  fontSize: "12px",
+                  marginBottom: "4px",
+                }}
+                cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="successful"
+                stroke="#00FF9D"
+                strokeWidth={2.5}
+                dot={false}
+                name="Successfully Processed"
+                activeDot={{
+                  r: 4,
+                  fill: "#00FF9D",
+                  stroke: "#00FF9D",
+                  strokeWidth: 2,
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="failed"
+                stroke="#FF4D4D"
+                strokeWidth={2.5}
+                dot={false}
+                name="Failed"
+                activeDot={{
+                  r: 4,
+                  fill: "#FF4D4D",
+                  stroke: "#FF4D4D",
+                  strokeWidth: 2,
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </Flex>
+      </Flex>
+      <Flex direction="row" gap="4" mt="56px" align="center">
+        <Text size="5" align="center" weight="bold" style={{ color: "#FFF" }}>
           Current Billing Cycle
         </Text>
         <Flex direction="row" gap="4" className="tier-badge">
@@ -451,149 +593,6 @@ export default function UsagePage({ customerId }: UsageProps) {
               </Flex>
             </Flex>
           </Flex>
-        </Flex>
-      </Flex>
-
-      <Flex direction="row" gap="4" mt="56px" align="center">
-        <Text size="5" align="center" weight="bold" style={{ color: "#FFF" }}>
-          Overview
-        </Text>
-        <Flex direction="row" gap="4" width="fit-content">
-          <Dropdown
-            value={
-              timeRange === "week"
-                ? "Last 7 Days"
-                : timeRange === "14days"
-                ? "Last 14 Days"
-                : "Last 30 Days"
-            }
-            options={["Last 7 Days", "Last 14 Days", "Last 30 Days"]}
-            onChange={(value) => {
-              switch (value) {
-                case "Last 7 Days":
-                  setTimeRange("week");
-                  break;
-                case "Last 14 Days":
-                  setTimeRange("14days");
-                  break;
-                case "Last 30 Days":
-                  setTimeRange("month");
-                  break;
-              }
-            }}
-          />
-        </Flex>
-      </Flex>
-
-      <Flex direction="column" gap="4">
-        <Flex direction="row" gap="2" align="center">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15.75 6.75H21.25V12.25"
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M2.75 18.25L9.38 11.58L12.92 15.13L21.25 6.75"
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <Text
-            size="3"
-            weight="bold"
-            style={{ color: "rgba(255,255,255,0.9)" }}
-          >
-            Pages Processed
-          </Text>
-        </Flex>
-        <Flex className="chart-container">
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart
-              data={getChartData()}
-              margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
-            >
-              <CartesianGrid
-                horizontal={true}
-                vertical={false}
-                stroke="rgba(255,255,255,0.1)"
-                strokeDasharray="3 3"
-              />
-              <XAxis
-                dataKey="date"
-                stroke="rgba(255,255,255,0.2)"
-                tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-                dy={10}
-              />
-              <YAxis
-                stroke="rgba(255,255,255,0.2)"
-                tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-                dx={-10}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(0,0,0,0.9)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
-                  padding: "12px",
-                }}
-                itemStyle={{
-                  color: "rgba(255,255,255,0.95)",
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                }}
-                labelStyle={{
-                  color: "rgba(255,255,255,0.8)",
-                  fontSize: "12px",
-                  marginBottom: "4px",
-                }}
-                cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="successful"
-                stroke="#00FF9D"
-                strokeWidth={2.5}
-                dot={false}
-                name="Successfully Processed"
-                activeDot={{
-                  r: 4,
-                  fill: "#00FF9D",
-                  stroke: "#00FF9D",
-                  strokeWidth: 2,
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="failed"
-                stroke="#FF4D4D"
-                strokeWidth={2.5}
-                dot={false}
-                name="Failed"
-                activeDot={{
-                  r: 4,
-                  fill: "#FF4D4D",
-                  stroke: "#FF4D4D",
-                  strokeWidth: 2,
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
         </Flex>
       </Flex>
     </Flex>

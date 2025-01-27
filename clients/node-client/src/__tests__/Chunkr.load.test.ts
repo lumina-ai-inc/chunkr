@@ -94,6 +94,9 @@ async function writeQueuedLogs(force: boolean = false) {
   }
 }
 
+// Add batch size constant for polling
+const POLL_BATCH_SIZE = 10; // Poll 10 tasks at a time
+
 describe("Chunkr Load Test", () => {
   let chunkr: Chunkr;
   let logInterval: NodeJS.Timeout;
@@ -188,10 +191,26 @@ describe("Chunkr Load Test", () => {
       allCompleted = true;
       let updatedEntries = false;
 
-      for (const stat of logQueue.entries) {
-        if (stat.status !== Status.SUCCEEDED && stat.status !== Status.FAILED) {
-          try {
-            const taskResponse = await chunkr.getTask(stat.taskId);
+      // Get all pending tasks (not succeeded or failed)
+      const pendingTasks = logQueue.entries.filter(
+        (stat) => ![Status.SUCCEEDED, Status.FAILED].includes(stat.status),
+      );
+
+      // Process tasks in batches
+      for (let i = 0; i < pendingTasks.length; i += POLL_BATCH_SIZE) {
+        const batch = pendingTasks.slice(i, i + POLL_BATCH_SIZE);
+
+        // Poll batch concurrently
+        const pollResults = await Promise.allSettled(
+          batch.map((stat) => chunkr.getTask(stat.taskId)),
+        );
+
+        // Process results
+        pollResults.forEach((result, index) => {
+          const stat = batch[index];
+
+          if (result.status === "fulfilled") {
+            const taskResponse = result.value;
 
             // Only update if status changed
             if (taskResponse.status !== stat.status) {
@@ -202,7 +221,7 @@ describe("Chunkr Load Test", () => {
                 stat.endTime = Date.now();
                 stat.pageCount = taskResponse.output?.page_count;
 
-                // Save the complete TaskResponse object
+                // Queue file write instead of immediate write
                 const outputPath = path.join(
                   currentOutputDir,
                   `${stat.fileName}.result.json`,
@@ -218,20 +237,24 @@ describe("Chunkr Load Test", () => {
                 stat.error = taskResponse.error || "Unknown error";
               }
             }
-
-            if (![Status.SUCCEEDED, Status.FAILED].includes(stat.status)) {
-              allCompleted = false;
-            }
-          } catch (error) {
-            console.error(`Error polling task ${stat.taskId}:`, error);
-            allCompleted = false;
+          } else {
+            console.error(`Error polling task ${stat.taskId}:`, result.reason);
           }
-        }
-      }
+        });
 
-      // Force log update if entries changed
-      if (updatedEntries) {
-        await writeQueuedLogs(true);
+        // Check if any tasks are still pending
+        if (
+          pendingTasks.some(
+            (stat) => ![Status.SUCCEEDED, Status.FAILED].includes(stat.status),
+          )
+        ) {
+          allCompleted = false;
+        }
+
+        // Force log update if entries changed
+        if (updatedEntries) {
+          await writeQueuedLogs(true);
+        }
       }
 
       if (!allCompleted) {
