@@ -35,7 +35,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: "8fa0b3f8"
+      tag: "20827d47"
     imagePullSecrets:
       - name: regcred
     port: 8000

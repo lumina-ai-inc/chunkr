@@ -1,4 +1,4 @@
-Convert the following text segment to HTML. Return only the HTML with no explanation text. Preserve the text content exactly as it appears, including any formatting, line breaks, and spacing.
+Convert the following text segment to HTML. Return only the HTML with no explanation text. Preserve the all the text content.
 No styling. Basic HTML tags only.
 Return ONLY the HTML markup enclosed in ```html``` tags. Do not include any explanations or markdown.
 
