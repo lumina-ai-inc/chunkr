@@ -425,4 +425,3 @@ DROP TRIGGER IF EXISTS trigger_pre_applied_pages ON pre_applied_free_pages;
 DROP TABLE IF EXISTS discounts;
 
 
-DROP TABLE usage;
