@@ -1,106 +1,114 @@
-import React, { useRef, useState, useCallback, useEffect } from "react";
-import ResizeObserver from "resize-observer-polyfill";
-import {
-  useScroll,
-  useTransform,
-  useSpring,
-  motion,
-  SpringOptions,
-} from "framer-motion";
+import { ReactLenis } from "lenis/react";
+import type { LenisRef } from "lenis/react";
+import { useEffect, useRef } from "react";
+import { frame, cancelFrame } from "framer-motion";
 
 interface MomentumScrollProps {
   children: React.ReactNode;
 }
 
 const MomentumScroll = ({ children }: MomentumScrollProps): JSX.Element => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const [scrollableHeight, setScrollableHeight] = useState<number>(0);
-
-  const resizeScrollableHeight = useCallback(
-    (entries: ResizeObserverEntry[]) => {
-      for (const entry of entries) {
-        setScrollableHeight(entry.contentRect.height);
-      }
-    },
-    []
-  );
+  const lenisRef = useRef<LenisRef>(null);
 
   useEffect(() => {
-    const resizeObserver = new ResizeObserver((entries) =>
-      resizeScrollableHeight(entries)
-    );
-    if (scrollRef.current) {
-      resizeObserver.observe(scrollRef.current);
+    function update(data: { timestamp: number }) {
+      const time = data.timestamp;
+      lenisRef.current?.lenis?.raf(time);
     }
-    return () => resizeObserver.disconnect();
-  }, [resizeScrollableHeight, scrollRef]);
 
-  const { scrollY } = useScroll();
+    frame.update(update, true);
+    return () => cancelFrame(update);
+  }, []);
 
-  const negativeScrollY = useTransform(
-    scrollY,
-    [0, scrollableHeight],
-    [0, -scrollableHeight]
-  );
-
-  const springPhysics: SpringOptions = {
-    damping: 15,
-    mass: 0.05,
-    stiffness: 150,
-    bounce: 0.6,
-    duration: 0.4,
-    velocity: 100,
-  };
-
-  const springNegativeScrollY = useSpring(negativeScrollY, springPhysics);
-
-  // Add scroll to element function
-  const scrollToElement = (elementId: string) => {
-    const element = document.getElementById(elementId);
-    if (element) {
-      const yOffset = element.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({
-        top: yOffset,
-        behavior: "smooth",
-      });
-      // Remove the hash from URL without affecting scroll position
-      history.replaceState(
-        null,
-        "",
-        window.location.pathname + window.location.search
-      );
-    }
-  };
-
-  // Add effect to handle hash changes
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "");
-      if (hash) {
-        setTimeout(() => {
-          scrollToElement(hash);
-        }, 100);
+      if (hash && lenisRef.current?.lenis) {
+        lenisRef.current.lenis.scrollTo(`#${hash}`, {
+          offset: 0,
+          duration: 1.2,
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          onComplete: () => {
+            // Remove the hash from URL after scroll is complete
+            history.replaceState(null, "", window.location.pathname);
+          },
+        });
       }
     };
 
-    handleHashChange(); // Handle initial hash
+    handleHashChange();
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
   return (
-    <>
-      <motion.div
-        ref={scrollRef}
-        style={{ y: springNegativeScrollY }}
-        className="scroll-container"
-      >
-        {children}
-      </motion.div>
+    <ReactLenis
+      ref={lenisRef}
+      root
+      options={{
+        gestureOrientation: "vertical",
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 2,
+        infinite: false,
+        // Disable overscroll to prevent the bouncing effect
+        overscroll: false,
+        prevent: (node: HTMLElement) => {
+          if (node.closest("[data-lenis-prevent]")) {
+            const element = node.closest("[data-lenis-prevent]") as HTMLElement;
+            // Only prevent if not at scroll boundaries
+            if (element) {
+              const { scrollTop, scrollHeight, clientHeight } = element;
+              const isAtTop = scrollTop <= 0;
+              const isAtBottom = scrollTop + clientHeight >= scrollHeight;
 
-      <div style={{ height: scrollableHeight }} />
-    </>
+              // Allow Lenis to take over at boundaries
+              if (
+                (isAtTop &&
+                  window.event instanceof WheelEvent &&
+                  window.event.deltaY < 0) ||
+                (isAtBottom &&
+                  window.event instanceof WheelEvent &&
+                  window.event.deltaY > 0)
+              ) {
+                return false;
+              }
+            }
+            return true;
+          }
+
+          const style = window.getComputedStyle(node);
+          const isScrollable =
+            style.overflow === "auto" ||
+            style.overflow === "scroll" ||
+            style.overflowY === "auto" ||
+            style.overflowY === "scroll";
+
+          if (isScrollable && node.scrollHeight > node.clientHeight) {
+            // Same boundary check for automatically detected scrollable elements
+            const { scrollTop, scrollHeight, clientHeight } = node;
+            const isAtTop = scrollTop <= 0;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight;
+
+            if (
+              (isAtTop &&
+                window.event instanceof WheelEvent &&
+                window.event.deltaY < 0) ||
+              (isAtBottom &&
+                window.event instanceof WheelEvent &&
+                window.event.deltaY > 0)
+            ) {
+              return false;
+            }
+            return true;
+          }
+
+          return false;
+        },
+      }}
+    >
+      {children}
+    </ReactLenis>
   );
 };
 

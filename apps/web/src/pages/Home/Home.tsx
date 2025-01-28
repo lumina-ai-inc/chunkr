@@ -264,6 +264,18 @@ const Home = () => {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
+
+      // If we have a hash and we've scrolled to the pricing section
+      if (window.location.hash === "#pricing") {
+        const pricingElement = pricingRef.current;
+        if (pricingElement) {
+          const rect = pricingElement.getBoundingClientRect();
+          // If pricing section is in view (with some buffer)
+          if (rect.top >= -100 && rect.top <= 100) {
+            history.replaceState(null, "", window.location.pathname);
+          }
+        }
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -272,14 +284,13 @@ const Home = () => {
 
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === "#pricing") {
-        setTimeout(() => {
-          pricingRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
+      if (window.location.hash === "#pricing" && pricingRef.current) {
+        // Let MomentumScroll handle the scrolling
+        // The hash will be removed by MomentumScroll's onComplete callback
+        return;
       }
     };
 
-    // Check hash on mount and hash changes
     handleHashChange();
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
