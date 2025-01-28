@@ -3,6 +3,7 @@ from typing import TypeVar, Optional, Generic
 from pydantic import BaseModel, PrivateAttr
 import asyncio
 import json
+import os
 
 from .configuration import Configuration, OutputConfiguration, OutputResponse, Status
 from .protocol import ChunkrClientProtocol
@@ -110,6 +111,7 @@ class TaskResponse(BaseModel, Generic[T]):
         """
         content = self._get_content("html")
         if output_file:
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(content)
         return content
@@ -122,6 +124,7 @@ class TaskResponse(BaseModel, Generic[T]):
         """
         content = self._get_content("markdown")
         if output_file:
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(content)
         return content
@@ -134,6 +137,7 @@ class TaskResponse(BaseModel, Generic[T]):
         """
         content = self._get_content("content")
         if output_file:
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(content)
         return content
@@ -152,6 +156,7 @@ class TaskResponse(BaseModel, Generic[T]):
 
         data = self.model_dump()
         if output_file:
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, cls=DateTimeEncoder, indent=2)
         return data
