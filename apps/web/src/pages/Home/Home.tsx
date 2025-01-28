@@ -46,9 +46,29 @@ import { createCheckoutSession } from "../../services/stripeService";
 import { loadStripe } from "@stripe/stripe-js";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
 import Viewer from "../../components/Viewer/Viewer";
-// import { TaskResponse } from "../../models/taskResponse.model";
+import { TaskResponse } from "../../models/taskResponse.model";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_API_KEY, {});
+
+// Add new type and constants
+type DocumentCategory = {
+  id: string;
+  label: string;
+  pdfName: string;
+};
+
+const DOCUMENT_CATEGORIES: DocumentCategory[] = [
+  { id: "finance", label: "Finance", pdfName: "financial" },
+  { id: "legal", label: "Legal", pdfName: "legal" },
+  { id: "scientific", label: "Scientific", pdfName: "science" },
+  { id: "construction", label: "Construction", pdfName: "construction" },
+  { id: "consulting", label: "Consulting", pdfName: "consulting2" },
+  { id: "specs", label: "Technical Reports", pdfName: "specs" },
+  { id: "government", label: "Government", pdfName: "government" },
+  { id: "invoice", label: "Invoice", pdfName: "invoice" },
+];
+
+const BASE_URL = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page";
 
 const Home = () => {
   const auth = useAuth();
@@ -93,6 +113,74 @@ const Home = () => {
   const currentTier = usageData?.[0]?.tier;
 
   const pricingRef = useRef<HTMLDivElement>(null);
+
+  const [selectedCategory, setSelectedCategory] = useState<string>("finance");
+  const [taskResponse, setTaskResponse] = useState<TaskResponse | null>(null);
+
+  // Function to fetch task response and update PDF URL
+  const fetchTaskResponse = async (pdfName: string) => {
+    try {
+      // Fetch from the same base URL where PDFs are stored
+      const response = await fetch(
+        `${BASE_URL}/output/${pdfName}_response.json`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: TaskResponse = await response.json();
+
+      // Update the PDF URL in the response
+      if (data.output) {
+        data.output.pdf_url = `${BASE_URL}/input/${pdfName}.pdf`;
+      }
+
+      setTaskResponse(data);
+    } catch (error) {
+      console.error("Error loading task response:", error);
+    }
+  };
+
+  // Effect to fetch task response when category changes
+  useEffect(() => {
+    const category = DOCUMENT_CATEGORIES.find(
+      (cat) => cat.id === selectedCategory
+    );
+    if (category) {
+      fetchTaskResponse(category.pdfName);
+    }
+  }, [selectedCategory]);
+
+  // Update the placeholder window content
+  const renderPlaceholderWindow = () => (
+    <div className="placeholder-window">
+      <div className="window-header">
+        <Flex
+          width="100%"
+          justify="between"
+          align="center"
+          minWidth="1247px"
+          overflow="auto"
+        >
+          {DOCUMENT_CATEGORIES.map((category) => (
+            <BetterButton
+              key={category.id}
+              radius="8px"
+              padding="8px 24px"
+              onClick={() => setSelectedCategory(category.id)}
+              active={selectedCategory === category.id}
+            >
+              <Text size="1" weight="medium" style={{ color: "white" }}>
+                {category.label}
+              </Text>
+            </BetterButton>
+          ))}
+        </Flex>
+      </div>
+      <div className="window-content">
+        {taskResponse && <Viewer task={taskResponse} />}
+      </div>
+    </div>
+  );
 
   useEffect(() => {
     if (lottieRef.current) {
@@ -365,113 +453,7 @@ const Home = () => {
               className="hero-content-container-main"
             >
               <div className="hero-content-container">
-                <div className="hero-content">
-                  <div className="placeholder-window">
-                    <div className="window-header">
-                      <Flex
-                        width="100%"
-                        justify="between"
-                        align="center"
-                        minWidth="1247px"
-                        overflow="auto"
-                      >
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Finance
-                          </Text>
-                        </BetterButton>
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Legal
-                          </Text>
-                        </BetterButton>
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Scientific
-                          </Text>
-                        </BetterButton>
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Healthcare
-                          </Text>
-                        </BetterButton>
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Manufacturing
-                          </Text>
-                        </BetterButton>
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Technical Reports
-                          </Text>
-                        </BetterButton>
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Government
-                          </Text>
-                        </BetterButton>
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Magazines
-                          </Text>
-                        </BetterButton>
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Textbooks
-                          </Text>
-                        </BetterButton>
-                        <BetterButton radius="8px" padding="8px 24px">
-                          <Text
-                            size="1"
-                            weight="medium"
-                            style={{ color: "white" }}
-                          >
-                            Newspapers
-                          </Text>
-                        </BetterButton>
-                      </Flex>
-                    </div>
-                    <div className="window-content">
-                      {/* <Viewer task={task} /> */}
-                    </div>
-                  </div>
-                </div>
+                <div className="hero-content">{renderPlaceholderWindow()}</div>
               </div>
               <Flex className="hero-content-container-switch-row">
                 <Flex
@@ -1111,9 +1093,9 @@ const Home = () => {
                       price="Free"
                       period=""
                       features={[
-                        "100 pages per month",
+                        "200 page credits/ month",
                         "1 request per second",
-                        "Community support",
+                        "Discord community support",
                       ]}
                       buttonText="Get Started"
                       tier="Free"
@@ -1131,9 +1113,9 @@ const Home = () => {
                     price={50}
                     period="month"
                     features={[
-                      "10,000 pages per month",
-                      "10 requests per second",
-                      "Email support",
+                      "5,000 page credits/ month",
+                      "$0.01/ page post credits",
+                      "Community + Email support",
                     ]}
                     buttonText="Get Started"
                     tier="Starter"
@@ -1150,9 +1132,9 @@ const Home = () => {
                     price={200}
                     period="month"
                     features={[
-                      "150,000 pages per month",
-                      "20 requests per second",
-                      "Priority support",
+                      "25,000 page credits/ month",
+                      "$0.008/ page post credits",
+                      "Priority support channel",
                     ]}
                     buttonText="Get Started"
                     tier="Dev"
@@ -1169,9 +1151,9 @@ const Home = () => {
                     price={500}
                     period="month"
                     features={[
-                      "500,000 pages per month",
-                      "Enhanced support",
-                      "Advanced features",
+                      "100,000 page credits/ month",
+                      "$0.005/ page post credits",
+                      "Dedicated support from founders",
                     ]}
                     buttonText="Get Started"
                     tier="Growth"
@@ -1265,7 +1247,7 @@ const Home = () => {
                               size="2"
                               style={{ color: "rgba(255, 255, 255, 0.8)" }}
                             >
-                              Self-hosted deployment
+                              Custom implementation & setup
                             </Text>
                           </Flex>
                           <Flex
@@ -1295,7 +1277,7 @@ const Home = () => {
                               size="2"
                               style={{ color: "rgba(255, 255, 255, 0.8)" }}
                             >
-                              Unlimited processing
+                              High volume discounts
                             </Text>
                           </Flex>
                           <Flex
@@ -1325,7 +1307,7 @@ const Home = () => {
                               size="2"
                               style={{ color: "rgba(255, 255, 255, 0.8)" }}
                             >
-                              Custom SLAs
+                              24/7 founder-led support
                             </Text>
                           </Flex>
                         </Flex>
@@ -1358,7 +1340,7 @@ const Home = () => {
                               size="2"
                               style={{ color: "rgba(255, 255, 255, 0.8)" }}
                             >
-                              Dedicated support
+                              Custom SLAs & agreements
                             </Text>
                           </Flex>
                           <Flex
@@ -1388,7 +1370,7 @@ const Home = () => {
                               size="2"
                               style={{ color: "rgba(255, 255, 255, 0.8)" }}
                             >
-                              Custom integrations
+                              Custom data privacy agreements
                             </Text>
                           </Flex>
                           <Flex
@@ -1418,7 +1400,7 @@ const Home = () => {
                               size="2"
                               style={{ color: "rgba(255, 255, 255, 0.8)" }}
                             >
-                              Priority features
+                              Dedicated migration support
                             </Text>
                           </Flex>
                         </Flex>
@@ -1494,15 +1476,19 @@ const Home = () => {
                     price="Free"
                     period=""
                     features={[
-                      "AGPL",
+                      "Non-commercial use",
                       "Community support",
-                      "Basic features",
-                      "Open source friendly",
+                      "All features included",
+                      "Easy to deploy",
+                      "Docker images + Helm charts",
+                      "Perfect for testing",
                     ]}
                     buttonText="Github"
                     tier="Free"
                     isAuthenticated={auth.isAuthenticated}
                     currentTier={currentTier}
+                    isCallToAction={true}
+                    callToActionUrl="https://github.com/lumina-ai-inc/chunkr"
                   />
 
                   <PricingCard
@@ -1511,17 +1497,17 @@ const Home = () => {
                     price="Custom"
                     period="month"
                     features={[
-                      "Commercial use license",
-                      "Self-hosted deployment",
-                      "Unlimited processing",
-                      "Custom SLAs",
-                      "Priority support",
-                      "Custom integrations",
+                      "Managed by us in your cloud/ Self-host",
+                      "Unlimited pages - fixed monthly price",
+                      "Custom implementation & setup",
+                      "Custom compliance agreements + setup",
+                      "Enterprise-grade SLAs",
+                      "24/7 founder-led support",
                     ]}
                     buttonText="Book a Call"
                     tier="Commercial"
                     isCallToAction={true}
-                    callToActionUrl="https://calendly.com/lumina/commercial"
+                    callToActionUrl="https://calendly.com/mehulc/30min"
                     isAuthenticated={auth.isAuthenticated}
                     currentTier={currentTier}
                   />
