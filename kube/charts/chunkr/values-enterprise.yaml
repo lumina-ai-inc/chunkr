@@ -35,7 +35,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: "c2a9a16f"
+      tag: "8fa0b3f8"
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -52,7 +52,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: "c2a9a16f"
+      tag: "6e6f5813"
     imagePullSecrets:
       - name: regcred
     envFrom:
@@ -66,7 +66,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: "952c273a"
+      tag: "6e6f5813"
     port: 8000
     targetPort: 8000
     ingress:
@@ -92,7 +92,7 @@ services:
     enabled: true
     image:
       repository: analytics-web
-      tag: "31a71c56"
+      tag: "6e6f5813"
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -113,7 +113,7 @@ services:
     enabled: true
     image:
       repository: analytics-server
-      tag: "4327682d"
+      tag: "6e6f5813"
     imagePullSecrets:
       - name: regcred
     port: 8000
