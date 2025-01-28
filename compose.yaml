@@ -49,7 +49,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [ gpu ]
+              capabilities: [gpu]
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -71,7 +71,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [ gpu ]
+              capabilities: [gpu]
     volumes:
       - /dev/shm:/dev/shm
     restart: always
@@ -88,7 +88,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -111,7 +111,7 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -130,7 +130,7 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 1
@@ -162,9 +162,9 @@ services:
       - KC_DB_PASSWORD=postgres
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-    command: [ "start-dev", "--import-realm" ]
+    command: ["start-dev", "--import-realm"]
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/realms/master" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -182,7 +182,7 @@ services:
     environment:
       - REDIS__URL=redis://redis:6379
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -195,7 +195,18 @@ services:
     platform: linux/amd64
     ports:
       - "8003:80"
-    command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "51", "--max-batch-tokens", "5120", "--payload-limit", "1000000", "--auto-truncate" ]
+    command:
+      [
+        "--model-id",
+        "BAAI/bge-m3",
+        "--max-client-batch-size",
+        "51",
+        "--max-batch-tokens",
+        "5120",
+        "--payload-limit",
+        "1000000",
+        "--auto-truncate",
+      ]
     deploy:
       replicas: 1
       resources:
@@ -203,7 +214,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [ gpu ]
+              capabilities: [gpu]
     restart: always
 
 volumes:
