@@ -77,6 +77,9 @@ importers:
       '@tremor/react':
         specifier: ^3.18.7
         version: 3.18.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tsparticles/engine':
+        specifier: ^3.8.0
+        version: 3.8.0
       '@types/katex':
         specifier: ^0.16.7
         version: 0.16.7
@@ -1811,6 +1814,9 @@ packages:
     peerDependencies:
       react: ^18.0.0
       react-dom: '>=16.6.0'
+
+  '@tsparticles/engine@3.8.0':
+    resolution: {integrity: sha512-mqdSG4gkLbOUck/Wqk8rR4duc6NCnmtJfSPkIvVOUpo/jk2kAGaxRVSU9n0sySxZRx+CGbpAFVVdjdtB1N+70A==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -5870,6 +5876,8 @@ snapshots:
       react-transition-state: 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       recharts: 2.15.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tailwind-merge: 2.6.0
+
+  '@tsparticles/engine@3.8.0': {}
 
   '@types/babel__core@7.20.5':
     dependencies:

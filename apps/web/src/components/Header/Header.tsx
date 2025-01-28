@@ -148,26 +148,6 @@ export default function Header({ auth }: HeaderProps) {
             </a>
           </Flex>
 
-          {/* <Flex direction="row" gap="2" py="12px" px="16px" align="center">
-            <Link to="/pricing" style={{ textDecoration: "none" }}>
-              <Text size="2" weight="medium" className="nav-item">
-                Upload
-              </Text>
-            </Link>
-          </Flex>
-
-          {isAuthenticated && user && (
-            <Flex direction="row" gap="2" py="12px" px="16px" align="center">
-              <Link to="/pricing" style={{ textDecoration: "none" }}>
-                <Text size="2" weight="medium" className="nav-item">
-                  API Keys
-                </Text>
-              </Link>
-            </Flex>
-          )} */}
-
-          {/* <BetterButton onClick={handleGithubRedirect}></BetterButton> */}
-
           {isAuthenticated ? (
             <Link
               to="/dashboard"

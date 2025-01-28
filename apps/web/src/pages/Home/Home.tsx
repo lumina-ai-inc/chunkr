@@ -47,6 +47,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import useMonthlyUsage from "../../hooks/useMonthlyUsage";
 import Viewer from "../../components/Viewer/Viewer";
 import { TaskResponse } from "../../models/taskResponse.model";
+import toast from "react-hot-toast";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_API_KEY, {});
 
@@ -110,7 +111,7 @@ const Home = () => {
     "HTML"
   );
 
-  const { data: usageData } = useMonthlyUsage();
+  const { data: usageData, isLoading: isUsageDataLoading } = useMonthlyUsage();
   const currentTier = usageData?.[0]?.tier;
 
   const pricingRef = useRef<HTMLDivElement>(null);
@@ -371,6 +372,9 @@ const Home = () => {
       setCheckoutClientSecret(session.client_secret);
     } catch (error) {
       console.error("Failed to create checkout session:", error);
+      toast.error(
+        "Failed to start checkout process - refresh page and try again."
+      );
     }
   };
 
@@ -1104,7 +1108,9 @@ const Home = () => {
                     zIndex: 2,
                   }}
                 >
-                  {(!auth.isAuthenticated || currentTier === "Free") && (
+                  {(!auth.isAuthenticated ||
+                    currentTier === "Free" ||
+                    isUsageDataLoading) && (
                     <PricingCard
                       title="Free"
                       credits={100}
@@ -1171,7 +1177,7 @@ const Home = () => {
                     features={[
                       "100,000 page credits/ month",
                       "$0.005/ page post credits",
-                      "Dedicated support from founders",
+                      "Dedicated founder support",
                     ]}
                     buttonText="Get Started"
                     tier="Growth"
