@@ -177,7 +177,13 @@ const Home = () => {
         </Flex>
       </div>
       <div className="window-content">
-        {taskResponse && <Viewer task={taskResponse} />}
+        {taskResponse && (
+          <Viewer
+            task={taskResponse}
+            externalFormat={selectedFormat}
+            hideHeader={true}
+          />
+        )}
       </div>
     </div>
   );
