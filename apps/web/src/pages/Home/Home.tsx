@@ -1505,8 +1505,8 @@ const Home = () => {
                     features={[
                       "Managed by us in your cloud/ Self-host",
                       "Unlimited pages - fixed monthly price",
-                      "Custom implementation & setup",
-                      "Custom compliance agreements + setup",
+                      "Custom features",
+                      "Compliance support",
                       "Enterprise-grade SLAs",
                       "24/7 founder-led support",
                     ]}
