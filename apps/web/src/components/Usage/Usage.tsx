@@ -5,7 +5,7 @@ import BetterButton from "../BetterButton/BetterButton";
 import { useAuth } from "react-oidc-context";
 import { getBillingPortalSession } from "../../services/stripeService";
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   LineChart,
   Line,
@@ -20,21 +20,31 @@ import { getTasks } from "../../services/taskApi";
 import { useQuery } from "react-query";
 import { Status } from "../../models/taskResponse.model";
 import Dropdown from "../Dropdown/Dropdown";
+import toast from "react-hot-toast";
 
 interface UsageProps {
   customerId?: string;
 }
 
-type TimeRange = "week" | "14days" | "month";
+type TimeRange = "today" | "week" | "14days" | "month";
 
 export default function UsagePage({ customerId }: UsageProps) {
   const { data: monthlyUsage, isLoading } = useMonthlyUsage();
   const auth = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [timeRange, setTimeRange] = useState<TimeRange>(
+    (searchParams.get("timeRange") as TimeRange) || "week"
+  );
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
-  const [timeRange, setTimeRange] = useState<TimeRange>("week");
 
   const { startDate, endDate } = useMemo(() => {
+    if (timeRange === "today") {
+      return {
+        startDate: startOfDay(new Date()).toISOString(),
+        endDate: new Date().toISOString(),
+      };
+    }
     const daysToFetch =
       timeRange === "week" ? 7 : timeRange === "14days" ? 14 : 30;
     return {
@@ -43,7 +53,7 @@ export default function UsagePage({ customerId }: UsageProps) {
     };
   }, [timeRange]);
 
-  const { data: tasks } = useQuery(
+  const { data: tasks, refetch: refetchTasks } = useQuery(
     ["tasks", startDate, endDate],
     () => getTasks(undefined, undefined, startDate, endDate),
     {
@@ -55,8 +65,6 @@ export default function UsagePage({ customerId }: UsageProps) {
       refetchIntervalInBackground: false,
     }
   );
-
-  console.log(tasks);
 
   const handleManagePayment = async () => {
     if (tier === "Free") {
@@ -78,9 +86,36 @@ export default function UsagePage({ customerId }: UsageProps) {
       window.location.href = url;
     } catch (error) {
       console.error("Error redirecting to billing portal:", error);
+      toast.error(
+        "Failed to open billing portal - refresh page and try again."
+      );
     } finally {
       setIsLoadingPortal(false);
     }
+  };
+
+  const handleTimeRangeChange = (value: string) => {
+    const newTimeRange = (() => {
+      switch (value) {
+        case "Today":
+          return "today";
+        case "Last 7 Days":
+          return "week";
+        case "Last 14 Days":
+          return "14days";
+        case "Last 30 Days":
+          return "month";
+        default:
+          return "week";
+      }
+    })();
+
+    // Preserve existing params while updating timeRange
+    const params = new URLSearchParams(searchParams);
+    params.set("timeRange", newTimeRange);
+    params.set("view", "usage"); // Ensure we're marking this as the usage view
+    setSearchParams(params);
+    setTimeRange(newTimeRange);
   };
 
   if (isLoading) {
@@ -107,27 +142,94 @@ export default function UsagePage({ customerId }: UsageProps) {
   const getChartData = () => {
     if (!tasks) return [];
 
+    if (timeRange === "today") {
+      // Handle hourly data for today
+      const hourlyPages: {
+        [key: string]: {
+          hour: string;
+          successful: number;
+          failed: number;
+          processing: number;
+          starting: number;
+        };
+      } = {};
+
+      // Initialize all hours
+      for (let i = 0; i < 24; i++) {
+        const hour = i.toString().padStart(2, "0");
+        hourlyPages[hour] = {
+          hour: `${hour}:00`,
+          successful: 0,
+          failed: 0,
+          processing: 0,
+          starting: 0,
+        };
+      }
+
+      tasks.forEach((task) => {
+        const hour = format(new Date(task.created_at), "HH");
+        const pageCount = task.output?.page_count || 0;
+
+        switch (task.status) {
+          case Status.Succeeded:
+            hourlyPages[hour].successful += pageCount;
+            break;
+          case Status.Failed:
+            hourlyPages[hour].failed += pageCount;
+            break;
+          case Status.Processing:
+            hourlyPages[hour].processing += pageCount;
+            break;
+          case Status.Starting:
+            hourlyPages[hour].starting += pageCount;
+            break;
+        }
+      });
+
+      return Object.values(hourlyPages);
+    }
+
+    // Handle daily data
     const dailyPages: {
-      [key: string]: { date: string; successful: number; failed: number };
+      [key: string]: {
+        date: string;
+        successful: number;
+        failed: number;
+        processing: number;
+        starting: number;
+      };
     } = {};
 
     tasks.forEach((task) => {
       const date = format(new Date(task.created_at), "MMM dd");
       if (!dailyPages[date]) {
-        dailyPages[date] = { date, successful: 0, failed: 0 };
+        dailyPages[date] = {
+          date,
+          successful: 0,
+          failed: 0,
+          processing: 0,
+          starting: 0,
+        };
       }
 
-      // Get page count from task output
       const pageCount = task.output?.page_count || 0;
 
-      if (task.status === Status.Succeeded) {
-        dailyPages[date].successful += pageCount;
-      } else if (task.status === Status.Failed) {
-        dailyPages[date].failed += pageCount;
+      switch (task.status) {
+        case Status.Succeeded:
+          dailyPages[date].successful += pageCount;
+          break;
+        case Status.Failed:
+          dailyPages[date].failed += pageCount;
+          break;
+        case Status.Processing:
+          dailyPages[date].processing += pageCount;
+          break;
+        case Status.Starting:
+          dailyPages[date].starting += pageCount;
+          break;
       }
     });
 
-    // Sort the data chronologically
     return Object.values(dailyPages).sort(
       (a, b) =>
         new Date(format(new Date(), "yyyy ") + a.date).getTime() -
@@ -144,61 +246,86 @@ export default function UsagePage({ customerId }: UsageProps) {
         <Flex direction="row" gap="4" width="fit-content">
           <Dropdown
             value={
-              timeRange === "week"
+              timeRange === "today"
+                ? "Today"
+                : timeRange === "week"
                 ? "Last 7 Days"
                 : timeRange === "14days"
                 ? "Last 14 Days"
                 : "Last 30 Days"
             }
-            options={["Last 7 Days", "Last 14 Days", "Last 30 Days"]}
-            onChange={(value) => {
-              switch (value) {
-                case "Last 7 Days":
-                  setTimeRange("week");
-                  break;
-                case "Last 14 Days":
-                  setTimeRange("14days");
-                  break;
-                case "Last 30 Days":
-                  setTimeRange("month");
-                  break;
-              }
-            }}
+            options={["Today", "Last 7 Days", "Last 14 Days", "Last 30 Days"]}
+            onChange={handleTimeRangeChange}
           />
         </Flex>
       </Flex>
 
-      <Flex direction="column" gap="4">
-        <Flex direction="row" gap="2" align="center">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15.75 6.75H21.25V12.25"
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M2.75 18.25L9.38 11.58L12.92 15.13L21.25 6.75"
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <Text
-            size="3"
-            weight="bold"
-            style={{ color: "rgba(255,255,255,0.9)" }}
-          >
-            Pages Processed
-          </Text>
+      <Flex direction="column" gap="4" width="fit-content" minWidth="600px">
+        <Flex
+          direction="row"
+          gap="2"
+          align="center"
+          justify="between"
+          width="100%"
+        >
+          <Flex direction="row" gap="2" align="center">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15.75 6.75H21.25V12.25"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M2.75 18.25L9.38 11.58L12.92 15.13L21.25 6.75"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <Text
+              size="3"
+              weight="bold"
+              style={{ color: "rgba(255,255,255,0.9)" }}
+            >
+              Pages Processed
+            </Text>
+          </Flex>
+          <BetterButton onClick={() => refetchTasks()}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21.25 12C21.25 17.1086 17.1086 21.25 12 21.25C6.89137 21.25 2.75 17.1086 2.75 12C2.75 6.89137 6.89137 2.75 12 2.75C15.0183 2.75 17.7158 4.17505 19.4317 6.37837"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M21.25 2.75V6.375C21.25 6.92728 20.8023 7.375 20.25 7.375H16.625"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <Text size="2" className="white">
+              Refresh
+            </Text>
+          </BetterButton>
         </Flex>
         <Flex className="chart-container">
           <ResponsiveContainer width="100%" height={300}>
@@ -213,7 +340,7 @@ export default function UsagePage({ customerId }: UsageProps) {
                 strokeDasharray="3 3"
               />
               <XAxis
-                dataKey="date"
+                dataKey={timeRange === "today" ? "hour" : "date"}
                 stroke="rgba(255,255,255,0.2)"
                 tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }}
                 axisLine={false}
@@ -275,6 +402,34 @@ export default function UsagePage({ customerId }: UsageProps) {
                   strokeWidth: 2,
                 }}
               />
+              <Line
+                type="monotone"
+                dataKey="processing"
+                stroke="#FFB800"
+                strokeWidth={2.5}
+                dot={false}
+                name="Processing"
+                activeDot={{
+                  r: 4,
+                  fill: "#FFB800",
+                  stroke: "#FFB800",
+                  strokeWidth: 2,
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="starting"
+                stroke="#4D9EFF"
+                strokeWidth={2.5}
+                dot={false}
+                name="Starting"
+                activeDot={{
+                  r: 4,
+                  fill: "#4D9EFF",
+                  stroke: "#4D9EFF",
+                  strokeWidth: 2,
+                }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </Flex>
@@ -293,7 +448,12 @@ export default function UsagePage({ customerId }: UsageProps) {
       <Flex direction="column" gap="5" mt="1" style={{ flexWrap: "wrap" }}>
         {/* Tier Card */}
         <Flex direction="row" gap="6" style={{ flexWrap: "wrap" }}>
-          <Flex direction="column" gap="4" className="usage-card">
+          <Flex
+            direction="column"
+            gap="4"
+            className="usage-card"
+            justify="between"
+          >
             <Flex justify="between" align="center">
               <Flex direction="row" gap="2" align="center">
                 <svg
@@ -378,7 +538,12 @@ export default function UsagePage({ customerId }: UsageProps) {
           </Flex>
 
           {overage > 0 && (
-            <Flex direction="column" gap="4" className="usage-card">
+            <Flex
+              direction="column"
+              gap="4"
+              className="usage-card"
+              justify="between"
+            >
               <Flex justify="between" align="center">
                 <Flex direction="row" gap="2" align="center">
                   <svg
@@ -454,22 +619,31 @@ export default function UsagePage({ customerId }: UsageProps) {
                 </Text>
               </Flex>
 
-              <div className="usage-progress-bar">
-                <div
-                  className="usage-progress-fill"
-                  style={{ width: "100%", backgroundColor: "#FF4D4D" }}
-                />
-              </div>
+              <Text
+                size="2"
+                weight="bold"
+                style={{ color: "rgba(255,255,255,0.9)" }}
+              >
+                {monthlyUsage?.[0]?.overage_cost
+                  ? `$${Number(monthlyUsage[0].overage_cost).toLocaleString(
+                      "en-US",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}`
+                  : "$0.00"}
+              </Text>
 
               <Flex justify="between" align="center">
                 <Text size="1" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  Above plan limit
+                  Plan credits used
                 </Text>
                 <Flex
                   className="usage-badge"
                   style={{ backgroundColor: "#FF4D4D33" }}
                 >
-                  <Text size="1" style={{ color: "#FF4D4D" }}>
+                  <Text size="1" style={{ color: "#ff824d" }}>
                     Overage charges apply
                   </Text>
                 </Flex>

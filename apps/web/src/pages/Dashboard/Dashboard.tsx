@@ -14,6 +14,7 @@ import UploadDialog from "../../components/Upload/UploadDialog";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
 import ApiKeyDialog from "../../components/ApiDialog/ApiKeyDialog";
 import { toast } from "react-hot-toast";
+import { getBillingPortalSession } from "../../services/stripeService";
 
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
@@ -155,36 +156,59 @@ export default function Dashboard() {
 
   const handleNavigation = useCallback(
     (item: string) => {
-      const tableParams = new URLSearchParams();
+      const params = new URLSearchParams(searchParams);
+
+      // Preserve table pagination params
       const tablePageIndex = searchParams.get("tablePageIndex");
       const tablePageSize = searchParams.get("tablePageSize");
+      if (tablePageIndex) params.set("tablePageIndex", tablePageIndex);
+      if (tablePageSize) params.set("tablePageSize", tablePageSize);
 
-      if (tablePageIndex) tableParams.set("tablePageIndex", tablePageIndex);
-      if (tablePageSize) tableParams.set("tablePageSize", tablePageSize);
-
-      if (item === "Tasks" || taskId) {
-        navigate({
-          pathname: "/dashboard",
-          search: tableParams.toString(),
-        });
+      // Set the view parameter based on navigation
+      if (item === "Usage") {
+        params.set("view", "usage");
+        // Set default timeRange if not already set
+        if (!params.has("timeRange")) {
+          params.set("timeRange", "week");
+        }
+      } else {
+        params.delete("view");
+        params.delete("timeRange");
       }
 
+      navigate({
+        pathname: "/dashboard",
+        search: params.toString(),
+      });
       setSelectedNav(item);
     },
-    [searchParams, navigate, taskId]
+    [searchParams, navigate]
   );
 
+  // Update initial selected nav based on URL params
+  useEffect(() => {
+    const view = searchParams.get("view");
+    if (view === "usage") {
+      setSelectedNav("Usage");
+    }
+  }, [searchParams]);
+
   const handleHeaderNavigation = useCallback(() => {
-    const tableParams = new URLSearchParams();
+    const params = new URLSearchParams(searchParams);
+
+    // Preserve only table pagination params when going back to tasks
     const tablePageIndex = searchParams.get("tablePageIndex");
     const tablePageSize = searchParams.get("tablePageSize");
 
-    if (tablePageIndex) tableParams.set("tablePageIndex", tablePageIndex);
-    if (tablePageSize) tableParams.set("tablePageSize", tablePageSize);
+    params.delete("view");
+    params.delete("timeRange");
+
+    if (tablePageIndex) params.set("tablePageIndex", tablePageIndex);
+    if (tablePageSize) params.set("tablePageSize", tablePageSize);
 
     navigate({
       pathname: "/dashboard",
-      search: tableParams.toString(),
+      search: params.toString(),
     });
     setSelectedNav("Tasks");
   }, [searchParams, navigate]);
@@ -203,6 +227,8 @@ export default function Dashboard() {
     user?.data?.first_name && user?.data?.last_name
       ? `${user.data.first_name} ${user.data.last_name}`
       : user?.data?.email || "User";
+
+  const showProfilePopup = user?.data && isProfileMenuOpen;
 
   const content = useMemo(() => {
     switch (selectedNav) {
@@ -251,6 +277,26 @@ export default function Dashboard() {
       toast.success("Email copied to clipboard!");
     } else {
       window.open("https://cal.com/mehulc/30min", "_blank");
+    }
+  };
+
+  const handleBillingNavigation = async () => {
+    if (user?.data?.tier === "Free") {
+      navigate("/");
+      setTimeout(() => {
+        window.location.hash = "pricing";
+      }, 100);
+      return;
+    }
+
+    try {
+      const { url } = await getBillingPortalSession(
+        auth.user?.access_token || "",
+        user?.data?.customer_id || ""
+      );
+      window.location.href = url;
+    } catch (error) {
+      console.error("Error redirecting to billing portal:", error);
     }
   };
 
@@ -390,13 +436,45 @@ export default function Dashboard() {
                     {userDisplayName}
                   </Text>
                   <Text size="1" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    {user?.data?.tier}
+                    {user?.data?.tier || "Free"}
                   </Text>
                 </Flex>
               </Flex>
-              {isProfileMenuOpen && (
+              {showProfilePopup && (
                 <Flex className="profile-popup">
                   <Flex className="profile-menu" direction="column">
+                    <Flex
+                      className="profile-menu-item"
+                      onClick={handleBillingNavigation}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25Z"
+                          stroke="#FFFFFF"
+                          strokeWidth="1.5"
+                          strokeMiterlimit="10"
+                        />
+                        <path
+                          d="M9.88012 14.36C9.88012 15.53 10.8301 16.25 12.0001 16.25C13.1701 16.25 14.1201 15.53 14.1201 14.36C14.1201 13.19 13.3501 12.75 11.5301 11.66C10.6701 11.15 9.87012 10.82 9.87012 9.64C9.87012 8.46 10.8201 7.75 11.9901 7.75C13.1601 7.75 14.1101 8.7 14.1101 9.87"
+                          stroke="#FFFFFF"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                        {user?.data?.tier === "Free"
+                          ? "Upgrade Plan"
+                          : "Manage Billing"}
+                      </Text>
+                    </Flex>
                     <Flex
                       className="profile-menu-item"
                       onClick={() => handleContactClick("email")}
@@ -435,6 +513,7 @@ export default function Dashboard() {
                         Email Us
                       </Text>
                     </Flex>
+
                     <Flex
                       className="profile-menu-item"
                       onClick={() => handleContactClick("calendar")}
@@ -522,6 +601,42 @@ export default function Dashboard() {
                       className="profile-menu-item"
                       onClick={() => auth.signoutRedirect()}
                     >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <g clip-path="url(#clip0_305_27927)">
+                          <path
+                            d="M16 16.25L20.25 12L16 7.75"
+                            stroke="#FFFFFF"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                          <path
+                            d="M20.25 12H8.75"
+                            stroke="#FFFFFF"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                          <path
+                            d="M13.25 20.25H5.75C4.65 20.25 3.75 19.35 3.75 18.25V5.75C3.75 4.65 4.65 3.75 5.75 3.75H13.25"
+                            stroke="#FFFFFF"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_305_27927">
+                            <rect width="24" height="24" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
                       <Text size="2" weight="medium" style={{ color: "#FFF" }}>
                         Logout
                       </Text>
