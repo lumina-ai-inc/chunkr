@@ -115,37 +115,3 @@ export default function Footer() {
     </Flex>
   );
 }
-
-// const FooterColumn = ({ title, links }: { title: string; links: string[] }) => {
-//   return (
-//     <Flex direction="column" gap="2">
-//       <Text size="2" weight="bold" className="white">
-//         {title}
-//       </Text>
-//       {links.map((link, index) => {
-//         let href = "#";
-//         switch (link) {
-//           case "API Docs":
-//             href = `https://docs.chunkr.ai`;
-//             break;
-//           case "Github":
-//             href = "https://github.com/lumina-ai-inc/chunk-my-docs";
-//             break;
-//           case "Book a call":
-//             href = "https://cal.com/mehulc/15min";
-//             break;
-//           case "Email":
-//             href = "mailto:mehul@lumina.sh";
-//             break;
-//         }
-//         return (
-//           <a href={href} key={index} target="_blank" rel="noopener noreferrer">
-//             <Text size="2" className="white footer-link">
-//               {link}
-//             </Text>
-//           </a>
-//         );
-//       })}
-//     </Flex>
-//   );
-// };
