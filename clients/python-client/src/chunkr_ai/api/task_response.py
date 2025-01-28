@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import TypeVar, Optional, Generic
 from pydantic import BaseModel, PrivateAttr
 import asyncio
+import json
 
 from .configuration import Configuration, OutputConfiguration, OutputResponse, Status
 from .protocol import ChunkrClientProtocol
@@ -101,17 +102,59 @@ class TaskResponse(BaseModel, Generic[T]):
         r.raise_for_status()
         return await self.poll()
 
-    def html(self) -> str:
-        """Get the full HTML of the task"""
-        return self._get_content("html")
+    def html(self, output_file: str = None) -> str:
+        """Get the full HTML of the task
+        
+        Args:
+            output_file (str, optional): Path to save the HTML content. Defaults to None.
+        """
+        content = self._get_content("html")
+        if output_file:
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(content)
+        return content
 
-    def markdown(self) -> str:
-        """Get the full markdown of the task"""
-        return self._get_content("markdown")
+    def markdown(self, output_file: str = None) -> str:
+        """Get the full markdown of the task
+        
+        Args:
+            output_file (str, optional): Path to save the markdown content. Defaults to None.
+        """
+        content = self._get_content("markdown")
+        if output_file:
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(content)
+        return content
 
-    def content(self) -> str:
-        """Get the full content of the task"""
-        return self._get_content("content")
+    def content(self, output_file: str = None) -> str:
+        """Get the full content of the task
+        
+        Args:
+            output_file (str, optional): Path to save the content. Defaults to None.
+        """
+        content = self._get_content("content")
+        if output_file:
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(content)
+        return content
+    
+    def json(self, output_file: str = None) -> dict:
+        """Get the full task data as JSON
+        
+        Args:
+            output_file (str, optional): Path to save the task data as JSON. Defaults to None.
+        """
+        class DateTimeEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, datetime):
+                    return obj.isoformat()
+                return super().default(obj)
+
+        data = self.model_dump()
+        if output_file:
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, cls=DateTimeEncoder, indent=2)
+        return data
 
     def _get_content(self, t: str) -> str:
         if not self.output:
