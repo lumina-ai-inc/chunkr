@@ -35,6 +35,7 @@ class SegmentProcessing(BaseModel):
     page: Optional[GenerationConfig] = Field(default=None, alias="Page")
 
 class ChunkProcessing(BaseModel):
+    ignore_headers_and_footers: Optional[bool] = None
     target_length: Optional[int] = None
 
 class OcrStrategy(str, Enum):
