@@ -296,7 +296,7 @@ export default function UsagePage({ customerId }: UsageProps) {
               weight="bold"
               style={{ color: "rgba(255,255,255,0.9)" }}
             >
-              Pages Processed
+              Pages Processed (UTC)
             </Text>
           </Flex>
           <BetterButton onClick={() => refetchTasks()}>
