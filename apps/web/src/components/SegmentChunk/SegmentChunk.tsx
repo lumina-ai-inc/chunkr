@@ -29,7 +29,19 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
       return tempHtml;
     }
 
-    // Only process content within <span class="formula"> tags
+    // Process base64 images
+    tempHtml = tempHtml.replace(
+      /<img[^>]+src="([^"]+)"[^>]*>/g,
+      (match, src) => {
+        // Check if it's a base64 image that needs the data URI prefix
+        if (src.startsWith("/9j/")) {
+          return match.replace(src, `data:image/jpeg;base64,${src}`);
+        }
+        return match;
+      }
+    );
+
+    // Process formulas
     tempHtml = tempHtml.replace(
       /<span class="formula">(.*?)<\/span>/g,
       (match, content) => {
@@ -76,6 +88,15 @@ const MemoizedMarkdown = memo(({ content }: { content: string }) => (
     className="cyan-2"
     remarkPlugins={[remarkMath, remarkGfm]}
     rehypePlugins={[rehypeKatex]}
+    components={{
+      img: ({ src, alt, ...props }) => {
+        // Check if it's a base64 image that needs the data URI prefix
+        const formattedSrc = src?.startsWith("/9j/")
+          ? `data:image/jpeg;base64,${src}`
+          : src;
+        return <img src={formattedSrc} alt={alt} {...props} />;
+      },
+    }}
   >
     {content}
   </ReactMarkdown>
