@@ -61,11 +61,12 @@ const DOCUMENT_CATEGORIES: DocumentCategory[] = [
   { id: "finance", label: "Finance", pdfName: "financial" },
   { id: "legal", label: "Legal", pdfName: "legal" },
   { id: "scientific", label: "Scientific", pdfName: "science" },
-  { id: "construction", label: "Construction", pdfName: "construction" },
-  { id: "consulting", label: "Consulting", pdfName: "consulting2" },
-  { id: "specs", label: "Technical Reports", pdfName: "specs" },
-  { id: "government", label: "Government", pdfName: "government" },
+  { id: "technical", label: "Technical Reports", pdfName: "specs" },
+  { id: "medical", label: "Medical", pdfName: "medical" },
+  { id: "consulting", label: "Consulting", pdfName: "consulting" },
+  { id: "government", label: "Government", pdfName: "gov" },
   { id: "invoice", label: "Invoice", pdfName: "invoice" },
+  { id: "formulas", label: "Formulas", pdfName: "formulas" },
 ];
 
 const BASE_URL = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page";
