@@ -255,7 +255,13 @@ export default function Dashboard() {
   };
 
   return (
-    <Flex direction="row" width="100%" height="100%">
+    <Flex
+      direction="row"
+      width="100%"
+      height="100%"
+      minWidth="1156px"
+      minHeight="700px"
+    >
       <Flex
         className={`dashboard-nav-container ${isNavOpen ? "" : "closed"}`}
         align="start"
