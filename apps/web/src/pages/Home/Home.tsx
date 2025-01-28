@@ -984,7 +984,7 @@ const Home = () => {
                           />
                         }
                         title="Secure & Private"
-                        description="Configurable data retention with custom expiration times, SOC2 + HIPPA in progress"
+                        description="Zero data retention with custom expiration times, SOC2 + HIPPA in progress"
                         onMouseEnter={() => handleLottieHover(secureLottieRef)}
                         data-feature="secure"
                       />
@@ -1253,7 +1253,7 @@ const Home = () => {
                               size="2"
                               style={{ color: "rgba(255, 255, 255, 0.8)" }}
                             >
-                              Custom implementation & setup
+                              Custom deployment strategy
                             </Text>
                           </Flex>
                           <Flex
@@ -1376,7 +1376,7 @@ const Home = () => {
                               size="2"
                               style={{ color: "rgba(255, 255, 255, 0.8)" }}
                             >
-                              Custom data privacy agreements
+                              Tuned to your docset
                             </Text>
                           </Flex>
                           <Flex
@@ -1503,9 +1503,9 @@ const Home = () => {
                     price="Custom"
                     period="month"
                     features={[
-                      "Managed by us in your cloud/ Self-host",
+                      "Managed by us in your cloud / Self-host",
                       "Unlimited pages - fixed monthly price",
-                      "Custom features",
+                      "Tuned to your docset",
                       "Compliance support",
                       "Enterprise-grade SLAs",
                       "24/7 founder-led support",
