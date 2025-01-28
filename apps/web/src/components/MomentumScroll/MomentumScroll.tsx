@@ -55,6 +55,40 @@ const MomentumScroll = ({ children }: MomentumScrollProps): JSX.Element => {
 
   const springNegativeScrollY = useSpring(negativeScrollY, springPhysics);
 
+  // Add scroll to element function
+  const scrollToElement = (elementId: string) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      const yOffset = element.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: yOffset,
+        behavior: "smooth",
+      });
+      // Remove the hash from URL without affecting scroll position
+      history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search
+      );
+    }
+  };
+
+  // Add effect to handle hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (hash) {
+        setTimeout(() => {
+          scrollToElement(hash);
+        }, 100);
+      }
+    };
+
+    handleHashChange(); // Handle initial hash
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   return (
     <>
       <motion.div

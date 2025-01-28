@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Flex, Text } from "@radix-ui/themes";
+import { Flex, Text, Button } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
 import "./Header.css";
 import Dashboard from "../../pages/Dashboard/Dashboard";
 import { getRepoStats } from "../../services/githubApi";
 import { AuthContextProps } from "react-oidc-context";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 interface HeaderProps {
   auth?: AuthContextProps;
@@ -69,34 +70,47 @@ export default function Header({ auth }: HeaderProps) {
 
       <Flex className="nav" direction="row" align="center">
         <Flex direction="row" gap="20px" align="center" justify="end">
-          <Flex direction="row" gap="2" mt="2px" align="center">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+          <a
+            href="https://github.com/lumina-ai-inc/chunkr"
+            target="_blank"
+            style={{ textDecoration: "none" }}
+          >
+            <Flex
+              direction="row"
+              gap="2"
+              mt="2px"
+              py="12px"
+              px="12px"
+              align="center"
             >
-              <g clip-path="url(#clip0_132_8)">
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M8.97318 0C4.01125 0 0 4.04082 0 9.03986C0 13.0359 2.57014 16.4184 6.13561 17.6156C6.58139 17.7056 6.74467 17.4211 6.74467 17.1817C6.74467 16.9722 6.72998 16.2538 6.72998 15.5053C4.23386 16.0442 3.71406 14.4277 3.71406 14.4277C3.31292 13.3801 2.71855 13.1108 2.71855 13.1108C1.90157 12.557 2.77806 12.557 2.77806 12.557C3.68431 12.6169 4.15984 13.4849 4.15984 13.4849C4.96194 14.8618 6.25445 14.4727 6.77443 14.2332C6.84863 13.6495 7.08649 13.2454 7.33904 13.021C5.3482 12.8114 3.25359 12.0332 3.25359 8.56084C3.25359 7.57304 3.60992 6.76488 4.17453 6.13635C4.08545 5.9119 3.77339 4.9838 4.2638 3.74161C4.2638 3.74161 5.02145 3.5021 6.7298 4.66953C7.4612 4.47165 8.21549 4.37099 8.97318 4.37014C9.73084 4.37014 10.5032 4.47502 11.2164 4.66953C12.9249 3.5021 13.6826 3.74161 13.6826 3.74161C14.173 4.9838 13.8607 5.9119 13.7717 6.13635C14.3511 6.76488 14.6928 7.57304 14.6928 8.56084C14.6928 12.0332 12.5982 12.7963 10.5924 13.021C10.9194 13.3053 11.2015 13.844 11.2015 14.6972C11.2015 15.9094 11.1868 16.8823 11.1868 17.1816C11.1868 17.4211 11.3503 17.7056 11.7959 17.6158C15.3613 16.4182 17.9315 13.0359 17.9315 9.03986C17.9462 4.04082 13.9202 0 8.97318 0Z"
-                  fill="white"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_132_8">
-                  <rect width="18" height="17.6327" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-            <Text size="2" weight="medium" className="nav-item">
-              {repoStats.stars >= 1000
-                ? `${(repoStats.stars / 1000).toFixed(1)}K`
-                : repoStats.stars}
-            </Text>
-          </Flex>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g clip-path="url(#clip0_132_8)">
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M8.97318 0C4.01125 0 0 4.04082 0 9.03986C0 13.0359 2.57014 16.4184 6.13561 17.6156C6.58139 17.7056 6.74467 17.4211 6.74467 17.1817C6.74467 16.9722 6.72998 16.2538 6.72998 15.5053C4.23386 16.0442 3.71406 14.4277 3.71406 14.4277C3.31292 13.3801 2.71855 13.1108 2.71855 13.1108C1.90157 12.557 2.77806 12.557 2.77806 12.557C3.68431 12.6169 4.15984 13.4849 4.15984 13.4849C4.96194 14.8618 6.25445 14.4727 6.77443 14.2332C6.84863 13.6495 7.08649 13.2454 7.33904 13.021C5.3482 12.8114 3.25359 12.0332 3.25359 8.56084C3.25359 7.57304 3.60992 6.76488 4.17453 6.13635C4.08545 5.9119 3.77339 4.9838 4.2638 3.74161C4.2638 3.74161 5.02145 3.5021 6.7298 4.66953C7.4612 4.47165 8.21549 4.37099 8.97318 4.37014C9.73084 4.37014 10.5032 4.47502 11.2164 4.66953C12.9249 3.5021 13.6826 3.74161 13.6826 3.74161C14.173 4.9838 13.8607 5.9119 13.7717 6.13635C14.3511 6.76488 14.6928 7.57304 14.6928 8.56084C14.6928 12.0332 12.5982 12.7963 10.5924 13.021C10.9194 13.3053 11.2015 13.844 11.2015 14.6972C11.2015 15.9094 11.1868 16.8823 11.1868 17.1816C11.1868 17.4211 11.3503 17.7056 11.7959 17.6158C15.3613 16.4182 17.9315 13.0359 17.9315 9.03986C17.9462 4.04082 13.9202 0 8.97318 0Z"
+                    fill="white"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_132_8">
+                    <rect width="18" height="17.6327" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
+              <Text size="2" weight="medium" className="nav-item">
+                {repoStats.stars >= 1000
+                  ? `${(repoStats.stars / 1000).toFixed(1)}K`
+                  : repoStats.stars}
+              </Text>
+            </Flex>
+          </a>
 
           <Flex direction="row" gap="2" py="12px" px="12px" align="center">
             <a
@@ -111,11 +125,15 @@ export default function Header({ auth }: HeaderProps) {
           </Flex>
 
           <Flex direction="row" gap="2" py="12px" px="16px" align="center">
-            <Link to="/pricing" style={{ textDecoration: "none" }}>
+            <a
+              href="/#pricing"
+              style={{ textDecoration: "none" }}
+              className="nav-item"
+            >
               <Text size="2" weight="medium" className="nav-item">
                 Pricing
               </Text>
-            </Link>
+            </a>
           </Flex>
 
           <Flex direction="row" gap="2" py="12px" px="16px" align="center">
@@ -193,96 +211,62 @@ export default function Header({ auth }: HeaderProps) {
           )}
         </Flex>
 
-        {/* <div className="dropdown-container">
+        <Flex
+          className="dropdown-container"
+          height="48px"
+          align="center"
+          justify="center"
+        >
           <DropdownMenu.Root>
-            <DropdownMenu.Trigger style={{ backgroundColor: "transparent" }}>
-              <Button>Menu</Button>
+            <DropdownMenu.Trigger asChild>
+              <Button variant="ghost" className="dropdown-trigger">
+                Menu
+              </Button>
             </DropdownMenu.Trigger>
-            <DropdownMenu.Content>
-              {download && !home && (
-                <DropdownMenu.Item>
-                  <Text>Download JSON</Text>
-                </DropdownMenu.Item>
-              )}
-
-              <DropdownMenu.Item asChild>
+            <DropdownMenu.Content className="dropdown-content" sideOffset={5}>
+              <DropdownMenu.Item className="dropdown-item">
                 <a
                   href="https://cal.com/mehulc/30min"
                   target="_blank"
-                  style={{ textDecoration: "none" }}
+                  className="dropdown-link"
                 >
-                  <Text>Contact</Text>
+                  <Text size="2">Contact</Text>
                 </a>
               </DropdownMenu.Item>
-              <DropdownMenu.Item asChild>
+
+              <DropdownMenu.Item className="dropdown-item">
+                <a href="/#pricing" className="dropdown-link">
+                  <Text size="2">Pricing</Text>
+                </a>
+              </DropdownMenu.Item>
+
+              <DropdownMenu.Item className="dropdown-item">
                 <a
-                  href="https://twitter.com/lumina_ai_inc"
+                  href="https://docs.chunkr.ai"
                   target="_blank"
-                  style={{ textDecoration: "none" }}
+                  className="dropdown-link"
                 >
-                  <Text>Twitter</Text>
+                  <Text size="2">Docs</Text>
                 </a>
               </DropdownMenu.Item>
-              <DropdownMenu.Item asChild>
-                <a
-                  href="https://github.com/lumina-ai-inc/chunk-my-docs"
-                  target="_blank"
-                  style={{ textDecoration: "none" }}
-                >
-                  <Text>Github</Text>
-                </a>
-              </DropdownMenu.Item>
-              <DropdownMenu.Item asChild>
-                <Link to="/pricing" style={{ textDecoration: "none" }}>
-                  <Text>Pricing</Text>
-                </Link>
-              </DropdownMenu.Item>
-              {isAuthenticated && (
-                <DropdownMenu.Item>
-                  <ApiKeyDialog
-                    user={user as User}
-                    showApiKey={showApiKey}
-                    setShowApiKey={setShowApiKey}
-                    phone={true}
-                  />
-                </DropdownMenu.Item>
-              )}
-              <DropdownMenu.Item>
-                <a
-                  href={"https://docs.chunkr.ai/introduction"}
-                  target="_blank"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <Text weight="regular">Docs</Text>
-                </a>
-              </DropdownMenu.Item>
+
               {isAuthenticated ? (
-                <DropdownMenu.Item>
-                  <Link
-                    to="/dashboard"
-                    style={{ textDecoration: "none", color: "inherit" }}
-                    onClick={() => setShowAccount(!showAccount)}
-                  >
-                    <Text weight="regular">Dashboard</Text>
+                <DropdownMenu.Item className="dropdown-item">
+                  <Link to="/dashboard" className="dropdown-link">
+                    <Text size="2">Dashboard</Text>
                   </Link>
                 </DropdownMenu.Item>
               ) : (
                 <DropdownMenu.Item
-                  className="signup-button-dropdown"
+                  className="dropdown-item"
                   onSelect={() => auth?.signinRedirect()}
                 >
-                  <Text
-                    weight="regular"
-                    size="2"
-                    style={{ cursor: "pointer", textAlign: "left" }}
-                  >
-                    Login
-                  </Text>
+                  <Text size="2">Login</Text>
                 </DropdownMenu.Item>
               )}
             </DropdownMenu.Content>
           </DropdownMenu.Root>
-        </div> */}
+        </Flex>
       </Flex>
       {showAccount && <Dashboard />}
     </Flex>

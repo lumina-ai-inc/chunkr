@@ -63,3 +63,29 @@
 .MuiPopover-root > .MuiPaper-root {
   background-color: rgb(30, 36, 37) !important;
 }
+
+@keyframes subtleGlow {
+  0% {
+    background-position: 100% 100%;
+    background-size: 100% 100%;
+  }
+  50% {
+    background-position: 95% 95%;
+    background-size: 120% 120%;
+  }
+  100% {
+    background-position: 100% 100%;
+    background-size: 100% 100%;
+  }
+}
+
+.task-table-container {
+  position: relative;
+  background: radial-gradient(
+    circle at bottom right,
+    rgba(64, 169, 255, 0.03) 0%,
+    transparent 70%
+  );
+  background-size: 100% 100%;
+  animation: subtleGlow 8s ease-in-out infinite;
+}

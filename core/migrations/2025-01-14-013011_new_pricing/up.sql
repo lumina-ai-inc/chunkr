@@ -306,166 +306,123 @@ $$ LANGUAGE plpgsql;
 
 
 
+CREATE TRIGGER b_handle_task_invoice_trigger
+    AFTER UPDATE ON tasks
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_task_invoice();
+
 CREATE OR REPLACE FUNCTION update_monthly_usage() RETURNS TRIGGER AS $$
 DECLARE
     v_usage_type TEXT := 'Page';
     v_current_year INTEGER := EXTRACT(YEAR FROM NEW.created_at);
     v_current_month INTEGER := EXTRACT(MONTH FROM NEW.created_at);
-    v_usage_limit INTEGER;
-    v_current_usage INTEGER;
-    v_overage_usage INTEGER;
     v_tier TEXT;
+    v_usage_limit INTEGER;
     v_billing_cycle_start TIMESTAMPTZ;
     v_billing_cycle_end TIMESTAMPTZ;
+    v_current_usage INTEGER;
+    v_overage_usage INTEGER;
+    v_new_usage INTEGER;
 BEGIN
-    IF TG_OP = 'UPDATE' AND NEW.status = 'Succeeded' THEN
-        -- Get tier from users table instead of subscriptions
-        SELECT u.tier, t.usage_limit 
+    
+    IF TG_OP = 'UPDATE'
+       AND (OLD.status IS DISTINCT FROM NEW.status)
+       AND NEW.status = 'Succeeded' THEN
+        
+        RAISE NOTICE 'Processing usage update for user: %, pages: %', 
+            NEW.user_id, NEW.page_count;
+        
+        SELECT u.tier, t.usage_limit
         INTO v_tier, v_usage_limit
         FROM users u
         JOIN tiers t ON t.tier = u.tier
         WHERE u.user_id = NEW.user_id;
 
-        -- Find current billing cycle
         SELECT billing_cycle_start, billing_cycle_end
         INTO v_billing_cycle_start, v_billing_cycle_end
         FROM monthly_usage
         WHERE user_id = NEW.user_id
-          AND NEW.created_at >= billing_cycle_start 
-          AND NEW.created_at < billing_cycle_end
-        ORDER BY billing_cycle_start DESC
+        ORDER BY billing_cycle_end DESC
         LIMIT 1;
 
-        -- If no current billing cycle exists, create new one
-        IF v_billing_cycle_start IS NULL THEN
-            v_billing_cycle_start := NEW.created_at;
+        IF NOT FOUND THEN
+            v_billing_cycle_start := date_trunc('day', NEW.created_at);
             v_billing_cycle_end := v_billing_cycle_start + INTERVAL '30 days';
+        ELSE
+            WHILE NEW.created_at >= v_billing_cycle_end LOOP
+                v_billing_cycle_start := v_billing_cycle_end;
+                v_billing_cycle_end := v_billing_cycle_start + INTERVAL '30 days';
+            END LOOP;
         END IF;
 
-        IF v_tier = 'PayAsYouGo' THEN
-            -- For PayAsYouGo, all usage goes to overage
+        SELECT usage, overage_usage
+        INTO v_current_usage, v_overage_usage
+        FROM monthly_usage
+        WHERE user_id = NEW.user_id
+          AND billing_cycle_start = v_billing_cycle_start
+          AND billing_cycle_end = v_billing_cycle_end
+          AND usage_type = v_usage_type;
+
+        IF v_current_usage IS NULL THEN
+            INSERT INTO monthly_usage (
+                user_id,
+                usage,
+                overage_usage,
+                usage_type,
+                year,
+                month,
+                tier,
+                usage_limit,
+                billing_cycle_start,
+                billing_cycle_end
+            )
+            VALUES (
+                NEW.user_id,
+                NEW.page_count,
+                0,
+                v_usage_type,
+                v_current_year,
+                v_current_month,
+                v_tier,
+                v_usage_limit,
+                v_billing_cycle_start,
+                v_billing_cycle_end
+            );
+        ELSE
+            v_new_usage := v_current_usage + NEW.page_count;
             UPDATE monthly_usage
-            SET overage_usage = overage_usage + NEW.page_count,
+            SET usage = v_new_usage,
                 updated_at = CURRENT_TIMESTAMP
             WHERE user_id = NEW.user_id
               AND billing_cycle_start = v_billing_cycle_start
               AND billing_cycle_end = v_billing_cycle_end
               AND usage_type = v_usage_type;
-
-            IF NOT FOUND THEN
-                INSERT INTO monthly_usage (
-                    user_id, usage, overage_usage, usage_type, year, month, tier,
-                    billing_cycle_start, billing_cycle_end
-                )
-                VALUES (
-                    NEW.user_id, 0, NEW.page_count, v_usage_type, 
-                    v_current_year, v_current_month, v_tier,
-                    v_billing_cycle_start, v_billing_cycle_end
-                );
-            END IF;
-        ELSE
-            -- For all other tiers (including Free), check against usage limit
-            SELECT usage, overage_usage
-            INTO v_current_usage, v_overage_usage
-            FROM monthly_usage
-            WHERE user_id = NEW.user_id
-              AND billing_cycle_start = v_billing_cycle_start
-              AND billing_cycle_end = v_billing_cycle_end
-              AND usage_type = v_usage_type;
-
-            IF v_current_usage IS NULL THEN
-                INSERT INTO monthly_usage (
-                    user_id, usage, overage_usage, usage_type, year, month, 
-                    tier, usage_limit, billing_cycle_start, billing_cycle_end
-                )
-                VALUES (
-                    NEW.user_id, 
-                    LEAST(NEW.page_count, v_usage_limit), 
-                    GREATEST(NEW.page_count - v_usage_limit, 0), 
-                    v_usage_type, 
-                    v_current_year, 
-                    v_current_month,
-                    v_tier,
-                    v_usage_limit,
-                    v_billing_cycle_start,
-                    v_billing_cycle_end
-                );
-            ELSE
-                UPDATE monthly_usage
-                SET usage = usage + LEAST(NEW.page_count, GREATEST(v_usage_limit - v_current_usage, 0)),
-                    overage_usage = overage_usage + GREATEST(NEW.page_count - LEAST(NEW.page_count, GREATEST(v_usage_limit - v_current_usage, 0)), 0),
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE user_id = NEW.user_id
-                  AND billing_cycle_start = v_billing_cycle_start
-                  AND billing_cycle_end = v_billing_cycle_end
-                  AND usage_type = v_usage_type;
-            END IF;
         END IF;
+
+        UPDATE monthly_usage
+        SET overage_usage = GREATEST(usage - usage_limit, 0)
+        WHERE user_id = NEW.user_id
+          AND billing_cycle_start = v_billing_cycle_start
+          AND billing_cycle_end = v_billing_cycle_end
+          AND usage_type = v_usage_type;
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_monthly_usage_trigger ON TASKS;
 
--- Your SQL goes here
-CREATE TABLE IF NOT EXISTS pre_applied_free_pages (
-    email TEXT,
-    consumed BOOLEAN DEFAULT FALSE,
-    usage_type TEXT NOT NULL,
-    amount INTEGER NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
 
-CREATE OR REPLACE FUNCTION update_pre_applied_pages()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Check if user exists and tier
-    IF EXISTS (
-        SELECT 1 FROM users u
-        WHERE u.email = NEW.email 
-        AND u.tier = 'Free'
-    ) THEN
-        -- Add pages to existing usage limit
-        UPDATE usage 
-        SET usage_limit = usage_limit + NEW.amount
-        FROM users u
-        WHERE usage.user_id = u.user_id
-        AND u.email = NEW.email
-        AND usage.usage_type = NEW.usage_type;
 
-        -- Mark as consumed
-        UPDATE pre_applied_free_pages 
-        SET consumed = TRUE,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE email = NEW.email
-        AND usage_type = NEW.usage_type;
-    ELSIF EXISTS (
-        SELECT 1 FROM users u
-        WHERE u.email = NEW.email
-    ) THEN
-        -- Add or update discount amount
-        INSERT INTO discounts (user_id, usage_type, amount)
-        SELECT u.user_id, NEW.usage_type, NEW.amount
-        FROM users u
-        WHERE u.email = NEW.email
-        ON CONFLICT (user_id, usage_type) DO UPDATE
-        SET amount = discounts.amount + EXCLUDED.amount
-        WHERE discounts.usage_type = EXCLUDED.usage_type;
+CREATE OR REPLACE TRIGGER a_update_monthly_usage_trigger
+AFTER UPDATE ON TASKS
+FOR EACH ROW
+WHEN (NEW.status = 'Succeeded')
+EXECUTE FUNCTION update_monthly_usage();
+    
+DROP FUNCTION IF EXISTS update_pre_applied_pages() CASCADE;
+DROP TRIGGER IF EXISTS trigger_pre_applied_pages ON pre_applied_free_pages;
+DROP TABLE IF EXISTS discounts;
 
-        -- Mark as consumed
-        UPDATE pre_applied_free_pages 
-        SET consumed = TRUE,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE email = NEW.email
-        AND usage_type = NEW.usage_type;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER trigger_pre_applied_pages
-    AFTER INSERT ON pre_applied_free_pages
-    FOR EACH ROW
-    EXECUTE FUNCTION update_pre_applied_pages();
-
+DROP TABLE usage;

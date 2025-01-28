@@ -6,7 +6,7 @@ export default function useUser() {
   const auth = useAuth();
   const { data, isLoading, error } = useQuery("user", getUser, {
     enabled: auth.isAuthenticated,
-    refetchInterval: 3000,
+    refetchInterval: 300000,
   });
   return { data, isLoading, error };
 }

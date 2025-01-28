@@ -2,8 +2,6 @@ export { Chunkr } from "./Chunkr";
 export { TaskResponse } from "./models/TaskResponse";
 export {
   Configuration,
-  JsonSchema,
-  Property,
   OcrStrategy,
   ChunkProcessing,
   SegmentProcessing,
@@ -21,7 +19,5 @@ export type {
   BoundingBox,
   OCRResult,
   SegmentType,
-  ExtractedField,
-  ExtractedJson,
 } from "./models/TaskResponseData";
 export type { ClientConfig } from "./models/ClientConfig";

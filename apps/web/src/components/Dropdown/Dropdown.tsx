@@ -41,8 +41,16 @@ const Dropdown = ({
         className="model-selector-button"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {multiple ? `Selected Types (${selectedValues?.length})` : value}
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <span>
+          {multiple ? `Selected Types (${selectedValues?.length})` : value}
+        </span>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          style={{ marginLeft: "8px" }}
+        >
           <path
             d="M2.5 4.5L6 8L9.5 4.5"
             stroke="currentColor"
@@ -61,8 +69,8 @@ const Dropdown = ({
                     ? "selected"
                     : ""
                   : option === value
-                    ? "selected"
-                    : ""
+                  ? "selected"
+                  : ""
               }`}
               onClick={() => {
                 if (multiple && selectedValues) {
@@ -73,7 +81,7 @@ const Dropdown = ({
                 }
               }}
             >
-              <Text size="2" weight="bold">
+              <Text size="1" weight="medium">
                 {option}
               </Text>
             </div>

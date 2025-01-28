@@ -44,32 +44,10 @@ export interface ChunkProcessing {
   target_length?: number;
 }
 
-export class Property {
-  name!: string;
-  prop_type!: string;
-  description?: string;
-  default?: string;
-
-  constructor(data: Partial<Property>) {
-    Object.assign(this, data);
-  }
-}
-
-export class JsonSchema {
-  title: string;
-  properties: Property[];
-
-  constructor(data: { title: string; properties: Property[] }) {
-    this.title = data.title;
-    this.properties = data.properties;
-  }
-}
-
 export class Configuration {
   chunk_processing?: ChunkProcessing;
   expires_in?: number;
   high_resolution?: boolean;
-  json_schema?: JsonSchema;
   ocr_strategy?: OcrStrategy;
   segment_processing?: SegmentProcessing;
   segmentation_strategy?: SegmentationStrategy;

@@ -11,12 +11,9 @@ import Loader from "../Loader/Loader";
 import Usage from "../../components/Usage/Usage";
 import { useLocation, useNavigate } from "react-router-dom";
 import UploadDialog from "../../components/Upload/UploadDialog";
-import {
-  createCustomerSession,
-  createSetupIntent,
-} from "../../services/stripeService";
-import ApiKeyManagement from "../../components/ApiKeyManagement/ApiKeyManagement";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
+import ApiKeyDialog from "../../components/ApiDialog/ApiKeyDialog";
+import { toast } from "react-hot-toast";
 
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
@@ -27,13 +24,8 @@ export default function Dashboard() {
   const [selectedNav, setSelectedNav] = useState("Tasks");
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  const [showPaymentSetup, setShowPaymentSetup] = useState(false);
-  const [customerSessionSecret, setCustomerSessionSecret] = useState<
-    string | null
-  >(null);
-  const [customerSessionClientSecret, setCustomerSessionClientSecret] =
-    useState<string | null>(null);
   const [isNavOpen, setIsNavOpen] = useState(true);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const location = useLocation();
   const searchParams = useMemo(
@@ -72,6 +64,14 @@ export default function Dashboard() {
       setSelectedNav("Tasks");
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.state?.selectedNav) {
+      setSelectedNav(location.state.selectedNav);
+      // Clear the state after using it
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const navIcons = {
     Tasks: (
@@ -151,66 +151,6 @@ export default function Dashboard() {
         </svg>
       </g>
     ),
-    "API Keys": (
-      <g>
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 22 22"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g clip-path="url(#clip0_305_27941)">
-            <path
-              d="M2.75 5.75C2.75 5.19771 3.19772 4.75 3.75 4.75H20.25C20.8023 4.75 21.25 5.19772 21.25 5.75V18.25C21.25 18.8023 20.8023 19.25 20.25 19.25H3.75C3.19772 19.25 2.75 18.8023 2.75 18.25V5.75Z"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M15.75 13.25H18.25"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M8.25 13.25L5.75 10.75"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M5.75 13.25L8.25 10.75"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M13.25 13.25L10.75 10.75"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M10.75 13.25L13.25 10.75"
-              stroke="#FFF"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_305_27941">
-              <rect width="24" height="24" fill="white" />
-            </clipPath>
-          </defs>
-        </svg>
-      </g>
-    ),
   };
 
   const handleNavigation = useCallback(
@@ -264,18 +204,6 @@ export default function Dashboard() {
       ? `${user.data.first_name} ${user.data.last_name}`
       : user?.data?.email || "User";
 
-  const handleAddPaymentMethod = useCallback(async () => {
-    const setupIntent = await createSetupIntent(
-      auth.user?.access_token as string
-    );
-    const customerSession = await createCustomerSession(
-      auth.user?.access_token as string
-    );
-    setCustomerSessionSecret(customerSession.customer_session_secret);
-    setCustomerSessionClientSecret(setupIntent.client_secret);
-    setShowPaymentSetup(true);
-  }, [auth.user?.access_token]);
-
   const content = useMemo(() => {
     switch (selectedNav) {
       case "Tasks":
@@ -303,20 +231,7 @@ export default function Dashboard() {
       case "Usage":
         return {
           title: "Usage",
-          component: (
-            <Usage
-              showPaymentSetup={showPaymentSetup}
-              setShowPaymentSetup={setShowPaymentSetup}
-              customerSessionSecret={customerSessionSecret}
-              customerSessionClientSecret={customerSessionClientSecret}
-              handleAddPaymentMethod={handleAddPaymentMethod}
-            />
-          ),
-        };
-      case "API Keys":
-        return {
-          title: "API Keys",
-          component: <ApiKeyManagement user={user.data} />,
+          component: <Usage customerId={user.data?.customer_id || ""} />,
         };
       default:
         return {
@@ -324,24 +239,29 @@ export default function Dashboard() {
           component: <TaskTable />,
         };
     }
-  }, [
-    selectedNav,
-    taskId,
-    taskResponse,
-    isLoading,
-    customerSessionClientSecret,
-    customerSessionSecret,
-    showPaymentSetup,
-    handleAddPaymentMethod,
-    user,
-  ]);
+  }, [selectedNav, taskId, taskResponse, isLoading, user]);
 
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
   };
 
+  const handleContactClick = (type: "email" | "calendar") => {
+    if (type === "email") {
+      navigator.clipboard.writeText("team@chunkr.ai");
+      toast.success("Email copied to clipboard!");
+    } else {
+      window.open("https://cal.com/mehulc/30min", "_blank");
+    }
+  };
+
   return (
-    <Flex direction="row" width="100%" height="100%">
+    <Flex
+      direction="row"
+      width="100%"
+      height="100%"
+      minWidth="1156px"
+      minHeight="700px"
+    >
       <Flex
         className={`dashboard-nav-container ${isNavOpen ? "" : "closed"}`}
         align="start"
@@ -426,10 +346,12 @@ export default function Dashboard() {
         >
           <Flex direction="column">
             <Flex className="dashboard-nav-items" direction="column">
-              {["Tasks", "API Keys", "Usage"].map((item) => (
+              {["Tasks", "Usage"].map((item) => (
                 <Flex
                   key={item}
-                  className={`dashboard-nav-item ${selectedNav === item ? "selected" : ""}`}
+                  className={`dashboard-nav-item ${
+                    selectedNav === item ? "selected" : ""
+                  }`}
                   onClick={() => handleNavigation(item)}
                 >
                   <svg
@@ -468,21 +390,132 @@ export default function Dashboard() {
                     {userDisplayName}
                   </Text>
                   <Text size="1" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    Free Plan
+                    {user?.data?.tier}
                   </Text>
                 </Flex>
               </Flex>
               {isProfileMenuOpen && (
                 <Flex className="profile-popup">
                   <Flex className="profile-menu" direction="column">
-                    <Flex className="profile-menu-item">
+                    <Flex
+                      className="profile-menu-item"
+                      onClick={() => handleContactClick("email")}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <g clip-path="url(#clip0_305_31838)">
+                          <path
+                            d="M20.25 4.75H3.75C3.19772 4.75 2.75 5.19771 2.75 5.75V18.25C2.75 18.8023 3.19772 19.25 3.75 19.25H20.25C20.8023 19.25 21.25 18.8023 21.25 18.25V5.75C21.25 5.19772 20.8023 4.75 20.25 4.75Z"
+                            stroke="#FFF"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M21.25 7.25L13.9625 13.5527C12.8356 14.5273 11.1644 14.5273 10.0375 13.5527L2.75 7.25"
+                            stroke="#FFF"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_305_31838">
+                            <rect width="24" height="24" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
                       <Text size="2" weight="medium" style={{ color: "#FFF" }}>
-                        Support
+                        Email Us
                       </Text>
                     </Flex>
-                    <Flex className="profile-menu-item">
+                    <Flex
+                      className="profile-menu-item"
+                      onClick={() => handleContactClick("calendar")}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <g clip-path="url(#clip0_305_31814)">
+                          <path
+                            d="M19.2499 14.93V18.23C19.2499 19.46 18.1599 20.4 16.9399 20.23C9.59991 19.21 3.78991 13.4 2.76991 6.06C2.59991 4.84 3.53991 3.75 4.76991 3.75H8.06991C8.55991 3.75 8.97991 4.1 9.05991 4.58L9.44991 6.77C9.58991 7.54 9.26991 8.32 8.62991 8.77L7.73991 9.4C9.16991 11.81 11.1999 13.82 13.6199 15.24L14.2299 14.37C14.6799 13.73 15.4599 13.41 16.2299 13.55L18.4199 13.94C18.8999 14.03 19.2499 14.44 19.2499 14.93V14.93Z"
+                            stroke="#FFF"
+                            strokeWidth="1"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M15.75 3.75H20.25V8.25"
+                            stroke="#FFF"
+                            strokeWidth="1"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M20.22 3.77979L14.75 9.24979"
+                            stroke="#FFF"
+                            strokeWidth="1"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_305_31814">
+                            <rect width="24" height="24" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
                       <Text size="2" weight="medium" style={{ color: "#FFF" }}>
-                        Terms of Service
+                        Book a Call
+                      </Text>
+                    </Flex>
+                    <Flex
+                      className="profile-menu-item"
+                      onClick={() =>
+                        window.open(
+                          "https://discord.gg/your-discord-link",
+                          "_blank"
+                        )
+                      }
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        viewBox="0 0 430 430"
+                      >
+                        <g strokeWidth="12">
+                          <path
+                            stroke="#FFFFFF"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M312.601 305.475c-26.273 14.715-58.717 23.408-93.825 23.408s-67.552-8.693-93.825-23.408"
+                          />
+                          <path
+                            stroke="#FFFFFF"
+                            strokeLinejoin="round"
+                            d="M158.352 72.148c3.725 6.192 6.909 13.393 9.531 21.46 15.975-4.123 33.091-6.358 50.893-6.358 15.228 0 29.955 1.636 43.895 4.69 2.513-7.394 5.511-14.03 8.977-19.792 25.747 3.086 49.437 10.893 69.495 22.22 20.228 24.718 37.723 59.3 48.459 99.37 11.642 43.446 13.177 85.277 6.259 118.097-21.508 20.403-52.494 36.375-88.916 45.331-7.134-12.146-13.866-25.549-20.013-39.981-20.648 7.5-43.759 11.698-68.156 11.698-26.99 0-52.406-5.137-74.653-14.199-6.428 15.387-13.524 29.638-21.068 42.482-36.422-8.956-67.408-24.928-88.916-45.331-6.918-32.82-5.383-74.651 6.259-118.097 10.736-40.07 28.23-74.652 48.46-99.37 20.057-11.327 43.747-19.134 69.494-22.22Z"
+                          />
+                          <path
+                            stroke="#FFFFFF"
+                            d="M310 230c0 16.569-11.193 30-25 30s-25-13.431-25-30 11.193-30 25-30 25 13.431 25 30Zm-140 0c0 16.569-11.193 30-25 30s-25-13.431-25-30 11.193-30 25-30 25 13.431 25 30Z"
+                          />
+                        </g>
+                      </svg>
+                      <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                        Join the Discord
                       </Text>
                     </Flex>
                     <Flex
@@ -574,6 +607,13 @@ export default function Dashboard() {
                 refetchTasks();
               }}
             />
+            {user.data && (
+              <ApiKeyDialog
+                user={user.data}
+                showApiKey={showApiKey}
+                setShowApiKey={setShowApiKey}
+              />
+            )}
             <BetterButton onClick={handleDocsNav}>
               <svg
                 width="18"
@@ -619,36 +659,6 @@ export default function Dashboard() {
 
               <Text size="2" weight="medium" style={{ color: "#FFF" }}>
                 Docs
-              </Text>
-            </BetterButton>
-            <BetterButton>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                fill="none"
-                viewBox="0 0 430 430"
-              >
-                <g strokeWidth="18">
-                  <path
-                    stroke="#FFF"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M312.601 305.475c-26.273 14.715-58.717 23.408-93.825 23.408s-67.552-8.693-93.825-23.408"
-                  />
-                  <path
-                    stroke="#FFF"
-                    strokeLinejoin="round"
-                    d="M158.352 72.148c3.725 6.192 6.909 13.393 9.531 21.46 15.975-4.123 33.091-6.358 50.893-6.358 15.228 0 29.955 1.636 43.895 4.69 2.513-7.394 5.511-14.03 8.977-19.792 25.747 3.086 49.437 10.893 69.495 22.22 20.228 24.718 37.723 59.3 48.459 99.37 11.642 43.446 13.177 85.277 6.259 118.097-21.508 20.403-52.494 36.375-88.916 45.331-7.134-12.146-13.866-25.549-20.013-39.981-20.648 7.5-43.759 11.698-68.156 11.698-26.99 0-52.406-5.137-74.653-14.199-6.428 15.387-13.524 29.638-21.068 42.482-36.422-8.956-67.408-24.928-88.916-45.331-6.918-32.82-5.383-74.651 6.259-118.097 10.736-40.07 28.23-74.652 48.46-99.37 20.057-11.327 43.747-19.134 69.494-22.22Z"
-                  />
-                  <path
-                    stroke="#FFF"
-                    d="M310 230c0 16.569-11.193 30-25 30s-25-13.431-25-30 11.193-30 25-30 25 13.431 25 30Zm-140 0c0 16.569-11.193 30-25 30s-25-13.431-25-30 11.193-30 25-30 25 13.431 25 30Z"
-                  />
-                </g>
-              </svg>
-              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
-                Discord
               </Text>
             </BetterButton>
             <BetterButton onClick={handleGithubNav}>

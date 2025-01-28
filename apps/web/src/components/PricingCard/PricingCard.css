@@ -2,18 +2,20 @@
   flex: 1;
   padding: 32px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   color: #fff;
   backdrop-filter: blur(8px);
+  max-width: 420px;
+  min-width: 280px;
 }
 
 .pricing-card:hover {
   transform: translateY(-8px);
   border-color: rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.3),
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
@@ -29,8 +31,7 @@
     rgba(255, 255, 255, 0.02) 0%,
     transparent 100%
   );
-  box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.4),
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
@@ -112,7 +113,11 @@
 }
 
 .pricing-button:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.pricing-button:hover .pricing-button-text {
+  color: #000;
 }
 
 .pricing-card-highlighted .pricing-button {
@@ -122,6 +127,28 @@
 .pricing-card-highlighted .pricing-button:hover {
   background: #e27b4c;
 }
+
+.pricing-button.current-plan {
+  background: rgba(255, 255, 255, 0.9);
+  cursor: default;
+}
+
+.pricing-button.current-plan .pricing-button-text {
+  color: #000;
+}
+
+.pricing-button.current-plan:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.pricing-card-highlighted .pricing-button.current-plan {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.pricing-card-highlighted .pricing-button.current-plan:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
 /* Gradient overlay */
 .pricing-card::before {
   content: "";
@@ -135,8 +162,58 @@
 }
 
 .feature-checkmark-container {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 100%;
-  background: #ffffff18;
+  background: #ffffffdc;
+}
+
+.checkout-overlay {
+  display: flex;
+  /* height: 100vh;
+  width: 100vw; */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.checkout-popover {
+  height: 90vh;
+  width: 90vw;
+  max-width: 1048px;
+  overflow: auto;
+  cursor: default;
+}
+
+.stripe-checkout-wrapper {
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  background: #050609;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5),
+    0 12px 48px -8px rgba(0, 0, 0, 0.3);
+
+  /* Webkit scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+  }
 }

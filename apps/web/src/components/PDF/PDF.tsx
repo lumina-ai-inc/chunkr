@@ -88,8 +88,8 @@ export const PDF = memo(
   }: {
     content: Chunk[];
     inputFileUrl: string;
-    onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
-    activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
+    onSegmentClick: (chunkId: string, segmentId: string) => void;
+    activeSegment?: { chunkId: string; segmentId: string } | null;
     loadedPages: number;
     onLoadSuccess?: (numPages: number) => void;
     structureExtractionView?: boolean;
@@ -176,9 +176,9 @@ function CurrentPage({
 }: {
   index: number;
   segments: Chunk[];
-  onSegmentClick: (chunkIndex: number, segmentIndex: number) => void;
+  onSegmentClick: (chunkId: string, segmentId: string) => void;
   width: number;
-  activeSegment?: { chunkIndex: number; segmentIndex: number } | null;
+  activeSegment?: { chunkId: string; segmentId: string } | null;
   structureExtractionView: boolean;
 }) {
   const pageNumber = index + 1;
@@ -186,20 +186,25 @@ function CurrentPage({
   const pageSegments = useMemo(
     () =>
       !structureExtractionView
-        ? segments.flatMap((chunk, chunkIndex) =>
-          chunk.segments
-            .filter((segment) => segment.page_number === pageNumber)
-            .map((segment, segmentIndex) => (
-              <MemoizedSegmentOverlay
-                key={`${chunkIndex}-${segmentIndex}`}
-                segment={segment}
-                chunkIndex={chunkIndex}
-                segmentIndex={segmentIndex}
-                onClick={() => onSegmentClick(chunkIndex, segmentIndex)}
-                isActive={activeSegment?.chunkIndex === chunkIndex}
-              />
-            ))
-        )
+        ? segments.flatMap((chunk) =>
+            chunk.segments
+              .filter((segment) => segment.page_number === pageNumber)
+              .map((segment) => (
+                <MemoizedSegmentOverlay
+                  key={`${chunk.chunk_id}-${segment.segment_id}`}
+                  segment={segment}
+                  chunkId={chunk.chunk_id}
+                  segmentId={segment.segment_id}
+                  onClick={() =>
+                    onSegmentClick(chunk.chunk_id, segment.segment_id)
+                  }
+                  isActive={
+                    activeSegment?.chunkId === chunk.chunk_id &&
+                    activeSegment?.segmentId === segment.segment_id
+                  }
+                />
+              ))
+          )
         : [],
     [
       segments,
@@ -222,14 +227,14 @@ function CurrentPage({
 function SegmentOverlay({
   segment,
   onClick,
-  chunkIndex,
-  segmentIndex,
+  chunkId,
+  segmentId,
   isActive,
 }: {
   segment: Segment;
   onClick: () => void;
-  chunkIndex: number;
-  segmentIndex: number;
+  chunkId: string;
+  segmentId: string;
   isActive?: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -240,10 +245,15 @@ function SegmentOverlay({
       height: `${(segment.bbox.height / segment.page_height) * 100}%`,
       left: `${(segment.bbox.left / segment.page_width) * 100}%`,
       top: `${(segment.bbox.top / segment.page_height) * 100}%`,
-      borderColor: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"})`,
+      borderColor: `var(${
+        segmentColors[segment.segment_type as SegmentType] || "--border-black"
+      })`,
       backgroundColor:
         isActive || isHovered
-          ? `color-mix(in srgb, var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"}) 30%, transparent)`
+          ? `color-mix(in srgb, var(${
+              segmentLightColors[segment.segment_type as SegmentType] ||
+              "--border-black"
+            }) 30%, transparent)`
           : "transparent",
       transition: "background-color 0.2s ease-in-out",
     }),
@@ -253,51 +263,38 @@ function SegmentOverlay({
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
     onClick();
-
-    const chunkElement = document.querySelector(
-      `[data-chunk-index="${chunkIndex}"]`
-    );
-
-    if (chunkElement) {
-      const container = chunkElement.closest(".scrollable-content");
-      if (container) {
-        const containerRect = container.getBoundingClientRect();
-        const chunkRect = chunkElement.getBoundingClientRect();
-        const scrollTop =
-          chunkRect.top - containerRect.top + container.scrollTop - 24;
-
-        container.scrollTo({
-          top: scrollTop,
-          behavior: "smooth",
-        });
-      }
-    }
-
-    window.dispatchEvent(
-      new CustomEvent("highlight-segment", {
-        detail: { chunkIndex, segmentIndex },
-      })
-    );
   };
 
   return (
     <div
-      className={`segment visible absolute z-50 border-2 ${isActive ? "active" : ""}`}
+      className={`segment visible absolute z-50 border-2 ${
+        isActive ? "active" : ""
+      }`}
       style={style}
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      data-chunk-id={chunkId}
+      data-segment-id={segmentId}
     >
       <div className="w-full h-full bg-red-500 hidden"></div>
       <div
         className="segment-overlay"
         style={{
-          borderColor: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"}) !important`,
-          color: `var(${segmentColors[segment.segment_type as SegmentType] || "--border-black"}) !important`,
+          borderColor: `var(${
+            segmentColors[segment.segment_type as SegmentType] ||
+            "--border-black"
+          }) !important`,
+          color: `var(${
+            segmentColors[segment.segment_type as SegmentType] ||
+            "--border-black"
+          }) !important`,
           backgroundColor: isHovered
-            ? `color-mix(in srgb, var(${segmentLightColors[segment.segment_type as SegmentType] || "--border-black"}) 100%, transparent)`
+            ? `color-mix(in srgb, var(${
+                segmentLightColors[segment.segment_type as SegmentType] ||
+                "--border-black"
+              }) 100%, transparent)`
             : "transparent",
           opacity: "1 !important",
         }}
@@ -335,7 +332,9 @@ function OCRBoundingBoxes({
           top: `${(result.bbox.top / segmentBBox.height) * 100}%`,
           width: `${(result.bbox.width / segmentBBox.width) * 100}%`,
           height: `${(result.bbox.height / segmentBBox.height) * 100}%`,
-          border: `1px solid var(${segmentColors[segmentType] || "--border-black"})`,
+          border: `1px solid var(${
+            segmentColors[segmentType] || "--border-black"
+          })`,
           zIndex: 40,
         };
 
@@ -354,7 +353,9 @@ function OCRBoundingBoxes({
                   left: -1,
                   top: -4,
                   transform: "translateY(-100%)",
-                  backgroundColor: `color-mix(in srgb, var(${segmentColors[segmentType] || "--border-black"}) 90%, transparent) !important`,
+                  backgroundColor: `color-mix(in srgb, var(${
+                    segmentColors[segmentType] || "--border-black"
+                  }) 90%, transparent) !important`,
                   color: `var(--color-background) !important`,
                   padding: "2px 4px",
                   borderRadius: "2px",

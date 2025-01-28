@@ -59,6 +59,10 @@
   color: #050609;
 }
 
+.model-selector-button > span {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;

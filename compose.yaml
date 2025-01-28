@@ -88,7 +88,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -111,7 +111,7 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -130,7 +130,7 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 1
@@ -162,96 +162,15 @@ services:
       - KC_DB_PASSWORD=postgres
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
-    command: [ "start-dev", "--import-realm" ]
+    command: ["start-dev", "--import-realm"]
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/realms/master" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
       interval: 30s
       timeout: 10s
       retries: 3
     depends_on:
       - postgres
     restart: always
-
-<<<<<<< HEAD
-  server:
-    image: luminainc/server:9ec0e76d
-    platform: linux/amd64
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres
-      - redis
-      - minio
-    env_file:
-      - .env
-    deploy:
-      replicas: 0
-    restart: always
-
-  task:
-    image: luminainc/task:e8141cb9
-    platform: linux/amd64
-    depends_on:
-      - postgres
-      - redis
-      - minio
-    env_file:
-      - .env
-    deploy:
-      replicas: 4
-    restart: always
-
-  web:
-    image: luminainc/web:952c273a
-    platform: linux/amd64
-    ports:
-      - "5173:8000"
-    env_file:
-      - .env
-    deploy:
-      replicas: 1
-    restart: always
-
-  segmentation:
-    image: luminainc/segmentation:df6e5375
-    ports:
-      - "8001:8000"
-    deploy:
-      replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    volumes:
-      - /dev/shm:/dev/shm
-    environment:
-      - MAX_BATCH_SIZE=4
-      - BATCH_WAIT_TIME=0.2
-      - OVERLAP_THRESHOLD=0.025
-      - SCORE_THRESHOLD=0.2
-    restart: always
-
-  ocr:
-    image: luminainc/doctr:f1f4891b
-    platform: linux/amd64
-    ports:
-      - "8002:8000"
-    deploy:
-      replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    volumes:
-      - /dev/shm:/dev/shm
-    restart: always
-
-=======
->>>>>>> public/ak/migration-bugs
   rrq:
     image: luminainc/rrq:33cd165
     platform: linux/amd64
@@ -262,7 +181,7 @@ services:
     environment:
       - REDIS__URL=redis://redis:6379
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -275,7 +194,18 @@ services:
     platform: linux/amd64
     ports:
       - "8003:80"
-    command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "51", "--max-batch-tokens", "5120", "--payload-limit", "1000000", "--auto-truncate" ]
+    command:
+      [
+        "--model-id",
+        "BAAI/bge-m3",
+        "--max-client-batch-size",
+        "51",
+        "--max-batch-tokens",
+        "5120",
+        "--payload-limit",
+        "1000000",
+        "--auto-truncate",
+      ]
     deploy:
       replicas: 1
       resources:
@@ -283,7 +213,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [ gpu ]
+              capabilities: [gpu]
     restart: always
 
 volumes:
