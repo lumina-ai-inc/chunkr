@@ -133,7 +133,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: "b88be8fd"
+      tag: "299f8d58"
     port: 8000
     targetPort: 8000
     ingress:
@@ -149,7 +149,7 @@ services:
       - name: VITE_KEYCLOAK_REALM
         value: chunkr
       - name: VITE_KEYCLOAK_REDIRECT_URI
-        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}
+        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}/dashboard
       - name: VITE_KEYCLOAK_URL
         value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
 
