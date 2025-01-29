@@ -1,3 +1,4 @@
+use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::task::{Configuration, Status};
@@ -66,6 +67,7 @@ async fn process_pages_batch(
 ///
 /// This function will perform OCR, segmentation and chunking on the pages
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
+    let worker_config = WorkerConfig::from_env()?;
     pipeline
         .get_task()?
         .update(
@@ -78,13 +80,20 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             None,
         )
         .await?;
-    let pdf_ocr_results = match pdf::extract_ocr_results(pipeline.pdf_file.as_ref().unwrap()) {
-        Ok(ocr_results) => ocr_results,
-        Err(e) => {
-            println!("Error getting pdf ocr results: {:?}", e);
-            vec![vec![]; pipeline.get_task()?.page_count.unwrap_or(0) as usize]
-        }
+
+    let scaling_factor = match pipeline.get_task()?.configuration.high_resolution {
+        true => worker_config.high_res_scaling_factor,
+        false => 1.0,
     };
+
+    let pdf_ocr_results =
+        match pdf::extract_ocr_results(pipeline.pdf_file.as_ref().unwrap(), scaling_factor) {
+            Ok(ocr_results) => ocr_results,
+            Err(e) => {
+                println!("Error getting pdf ocr results: {:?}", e);
+                vec![vec![]; pipeline.get_task()?.page_count.unwrap_or(0) as usize]
+            }
+        };
 
     let pages: Vec<_> = pipeline
         .page_images
