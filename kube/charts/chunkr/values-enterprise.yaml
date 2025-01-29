@@ -75,6 +75,8 @@ services:
     env:
       - name: VITE_API_URL
         value: https://{{ .Values.services.server.ingress.subdomain }}.{{ .Values.ingress.domain }}
+      - name: VITE_DOCS_URL
+        value: https://docs.chunkr.ai
       - name: VITE_FEATURE_FLAG_PIPELINE
         value: "true"
       - name: VITE_KEYCLOAK_CLIENT_ID
