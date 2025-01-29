@@ -580,7 +580,7 @@ impl Task {
             output: Some(output),
             task_url: self.task_url.clone(),
             message: self.message.clone().unwrap_or_default(),
-            configuration: self.configuration.clone(),
+            configuration,
             started_at: self.started_at,
         })
     }
