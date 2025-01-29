@@ -60,3 +60,9 @@
     align-items: flex-start;
   }
 }
+
+@media (max-width: 486px) {
+  .footer-logo {
+    bottom: -40px;
+  }
+}
