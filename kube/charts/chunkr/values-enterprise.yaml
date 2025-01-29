@@ -86,7 +86,7 @@ services:
       - name: VITE_KEYCLOAK_REALM
         value: chunkr
       - name: VITE_KEYCLOAK_REDIRECT_URI
-        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}
+        value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}/dashboard
       - name: VITE_KEYCLOAK_URL
         value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
       - name: VITE_STRIPE_API_KEY
