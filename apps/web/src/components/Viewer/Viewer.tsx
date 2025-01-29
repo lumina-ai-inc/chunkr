@@ -169,8 +169,11 @@ export default function Viewer({
     }, 150);
   };
 
+  console.log(task);
+
   const handleDownloadOriginalFile = useCallback(() => {
     if (inputFileUrl) {
+      console.log("inputFileUrl", inputFileUrl);
       fetch(inputFileUrl)
         .then((response) => response.blob())
         .then((blob) => {

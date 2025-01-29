@@ -22,6 +22,7 @@ import BetterButton from "../BetterButton/BetterButton";
 import ReactJson from "react-json-view";
 import UploadDialog from "../Upload/UploadDialog";
 import ApiKeyDialog from "../ApiDialog/ApiKeyDialog";
+import Loader from "../../pages/Loader/Loader";
 
 const TaskTable = () => {
   const navigate = useNavigate();
@@ -496,7 +497,18 @@ const TaskTable = () => {
       height="100%"
       className="task-table-container"
     >
-      {!tasks || tasks.length === 0 ? (
+      {isLoading ? (
+        <Flex
+          width="100%"
+          height="100%"
+          align="center"
+          justify="center"
+          direction="column"
+          gap="4"
+        >
+          <Loader />
+        </Flex>
+      ) : !tasks || tasks.length === 0 ? (
         <Flex
           width="100%"
           height="100%"
