@@ -46,7 +46,6 @@ pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 fn run_migrations(url: &str) {
     use diesel::prelude::*;
-
     let mut conn = diesel::pg::PgConnection::establish(url).expect("Failed to connect to database");
     conn.run_pending_migrations(MIGRATIONS)
         .expect("Failed to run migrations");

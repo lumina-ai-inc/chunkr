@@ -4,7 +4,15 @@ use crate::utils::jobs::expiration::expire;
 use crate::utils::stripe::invoicer::invoice;
 use std::time::Duration;
 use tokio::time;
+use crate::utils::clients::get_pg_client;
 
+pub async fn maintain_monthly_usage() -> Result<(), Box<dyn std::error::Error>> {
+    let client = get_pg_client().await?;
+    
+    client.execute("SELECT maintain_monthly_usage_cron()", &[]).await?;
+    
+    Ok(())
+}
 pub fn run_expiration_job() {
     actix_web::rt::spawn(async move {
         let expiration_config = ExpirationConfig::from_env().unwrap();
@@ -40,7 +48,21 @@ pub fn run_invoice_job() {
     });
 }
 
+pub fn run_usage_cron_job() {
+    actix_web::rt::spawn(async move {
+        let mut interval = time::interval(Duration::from_secs(24 * 60 * 60)); // Daily
+        loop {
+            interval.tick().await;
+            println!("Processing monthly usage maintenance");
+            if let Err(e) = maintain_monthly_usage().await {
+                eprintln!("Error processing monthly usage maintenance: {}", e);
+            }
+        }
+    });
+}
+
 pub fn init_jobs() {
     run_expiration_job();
     run_invoice_job();
+    run_usage_cron_job();
 }

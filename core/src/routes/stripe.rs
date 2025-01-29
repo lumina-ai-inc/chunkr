@@ -287,6 +287,8 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                             DO UPDATE
                             SET tier = EXCLUDED.tier,
                                 usage_limit = EXCLUDED.usage_limit,
+                                usage = 0,
+                                overage_usage = 0,
                                 billing_cycle_start = EXCLUDED.billing_cycle_start,
                                 billing_cycle_end = EXCLUDED.billing_cycle_end",
                             &[&user_id, &tier],

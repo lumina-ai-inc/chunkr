@@ -126,7 +126,7 @@ pub async fn get_monthly_usage_count(
         LEFT JOIN monthly_usage mu ON u.user_id = mu.user_id
         LEFT JOIN tiers t ON mu.tier = t.tier
         WHERE u.user_id = $1
-        ORDER BY mu.created_at DESC
+        ORDER BY mu.billing_cycle_start DESC
     "#;
 
     let rows = client.query(query, &[&user_id]).await?;
