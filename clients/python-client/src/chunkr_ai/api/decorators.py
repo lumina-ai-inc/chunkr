@@ -66,17 +66,21 @@ def retry_on_429(max_retries: int = 25, initial_delay: float = 0.5) -> Callable[
     
     Args:
         max_retries: Maximum number of retry attempts (default: 25)
-        initial_delay: Initial delay in seconds, will be exponentially increased (default: 0.5)
+        initial_delay: Initial delay in seconds, will be exponentially increased with jitter (default: 0.5)
     """
     def decorator(async_func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
         @functools.wraps(async_func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            import random 
             retries = 0
             while True:
                 try:
                     return await async_func(*args, **kwargs)
                 except httpx.HTTPStatusError as e:
-                    if e.response.status_code != 429 or retries >= max_retries:
+                    if e.response.status_code != 429:
+                        raise
+                    if retries >= max_retries:
+                        print("Max retries reached")
                         raise
                     retries += 1
                     delay = initial_delay * (2 ** retries)
@@ -87,6 +91,7 @@ def retry_on_429(max_retries: int = 25, initial_delay: float = 0.5) -> Callable[
                             delay = float(retry_after)
                         except (ValueError, TypeError):
                             pass
-                    await asyncio.sleep(delay)
+                    jitter = random.uniform(0, 0.25) * delay
+                    await asyncio.sleep(delay + jitter)
         return wrapper
     return decorator
