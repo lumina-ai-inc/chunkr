@@ -102,7 +102,7 @@ services:
     useStandardEnv: true
     image:
       repository: server
-      tag: "c2a9a16f"
+      tag: "b88be8fd"
     port: 8000
     targetPort: 8000
     ingress:
@@ -133,7 +133,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: "952c273a"
+      tag: "b88be8fd"
     port: 8000
     targetPort: 8000
     ingress:
@@ -159,7 +159,7 @@ services:
     useStandardEnv: true
     image:
       repository: task
-      tag: "c2a9a16f"
+      tag: "b88be8fd"
     envFrom:
       - secretRef:
           name: chunkr-secret
@@ -172,7 +172,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: "f1f4891b"
+      tag: "b88be8fd"
     port: 8000
     targetPort: 8000
     useGPU: true
