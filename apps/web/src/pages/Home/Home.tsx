@@ -478,8 +478,9 @@ const Home = () => {
                 <Flex
                   align="center"
                   gap="6px"
-                  className={`hero-content-switch ${selectedFormat === "HTML" ? "active" : ""
-                    }`}
+                  className={`hero-content-switch ${
+                    selectedFormat === "HTML" ? "active" : ""
+                  }`}
                   onClick={() => handleFormatSwitch("HTML")}
                 >
                   <svg
@@ -511,8 +512,9 @@ const Home = () => {
                 <Flex
                   align="center"
                   gap="6px"
-                  className={`hero-content-switch ${selectedFormat === "Markdown" ? "active" : ""
-                    }`}
+                  className={`hero-content-switch ${
+                    selectedFormat === "Markdown" ? "active" : ""
+                  }`}
                   onClick={() => handleFormatSwitch("Markdown")}
                 >
                   <svg
@@ -755,7 +757,7 @@ const Home = () => {
                         code={scripts[selectedScript as keyof typeof scripts]}
                         language={
                           languageMap[
-                          selectedScript as keyof typeof languageMap
+                            selectedScript as keyof typeof languageMap
                           ]
                         }
                         showLineNumbers={false}
@@ -1106,25 +1108,25 @@ const Home = () => {
                   {(!auth.isAuthenticated ||
                     currentTier === "Free" ||
                     isUsageDataLoading) && (
-                      <PricingCard
-                        title="Free"
-                        credits={100}
-                        price="Free"
-                        period=""
-                        features={[
-                          "200 page credits/ month",
-                          "1 request per second",
-                          "Discord community support",
-                        ]}
-                        buttonText="Get Started"
-                        tier="Free"
-                        onCheckout={handleCheckout}
-                        stripePromise={stripePromise}
-                        clientSecret={checkoutClientSecret || undefined}
-                        currentTier={currentTier}
-                        isAuthenticated={auth.isAuthenticated}
-                      />
-                    )}
+                    <PricingCard
+                      title="Free"
+                      credits={100}
+                      price="Free"
+                      period=""
+                      features={[
+                        "200 page credits/ month",
+                        "1 request per second",
+                        "Discord community support",
+                      ]}
+                      buttonText="Get Started"
+                      tier="Free"
+                      onCheckout={handleCheckout}
+                      stripePromise={stripePromise}
+                      clientSecret={checkoutClientSecret || undefined}
+                      currentTier={currentTier}
+                      isAuthenticated={auth.isAuthenticated}
+                    />
+                  )}
 
                   <PricingCard
                     title="Starter"
@@ -1219,7 +1221,7 @@ const Home = () => {
                         padding="12px 24px"
                         radius="8px"
                         onClick={() => {
-                          window.location.href = "https://cal.com/mehulc/30min";
+                          window.open("https://cal.com/mehulc/30min", "_blank");
                         }}
                       >
                         <Text
@@ -1526,7 +1528,7 @@ const Home = () => {
                     buttonText="Book a Call"
                     tier="Commercial"
                     isCallToAction={true}
-                    callToActionUrl="https://calendly.com/mehulc/30min"
+                    callToActionUrl="https://cal.com/mehulc/30min"
                     isAuthenticated={auth.isAuthenticated}
                     currentTier={currentTier}
                   />
