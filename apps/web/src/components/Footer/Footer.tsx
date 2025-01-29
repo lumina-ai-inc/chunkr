@@ -49,9 +49,15 @@ export default function Footer() {
             <Text size="2" className="footer-link">
               Status
             </Text>
-            <Text size="2" className="footer-link">
-              Terms of Service
-            </Text>
+            <a
+              href="https://tidal-bar-00a.notion.site/Lumina-AI-INC-Terms-of-Service-dba-Chunkr-18aca54a00368047844dc19a93c5ed5d"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Text size="2" className="footer-link">
+                Terms of Service
+              </Text>
+            </a>
             <Text size="2" className="footer-link">
               Privacy Policy
             </Text>
