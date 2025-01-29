@@ -18,6 +18,7 @@ import {
 import { uploadFile } from "../../services/uploadFileApi";
 import { UploadForm } from "../../models/upload.model";
 import { getEnvConfig, WhenEnabled } from "../../config/env.config";
+import { toast } from "react-hot-toast";
 
 interface UploadMainProps {
   onSubmit: (config: UploadFormData) => void;
@@ -81,11 +82,15 @@ export default function UploadMain({
 
       setFiles([]);
       setConfig(DEFAULT_UPLOAD_CONFIG);
+      toast.success("Documents processed successfully!");
 
       onUploadSuccess?.();
     } catch (error) {
       console.error("Upload failed:", error);
-      setUploadError(error instanceof Error ? error.message : "Upload failed");
+      const errorMessage =
+        error instanceof Error ? error.message : "Upload failed";
+      setUploadError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsUploading(false);
     }

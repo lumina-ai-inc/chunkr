@@ -49,9 +49,15 @@ export default function Footer() {
             <Text size="2" className="footer-link">
               Status
             </Text>
-            <Text size="2" className="footer-link">
-              Terms of Service
-            </Text>
+            <a
+              href="https://tidal-bar-00a.notion.site/Lumina-AI-INC-Terms-of-Service-dba-Chunkr-18aca54a00368047844dc19a93c5ed5d"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Text size="2" className="footer-link">
+                Terms of Service
+              </Text>
+            </a>
             <Text size="2" className="footer-link">
               Privacy Policy
             </Text>
@@ -115,37 +121,3 @@ export default function Footer() {
     </Flex>
   );
 }
-
-// const FooterColumn = ({ title, links }: { title: string; links: string[] }) => {
-//   return (
-//     <Flex direction="column" gap="2">
-//       <Text size="2" weight="bold" className="white">
-//         {title}
-//       </Text>
-//       {links.map((link, index) => {
-//         let href = "#";
-//         switch (link) {
-//           case "API Docs":
-//             href = `https://docs.chunkr.ai`;
-//             break;
-//           case "Github":
-//             href = "https://github.com/lumina-ai-inc/chunk-my-docs";
-//             break;
-//           case "Book a call":
-//             href = "https://cal.com/mehulc/15min";
-//             break;
-//           case "Email":
-//             href = "mailto:mehul@lumina.sh";
-//             break;
-//         }
-//         return (
-//           <a href={href} key={index} target="_blank" rel="noopener noreferrer">
-//             <Text size="2" className="white footer-link">
-//               {link}
-//             </Text>
-//           </a>
-//         );
-//       })}
-//     </Flex>
-//   );
-// };

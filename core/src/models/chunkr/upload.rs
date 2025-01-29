@@ -285,7 +285,7 @@ pub enum OcrStrategy {
 
 impl Default for OcrStrategy {
     fn default() -> Self {
-        OcrStrategy::All
+        OcrStrategy::Auto
     }
 }
 

@@ -327,85 +327,21 @@ button:focus-visible {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  /* Add touch-friendly improvements */
+  min-height: 44px; /* Minimum touch target size */
+  touch-action: manipulation; /* Optimize for touch */
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+}
+
+@media (max-width: 552px) {
+  .signup-button {
+    padding: 16px 20px; /* Slightly larger touch target on mobile */
+    min-width: 44px; /* Ensure minimum width for touch */
+  }
 }
 
 .signup-button:hover {
   outline: 2px solid #fff !important;
-}
-
-/* Create base particle styles */
-.signup-button::before,
-.signup-button::after,
-.signup-button .particle {
-  content: "";
-  position: absolute;
-  width: 3px; /* Even smaller particles */
-  height: 3px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  opacity: 0;
-  transition: all 0.15s ease-out;
-  pointer-events: none;
-}
-
-/* First layer of particles */
-.signup-button:hover::before {
-  opacity: 1;
-  left: var(--mouse-x, 50%);
-  top: var(--mouse-y, 50%);
-  box-shadow:
-    /* Inner sphere particles */ 8px 8px rgba(255, 255, 255, 0.9),
-    -8px -8px rgba(255, 255, 255, 0.9), 12px -12px rgba(255, 255, 255, 0.9),
-    -10px 10px rgba(255, 255, 255, 0.9),
-    /* Middle sphere particles */ 18px 5px rgba(255, 255, 255, 0.7),
-    -20px 8px rgba(255, 255, 255, 0.7), 15px -18px rgba(255, 255, 255, 0.7),
-    -16px -12px rgba(255, 255, 255, 0.7),
-    /* Outer sphere particles */ 25px 12px rgba(255, 255, 255, 0.5),
-    -28px -15px rgba(255, 255, 255, 0.5), 22px -25px rgba(255, 255, 255, 0.5),
-    -24px 20px rgba(255, 255, 255, 0.5);
-  animation: sphericalSwarm1 2s infinite linear;
-}
-
-/* Second layer of particles rotating in opposite direction */
-.signup-button:hover::after {
-  opacity: 1;
-  left: var(--mouse-x, 50%);
-  top: var(--mouse-y, 50%);
-  box-shadow:
-    /* Inner sphere particles */ -10px -10px rgba(255, 255, 255, 0.9),
-    12px 12px rgba(255, 255, 255, 0.9), -14px 8px rgba(255, 255, 255, 0.9),
-    10px -14px rgba(255, 255, 255, 0.9),
-    /* Middle sphere particles */ -22px -4px rgba(255, 255, 255, 0.7),
-    18px -10px rgba(255, 255, 255, 0.7), -12px 18px rgba(255, 255, 255, 0.7),
-    24px 6px rgba(255, 255, 255, 0.7),
-    /* Outer sphere particles */ -26px 15px rgba(255, 255, 255, 0.5),
-    30px -20px rgba(255, 255, 255, 0.5), -24px -24px rgba(255, 255, 255, 0.5),
-    28px 28px rgba(255, 255, 255, 0.5);
-  animation: sphericalSwarm2 2s infinite linear;
-}
-
-@keyframes sphericalSwarm1 {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg) scale(0.8);
-  }
-  50% {
-    transform: translate(-50%, -50%) rotate(180deg) scale(1.1);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg) scale(0.8);
-  }
-}
-
-@keyframes sphericalSwarm2 {
-  0% {
-    transform: translate(-50%, -50%) rotate(360deg) scale(1.1);
-  }
-  50% {
-    transform: translate(-50%, -50%) rotate(180deg) scale(0.8);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(0deg) scale(1.1);
-  }
 }
 
 /* Enhanced hover effect */
