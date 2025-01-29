@@ -14,6 +14,7 @@ interface ToggleGroupProps {
   onChange: (value: string) => void;
   options: { label: string; value: string }[];
   label: React.ReactNode;
+  docsUrl?: string;
   docHover?: boolean;
 }
 
@@ -23,6 +24,7 @@ export function ToggleGroup({
   options,
   label,
   docHover = true,
+  docsUrl,
 }: ToggleGroupProps) {
   return (
     <div className="config-card">
@@ -31,6 +33,7 @@ export function ToggleGroup({
           {label}
         </Text>
         <Flex
+          onClick={() => docsUrl && window.open(docsUrl, "_blank")}
           direction="row"
           gap="1"
           align="center"
@@ -351,11 +354,13 @@ export function SegmentProcessingControls({
 interface ChunkProcessingControlsProps {
   value: ChunkProcessing;
   onChange: (value: ChunkProcessing) => void;
+  docsUrl?: string;
 }
 
 export function ChunkProcessingControls({
   value,
   onChange,
+  docsUrl,
 }: ChunkProcessingControlsProps) {
   return (
     <div className="config-card">
@@ -410,6 +415,7 @@ export function ChunkProcessingControls({
         </Flex>
 
         <Flex
+          onClick={() => docsUrl && window.open(docsUrl, "_blank")}
           direction="row"
           gap="1"
           align="center"

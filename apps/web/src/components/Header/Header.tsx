@@ -11,6 +11,8 @@ interface HeaderProps {
   auth?: AuthContextProps;
 }
 
+const DOCS_URL = import.meta.env.VITE_DOCS_URL;
+
 export default function Header({ auth }: HeaderProps) {
   const [showAccount, setShowAccount] = useState(false);
   const isAuthenticated = auth?.isAuthenticated;
@@ -148,11 +150,7 @@ export default function Header({ auth }: HeaderProps) {
           </Flex>
 
           <Flex direction="row" gap="2" py="12px" px="16px" align="center">
-            <a
-              href={"https://docs.chunkr.ai"}
-              target="_blank"
-              className="nav-item"
-            >
+            <a href={DOCS_URL} target="_blank" className="nav-item">
               <Text size="2" weight="medium" className="nav-item">
                 Docs
               </Text>
