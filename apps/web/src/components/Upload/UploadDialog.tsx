@@ -18,21 +18,33 @@ export default function UploadDialog({
   onUploadComplete,
 }: UploadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const isAuthenticated = auth.isAuthenticated;
   const navigate = useNavigate();
+
+  const handleOpenChange = (open: boolean) => {
+    if (!isUploading) {
+      setIsOpen(open);
+    }
+  };
 
   const handleSubmit = (formData: UploadFormData) => {
     console.log(formData);
   };
 
-  const handleUploadSuccess = () => {
+  const handleUploadStart = () => {
+    setIsUploading(true);
+  };
+
+  const handleUploadComplete = () => {
+    setIsUploading(false);
     setIsOpen(false);
     navigate("/dashboard?tablePageIndex=0&tablePageSize=20", { replace: true });
     onUploadComplete?.();
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
       <Dialog.Trigger>
         <BetterButton>
           <svg
@@ -92,7 +104,8 @@ export default function UploadDialog({
         <UploadMain
           onSubmit={handleSubmit}
           isAuthenticated={isAuthenticated}
-          onUploadSuccess={handleUploadSuccess}
+          onUploadSuccess={handleUploadComplete}
+          onUploadStart={handleUploadStart}
         />
       </Dialog.Content>
     </Dialog.Root>

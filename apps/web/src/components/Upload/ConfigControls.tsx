@@ -189,7 +189,7 @@ export function SegmentProcessingControls({
     } else if (!showOnlyPage && selectedType === "Page") {
       setSelectedType(defaultSegmentType);
     }
-  }, [selectedType, showOnlyPage]);
+  }, [selectedType, showOnlyPage, defaultSegmentType]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

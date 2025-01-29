@@ -1304,8 +1304,8 @@ button:focus-visible {
   }
 
   .hero-title {
-    font-size: 48px !important;
-    line-height: 48px !important;
+    font-size: 52px !important;
+    line-height: 52px !important;
     margin-bottom: 32px;
   }
 
@@ -1715,7 +1715,7 @@ button:focus-visible {
     min-width: 100% !important;
     max-width: 100% !important;
     width: 100% !important;
-    padding: 24px 0px !important;
+    padding: 24px 8px !important;
   }
 }
 
@@ -1723,7 +1723,7 @@ button:focus-visible {
   .hero-description {
     max-width: 320px !important;
     padding: 8px;
-    font-size: 12px !important;
+    font-size: 14px !important;
   }
 
   .feature-left-box-title {
@@ -1746,7 +1746,7 @@ button:focus-visible {
 
 @media (max-width: 486px) {
   .feature-left-box-title {
-    font-size: 40px !important;
+    font-size: 44px !important;
     line-height: 48px !important;
   }
 
@@ -1759,5 +1759,11 @@ button:focus-visible {
   .feature-left-box-subtitle {
     font-size: 16px !important;
     line-height: 24px !important;
+  }
+
+  .feature-right-box-image {
+    margin-right: 8px !important;
+    margin-top: 8px !important;
+    margin-left: 8px !important;
   }
 }
