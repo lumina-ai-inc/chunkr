@@ -20,6 +20,9 @@ import { UploadForm } from "../../models/upload.model";
 import { getEnvConfig, WhenEnabled } from "../../config/env.config";
 import { toast } from "react-hot-toast";
 
+const DOCS_URL = import.meta.env.VITE_DOCS_URL;
+console.log("DOCS_URL", DOCS_URL);
+
 interface UploadMainProps {
   onSubmit: (config: UploadFormData) => void;
   isAuthenticated: boolean;
@@ -121,45 +124,8 @@ export default function UploadMain({
           className={`config-section ${!isAuthenticated ? "disabled" : ""}`}
         >
           <div className="config-grid">
-            {features.pipeline && (
-              <ToggleGroup
-                label={
-                  <Flex gap="2" align="center">
-                    <svg
-                      width="20px"
-                      height="20px"
-                      viewBox="0 0 16 16"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                    >
-                      <path
-                        fill="#FFF"
-                        fill-rule="evenodd"
-                        d="M2.75 2.5A1.75 1.75 0 001 4.25v1C1 6.216 1.784 7 2.75 7h1a1.75 1.75 0 001.732-1.5H6.5a.75.75 0 01.75.75v3.5A2.25 2.25 0 009.5 12h1.018c.121.848.85 1.5 1.732 1.5h1A1.75 1.75 0 0015 11.75v-1A1.75 1.75 0 0013.25 9h-1a1.75 1.75 0 00-1.732 1.5H9.5a.75.75 0 01-.75-.75v-3.5A2.25 2.25 0 006.5 4H5.482A1.75 1.75 0 003.75 2.5h-1zM2.5 4.25A.25.25 0 012.75 4h1a.25.25 0 01.25.25v1a.25.25 0 01-.25.25h-1a.25.25 0 01-.25-.25v-1zm9.75 6.25a.25.25 0 00-.25.25v1c0 .138.112.25.25.25h1a.25.25 0 00.25-.25v-1a.25.25 0 00-.25-.25h-1z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    <span>Pipeline</span>
-                  </Flex>
-                }
-                value={config.pipeline || "Default"}
-                onChange={(value) =>
-                  setConfig({
-                    ...config,
-                    pipeline: (features.pipeline
-                      ? value === "Default"
-                        ? undefined
-                        : (value as Pipeline)
-                      : undefined) as WhenEnabled<"pipeline", Pipeline>,
-                  })
-                }
-                options={[
-                  { label: "Default", value: "Default" },
-                  { label: "Azure", value: Pipeline.Azure },
-                ]}
-              />
-            )}
             <ToggleGroup
+              docsUrl={`${DOCS_URL}/docs/features/layout-analysis/what`}
               label={
                 <Flex gap="2" align="center">
                   <svg
@@ -213,6 +179,7 @@ export default function UploadMain({
               ]}
             />
             <ToggleGroup
+              docsUrl={`${DOCS_URL}/docs/features/ocr`}
               label={
                 <Flex gap="2" align="center">
                   <svg
@@ -254,6 +221,7 @@ export default function UploadMain({
             />
 
             <ChunkProcessingControls
+              docsUrl={`${DOCS_URL}/docs/features/chunking`}
               value={config.chunk_processing || { target_length: 512 }}
               onChange={(value) =>
                 setConfig({
@@ -264,6 +232,7 @@ export default function UploadMain({
             />
 
             <ToggleGroup
+              docsUrl={`${DOCS_URL}/api-references/task/create-task#body-high-resolution`}
               label={
                 <Flex gap="2" align="center">
                   <svg
@@ -367,6 +336,46 @@ export default function UploadMain({
                 { label: "OFF", value: "OFF" },
               ]}
             />
+
+            {features.pipeline && (
+              <ToggleGroup
+                docsUrl={`${DOCS_URL}/docs/features/pipeline`}
+                label={
+                  <Flex gap="2" align="center">
+                    <svg
+                      width="20px"
+                      height="20px"
+                      viewBox="0 0 16 16"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                    >
+                      <path
+                        fill="#FFF"
+                        fill-rule="evenodd"
+                        d="M2.75 2.5A1.75 1.75 0 001 4.25v1C1 6.216 1.784 7 2.75 7h1a1.75 1.75 0 001.732-1.5H6.5a.75.75 0 01.75.75v3.5A2.25 2.25 0 009.5 12h1.018c.121.848.85 1.5 1.732 1.5h1A1.75 1.75 0 0015 11.75v-1A1.75 1.75 0 0013.25 9h-1a1.75 1.75 0 00-1.732 1.5H9.5a.75.75 0 01-.75-.75v-3.5A2.25 2.25 0 006.5 4H5.482A1.75 1.75 0 003.75 2.5h-1zM2.5 4.25A.25.25 0 012.75 4h1a.25.25 0 01.25.25v1a.25.25 0 01-.25.25h-1a.25.25 0 01-.25-.25v-1zm9.75 6.25a.25.25 0 00-.25.25v1c0 .138.112.25.25.25h1a.25.25 0 00.25-.25v-1a.25.25 0 00-.25-.25h-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <span>Pipeline</span>
+                  </Flex>
+                }
+                value={config.pipeline || "Default"}
+                onChange={(value) =>
+                  setConfig({
+                    ...config,
+                    pipeline: (features.pipeline
+                      ? value === "Default"
+                        ? undefined
+                        : (value as Pipeline)
+                      : undefined) as WhenEnabled<"pipeline", Pipeline>,
+                  })
+                }
+                options={[
+                  { label: "Default", value: "Default" },
+                  { label: "Azure", value: Pipeline.Azure },
+                ]}
+              />
+            )}
           </div>
 
           <div className="config-card" style={{ marginTop: "32px" }}>
@@ -397,6 +406,13 @@ export default function UploadMain({
                 </Text>
               </Flex>
               <Flex
+                onClick={() =>
+                  DOCS_URL &&
+                  window.open(
+                    `${DOCS_URL}/docs/features/segment-processing`,
+                    "_blank"
+                  )
+                }
                 direction="row"
                 gap="1"
                 align="center"
