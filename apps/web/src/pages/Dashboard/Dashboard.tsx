@@ -45,6 +45,17 @@ export default function Dashboard() {
   );
 
   useEffect(() => {
+    if (!searchParams.has("view")) {
+      const params = new URLSearchParams(searchParams);
+      params.set("view", "tasks");
+      navigate({
+        pathname: "/dashboard",
+        search: params.toString(),
+      });
+    }
+  }, [navigate, searchParams]);
+
+  useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
         profileRef.current &&
@@ -156,24 +167,30 @@ export default function Dashboard() {
 
   const handleNavigation = useCallback(
     (item: string) => {
-      const params = new URLSearchParams(searchParams);
+      const params = new URLSearchParams();
+      const currentParams = new URLSearchParams(searchParams);
 
-      // Preserve table pagination params
-      const tablePageIndex = searchParams.get("tablePageIndex");
-      const tablePageSize = searchParams.get("tablePageSize");
+      // Set view first (either "tasks" or "usage")
+      params.set("view", item.toLowerCase());
+
+      // Always preserve all view-specific parameters EXCEPT taskId when clicking on Tasks
+      // For Tasks view
+      const tablePageIndex = currentParams.get("tablePageIndex");
+      const tablePageSize = currentParams.get("tablePageSize");
+      // Only preserve taskId if we're not clicking on Tasks nav item
+      const taskId = currentParams.get("taskId");
+      if (taskId && item !== "Tasks") {
+        params.set("taskId", taskId);
+      }
+
       if (tablePageIndex) params.set("tablePageIndex", tablePageIndex);
       if (tablePageSize) params.set("tablePageSize", tablePageSize);
 
-      // Set the view parameter based on navigation
-      if (item === "Usage") {
-        params.set("view", "usage");
-        // Set default timeRange if not already set
-        if (!params.has("timeRange")) {
-          params.set("timeRange", "week");
-        }
-      } else {
-        params.delete("view");
-        params.delete("timeRange");
+      // For Usage view
+      const timeRange = currentParams.get("timeRange");
+      if (timeRange) params.set("timeRange", timeRange);
+      else if (item === "Usage" && !timeRange) {
+        params.set("timeRange", "week"); // Set default only if switching to Usage and no timeRange exists
       }
 
       navigate({
@@ -190,21 +207,25 @@ export default function Dashboard() {
     const view = searchParams.get("view");
     if (view === "usage") {
       setSelectedNav("Usage");
+    } else if (view === "tasks") {
+      setSelectedNav("Tasks");
     }
   }, [searchParams]);
 
   const handleHeaderNavigation = useCallback(() => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams();
+    const currentParams = new URLSearchParams(searchParams);
 
-    // Preserve only table pagination params when going back to tasks
-    const tablePageIndex = searchParams.get("tablePageIndex");
-    const tablePageSize = searchParams.get("tablePageSize");
+    // Set view first
+    params.set("view", "tasks");
 
-    params.delete("view");
-    params.delete("timeRange");
-
-    if (tablePageIndex) params.set("tablePageIndex", tablePageIndex);
-    if (tablePageSize) params.set("tablePageSize", tablePageSize);
+    // Preserve all view-specific parameters
+    for (const [key, value] of currentParams.entries()) {
+      if (key !== "view" && key !== "taskId") {
+        // Don't preserve taskId when clicking header
+        params.set(key, value);
+      }
+    }
 
     navigate({
       pathname: "/dashboard",
@@ -231,8 +252,18 @@ export default function Dashboard() {
   const showProfilePopup = user?.data && isProfileMenuOpen;
 
   const content = useMemo(() => {
-    switch (selectedNav) {
-      case "Tasks":
+    const view = searchParams.get("view");
+
+    switch (view) {
+      case "usage":
+        return {
+          title: "Usage",
+          component: (
+            <Usage key="usage-view" customerId={user.data?.customer_id || ""} />
+          ),
+        };
+      case "tasks":
+      default:
         if (taskId) {
           return {
             title: `Tasks > ${taskResponse?.output?.file_name || taskId}`,
@@ -243,29 +274,20 @@ export default function Dashboard() {
                 ) : taskResponse?.output &&
                   taskResponse?.output?.pdf_url &&
                   taskResponse?.output ? (
-                  <Viewer key={taskId} task={taskResponse} />
+                  <Viewer key={`viewer-${taskId}`} task={taskResponse} />
                 ) : null}
               </Suspense>
             ),
           };
         }
-
         return {
           title: "Tasks",
-          component: <TaskTable key="task-table" />,
-        };
-      case "Usage":
-        return {
-          title: "Usage",
-          component: <Usage customerId={user.data?.customer_id || ""} />,
-        };
-      default:
-        return {
-          title: "Tasks",
-          component: <TaskTable />,
+          component: (
+            <TaskTable key={`task-table-${searchParams.toString()}`} />
+          ),
         };
     }
-  }, [selectedNav, taskId, taskResponse, isLoading, user]);
+  }, [searchParams, taskId, taskResponse, isLoading, user]);
 
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
@@ -789,7 +811,7 @@ export default function Dashboard() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="12"
-                  d="M120.755 170c.03-4.669.059-20.874.059-27.29 0-9.272-3.167-15.339-6.719-18.41 22.051-2.464 45.201-10.863 45.201-49.067 0-10.855-3.824-19.735-10.175-26.683 1.017-2.516 4.413-12.63-.987-26.32 0 0-8.296-2.672-27.202 10.204-7.912-2.213-16.371-3.308-24.784-3.352-8.414.044-16.872 1.14-24.785 3.352C52.457 19.558 44.162 22.23 44.162 22.23c-5.4 13.69-2.004 23.804-.987 26.32C36.824 55.498 33 64.378 33 75.233c0 38.204 23.149 46.603 45.2 49.067-3.551 3.071-6.719 9.138-6.719 18.41 0 6.416.03 22.621.059 27.29M27 130c9.939.703 15.67 9.735 15.67 9.735 8.834 15.199 23.178 10.803 28.815 8.265"
+                  d="M120.755 170c.03-4.669.059-20.874.059-27.29 0-9.272-3.167-15.339-6.719-18.41 22.051-2.464 45.201-10.863 45.201-49.067 0-10.855-3.824-19.735-10.175-26.683 1.017-2.516 4.413-12.63-.987-26.32 0 0-8.296-2.672-27.202 10.204-7.912-2.213-16.371-3.308-24.784-3.352-8.414.044-16.872 1.14-24.785 3.352C52.457 19.558 44.162 22.23 44.162 22.23c-5.4 13.69-2.004 23.804-.987 26.32C36.824 55.498 33 64.378 33 75.233c0 38.204 23.149 46.603 45.2 49.067-3.551 3.071-6.719 9.138-6.719 18.41 0 6.416.03 22.621.059 27.29M27 130c9.939.703 15.67 9.735 15.67 9.735 8.834 15.199 23.178 23.178 10.803 28.815 8.265"
                 />
               </svg>
               <Text size="2" weight="medium" style={{ color: "#FFF" }}>
