@@ -176,13 +176,15 @@ BEGIN
     IF v_user_tier = 'Free' THEN
         -- Lock the row and get current usage
         SELECT 
-            usage, 
-            usage_limit 
+            usage,
+            usage_limit
         INTO v_monthly_usage, v_monthly_limit
-        FROM monthly_usage
-        WHERE user_id = NEW.user_id 
-        AND NEW.created_at >= billing_cycle_start
+        FROM monthly_usage 
+        WHERE user_id = NEW.user_id
+        AND NEW.created_at >= billing_cycle_start 
         AND NEW.created_at < billing_cycle_end
+        ORDER BY year DESC, month DESC
+        LIMIT 1
         FOR UPDATE;
 
         -- Get pages from other processing tasks
@@ -191,13 +193,6 @@ BEGIN
         FROM tasks
         WHERE user_id = NEW.user_id
         AND status = 'Processing'
-        AND created_at >= (
-            SELECT billing_cycle_start 
-            FROM monthly_usage 
-            WHERE user_id = NEW.user_id
-            AND NEW.created_at >= billing_cycle_start
-            AND NEW.created_at < billing_cycle_end
-        )
         AND task_id != NEW.task_id;  -- Exclude current task
 
         -- Check if this task would exceed limit
@@ -229,11 +224,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS validate_usage_trigger ON TASKS;
 CREATE OR REPLACE TRIGGER validate_usage_trigger
 BEFORE UPDATE ON TASKS
 FOR EACH ROW
 EXECUTE FUNCTION validate_usage();
+
+
 CREATE OR REPLACE FUNCTION update_monthly_usage() RETURNS TRIGGER AS $$
 DECLARE
     old_usage INT;
