@@ -24,6 +24,8 @@ import UploadDialog from "../Upload/UploadDialog";
 import ApiKeyDialog from "../ApiDialog/ApiKeyDialog";
 import Loader from "../../pages/Loader/Loader";
 
+const DOCS_URL = import.meta.env.VITE_DOCS_URL;
+
 const TaskTable = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
@@ -534,9 +536,7 @@ const TaskTable = () => {
                 setShowApiKey={setShowApiKey}
               />
             )}
-            <BetterButton
-              onClick={() => window.open("https://docs.chunkr.ai", "_blank")}
-            >
+            <BetterButton onClick={() => window.open(DOCS_URL, "_blank")}>
               <svg
                 width="18"
                 height="18"

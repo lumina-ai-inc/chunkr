@@ -5,6 +5,8 @@ import { useAuth } from "react-oidc-context";
 import "./Upload.css";
 import BetterButton from "../BetterButton/BetterButton";
 
+const DOCS_URL = import.meta.env.VITE_DOCS_URL;
+
 interface UploadProps {
   onFileUpload: (files: File[]) => void;
   onFileRemove: (fileName: string) => void;
@@ -194,7 +196,7 @@ export default function Upload({
               customize processing options below. Learn more about all features
               in our{" "}
               <a
-                href="https://docs.chunkr.ai/models"
+                href={DOCS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
