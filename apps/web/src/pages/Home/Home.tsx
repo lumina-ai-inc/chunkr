@@ -17,9 +17,8 @@ import CodeBlock from "../../components/CodeBlock/CodeBlock";
 import BetterButton from "../../components/BetterButton/BetterButton";
 import {
   curlExample,
-  nodeExample,
+  // nodeExample,
   pythonExample,
-  rustExample,
 } from "../../components/CodeBlock/exampleScripts";
 import MomentumScroll from "../../components/MomentumScroll/MomentumScroll";
 import Header from "../../components/Header/Header";
@@ -102,7 +101,7 @@ const Home = () => {
   const apiPriceLottieRef = useRef<LottieRefCurrentProps>(null);
   const onPremLottieRef = useRef<LottieRefCurrentProps>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [selectedScript, setSelectedScript] = useState("curl");
+  const [selectedScript, setSelectedScript] = useState("python");
 
   const [checkoutClientSecret, setCheckoutClientSecret] = useState<
     string | null
@@ -303,16 +302,14 @@ const Home = () => {
 
   const scripts = {
     curl: curlExample,
-    node: nodeExample,
+    // node: nodeExample,
     python: pythonExample,
-    rust: rustExample,
   };
 
   const languageMap = {
-    curl: "bash",
-    node: "javascript",
     python: "python",
-    rust: "rust",
+    curl: "bash",
+    // node: "javascript",
   };
 
   const handleGetStarted = () => {
@@ -481,9 +478,8 @@ const Home = () => {
                 <Flex
                   align="center"
                   gap="6px"
-                  className={`hero-content-switch ${
-                    selectedFormat === "HTML" ? "active" : ""
-                  }`}
+                  className={`hero-content-switch ${selectedFormat === "HTML" ? "active" : ""
+                    }`}
                   onClick={() => handleFormatSwitch("HTML")}
                 >
                   <svg
@@ -515,9 +511,8 @@ const Home = () => {
                 <Flex
                   align="center"
                   gap="6px"
-                  className={`hero-content-switch ${
-                    selectedFormat === "Markdown" ? "active" : ""
-                  }`}
+                  className={`hero-content-switch ${selectedFormat === "Markdown" ? "active" : ""
+                    }`}
                   onClick={() => handleFormatSwitch("Markdown")}
                 >
                   <svg
@@ -629,6 +624,30 @@ const Home = () => {
                       >
                         <Flex gap="16px">
                           <BetterButton
+                            onClick={() => handleScriptSwitch("python")}
+                            active={selectedScript === "python"}
+                          >
+                            <svg
+                              width="20px"
+                              height="20px"
+                              viewBox="0 0 15 15"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M6 2.5H7M4.5 4V1.5C4.5 0.947715 4.94772 0.5 5.5 0.5H9.5C10.0523 0.5 10.5 0.947715 10.5 1.5V6.5C10.5 7.05228 10.0523 7.5 9.5 7.5H5.5C4.94772 7.5 4.5 7.94772 4.5 8.5V13.5C4.5 14.0523 4.94772 14.5 5.5 14.5H9.5C10.0523 14.5 10.5 14.0523 10.5 13.5V11M8 4.5H1.5C0.947715 4.5 0.5 4.94772 0.5 5.5V10.5C0.5 11.0523 0.947715 11.5 1.5 11.5H4.5M7 10.5H13.5C14.0523 10.5 14.5 10.0523 14.5 9.5V4.5C14.5 3.94772 14.0523 3.5 13.5 3.5H10.5M8 12.5H9"
+                                stroke="#4B8BBE"
+                              />
+                            </svg>
+                            <Text
+                              size="1"
+                              weight="bold"
+                              className="default-font"
+                            >
+                              Python
+                            </Text>
+                          </BetterButton>
+                          <BetterButton
                             onClick={() => handleScriptSwitch("curl")}
                             active={selectedScript === "curl"}
                           >
@@ -659,7 +678,7 @@ const Home = () => {
                               curl
                             </Text>
                           </BetterButton>
-                          <BetterButton
+                          {/* <BetterButton
                             onClick={() => handleScriptSwitch("node")}
                             active={selectedScript === "node"}
                           >
@@ -697,32 +716,8 @@ const Home = () => {
                             >
                               Node
                             </Text>
-                          </BetterButton>
-                          <BetterButton
-                            onClick={() => handleScriptSwitch("python")}
-                            active={selectedScript === "python"}
-                          >
-                            <svg
-                              width="20px"
-                              height="20px"
-                              viewBox="0 0 15 15"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M6 2.5H7M4.5 4V1.5C4.5 0.947715 4.94772 0.5 5.5 0.5H9.5C10.0523 0.5 10.5 0.947715 10.5 1.5V6.5C10.5 7.05228 10.0523 7.5 9.5 7.5H5.5C4.94772 7.5 4.5 7.94772 4.5 8.5V13.5C4.5 14.0523 4.94772 14.5 5.5 14.5H9.5C10.0523 14.5 10.5 14.0523 10.5 13.5V11M8 4.5H1.5C0.947715 4.5 0.5 4.94772 0.5 5.5V10.5C0.5 11.0523 0.947715 11.5 1.5 11.5H4.5M7 10.5H13.5C14.0523 10.5 14.5 10.0523 14.5 9.5V4.5C14.5 3.94772 14.0523 3.5 13.5 3.5H10.5M8 12.5H9"
-                                stroke="#4B8BBE"
-                              />
-                            </svg>
-                            <Text
-                              size="1"
-                              weight="bold"
-                              className="default-font"
-                            >
-                              Python
-                            </Text>
-                          </BetterButton>
-                          <BetterButton
+                          </BetterButton> */}
+                          {/* <BetterButton
                             onClick={() => handleScriptSwitch("rust")}
                             active={selectedScript === "rust"}
                           >
@@ -746,7 +741,7 @@ const Home = () => {
                             >
                               Rust
                             </Text>
-                          </BetterButton>
+                          </BetterButton> */}
                         </Flex>
                       </Flex>
                       <Flex className="terminal-button-row">
@@ -760,7 +755,7 @@ const Home = () => {
                         code={scripts[selectedScript as keyof typeof scripts]}
                         language={
                           languageMap[
-                            selectedScript as keyof typeof languageMap
+                          selectedScript as keyof typeof languageMap
                           ]
                         }
                         showLineNumbers={false}
@@ -1111,25 +1106,25 @@ const Home = () => {
                   {(!auth.isAuthenticated ||
                     currentTier === "Free" ||
                     isUsageDataLoading) && (
-                    <PricingCard
-                      title="Free"
-                      credits={100}
-                      price="Free"
-                      period=""
-                      features={[
-                        "200 page credits/ month",
-                        "1 request per second",
-                        "Discord community support",
-                      ]}
-                      buttonText="Get Started"
-                      tier="Free"
-                      onCheckout={handleCheckout}
-                      stripePromise={stripePromise}
-                      clientSecret={checkoutClientSecret || undefined}
-                      currentTier={currentTier}
-                      isAuthenticated={auth.isAuthenticated}
-                    />
-                  )}
+                      <PricingCard
+                        title="Free"
+                        credits={100}
+                        price="Free"
+                        period=""
+                        features={[
+                          "200 page credits/ month",
+                          "1 request per second",
+                          "Discord community support",
+                        ]}
+                        buttonText="Get Started"
+                        tier="Free"
+                        onCheckout={handleCheckout}
+                        stripePromise={stripePromise}
+                        clientSecret={checkoutClientSecret || undefined}
+                        currentTier={currentTier}
+                        isAuthenticated={auth.isAuthenticated}
+                      />
+                    )}
 
                   <PricingCard
                     title="Starter"
