@@ -43,8 +43,8 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
 
     // Process formulas
     tempHtml = tempHtml.replace(
-      /<span class="(formula|math-inline)">(.*?)<\/span>/g,
-      (match, className, content) => {
+      /<span class="formula">(.*?)<\/span>/g,
+      (match, content) => {
         try {
           // Handle display mode math ($$...$$)
           content = content.replace(/\$\$(.*?)\$\$/g, (formula: string) =>
@@ -62,7 +62,7 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
             })
           );
 
-          return `<span class="${className}">${content}</span>`;
+          return `<span class="formula">${content}</span>`;
         } catch (err) {
           console.error("KaTeX processing error:", err);
           return match;
@@ -208,12 +208,9 @@ export const SegmentChunk = memo(
           }
 
           // Handle formula segments with class="formula"
-          if (
-            segment.html?.includes('class="formula"') ||
-            segment.html?.includes('class="math-inline"')
-          ) {
+          if (segment.html?.includes('class="formula"')) {
             const formulaMatch = segment.html.match(
-              /<span class="(formula|math-inline)">(.*?)<\/span>/s
+              /<span class="formula">(.*?)<\/span>/s
             );
             if (formulaMatch) {
               const formula = formulaMatch[1]
