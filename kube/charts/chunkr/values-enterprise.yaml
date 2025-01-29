@@ -66,7 +66,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: "40c46f2f"
+      tag: "601fc918"
     port: 8000
     targetPort: 8000
     ingress:
