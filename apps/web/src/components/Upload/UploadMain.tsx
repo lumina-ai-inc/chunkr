@@ -82,7 +82,7 @@ export default function UploadMain({
 
       setFiles([]);
       setConfig(DEFAULT_UPLOAD_CONFIG);
-      toast.success("Documents processed successfully!");
+      toast.success("Documents uploaded");
 
       onUploadSuccess?.();
     } catch (error) {

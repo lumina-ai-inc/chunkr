@@ -6,15 +6,15 @@
   min-width: 100%;
   max-height: 240px; /* Add max height */
   overflow-y: auto; /* Enable vertical scrolling */
-  background: #0a0a0a;
+  background: rgb(2, 8, 9); /* Updated to match TaskTable background */
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   z-index: 10;
   animation: dropdownFadeIn 0.2s ease;
 
   /* Firefox scrollbar styling */
-  scrollbar-width: 8px;
-  scrollbar-color: rgba(255, 255, 255, 0.3) #050609;
+  scrollbar-width: thin; /* Updated to match TaskTable */
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Updated colors */
 }
 
 /* WebKit scrollbar styling */
@@ -24,20 +24,20 @@
 }
 
 .model-dropdown::-webkit-scrollbar-track {
-  background: #050609;
+  background: transparent; /* Updated to match TaskTable */
 }
 
 .model-dropdown::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 0px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
+  background: rgba(255, 255, 255, 0.2); /* Updated color */
+  border-radius: 4px; /* Updated radius */
+  border: none; /* Removed border */
+  background-clip: unset; /* Removed padding-box */
 }
 
 .model-dropdown::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border: 2px solid transparent;
-  background-clip: padding-box;
+  background: rgba(255, 255, 255, 0.3); /* Updated hover color */
+  border: none; /* Removed border */
+  background-clip: unset; /* Removed padding-box */
 }
 
 .model-option {
@@ -48,6 +48,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  background: rgb(2, 8, 9); /* Added to match TaskTable background */
 }
 
 .model-option:hover {
@@ -55,8 +56,13 @@
 }
 
 .model-option.selected {
-  background: #ffffff;
-  color: #050609;
+  background: rgba(
+    64,
+    169,
+    255,
+    0.1
+  ); /* Updated to use the blue accent color */
+  color: rgba(255, 255, 255, 0.95); /* Updated selected text color */
 }
 
 .model-selector-button > span {
