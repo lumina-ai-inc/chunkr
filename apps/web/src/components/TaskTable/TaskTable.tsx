@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { TaskResponse } from "../../models/taskResponse.model";
 import { useTasksQuery } from "../../hooks/useTaskQuery";
 import useUser from "../../hooks/useUser";
+import { useAuth } from "react-oidc-context";
 import "./TaskTable.css";
 import { Flex, Text } from "@radix-ui/themes";
 import { deleteTasks, cancelTasks } from "../../services/crudApi";
@@ -19,11 +20,14 @@ import { Box } from "@mui/material";
 import { Status } from "../../models/taskResponse.model";
 import BetterButton from "../BetterButton/BetterButton";
 import ReactJson from "react-json-view";
+import UploadDialog from "../Upload/UploadDialog";
+import ApiKeyDialog from "../ApiDialog/ApiKeyDialog";
 
 const TaskTable = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const [showApiKey, setShowApiKey] = useState(false);
 
   // Set default values if params don't exist
   if (!searchParams.has("tablePageIndex"))
@@ -64,6 +68,7 @@ const TaskTable = () => {
   }, [pagination, navigate]);
 
   const { data: user } = useUser();
+  const auth = useAuth();
   const totalTasks = user?.task_count || 0;
 
   const {
@@ -491,57 +496,181 @@ const TaskTable = () => {
       height="100%"
       className="task-table-container"
     >
-      <ThemeProvider theme={tableTheme}>
-        <MaterialReactTable
-          columns={columns}
-          data={tasks || []}
-          enableColumnPinning
-          enableRowSelection
-          enablePagination
-          manualPagination
-          enableStickyHeader
-          enableStickyFooter
-          rowPinningDisplayMode="select-sticky"
-          getRowId={(row) => row.task_id}
-          muiPaginationProps={{
-            rowsPerPageOptions: [10, 20, 50, 100],
-            defaultValue: 20,
-          }}
-          muiTableContainerProps={{
-            sx: {
-              height: "calc(100% - 112px)",
-              width: "100%",
-            },
-          }}
-          onPaginationChange={setPagination}
-          rowCount={totalTasks}
-          state={{
-            isLoading,
-            pagination,
-            showAlertBanner: isError,
-            showProgressBars: isRefetching,
-            rowSelection,
-          }}
-          muiToolbarAlertBannerProps={
-            isError
-              ? {
-                  color: "error",
-                  children: "Error loading data",
-                }
-              : undefined
-          }
-          renderTopToolbarCustomActions={() => (
-            <Flex gap="2">
-              <Tooltip arrow title="Refresh Data">
-                <IconButton onClick={() => refetch()}>
-                  <RefreshIcon />
-                </IconButton>
-              </Tooltip>
-              {Object.keys(rowSelection).length > 0 && (
-                <>
-                  {hasSelectedCancellableTasks() && (
-                    <Tooltip arrow title="Cancel Selected">
-                      <BetterButton onClick={handleCancelSelected}>
+      {!tasks || tasks.length === 0 ? (
+        <Flex
+          width="100%"
+          height="100%"
+          align="center"
+          justify="center"
+          direction="column"
+          gap="4"
+        >
+          <Text size="4" mb="4" weight="medium" className="white">
+            Get started by uploading a file
+          </Text>
+          <Flex direction="column" gap="4" align="center">
+            <UploadDialog
+              auth={auth}
+              onUploadComplete={() => {
+                refetch();
+              }}
+            />
+            {user && (
+              <ApiKeyDialog
+                user={user}
+                showApiKey={showApiKey}
+                setShowApiKey={setShowApiKey}
+              />
+            )}
+            <BetterButton
+              onClick={() => window.open("https://docs.chunkr.ai", "_blank")}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 25 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g clip-path="url(#clip0_113_1419)">
+                  <path
+                    d="M9.25 6.75H15.75"
+                    stroke="#FFF"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M8 15.75H19.75V21.25H8C6.48 21.25 5.25 20.02 5.25 18.5C5.25 16.98 6.48 15.75 8 15.75Z"
+                    stroke="#FFF"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M5.25 18.5V5.75C5.25 4.09315 6.59315 2.75 8.25 2.75H18.75C19.3023 2.75 19.75 3.19772 19.75 3.75V16"
+                    stroke="#FFF"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_113_1419">
+                    <rect
+                      width="24"
+                      height="24"
+                      fill="white"
+                      transform="translate(0.5)"
+                    />
+                  </clipPath>
+                </defs>
+              </svg>
+              <Text size="2" weight="medium" style={{ color: "#FFF" }}>
+                Docs
+              </Text>
+            </BetterButton>
+          </Flex>
+        </Flex>
+      ) : (
+        <ThemeProvider theme={tableTheme}>
+          <MaterialReactTable
+            columns={columns}
+            data={tasks || []}
+            enableColumnPinning
+            enableRowSelection
+            enablePagination
+            manualPagination
+            enableStickyHeader
+            enableStickyFooter
+            rowPinningDisplayMode="select-sticky"
+            getRowId={(row) => row.task_id}
+            muiPaginationProps={{
+              rowsPerPageOptions: [10, 20, 50, 100],
+              defaultValue: 20,
+            }}
+            muiTableContainerProps={{
+              sx: {
+                height: "calc(100% - 112px)",
+                width: "100%",
+              },
+            }}
+            onPaginationChange={setPagination}
+            rowCount={totalTasks}
+            state={{
+              isLoading,
+              pagination,
+              showAlertBanner: isError,
+              showProgressBars: isRefetching,
+              rowSelection,
+            }}
+            muiToolbarAlertBannerProps={
+              isError
+                ? {
+                    color: "error",
+                    children: "Error loading data",
+                  }
+                : undefined
+            }
+            renderTopToolbarCustomActions={() => (
+              <Flex gap="2">
+                <Tooltip arrow title="Refresh Data">
+                  <IconButton onClick={() => refetch()}>
+                    <RefreshIcon />
+                  </IconButton>
+                </Tooltip>
+                {Object.keys(rowSelection).length > 0 && (
+                  <>
+                    {hasSelectedCancellableTasks() && (
+                      <Tooltip arrow title="Cancel Selected">
+                        <BetterButton onClick={handleCancelSelected}>
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 25 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g clip-path="url(#clip0_113_1439)">
+                              <path
+                                d="M9.25 15.25L15.75 8.75"
+                                stroke="#FFF"
+                                stroke-width="1.5"
+                                stroke-miterlimit="10"
+                                stroke-linecap="round"
+                              />
+                              <path
+                                d="M15.75 15.25L9.25 8.75"
+                                stroke="#FFF"
+                                stroke-width="1.5"
+                                stroke-miterlimit="10"
+                                stroke-linecap="round"
+                              />
+                              <path
+                                d="M12.5 21.25C17.6086 21.25 21.75 17.1086 21.75 12C21.75 6.89137 17.6086 2.75 12.5 2.75C7.39137 2.75 3.25 6.89137 3.25 12C3.25 17.1086 7.39137 21.25 12.5 21.25Z"
+                                stroke="#FFF"
+                                stroke-width="1.5"
+                                stroke-miterlimit="10"
+                                stroke-linecap="round"
+                              />
+                            </g>
+                            <defs>
+                              <clipPath id="clip0_113_1439">
+                                <rect
+                                  width="24"
+                                  height="24"
+                                  fill="white"
+                                  transform="translate(0.5)"
+                                />
+                              </clipPath>
+                            </defs>
+                          </svg>
+                          <Text size="1">Cancel Tasks</Text>
+                        </BetterButton>
+                      </Tooltip>
+                    )}
+                    <Tooltip arrow title="Delete Selected">
+                      <BetterButton onClick={handleDeleteSelected}>
                         <svg
                           width="20"
                           height="20"
@@ -549,147 +678,101 @@ const TaskTable = () => {
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
                         >
-                          <g clip-path="url(#clip0_113_1439)">
-                            <path
-                              d="M9.25 15.25L15.75 8.75"
-                              stroke="#FFF"
-                              stroke-width="1.5"
-                              stroke-miterlimit="10"
-                              stroke-linecap="round"
-                            />
-                            <path
-                              d="M15.75 15.25L9.25 8.75"
-                              stroke="#FFF"
-                              stroke-width="1.5"
-                              stroke-miterlimit="10"
-                              stroke-linecap="round"
-                            />
-                            <path
-                              d="M12.5 21.25C17.6086 21.25 21.75 17.1086 21.75 12C21.75 6.89137 17.6086 2.75 12.5 2.75C7.39137 2.75 3.25 6.89137 3.25 12C3.25 17.1086 7.39137 21.25 12.5 21.25Z"
-                              stroke="#FFF"
-                              stroke-width="1.5"
-                              stroke-miterlimit="10"
-                              stroke-linecap="round"
-                            />
-                          </g>
-                          <defs>
-                            <clipPath id="clip0_113_1439">
-                              <rect
-                                width="24"
-                                height="24"
-                                fill="white"
-                                transform="translate(0.5)"
-                              />
-                            </clipPath>
-                          </defs>
-                        </svg>
-                        <Text size="1">Cancel Tasks</Text>
+                          <path
+                            d="M4.25 4.75H20.75"
+                            stroke="#FFF"
+                            stroke-width="1.5"
+                            stroke-miterlimit="10"
+                            stroke-linecap="round"
+                          />
+                          <path
+                            d="M12.5 2.75V4.75"
+                            stroke="#FFF"
+                            stroke-width="1.5"
+                            stroke-miterlimit="10"
+                            stroke-linecap="round"
+                          />
+                          <path
+                            d="M14.2402 17.27V12.77"
+                            stroke="#FFF"
+                            stroke-width="1.5"
+                            stroke-miterlimit="10"
+                            stroke-linecap="round"
+                          />
+                          <path
+                            d="M10.75 17.25V12.75"
+                            stroke="#FFF"
+                            stroke-width="1.5"
+                            stroke-miterlimit="10"
+                            stroke-linecap="round"
+                          />
+                          <path
+                            d="M5.87012 8.75H19.1701"
+                            stroke="#FFF"
+                            stroke-width="1.5"
+                            stroke-miterlimit="10"
+                          />
+                          <path
+                            d="M15.91 21.25H9.09C8.07 21.25 7.21 20.48 7.1 19.47L5.5 4.75H19.5L17.9 19.47C17.79 20.48 16.93 21.25 15.91 21.25V21.25Z"
+                            stroke="#FFF"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>{" "}
+                        <Text size="1">Delete Tasks</Text>
                       </BetterButton>
                     </Tooltip>
-                  )}
-                  <Tooltip arrow title="Delete Selected">
-                    <BetterButton onClick={handleDeleteSelected}>
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 25 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M4.25 4.75H20.75"
-                          stroke="#FFF"
-                          stroke-width="1.5"
-                          stroke-miterlimit="10"
-                          stroke-linecap="round"
-                        />
-                        <path
-                          d="M12.5 2.75V4.75"
-                          stroke="#FFF"
-                          stroke-width="1.5"
-                          stroke-miterlimit="10"
-                          stroke-linecap="round"
-                        />
-                        <path
-                          d="M14.2402 17.27V12.77"
-                          stroke="#FFF"
-                          stroke-width="1.5"
-                          stroke-miterlimit="10"
-                          stroke-linecap="round"
-                        />
-                        <path
-                          d="M10.75 17.25V12.75"
-                          stroke="#FFF"
-                          stroke-width="1.5"
-                          stroke-miterlimit="10"
-                          stroke-linecap="round"
-                        />
-                        <path
-                          d="M5.87012 8.75H19.1701"
-                          stroke="#FFF"
-                          stroke-width="1.5"
-                          stroke-miterlimit="10"
-                        />
-                        <path
-                          d="M15.91 21.25H9.09C8.07 21.25 7.21 20.48 7.1 19.47L5.5 4.75H19.5L17.9 19.47C17.79 20.48 16.93 21.25 15.91 21.25V21.25Z"
-                          stroke="#FFF"
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>{" "}
-                      <Text size="1">Delete Tasks</Text>
-                    </BetterButton>
-                  </Tooltip>
-                </>
-              )}
-            </Flex>
-          )}
-          enableExpanding
-          renderDetailPanel={renderDetailPanel}
-          muiTableBodyRowProps={({ row }) => ({
-            onClick: (event) => {
-              if (
-                !(event.target as HTMLElement)
-                  .closest(".MuiTableCell-root")
-                  ?.classList.contains("MuiTableCell-paddingNone")
-              ) {
-                if (row.original.message === "Task succeeded") {
-                  handleTaskClick(row.original);
-                } else if (
-                  row.original.status !== Status.Failed &&
-                  row.original.status !== Status.Succeeded
+                  </>
+                )}
+              </Flex>
+            )}
+            enableExpanding
+            renderDetailPanel={renderDetailPanel}
+            muiTableBodyRowProps={({ row }) => ({
+              onClick: (event) => {
+                if (
+                  !(event.target as HTMLElement)
+                    .closest(".MuiTableCell-root")
+                    ?.classList.contains("MuiTableCell-paddingNone")
                 ) {
-                  refetch();
+                  if (row.original.message === "Task succeeded") {
+                    handleTaskClick(row.original);
+                  } else if (
+                    row.original.status !== Status.Failed &&
+                    row.original.status !== Status.Succeeded
+                  ) {
+                    refetch();
+                  }
                 }
-              }
-            },
-            sx: {
-              cursor:
-                row.original.message === "Task succeeded" ||
-                (row.original.status !== Status.Failed &&
-                  row.original.status !== Status.Succeeded)
-                  ? "pointer"
-                  : "default",
-              "&:hover": {
-                backgroundColor:
+              },
+              sx: {
+                cursor:
                   row.original.message === "Task succeeded" ||
                   (row.original.status !== Status.Failed &&
                     row.original.status !== Status.Succeeded)
-                    ? "rgba(255, 255, 255, 0.05) !important"
-                    : "rgb(2, 8, 9) !important",
-              },
-              "&.Mui-TableBodyCell-DetailPanel": {
-                height: 0,
-                "& > td": {
-                  padding: 0,
+                    ? "pointer"
+                    : "default",
+                "&:hover": {
+                  backgroundColor:
+                    row.original.message === "Task succeeded" ||
+                    (row.original.status !== Status.Failed &&
+                      row.original.status !== Status.Succeeded)
+                      ? "rgba(255, 255, 255, 0.05) !important"
+                      : "rgb(2, 8, 9) !important",
+                },
+                "&.Mui-TableBodyCell-DetailPanel": {
+                  height: 0,
+                  "& > td": {
+                    padding: 0,
+                  },
                 },
               },
-            },
-          })}
-          onRowSelectionChange={setRowSelection}
-        />
-      </ThemeProvider>
+            })}
+            onRowSelectionChange={setRowSelection}
+          />
+        </ThemeProvider>
+      )}
     </Flex>
   );
 };
