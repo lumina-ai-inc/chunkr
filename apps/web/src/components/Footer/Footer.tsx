@@ -77,7 +77,7 @@ export default function Footer() {
           style={{ marginTop: "24px" }}
         >
           <a
-            href="https://twitter.com/chunkr_ai"
+            href="https://x.com/chunkrai"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -95,7 +95,7 @@ export default function Footer() {
             </svg>
           </a>
           <a
-            href="https://www.linkedin.com/company/lumina-ai-inc"
+            href="https://www.linkedin.com/company/chunkr/"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -104,7 +104,7 @@ export default function Footer() {
             </svg>
           </a>
           <a
-            href="https://discord.gg/chunkr-ai"
+            href="https://discord.gg/XzKWFByKzW"
             target="_blank"
             rel="noopener noreferrer"
           >

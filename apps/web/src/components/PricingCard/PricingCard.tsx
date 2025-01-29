@@ -77,7 +77,7 @@ const PricingCard = ({
 
   const handleClick = async () => {
     if (isCallToAction && callToActionUrl) {
-      window.location.href = callToActionUrl;
+      window.open(callToActionUrl, "_blank");
       return;
     }
 

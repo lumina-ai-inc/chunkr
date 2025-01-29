@@ -584,10 +584,7 @@ export default function Dashboard() {
                     <Flex
                       className="profile-menu-item"
                       onClick={() =>
-                        window.open(
-                          "https://discord.gg/your-discord-link",
-                          "_blank"
-                        )
+                        window.open("https://discord.gg/XzKWFByKzW", "_blank")
                       }
                     >
                       <svg
