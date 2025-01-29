@@ -173,38 +173,28 @@ export default function Viewer({
 
   const handleDownloadOriginalFile = useCallback(() => {
     if (inputFileUrl) {
-      console.log("inputFileUrl", inputFileUrl);
       fetch(inputFileUrl)
         .then((response) => response.blob())
         .then((blob) => {
-          // Create blob URL
           const blobUrl = window.URL.createObjectURL(blob);
-
-          // Create temporary anchor element
           const link = document.createElement("a");
           link.href = blobUrl;
 
-          // Extract filename from URL - look for the last segment before query parameters
-          // that ends with .pdf and decode it
-          const filename = decodeURIComponent(
-            inputFileUrl.split("?")[0].split("/").pop() || "document.pdf"
-          );
-          link.download = filename;
+          const originalFilename = output?.file_name || "document.pdf";
+          const extension = originalFilename.split(".").pop() || "pdf";
+          const baseFilename = originalFilename.replace(`.${extension}`, "");
+          link.download = `${baseFilename}_chunkr.${extension}`;
 
-          // Trigger download
           document.body.appendChild(link);
           link.click();
-
-          // Cleanup
           document.body.removeChild(link);
           window.URL.revokeObjectURL(blobUrl);
         })
         .catch((error) => {
-          console.error("Error downloading PDF:", error);
+          console.error("Error downloading file:", error);
         });
     }
-    console.log("inputFileUrl", inputFileUrl);
-  }, [inputFileUrl]);
+  }, [inputFileUrl, output]);
 
   const handleDownloadPDF = useCallback(() => {
     if (task.output?.pdf_url) {
@@ -223,17 +213,14 @@ export default function Viewer({
       const a = document.createElement("a");
       a.href = url;
 
-      // Extract original filename from inputFileUrl and create new JSON filename
-      const originalFilename = decodeURIComponent(
-        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf"
-      );
-      const baseFilename = originalFilename.replace(".pdf", "");
-      a.download = `chunkr_json_${baseFilename}.json`;
+      const originalFilename = output?.file_name || "document.pdf";
+      const baseFilename = originalFilename.replace(/\.[^/.]+$/, "");
+      a.download = `${baseFilename}_chunkr_json.json`;
 
       a.click();
       URL.revokeObjectURL(url);
     }
-  }, [task, inputFileUrl]);
+  }, [task, output]);
 
   const handleDownloadHTML = useCallback(() => {
     if (output) {
@@ -260,16 +247,14 @@ export default function Viewer({
       const a = document.createElement("a");
       a.href = url;
 
-      const originalFilename = decodeURIComponent(
-        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf"
-      );
-      const baseFilename = originalFilename.replace(".pdf", "");
-      a.download = `chunkr_html_${baseFilename}.html`;
+      const originalFilename = output.file_name || "document.pdf";
+      const baseFilename = originalFilename.replace(/\.[^/.]+$/, "");
+      a.download = `${baseFilename}_chunkr_html.html`;
 
       a.click();
       URL.revokeObjectURL(url);
     }
-  }, [output, inputFileUrl]);
+  }, [output]);
 
   const handleDownloadMarkdown = useCallback(() => {
     if (output) {
@@ -296,16 +281,14 @@ export default function Viewer({
       const a = document.createElement("a");
       a.href = url;
 
-      const originalFilename = decodeURIComponent(
-        inputFileUrl?.split("?")[0].split("/").pop() || "document.pdf"
-      );
-      const baseFilename = originalFilename.replace(".pdf", "");
-      a.download = `chunkr_markdown_${baseFilename}.md`;
+      const originalFilename = output.file_name || "document.pdf";
+      const baseFilename = originalFilename.replace(/\.[^/.]+$/, "");
+      a.download = `${baseFilename}_chunkr_markdown.md`;
 
       a.click();
       URL.revokeObjectURL(url);
     }
-  }, [output, inputFileUrl]);
+  }, [output]);
 
   // Add scroll handler for PDF container to load more pages
   const handleScroll = useCallback(
@@ -641,7 +624,17 @@ export default function Viewer({
                     overflow="auto"
                   >
                     <ReactJson
-                      src={task.configuration}
+                      src={{
+                        ...task.configuration,
+                        input_file_url: task.configuration.input_file_url
+                          ? task.configuration.input_file_url.length > 50
+                            ? task.configuration.input_file_url.substring(
+                                0,
+                                50
+                              ) + "..."
+                            : task.configuration.input_file_url
+                          : null,
+                      }}
                       theme="monokai"
                       displayDataTypes={false}
                       enableClipboard={false}
@@ -652,6 +645,7 @@ export default function Viewer({
                       }}
                       collapsed={1}
                       name={false}
+                      displayObjectSize={false}
                     />
                   </Flex>
                 </div>
