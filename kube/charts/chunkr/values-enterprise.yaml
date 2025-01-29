@@ -89,11 +89,6 @@ services:
         value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}
       - name: VITE_KEYCLOAK_URL
         value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
-      - name: VITE_DOCS_URL
-        valueFrom:
-          secretKeyRef:
-            name: chunkr-secret
-            key: VITE_DOCS_URL
       - name: VITE_STRIPE_API_KEY
         valueFrom:
           secretKeyRef:
