@@ -1,19 +1,13 @@
-use crate::configs::expiration_config::Config as ExpirationConfig;
+use crate::configs::job_config::Config as ExpirationConfig;
 use crate::configs::stripe_config::Config as StripeConfig;
 use crate::utils::jobs::expiration::expire;
+use crate::utils::jobs::monthly_usage::maintain_monthly_usage;
+use crate::utils::jobs::timeout::timeout;
 use crate::utils::stripe::invoicer::invoice;
 use std::time::Duration;
 use tokio::time;
-use crate::utils::clients::get_pg_client;
 
-pub async fn maintain_monthly_usage() -> Result<(), Box<dyn std::error::Error>> {
-    let client = get_pg_client().await?;
-    
-    client.execute("SELECT maintain_monthly_usage_cron()", &[]).await?;
-    
-    Ok(())
-}
-pub fn run_expiration_job() {
+pub fn run_fail_processing_task_job() {
     actix_web::rt::spawn(async move {
         let expiration_config = ExpirationConfig::from_env().unwrap();
         let interval = expiration_config.job_interval;
@@ -23,6 +17,21 @@ pub fn run_expiration_job() {
             println!("Processing expired tasks");
             if let Err(e) = expire().await {
                 eprintln!("Error processing expired tasks: {}", e);
+            }
+        }
+    });
+}
+
+pub fn run_expiration_job() {
+    actix_web::rt::spawn(async move {
+        let expiration_config = ExpirationConfig::from_env().unwrap();
+        let interval = expiration_config.job_interval;
+        let mut interval = time::interval(Duration::from_secs(interval));
+        loop {
+            interval.tick().await;
+            println!("Processing expired tasks");
+            if let Err(e) = timeout(expiration_config.task_timeout).await {
+                eprintln!("Error processing timed out tasks: {}", e);
             }
         }
     });

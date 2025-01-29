@@ -1,4 +1,4 @@
-use crate::configs::expiration_config;
+use crate::configs::job_config;
 use crate::models::chunkr::chunk_processing::ChunkProcessing;
 use crate::models::chunkr::segment_processing::SegmentProcessing;
 use crate::models::chunkr::task::Configuration;
@@ -57,11 +57,11 @@ impl CreateForm {
     }
 
     fn get_expires_in(&self) -> Option<i32> {
-        let expiration_config = expiration_config::Config::from_env().unwrap();
+        let job_config = job_config::Config::from_env().unwrap();
         self.expires_in
             .as_ref()
             .map(|e| e.0)
-            .or(expiration_config.time)
+            .or(job_config.expiration_time)
     }
 
     fn get_high_resolution(&self) -> bool {
