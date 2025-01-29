@@ -116,13 +116,15 @@ class OCRInput(BaseModel):
 
 
 def tokenize_texts(text_body: List[str]) -> List[List[int]]:
+    truncated = [txt[:512] for txt in text_body]
     tokenized = tokenizer.batch_encode_plus(
-        text_body,
+        truncated,
         return_token_type_ids=False,
         return_attention_mask=False,
         add_special_tokens=False
     )
     return tokenized["input_ids"]
+
 
 def readjust_bbox_coords(bounding_boxes: List[Tuple[float,float,float,float]], tokens: List[List[int]]) -> List[Tuple[float,float,float,float]]:
     adjusted = []
