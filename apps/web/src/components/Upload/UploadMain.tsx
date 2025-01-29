@@ -24,11 +24,13 @@ interface UploadMainProps {
   onSubmit: (config: UploadFormData) => void;
   isAuthenticated: boolean;
   onUploadSuccess?: () => void;
+  onUploadStart?: () => void;
 }
 
 export default function UploadMain({
   isAuthenticated,
   onUploadSuccess,
+  onUploadStart,
 }: UploadMainProps) {
   const { features } = getEnvConfig();
   const [files, setFiles] = useState<File[]>([]);
@@ -62,6 +64,7 @@ export default function UploadMain({
     if (files.length === 0) return;
 
     setIsUploading(true);
+    onUploadStart?.();
     setUploadError(null);
 
     try {
@@ -83,7 +86,6 @@ export default function UploadMain({
       setFiles([]);
       setConfig(DEFAULT_UPLOAD_CONFIG);
       toast.success("Documents uploaded");
-
       onUploadSuccess?.();
     } catch (error) {
       console.error("Upload failed:", error);
@@ -91,6 +93,7 @@ export default function UploadMain({
         error instanceof Error ? error.message : "Upload failed";
       setUploadError(errorMessage);
       toast.error(errorMessage);
+      onUploadSuccess?.();
     } finally {
       setIsUploading(false);
     }
@@ -444,18 +447,6 @@ export default function UploadMain({
               }
             />
           </div>
-
-          {/* <Flex direction="column" mt="32px">
-            <JsonSchemaControls
-              value={config.json_schema}
-              onChange={(newSchema) =>
-                setConfig({
-                  ...config,
-                  json_schema: newSchema,
-                })
-              }
-            />
-          </Flex> */}
         </section>
 
         <section
