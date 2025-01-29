@@ -58,15 +58,14 @@ type DocumentCategory = {
 };
 
 const DOCUMENT_CATEGORIES: DocumentCategory[] = [
-  { id: "finance", label: "Finance", pdfName: "financial" },
-  { id: "legal", label: "Legal", pdfName: "legal" },
-  { id: "scientific", label: "Scientific", pdfName: "science" },
-  { id: "technical", label: "Technical Reports", pdfName: "specs" },
-  { id: "medical", label: "Medical", pdfName: "medical" },
-  { id: "consulting", label: "Consulting", pdfName: "consulting" },
-  { id: "government", label: "Government", pdfName: "gov" },
-  { id: "invoice", label: "Invoice", pdfName: "invoice" },
-  { id: "formulas", label: "Formulas", pdfName: "formulas" },
+  { id: "financial", label: "Financial Reports ", pdfName: "financial" },
+  { id: "legal", label: "Legal Documents", pdfName: "legal" },
+  { id: "scientific", label: "Research Papers", pdfName: "science" },
+  { id: "technical", label: "Technical Manuals", pdfName: "specs" },
+  { id: "medical", label: "Medical Files", pdfName: "medical" },
+  { id: "consulting", label: "Consulting Reports", pdfName: "consulting" },
+  { id: "government", label: "Government Reports", pdfName: "gov" },
+  { id: "textbook", label: "Textbooks", pdfName: "textbook" },
 ];
 
 const BASE_URL = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page";
@@ -115,7 +114,7 @@ const Home = () => {
 
   const pricingRef = useRef<HTMLDivElement>(null);
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("finance");
+  const [selectedCategory, setSelectedCategory] = useState<string>("technical");
   const [taskResponse, setTaskResponse] = useState<TaskResponse | null>(null);
 
   // Function to fetch task response and update PDF URL
@@ -898,7 +897,7 @@ const Home = () => {
                           />
                         }
                         title="VLM's for complex parsing"
-                        description="Powerful defaults for tables and formulas, or create custom flows for any segment"
+                        description="Powerful defaults for tables + formulas, and custom parsing prompts for any segment"
                         onMouseEnter={() => handleLottieHover(vlmLottieRef)}
                         data-feature="vlm"
                       />

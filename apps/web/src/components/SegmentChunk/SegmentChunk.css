@@ -226,7 +226,7 @@
 }
 
 /* LaTeX/Math formatting */
-.katex-display {
+/* .katex-display {
   margin: 1.25em 0 !important;
   padding: 1em !important;
   overflow-x: auto !important;
@@ -240,7 +240,7 @@
   margin: 1.5em 0 !important;
   padding: 1em !important;
   overflow-x: auto !important;
-}
+} */
 
 /* Images */
 .segment-chunk img {
@@ -291,7 +291,7 @@
 }
 
 /* LaTeX/Math formatting */
-.latex-content .math-display {
+/* .latex-content .math-display {
   margin: 1.5em 0 !important;
   padding: 1em !important;
   background: hsla(230, 15%, 15%, 0.3) !important;
@@ -301,18 +301,18 @@
 
 .latex-content .math-inline {
   padding: 0 0.2em !important;
-}
+} */
 
 /* Update LaTeX content container styles */
-.latex-content {
+/* .latex-content {
   width: 100%;
-}
+} */
 
 /* Ensure proper spacing for math content within segments */
-.segment-item .katex-display,
+/* .segment-item .katex-display,
 .segment-item .math-display {
   margin: 0.5em 0 !important;
-}
+} */
 
 /* Adjust image margins within segments */
 .segment-item img {

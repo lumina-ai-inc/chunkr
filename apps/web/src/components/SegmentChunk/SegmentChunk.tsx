@@ -24,11 +24,6 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
   const processedHtml = useMemo(() => {
     let tempHtml = html;
 
-    // Skip if content is already rendered math
-    if (tempHtml.includes('class="katex"')) {
-      return tempHtml;
-    }
-
     // Process base64 images
     tempHtml = tempHtml.replace(
       /<img[^>]+src="([^"]+)"[^>]*>/g,
@@ -38,35 +33,6 @@ const MemoizedHtml = memo(({ html }: { html: string }) => {
           return match.replace(src, `data:image/jpeg;base64,${src}`);
         }
         return match;
-      }
-    );
-
-    // Process formulas
-    tempHtml = tempHtml.replace(
-      /<span class="formula">(.*?)<\/span>/g,
-      (match, content) => {
-        try {
-          // Handle display mode math ($$...$$)
-          content = content.replace(/\$\$(.*?)\$\$/g, (formula: string) =>
-            katex.renderToString(formula, {
-              displayMode: true,
-              throwOnError: false,
-            })
-          );
-
-          // Handle inline math ($...$)
-          content = content.replace(/\$(.*?)\$/g, (formula: string) =>
-            katex.renderToString(formula, {
-              displayMode: false,
-              throwOnError: false,
-            })
-          );
-
-          return `<span class="formula">${content}</span>`;
-        } catch (err) {
-          console.error("KaTeX processing error:", err);
-          return match;
-        }
       }
     );
 
@@ -209,35 +175,30 @@ export const SegmentChunk = memo(
 
           // Handle formula segments with class="formula"
           if (segment.html?.includes('class="formula"')) {
-            const formulaMatch = segment.html.match(
-              /<span class="formula">(.*?)<\/span>/s
-            );
-            if (formulaMatch) {
-              const formula = formulaMatch[1]
-                .replace(/&gt;/g, ">")
-                .replace(/&lt;/g, "<")
-                .replace(/&amp;/g, "&")
-                .trim();
-              try {
-                return (
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: katex.renderToString(formula, {
-                        displayMode: true,
-                        throwOnError: false,
-                      }),
-                    }}
-                  />
-                );
-              } catch (error) {
-                console.error("KaTeX rendering error:", error);
-                return (
-                  <div className="math math-display">
-                    {`$$\\begin{aligned}${formula}\\end{aligned}$$`}
-                  </div>
-                );
+            let html = segment.html;
+            // Process all formula spans
+            html = html.replace(
+              /<span class="formula">(.*?)<\/span>/gs,
+              (match, formula) => {
+                try {
+                  const processedFormula = formula
+                    .replace(/&gt;/g, ">")
+                    .replace(/&lt;/g, "<")
+                    .replace(/&amp;/g, "&")
+                    .replace(/\\\(|\\\)/g, "") // Remove \( and \) delimiters
+                    .trim();
+                  return katex.renderToString(processedFormula, {
+                    displayMode: false,
+                    throwOnError: false,
+                  });
+                } catch (error) {
+                  console.error("KaTeX rendering error:", error);
+                  return match; // Return original on error
+                }
               }
-            }
+            );
+
+            return <div dangerouslySetInnerHTML={{ __html: html }} />;
           }
 
           // Handle content with LaTeX delimiters
