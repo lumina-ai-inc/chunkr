@@ -54,6 +54,15 @@ curl -X POST https://api.chunkr.ai/api/v1/task \\
 // }`;
 
 export const pythonExample = `from chunkr_ai import Chunkr
+from chunkr_ai.models import (
+    Configuration,
+    ChunkProcessing,
+    GenerationConfig,
+    GenerationStrategy,
+    SegmentProcessing,
+    SegmentationStrategy,
+    CroppingStrategy
+)
 
 chunkr = Chunkr(api_key="your_api_key")
 
