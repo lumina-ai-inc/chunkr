@@ -10,23 +10,16 @@ curl -X POST https://api.chunkr.ai/api/v1/task \\
     -H "Authorization: YOUR_API_KEY" \\
     -F "file=@/path/to/your/file" \\
     -F 'chunk_processing={
-            "ignore_headers_and_footers": false,
             "target_length": 1024
         };type=application/json' \\
-    -F 'segment_processing={
-            "Formula": {
-                "html": "Auto",
-                "markdown": "Auto"
-            },
-            "Table": {
-                "html": "Auto",
-                "markdown": "Auto"
-            },
-            "Picture": {
-                "crop_image": "Auto"
-            }
-        };type=application/json' \\
-    -F 'segmentation_strategy="\\"Page\\"";type=application/json'`;
+    -F 'segment_processing = {
+        "Table": {
+        "html": "LLM"
+        },
+        "Picture": {
+        "llm": "Convert all charts to tables"
+        }
+    };type=application/json`;
 
 // export const nodeExample = `const FormData = require('form-data');
 // const fs = require('fs');
@@ -54,39 +47,30 @@ curl -X POST https://api.chunkr.ai/api/v1/task \\
 // }`;
 
 export const pythonExample = `from chunkr_ai import Chunkr
-from chunkr_ai.models import (
-    Configuration,
-    ChunkProcessing,
-    GenerationConfig,
-    GenerationStrategy,
-    SegmentProcessing,
-    SegmentationStrategy,
-    CroppingStrategy
-)
 
 chunkr = Chunkr(api_key="your_api_key")
 
 # Start instantly with our default configurations
-chunkr.upload("/path/to/your/file")
+task = chunkr.upload("/path/to/your/file")
 
-# Or customize the task for your use case
-chunkr.upload("path/to/file", Configuration(
+# Export HTML of document
+task.html(output_file="output.html")
+
+# Export markdown of document
+task.markdown(output_file="output.md")
+
+# Or customize the task for your use case (needs imports - view docs)
+task = chunkr.upload("path/to/file", Configuration(
     chunk_processing=ChunkProcessing(
-        ignore_headers_and_footers=False,
         target_length=1024
     ),
     segment_processing=SegmentProcessing(
-        Formula=GenerationConfig(
-              html=GenerationStrategy.AUTO,
-              markdown=GenerationStrategy.AUTO,
-        ),
         Table=GenerationConfig(
-              html=GenerationStrategy.AUTO,
-              markdown=GenerationStrategy.AUTO,
+            html=GenerationStrategy.LLM,
         ),
         Picture=GenerationConfig(
-            crop_image=CroppingStrategy.AUTO
+            llm="Convert all charts to tables"
         ),
     ),
-    segmentation_strategy=SegmentationStrategy.PAGE
+    # Add more configurations here
 ))`;
