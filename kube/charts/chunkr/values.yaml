@@ -142,6 +142,8 @@ services:
     env:
       - name: VITE_API_URL
         value: https://{{ .Values.services.server.ingress.subdomain }}.{{ .Values.ingress.domain }}
+      - name: VITE_DOCS_URL
+        value: https://docs.chunkr.ai
       - name: VITE_KEYCLOAK_CLIENT_ID
         value: chunkr
       - name: VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI
@@ -152,6 +154,7 @@ services:
         value: https://{{ .Values.services.web.ingress.subdomain }}.{{ .Values.ingress.domain }}/dashboard
       - name: VITE_KEYCLOAK_URL
         value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
+
 
   # Workers
   task:
