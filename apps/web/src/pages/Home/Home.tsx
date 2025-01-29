@@ -58,15 +58,14 @@ type DocumentCategory = {
 };
 
 const DOCUMENT_CATEGORIES: DocumentCategory[] = [
-  { id: "finance", label: "Finance", pdfName: "financial" },
-  { id: "legal", label: "Legal", pdfName: "legal" },
-  { id: "scientific", label: "Scientific", pdfName: "science" },
-  { id: "technical", label: "Technical Reports", pdfName: "specs" },
-  { id: "medical", label: "Medical", pdfName: "medical" },
-  { id: "consulting", label: "Consulting", pdfName: "consulting" },
-  { id: "government", label: "Government", pdfName: "gov" },
-  { id: "invoice", label: "Invoice", pdfName: "invoice" },
-  { id: "formulas", label: "Formulas", pdfName: "formulas" },
+  { id: "financial", label: "Financial Reports ", pdfName: "financial" },
+  { id: "legal", label: "Legal Documents", pdfName: "legal" },
+  { id: "scientific", label: "Research Papers", pdfName: "science" },
+  { id: "technical", label: "Technical Manuals", pdfName: "specs" },
+  { id: "medical", label: "Medical Files", pdfName: "medical" },
+  { id: "consulting", label: "Consulting Reports", pdfName: "consulting" },
+  { id: "government", label: "Government Reports", pdfName: "gov" },
+  { id: "textbook", label: "Textbooks", pdfName: "textbook" },
 ];
 
 const BASE_URL = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page";
@@ -115,7 +114,7 @@ const Home = () => {
 
   const pricingRef = useRef<HTMLDivElement>(null);
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("finance");
+  const [selectedCategory, setSelectedCategory] = useState<string>("technical");
   const [taskResponse, setTaskResponse] = useState<TaskResponse | null>(null);
 
   // Function to fetch task response and update PDF URL
@@ -879,7 +878,7 @@ const Home = () => {
                           />
                         }
                         title="Multi-lingual OCR"
-                        description="Word-level OCR with support for 100+ languages and auto text-layer detection"
+                        description="Word-level OCR with multi-lingual support and auto text-layer detection"
                         onMouseEnter={() => handleLottieHover(ocrLottieRef)}
                         data-feature="ocr"
                       />
@@ -898,7 +897,7 @@ const Home = () => {
                           />
                         }
                         title="VLM's for complex parsing"
-                        description="Powerful defaults for tables and formulas, or create custom flows for any segment"
+                        description="Powerful defaults for tables + formulas, and custom parsing prompts for any segment"
                         onMouseEnter={() => handleLottieHover(vlmLottieRef)}
                         data-feature="vlm"
                       />
@@ -1089,6 +1088,15 @@ const Home = () => {
                   >
                     Simple plans that scale with you
                   </Text>
+                  <Text
+                    size="5"
+                    weight="medium"
+                    align="center"
+                    mt="16px"
+                    className="feature-left-box-subtitle"
+                  >
+                    Start with included monthly pages - then pay-as-you-go
+                  </Text>
                 </Flex>
 
                 <Flex
@@ -1112,10 +1120,10 @@ const Home = () => {
                       title="Free"
                       credits={100}
                       price="Free"
-                      period=""
+                      period="month"
                       features={[
-                        "200 page credits/ month",
-                        "1 request per second",
+                        "200 pages included",
+                        "No payment info required",
                         "Discord community support",
                       ]}
                       buttonText="Get Started"
@@ -1134,8 +1142,8 @@ const Home = () => {
                     price={50}
                     period="month"
                     features={[
-                      "5,000 page credits/ month",
-                      "$0.01/ page post credits",
+                      "5,000 pages included",
+                      "$0.01 / page ",
                       "Community + Email support",
                     ]}
                     buttonText="Get Started"
@@ -1153,8 +1161,8 @@ const Home = () => {
                     price={200}
                     period="month"
                     features={[
-                      "25,000 page credits/ month",
-                      "$0.008/ page post credits",
+                      "25,000 pages included",
+                      "$0.008 / page",
                       "Priority support channel",
                     ]}
                     buttonText="Get Started"
@@ -1172,8 +1180,8 @@ const Home = () => {
                     price={500}
                     period="month"
                     features={[
-                      "100,000 page credits/ month",
-                      "$0.005/ page post credits",
+                      "100,000 pages included",
+                      "$0.005 / page",
                       "Dedicated founder support",
                     ]}
                     buttonText="Get Started"
@@ -1391,7 +1399,7 @@ const Home = () => {
                               size="2"
                               style={{ color: "rgba(255, 255, 255, 0.8)" }}
                             >
-                              Tuned to your docset
+                              Tuned to your data
                             </Text>
                           </Flex>
                           <Flex
@@ -1520,7 +1528,7 @@ const Home = () => {
                     features={[
                       "Managed by us in your cloud / Self-host",
                       "Unlimited pages - fixed monthly price",
-                      "Tuned to your docset",
+                      "Tuned to your data",
                       "Compliance support",
                       "Enterprise-grade SLAs",
                       "24/7 founder-led support",

@@ -19,6 +19,8 @@ import { getBillingPortalSession } from "../../services/stripeService";
 // Lazy load components
 const Viewer = lazy(() => import("../../components/Viewer/Viewer"));
 
+const DOCS_URL = import.meta.env.VITE_DOCS_URL;
+
 export default function Dashboard() {
   const auth = useAuth();
   const user = useUser();
@@ -235,13 +237,11 @@ export default function Dashboard() {
   }, [searchParams, navigate]);
 
   const handleGithubNav = useCallback(() => {
-    console.log("GitHub button clicked");
     window.open("https://github.com/lumina-ai-inc/chunkr", "_blank");
   }, []);
 
   const handleDocsNav = useCallback(() => {
-    console.log("Docs button clicked");
-    window.open("https://docs.chunkr.ai", "_blank");
+    window.open(DOCS_URL, "_blank");
   }, []);
 
   const userDisplayName =

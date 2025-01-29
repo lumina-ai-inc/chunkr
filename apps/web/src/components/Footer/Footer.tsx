@@ -46,9 +46,6 @@ export default function Footer() {
           </Flex>
 
           <Flex direction="row" gap="4" align="center">
-            <Text size="2" className="footer-link">
-              Status
-            </Text>
             <a
               href="https://tidal-bar-00a.notion.site/Lumina-AI-INC-Terms-of-Service-dba-Chunkr-18aca54a00368047844dc19a93c5ed5d"
               target="_blank"
@@ -58,9 +55,6 @@ export default function Footer() {
                 Terms of Service
               </Text>
             </a>
-            <Text size="2" className="footer-link">
-              Privacy Policy
-            </Text>
           </Flex>
         </Flex>
 
