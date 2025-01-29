@@ -21,7 +21,10 @@ app = FastAPI()
 predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, 
                          export_as_straight_boxes=True)
 if torch.cuda.is_available():
+    print("Using GPU")
     predictor = predictor.cuda()
+else:
+    print("Using CPU")
 
 pending_tasks = deque()
 processing_lock = asyncio.Lock()

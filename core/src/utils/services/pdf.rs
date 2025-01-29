@@ -42,6 +42,7 @@ pub fn count_pages(pdf_file: &NamedTempFile) -> Result<u32, Box<dyn std::error::
 /// The OCR results are converted from a bottom-left origin to a top-left origin.
 pub fn extract_ocr_results(
     pdf_file: &NamedTempFile,
+    scaling_factor: f32,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn Error>> {
     let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
     let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
@@ -55,10 +56,10 @@ pub fn extract_ocr_results(
             let rect = segment.bounds();
             let ocr_result = OCRResult {
                 bbox: BoundingBox {
-                    left: rect.left.value,
-                    top: page_height - rect.top.value,
-                    width: rect.right.value - rect.left.value,
-                    height: (rect.top.value - rect.bottom.value).abs(),
+                    left: rect.left.value * scaling_factor,
+                    top: (page_height - rect.top.value) * scaling_factor,
+                    width: (rect.right.value - rect.left.value) * scaling_factor,
+                    height: (rect.top.value - rect.bottom.value).abs() * scaling_factor,
                 },
                 text: segment.text(),
                 confidence: None,
@@ -87,7 +88,7 @@ mod tests {
         let mut pdf_file = NamedTempFile::new()?;
         pdf_file.write(std::fs::read(path)?.as_slice())?;
 
-        let ocr_results = extract_ocr_results(&pdf_file)?;
+        let ocr_results = extract_ocr_results(&pdf_file, 1.0)?;
         let image_files = pages_as_images(&pdf_file, 1.0)?;
 
         std::fs::create_dir_all(output_dir)?;
@@ -133,7 +134,7 @@ mod tests {
         pdf_file
             .write(std::fs::read(path).unwrap().as_slice())
             .unwrap();
-        let ocr_results = extract_ocr_results(&pdf_file).unwrap();
+        let ocr_results = extract_ocr_results(&pdf_file, 1.0).unwrap();
         println!("OCR results: {:?}", ocr_results);
     }
 }
