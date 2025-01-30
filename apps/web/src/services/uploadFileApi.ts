@@ -21,7 +21,7 @@ export async function uploadFile(payload: UploadForm): Promise<TaskResponse> {
     }
   }
   const { data } = await axiosInstance.post("/api/v1/task", formData, {
-    timeout: 5000,
+    timeout: 300000,
   });
   return data;
 }
