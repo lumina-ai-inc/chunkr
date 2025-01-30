@@ -42,5 +42,9 @@ export default function Checkout() {
     checkSession();
   }, [sessionId, auth.user, navigate]);
 
-  return <Loader />;
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <Loader />
+    </div>
+  );
 }
