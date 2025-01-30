@@ -62,6 +62,10 @@ data:
     metrics: 0.0.0.0:2000
     no-autoupdate: true
     ingress:
+    {{- if .Values.ingress.subdomains.root }}
+      - hostname: {{ .Values.ingress.domain | quote }}
+        service: {{ printf "http://%s-web:%v" $.Release.Name (index $.Values.services "web" "port") | quote }}
+    {{- end }}
     {{- range .Values.ingress.cloudflare.config.services }}
       - hostname: {{ printf "%s.%s" (index $.Values.services .name "ingress" "subdomain") $.Values.ingress.domain | quote }}
         service: {{ printf "http://%s-%s:%v" $.Release.Name .name (index $.Values.services .name "port") | quote }}

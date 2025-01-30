@@ -7,7 +7,6 @@ import { Theme } from "@radix-ui/themes";
 import { QueryClient, QueryClientProvider } from "react-query";
 import "@radix-ui/themes/styles.css";
 import "./index.css";
-import Auth from "./auth/Auth.tsx";
 import Home from "./pages/Home/Home.tsx";
 import AuthGuard from "./auth/AuthGuard.tsx";
 import store from "./store/store";
@@ -23,8 +22,13 @@ const oidcConfig: AuthProviderProps = {
   redirect_uri: import.meta.env.VITE_KEYCLOAK_REDIRECT_URI,
   post_logout_redirect_uri: import.meta.env
     .VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI,
-  onSigninCallback: () => {
-    window.history.replaceState({}, document.title, window.location.pathname);
+  onSigninCallback: (user) => {
+    const state = user?.state as { returnTo?: string };
+    if (state?.returnTo) {
+      window.location.href = state.returnTo;
+    } else {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   },
 };
 
@@ -68,9 +72,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider {...oidcConfig}>
         <Provider store={store}>
-          <Auth>
-            <RouterProvider router={router} />
-          </Auth>
+          <RouterProvider router={router} />
         </Provider>
       </AuthProvider>
     </QueryClientProvider>

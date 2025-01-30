@@ -4,12 +4,12 @@
     <img src="images/logo.svg" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">Chunkr</h3>
+<h3 align="center">Chunkr | Open Source Document Intelligence API</h3>
 
   <p align="center">
-    Chunkr is a self-hostable API for converting pdf, pptx, docx, and excel files into RAG/LLM ready data
-    <br />
-    <b>11 semantic tags for layout analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML and markdown</b>
+    Production-ready API service for document layout analysis, OCR, and semantic chunking.<br />Convert PDFs, PPTs, Word docs & images into RAG/LLM-ready chunks.
+    <br /><br />
+    <b>Layout Analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML and markdown</b> | <b>VLM Processing controls</b>
     <br />
     <br />
     <a href="https://www.chunkr.ai">Try it out!</a>
@@ -22,45 +22,53 @@
 
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=PcVuzqi_hqo" width="1200" height="720">
-    <img src="https://img.youtube.com/vi/PcVuzqi_hqo/maxresdefault.jpg" alt="Demo video" style="bor">
+  <a href="https://www.chunkr.ai" width="1200" height="630">
+    <img src="https://chunkr.ai/og-image.png" style="bor">
   </a>
-  <p><i>Watch our 1-minute demo video</i></p>
 </div>
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
-- [Docs](#docs)
 - [(Super) Quick Start](#super-quick-start)
+- [Documentation](#documentation)
 - [Self-Hosted Deployment Options](#self-hosted-deployment-options)
   - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
   - [Deployment with Kubernetes](#deployment-with-kubernetes)
 - [Licensing](#licensing)
 - [Connect With Us](#connect-with-us)
 
-## Docs
-
-https://docs.chunkr.ai
-
 ## (Super) Quick Start
 
 1. Go to [chunkr.ai](https://www.chunkr.ai) 
 2. Make an account and copy your API key
-3. Create a task:
+3. Install our Python SDK:
    ```bash
-   curl -X POST https://api.chunkr.ai/api/v1/task \
-      -H "Content-Type: multipart/form-data" \
-      -H "Authorization: ${YOUR_API_KEY}" \
-      -F "file=@/path/to/your/file" \
-      -F "model=HighQuality" \
-      -F "target_chunk_length=512" \
-      -F "ocr_strategy=Auto"
+   pip install chunkr-ai
    ```
-4. Poll your created task:
-    ```bash
-   curl -X GET https://api.chunkr.ai/api/v1/task/${TASK_ID} \
-      -H "Authorization: ${YOUR_API_KEY}"
+4. Use the SDK to process your documents:
+   ```python
+   from chunkr_ai import Chunkr
+
+   # Initialize with your API key from chunkr.ai
+   chunkr = Chunkr(api_key="your_api_key")
+
+   # Upload a document (URL or local file path)
+   url = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page/input/science.pdf"
+   task = chunkr.upload(url)
+
+   # Export results in various formats
+   task.html(output_file="output.html")
+   task.markdown(output_file="output.md")
+   task.content(output_file="output.txt")
+   task.json(output_file="output.json")
+
+   # Clean up
+   chunkr.close()
    ```
+
+## Documentation
+
+Visit our [docs](https://docs.chunkr.ai) for more information and examples.
 
 ## Self-Hosted Deployment Options
 

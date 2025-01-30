@@ -311,11 +311,20 @@ const Home = () => {
     // node: "javascript",
   };
 
+  // Create a unified auth redirect handler
+  const handleAuthRedirect = (returnPath?: string) => {
+    const currentPath = window.location.pathname + window.location.hash;
+    auth.signinRedirect({
+      state: { returnTo: returnPath || currentPath },
+    });
+  };
+
+  // Update handleGetStarted
   const handleGetStarted = () => {
     if (auth.isAuthenticated) {
       navigate("/dashboard");
     } else {
-      auth.signinRedirect();
+      handleAuthRedirect("/dashboard");
     }
   };
 
@@ -355,9 +364,10 @@ const Home = () => {
     }
   };
 
+  // Update handleCheckout
   const handleCheckout = async (tier: string) => {
     if (!auth.isAuthenticated) {
-      auth.signinRedirect();
+      handleAuthRedirect("/#pricing"); // Preserve pricing section
       return;
     }
     try {

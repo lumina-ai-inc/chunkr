@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-01-29
+
 ### Added
 - Added `chunk_processing` config to control chunking
 - Added `high_resolution` config to control image density
@@ -24,10 +26,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cloudflared tunnel support for https
 - Azure support for self deployment
 - Minio support for storage
+- Python client
+- Optionally get base64 encoded files from the API rather than a presigned URL
+- Upload base64 encoded files and presigned URLs, when using the Python client
 
 ### Changed
 - Combined all workers into a `task` worker. See [279](https://github.com/lumina-ai-inc/chunkr/issues/279)
 - Redis is now part of the kubernetes deployment
+- Documentation
+- Improved segmentation quality and speed
+- Dashboard has table view - search, deletion, cancellation
+- Viewer - better ux
+- Better usage tracking - includes graph
+- Landing page
 
 ### Fixed
 - List items incorrect heuristics. See [276](https://github.com/lumina-ai-inc/chunkr/issues/276)
