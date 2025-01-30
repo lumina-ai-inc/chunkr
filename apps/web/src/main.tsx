@@ -23,8 +23,13 @@ const oidcConfig: AuthProviderProps = {
   redirect_uri: import.meta.env.VITE_KEYCLOAK_REDIRECT_URI,
   post_logout_redirect_uri: import.meta.env
     .VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI,
-  onSigninCallback: () => {
-    window.history.replaceState({}, document.title, window.location.pathname);
+  onSigninCallback: (user) => {
+    const state = user?.state as { returnTo?: string };
+    if (state?.returnTo) {
+      window.location.href = state.returnTo;
+    } else {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   },
 };
 

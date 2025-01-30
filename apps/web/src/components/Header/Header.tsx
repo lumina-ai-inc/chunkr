@@ -183,7 +183,11 @@ export default function Header({ auth }: HeaderProps) {
               py="12px"
               px="16px"
               align="center"
-              onClick={() => auth?.signinRedirect()}
+              onClick={() => {
+                auth?.signinRedirect({
+                  state: { returnTo: "/dashboard" },
+                });
+              }}
               style={{ paddingRight: "0px" }}
             >
               <Text
@@ -258,7 +262,11 @@ export default function Header({ auth }: HeaderProps) {
               ) : (
                 <DropdownMenu.Item
                   className="dropdown-item"
-                  onSelect={() => auth?.signinRedirect()}
+                  onSelect={() => {
+                    auth?.signinRedirect({
+                      state: { returnTo: "/dashboard" },
+                    });
+                  }}
                 >
                   <Text size="2">Login</Text>
                 </DropdownMenu.Item>
