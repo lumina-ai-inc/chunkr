@@ -4,10 +4,10 @@
     <img src="images/logo.svg" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">Chunkr</h3>
+<h3 align="center">Chunkr | Open Source Document Intelligence API</h3>
 
   <p align="center">
-    Chunkr is a self-hostable API for converting pdf, pptx, docx, and excel files into RAG/LLM ready data
+    Production-ready API service for document layout analysis, OCR, and semantic chunking. Convert PDFs, PPTs, Word docs & images into RAG/LLM-ready chunks.
     <br />
     <b>11 semantic tags for layout analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML and markdown</b>
     <br />
@@ -22,10 +22,9 @@
 
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=PcVuzqi_hqo" width="1200" height="720">
-    <img src="https://img.youtube.com/vi/PcVuzqi_hqo/maxresdefault.jpg" alt="Demo video" style="bor">
+  <a href="https://www.chunkr.ai" width="1200" height="630">
+    <img src="https://chunkr.ai/og-image.png" style="bor">
   </a>
-  <p><i>Watch our 1-minute demo video</i></p>
 </div>
 
 ## Table of Contents
