@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Azure support for self deployment
 - Minio support for storage
 - Python client
+- Optionally get base64 encoded files from the API rather than a presigned URL
+- Upload base64 encoded files and presigned URLs, when using the Python client
 
 ### Changed
 - Combined all workers into a `task` worker. See [279](https://github.com/lumina-ai-inc/chunkr/issues/279)
