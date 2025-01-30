@@ -9,7 +9,7 @@
   <p align="center">
     Production-ready API service for document layout analysis, OCR, and semantic chunking. Convert PDFs, PPTs, Word docs & images into RAG/LLM-ready chunks.
     <br />
-    <b>11 semantic tags for layout analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML and markdown</b>
+    <b>Layout Analysis</b> | <b>OCR + Bounding Boxes</b> | <b>Structured HTML and markdown</b> | <b>VLM Processing controls</b>
     <br />
     <br />
     <a href="https://www.chunkr.ai">Try it out!</a>
