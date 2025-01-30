@@ -132,7 +132,11 @@ export const PDF = memo(
             setNumPages(document.numPages);
             onLoadSuccess?.(document.numPages);
           }}
-          loading={<Loader />}
+          loading={
+            <div style={{ width: "100%", height: "calc(100vh - 132px)" }}>
+              <Loader />
+            </div>
+          }
           error={<div className="error">Failed to load PDF</div>}
           options={options}
         >
