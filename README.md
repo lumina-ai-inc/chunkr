@@ -30,37 +30,46 @@
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
-- [Docs](#docs)
 - [(Super) Quick Start](#super-quick-start)
+- [Documentation](#documentation)
 - [Self-Hosted Deployment Options](#self-hosted-deployment-options)
   - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
   - [Deployment with Kubernetes](#deployment-with-kubernetes)
 - [Licensing](#licensing)
 - [Connect With Us](#connect-with-us)
 
-## Docs
-
-https://docs.chunkr.ai
-
 ## (Super) Quick Start
 
 1. Go to [chunkr.ai](https://www.chunkr.ai) 
 2. Make an account and copy your API key
-3. Create a task:
+3. Install our Python SDK:
    ```bash
-   curl -X POST https://api.chunkr.ai/api/v1/task \
-      -H "Content-Type: multipart/form-data" \
-      -H "Authorization: ${YOUR_API_KEY}" \
-      -F "file=@/path/to/your/file" \
-      -F "model=HighQuality" \
-      -F "target_chunk_length=512" \
-      -F "ocr_strategy=Auto"
+   pip install chunkr-ai
    ```
-4. Poll your created task:
-    ```bash
-   curl -X GET https://api.chunkr.ai/api/v1/task/${TASK_ID} \
-      -H "Authorization: ${YOUR_API_KEY}"
+4. Use the SDK to process your documents:
+   ```python
+   from chunkr_ai import Chunkr
+
+   # Initialize with your API key from chunkr.ai
+   chunkr = Chunkr(api_key="your_api_key")
+
+   # Upload a document (URL or local file path)
+   url = "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page/input/science.pdf"
+   task = chunkr.upload(url)
+
+   # Export results in various formats
+   task.html(output_file="output.html")
+   task.markdown(output_file="output.md")
+   task.content(output_file="output.txt")
+   task.json(output_file="output.json")
+
+   # Clean up
+   chunkr.close()
    ```
+
+## Documentation
+
+Visit our [docs](https://docs.chunkr.ai) for more information and examples.
 
 ## Self-Hosted Deployment Options
 
