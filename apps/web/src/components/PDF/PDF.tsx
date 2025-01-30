@@ -12,6 +12,7 @@ import {
 } from "../../models/taskResponse.model";
 import "./PDF.css";
 import { debounce } from "lodash";
+import Loader from "../../pages/Loader/Loader";
 
 declare global {
   interface PromiseConstructor {
@@ -131,7 +132,7 @@ export const PDF = memo(
             setNumPages(document.numPages);
             onLoadSuccess?.(document.numPages);
           }}
-          loading={<div className="loading">Loading PDF...</div>}
+          loading={<Loader />}
           error={<div className="error">Failed to load PDF</div>}
           options={options}
         >
