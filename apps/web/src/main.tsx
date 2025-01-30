@@ -7,7 +7,6 @@ import { Theme } from "@radix-ui/themes";
 import { QueryClient, QueryClientProvider } from "react-query";
 import "@radix-ui/themes/styles.css";
 import "./index.css";
-import Auth from "./auth/Auth.tsx";
 import Home from "./pages/Home/Home.tsx";
 import AuthGuard from "./auth/AuthGuard.tsx";
 import store from "./store/store";
@@ -73,9 +72,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider {...oidcConfig}>
         <Provider store={store}>
-          <Auth>
-            <RouterProvider router={router} />
-          </Auth>
+          <RouterProvider router={router} />
         </Provider>
       </AuthProvider>
     </QueryClientProvider>
