@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:72f523df
+    image: luminainc/server:b925ecbc
     platform: linux/amd64
     ports:
       - "8000:8000"

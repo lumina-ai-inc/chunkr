@@ -102,7 +102,7 @@ services:
     useStandardEnv: true
     image:
       repository: server
-      tag: "72f523df"
+      tag: "b925ecbc"
     port: 8000
     targetPort: 8000
     ingress:
