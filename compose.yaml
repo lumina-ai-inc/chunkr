@@ -39,7 +39,7 @@ services:
     restart: always
 
   segmentation:
-    image: luminainc/segmentation:df6e5375
+    image: luminainc/segmentation:bb950d8d
     ports:
       - "8001:8000"
     deploy:

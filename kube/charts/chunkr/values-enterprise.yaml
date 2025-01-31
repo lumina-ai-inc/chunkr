@@ -107,11 +107,6 @@ services:
     env:
       - name: VITE_API_URL
         value: https://{{ index .Values.services "analytics-server" "ingress" "subdomain" }}.{{ .Values.ingress.domain }}
-      - name: VITE_API_KEY
-        valueFrom:
-          secretKeyRef:
-            name: chunkr-secret
-            key: ANALYTICS__API_KEY
 
   analytics-server:
     enabled: true
