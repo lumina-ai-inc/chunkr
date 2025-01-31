@@ -25,6 +25,10 @@ def sample_image():
     return Image.open("tests/files/test.jpg")
 
 @pytest.fixture
+def sample_url():
+    return "https://chunkr-web.s3.us-east-1.amazonaws.com/landing_page/input/science.pdf"
+
+@pytest.fixture
 def client():
     client = Chunkr()
     yield client
@@ -32,6 +36,13 @@ def client():
 @pytest.mark.asyncio
 async def test_send_file_path(client, sample_path):
     response = await client.upload(sample_path)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
+async def test_send_file_url(client, sample_url):
+    response = await client.upload(sample_url)
     assert response.task_id is not None
     assert response.status == "Succeeded"
     assert response.output is not None
