@@ -112,7 +112,7 @@ services:
     enabled: true
     image:
       repository: analytics-server
-      tag: "6e6f5813"
+      tag: "1ca91bba"
     imagePullSecrets:
       - name: regcred
     port: 8000
