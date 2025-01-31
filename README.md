@@ -94,21 +94,15 @@ cp .env.example .env
 
 4. Start the services:
    
-With GPU (recommended):
+With GPU:
 ```bash
 docker compose up -d
 ```
-
-Only CPU (under development):
-```bash
-docker compose -f compose-cpu.yaml up -d
-```
-
 1. Access the services:
    - Web UI: `http://localhost:5173`
    - API: `http://localhost:8000`
 
-> **Note**: The default configuration (`docker compose up -d`) requires an NVIDIA CUDA GPU. For systems without a GPU, use the CPU deployment option.
+> **Note**: Requires an NVIDIA CUDA GPU
 
 6. Stop the services when done:
 ```bash

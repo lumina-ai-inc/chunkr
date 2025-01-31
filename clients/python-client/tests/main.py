@@ -1,11 +1,9 @@
 from chunkr_ai import Chunkr
-from chunkr_ai.models import Configuration, SegmentationStrategy
 import asyncio
 import multiprocessing
 import time
 import base64
 import os
-import binascii
 
 chunkr = Chunkr()
 
