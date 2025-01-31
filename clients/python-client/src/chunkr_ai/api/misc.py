@@ -32,7 +32,7 @@ async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image], client: ht
     ):
         if not client:
             raise ValueError("Client must be provided to download files from URLs")
-        response = client.get(file)
+        response = await client.get(file)
         response.raise_for_status()
 
         # Try to get filename from Content-Disposition header first
