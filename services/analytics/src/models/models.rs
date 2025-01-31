@@ -35,7 +35,7 @@ pub struct TaskDetails {
     pub email: Option<String>,
     pub name: String,
     pub page_count: i32,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub status: String,
 }

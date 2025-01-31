@@ -179,11 +179,11 @@ pub async fn get_task_details(
     Ok(rows.iter().map(|row| TaskDetails {
         task_id: row.get("task_id"),
         user_id: row.get("user_id"),
-        email: row.get("email"),
+        email: row.get::<_, Option<String>>("email"),
         name: row.get("name"),
         page_count: row.get("page_count"),
-        created_at: row.get("started_at"),
-        completed_at: row.get("completed_at"),
+        created_at: row.get::<_, Option<chrono::DateTime<chrono::Utc>>>("started_at"),
+        completed_at: row.get::<_, Option<chrono::DateTime<chrono::Utc>>>("completed_at"),
         status: row.get("status"),
     }).collect())
 }
