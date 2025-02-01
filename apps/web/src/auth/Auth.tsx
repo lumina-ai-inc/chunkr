@@ -1,7 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "react-oidc-context";
-import { useNavigate } from "react-router-dom";
 import useUser from "../hooks/useUser";
 import axiosInstance from "../services/axios.config";
 import Loader from "../pages/Loader/Loader";
@@ -12,9 +11,7 @@ interface AuthProps {
 
 export default function Auth({ children }: AuthProps) {
   const auth = useAuth();
-  const navigate = useNavigate();
-  const { isLoading } = useUser();
-
+  const { error } = useUser();
 
   // Handle access token and axios setup
   useEffect(() => {
@@ -32,11 +29,16 @@ export default function Auth({ children }: AuthProps) {
     if (auth.error) {
       console.log(auth.error);
       toast.error("Error signing in");
-      navigate("/");
     }
-  }, [auth.error, auth.isAuthenticated, auth.isLoading, navigate, auth]);
+  }, [auth.error, auth.isAuthenticated, auth.isLoading, auth]);
 
-  if (auth.isLoading || isLoading) {
+  useEffect(() => {
+    if (error) {
+      toast.error("Error getting user information");
+    }
+  }, [error]);
+
+  if (auth.isLoading) {
     return (
       <div style={{ width: "100vw", height: "100vh" }}>
         <Loader />
