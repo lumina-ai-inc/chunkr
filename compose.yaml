@@ -28,7 +28,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:85ab9bd2
+    image: luminainc/web:05e2ef7d
     platform: linux/amd64
     ports:
       - "5173:8000"
