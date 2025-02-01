@@ -169,8 +169,6 @@ export default function Viewer({
     }, 150);
   };
 
-  console.log(task);
-
   const handleDownloadOriginalFile = useCallback(() => {
     if (inputFileUrl) {
       fetch(inputFileUrl)
@@ -453,7 +451,6 @@ export default function Viewer({
             <div
               className="download-options-menu-item"
               onClick={(e) => {
-                console.log("JSON menu item clicked");
                 e.stopPropagation();
                 handleDownloadJSON();
                 setShowDownloadOptions(false);
@@ -629,9 +626,9 @@ export default function Viewer({
                         input_file_url: task.configuration.input_file_url
                           ? task.configuration.input_file_url.length > 10
                             ? task.configuration.input_file_url.substring(
-                                0,
-                                10
-                              ) + "..."
+                              0,
+                              10
+                            ) + "..."
                             : task.configuration.input_file_url
                           : null,
                       }}

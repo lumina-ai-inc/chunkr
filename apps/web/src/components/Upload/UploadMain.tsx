@@ -20,11 +20,9 @@ import { UploadForm } from "../../models/upload.model";
 import { getEnvConfig, WhenEnabled } from "../../config/env.config";
 import { toast } from "react-hot-toast";
 
-const DOCS_URL = import.meta.env.VITE_DOCS_URL;
-console.log("DOCS_URL", DOCS_URL);
+const DOCS_URL = import.meta.env.VITE_DOCS_URL || 'https://docs.chunkr.ai';
 
 interface UploadMainProps {
-  onSubmit: (config: UploadFormData) => void;
   isAuthenticated: boolean;
   onUploadSuccess?: () => void;
   onUploadStart?: () => void;
@@ -82,8 +80,7 @@ export default function UploadMain({
           pipeline: config.pipeline,
         };
 
-        const response = await uploadFile(uploadPayload);
-        console.log("Upload successful:", response);
+        await uploadFile(uploadPayload);
       }
 
       setFiles([]);

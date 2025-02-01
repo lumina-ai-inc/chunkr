@@ -4,7 +4,6 @@ import BetterButton from "../BetterButton/BetterButton";
 import { AuthContextProps } from "react-oidc-context";
 import "./UploadDialog.css";
 import UploadMain from "./UploadMain";
-import { UploadFormData } from "../../models/taskConfig.model";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -26,10 +25,6 @@ export default function UploadDialog({
     if (!isUploading) {
       setIsOpen(open);
     }
-  };
-
-  const handleSubmit = (formData: UploadFormData) => {
-    console.log(formData);
   };
 
   const handleUploadStart = () => {
@@ -102,7 +97,6 @@ export default function UploadDialog({
       </Dialog.Trigger>
       <Dialog.Content className="dialog-overlay">
         <UploadMain
-          onSubmit={handleSubmit}
           isAuthenticated={isAuthenticated}
           onUploadSuccess={handleUploadComplete}
           onUploadStart={handleUploadStart}
