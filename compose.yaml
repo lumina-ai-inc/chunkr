@@ -24,7 +24,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 10
+      replicas: 1
     restart: always
 
   web:
@@ -65,7 +65,7 @@ services:
     ports:
       - "8002:8000"
     deploy:
-      replicas: 1
+      replicas: 0
       resources:
         reservations:
           devices:
