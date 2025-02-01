@@ -133,7 +133,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: "72f523df"
+      tag: "3f123e3c"
     port: 8000
     targetPort: 8000
     ingress:
