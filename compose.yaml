@@ -65,7 +65,7 @@ services:
     ports:
       - "8002:8000"
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
