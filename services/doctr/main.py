@@ -5,6 +5,7 @@ from doctr.io import DocumentFile
 from doctr.models import ocr_predictor
 import dotenv
 from fastapi import FastAPI, File, UploadFile
+import numpy as np
 import os
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
@@ -17,16 +18,16 @@ dotenv.load_dotenv(override=True)
 batch_wait_time = float(os.getenv('OCR_BATCH_WAIT_TIME', 0.5))
 max_batch_size = int(os.getenv('OCR_MAX_BATCH_SIZE', 100))
 
-app = FastAPI()
-
-predictor = ocr_predictor('fast_base', 'crnn_vgg16_bn', pretrained=True, 
+predictor = ocr_predictor('fast_base', 'master', pretrained=True, 
                          export_as_straight_boxes=True)
 if torch.cuda.is_available():
     print("Using GPU")
-    predictor = predictor.cuda()
+    predictor = predictor.cuda().half()
 else:
     print("Using CPU")
 
+os.environ['USE_TORCH'] = 'YES'
+os.environ['USE_TF'] = 'NO'
 pending_tasks = deque()
 processing_lock = asyncio.Lock()
 batch_event = asyncio.Event()
@@ -38,8 +39,6 @@ class OCRTask(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-
-# Pydantic models to mirror Rust structs for non-breaking serialization
 
 T = TypeVar("T")
 class Detection(GenericModel, Generic[T]):
@@ -77,27 +76,55 @@ class OCRResponse(BaseModel):
 
 async def process_ocr_batch(tasks: List[OCRTask]) -> List[OCRResponse]:
     print(f"Number of tasks: {len(tasks)}")
+    
     image_bytes_list = [task.image_data for task in tasks]
     doc = DocumentFile.from_images(image_bytes_list)
+    
     start_time = time.time()
     result = predictor(doc)
-    json_output = result.export()
-    processing_time = time.time() - start_time
-    
     responses = []
-    for i in range(len(tasks)):
-        # Convert dict into a Pydantic model
-        page_content = PageContent(**json_output["pages"][i])
+    
+    for page_idx, page in enumerate(result.pages):
+        blocks = []
+        for block in page.blocks:
+            lines = []
+            for line in block.lines:
+                words = []
+                for word in line.words:
+                    words.append(Word(
+                        value=word.value,
+                        confidence=word.confidence,
+                        geometry=word.geometry,
+                        objectness_score=1.0,
+                        crop_orientation=Detection(value=0, confidence=1.0)
+                    ))
+                lines.append(Line(
+                    geometry=line.geometry,
+                    objectness_score=1.0,
+                    words=words
+                ))
+            blocks.append(Block(
+                geometry=block.geometry,
+                objectness_score=1.0,
+                lines=lines,
+                artefacts=[]
+            ))
+            
+        page_content = PageContent(
+            page_idx=page_idx,
+            dimensions=page.dimensions,
+            orientation=Detection(value=0.0, confidence=1.0),
+            language=Detection(value="en", confidence=1.0),
+            blocks=blocks
+        )
+        
         responses.append(OCRResponse(
             page_content=page_content,
-            processing_time=processing_time
+            processing_time=time.time() - start_time
         ))
     
-    del doc
-    del result
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
-        torch.cuda.synchronize()
     
     return responses
 
@@ -165,6 +192,7 @@ async def create_ocr_task(file: UploadFile = File(...), page_number: int = 0):
 
 @app.post("/batch")
 async def batch_ocr(files: List[UploadFile] = File(...)):
+    total_start_time = time.time()
     tasks = []
     for file in files:
         image_data = await file.read()
@@ -175,9 +203,14 @@ async def batch_ocr(files: List[UploadFile] = File(...)):
     results = []
     for i in range(0, len(tasks), max_batch_size):
         chunk = tasks[i:i+max_batch_size]
+        chunk_start_time = time.time()
         chunk_results = await process_ocr_batch(chunk)
+        chunk_time = time.time() - chunk_start_time
+        print(f"Processed batch {i//max_batch_size + 1} in {chunk_time:.2f}s ({len(chunk)} images, {chunk_time/len(chunk):.2f}s per image)")
         results.extend(chunk_results)
 
+    total_time = time.time() - total_start_time
+    print(f"Total processing time: {total_time:.2f}s ({len(tasks)} images, {total_time/len(tasks):.2f}s per image)")
     return results
 
 @app.get("/")
