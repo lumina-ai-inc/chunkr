@@ -2,11 +2,12 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, AuthProviderProps } from "react-oidc-context";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import { Theme } from "@radix-ui/themes";
 import { QueryClient, QueryClientProvider } from "react-query";
 import "@radix-ui/themes/styles.css";
 import "./index.css";
+import Auth from "./auth/Auth.tsx";
 import Home from "./pages/Home/Home.tsx";
 import AuthGuard from "./auth/AuthGuard.tsx";
 import store from "./store/store";
@@ -32,30 +33,43 @@ const oidcConfig: AuthProviderProps = {
   },
 };
 
+function RootLayout() {
+  return (
+    <Auth>
+      <Outlet />
+    </Auth>
+  );
+}
+
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/dashboard",
-    element: (
-      <AuthGuard>
-        <Dashboard />
-      </AuthGuard>
-    ),
-  },
-  {
-    path: "/checkout/return",
-    element: (
-      <AuthGuard>
-        <Checkout />
-      </AuthGuard>
-    ),
-  },
-  {
-    path: "*",
-    element: <Home />,
+    element: <RootLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/dashboard",
+        element: (
+          <AuthGuard>
+            <Dashboard />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: "/checkout/return",
+        element: (
+          <AuthGuard>
+            <Checkout />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: "*",
+        element: <Home />,
+      },
+    ],
   },
 ]);
 
