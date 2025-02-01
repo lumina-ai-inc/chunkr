@@ -193,6 +193,7 @@ pub async fn create_stripe_checkout_session(
         ("line_items[0][price]", &price_id),
         ("line_items[0][quantity]", "1"),
         ("ui_mode", "embedded"),
+        ("allow_promotion_codes", "true"),
     ];
 
     let stripe_response = client
