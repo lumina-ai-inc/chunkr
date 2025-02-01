@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import { useAuth } from "react-oidc-context";
 import useUser from "../hooks/useUser";
 import axiosInstance from "../services/axios.config";
-import Loader from "../pages/Loader/Loader";
 
 interface AuthProps {
   children: ReactNode;
@@ -26,11 +25,18 @@ export default function Auth({ children }: AuthProps) {
 
   // Handle auth state and redirects
   useEffect(() => {
-    if (auth.error && auth.error.message !== "login_required") {
-      console.log("Auth error", auth.error);
-      toast.error("Error signing in");
+    if (auth.error) {
+      const ignoredErrors = [
+        "login_required",
+        "IFrame timed out"
+      ];
+
+      if (!ignoredErrors.some(msg => auth.error?.message?.includes(msg))) {
+        console.log("Auth error:", auth.error);
+        toast.error("Unable to sign in. Please try again.");
+      }
     }
-  }, [auth.error, auth.isAuthenticated, auth.isLoading, auth]);
+  }, [auth.error]);
 
   useEffect(() => {
     if (error) {
@@ -51,14 +57,6 @@ export default function Auth({ children }: AuthProps) {
       });
     }
   }, [auth.isAuthenticated, auth.isLoading, auth.activeNavigator]);
-
-  if (auth.isLoading) {
-    return (
-      <div style={{ width: "100vw", height: "100vh" }}>
-        <Loader />
-      </div>
-    );
-  }
 
   return <>{children}</>;
 }
