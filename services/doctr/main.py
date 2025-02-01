@@ -7,9 +7,10 @@ import dotenv
 from fastapi import FastAPI, File, UploadFile
 import os
 from pydantic import BaseModel
+from pydantic.generics import GenericModel
 import time
 import torch
-from typing import Dict, List
+from typing import Dict, List, TypeVar, Generic, Optional
 
 dotenv.load_dotenv(override=True)
 
@@ -38,8 +39,40 @@ class OCRTask(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
+# Pydantic models to mirror Rust structs for non-breaking serialization
+
+T = TypeVar("T")
+class Detection(GenericModel, Generic[T]):
+    value: Optional[T]
+    confidence: Optional[float]
+
+class Word(BaseModel):
+    value: str
+    confidence: float
+    geometry: List[List[float]]
+    objectness_score: float
+    crop_orientation: Detection[int]
+
+class Line(BaseModel):
+    geometry: List[List[float]]
+    objectness_score: float
+    words: List[Word]
+
+class Block(BaseModel):
+    geometry: List[List[float]]
+    objectness_score: float
+    lines: List[Line]
+    artefacts: List[str]
+
+class PageContent(BaseModel):
+    page_idx: int
+    dimensions: List[int]
+    orientation: Detection[float]
+    language: Detection[str]
+    blocks: List[Block]
+
 class OCRResponse(BaseModel):
-    page_content: Dict
+    page_content: PageContent
     processing_time: float
 
 async def process_ocr_batch(tasks: List[OCRTask]) -> List[OCRResponse]:
@@ -53,13 +86,13 @@ async def process_ocr_batch(tasks: List[OCRTask]) -> List[OCRResponse]:
     
     responses = []
     for i in range(len(tasks)):
-        page_content = json_output['pages'][i]
+        # Convert dict into a Pydantic model
+        page_content = PageContent(**json_output["pages"][i])
         responses.append(OCRResponse(
             page_content=page_content,
             processing_time=processing_time
         ))
     
-    # Clean up VRAM
     del doc
     del result
     if torch.cuda.is_available():
@@ -78,7 +111,6 @@ async def batch_processor():
                     batch_event.clear()
                     continue
                 
-                # Take only max_batch_size tasks
                 current_batch = []
                 for _ in range(max_batch_size):
                     if not pending_tasks:
@@ -86,15 +118,12 @@ async def batch_processor():
                     current_batch.append(pending_tasks.popleft())
             
                 try:
-                    # Process single chunk
                     chunk_results = await process_ocr_batch(current_batch)
                     
-                    # Set results immediately
                     for task, result in zip(current_batch, chunk_results):
                         if not task.future.done():
                             task.future.set_result(result)
                     
-                    # Clear memory
                     del chunk_results
                     del current_batch
                     if torch.cuda.is_available():
@@ -136,7 +165,6 @@ async def create_ocr_task(file: UploadFile = File(...), page_number: int = 0):
 
 @app.post("/batch")
 async def batch_ocr(files: List[UploadFile] = File(...)):
-    # Create tasks with futures
     tasks = []
     for file in files:
         image_data = await file.read()
@@ -144,7 +172,6 @@ async def batch_ocr(files: List[UploadFile] = File(...)):
         task = OCRTask(image_data=image_data, future=future)
         tasks.append(task)
 
-    # Process batch
     results = []
     for i in range(0, len(tasks), max_batch_size):
         chunk = tasks[i:i+max_batch_size]
@@ -163,7 +190,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
-    parser.add_argument("--port", type=int, default=8000, help="Port to bind to") 
+    parser.add_argument("--port", type=int, default=8002, help="Port to bind to") 
     args = parser.parse_args()
 
     uvicorn.run(app, host=args.host, port=args.port)
