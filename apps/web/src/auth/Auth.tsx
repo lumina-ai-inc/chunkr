@@ -26,17 +26,31 @@ export default function Auth({ children }: AuthProps) {
 
   // Handle auth state and redirects
   useEffect(() => {
-    if (auth.error) {
-      console.log(auth.error);
+    if (auth.error && auth.error.message !== "login_required") {
+      console.log("Auth error", auth.error);
       toast.error("Error signing in");
     }
   }, [auth.error, auth.isAuthenticated, auth.isLoading, auth]);
 
   useEffect(() => {
     if (error) {
+      console.log("Error getting user information", error);
       toast.error("Error getting user information");
     }
   }, [error]);
+
+  useEffect(() => {
+    // Add a flag to track if we've attempted silent sign-in
+    const attemptedSilentSignIn = sessionStorage.getItem('attemptedSilentSignIn');
+
+    // Only try silent sign-in if we haven't attempted it yet
+    if (!auth.isAuthenticated && !auth.isLoading && !auth.activeNavigator && !attemptedSilentSignIn) {
+      sessionStorage.setItem('attemptedSilentSignIn', 'true');
+      auth.signinSilent().catch((err) => {
+        console.log("Silent sign-in failed:", err);
+      });
+    }
+  }, [auth.isAuthenticated, auth.isLoading, auth.activeNavigator]);
 
   if (auth.isLoading) {
     return (
