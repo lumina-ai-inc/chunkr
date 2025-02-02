@@ -6,14 +6,18 @@ This is a load test for the Chunkr AI API. It uses the Chunkr Python SDK to uplo
 
 **Recommended approach (run in separate terminals):**
 
-Terminal 1 - Start processors and writer:
+Terminal 1 - Run orchestrator:
 ```sh
-honcho start -c processor=4
+# Start Redis
+docker compose up -d
+
+# Load files into queue
+uv run orchestrator.py
 ```
 
-Terminal 2 - Run orchestrator:
+Terminal 2 - Start processors and writer:
 ```sh
-uv run orchestrator.py
+honcho start -c processor=4
 ```
 
 ### Command Line Arguments
