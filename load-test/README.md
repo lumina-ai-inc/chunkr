@@ -17,7 +17,7 @@ uv run orchestrator.py
 
 Terminal 2 - Start processors and writer:
 ```sh
-honcho start -c processor=4
+uv run honcho start -c processor=4
 ```
 
 ### Command Line Arguments
