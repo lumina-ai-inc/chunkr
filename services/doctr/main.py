@@ -18,7 +18,7 @@ dotenv.load_dotenv(override=True)
 batch_wait_time = float(os.getenv('OCR_BATCH_WAIT_TIME', 0.5))
 max_batch_size = int(os.getenv('OCR_MAX_BATCH_SIZE', 100))
 
-predictor = ocr_predictor('fast_base', 'master', pretrained=True, 
+predictor = ocr_predictor('db_resnet50', 'master', pretrained=True, 
                          export_as_straight_boxes=True)
 if torch.cuda.is_available():
     print("Using GPU")
