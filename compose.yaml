@@ -60,7 +60,7 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr:30531d7d
+    image: luminainc/doctr:f2815069
     platform: linux/amd64
     ports:
       - "8002:8000"

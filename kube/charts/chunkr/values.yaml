@@ -175,13 +175,13 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: "30531d7d"
+      tag: "f2815069"
     port: 8000
     targetPort: 8000
     useGPU: true
     env:
       - name: MAX_BATCH_SIZE
-        value: "200"
+        value: "100"
     labels:
       workload-type: chunkr-gpu
       
