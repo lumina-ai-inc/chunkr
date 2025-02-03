@@ -4,6 +4,7 @@ use image::ImageFormat;
 use pdfium_render::prelude::*;
 use std::error::Error;
 use tempfile::NamedTempFile;
+use rayon::prelude::*;
 
 pub fn pages_as_images(
     pdf_file: &NamedTempFile,
@@ -11,24 +12,29 @@ pub fn pages_as_images(
 ) -> Result<Vec<NamedTempFile>, Box<dyn Error>> {
     let pdfium = PdfiumConfig::from_env()?.get_pdfium()?;
     let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
-    let render_config = PdfRenderConfig::new().scale_page_by_factor(scaling_factor);
-
     let page_count = document.pages().len();
-    let mut image_files = Vec::with_capacity(page_count.into());
-
-    document.pages().iter().try_for_each(|page| {
+    drop(document); 
+    
+    let page_numbers: Vec<u16> = (0..page_count).collect();
+    
+    let results: Result<Vec<NamedTempFile>, Box<dyn Error + Send + Sync>> = page_numbers.into_iter().par_bridge().map(|page_num| {
+        let pdfium = PdfiumConfig::from_env()?.get_pdfium().map_err(|e| Box::<dyn Error + Send + Sync>::from(e.to_string()))?;
+        let document = pdfium.load_pdf_from_file(pdf_file.path(), None)?;
+        let page = document.pages().get(page_num)?;
+        
         let temp_file = NamedTempFile::new()?;
+        let render_config = PdfRenderConfig::new().scale_page_by_factor(scaling_factor);
+
         page.render_with_config(&render_config)?
             .as_image()
             .into_rgb8()
             .save_with_format(temp_file.path(), ImageFormat::Jpeg)
             .map_err(|_| PdfiumError::ImageError)?;
 
-        image_files.push(temp_file);
-        Ok::<_, Box<dyn Error>>(())
-    })?;
+        Ok(temp_file)
+    }).collect();
 
-    Ok(image_files)
+    results.map_err(|e| e.to_string().into())
 }
 
 pub fn count_pages(pdf_file: &NamedTempFile) -> Result<u32, Box<dyn std::error::Error>> {
@@ -82,14 +88,31 @@ mod tests {
     use std::path::Path;
 
     #[test]
+    fn test_pages_as_images() -> Result<(), Box<dyn Error>> {
+        let path = Path::new("input/test.pdf");
+        let mut pdf_file = NamedTempFile::new()?;
+        pdf_file.write(std::fs::read(path)?.as_slice())?;
+        let scaling_factor = 1.0;
+        let page_count = count_pages(&pdf_file)?;
+        let start_time = std::time::Instant::now();
+        let image_files = pages_as_images(&pdf_file, scaling_factor)?;
+        let time_taken = start_time.elapsed();
+        println!("Time taken: {:?}", time_taken);
+        println!("Pages/s: {:?}", page_count as f32 / time_taken.as_secs_f32());
+        assert_eq!(image_files.len(), page_count as usize);
+        Ok(())
+    }
+
+    #[test]
     fn test_visualize_ocr_boxes() -> Result<(), Box<dyn Error>> {
         let path = Path::new("input/test.pdf");
         let output_dir = Path::new("output/annotated_pages");
         let mut pdf_file = NamedTempFile::new()?;
         pdf_file.write(std::fs::read(path)?.as_slice())?;
 
-        let ocr_results = extract_ocr_results(&pdf_file, 1.0)?;
-        let image_files = pages_as_images(&pdf_file, 1.0)?;
+        let scaling_factor = 1.0;
+        let ocr_results = extract_ocr_results(&pdf_file, scaling_factor)?;
+        let image_files = pages_as_images(&pdf_file, scaling_factor)?;
 
         std::fs::create_dir_all(output_dir)?;
 
