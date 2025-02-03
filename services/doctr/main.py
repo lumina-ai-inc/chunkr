@@ -2,7 +2,7 @@ import asyncio
 from collections import deque
 from contextlib import asynccontextmanager
 from doctr.io import DocumentFile
-from doctr.models import ocr_predictor
+from doctr.models import ocr_predictor, db_resnet50, master
 import dotenv
 from fastapi import FastAPI, File, UploadFile
 import numpy as np
@@ -12,15 +12,21 @@ from pydantic.generics import GenericModel
 import time
 import torch
 from typing import Dict, List, TypeVar, Generic, Optional
-
+import torch._dynamo
+torch._dynamo.config.suppress_errors = True
+# Disable compilation altogether for now
+torch.compile = lambda x, *args, **kwargs: x
 dotenv.load_dotenv(override=True)
 
-batch_wait_time = float(os.getenv('OCR_BATCH_WAIT_TIME', 0.5))
+batch_wait_time = float(os.getenv('OCR_BATCH_WAIT_TIME', 0.25))
 max_batch_size = int(os.getenv('OCR_MAX_BATCH_SIZE', 100))
-
-predictor = ocr_predictor('fast_base', 'master', pretrained=True, 
+detection_model = db_resnet50(pretrained=True).eval()
+recognition_model = master(pretrained=True).eval()
+predictor = ocr_predictor(detection_model, recognition_model, pretrained=True, 
                          export_as_straight_boxes=True)
 if torch.cuda.is_available():
+    print(f"Using GPU: {torch.cuda.get_device_name(0)}")
+    print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
     print("Using GPU")
     predictor = predictor.cuda().half()
 else:
@@ -223,7 +229,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
-    parser.add_argument("--port", type=int, default=8000, help="Port to bind to") 
+    parser.add_argument("--port", type=int, default=8002, help="Port to bind to") 
     args = parser.parse_args()
 
     uvicorn.run(app, host=args.host, port=args.port)
