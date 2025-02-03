@@ -37,7 +37,6 @@ pub fn hierarchical_chunking(
                 }
                 current_segments.push(segment);
                 current_word_count = segment_word_count;
-                prev_hierarchy_level = current_hierarchy_level;
             }
             SegmentType::PageHeader | SegmentType::PageFooter => {
                 if ignore_headers_and_footers {
@@ -49,7 +48,6 @@ pub fn hierarchical_chunking(
                 current_word_count = 0;
             }
             _ => {
-                prev_hierarchy_level = current_hierarchy_level;
                 if current_word_count + segment_word_count > target_length {
                     finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
                     current_segments.push(segment);
@@ -60,6 +58,8 @@ pub fn hierarchical_chunking(
                 }
             }
         }
+
+        prev_hierarchy_level = current_hierarchy_level;
     }
 
     finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
