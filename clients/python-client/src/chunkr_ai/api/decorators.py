@@ -1,6 +1,7 @@
-import functools
 import asyncio
+import functools
 import httpx
+import nest_asyncio
 from typing import Callable, Any, TypeVar, Awaitable, Union, overload
 try:
     from typing import ParamSpec
@@ -21,6 +22,12 @@ def anywhere():
         @functools.wraps(async_func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[Awaitable[T], T]:
             global _sync_loop
+
+            try:
+                nest_asyncio.apply()
+            except ImportError:
+                pass
+
             try:
                 asyncio.get_running_loop()
                 return async_func(*args, **kwargs) 
