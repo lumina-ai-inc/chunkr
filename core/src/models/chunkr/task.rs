@@ -374,7 +374,7 @@ impl Task {
     }
 
     pub async fn delete(&self) -> Result<(), Box<dyn std::error::Error>> {
-        if self.status != Status::Succeeded && self.status != Status::Failed {
+        if self.status != Status::Succeeded && self.status != Status::Failed && self.status != Status::Cancelled {
             return Err(format!("Task cannot be deleted: status is {}", self.status).into());
         }
         let client = get_pg_client().await?;
