@@ -8,14 +8,16 @@ pub struct Config {
     pub general_ocr_url: Option<String>,
     #[serde(default = "default_high_res_scaling_factor")]
     pub high_res_scaling_factor: f32,
+    #[serde(default = "default_max_retries")]
+    pub max_retries: u32,
     #[serde(default = "default_ocr_confidence_threshold")]
     pub ocr_confidence_threshold: f32,
     #[serde(default = "default_page_limit")]
     pub page_limit: i32,
     #[serde(default = "default_queue_task")]
     pub queue_task: String,
-    #[serde(default = "default_max_retries")]
-    pub max_retries: u32,
+    #[serde(default = "default_rasterization_batch_size")]
+    pub rasterization_batch_size: usize,
     #[serde(default = "default_s3_bucket")]
     pub s3_bucket: String,
     #[serde(default = "default_segmentation_padding")]
@@ -36,6 +38,10 @@ fn default_high_res_scaling_factor() -> f32 {
     2.0
 }
 
+fn default_max_retries() -> u32 {
+    3
+}
+
 fn default_ocr_confidence_threshold() -> f32 {
     0.85
 }
@@ -44,12 +50,12 @@ fn default_page_limit() -> i32 {
     10000
 }
 
-fn default_queue_task() -> String {
-    "task".to_string()
+fn default_rasterization_batch_size() -> usize {
+    100
 }
 
-fn default_max_retries() -> u32 {
-    3
+fn default_queue_task() -> String {
+    "task".to_string()
 }
 
 fn default_s3_bucket() -> String {
