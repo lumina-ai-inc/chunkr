@@ -115,11 +115,28 @@ pub async fn process(payload: QueuePayload) -> Result<(), Box<dyn std::error::Er
     match result {
         Ok(_) => Ok(()),
         Err(e) => {
-            let message = match payload.attempt >= payload.max_attempts {
-                true => "Task failed".to_string(),
-                false => format!("Retrying task {}/{}", payload.attempt, payload.max_attempts),
+            match payload.attempt >= payload.max_attempts {
+                true => {
+                    let message = "Task failed".to_string();
+                    pipeline.complete(Status::Failed, Some(message)).await?;
+                }
+                false => {
+                    let message =
+                        format!("Retrying task {}/{}", payload.attempt, payload.max_attempts);
+                    pipeline
+                        .get_task()?
+                        .update(
+                            Some(Status::Processing),
+                            Some(message),
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        .await?;
+                }
             };
-            pipeline.complete(Status::Failed, Some(message)).await?;
             Err(e)
         }
     }
