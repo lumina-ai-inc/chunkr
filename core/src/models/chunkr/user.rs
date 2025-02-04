@@ -24,7 +24,7 @@ pub enum Tier {
     SelfHosted,
     Dev,
     Starter,
-    Team,
+    Growth,
 }
 
 #[derive(
@@ -91,7 +91,7 @@ impl UsageType {
                 UsageType::Segment => 100000,
                 UsageType::Page => 100000,
             },
-            Tier::Team => match self {
+            Tier::Growth => match self {
                 UsageType::Fast => 25000,
                 UsageType::HighQuality => 25000,
                 UsageType::Segment => 25000,

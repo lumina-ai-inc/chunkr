@@ -13,7 +13,7 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         u.first_name,
         u.last_name,
         array_agg(DISTINCT ak.key) as api_keys,
-        u.tier,
+        COALESCE(mu.tier, u.tier) as tier,
         u.created_at,
         u.updated_at,
         u.task_count,
@@ -22,11 +22,18 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         users u
     LEFT JOIN 
         api_keys ak ON u.user_id = ak.user_id
+    LEFT JOIN 
+        monthly_usage mu ON u.user_id = mu.user_id AND mu.created_at = (
+            SELECT MAX(created_at) 
+            FROM monthly_usage 
+            WHERE user_id = u.user_id
+        )
     WHERE 
         u.user_id = $1
     GROUP BY 
         u.user_id,
-        u.invoice_status;
+        u.invoice_status,
+        mu.tier;
     "#;
 
     let row = client.query_opt(query, &[&user_id]).await?.ok_or_else(|| {
@@ -56,6 +63,9 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         });
     }
 
+    let tier_str: String = row.get("tier");
+    let tier = tier_str.parse::<Tier>().unwrap_or(Tier::Free);
+
     let user = User {
         user_id: row.get("user_id"),
         customer_id: row.get("customer_id"),
@@ -63,11 +73,7 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         first_name: row.get("first_name"),
         last_name: row.get("last_name"),
         api_keys: row.get("api_keys"),
-        tier: row
-            .get::<_, Option<String>>("tier")
-            .map(|t| t.parse::<Tier>())
-            .unwrap_or(Ok(Tier::Free))
-            .unwrap_or(Tier::Free),
+        tier,
         created_at: row.get("created_at"),
         updated_at: row.get("updated_at"),
         usage,
