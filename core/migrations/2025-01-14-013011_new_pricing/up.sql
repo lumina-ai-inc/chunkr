@@ -58,7 +58,7 @@ ALTER TABLE usage DROP COLUMN usage_limit;
 
 UPDATE users 
 SET tier = 'Free'
-WHERE tier IN ('PayAsYouGo', 'SelfHosted');
+WHERE tier IN ('PayAsYouGo');
 
 -- First consolidate existing data into single rows per user/month
 WITH latest_usage AS (
