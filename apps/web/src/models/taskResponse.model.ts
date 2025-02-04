@@ -10,6 +10,7 @@ export enum Status {
   Processing = "Processing",
   Succeeded = "Succeeded",
   Failed = "Failed",
+  Cancelled = "Cancelled",
 }
 
 export interface Chunk {
