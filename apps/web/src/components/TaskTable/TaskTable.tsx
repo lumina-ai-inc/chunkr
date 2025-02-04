@@ -84,10 +84,8 @@ const TaskTable = () => {
 
   const handleTaskClick = (task: TaskResponse) => {
     navigate(
-      `/dashboard?taskId=${task.task_id}&pageCount=${
-        task.output?.page_count || 10
-      }&tablePageIndex=${pagination.pageIndex}&tablePageSize=${
-        pagination.pageSize
+      `/dashboard?taskId=${task.task_id}&pageCount=${task.output?.page_count || 10
+      }&tablePageIndex=${pagination.pageIndex}&tablePageSize=${pagination.pageSize
       }`
     );
   };
@@ -142,10 +140,10 @@ const TaskTable = () => {
                   row.original.status === Status.Starting
                     ? "#3498db" // blue
                     : row.original.status === Status.Processing
-                    ? "#f39c12" // orange
-                    : row.original.status === Status.Failed
-                    ? "#e74c3c" // red
-                    : "transparent",
+                      ? "#f39c12" // orange
+                      : row.original.status === Status.Failed
+                        ? "#e74c3c" // red
+                        : "transparent",
                 display:
                   row.original.status === Status.Succeeded ? "none" : "block",
               }}
@@ -392,13 +390,15 @@ const TaskTable = () => {
     const deletableTaskIds = selectedTaskIds.filter((taskId) => {
       const task = tasks?.find((t) => t.task_id === taskId);
       return (
-        task?.status === Status.Succeeded || task?.status === Status.Failed
+        task?.status === Status.Succeeded ||
+        task?.status === Status.Failed ||
+        task?.status === Status.Cancelled
       );
     });
 
     if (deletableTaskIds.length === 0) {
       toast.error(
-        "No tasks can be deleted. Only completed or failed tasks can be deleted."
+        "No tasks can be deleted. Only Succeeded, Failed, or Cancelled tasks can be deleted."
       );
       return;
     }
@@ -410,16 +410,13 @@ const TaskTable = () => {
       await deleteTasks(deletableTaskIds);
 
       toast.success(
-        `Successfully deleted ${deletableTaskIds.length} task${
-          deletableTaskIds.length === 1 ? "" : "s"
+        `Successfully deleted ${deletableTaskIds.length} task${deletableTaskIds.length === 1 ? "" : "s"
         }` +
-          (nonDeletableCount > 0
-            ? `. ${nonDeletableCount} task${
-                nonDeletableCount === 1 ? " was" : "s were"
-              } skipped as ${
-                nonDeletableCount === 1 ? "it wasn't" : "they weren't"
-              } completed.`
-            : "")
+        (nonDeletableCount > 0
+          ? `. ${nonDeletableCount} task${nonDeletableCount === 1 ? " was" : "s were"
+          } skipped as ${nonDeletableCount === 1 ? "it wasn't" : "they weren't"
+          } completed.`
+          : "")
       );
 
       refetch();
@@ -451,10 +448,8 @@ const TaskTable = () => {
           ? "already processing"
           : "already completed";
       toast.error(
-        `Cannot cancel ${
-          selectedTaskIds.length === 1 ? "this task" : "these tasks"
-        } as ${
-          selectedTaskIds.length === 1 ? "it is" : "they are"
+        `Cannot cancel ${selectedTaskIds.length === 1 ? "this task" : "these tasks"
+        } as ${selectedTaskIds.length === 1 ? "it is" : "they are"
         } ${statusMessage}.`
       );
       return;
@@ -465,16 +460,13 @@ const TaskTable = () => {
       setRowSelection({});
 
       toast.success(
-        `Successfully cancelled ${cancellableTaskIds.length} task${
-          cancellableTaskIds.length === 1 ? "" : "s"
+        `Successfully cancelled ${cancellableTaskIds.length} task${cancellableTaskIds.length === 1 ? "" : "s"
         }` +
-          (nonCancellableTaskDetails.length > 0
-            ? `. ${nonCancellableTaskDetails.length} task${
-                nonCancellableTaskDetails.length === 1 ? " was" : "s were"
-              } skipped as ${
-                nonCancellableTaskDetails.length === 1 ? "it was" : "they were"
-              } already ${nonCancellableTaskDetails[0]}.`
-            : "")
+        (nonCancellableTaskDetails.length > 0
+          ? `. ${nonCancellableTaskDetails.length} task${nonCancellableTaskDetails.length === 1 ? " was" : "s were"
+          } skipped as ${nonCancellableTaskDetails.length === 1 ? "it was" : "they were"
+          } already ${nonCancellableTaskDetails[0]}.`
+          : "")
       );
 
       refetch();
@@ -619,9 +611,9 @@ const TaskTable = () => {
             muiToolbarAlertBannerProps={
               isError
                 ? {
-                    color: "error",
-                    children: "Error loading data",
-                  }
+                  color: "error",
+                  children: "Error loading data",
+                }
                 : undefined
             }
             renderTopToolbarCustomActions={() => (
@@ -761,15 +753,15 @@ const TaskTable = () => {
               sx: {
                 cursor:
                   row.original.message === "Task succeeded" ||
-                  (row.original.status !== Status.Failed &&
-                    row.original.status !== Status.Succeeded)
+                    (row.original.status !== Status.Failed &&
+                      row.original.status !== Status.Succeeded)
                     ? "pointer"
                     : "default",
                 "&:hover": {
                   backgroundColor:
                     row.original.message === "Task succeeded" ||
-                    (row.original.status !== Status.Failed &&
-                      row.original.status !== Status.Succeeded)
+                      (row.original.status !== Status.Failed &&
+                        row.original.status !== Status.Succeeded)
                       ? "rgba(255, 255, 255, 0.05) !important"
                       : "rgb(2, 8, 9) !important",
                 },
