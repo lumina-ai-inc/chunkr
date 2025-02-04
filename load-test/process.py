@@ -15,7 +15,7 @@ from models import ProcessPayload, WritePayload
 
 async def process_file(chunkr: Chunkr, file_path: str) -> Optional[TaskResponse]:
     try:
-        config = Configuration(ocr_strategy=OcrStrategy.ALL)
+        config = Configuration(ocr_strategy=OcrStrategy.AUTO)
         task = await chunkr.upload(file_path, config)
         return task
     except Exception as e:

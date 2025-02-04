@@ -7,6 +7,8 @@ requires-python = ">=3.9"
 dependencies = [
     "chunkr-ai>=0.0.30",
     "honcho>=2.0.0",
+    "matplotlib>=3.9.4",
     "redis>=5.2.1",
     "ruff>=0.9.3",
+    "seaborn>=0.13.2",
 ]

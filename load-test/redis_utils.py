@@ -13,7 +13,7 @@ class RedisManager:
     def __init__(
         self, 
         host: str = 'localhost', 
-        port: int = 6379, 
+        port: int = 6380, 
         queue_name: str = None,
         writer_queue: str = None
     ):
