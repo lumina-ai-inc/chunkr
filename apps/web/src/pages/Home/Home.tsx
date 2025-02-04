@@ -58,10 +58,10 @@ type DocumentCategory = {
 };
 
 const DOCUMENT_CATEGORIES: DocumentCategory[] = [
+  { id: "technical", label: "Technical Manuals", pdfName: "specs" },
   { id: "financial", label: "Financial Reports ", pdfName: "financial" },
   { id: "legal", label: "Legal Documents", pdfName: "legal" },
   { id: "scientific", label: "Research Papers", pdfName: "science" },
-  { id: "technical", label: "Technical Manuals", pdfName: "specs" },
   { id: "medical", label: "Medical Files", pdfName: "medical" },
   { id: "consulting", label: "Consulting Reports", pdfName: "consulting" },
   { id: "government", label: "Government Reports", pdfName: "gov" },
