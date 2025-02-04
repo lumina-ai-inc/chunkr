@@ -154,9 +154,9 @@ impl Pipeline {
                 message,
                 None,
                 None,
+                None,
                 Some(finished_at),
                 expires_at,
-                None,
             )
             .await?;
             Ok(())

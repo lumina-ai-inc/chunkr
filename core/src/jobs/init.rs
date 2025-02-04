@@ -7,7 +7,7 @@ use crate::utils::stripe::invoicer::invoice;
 use std::time::Duration;
 use tokio::time;
 
-pub fn run_fail_processing_task_job() {
+pub fn run_expiration_job()  {
     actix_web::rt::spawn(async move {
         let expiration_config = ExpirationConfig::from_env().unwrap();
         let interval = expiration_config.job_interval;
@@ -22,14 +22,14 @@ pub fn run_fail_processing_task_job() {
     });
 }
 
-pub fn run_expiration_job() {
+pub fn run_fail_processing_task_job() {
     actix_web::rt::spawn(async move {
         let expiration_config = ExpirationConfig::from_env().unwrap();
         let interval = expiration_config.job_interval;
         let mut interval = time::interval(Duration::from_secs(interval));
         loop {
             interval.tick().await;
-            println!("Processing expired tasks");
+            println!("Processing timed out tasks");
             if let Err(e) = timeout(expiration_config.task_timeout).await {
                 eprintln!("Error processing timed out tasks: {}", e);
             }
@@ -74,4 +74,5 @@ pub fn init_jobs() {
     run_expiration_job();
     run_invoice_job();
     run_usage_cron_job();
+    run_fail_processing_task_job();
 }

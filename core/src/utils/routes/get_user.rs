@@ -17,18 +17,16 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         u.created_at,
         u.updated_at,
         u.task_count,
-        s.last_paid_status
+        u.invoice_status as last_paid_status
     FROM 
         users u
     LEFT JOIN 
         api_keys ak ON u.user_id = ak.user_id
-    LEFT JOIN
-        subscriptions s ON u.user_id = s.user_id
     WHERE 
         u.user_id = $1
     GROUP BY 
         u.user_id,
-        s.last_paid_status;
+        u.invoice_status;
     "#;
 
     let row = client.query_opt(query, &[&user_id]).await?.ok_or_else(|| {
@@ -67,7 +65,8 @@ pub async fn get_user(user_id: String) -> Result<User, Box<dyn std::error::Error
         api_keys: row.get("api_keys"),
         tier: row
             .get::<_, Option<String>>("tier")
-            .and_then(|t| Tier::from_str(&t).ok())
+            .map(|t| t.parse::<Tier>())
+            .unwrap_or(Ok(Tier::Free))
             .unwrap_or(Tier::Free),
         created_at: row.get("created_at"),
         updated_at: row.get("updated_at"),

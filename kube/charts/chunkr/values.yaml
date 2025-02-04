@@ -102,7 +102,7 @@ services:
     useStandardEnv: true
     image:
       repository: server
-      tag: "b925ecbc"
+      tag: "a43e8956"
     port: 8000
     targetPort: 8000
     ingress:
@@ -133,7 +133,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: "05e2ef7d"
+      tag: "e470bdf7"
     port: 8000
     targetPort: 8000
     ingress:
@@ -175,13 +175,13 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: "b88be8fd"
+      tag: "bbacfb97"
     port: 8000
     targetPort: 8000
     useGPU: true
     env:
       - name: MAX_BATCH_SIZE
-        value: "200"
+        value: "100"
     labels:
       workload-type: chunkr-gpu
       

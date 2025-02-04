@@ -81,6 +81,50 @@ mod tests {
     use std::io::Write;
     use std::path::Path;
 
+    #[tokio::test]
+    async fn test_pages_as_images() -> Result<(), Box<dyn Error>> {
+        PdfiumConfig::from_env()?.ensure_binary().await?;
+        let path = Path::new("input/test.pdf");
+        let output_dir = Path::new("output/pages");
+        let mut pdf_file = NamedTempFile::new()?;
+        pdf_file.write(std::fs::read(path)?.as_slice())?;
+
+        // Test both scaling factors
+        for scaling_factor in [1.0, 2.0] {
+            let page_count = count_pages(&pdf_file)?;
+            let start_time = std::time::Instant::now();
+            let image_files: Vec<NamedTempFile> = pages_as_images(&pdf_file, scaling_factor)?;
+            let time_taken = start_time.elapsed();
+            println!("Scaling factor: {}", scaling_factor);
+            println!("Time taken: {:?}", time_taken);
+            println!(
+                "Pages/s: {:?}",
+                page_count as f32 / time_taken.as_secs_f32()
+            );
+            assert_eq!(image_files.len(), page_count as usize);
+
+            let scale_dir = format!("{}/scale_{}", output_dir.display(), scaling_factor);
+            std::fs::create_dir_all(&scale_dir)?;
+            let file_name = path
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .split('.')
+                .next()
+                .unwrap();
+
+            for (page_idx, image_file) in image_files.iter().enumerate() {
+                let img = image::io::Reader::open(image_file.path())?
+                    .with_guessed_format()?
+                    .decode()?
+                    .into_rgb8();
+                img.save(format!("{}/{}_{}.jpg", scale_dir, file_name, page_idx))?;
+            }
+        }
+        Ok(())
+    }
+
     #[test]
     fn test_visualize_ocr_boxes() -> Result<(), Box<dyn Error>> {
         let path = Path::new("input/test.pdf");

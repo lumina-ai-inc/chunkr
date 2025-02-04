@@ -5,7 +5,6 @@ use crate::models::chunkr::user::{Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
 use prefixed_api_key::PrefixedApiKeyController;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct PreAppliedPages {
@@ -67,23 +66,6 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
 
     transaction
         .execute(api_key_query, &[&key, &user_info.user_id, &"admin", &true])
-        .await?;
-
-    let usage_query = r#"
-    INSERT INTO USAGE (user_id, usage, usage_type, unit)
-    VALUES ($1, $2, $3, $4)
-    "#;
-
-    transaction
-        .execute(
-            usage_query,
-            &[
-                &user_info.user_id,
-                &0i32,
-                &UsageType::Page.to_string(),
-                &UsageType::Page.get_unit(),
-            ],
-        )
         .await?;
 
     let monthly_usage_query = r#"
@@ -156,7 +138,8 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         api_keys: vec![key],
         tier: user_row
             .get::<_, Option<String>>("tier")
-            .and_then(|t| Tier::from_str(&t).ok())
+            .map(|t| t.parse::<Tier>())
+            .unwrap_or(Ok(Tier::Free))
             .unwrap_or(Tier::Free),
         created_at: user_row.get("created_at"),
         updated_at: user_row.get("updated_at"),

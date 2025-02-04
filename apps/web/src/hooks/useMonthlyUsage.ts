@@ -5,7 +5,7 @@ import { useAuth } from "react-oidc-context";
 export default function useMonthlyUsage() {
   const auth = useAuth();
   const { data, isLoading, error } = useQuery("monthlyUsage", getMonthlyUsage, {
-    enabled: auth.isAuthenticated,
+    enabled: auth.isAuthenticated && !auth.isLoading,
     refetchInterval: 3000,
   });
   return { data, isLoading, error };
