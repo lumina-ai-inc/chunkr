@@ -2,7 +2,7 @@ import asyncio
 from collections import deque
 from contextlib import asynccontextmanager
 from doctr.io import DocumentFile
-from doctr.models import ocr_predictor, db_resnet50, master, vitstr_small
+from doctr.models import ocr_predictor, db_resnet50, parseq
 import dotenv
 from fastapi import FastAPI, File, UploadFile
 import numpy as np
@@ -21,7 +21,7 @@ dotenv.load_dotenv(override=True)
 batch_wait_time = float(os.getenv('OCR_BATCH_WAIT_TIME', 0.25))
 max_batch_size = int(os.getenv('OCR_MAX_BATCH_SIZE', 50))
 detection_model = db_resnet50(pretrained=True).eval()
-recognition_model = vitstr_small(pretrained=True).eval()
+recognition_model = parseq(pretrained=True).eval()
 
 predictor = ocr_predictor(detection_model, recognition_model, pretrained=True, 
                          export_as_straight_boxes=True)
@@ -29,7 +29,7 @@ if torch.cuda.is_available():
     print(f"Using GPU: {torch.cuda.get_device_name(0)}")
     print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
     print("Using GPU")
-    predictor = predictor.cuda().half()
+    predictor = predictor.cuda()
 else:
     print("Using CPU")
 
