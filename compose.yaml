@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:b925ecbc
+    image: luminainc/server:a43e8956
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -28,7 +28,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:05e2ef7d
+    image: luminainc/web:a43e8956
     platform: linux/amd64
     ports:
       - "5173:8000"
