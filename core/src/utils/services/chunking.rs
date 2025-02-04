@@ -25,8 +25,9 @@ pub fn hierarchical_chunking(
     }
 
     let mut prev_hierarchy_level = 1;
+    let mut segment_paired = false;
 
-    for segment in segments {
+    for (i, segment) in segments.iter().enumerate() {
         let segment_word_count = segment.content.split_whitespace().count() as i32;
         let current_hierarchy_level = get_hierarchy_level(&segment.segment_type);
 
@@ -35,7 +36,7 @@ pub fn hierarchical_chunking(
                 if current_hierarchy_level > prev_hierarchy_level {
                     finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
                 }
-                current_segments.push(segment);
+                current_segments.push(segment.clone());
                 current_word_count = segment_word_count;
             }
             SegmentType::PageHeader | SegmentType::PageFooter => {
@@ -43,18 +44,49 @@ pub fn hierarchical_chunking(
                     continue;
                 }
                 finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
-                current_segments.push(segment);
+                current_segments.push(segment.clone());
                 finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
                 current_word_count = 0;
             }
             _ => {
-                if current_word_count + segment_word_count > target_length {
-                    finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
-                    current_segments.push(segment);
-                    current_word_count = segment_word_count;
-                } else {
-                    current_segments.push(segment);
-                    current_word_count += segment_word_count;
+                let mut default_chunk_behavior = true;
+
+                if (segment.segment_type == SegmentType::Picture || segment.segment_type == SegmentType::Table) && !segment_paired {
+                    let next_is_caption = segments.get(i + 1).map_or(false, |s| s.segment_type == SegmentType::Caption);
+                    let caption_word_count = segments.get(i + 1).map_or(0, |s| s.content.split_whitespace().count() as i32);
+                    if next_is_caption {
+                        if current_word_count + segment_word_count + caption_word_count > target_length {
+                            finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                            current_segments.push(segment.clone());
+                            current_word_count = segment_word_count;
+                            default_chunk_behavior = false;
+                            segment_paired = true; // Caption is paired with picture or table
+                        }
+                    }
+                }
+                if segment.segment_type == SegmentType::Caption && !segment_paired {
+                    let next_is_asset = segments.get(i + 1).map_or(false, |s| s.segment_type == SegmentType::Picture || s.segment_type == SegmentType::Table);
+                    let asset_word_count = segments.get(i + 1).map_or(0, |s| s.content.split_whitespace().count() as i32);
+                    if next_is_asset {
+                        if current_word_count + segment_word_count + asset_word_count > target_length {
+                            finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                            current_segments.push(segment.clone());
+                            current_word_count = segment_word_count;
+                            default_chunk_behavior = false;
+                            segment_paired = true; // Picture or table is paired with caption
+                        }
+                    }
+                }
+                if default_chunk_behavior {
+                    if current_word_count + segment_word_count > target_length {
+                        finalize_and_start_new_chunk(&mut chunks, &mut current_segments);
+                        current_segments.push(segment.clone());
+                        current_word_count = segment_word_count;
+                    } else {
+                        current_segments.push(segment.clone());
+                        current_word_count += segment_word_count;
+                    }
+                    segment_paired = false; // Reset segment pairing after default chunk behavior
                 }
             }
         }
