@@ -116,7 +116,7 @@ impl Pipeline {
             .configuration
             .expires_in
             .map(|seconds| finished_at + chrono::Duration::seconds(seconds as i64));
-        println!("Expires at: {:?}", expires_at);
+
         async fn revert_to_previous(
             task: &mut Task,
             payload: &TaskPayload,
