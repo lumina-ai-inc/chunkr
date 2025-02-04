@@ -1,6 +1,6 @@
 services:
   server:
-    image: luminainc/server:a43e8956
+    image: luminainc/server:639083c2
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -11,7 +11,7 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 0
+      replicas: 1
     restart: always
 
   task:
@@ -28,7 +28,7 @@ services:
     restart: always
 
   web:
-    image: luminainc/web:e470bdf7
+    image: luminainc/web:639083c2
     platform: linux/amd64
     ports:
       - "5173:8000"
