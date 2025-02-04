@@ -60,12 +60,12 @@ services:
     restart: always
 
   ocr:
-    image: luminainc/doctr:cf4d7523
+    image: luminainc/doctr:f810d07a
     platform: linux/amd64
     ports:
       - "8002:8000"
     deploy:
-      replicas: 0
+      replicas: 1
       resources:
         reservations:
           devices:
