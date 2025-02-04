@@ -175,7 +175,7 @@ services:
     enabled: true
     image:
       repository: doctr
-      tag: "f810d07a"
+      tag: "bbacfb97"
     port: 8000
     targetPort: 8000
     useGPU: true
