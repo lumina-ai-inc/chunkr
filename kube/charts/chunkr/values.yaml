@@ -102,7 +102,7 @@ services:
     useStandardEnv: true
     image:
       repository: server
-      tag: "a43e8956"
+      tag: "4977bc70"
     port: 8000
     targetPort: 8000
     ingress:
@@ -133,7 +133,7 @@ services:
     enabled: true
     image:
       repository: web
-      tag: "e470bdf7"
+      tag: "4977bc70"
     port: 8000
     targetPort: 8000
     ingress:
