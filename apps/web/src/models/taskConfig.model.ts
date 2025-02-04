@@ -173,7 +173,7 @@ export const DEFAULT_SEGMENT_PROCESSING: SegmentProcessing = {
 export const DEFAULT_UPLOAD_CONFIG: UploadFormData = {
   chunk_processing: { target_length: 512, ignore_headers_and_footers: true },
   high_resolution: false,
-  ocr_strategy: OcrStrategy.Auto,
+  ocr_strategy: OcrStrategy.All,
   segmentation_strategy: SegmentationStrategy.LayoutAnalysis,
   segment_processing: DEFAULT_SEGMENT_PROCESSING,
   file: new File([], ""),
