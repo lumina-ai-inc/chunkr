@@ -24,11 +24,7 @@ services:
     env_file:
       - .env
     deploy:
-<<<<<<< HEAD
       replicas: 10
-=======
-      replicas: 3
->>>>>>> d4997e5462469ba04ac2b75a8bd17d7a237fb97f
     restart: always
 
   web:
