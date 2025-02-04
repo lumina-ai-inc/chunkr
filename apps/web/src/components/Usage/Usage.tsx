@@ -745,7 +745,7 @@ export default function UsagePage({ customerId }: UsageProps) {
             <Flex direction="column" gap="3">
               <Text size="2" style={{ color: "rgba(255,255,255,0.6)" }}>
                 {tier === "Free"
-                  ? "Upgrade to a paid plan to unlock higher usage limits and lower per page pricing."
+                  ? "Upgrade to a paid plan to unlock higher usage limits."
                   : monthlyUsage?.[0]?.last_paid_status === false
                   ? "Your last payment was unsuccessful. Please update your payment method."
                   : `Your payment method is up to date. Next bill due ${endDateFormatted}.`}
