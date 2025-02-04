@@ -2,7 +2,7 @@ import asyncio
 from collections import deque
 from contextlib import asynccontextmanager
 from doctr.io import DocumentFile
-from doctr.models import ocr_predictor, db_resnet50, master
+from doctr.models import ocr_predictor, db_resnet50, master, vitstr_small
 import dotenv
 from fastapi import FastAPI, File, UploadFile
 import numpy as np
@@ -19,9 +19,10 @@ torch.compile = lambda x, *args, **kwargs: x
 dotenv.load_dotenv(override=True)
 
 batch_wait_time = float(os.getenv('OCR_BATCH_WAIT_TIME', 0.25))
-max_batch_size = int(os.getenv('OCR_MAX_BATCH_SIZE', 100))
+max_batch_size = int(os.getenv('OCR_MAX_BATCH_SIZE', 50))
 detection_model = db_resnet50(pretrained=True).eval()
-recognition_model = master(pretrained=True).eval()
+recognition_model = vitstr_small(pretrained=True).eval()
+
 predictor = ocr_predictor(detection_model, recognition_model, pretrained=True, 
                          export_as_straight_boxes=True)
 if torch.cuda.is_available():
@@ -37,6 +38,7 @@ os.environ['USE_TF'] = 'NO'
 pending_tasks = deque()
 processing_lock = asyncio.Lock()
 batch_event = asyncio.Event()
+server_processing_lock = asyncio.Lock()
 
 class OCRTask(BaseModel):
     image_data: bytes
@@ -81,13 +83,18 @@ class OCRResponse(BaseModel):
     processing_time: float
 
 async def process_ocr_batch(tasks: List[OCRTask]) -> List[OCRResponse]:
-    print(f"Number of tasks: {len(tasks)}")
-    
     image_bytes_list = [task.image_data for task in tasks]
-    doc = DocumentFile.from_images(image_bytes_list)
+    
+    # Process image loading concurrently
+    doc = await asyncio.get_event_loop().run_in_executor(
+        None, DocumentFile.from_images, image_bytes_list
+    )
     
     start_time = time.time()
-    result = predictor(doc)
+    async with server_processing_lock:
+        with torch.inference_mode(), torch.amp.autocast('cuda'):
+            result = predictor(doc)
+
     responses = []
     
     for page_idx, page in enumerate(result.pages):
@@ -134,67 +141,13 @@ async def process_ocr_batch(tasks: List[OCRTask]) -> List[OCRResponse]:
     
     return responses
 
-async def batch_processor():
-    while True:
-        try:
-            await batch_event.wait()
-            
-            async with processing_lock:
-                if not pending_tasks:
-                    batch_event.clear()
-                    continue
-                
-                current_batch = []
-                for _ in range(max_batch_size):
-                    if not pending_tasks:
-                        break
-                    current_batch.append(pending_tasks.popleft())
-            
-                try:
-                    chunk_results = await process_ocr_batch(current_batch)
-                    
-                    for task, result in zip(current_batch, chunk_results):
-                        if not task.future.done():
-                            task.future.set_result(result)
-                    
-                    del chunk_results
-                    del current_batch
-                    if torch.cuda.is_available():
-                        torch.cuda.empty_cache()
-                        
-                except Exception as e:
-                    print(f"Error processing batch: {e}")
-                    for task in current_batch:
-                        if not task.future.done():
-                            task.future.set_exception(e)
-            
-        except Exception as e:
-            print(f"Error in batch processor: {e}")
-            batch_event.clear()
-            await asyncio.sleep(0.1)
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    batch_processor_task = asyncio.create_task(batch_processor())
     yield
-    batch_processor_task.cancel()
     torch.cuda.empty_cache()
 
 app = FastAPI(lifespan=lifespan)
 
-@app.post("/ocr", response_model=OCRResponse)
-async def create_ocr_task(file: UploadFile = File(...), page_number: int = 0):
-    image_data = await file.read()
-    
-    task = OCRTask(image_data=image_data, page_number=page_number)
-    future = asyncio.Future()
-    task.future = future
-    
-    pending_tasks.append(task)
-    batch_event.set()
-    
-    result = await future
-    return result
 
 @app.post("/batch")
 async def batch_ocr(files: List[UploadFile] = File(...)):
@@ -202,8 +155,7 @@ async def batch_ocr(files: List[UploadFile] = File(...)):
     tasks = []
     for file in files:
         image_data = await file.read()
-        future = asyncio.Future()
-        task = OCRTask(image_data=image_data, future=future)
+        task = OCRTask(image_data=image_data)
         tasks.append(task)
 
     results = []
@@ -229,7 +181,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
-    parser.add_argument("--port", type=int, default=8000, help="Port to bind to") 
+    parser.add_argument("--port", type=int, default=8002, help="Port to bind to") 
     args = parser.parse_args()
 
     uvicorn.run(app, host=args.host, port=args.port)
