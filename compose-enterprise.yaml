@@ -1,0 +1,213 @@
+services:
+  server:
+    image: luminainc/server-azure:4977bc70
+    platform: linux/amd64
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+    restart: always
+
+  task:
+    image: luminainc/task-zure:4977bc70
+    platform: linux/amd64
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    deploy:
+      replicas: 10
+    restart: always
+
+  web:
+    image: luminainc/web:4977bc70
+    platform: linux/amd64
+    ports:
+      - "5173:8000"
+    env_file:
+      - .env
+    environment:
+      - VITE_FEATURE_FLAG_PIPELINE=true
+    deploy:
+      replicas: 1
+    restart: always
+
+  segmentation:
+    image: luminainc/segmentation:bb950d8d
+    ports:
+      - "8001:8000"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      - MAX_BATCH_SIZE=8
+      - BATCH_WAIT_TIME=0.2
+      - OVERLAP_THRESHOLD=0.025
+      - SCORE_THRESHOLD=0.2
+    restart: always
+
+  ocr:
+    image: luminainc/doctr:bbacfb97
+    platform: linux/amd64
+    ports:
+      - "8002:8000"
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    volumes:
+      - /dev/shm:/dev/shm
+    restart: always
+  postgres:
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      replicas: 1
+
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres
+    restart: always
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      replicas: 1
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 1
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin &&
+        /usr/bin/mc mb myminio/chunkr --ignore-existing &&
+        /usr/bin/mc anonymous set public myminio/chunkr
+      "
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    platform: linux/amd64
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_PROXY=edge
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
+    command: [ "start-dev", "--import-realm" ]
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/realms/master" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - postgres
+    restart: always
+  rrq:
+    image: luminainc/rrq:33cd165
+    platform: linux/amd64
+    depends_on:
+      - redis
+    ports:
+      - "8005:8000"
+    environment:
+      - REDIS__URL=redis://redis:6379
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 1
+    restart: always
+
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.5
+    platform: linux/amd64
+    ports:
+      - "8003:80"
+    command: [ "--model-id", "BAAI/bge-m3", "--max-client-batch-size", "51", "--max-batch-tokens", "5120", "--payload-limit", "1000000", "--auto-truncate" ]
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
