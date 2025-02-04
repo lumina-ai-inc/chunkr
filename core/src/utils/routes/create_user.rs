@@ -5,7 +5,6 @@ use crate::models::chunkr::user::{Tier, UsageLimit, UsageType, User};
 use crate::utils::clients::get_pg_client;
 use prefixed_api_key::PrefixedApiKeyController;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct PreAppliedPages {
