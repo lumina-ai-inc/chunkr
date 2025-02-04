@@ -69,23 +69,6 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         .execute(api_key_query, &[&key, &user_info.user_id, &"admin", &true])
         .await?;
 
-    let usage_query = r#"
-    INSERT INTO USAGE (user_id, usage, usage_type, unit)
-    VALUES ($1, $2, $3, $4)
-    "#;
-
-    transaction
-        .execute(
-            usage_query,
-            &[
-                &user_info.user_id,
-                &0i32,
-                &UsageType::Page.to_string(),
-                &UsageType::Page.get_unit(),
-            ],
-        )
-        .await?;
-
     let monthly_usage_query = r#"
     INSERT INTO monthly_usage (user_id, usage_type, usage, usage_limit, year, month, tier, overage_usage, billing_cycle_start, billing_cycle_end)
     SELECT $1, $2, $3, 
@@ -156,7 +139,8 @@ pub async fn create_user(user_info: UserInfo) -> Result<User, Box<dyn std::error
         api_keys: vec![key],
         tier: user_row
             .get::<_, Option<String>>("tier")
-            .and_then(|t| Tier::from_str(&t).ok())
+            .map(|t| t.parse::<Tier>())
+            .unwrap_or(Ok(Tier::Free))
             .unwrap_or(Tier::Free),
         created_at: user_row.get("created_at"),
         updated_at: user_row.get("updated_at"),
