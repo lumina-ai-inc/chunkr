@@ -90,7 +90,10 @@ services:
       - name: VITE_KEYCLOAK_URL
         value: https://{{ .Values.services.keycloak.ingress.subdomain }}.{{ .Values.ingress.domain }}
       - name: VITE_STRIPE_API_KEY
-        value: pk_live_51OQduZJxCgJtwOshDGhLdcBWmoqe5RMgTQiJ64sHdCoq7eG8kg70q38j0gFZ9VVWHEUd7qbdfCP1S9HRveEnNCSX00G5Fngngj
+        valueFrom:
+          secretKeyRef:
+            name: chunkr-secret
+            key: VITE_STRIPE_API_KEY
 
   analytics-web:
     enabled: true

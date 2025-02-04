@@ -7,9 +7,12 @@ requires-python = ">=3.10"
 dependencies = [
     "aiohttp>=3.11.2",
     "fastapi>=0.115.5",
+    "onnxruntime-gpu>=1.20.1",
+    "onnxruntime>=1.20.1",
     "pydantic>=2.9.2",
     "python-doctr[contrib,html,torch,viz]>=0.10.0",
     "python-dotenv>=1.0.1",
     "python-multipart>=0.0.17",
     "uvicorn>=0.32.0",
+    "triton==3.0.0",
 ]

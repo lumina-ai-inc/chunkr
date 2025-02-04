@@ -1,6 +1,6 @@
 use crate::configs::stripe_config::Config;
 use crate::models::chunkr::auth::UserInfo;
-use crate::models::chunkr::user::InvoiceStatus;
+use crate::models::chunkr::user::{InvoiceStatus, Tier};
 use crate::utils::clients::get_pg_client;
 use crate::utils::routes::get_user::get_monthly_usage_count;
 use crate::utils::routes::get_user::{get_invoice_information, get_invoices};
@@ -306,13 +306,14 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                 let user_id_opt = find_user_id_by_customer(&sub.customer, &client).await;
                 if let Some(user_id) = user_id_opt {
                     if let Some(item) = sub.items.data.get(0) {
-                        if let Some(price) = &item.price {
-                            let new_tier = match price.id.as_str() {
-                                x if x == stripe_config.starter_price_id => "Starter",
-                                x if x == stripe_config.dev_price_id => "Dev",
-                                x if x == stripe_config.growth_price_id => "Growth",
-                                _ => "Free",
+                        if let Some(price) = &item.plan {
+                            let tier = match price.id.as_str() {
+                                x if x == stripe_config.starter_price_id => Tier::Starter,
+                                x if x == stripe_config.dev_price_id => Tier::Dev,
+                                x if x == stripe_config.growth_price_id => Tier::Growth,
+                                _ => Tier::Free,
                             };
+                            println!("New tier: {:?}", tier.to_string());
                             let last_paid_status = match sub.status.as_str() {
                                 "active" | "trialing" => "True",
                                 _ => "False",
@@ -344,7 +345,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                         invoice_status = $2
                                     FROM sub_upsert s
                                     WHERE u.user_id = $4",
-                                    &[&sub.id.to_string(), &last_paid_status, &new_tier, &user_id],
+                                    &[&sub.id.to_string(), &last_paid_status, &tier.to_string(), &user_id],
                                 )
                                 .await;
 
@@ -396,7 +397,7 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                     DO UPDATE
                                     SET tier = EXCLUDED.tier,
                                         usage_limit = EXCLUDED.usage_limit",
-                                    &[&user_id, &new_tier],
+                                    &[&user_id, &tier.to_string()],
                                 )
                                 .await;
 

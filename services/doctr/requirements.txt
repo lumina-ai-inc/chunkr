@@ -5,3 +5,4 @@ python-doctr[contrib,html,torch,viz]
 python-dotenv>=1.0.1
 python-multipart>=0.0.17
 uvicorn>=0.32.0
+triton>=2.5.0
