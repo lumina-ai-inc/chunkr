@@ -291,4 +291,218 @@ mod tests {
 
         assert_eq!(caption_count, 1, "Caption should appear exactly once in the chunks");
     }
+
+    #[test]
+    fn test_complex_pairing_sequences() {
+        let test_cases = vec![
+            (
+                // Case 1: Multiple sequential pairs
+                vec![
+                    create_segment("Caption 1", SegmentType::Caption),
+                    create_segment("Picture 1", SegmentType::Picture),
+                    create_segment("Caption 2", SegmentType::Caption),
+                    create_segment("Picture 2", SegmentType::Picture),
+                ],
+                vec![(0, 1), (2, 3)], // Expected pairs (indices)
+            ),
+            (
+                // Case 2: Picture looking ahead for caption
+                vec![
+                    create_segment("Text start", SegmentType::Text),
+                    create_segment("Picture 1", SegmentType::Picture),
+                    create_segment("Caption 1", SegmentType::Caption),
+                    create_segment("Text end", SegmentType::Text),
+                ],
+                vec![(1, 2)], // Picture 1 + Caption 1
+            ),
+            (
+                // Case 3: Mixed asset types competing for caption
+                vec![
+                    create_segment("Picture 1", SegmentType::Picture),
+                    create_segment("Table 1", SegmentType::Table),
+                    create_segment("Caption 1", SegmentType::Caption),
+                    create_segment("Text", SegmentType::Text),
+                ],
+                vec![(1, 2)], // Table 1 + Caption 1
+            ),
+            (
+                // Case 4: Multiple captions and pictures interleaved
+                vec![
+                    create_segment("Caption 1", SegmentType::Caption),
+                    create_segment("Caption 2", SegmentType::Caption),
+                    create_segment("Picture 1", SegmentType::Picture),
+                    create_segment("Picture 2", SegmentType::Picture),
+                ],
+                vec![(1, 2)], // Caption 2 + Picture 1
+            ),
+        ];
+
+        for (case_index, (segments, expected_pairs)) in test_cases.iter().enumerate() {
+            println!("\nTesting case {}", case_index + 1);
+            let chunks = hierarchical_chunking(segments.clone(), 1000, true).unwrap();
+            
+            // Verify pairs stay together in the same chunk
+            for &(first, second) in expected_pairs {
+                let pair_chunk = chunks.iter().find(|chunk| {
+                    chunk.segments.windows(2).any(|window| {
+                        window[0].segment_type == segments[first].segment_type
+                            && window[1].segment_type == segments[second].segment_type
+                    })
+                });
+                assert!(pair_chunk.is_some(), 
+                    "Case {}: Expected pair {:?} + {:?} not found together in any chunk",
+                    case_index + 1,
+                    segments[first].segment_type,
+                    segments[second].segment_type
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_chunk_size_boundaries() {
+        let segments = vec![
+            create_segment("Long text ".repeat(10).as_str(), SegmentType::Text),
+            create_segment("Picture 1", SegmentType::Picture),
+            create_segment("Short caption", SegmentType::Caption),
+            create_segment("More long text ".repeat(10).as_str(), SegmentType::Text),
+        ];
+
+        let chunks = hierarchical_chunking(segments, 20, true).unwrap();
+
+        // Verify that Picture + Caption stay together even when chunks split
+        assert!(chunks.len() > 1, "Should split into multiple chunks due to size");
+        
+        // Find the chunk containing the picture
+        let picture_chunk = chunks.iter().find(|chunk| 
+            chunk.segments.iter().any(|s| s.segment_type == SegmentType::Picture)
+        ).unwrap();
+
+        // Verify picture and caption are together
+        let picture_index = picture_chunk.segments.iter()
+            .position(|s| s.segment_type == SegmentType::Picture)
+            .unwrap();
+        assert_eq!(
+            picture_chunk.segments[picture_index + 1].segment_type,
+            SegmentType::Caption,
+            "Caption should follow Picture in the same chunk"
+        );
+    }
+
+    #[test]
+    fn test_edge_cases() {
+        let test_cases = vec![
+            (
+                // Case 1: Empty document
+                vec![],
+                0, // Expected chunks
+            ),
+            (
+                // Case 2: Single segment
+                vec![
+                    create_segment("Lonely caption", SegmentType::Caption),
+                ],
+                1,
+            ),
+            (
+                // Case 3: All captions
+                vec![
+                    create_segment("Caption 1", SegmentType::Caption),
+                    create_segment("Caption 2", SegmentType::Caption),
+                    create_segment("Caption 3", SegmentType::Caption),
+                ],
+                1,
+            ),
+            (
+                // Case 4: Alternating types
+                vec![
+                    create_segment("Picture 1", SegmentType::Picture),
+                    create_segment("Table 1", SegmentType::Table),
+                    create_segment("Caption 1", SegmentType::Caption),
+                    create_segment("Picture 2", SegmentType::Picture),
+                ],
+                1,
+            ),
+        ];
+
+        for (case_index, (segments, expected_chunk_count)) in test_cases.iter().enumerate() {
+            let chunks = hierarchical_chunking(segments.clone(), 1000, true).unwrap();
+            assert_eq!(
+                chunks.len(),
+                *expected_chunk_count,
+                "Case {} failed: expected {} chunks, got {}",
+                case_index + 1,
+                expected_chunk_count,
+                chunks.len()
+            );
+        }
+    }
+
+    #[test]
+    fn test_hierarchy_with_pairs() {
+        let segments = vec![
+            create_segment("Title", SegmentType::Title),
+            create_segment("Picture 1", SegmentType::Picture),
+            create_segment("Caption 1", SegmentType::Caption),
+            create_segment("Section 1", SegmentType::SectionHeader),
+            create_segment("Table 1", SegmentType::Table),
+            create_segment("Caption 2", SegmentType::Caption),
+        ];
+
+        let chunks = hierarchical_chunking(segments, 1000, true).unwrap();
+
+        // Verify that hierarchy changes create new chunks but pairs stay together
+        assert!(chunks.len() > 1, "Should split on hierarchy changes");
+        
+        // Verify pairs in their respective hierarchical sections
+        for chunk in &chunks {
+            if chunk.segments[0].segment_type == SegmentType::Title {
+                assert!(chunk.segments.windows(2).any(|w| 
+                    (w[0].segment_type == SegmentType::Picture && w[1].segment_type == SegmentType::Caption) ||
+                    (w[0].segment_type == SegmentType::Caption && w[1].segment_type == SegmentType::Picture)
+                ));
+            }
+            if chunk.segments[0].segment_type == SegmentType::SectionHeader {
+                assert!(chunk.segments.windows(2).any(|w| 
+                    (w[0].segment_type == SegmentType::Table && w[1].segment_type == SegmentType::Caption) ||
+                    (w[0].segment_type == SegmentType::Caption && w[1].segment_type == SegmentType::Table)
+                ));
+            }
+        }
+    }
+
+    #[test]
+    fn test_mixed_content_sequences() {
+        let segments = vec![
+            create_segment("Regular text 1", SegmentType::Text),
+            create_segment("Picture 1", SegmentType::Picture),
+            create_segment("Caption 1", SegmentType::Caption),
+            create_segment("Regular text 2", SegmentType::Text),
+            create_segment("Table 1", SegmentType::Table),
+            create_segment("Regular text 3", SegmentType::Text),
+            create_segment("Caption 2", SegmentType::Caption),
+            create_segment("Picture 2", SegmentType::Picture),
+        ];
+
+        let chunks = hierarchical_chunking(segments, 30, true).unwrap();
+
+        // Print chunk contents for debugging
+        for (i, chunk) in chunks.iter().enumerate() {
+            println!("\nChunk {}:", i);
+            for segment in &chunk.segments {
+                println!("  {:?}: {}", segment.segment_type, segment.content);
+            }
+        }
+
+        // Verify that pairs are maintained even with mixed content
+        for chunk in &chunks {
+            // Check for Picture+Caption pairs
+            if chunk.segments.iter().any(|s| s.segment_type == SegmentType::Picture) {
+                assert!(chunk.segments.windows(2).any(|w| 
+                    (w[0].segment_type == SegmentType::Picture && w[1].segment_type == SegmentType::Caption) ||
+                    (w[0].segment_type == SegmentType::Caption && w[1].segment_type == SegmentType::Picture)
+                ));
+            }
+        }
+    }
 }
