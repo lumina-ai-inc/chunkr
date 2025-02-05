@@ -1,3 +1,4 @@
+use crate::configs::throttle_config::Config as ThrottleConfig;
 use crate::models::chunkr::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::task::{Status, Task};
@@ -7,6 +8,8 @@ use crate::utils::services::ocr;
 use crate::utils::services::pdf;
 use crate::utils::services::segmentation;
 use tempfile::NamedTempFile;
+use futures::future::try_join_all;
+use itertools::Itertools;
 
 async fn page_segmentation(
     page: &NamedTempFile,
@@ -29,7 +32,19 @@ async fn page_segmentation(
 async fn ocr_pages_batch(
     pages: &[&NamedTempFile],
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error + Send + Sync>> {
-    Ok(ocr::perform_general_ocr_batch(pages).await?)
+    let throttle_config = ThrottleConfig::from_env().unwrap();
+    let batch_size = throttle_config.general_ocr_batch_size;
+    let results: Vec<Vec<Vec<OCRResult>>> = try_join_all(
+        pages.iter()
+            .chunks(batch_size)
+            .into_iter()
+            .map(|chunk| {
+                let chunk_vec = chunk.map(|x| *x).collect::<Vec<_>>();
+                ocr::perform_general_ocr(&chunk_vec.clone())
+            })
+    ).await?;
+
+    Ok(results.into_iter().flatten().collect())
 }
 
 pub async fn process_segmentation(task: &mut Task, pages: &[&NamedTempFile], ocr_results: Vec<Vec<OCRResult>>) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error + Send + Sync>> {
