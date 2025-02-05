@@ -1,7 +1,6 @@
-use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::output::{BoundingBox, Chunk, OCRResult, Segment, SegmentType};
 use crate::models::chunkr::pipeline::Pipeline;
-use crate::models::chunkr::task::{Configuration, Status};
+use crate::models::chunkr::task::{Status, Task};
 use crate::models::chunkr::upload::{OcrStrategy, SegmentationStrategy};
 use crate::utils::services::images;
 use crate::utils::services::ocr;
@@ -33,32 +32,40 @@ async fn ocr_pages_batch(
     Ok(ocr::perform_general_ocr_batch(pages).await?)
 }
 
-async fn process_pages_batch(
-    pages: &[&NamedTempFile],
-    configuration: Configuration,
-    extracted_ocr_results: Vec<Vec<OCRResult>>,
-) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error + Send + Sync>> {
-    let ocr_results: Vec<Vec<OCRResult>> = match configuration.ocr_strategy {
-        OcrStrategy::All => ocr_pages_batch(pages).await?,
-        OcrStrategy::Auto => {
-            if extracted_ocr_results.iter().all(|r| r.is_empty()) {
-                ocr_pages_batch(pages).await?
-            } else {
-                extracted_ocr_results
+pub async fn process_segmentation(task: &mut Task, pages: &[&NamedTempFile], ocr_results: Vec<Vec<OCRResult>>) -> Result<Vec<Vec<Segment>>, Box<dyn std::error::Error + Send + Sync>> {
+    let configuration = task.configuration.clone();
+    match configuration.segmentation_strategy {
+            SegmentationStrategy::LayoutAnalysis => {
+                segmentation::perform_segmentation_batch(&pages, ocr_results).await
             }
+            SegmentationStrategy::Page => {
+                let mut segments = Vec::new();
+                for (idx, (page, ocr)) in pages.iter().zip(ocr_results.into_iter()).enumerate() {
+                    segments.push(page_segmentation(page, ocr, idx as u32 + 1).await?);
+                }
+                Ok(segments)
+            }
+        }
+}
+
+async fn process_ocr(task: &mut Task, pdf_file: &NamedTempFile, scaling_factor: f32, pages: &[&NamedTempFile]) -> Result<Vec<Vec<OCRResult>>, Box<dyn std::error::Error + Send + Sync>> {
+    let configuration = task.configuration.clone();
+    let pdf_ocr_results =
+    match pdf::extract_ocr_results(pdf_file, scaling_factor) {
+        Ok(ocr_results) => ocr_results,
+        Err(e) => {
+            println!("Error getting pdf ocr results: {:?}", e);
+            vec![vec![]; task.page_count.unwrap_or(0) as usize]
         }
     };
-
-    match configuration.segmentation_strategy {
-        SegmentationStrategy::LayoutAnalysis => {
-            segmentation::perform_segmentation_batch(pages, ocr_results).await
-        }
-        SegmentationStrategy::Page => {
-            let mut segments = Vec::new();
-            for (idx, (page, ocr)) in pages.iter().zip(ocr_results.into_iter()).enumerate() {
-                segments.push(page_segmentation(page, ocr, idx as u32 + 1).await?);
+    match configuration.ocr_strategy {
+        OcrStrategy::All => Ok(ocr_pages_batch(&pages).await?),
+        OcrStrategy::Auto => {
+            if pdf_ocr_results.iter().all(|r| r.is_empty()) {
+                Ok(ocr_pages_batch(&pages).await?)
+            } else {
+                Ok(pdf_ocr_results)
             }
-            Ok(segments)
         }
     }
 }
@@ -67,34 +74,9 @@ async fn process_pages_batch(
 ///
 /// This function will perform OCR, segmentation and chunking on the pages
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
-    let worker_config = WorkerConfig::from_env()?;
-    pipeline
-        .get_task()?
-        .update(
-            Some(Status::Processing),
-            Some("Segmentation and OCR".to_string()),
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
-        .await?;
-
-    let scaling_factor = match pipeline.get_task()?.configuration.high_resolution {
-        true => worker_config.high_res_scaling_factor,
-        false => 1.0,
-    };
-
-    let pdf_ocr_results =
-        match pdf::extract_ocr_results(pipeline.pdf_file.as_ref().unwrap(), scaling_factor) {
-            Ok(ocr_results) => ocr_results,
-            Err(e) => {
-                println!("Error getting pdf ocr results: {:?}", e);
-                vec![vec![]; pipeline.get_task()?.page_count.unwrap_or(0) as usize]
-            }
-        };
-
+    let mut task = pipeline.get_task()?;
+    let pdf_file = pipeline.pdf_file.as_ref().unwrap();
+    let scaling_factor = task.configuration.get_scaling_factor()?;
     let pages: Vec<_> = pipeline
         .page_images
         .as_ref()
@@ -103,16 +85,40 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .map(|x| x.as_ref())
         .collect();
 
-    let page_segments = match process_pages_batch(
-        &pages,
-        pipeline.get_task()?.configuration.clone(),
-        pdf_ocr_results,
-    )
-    .await
-    {
-        Ok(segments) => segments,
+    task.update(
+        Some(Status::Processing),
+        Some("Performing OCR".to_string()),
+        None,
+        None,
+        None,
+            None,
+            None,
+        )
+        .await?;
+
+    let ocr_results = match process_ocr(&mut task, pdf_file, scaling_factor, &pages).await {
+        Ok(ocr_results) => ocr_results,
         Err(e) => {
-            println!("Error in performing segmentation and OCR: {:?}", e);
+            println!("Error in OCR: {:?}", e);
+            return Err(e.to_string().into());
+        }
+    };
+
+    task.update(
+        Some(Status::Processing),
+        Some("Performing Segmentation".to_string()),
+        None,
+        None,
+        None,
+            None,
+            None,
+        )
+        .await?;
+
+    let page_segments = match process_segmentation(&mut task, &pages, ocr_results).await {
+        Ok(page_segments) => page_segments,
+        Err(e) => {
+            println!("Error in segmentation and OCR: {:?}", e);
             return Err(e.to_string().into());
         }
     };
