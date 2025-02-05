@@ -1,35 +1,28 @@
+import io
+import json
+import numpy as np
+import os
+from pathlib import Path
+from pdf2image import convert_from_path
+import pdfplumber
+from PIL import ImageDraw, ImageFont
+try:
+    import pytesseract
+except ImportError:
+    pytesseract = None
+import requests
+from tabulate import tabulate
+import time
+from tokenization_bros import BrosTokenizer
 import warnings
 
 # Suppress all warnings
 warnings.filterwarnings("ignore")
 
-import io
-import time
-import requests
-from PIL import Image, ImageDraw, ImageFont
-import os
-from pathlib import Path
-import concurrent.futures
-from pdf2image import convert_from_path
-import numpy as np
-import json
-from tabulate import tabulate
-from sklearn.cluster import KMeans
-try:
-    import pytesseract
-except ImportError:
-    pytesseract = None
-import pdfplumber
-
-from tokenization_bros import BrosTokenizer
-
 ANNOTATED_IMAGES_DIR = Path("annotated_images")
 os.makedirs(ANNOTATED_IMAGES_DIR, exist_ok=True)
 
 
-import pickle
-import shutil
-import numpy as np
 class Rectangle:
     def __init__(self, left: int, top: int, right: int, bottom: int):
         self.left = left

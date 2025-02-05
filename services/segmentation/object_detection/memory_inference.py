@@ -1,8 +1,5 @@
 import torch
 import torch.cuda.amp
-import cv2
-import numpy as np
-from pathlib import Path
 from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog
 from detectron2.modeling import build_model
@@ -10,8 +7,7 @@ from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.data import detection_utils as utils
 from detectron2.structures import BoxMode
 import detectron2.data.transforms as T
-from transformers import AutoTokenizer
-from ditod import add_vit_config
+from config import add_vit_config
 
 class MemoryPredictor:
     def __init__(self, cfg):

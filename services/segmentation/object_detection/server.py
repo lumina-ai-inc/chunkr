@@ -1,30 +1,27 @@
-import os
-import warnings
-warnings.filterwarnings("ignore")
-from pathlib import Path
-from dotenv import load_dotenv
 import asyncio
+import collections
+import cv2
 from collections import deque
 from contextlib import asynccontextmanager
-from typing import List, Tuple
-import time
-import json
-import cv2
-import numpy as np
-import uvicorn
-from fastapi import FastAPI, UploadFile, File, Form
-from pydantic import BaseModel
+from dotenv import load_dotenv
+from fastapi import FastAPI, File, Form, UploadFile
 from memory_inference import create_predictor, process_image_batch
-from fastapi.responses import JSONResponse
-import torch
-import psutil
-import collections
-import uuid
-from pydantic import Field
-from transformers import AutoTokenizer
+from pathlib import Path
+from pydantic import BaseModel, Field
 from sklearn.cluster import KMeans
-# from configuration import MODELS_PATH
+from transformers import AutoTokenizer
+from typing import List, Tuple
 import gc
+import json
+import numpy as np
+import os
+import psutil
+import time
+import torch
+import uuid
+import uvicorn
+import warnings
+warnings.filterwarnings("ignore")
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent

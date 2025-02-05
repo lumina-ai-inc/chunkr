@@ -67,4 +67,3 @@ sudo docker stop vgt
 # Optional: Remove the container and volume (run this after exiting)
 sudo docker rm -v vgt
 ```
-
