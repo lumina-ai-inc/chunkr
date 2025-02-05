@@ -7,7 +7,7 @@ from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.data import detection_utils as utils
 from detectron2.structures import BoxMode
 import detectron2.data.transforms as T
-from config import add_vit_config
+from ditod.config import add_vit_config
 
 class MemoryPredictor:
     def __init__(self, cfg):
