@@ -32,7 +32,7 @@ pub async fn open_ai_call(
     response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let request = OpenAiRequest {
-        model,
+        model: model.clone(),
         messages,
         max_completion_tokens,
         temperature,
@@ -60,14 +60,18 @@ pub async fn open_ai_call(
     let response: OpenAiResponse = match serde_json::from_str(&text) {
         Ok(parsed) => parsed,
         Err(e) => {
-            println!("Error parsing JSON: {:?}\nRaw response: {}", e, text);
+            println!(
+                "Model: {}\nError parsing JSON: {:?}\nRaw response: {}",
+                model, e, text
+            );
             return Err(Box::new(LLMError("Error parsing JSON".to_string())));
         }
     };
     Ok(response)
 }
 
-/// Process an OpenAI request with rate limiting and retrying on failure
+/// Process an OpenAI request with rate limiting and retrying on failure.
+/// If the request fails, it will retry with the fallback model if provided.
 pub async fn process_openai_request(
     url: String,
     key: String,
@@ -78,7 +82,7 @@ pub async fn process_openai_request(
     response_format: Option<serde_json::Value>,
 ) -> Result<OpenAiResponse, Box<dyn Error + Send + Sync>> {
     let rate_limiter = LLM_RATE_LIMITER.get().unwrap();
-    Ok(retry_with_backoff(|| async {
+    match retry_with_backoff(|| async {
         rate_limiter
             .acquire_token_with_timeout(std::time::Duration::from_secs(
                 *TOKEN_TIMEOUT.get().unwrap(),
@@ -95,7 +99,37 @@ pub async fn process_openai_request(
         )
         .await
     })
-    .await?)
+    .await
+    {
+        Ok(response) => Ok(response),
+        Err(e) => {
+            let llm_config = LlmConfig::from_env().unwrap();
+            if let Some(fallback_model) = llm_config.fallback_model {
+                println!("Using fallback model: {}", fallback_model);
+                retry_with_backoff(|| async {
+                    rate_limiter
+                        .acquire_token_with_timeout(std::time::Duration::from_secs(
+                            *TOKEN_TIMEOUT.get().unwrap(),
+                        ))
+                        .await?;
+                    open_ai_call(
+                        url.clone(),
+                        key.clone(),
+                        fallback_model.clone(),
+                        messages.clone(),
+                        max_completion_tokens.clone(),
+                        temperature.clone(),
+                        response_format.clone(),
+                    )
+                    .await
+                })
+                .await
+            } else {
+                println!("No fallback model provided");
+                Err(e)
+            }
+        }
+    }
 }
 
 pub fn create_basic_message(role: String, prompt: String) -> Result<Message, Box<dyn Error>> {
@@ -145,6 +179,7 @@ pub async fn llm_ocr(
     temp_file: &NamedTempFile,
     prompt: String,
     temperature: Option<f32>,
+    fallback_model: Option<String>,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let message = create_basic_image_message("user".to_string(), prompt, temp_file)
         .map_err(|e| Box::new(LLMError(e.to_string())) as Box<dyn Error + Send + Sync>)?;
@@ -153,7 +188,7 @@ pub async fn llm_ocr(
     let response = process_openai_request(
         llm_config.ocr_url.unwrap_or(llm_config.url),
         llm_config.ocr_key.unwrap_or(llm_config.key),
-        llm_config.ocr_model.unwrap_or(llm_config.model),
+        fallback_model.unwrap_or(llm_config.ocr_model.unwrap_or(llm_config.model)),
         vec![message],
         None,
         temperature,
@@ -189,29 +224,23 @@ async fn retry_ocr_with_temperature(
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let worker_config = WorkerConfig::from_env().unwrap();
     let max_retries = worker_config.max_retries;
-    let mut attempt = 0;
-    loop {
+
+    for attempt in 0..max_retries {
         let temperature = (attempt as f32) * 0.2;
         if temperature > 1.0 {
-            return Err(Box::new(LLMError(format!(
-                "Temperature too high after {} attempts",
-                attempt
-            ))));
+            break;
         }
-
-        let response = llm_ocr(temp_file, prompt.clone(), Some(temperature)).await?;
+        let response = llm_ocr(temp_file, prompt.clone(), Some(temperature), None).await?;
         if let Some(content) = extract_fenced_content(&response, fence_type) {
             return Ok(content);
         }
-        attempt += 1;
-        if attempt >= max_retries {
-            return Err(Box::new(LLMError(format!(
-                "No {} content found after {} attempts",
-                fence_type.unwrap_or(""),
-                attempt
-            ))));
-        }
     }
+
+    Err(Box::new(LLMError(format!(
+        "No {} content found after {} attempts",
+        fence_type.unwrap_or(""),
+        max_retries
+    ))))
 }
 
 pub async fn html_ocr(
