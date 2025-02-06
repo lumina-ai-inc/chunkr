@@ -2,21 +2,10 @@ use config::{Config as ConfigTrait, ConfigError};
 use dotenvy::dotenv_override;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use strum_macros::Display;
-
-#[derive(Debug, Serialize, Deserialize, Display)]
-#[serde(rename_all = "snake_case")]
-pub enum ImageField {
-    #[serde(rename = "image")]
-    Image,
-    #[serde(rename = "image_url")]
-    ImageUrl,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    #[serde(default = "default_image_field")]
-    pub image_field: ImageField,
+    pub fallback_model: Option<String>,
     #[serde(default = "default_key")]
     pub key: String,
     #[serde(default = "default_model")]
@@ -29,10 +18,6 @@ pub struct Config {
     pub structured_extraction_url: Option<String>,
     #[serde(default = "default_url")]
     pub url: String,
-}
-
-fn default_image_field() -> ImageField {
-    ImageField::ImageUrl
 }
 
 fn default_key() -> String {
