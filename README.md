@@ -118,7 +118,7 @@ For enterprise support and deployment assistance, [contact us](mailto:mehul@lumi
 
 ## Licensing
 
-This project is dual-licensed:
+The core of this project is dual-licensed:
 
 1. [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE)
 2. Commercial License
