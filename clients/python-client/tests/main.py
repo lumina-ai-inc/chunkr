@@ -97,7 +97,11 @@ def save_base64_to_file():
         f.write(segment_image_data)
 
 if __name__ == "__main__":
-    save_base64_to_file()
+
+    task = chunkr.get_task("c70efb21-c6c6-4dc6-807b-909235e2dc2a")
+    print(task.output.chunks[0].segments[0].llm)
+
+    # save_base64_to_file()
     
     # upload_file_sync("./files/test.pdf")
     # Test async concurrency
