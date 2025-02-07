@@ -53,10 +53,9 @@ async fn vgt_segmentation_batch(
         .into_iter()
         .enumerate()
         .map(|(page_idx, resp)| {
-            resp.instances.to_segments(
-                (page_idx + 1 + page_offset) as u32,
-                ocr_results[page_idx].clone(),
-            )
+            let idx = page_idx + page_offset;
+            resp.instances
+                .to_segments((idx + 1) as u32, ocr_results[idx].clone())
         })
         .collect();
 
