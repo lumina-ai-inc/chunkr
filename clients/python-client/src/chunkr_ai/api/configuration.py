@@ -75,6 +75,7 @@ class Segment(BaseModel):
     bbox: BoundingBox
     content: str
     page_height: float
+    llm: Optional[str] = None
     html: Optional[str] = None
     image: Optional[str] = None
     markdown: Optional[str] = None
