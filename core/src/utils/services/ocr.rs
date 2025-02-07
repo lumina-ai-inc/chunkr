@@ -19,17 +19,21 @@ impl fmt::Display for OcrError {
 impl Error for OcrError {}
 
 pub async fn perform_general_ocr(
-    temp_files: &[&NamedTempFile],
+    temp_files: Vec<&NamedTempFile>,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn Error + Send + Sync>> {
     Ok(retry_with_backoff(|| async {
-        GENERAL_OCR_RATE_LIMITER.get().unwrap().acquire_token().await?;
-        doctr_ocr(temp_files).await
+        GENERAL_OCR_RATE_LIMITER
+            .get()
+            .unwrap()
+            .acquire_token()
+            .await?;
+        doctr_ocr(&temp_files).await
     })
     .await?)
 }
 
 pub async fn doctr_ocr(
-    temp_files: &[&NamedTempFile],
+    temp_files: &Vec<&NamedTempFile>,
 ) -> Result<Vec<Vec<OCRResult>>, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
     let worker_config = WorkerConfig::from_env()
@@ -44,7 +48,14 @@ pub async fn doctr_ocr(
         form = form.part(
             "files",
             reqwest::multipart::Part::bytes(file_content)
-                .file_name(temp_file.path().file_name().unwrap_or_default().to_string_lossy().into_owned())
+                .file_name(
+                    temp_file
+                        .path()
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .into_owned(),
+                )
                 .mime_str("image/jpeg")?,
         );
     }
@@ -72,7 +83,7 @@ mod tests {
     async fn test_doctr_ocr() -> Result<(), Box<dyn Error + Send + Sync>> {
         let temp_file = NamedTempFile::new()?;
         std::fs::copy("input/test.jpg", temp_file.path())?;
-        doctr_ocr(&[&temp_file]).await?;
+        doctr_ocr(&vec![&temp_file]).await?;
         Ok(())
     }
 
@@ -104,7 +115,7 @@ mod tests {
             let temp_file = NamedTempFile::new()?;
             std::fs::copy(&input_file, temp_file.path())?;
             let task = tokio::spawn(async move {
-                match perform_general_ocr(&[&temp_file]).await {
+                match perform_general_ocr(vec![&temp_file]).await {
                     Ok(_) => Ok(()),
                     Err(e) => {
                         println!("Error processing {:?}: {:?}", input_file, e);
