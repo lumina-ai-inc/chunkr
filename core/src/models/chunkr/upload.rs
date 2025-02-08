@@ -62,6 +62,8 @@ pub struct CreateForm {
     pub expires_in: Option<i32>,
     /// The file to be uploaded. Can be a URL or a base64 encoded file.
     pub file: String,
+    /// The name of the file to be uploaded. If not set a name will be generated.
+    pub file_name: Option<String>,
     /// Whether to use high-resolution images for cropping and post-processing. (Latency penalty: ~7 seconds per page)
     #[schema(default = false)]
     pub high_resolution: Option<bool>,
