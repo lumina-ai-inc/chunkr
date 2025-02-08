@@ -35,7 +35,8 @@ use routes::stripe::{
     get_user_invoices, stripe_webhook,
 };
 use routes::task::{
-    cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
+    cancel_task_route, create_task_route_multipart, delete_task_route, get_task_route,
+    update_task_route,
 };
 use routes::tasks::get_tasks_route;
 use routes::user::get_or_create_user;
@@ -93,6 +94,8 @@ fn run_migrations(url: &str) {
             models::chunkr::upload::SegmentationStrategy,
             models::chunkr::upload::CreateForm,
             models::chunkr::upload::UpdateForm,
+            models::chunkr::upload_multipart::CreateForm,
+            models::chunkr::upload_multipart::UpdateForm,
         )
     ),
     modifiers(&SecurityAddon),
@@ -177,7 +180,7 @@ pub fn main() -> std::io::Result<()> {
                 .route("/user", web::get().to(get_or_create_user))
                 .service(
                     web::scope("/task")
-                        .route("", web::post().to(create_task_route))
+                        .route("", web::post().to(create_task_route_multipart))
                         .route("/{task_id}", web::get().to(get_task_route))
                         .route("/{task_id}", web::delete().to(delete_task_route))
                         .route("/{task_id}", web::patch().to(update_task_route))
