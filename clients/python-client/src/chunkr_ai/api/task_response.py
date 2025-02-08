@@ -74,7 +74,7 @@ class TaskResponse(BaseModel, Generic[T]):
     @retry_on_429()
     async def update(self, config: Configuration) -> T:
         """Update the task configuration."""
-        data = await prepare_upload_data(None, config, self._client._client)
+        data = await prepare_upload_data(None, None, config)
         r = await self._client._client.patch(
             f"{self.task_url}/parse",
             json=data,

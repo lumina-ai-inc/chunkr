@@ -7,9 +7,9 @@ use crate::utils::routes::create_task;
 use crate::utils::routes::delete_task::delete_task;
 use crate::utils::routes::get_task::get_task;
 use crate::utils::routes::update_task::update_task;
+use crate::utils::services::file_operations::get_base64;
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpResponse};
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 use tempfile;
 
 /// Get Task
@@ -97,12 +97,12 @@ pub async fn create_task_route(
 ) -> Result<HttpResponse, Error> {
     let configuration = payload.to_configuration();
 
-    let file = match STANDARD.decode(&payload.file) {
-        Ok(data) => data,
-        Err(e) => {
-            eprintln!("Error decoding base64 data: {:?}", e);
-            return Ok(HttpResponse::BadRequest().body("Invalid base64 data"));
-        }
+    let (base64_data, filename) = match get_base64(payload.file.clone()).await {
+        Ok(file) => file,
+        Err(e) => match e.to_string().contains("Invalid base64 data") {
+            true => return Ok(HttpResponse::BadRequest().body("Invalid base64 data")),
+            false => return Ok(HttpResponse::InternalServerError().body("Failed to process file")),
+        },
     };
 
     let mut temp_file = match tempfile::NamedTempFile::new() {
@@ -113,14 +113,14 @@ pub async fn create_task_route(
         }
     };
 
-    if let Err(e) = std::io::Write::write_all(&mut temp_file, &file) {
+    if let Err(e) = std::io::Write::write_all(&mut temp_file, &base64_data) {
         eprintln!("Error writing to temporary file: {:?}", e);
         return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
     }
 
     let result = create_task::create_task(
         &temp_file,
-        payload.file_name.clone(),
+        filename.or(payload.file_name.clone()),
         &user_info,
         &configuration,
     )
