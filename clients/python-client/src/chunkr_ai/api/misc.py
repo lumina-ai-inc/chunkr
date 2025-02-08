@@ -1,13 +1,12 @@
 from .configuration import Configuration
 import base64
-import httpx
 import io
 from pathlib import Path
 from PIL import Image
 from typing import Union, Tuple, BinaryIO, Optional
 
-async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image], client: httpx.AsyncClient = None) -> Tuple[str, BinaryIO]:
-    """Convert various file types into a tuple of (filename, file-like object).
+async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image]) -> Tuple[Optional[str], str]:
+    """Convert various file types into a tuple of (filename, file content).
 
     Args:
         file: Input file, can be:
@@ -18,7 +17,8 @@ async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image], client: ht
             - PIL/Pillow Image object (will be converted to base64)
 
     Returns:
-        Tuple[str, BinaryIO]: (filename, file-like object) ready for upload
+        Tuple[Optional[str], str]: (filename, content) where content is either a URL or base64 string
+        The filename may be None for URLs, base64 strings, and PIL Images
 
     Raises:
         FileNotFoundError: If the file path doesn't exist
@@ -26,44 +26,21 @@ async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image], client: ht
         ValueError: If the URL is invalid or unreachable
         ValueError: If the MIME type is unsupported
     """
-    if isinstance(file, str) and (
-        file.startswith("http://") or file.startswith("https://")
-    ):
-        if not client:
-            raise ValueError("Client must be provided to validate URLs")
-        response = await client.head(file)
-        response.raise_for_status()
-        return None, None
-
-    # Handle base64 strings
-    if isinstance(file, str) and "," in file and ";base64," in file:
-        try:
-            header, base64_data = file.split(",", 1)
-            base64.b64decode(base64_data)
-            mime_type = header.split(":")[-1].split(";")[0].lower()
-            mime_to_ext = {
-                "application/pdf": "pdf",
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
-                "application/msword": "doc",
-                "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
-                "application/vnd.ms-powerpoint": "ppt",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
-                "application/vnd.ms-excel": "xls",
-                "image/jpeg": "jpg",
-                "image/png": "png",
-                "image/jpg": "jpg",
-            }
-            if mime_type not in mime_to_ext:
-                raise ValueError(f"Unsupported MIME type: {mime_type}")
-
-            format = mime_to_ext[mime_type]
+    # Handle strings
+    if isinstance(file, str):
+        if file.startswith(('http://', 'https://')):
             return None, file
-
-        except Exception as e:
-            raise ValueError(f"Invalid base64 string: {str(e)}")
+        try:
+            base64.b64decode(file)
+            return None, file
+        except:
+            try:
+                file = Path(file)
+            except:
+                raise ValueError("File must be a valid path, URL, or base64 string")
 
     # Handle file paths - convert to base64
-    if isinstance(file, (str, Path)):
+    if isinstance(file, Path):
         path = Path(file).resolve()
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file}")
@@ -101,8 +78,8 @@ async def prepare_file(file: Union[str, Path, BinaryIO, Image.Image], client: ht
 
 async def prepare_upload_data(
     file: Optional[Union[str, Path, BinaryIO, Image.Image]] = None,
+    filename: Optional[str] = None,
     config: Optional[Configuration] = None,
-    client: httpx.AsyncClient = None,
 ) -> dict:
     """Prepare data dictionary for upload.
 
@@ -116,14 +93,9 @@ async def prepare_upload_data(
     """
     data = {}
     if file:
-        if isinstance(file, str) and (
-            file.startswith("http://") or file.startswith("https://")
-        ):
-            data["file"] = file
-        else:
-            filename, base64_str = await prepare_file(file, client)
-            data["file"] = base64_str
-            data["file_name"] = filename
+        processed_filename, processed_file = await prepare_file(file)
+        data["file"] = processed_file
+        data["file_name"] = filename or processed_filename
 
     if config:
         data.update(config.model_dump(mode="json", exclude_none=True))

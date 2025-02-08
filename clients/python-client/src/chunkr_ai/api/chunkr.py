@@ -1,6 +1,6 @@
 from pathlib import Path
 from PIL import Image
-from typing import Union, BinaryIO
+from typing import Union, BinaryIO, Optional
 
 from .configuration import Configuration
 from .decorators import anywhere, ensure_client, retry_on_429
@@ -17,8 +17,9 @@ class Chunkr(ChunkrBase):
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
+        filename: Optional[str] = None,
     ) -> TaskResponse:
-        task = await self.create_task(file, config)
+        task = await self.create_task(file, config, filename)
         return await task.poll()
 
     @anywhere()
@@ -34,9 +35,10 @@ class Chunkr(ChunkrBase):
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
+        filename: Optional[str] = None,
     ) -> TaskResponse:
         """Create a new task with the given file and configuration."""
-        data = await prepare_upload_data(file, config, self._client)
+        data = await prepare_upload_data(file, filename, config)
         r = await self._client.post(
             f"{self.url}/api/v1/task/parse", json=data, headers=self._headers()
         )
@@ -48,7 +50,7 @@ class Chunkr(ChunkrBase):
     @retry_on_429()
     async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
         """Update an existing task with new configuration."""
-        data = await prepare_upload_data(None, config, self._client)
+        data = await prepare_upload_data(None, None, config)
         r = await self._client.patch(
             f"{self.url}/api/v1/task/{task_id}/parse",
             json=data,
