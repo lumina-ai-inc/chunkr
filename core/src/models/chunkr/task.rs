@@ -9,7 +9,6 @@ use crate::utils::clients::get_pg_client;
 use crate::utils::services::file_operations::check_file_type;
 use crate::utils::storage::services::delete_folder;
 use crate::utils::storage::services::{download_to_tempfile, generate_presigned_url, upload_to_s3};
-use actix_multipart::form::tempfile::TempFile;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use futures::future::try_join_all;
@@ -64,17 +63,20 @@ impl Task {
         user_id: &str,
         api_key: Option<String>,
         configuration: &Configuration,
-        file: &TempFile,
+        file: &NamedTempFile,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let temp_file = &file.file;
-        let mime_type = check_file_type(temp_file)?;
+        let mime_type = check_file_type(file)?;
 
         let client = get_pg_client().await?;
         let worker_config = worker_config::Config::from_env().unwrap();
 
         let task_id = Uuid::new_v4().to_string();
-        let file_name = file.file_name.as_deref().unwrap_or("unknown.pdf");
-        let file_size = file.size;
+        let file_name = file
+            .path()
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("unknown.pdf");
+        let file_size = file.as_file().metadata()?.len();
         let status = Status::Starting;
         let base_url = worker_config.server_url;
         let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
@@ -84,7 +86,7 @@ impl Task {
         let created_at = Utc::now();
         let version = worker_config.version;
 
-        let file_path = PathBuf::from(file.file.path());
+        let file_path = PathBuf::from(file.path());
         upload_to_s3(&input_location, &file_path).await?;
 
         let configuration_json = serde_json::to_string(&configuration)?;
@@ -374,7 +376,10 @@ impl Task {
     }
 
     pub async fn delete(&self) -> Result<(), Box<dyn std::error::Error>> {
-        if self.status != Status::Succeeded && self.status != Status::Failed && self.status != Status::Cancelled {
+        if self.status != Status::Succeeded
+            && self.status != Status::Failed
+            && self.status != Status::Cancelled
+        {
             return Err(format!("Task cannot be deleted: status is {}", self.status).into());
         }
         let client = get_pg_client().await?;
