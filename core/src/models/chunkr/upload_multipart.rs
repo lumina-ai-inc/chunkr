@@ -11,7 +11,7 @@ use utoipa::{IntoParams, ToSchema};
 
 #[derive(Debug, MultipartForm, ToSchema, IntoParams)]
 #[into_params(parameter_in = Query)]
-pub struct CreateForm {
+pub struct CreateFormMultipart {
     #[param(style = Form, value_type = String, format = "binary")]
     #[schema(value_type = Option<ChunkProcessing>, format = "binary")]
     pub chunk_processing: Option<MPJson<ChunkProcessing>>,
@@ -46,7 +46,7 @@ pub struct CreateForm {
     pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
 }
 
-impl CreateForm {
+impl CreateFormMultipart {
     fn get_chunk_processing(&self) -> ChunkProcessing {
         self.chunk_processing
             .as_ref()
@@ -152,7 +152,7 @@ impl CreateForm {
 
 #[derive(Debug, MultipartForm, ToSchema, IntoParams)]
 #[into_params(parameter_in = Query)]
-pub struct UpdateForm {
+pub struct UpdateFormMultipart {
     #[param(style = Form, value_type = Option<ChunkProcessing>, format = "binary")]
     #[schema(value_type = Option<ChunkProcessing>, format = "binary")]
     pub chunk_processing: Option<MPJson<ChunkProcessing>>,
@@ -183,7 +183,7 @@ pub struct UpdateForm {
     pub segmentation_strategy: Option<MPJson<SegmentationStrategy>>,
 }
 
-impl UpdateForm {
+impl UpdateFormMultipart {
     fn get_segment_processing(&self, current_config: &Configuration) -> SegmentProcessing {
         let user_config = self
             .segment_processing
