@@ -64,24 +64,25 @@ impl Task {
         api_key: Option<String>,
         configuration: &Configuration,
         file: &NamedTempFile,
+        file_name: Option<String>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let mime_type = check_file_type(file)?;
-
+        let (mime_type, extension) = check_file_type(file)?;
         let client = get_pg_client().await?;
         let worker_config = worker_config::Config::from_env().unwrap();
-
         let task_id = Uuid::new_v4().to_string();
-        let file_name = file
-            .path()
-            .file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or("unknown.pdf");
+        let file_name = file_name.unwrap_or(
+            file.path()
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or(format!("{}.{}", task_id, extension).as_str())
+                .to_string(),
+        );
         let file_size = file.as_file().metadata()?.len();
         let status = Status::Starting;
         let base_url = worker_config.server_url;
         let task_url = format!("{}/api/v1/task/{}", base_url, task_id);
         let (input_location, pdf_location, output_location, image_folder_location) =
-            Self::generate_s3_paths(user_id, &task_id, file_name);
+            Self::generate_s3_paths(user_id, &task_id, &file_name);
         let message = "Task queued".to_string();
         let created_at = Utc::now();
         let version = worker_config.version;
