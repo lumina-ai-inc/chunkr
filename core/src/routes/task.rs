@@ -3,12 +3,14 @@ use crate::models::chunkr::task::{Task, TaskQuery, TaskResponse};
 use crate::models::chunkr::upload;
 use crate::models::chunkr::upload_multipart;
 use crate::utils::routes::cancel_task::cancel_task;
-use crate::utils::routes::create_task::create_task;
+use crate::utils::routes::create_task;
 use crate::utils::routes::delete_task::delete_task;
 use crate::utils::routes::get_task::get_task;
 use crate::utils::routes::update_task::update_task;
 use actix_multipart::form::MultipartForm;
 use actix_web::{web, Error, HttpResponse};
+use base64::{engine::general_purpose::STANDARD, Engine as _};
+use tempfile;
 
 /// Get Task
 ///
@@ -94,7 +96,37 @@ pub async fn create_task_route(
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
     let configuration = payload.to_configuration();
-    let result = create_task(&payload.file_url, &user_info, &configuration).await;
+
+    // Decode base64 with proper error handling
+    let file = match STANDARD.decode(&payload.file) {
+        Ok(data) => data,
+        Err(e) => {
+            eprintln!("Error decoding base64 data: {:?}", e);
+            return Ok(HttpResponse::BadRequest().body("Invalid base64 data"));
+        }
+    };
+
+    // Create a temporary file
+    let mut temp_file = match tempfile::NamedTempFile::new() {
+        Ok(file) => file,
+        Err(e) => {
+            eprintln!("Error creating temporary file: {:?}", e);
+            return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
+        }
+    };
+
+    // Write the decoded data to the temporary file
+    if let Err(e) = std::io::Write::write_all(&mut temp_file, &file) {
+        eprintln!("Error writing to temporary file: {:?}", e);
+        return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
+    }
+
+    let result = create_task::create_task(&temp_file, &user_info, &configuration).await;
+
+    // Clean up the temporary file
+    if let Err(e) = temp_file.close() {
+        eprintln!("Error cleaning up temporary file: {:?}", e);
+    }
 
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
@@ -151,7 +183,7 @@ pub async fn create_task_route_multipart(
     let form = form.into_inner();
     let file_data = &form.file;
     let configuration = form.to_configuration();
-    let result = create_task(file_data, &user_info, &configuration).await;
+    let result = create_task::create_task_multipart(file_data, &user_info, &configuration).await;
     if let Ok(metadata) = std::fs::metadata(file_data.file.path()) {
         if metadata.is_file() {
             if let Err(e) = std::fs::remove_file(file_data.file.path()) {
