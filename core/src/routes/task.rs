@@ -97,7 +97,6 @@ pub async fn create_task_route(
 ) -> Result<HttpResponse, Error> {
     let configuration = payload.to_configuration();
 
-    // Decode base64 with proper error handling
     let file = match STANDARD.decode(&payload.file) {
         Ok(data) => data,
         Err(e) => {
@@ -106,7 +105,6 @@ pub async fn create_task_route(
         }
     };
 
-    // Create a temporary file
     let mut temp_file = match tempfile::NamedTempFile::new() {
         Ok(file) => file,
         Err(e) => {
@@ -115,18 +113,18 @@ pub async fn create_task_route(
         }
     };
 
-    // Write the decoded data to the temporary file
     if let Err(e) = std::io::Write::write_all(&mut temp_file, &file) {
         eprintln!("Error writing to temporary file: {:?}", e);
         return Ok(HttpResponse::InternalServerError().body("Failed to process file"));
     }
 
-    let result = create_task::create_task(&temp_file, &user_info, &configuration).await;
-
-    // Clean up the temporary file
-    if let Err(e) = temp_file.close() {
-        eprintln!("Error cleaning up temporary file: {:?}", e);
-    }
+    let result = create_task::create_task(
+        &temp_file,
+        payload.file_name.clone(),
+        &user_info,
+        &configuration,
+    )
+    .await;
 
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
@@ -320,17 +318,15 @@ pub async fn create_task_route_multipart(
     form: MultipartForm<upload_multipart::CreateFormMultipart>,
     user_info: web::ReqData<UserInfo>,
 ) -> Result<HttpResponse, Error> {
-    let form = form.into_inner();
-    let file_data = &form.file;
-    let configuration = form.to_configuration();
-    let result = create_task::create_task_multipart(file_data, &user_info, &configuration).await;
-    if let Ok(metadata) = std::fs::metadata(file_data.file.path()) {
-        if metadata.is_file() {
-            if let Err(e) = std::fs::remove_file(file_data.file.path()) {
-                eprintln!("Error deleting temporary file: {:?}", e);
-            }
-        }
-    }
+    let form = &form.into_inner();
+    let configuration = form.to_configuration().clone();
+    let result = create_task::create_task(
+        &form.file.file,
+        form.file.file_name.clone(),
+        &user_info,
+        &configuration,
+    )
+    .await;
     match result {
         Ok(task_response) => Ok(HttpResponse::Ok().json(task_response)),
         Err(e) => {
@@ -345,6 +341,8 @@ pub async fn create_task_route_multipart(
                 .contains("unsupported file type")
             {
                 Ok(HttpResponse::BadRequest().body("Unsupported file type"))
+            } else if error_message.contains("must have a filename") {
+                Ok(HttpResponse::BadRequest().body("File must have a filename"))
             } else {
                 eprintln!("Error creating task: {:?}", e);
                 Ok(HttpResponse::InternalServerError().body("Failed to create task"))

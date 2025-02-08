@@ -2,7 +2,7 @@ use std::error::Error;
 use std::process::Command;
 use tempfile::NamedTempFile;
 
-pub fn check_file_type(file: &NamedTempFile) -> Result<String, Box<dyn Error>> {
+pub fn check_file_type(file: &NamedTempFile) -> Result<(String, String), Box<dyn Error>> {
     let output = Command::new("file")
         .arg("--mime-type")
         .arg("-b")
@@ -10,18 +10,23 @@ pub fn check_file_type(file: &NamedTempFile) -> Result<String, Box<dyn Error>> {
         .output()?;
 
     let mime_type = String::from_utf8(output.stdout)?.trim().to_string();
-
+    println!("mime_type: {:?}", mime_type);
     match mime_type.as_str() {
-        "application/pdf"
-        | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        | "application/msword"
-        | "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        | "application/vnd.ms-powerpoint"
-        | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        | "application/vnd.ms-excel"
-        | "image/jpeg"
-        | "image/png"
-        | "image/jpg" => Ok(mime_type),
+        "application/pdf" => Ok((mime_type, "pdf".to_string())),
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => {
+            Ok((mime_type, "docx".to_string()))
+        }
+        "application/msword" => Ok((mime_type, "doc".to_string())),
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" => {
+            Ok((mime_type, "pptx".to_string()))
+        }
+        "application/vnd.ms-powerpoint" => Ok((mime_type, "ppt".to_string())),
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => {
+            Ok((mime_type, "xlsx".to_string()))
+        }
+        "application/vnd.ms-excel" => Ok((mime_type, "xls".to_string())),
+        "image/jpeg" | "image/jpg" => Ok((mime_type, "jpg".to_string())),
+        "image/png" => Ok((mime_type, "png".to_string())),
         _ => Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::Other,
             format!("Unsupported file type: {}", mime_type),
