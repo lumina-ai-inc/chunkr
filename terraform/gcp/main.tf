@@ -345,7 +345,7 @@ resource "google_container_node_pool" "gpu_nodes" {
       }
       gpu_sharing_config {
         gpu_sharing_strategy       = "TIME_SHARING"
-        max_shared_clients_per_gpu = 20
+        max_shared_clients_per_gpu = 48
       }
     }
 
