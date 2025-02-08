@@ -35,9 +35,10 @@ class Chunkr(ChunkrBase):
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
     ) -> TaskResponse:
-        files = await prepare_upload_data(file, config, self._client)
+        """Create a new task with the given file and configuration."""
+        data = await prepare_upload_data(file, config, self._client)
         r = await self._client.post(
-            f"{self.url}/api/v1/task", files=files, headers=self._headers()
+            f"{self.url}/api/v1/task/parse", json=data, headers=self._headers()
         )
         r.raise_for_status()
         return TaskResponse(**r.json()).with_client(self, True, False)
@@ -46,10 +47,11 @@ class Chunkr(ChunkrBase):
     @ensure_client()
     @retry_on_429()
     async def update_task(self, task_id: str, config: Configuration) -> TaskResponse:
-        files = await prepare_upload_data(None, config, self._client)
+        """Update an existing task with new configuration."""
+        data = await prepare_upload_data(None, config, self._client)
         r = await self._client.patch(
-            f"{self.url}/api/v1/task/{task_id}",
-            files=files,
+            f"{self.url}/api/v1/task/{task_id}/parse",
+            json=data,
             headers=self._headers(),
         )
         r.raise_for_status()
