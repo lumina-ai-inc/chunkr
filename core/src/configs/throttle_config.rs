@@ -43,7 +43,7 @@ fn default_llm_ocr_timeout() -> Option<u64> {
 }
 
 fn default_segmentation_batch_size() -> usize {
-    4
+    3
 }
 
 fn default_segmentation_rate_limit() -> f32 {
