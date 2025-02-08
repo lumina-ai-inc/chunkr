@@ -1,6 +1,10 @@
+use crate::utils::clients;
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use std::error::Error;
 use std::process::Command;
 use tempfile::NamedTempFile;
+use url;
+use urlencoding;
 
 pub fn check_file_type(file: &NamedTempFile) -> Result<(String, String), Box<dyn Error>> {
     let output = Command::new("file")
@@ -75,5 +79,45 @@ pub fn convert_to_pdf(input_file: &NamedTempFile) -> Result<NamedTempFile, Box<d
             std::io::ErrorKind::NotFound,
             "Converted PDF file not found in output directory",
         )))
+    }
+}
+
+pub async fn get_base64(input: String) -> Result<(Vec<u8>, Option<String>), Box<dyn Error>> {
+    if input.starts_with("http://") || input.starts_with("https://") {
+        let client = clients::get_reqwest_client();
+        let response = client.get(&input).send().await?;
+
+        let mut filename = None;
+        if let Some(content_disposition) = response.headers().get("content-disposition") {
+            if let Ok(header_value) = content_disposition.to_str() {
+                if header_value.contains("filename=") {
+                    filename = header_value
+                        .split("filename=")
+                        .nth(1)
+                        .map(|f| f.trim_matches(|c| c == '"' || c == '\'').to_string());
+                }
+            }
+        }
+
+        if filename.is_none() {
+            if let Ok(url) = url::Url::parse(&input) {
+                if let Some(path_segments) = url.path_segments() {
+                    if let Some(last_segment) = path_segments.last() {
+                        if !last_segment.is_empty() {
+                            filename = Some(
+                                urlencoding::decode(last_segment)
+                                    .unwrap_or_else(|_| std::borrow::Cow::Borrowed(last_segment))
+                                    .into_owned(),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok((response.bytes().await?.to_vec(), filename))
+    } else {
+        let decoded = STANDARD.decode(&input)?;
+        Ok((decoded, None))
     }
 }

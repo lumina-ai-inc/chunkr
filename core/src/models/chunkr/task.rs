@@ -70,13 +70,8 @@ impl Task {
         let client = get_pg_client().await?;
         let worker_config = worker_config::Config::from_env().unwrap();
         let task_id = Uuid::new_v4().to_string();
-        let file_name = file_name.unwrap_or(
-            file.path()
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or(format!("{}.{}", task_id, extension).as_str())
-                .to_string(),
-        );
+        let file_name: String =
+            file_name.unwrap_or(format!("{}.{}", task_id, extension).to_string());
         let file_size = file.as_file().metadata()?.len();
         let status = Status::Starting;
         let base_url = worker_config.server_url;
