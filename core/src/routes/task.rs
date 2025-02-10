@@ -289,6 +289,8 @@ pub async fn cancel_task_route(
 
 /// Create Task Multipart
 ///
+/// **This endpoint is deprecated**
+///
 /// Queues a document for processing and returns a TaskResponse containing:
 /// - Task ID for status polling
 /// - Initial configuration
@@ -352,6 +354,8 @@ pub async fn create_task_route_multipart(
 }
 
 /// Update Task Multipart
+///
+/// **This endpoint is deprecated**
 ///
 /// Updates an existing task's configuration and reprocesses the document.
 ///
