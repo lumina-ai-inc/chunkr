@@ -70,6 +70,7 @@ impl Pipeline {
                 "application/pdf" => Some(self.input_file.clone().unwrap()),
                 _ => Some(Arc::new(convert_to_pdf(
                     &self.input_file.as_ref().unwrap(),
+                    task.mime_type.as_ref().unwrap().as_str(),
                 )?)),
             };
             println!("Task initialized with input file");

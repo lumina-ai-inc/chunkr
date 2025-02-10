@@ -29,18 +29,36 @@ pub fn check_file_type(file: &NamedTempFile) -> Result<String, Box<dyn Error>> {
     }
 }
 
-pub fn convert_to_pdf(input_file: &NamedTempFile) -> Result<NamedTempFile, Box<dyn Error>> {
+pub fn convert_to_pdf(input_file: &NamedTempFile, mime_type: &str) -> Result<NamedTempFile, Box<dyn Error>> {
     let output_dir = input_file.path().parent().unwrap();
 
-    let output = Command::new("libreoffice")
-        .args(&[
-            "--headless",
+    let mut args = vec!["--headless"];
+    // For images, use Draw with specific export options
+    if mime_type.starts_with("image/") {
+        args.extend(&[
+            "--infilter=draw",
+            "--convert-to",
+            "pdf:draw_pdf_Export",  // Use Draw's PDF export
+            "-env:UserInstallation=file:///tmp/libreoffice_convert",  // Prevent config conflicts
+            "--writer",
+            "-property:PageWidth:0",  // Remove page constraints
+            "-property:PageHeight:0",
+        ]);
+    } else {
+        args.extend(&[
             "--convert-to",
             "pdf",
-            "--outdir",
-            output_dir.to_str().unwrap(),
-            input_file.path().to_str().unwrap(),
-        ])
+        ]);
+    }
+
+    args.extend(&[
+        "--outdir",
+        output_dir.to_str().unwrap(),
+        input_file.path().to_str().unwrap(),
+    ]);
+
+    let output = Command::new("libreoffice")
+        .args(&args)
         .output()?;
 
     if !output.status.success() {
@@ -70,5 +88,46 @@ pub fn convert_to_pdf(input_file: &NamedTempFile) -> Result<NamedTempFile, Box<d
             std::io::ErrorKind::NotFound,
             "Converted PDF file not found in output directory",
         )))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::PathBuf;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_convert_to_pdf() -> Result<(), Box<dyn Error>> {
+        // Create a temporary directory for our test
+        let output_dir = tempdir()?;
+        
+        // Create a temporary file from the input path
+        let input_path = "./input/test.jpg"; // You'll replace this
+        let temp_file = {
+            let temp = NamedTempFile::new()?;
+            fs::copy(input_path.clone(), temp.path())?;
+            temp
+        };
+
+        // Perform the conversion
+        let mime_type = check_file_type(&temp_file)?;
+        let result = convert_to_pdf(&temp_file, &mime_type)?;
+        
+        // Copy the result to the output directory with original filename
+        let original_name = PathBuf::from(input_path.clone())
+            .file_stem()
+            .unwrap()
+            .to_str()
+            .unwrap();
+        let output_path = output_dir.path().join(format!("{}.pdf", original_name));
+        fs::copy(result.path(), &output_path)?;
+
+        // Verify the output file exists and has content
+        assert!(output_path.exists());
+        assert!(fs::metadata(&output_path)?.len() > 0);
+
+        Ok(())
     }
 }
