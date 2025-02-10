@@ -98,12 +98,12 @@ def save_base64_to_file():
 
 if __name__ == "__main__":
 
-    task = chunkr.get_task("c70efb21-c6c6-4dc6-807b-909235e2dc2a")
-    print(task.output.chunks[0].segments[0].llm)
+    # task = chunkr.get_task("c70efb21-c6c6-4dc6-807b-909235e2dc2a")
+    # print(task.output.chunks[0].segments[0].llm)
 
     # save_base64_to_file()
     
-    # upload_file_sync("./files/test.pdf")
+    upload_file_sync("./files/test.pdf")
     # Test async concurrency
     # asyncio.run(test_async_concurrent())
     

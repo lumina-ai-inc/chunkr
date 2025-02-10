@@ -1,8 +1,12 @@
+use crate::utils::clients;
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use std::error::Error;
 use std::process::Command;
 use tempfile::NamedTempFile;
+use url;
+use urlencoding;
 
-pub fn check_file_type(file: &NamedTempFile) -> Result<String, Box<dyn Error>> {
+pub fn check_file_type(file: &NamedTempFile) -> Result<(String, String), Box<dyn Error>> {
     let output = Command::new("file")
         .arg("--mime-type")
         .arg("-b")
@@ -10,18 +14,23 @@ pub fn check_file_type(file: &NamedTempFile) -> Result<String, Box<dyn Error>> {
         .output()?;
 
     let mime_type = String::from_utf8(output.stdout)?.trim().to_string();
-
+    println!("mime_type: {:?}", mime_type);
     match mime_type.as_str() {
-        "application/pdf"
-        | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        | "application/msword"
-        | "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        | "application/vnd.ms-powerpoint"
-        | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        | "application/vnd.ms-excel"
-        | "image/jpeg"
-        | "image/png"
-        | "image/jpg" => Ok(mime_type),
+        "application/pdf" => Ok((mime_type, "pdf".to_string())),
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => {
+            Ok((mime_type, "docx".to_string()))
+        }
+        "application/msword" => Ok((mime_type, "doc".to_string())),
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" => {
+            Ok((mime_type, "pptx".to_string()))
+        }
+        "application/vnd.ms-powerpoint" => Ok((mime_type, "ppt".to_string())),
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => {
+            Ok((mime_type, "xlsx".to_string()))
+        }
+        "application/vnd.ms-excel" => Ok((mime_type, "xls".to_string())),
+        "image/jpeg" | "image/jpg" => Ok((mime_type, "jpg".to_string())),
+        "image/png" => Ok((mime_type, "png".to_string())),
         _ => Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::Other,
             format!("Unsupported file type: {}", mime_type),
@@ -70,5 +79,45 @@ pub fn convert_to_pdf(input_file: &NamedTempFile) -> Result<NamedTempFile, Box<d
             std::io::ErrorKind::NotFound,
             "Converted PDF file not found in output directory",
         )))
+    }
+}
+
+pub async fn get_base64(input: String) -> Result<(Vec<u8>, Option<String>), Box<dyn Error>> {
+    if input.starts_with("http://") || input.starts_with("https://") {
+        let client = clients::get_reqwest_client();
+        let response = client.get(&input).send().await?;
+
+        let mut filename = None;
+        if let Some(content_disposition) = response.headers().get("content-disposition") {
+            if let Ok(header_value) = content_disposition.to_str() {
+                if header_value.contains("filename=") {
+                    filename = header_value
+                        .split("filename=")
+                        .nth(1)
+                        .map(|f| f.trim_matches(|c| c == '"' || c == '\'').to_string());
+                }
+            }
+        }
+
+        if filename.is_none() {
+            if let Ok(url) = url::Url::parse(&input) {
+                if let Some(path_segments) = url.path_segments() {
+                    if let Some(last_segment) = path_segments.last() {
+                        if !last_segment.is_empty() {
+                            filename = Some(
+                                urlencoding::decode(last_segment)
+                                    .unwrap_or_else(|_| std::borrow::Cow::Borrowed(last_segment))
+                                    .into_owned(),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok((response.bytes().await?.to_vec(), filename))
+    } else {
+        let decoded = STANDARD.decode(&input)?;
+        Ok((decoded, None))
     }
 }

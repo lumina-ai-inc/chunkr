@@ -7,8 +7,7 @@ import httpx
 import os
 from pathlib import Path
 from PIL import Image
-from typing import BinaryIO, Union
-
+from typing import BinaryIO, Union, Optional
 
 class ChunkrBase(HeadersMixin):
     """Base class with shared functionality for Chunkr API clients.
@@ -20,7 +19,7 @@ class ChunkrBase(HeadersMixin):
     """
 
     def __init__(self, url: str = None, api_key: str = None, raise_on_failure: bool = False):
-        load_dotenv()
+        load_dotenv(override=True)
         self.url = url or os.getenv("CHUNKR_URL") or "https://api.chunkr.ai"
         self._api_key = api_key or os.getenv("CHUNKR_API_KEY")
         self.raise_on_failure = raise_on_failure
@@ -38,13 +37,15 @@ class ChunkrBase(HeadersMixin):
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
+        filename: Optional[str] = None,
     ) -> TaskResponse:
         """Upload a file and wait for processing to complete.
 
         Args:
             file: The file to upload.
             config: Configuration options for processing. Optional.
-
+            filename: The filename to use for the file. Optional.
+            
         Examples:
         ```python
         # Upload from file path
@@ -58,7 +59,7 @@ class ChunkrBase(HeadersMixin):
         await chunkr.upload("https://example.com/document.pdf")
 
         # Upload from base64 string (must include MIME type header)
-        await chunkr.upload("data:application/pdf;base64,JVBERi0...")
+        await chunkr.upload("data:application/pdf;base64,JVBERi0...", filename="document.pdf")
 
         # Upload an image
         from PIL import Image
@@ -90,13 +91,14 @@ class ChunkrBase(HeadersMixin):
         self,
         file: Union[str, Path, BinaryIO, Image.Image],
         config: Configuration = None,
+        filename: Optional[str] = None,
     ) -> TaskResponse:
         """Upload a file for processing and immediately return the task response. It will not wait for processing to complete. To wait for the full processing to complete, use `task.poll()`.
 
         Args:
             file: The file to upload.
             config: Configuration options for processing. Optional.
-
+            filename: The filename to use for the file. Optional.
         Examples:
         ```
         # Upload from file path
@@ -110,7 +112,7 @@ class ChunkrBase(HeadersMixin):
         task = await chunkr.create_task("https://example.com/document.pdf")
 
         # Upload from base64 string (must include MIME type header)
-        task = await chunkr.create_task("data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmo...")
+        task = await chunkr.create_task("data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmo...", filename="document.pdf")
 
         # Upload an image
         from PIL import Image
