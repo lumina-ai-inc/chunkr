@@ -105,6 +105,29 @@ class TaskResponse(BaseModel, Generic[T]):
         r.raise_for_status()
         return await self.poll()
 
+    def _write_to_file(self, content: str | dict, output_file: str, is_json: bool = False) -> None:
+        """Helper method to write content to a file
+        
+        Args:
+            content: Content to write (string or dict for JSON)
+            output_file: Path to save the content
+            is_json: Whether the content should be written as JSON
+        """
+        class DateTimeEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, datetime):
+                    return obj.isoformat()
+                return super().default(obj)
+        if output_file:
+            directory = os.path.dirname(output_file)
+            if directory:
+                os.makedirs(directory, exist_ok=True)
+            with open(output_file, "w", encoding="utf-8") as f:
+                if is_json:
+                    json.dump(content, f, cls=DateTimeEncoder, indent=2)
+                else:
+                    f.write(content)
+
     def html(self, output_file: str = None) -> str:
         """Get the full HTML of the task
         
@@ -112,10 +135,7 @@ class TaskResponse(BaseModel, Generic[T]):
             output_file (str, optional): Path to save the HTML content. Defaults to None.
         """
         content = self._get_content("html")
-        if output_file:
-            os.makedirs(os.path.dirname(output_file), exist_ok=True)
-            with open(output_file, "w", encoding="utf-8") as f:
-                f.write(content)
+        self._write_to_file(content, output_file)
         return content
 
     def markdown(self, output_file: str = None) -> str:
@@ -125,10 +145,7 @@ class TaskResponse(BaseModel, Generic[T]):
             output_file (str, optional): Path to save the markdown content. Defaults to None.
         """
         content = self._get_content("markdown")
-        if output_file:
-            os.makedirs(os.path.dirname(output_file), exist_ok=True)
-            with open(output_file, "w", encoding="utf-8") as f:
-                f.write(content)
+        self._write_to_file(content, output_file)
         return content
 
     def content(self, output_file: str = None) -> str:
@@ -138,10 +155,7 @@ class TaskResponse(BaseModel, Generic[T]):
             output_file (str, optional): Path to save the content. Defaults to None.
         """
         content = self._get_content("content")
-        if output_file:
-            os.makedirs(os.path.dirname(output_file), exist_ok=True)
-            with open(output_file, "w", encoding="utf-8") as f:
-                f.write(content)
+        self._write_to_file(content, output_file)
         return content
     
     def json(self, output_file: str = None) -> dict:
@@ -150,17 +164,8 @@ class TaskResponse(BaseModel, Generic[T]):
         Args:
             output_file (str, optional): Path to save the task data as JSON. Defaults to None.
         """
-        class DateTimeEncoder(json.JSONEncoder):
-            def default(self, obj):
-                if isinstance(obj, datetime):
-                    return obj.isoformat()
-                return super().default(obj)
-
         data = self.model_dump()
-        if output_file:
-            os.makedirs(os.path.dirname(output_file), exist_ok=True)
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, cls=DateTimeEncoder, indent=2)
+        self._write_to_file(data, output_file, is_json=True)
         return data
 
     def _get_content(self, t: str) -> str:

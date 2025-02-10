@@ -19,7 +19,7 @@ class ChunkrBase(HeadersMixin):
     """
 
     def __init__(self, url: str = None, api_key: str = None, raise_on_failure: bool = False):
-        load_dotenv()
+        load_dotenv(override=True)
         self.url = url or os.getenv("CHUNKR_URL") or "https://api.chunkr.ai"
         self._api_key = api_key or os.getenv("CHUNKR_API_KEY")
         self.raise_on_failure = raise_on_failure
