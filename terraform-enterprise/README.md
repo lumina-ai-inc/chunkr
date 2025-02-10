@@ -14,7 +14,7 @@ gcloud auth application-default login
 
 2. Navigate to the GCP Terraform directory:
 ```bash
-cd terraform/gcp
+cd terraform-enterprise/gcp
 ```
 
 3. Create a `terraform.tfvars` file:
@@ -48,7 +48,7 @@ az login
 
 2. Navigate to the Azure Terraform directory:
 ```bash
-cd terraform/azure
+cd terraform-enterprise/azure
 ```
 
 3. Create a `terraform.tfvars` file:
