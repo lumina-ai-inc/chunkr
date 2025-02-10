@@ -1,10 +1,6 @@
 services:
   server:
-<<<<<<< HEAD
-    image: luminainc/server:dada05c3
-=======
-    image: luminainc/server:9b70e55d
->>>>>>> 0297962e (new compose)
+    image: luminainc/server:4c54391d
     platform: linux/amd64
     ports:
       - "8000:8000"
@@ -19,7 +15,7 @@ services:
     restart: always
 
   task:
-    image: luminainc/task:dada05c3
+    image: luminainc/task:4c54391d
     platform: linux/amd64
     depends_on:
       - postgres
