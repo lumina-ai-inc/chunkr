@@ -12,6 +12,7 @@ pub mod segmentation;
 pub mod task;
 pub mod tasks;
 pub mod upload;
+pub mod upload_multipart;
 pub mod user;
 
 #[cfg(feature = "azure")]

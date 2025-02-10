@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 from PIL import Image
 import asyncio
+import base64
 
 from chunkr_ai import Chunkr
 from chunkr_ai.models import (
@@ -75,6 +76,7 @@ async def test_send_pil_image(client, sample_image):
     response = await client.upload(sample_image)
     assert response.task_id is not None
     assert response.status == "Succeeded"
+    assert response.output is not None
 
 @pytest.mark.asyncio
 async def test_ocr_auto(client, sample_path):
@@ -228,3 +230,24 @@ async def test_task_operations_after_client_close(client, sample_path):
     await client.close()
     result = await task.poll()
     assert result.status == "Succeeded"
+
+@pytest.mark.asyncio
+async def test_send_base64_file(client, sample_path):
+    # Read file and convert to base64
+    with open(sample_path, "rb") as f:
+        base64_content = base64.b64encode(f.read()).decode('utf-8')
+    response = await client.upload(base64_content)
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
+
+@pytest.mark.asyncio
+async def test_send_base64_file_with_filename(client, sample_path):
+    # Read file and convert to base64
+    with open(sample_path, "rb") as f:
+        base64_content = base64.b64encode(f.read()).decode('utf-8')
+    
+    response = await client.upload(base64_content, filename="test.pdf")
+    assert response.task_id is not None
+    assert response.status == "Succeeded"
+    assert response.output is not None
