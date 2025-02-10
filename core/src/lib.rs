@@ -35,7 +35,8 @@ use routes::stripe::{
     get_user_invoices, stripe_webhook,
 };
 use routes::task::{
-    cancel_task_route, create_task_route, delete_task_route, get_task_route, update_task_route,
+    cancel_task_route, create_task_route, create_task_route_multipart, delete_task_route,
+    get_task_route, update_task_route, update_task_route_multipart,
 };
 use routes::tasks::get_tasks_route;
 use routes::user::get_or_create_user;
@@ -65,10 +66,12 @@ fn run_migrations(url: &str) {
     paths(
         routes::health::health_check,
         routes::task::create_task_route,
+        routes::task::create_task_route_multipart,
         routes::task::get_task_route,
         routes::task::delete_task_route,
         routes::task::cancel_task_route,
         routes::task::update_task_route,
+        routes::task::update_task_route_multipart,
         routes::tasks::get_tasks_route,
     ),
     components(
@@ -93,6 +96,8 @@ fn run_migrations(url: &str) {
             models::chunkr::upload::SegmentationStrategy,
             models::chunkr::upload::CreateForm,
             models::chunkr::upload::UpdateForm,
+            models::chunkr::upload_multipart::CreateFormMultipart,
+            models::chunkr::upload_multipart::UpdateFormMultipart,
         )
     ),
     modifiers(&SecurityAddon),
@@ -177,10 +182,12 @@ pub fn main() -> std::io::Result<()> {
                 .route("/user", web::get().to(get_or_create_user))
                 .service(
                     web::scope("/task")
-                        .route("", web::post().to(create_task_route))
+                        .route("", web::post().to(create_task_route_multipart))
+                        .route("/parse", web::post().to(create_task_route))
                         .route("/{task_id}", web::get().to(get_task_route))
                         .route("/{task_id}", web::delete().to(delete_task_route))
-                        .route("/{task_id}", web::patch().to(update_task_route))
+                        .route("/{task_id}", web::patch().to(update_task_route_multipart))
+                        .route("/{task_id}/parse", web::patch().to(update_task_route))
                         .route("/{task_id}/cancel", web::get().to(cancel_task_route)),
                 )
                 .route("/tasks", web::get().to(get_tasks_route))
