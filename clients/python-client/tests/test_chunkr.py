@@ -67,6 +67,7 @@ async def test_send_pil_image(client, sample_image):
     response = await client.upload(sample_image)
     assert response.task_id is not None
     assert response.status == "Succeeded"
+    assert response.output is not None
 
 @pytest.mark.asyncio
 async def test_ocr_auto(client, sample_path):
@@ -220,3 +221,32 @@ async def test_task_operations_after_client_close(client, sample_path):
     await client.close()
     result = await task.poll()
     assert result.status == "Succeeded"
+
+@pytest.mark.asyncio
+async def test_output_files_no_dir(client, sample_path, tmp_path):
+    await client.upload(sample_path)
+    
+    html_file = tmp_path / "output.html"
+    md_file = tmp_path / "output.md"
+    content_file = tmp_path / "output.txt"
+    json_file = tmp_path / "output.json"
+    
+    assert html_file.exists()
+    assert md_file.exists()
+    assert content_file.exists()
+    assert json_file.exists()
+
+@pytest.mark.asyncio
+async def test_output_files_with_dirs(client, sample_path, tmp_path):
+    await client.upload(sample_path)
+    
+    nested_dir = tmp_path / "nested" / "output" / "dir"
+    html_file = nested_dir / "output.html"
+    md_file = nested_dir / "output.md"
+    content_file = nested_dir / "output.txt"
+    json_file = nested_dir / "output.json"
+
+    assert html_file.exists()
+    assert md_file.exists()
+    assert content_file.exists()
+    assert json_file.exists()
