@@ -32,5 +32,7 @@ RUN apt-get update -y; \
 
 COPY --from=builder /app/target/release/core /app/core
 
+RUN curl -fsSLO https://subtrace.dev/download/latest/$(uname -s)/$(uname -m)/subtrace && chmod +x ./subtrace
+
 EXPOSE 8000
-ENTRYPOINT ["/app/core"]
+ENTRYPOINT ["./subtrace", "run", "--", "/app/core"]
