@@ -179,6 +179,12 @@ pub async fn create_stripe_checkout_session(
         "Growth" => stripe_config.growth_price_id.clone(),
         _ => return Err("Unsupported tier".into()),
     };
+    let meter_price_id = match tier {
+        "Starter" => stripe_config.starter_meter_price_id.clone(),
+        "Dev" => stripe_config.dev_meter_price_id.clone(),
+        "Growth" => stripe_config.growth_meter_price_id.clone(),
+        _ => return Err("Unsupported tier".into()),
+    };
 
     let client = ReqwestClient::new();
 
@@ -192,6 +198,7 @@ pub async fn create_stripe_checkout_session(
         ("customer", customer_id),
         ("line_items[0][price]", &price_id),
         ("line_items[0][quantity]", "1"),
+        ("line_items[1][price]", &meter_price_id),
         ("ui_mode", "embedded"),
         ("allow_promotion_codes", "true"),
     ];

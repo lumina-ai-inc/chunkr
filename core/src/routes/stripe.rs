@@ -260,44 +260,44 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                         eprintln!("Error syncing subscriptions/users: {:?}", e);
                     }
 
-                    let res_two = client
-                        .execute(
-                            "WITH new_data AS (
-                                SELECT
-                                    $1 as user_id, 
-                                    'Page' as usage_type, 
-                                    0 as usage, 
-                                    0 as overage_usage,
-                                    EXTRACT(YEAR FROM CURRENT_TIMESTAMP) as year,
-                                    EXTRACT(MONTH FROM CURRENT_TIMESTAMP) as month,
-                                    $2 as tier,
-                                    t.usage_limit,
-                                    CURRENT_TIMESTAMP as billing_cycle_start,
-                                    CURRENT_TIMESTAMP + INTERVAL '30 days' as billing_cycle_end
-                                FROM tiers t
-                                WHERE t.tier = $2
-                            )
-                            INSERT INTO monthly_usage (
-                                user_id, usage_type, usage, overage_usage,
-                                year, month, tier, usage_limit,
-                                billing_cycle_start, billing_cycle_end
-                            )
-                            SELECT * FROM new_data
-                            ON CONFLICT (user_id, usage_type, year, month)
-                            DO UPDATE
-                            SET tier = EXCLUDED.tier,
-                                usage_limit = EXCLUDED.usage_limit,
-                                usage = 0,
-                                overage_usage = 0,
-                                billing_cycle_start = EXCLUDED.billing_cycle_start,
-                                billing_cycle_end = EXCLUDED.billing_cycle_end",
-                            &[&user_id, &tier],
-                        )
-                        .await;
+                    // let res_two = client
+                    //     .execute(
+                    //         "WITH new_data AS (
+                    //             SELECT
+                    //                 $1 as user_id, 
+                    //                 'Page' as usage_type, 
+                    //                 0 as usage, 
+                    //                 0 as overage_usage,
+                    //                 EXTRACT(YEAR FROM CURRENT_TIMESTAMP) as year,
+                    //                 EXTRACT(MONTH FROM CURRENT_TIMESTAMP) as month,
+                    //                 $2 as tier,
+                    //                 t.usage_limit,
+                    //                 CURRENT_TIMESTAMP as billing_cycle_start,
+                    //                 CURRENT_TIMESTAMP + INTERVAL '30 days' as billing_cycle_end
+                    //             FROM tiers t
+                    //             WHERE t.tier = $2
+                    //         )
+                    //         INSERT INTO monthly_usage (
+                    //             user_id, usage_type, usage, overage_usage,
+                    //             year, month, tier, usage_limit,
+                    //             billing_cycle_start, billing_cycle_end
+                    //         )
+                    //         SELECT * FROM new_data
+                    //         ON CONFLICT (user_id, usage_type, year, month)
+                    //         DO UPDATE
+                    //         SET tier = EXCLUDED.tier,
+                    //             usage_limit = EXCLUDED.usage_limit,
+                    //             usage = 0,
+                    //             overage_usage = 0,
+                    //             billing_cycle_start = EXCLUDED.billing_cycle_start,
+                    //             billing_cycle_end = EXCLUDED.billing_cycle_end",
+                    //         &[&user_id, &tier],
+                    //     )
+                    //     .await;
 
-                    if let Err(e) = res_two {
-                        eprintln!("Error syncing monthly_usage: {:?}", e);
-                    }
+                    // if let Err(e) = res_two {
+                    //     eprintln!("Error syncing monthly_usage: {:?}", e);
+                    // }
                 }
             }
         }
@@ -352,57 +352,57 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                 eprintln!("Error syncing subscriptions/users: {:?}", e);
                             }
 
-                            let res_two = client
-                                .execute(
-                                    "WITH new_data AS (
-                                        SELECT
-                                            $1 as user_id, 
-                                            'Page' as usage_type, 
-                                            0 as usage, 
-                                            0 as overage_usage,
-                                            CASE 
-                                                WHEN CURRENT_TIMESTAMP BETWEEN mu.billing_cycle_start AND mu.billing_cycle_end THEN
-                                                    EXTRACT(YEAR FROM mu.billing_cycle_start)
-                                                ELSE 
-                                                    EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
-                                            END as year,
-                                            CASE
-                                                WHEN CURRENT_TIMESTAMP BETWEEN mu.billing_cycle_start AND mu.billing_cycle_end THEN
-                                                    EXTRACT(MONTH FROM mu.billing_cycle_start) 
-                                                ELSE
-                                                    EXTRACT(MONTH FROM CURRENT_TIMESTAMP)
-                                            END as month,
-                                            $2 as tier,
-                                            t.usage_limit,
-                                            mu.billing_cycle_start,
-                                            mu.billing_cycle_end
-                                        FROM tiers t
-                                        LEFT JOIN monthly_usage mu ON mu.user_id = $1 
-                                            AND mu.year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
-                                            AND mu.month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)
-                                        WHERE t.tier = $2
-                                    )
-                                    INSERT INTO monthly_usage (
-                                        user_id, usage_type, usage, overage_usage,
-                                        year, month, tier, usage_limit,
-                                        billing_cycle_start, billing_cycle_end
-                                    )
-                                    SELECT 
-                                        user_id, usage_type, usage, overage_usage,
-                                        year, month, tier, usage_limit,
-                                        billing_cycle_start, billing_cycle_end
-                                    FROM new_data
-                                    ON CONFLICT (user_id, usage_type, year, month)
-                                    DO UPDATE
-                                    SET tier = EXCLUDED.tier,
-                                        usage_limit = EXCLUDED.usage_limit",
-                                    &[&user_id, &new_tier],
-                                )
-                                .await;
+                            // let res_two = client
+                            //     .execute(
+                            //         "WITH new_data AS (
+                            //             SELECT
+                            //                 $1 as user_id, 
+                            //                 'Page' as usage_type, 
+                            //                 0 as usage, 
+                            //                 0 as overage_usage,
+                            //                 CASE 
+                            //                     WHEN CURRENT_TIMESTAMP BETWEEN mu.billing_cycle_start AND mu.billing_cycle_end THEN
+                            //                         EXTRACT(YEAR FROM mu.billing_cycle_start)
+                            //                     ELSE 
+                            //                         EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+                            //                 END as year,
+                            //                 CASE
+                            //                     WHEN CURRENT_TIMESTAMP BETWEEN mu.billing_cycle_start AND mu.billing_cycle_end THEN
+                            //                         EXTRACT(MONTH FROM mu.billing_cycle_start) 
+                            //                     ELSE
+                            //                         EXTRACT(MONTH FROM CURRENT_TIMESTAMP)
+                            //                 END as month,
+                            //                 $2 as tier,
+                            //                 t.usage_limit,
+                            //                 mu.billing_cycle_start,
+                            //                 mu.billing_cycle_end
+                            //             FROM tiers t
+                            //             LEFT JOIN monthly_usage mu ON mu.user_id = $1 
+                            //                 AND mu.year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+                            //                 AND mu.month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)
+                            //             WHERE t.tier = $2
+                            //         )
+                            //         INSERT INTO monthly_usage (
+                            //             user_id, usage_type, usage, overage_usage,
+                            //             year, month, tier, usage_limit,
+                            //             billing_cycle_start, billing_cycle_end
+                            //         )
+                            //         SELECT 
+                            //             user_id, usage_type, usage, overage_usage,
+                            //             year, month, tier, usage_limit,
+                            //             billing_cycle_start, billing_cycle_end
+                            //         FROM new_data
+                            //         ON CONFLICT (user_id, usage_type, year, month)
+                            //         DO UPDATE
+                            //         SET tier = EXCLUDED.tier,
+                            //             usage_limit = EXCLUDED.usage_limit",
+                            //         &[&user_id, &new_tier],
+                            //     )
+                            //     .await;
 
-                            if let Err(e) = res_two {
-                                eprintln!("Error syncing monthly_usage: {:?}", e);
-                            }
+                            // if let Err(e) = res_two {
+                            //     eprintln!("Error syncing monthly_usage: {:?}", e);
+                            // }
                         }
                     }
                 }
@@ -440,21 +440,21 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                         eprintln!("Error updating user: {:?}", e);
                     }
 
-                    let res_three = client
-                        .execute(
-                            "UPDATE monthly_usage
-                             SET tier = 'Free',
-                                 usage_limit = (SELECT usage_limit FROM tiers WHERE tier = 'Free')
-                             WHERE user_id = $1 
-                             AND year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
-                             AND month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)",
-                            &[&user_id],
-                        )
-                        .await;
+                    // let res_three = client
+                    //     .execute(
+                    //         "UPDATE monthly_usage
+                    //          SET tier = 'Free',
+                    //              usage_limit = (SELECT usage_limit FROM tiers WHERE tier = 'Free')
+                    //          WHERE user_id = $1 
+                    //          AND year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+                    //          AND month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)",
+                    //         &[&user_id],
+                    //     )
+                    //     .await;
 
-                    if let Err(e) = res_three {
-                        eprintln!("Error updating monthly usage: {:?}", e);
-                    }
+                    // if let Err(e) = res_three {
+                    //     eprintln!("Error updating monthly usage: {:?}", e);
+                    // }
                 }
             }
         }
