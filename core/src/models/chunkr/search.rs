@@ -39,10 +39,10 @@ impl Search {
         let chunks: Vec<SimpleChunk> = content
             .into_iter()
             .map(|chunk| match chunk {
-                ChunkContent::Simple(simple) => simple,
+                ChunkContent::Simple(simple) => Ok(simple),
                 ChunkContent::Full(full) => full.to_simple(),
             })
-            .collect();
+            .collect::<Result<_, _>>()?;
 
         let mut search = Search {
             chunks: Vec::new(),

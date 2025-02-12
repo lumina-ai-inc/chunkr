@@ -144,7 +144,7 @@ class TaskResponse(BaseModel, Generic[T]):
         Args:
             output_file (str, optional): Path to save the markdown content. Defaults to None.
         """
-        content = self._get_content("markdown")
+        content = self._get_content("markdown", separator="\n\n")
         self._write_to_file(content, output_file)
         return content
 
@@ -168,7 +168,7 @@ class TaskResponse(BaseModel, Generic[T]):
         self._write_to_file(data, output_file, is_json=True)
         return data
 
-    def _get_content(self, t: str) -> str:
+    def _get_content(self, t: str, separator: str = "\n") -> str:
         if not self.output:
             return ""
         parts = []
@@ -177,4 +177,4 @@ class TaskResponse(BaseModel, Generic[T]):
                 v = getattr(s, t)
                 if v:
                     parts.append(v)
-        return "\n".join(parts)
+        return separator.join(parts)

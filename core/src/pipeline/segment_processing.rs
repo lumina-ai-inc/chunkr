@@ -364,5 +364,9 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         }
     }
 
+    pipeline.chunks.iter_mut().for_each(|chunk| {
+        chunk.generate_embed_text();
+    });
+
     Ok(())
 }
