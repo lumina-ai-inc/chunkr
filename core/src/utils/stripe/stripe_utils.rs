@@ -115,7 +115,6 @@ pub async fn create_stripe_setup_intent(
         ("customer", customer_id),
         ("payment_method_types[]", "card"),
         ("usage", "off_session"),
-        subscriptions,
     ];
 
     let stripe_response = match client
