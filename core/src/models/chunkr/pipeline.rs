@@ -1,8 +1,10 @@
 use crate::models::chunkr::output::Chunk;
 use crate::models::chunkr::task::{Status, Task, TaskPayload};
+use crate::utils::clients::get_pg_client;
 use crate::utils::services::file_operations::convert_to_pdf;
 use crate::utils::services::pdf::count_pages;
 use crate::utils::storage::services::download_to_tempfile;
+use crate::utils::stripe::stripe_utils::meter_event;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use std::error::Error;
@@ -157,6 +159,13 @@ impl Pipeline {
                 None,
                 Some(finished_at),
                 expires_at,
+            )
+            .await?;
+            meter_event(
+                &task.user_id,
+                task.page_count.unwrap_or(0) as i32,
+                Utc::now().timestamp(),
+                "chunkr_api_pages",
             )
             .await?;
             Ok(())

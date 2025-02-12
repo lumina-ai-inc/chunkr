@@ -1,6 +1,50 @@
 use crate::configs::stripe_config::Config as StripeConfig;
 use crate::utils::clients::get_pg_client;
 use reqwest::Client as ReqwestClient;
+pub async fn meter_event(
+    user_id: &str,
+    value: i32,
+    timestamp: i64,
+    event_name: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    if std::env::var("STRIPE__API_KEY").is_ok() {
+        let client = get_pg_client().await?;
+        let row = client
+            .query_one(
+                "SELECT stripe_customer_id, tier FROM users WHERE user_id = $1",
+                &[&user_id],
+            )
+            .await?;
+        let customer_id: String = row.get(0);
+        let tier: String = row.get(1);
+
+        if tier == "Starter" || tier == "Dev" || tier == "Growth" {
+            let stripe_config = StripeConfig::from_env()?;
+            let client = ReqwestClient::new();
+
+            let response = client
+                .post("https://api.stripe.com/v1/billing/meter_events")
+                .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+                .form(&[
+                    ("event_name", event_name),
+                    ("timestamp", &timestamp.to_string()),
+                    ("payload[stripe_customer_id]", &customer_id),
+                    ("payload[value]", &value.to_string()),
+                ])
+                .send()
+                .await?;
+
+            if !response.status().is_success() {
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "Failed to create meter event",
+                )));
+            }
+        }
+    }
+
+    Ok(())
+}
 
 pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::error::Error>> {
     let stripe_config = StripeConfig::from_env()?;
@@ -71,6 +115,7 @@ pub async fn create_stripe_setup_intent(
         ("customer", customer_id),
         ("payment_method_types[]", "card"),
         ("usage", "off_session"),
+        subscriptions,
     ];
 
     let stripe_response = match client
@@ -250,11 +295,11 @@ pub async fn create_stripe_billing_portal_session(
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
-    let return_url = format!("{}/dashboard", stripe_config.return_url.trim_end_matches('/'));
-    let form_data = vec![
-        ("customer", customer_id),
-        ("return_url", &return_url),
-    ];
+    let return_url = format!(
+        "{}/dashboard",
+        stripe_config.return_url.trim_end_matches('/')
+    );
+    let form_data = vec![("customer", customer_id), ("return_url", &return_url)];
 
     let stripe_response = client
         .post("https://api.stripe.com/v1/billing_portal/sessions")
