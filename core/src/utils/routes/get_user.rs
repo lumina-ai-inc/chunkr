@@ -109,23 +109,37 @@ pub async fn get_monthly_usage_count(
     let client: Client = get_pg_client().await?;
 
     let query = r#"
+        WITH monthly_stats AS (
+            SELECT 
+                tl.user_id,
+                to_char(tl.created_at, 'YYYY-MM') as month,
+                tl.tier,
+                SUM(tl.usage_amount) as usage,
+                SUM(tl.total_cost) as total_cost,
+                t.usage_limit,
+                t.price_per_month as subscription_cost,
+                date_trunc('month', tl.created_at) as billing_cycle_start,
+                (date_trunc('month', tl.created_at) + interval '1 month' - interval '1 day')::date as billing_cycle_end,
+                GREATEST(SUM(tl.usage_amount) - t.usage_limit, 0) as overage_usage,
+                CASE 
+                    WHEN SUM(tl.usage_amount) > t.usage_limit 
+                    THEN (SUM(tl.usage_amount) - t.usage_limit) * t.overage_rate
+                    ELSE 0 
+                END as overage_cost
+            FROM task_ledger tl
+            JOIN users u ON tl.user_id = u.user_id
+            JOIN tiers t ON tl.tier = t.tier
+            WHERE tl.user_id = $1
+            GROUP BY tl.user_id, month, tl.tier, t.usage_limit, t.price_per_month, t.overage_rate,
+                     date_trunc('month', tl.created_at)
+        )
         SELECT 
-            u.user_id,
+            ms.*,
             u.email,
-            u.invoice_status,
-            to_char(mu.created_at, 'YYYY-MM') as month,
-            mu.usage,
-            mu.usage_limit,
-            CAST(mu.overage_usage * t.overage_rate AS DOUBLE PRECISION) as overage_cost,
-            mu.tier,
-            mu.billing_cycle_start,
-            mu.billing_cycle_end,
-            CAST(t.price_per_month AS DOUBLE PRECISION) as subscription_cost
-        FROM users u
-        LEFT JOIN monthly_usage mu ON u.user_id = mu.user_id
-        LEFT JOIN tiers t ON mu.tier = t.tier
-        WHERE u.user_id = $1
-        ORDER BY mu.billing_cycle_start DESC
+            u.invoice_status
+        FROM monthly_stats ms
+        JOIN users u ON ms.user_id = u.user_id
+        ORDER BY ms.billing_cycle_end DESC
     "#;
 
     let rows = client.query(query, &[&user_id]).await?;
