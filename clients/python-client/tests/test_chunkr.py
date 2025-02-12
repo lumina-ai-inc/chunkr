@@ -247,12 +247,17 @@ async def test_send_base64_file_with_filename(client, sample_path):
     
 @pytest.mark.asyncio
 async def test_output_files_no_dir(client, sample_path, tmp_path):
-    await client.upload(sample_path)
+    task = await client.upload(sample_path)
     
     html_file = tmp_path / "output.html"
     md_file = tmp_path / "output.md"
     content_file = tmp_path / "output.txt"
     json_file = tmp_path / "output.json"
+    
+    task.html(html_file)
+    task.markdown(md_file)
+    task.content(content_file)
+    task.json(json_file)
     
     assert html_file.exists()
     assert md_file.exists()
@@ -261,13 +266,18 @@ async def test_output_files_no_dir(client, sample_path, tmp_path):
 
 @pytest.mark.asyncio
 async def test_output_files_with_dirs(client, sample_path, tmp_path):
-    await client.upload(sample_path)
+    task = await client.upload(sample_path)
     
     nested_dir = tmp_path / "nested" / "output" / "dir"
     html_file = nested_dir / "output.html"
     md_file = nested_dir / "output.md"
     content_file = nested_dir / "output.txt"
     json_file = nested_dir / "output.json"
+    
+    task.html(html_file)
+    task.markdown(md_file)
+    task.content(content_file)
+    task.json(json_file)
 
     assert html_file.exists()
     assert md_file.exists()

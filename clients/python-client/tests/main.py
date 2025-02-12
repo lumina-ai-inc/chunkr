@@ -102,7 +102,6 @@ if __name__ == "__main__":
     task.markdown("./output/markdown.md")
     print(task.output.chunks[1].embed)
     print(task.output.chunks[0].segments[0].confidence)
-    print(task.markdown())
 
     # task = chunkr.get_task("c70efb21-c6c6-4dc6-807b-909235e2dc2a")
     # print(task.output.chunks[0].segments[0].llm)
