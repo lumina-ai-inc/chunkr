@@ -52,6 +52,7 @@ pub struct Chunk {
     /// that fit within that length (segments remain intact).
     /// Otherwise, contains exactly one segment.
     pub segments: Vec<Segment>,
+    /// Suggested text to be embed for search.
     pub embed: Option<String>,
 }
 
@@ -95,7 +96,7 @@ impl Chunk {
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Segment {
     pub bbox: BoundingBox,
-    // Confidence score of the segment
+    /// Confidence score of the layout analysis model
     pub confidence: Option<f32>,
     #[serde(default = "generate_content")]
     /// Text content of the segment.
