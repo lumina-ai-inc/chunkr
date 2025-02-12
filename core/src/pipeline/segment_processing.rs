@@ -111,7 +111,7 @@ impl ContentGenerator for MarkdownGenerator {
                     format!("- {}", Self::clean_list_item(content))
                 }
             }
-            SegmentType::Page => format!("\n---\n{}\n---\n", content),
+            SegmentType::Page => content.to_string(),
             SegmentType::PageFooter | SegmentType::PageHeader => content.to_string(),
             SegmentType::Picture => format!("![{}]()", content),
             SegmentType::SectionHeader => format!("## {}", content),
