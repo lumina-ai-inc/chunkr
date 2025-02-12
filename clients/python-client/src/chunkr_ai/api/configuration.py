@@ -19,20 +19,18 @@ class GenerationConfig(BaseModel):
 class SegmentProcessing(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=str.title)
 
-    title: Optional[GenerationConfig] = Field(default=None, alias="Title")
-    section_header: Optional[GenerationConfig] = Field(
-        default=None, alias="SectionHeader"
-    )
-    text: Optional[GenerationConfig] = Field(default=None, alias="Text")
-    list_item: Optional[GenerationConfig] = Field(default=None, alias="ListItem")
-    table: Optional[GenerationConfig] = Field(default=None, alias="Table")
-    picture: Optional[GenerationConfig] = Field(default=None, alias="Picture")
     caption: Optional[GenerationConfig] = Field(default=None, alias="Caption")
-    formula: Optional[GenerationConfig] = Field(default=None, alias="Formula")
     footnote: Optional[GenerationConfig] = Field(default=None, alias="Footnote")
-    page_header: Optional[GenerationConfig] = Field(default=None, alias="PageHeader")
-    page_footer: Optional[GenerationConfig] = Field(default=None, alias="PageFooter")
+    formula: Optional[GenerationConfig] = Field(default=None, alias="Formula")
+    list_item: Optional[GenerationConfig] = Field(default=None, alias="ListItem")
     page: Optional[GenerationConfig] = Field(default=None, alias="Page")
+    page_footer: Optional[GenerationConfig] = Field(default=None, alias="PageFooter")
+    page_header: Optional[GenerationConfig] = Field(default=None, alias="PageHeader")
+    picture: Optional[GenerationConfig] = Field(default=None, alias="Picture")
+    section_header: Optional[GenerationConfig] = Field(default=None, alias="SectionHeader")
+    table: Optional[GenerationConfig] = Field(default=None, alias="Table")
+    text: Optional[GenerationConfig] = Field(default=None, alias="Text")
+    title: Optional[GenerationConfig] = Field(default=None, alias="Title")
 
 class ChunkProcessing(BaseModel):
     ignore_headers_and_footers: Optional[bool] = None
@@ -84,11 +82,13 @@ class Segment(BaseModel):
     page_width: float
     segment_id: str
     segment_type: SegmentType
+    confidence: Optional[float]
 
 class Chunk(BaseModel):
     chunk_id: str
     chunk_length: int
     segments: List[Segment]
+    embed: Optional[str] = None
 
 class OutputResponse(BaseModel):
     chunks: List[Chunk]
