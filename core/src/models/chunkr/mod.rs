@@ -15,5 +15,4 @@ pub mod upload;
 pub mod upload_multipart;
 pub mod user;
 
-#[cfg(feature = "azure")]
 pub mod azure;

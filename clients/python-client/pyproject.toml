@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chunkr-ai"
-version = "0.0.37"
+version = "0.0.38"
 authors = [{"name" = "Ishaan Kapoor", "email" = "ishaan@lumina.sh"}]
 description = "Python client for Chunkr: open source document intelligence"
 readme = "README.md"

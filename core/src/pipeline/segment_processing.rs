@@ -111,7 +111,7 @@ impl ContentGenerator for MarkdownGenerator {
                     format!("- {}", Self::clean_list_item(content))
                 }
             }
-            SegmentType::Page => format!("\n---\n{}\n---\n", content),
+            SegmentType::Page => content.to_string(),
             SegmentType::PageFooter | SegmentType::PageHeader => content.to_string(),
             SegmentType::Picture => format!("![{}]()", content),
             SegmentType::SectionHeader => format!("## {}", content),
@@ -157,7 +157,7 @@ async fn generate_content<T: ContentGenerator>(
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    if !override_content.is_empty() {
+    if !override_content.is_empty() && generation_strategy == &GenerationStrategy::Auto {
         return Ok(override_content);
     }
 
@@ -363,6 +363,10 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
             return Err(e.to_string().into());
         }
     }
+
+    pipeline.chunks.iter_mut().for_each(|chunk| {
+        chunk.generate_embed_text();
+    });
 
     Ok(())
 }

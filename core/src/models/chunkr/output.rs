@@ -1,6 +1,7 @@
 use crate::models::chunkr::search::SimpleChunk;
 use postgres_types::{FromSql, ToSql};
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 use strum_macros::{Display, EnumString};
 use utoipa::ToSchema;
 
@@ -46,56 +47,63 @@ pub struct Chunk {
     /// The unique identifier for the chunk.
     pub chunk_id: String,
     /// The total number of words in the chunk.
-    pub chunk_length: i32,
+    pub chunk_length: u32,
     /// Collection of document segments that form this chunk.
     /// When `target_chunk_length` > 0, contains the maximum number of segments
     /// that fit within that length (segments remain intact).
     /// Otherwise, contains exactly one segment.
     pub segments: Vec<Segment>,
+    /// Suggested text to be embed for search.
     pub embed: Option<String>,
 }
 
 impl Chunk {
     pub fn new(segments: Vec<Segment>) -> Self {
         let chunk_id = uuid::Uuid::new_v4().to_string();
-        let chunk_length = segments
-            .iter()
-            .map(|s| s.content.split_whitespace().count())
-            .sum::<usize>() as i32;
-        let embed = segments
-            .iter()
-            .map(|s| {
-                if !s.markdown.is_empty() {
-                    s.markdown.clone()
-                } else if !s.html.is_empty() {
-                    s.html.clone()
-                } else {
-                    s.content.clone()
-                }
-            })
-            .collect::<Vec<String>>()
-            .join(" ");
         Self {
             chunk_id,
-            chunk_length,
+            chunk_length: 0,
             segments,
-            embed: Some(embed),
+            embed: None,
         }
     }
 
+    pub fn generate_embed_text(&mut self) {
+        self.embed = Some(
+            self.segments
+                .iter()
+                .map(|s| {
+                    if !s.markdown.is_empty() {
+                        s.markdown.clone()
+                    } else if !s.html.is_empty() {
+                        s.html.clone()
+                    } else {
+                        s.content.clone()
+                    }
+                })
+                .collect::<Vec<String>>()
+                .join(" "),
+        );
+        self.chunk_length = self.embed.as_ref().unwrap().split_whitespace().count() as u32;
+    }
+
     /// Converts this Chunk into a SimpleChunk, containing just the ID and embed content
-    pub fn to_simple(&self) -> SimpleChunk {
-        SimpleChunk {
+    pub fn to_simple(&self) -> Result<SimpleChunk, Box<dyn Error + Send + Sync>> {
+        if self.embed.is_none() {
+            return Err("Embed is not generated".into());
+        }
+
+        Ok(SimpleChunk {
             id: self.chunk_id.clone(),
             content: self.embed.clone().unwrap_or_default().to_string(),
-        }
+        })
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Segment {
     pub bbox: BoundingBox,
-    // Confidence score of the segment
+    /// Confidence score of the layout analysis model
     pub confidence: Option<f32>,
     #[serde(default = "generate_content")]
     /// Text content of the segment.
@@ -175,6 +183,19 @@ impl Segment {
             segment_type,
         )
     }
+
+    pub fn scale(&mut self, scaling_factor: f32) {
+        self.bbox.scale(scaling_factor);
+
+        self.page_width *= scaling_factor;
+        self.page_height *= scaling_factor;
+
+        if let Some(ocr_results) = &mut self.ocr {
+            for ocr_result in ocr_results {
+                ocr_result.bbox.scale(scaling_factor);
+            }
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -223,6 +244,13 @@ impl BoundingBox {
         let y_bottom = (self.top + self.height).min(other.top + other.height);
 
         (x_right - x_left) * (y_bottom - y_top)
+    }
+
+    pub fn scale(&mut self, scaling_factor: f32) {
+        self.left *= scaling_factor;
+        self.top *= scaling_factor;
+        self.width *= scaling_factor;
+        self.height *= scaling_factor;
     }
 }
 

@@ -1,6 +1,8 @@
+use crate::models::chunkr::azure::DocumentAnalysisFeature;
 use crate::models::chunkr::pipeline::Pipeline;
 use crate::models::chunkr::task::Status;
 use crate::utils::services::azure::perform_azure_analysis;
+use rayon::prelude::*;
 
 /// Use Azure document layout analysis to perform segmentation and ocr
 pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::Error>> {
@@ -18,8 +20,20 @@ pub async fn process(pipeline: &mut Pipeline) -> Result<(), Box<dyn std::error::
         .await?;
 
     let pdf_file = pipeline.pdf_file.as_ref().ok_or("PDF file not found")?;
-    let chunks = perform_azure_analysis(&pdf_file).await?;
-
+    let configuration = pipeline.get_task()?.configuration.clone();
+    let scaling_factor = configuration.get_scaling_factor()?;
+    let features = if configuration.high_resolution {
+        Some(vec![DocumentAnalysisFeature::OcrHighResolution])
+    } else {
+        None
+    };
+    let mut chunks =
+        perform_azure_analysis(&pdf_file, features, configuration.segmentation_strategy).await?;
+    chunks.par_iter_mut().for_each(|chunk| {
+        chunk.segments.par_iter_mut().for_each(|segment| {
+            segment.scale(scaling_factor);
+        });
+    });
     pipeline.chunks = chunks;
     Ok(())
 }
