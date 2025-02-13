@@ -1,0 +1,20 @@
+Your task is to validate or correct the segment classification from a layout analysis model.
+
+Supported segment types:
+- Caption
+- Footnote
+- Formula
+- List Item
+- Page Footer
+- Page Header
+- Picture
+- Section Header
+- Table
+- Text
+- Title
+
+Model's prediction: {predicted_segment_type}
+
+You are given an cropped image of the segment. Return the correct segment type.
+Enclose your output in ```json``` code fences.
+

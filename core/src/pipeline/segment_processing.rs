@@ -242,6 +242,13 @@ async fn generate_llm(
     Ok(Some(result))
 }
 
+async fn classify_segment_type(
+    segment_type: SegmentType,
+    segment_image: Option<Arc<NamedTempFile>>
+) -> Result<SegmentType, Box<dyn std::error::Error + Send + Sync>> {
+    Ok(segment_type)
+}
+
 async fn process_segment(
     segment: &mut Segment,
     configuration: &Configuration,
@@ -294,7 +301,7 @@ async fn process_segment(
         }
     };
 
-    let (html, markdown, llm) = futures::try_join!(
+    let (html, markdown, llm, segment_type) = futures::try_join!(
         generate_html(
             segment.segment_type.clone(),
             segment.content.clone(),
@@ -313,12 +320,17 @@ async fn process_segment(
             segment.segment_type.clone(),
             segment_image.clone(),
             llm_prompt.clone()
+        ),
+        classify_segment_type(
+            segment.segment_type.clone(), 
+            segment_image.clone()
         )
     )?;
 
     segment.html = html;
     segment.markdown = markdown;
     segment.llm = llm;
+    segment.segment_type = segment_type;
     Ok(())
 }
 
