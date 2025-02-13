@@ -93,19 +93,32 @@ fn get_template(prompt_name: &str) -> Result<String, std::io::Error> {
         })
 }
 
-fn fill_prompt(template: &str, values: &std::collections::HashMap<String, String>) -> String {
+fn fill_prompt(template: &str, values: &std::collections::HashMap<String, String>) -> Result<String, std::io::Error> {
     let mut result = template.to_string();
+    let mut unused_keys: Vec<_> = values.keys().collect();
 
     result = result.replace("\\{", r"\u005c\u007b");
     result = result.replace("\\}", r"\u005c\u007d");
 
     for (key, value) in values {
-        result = result.replace(&format!("{{{}}}", key), value);
+        let placeholder = format!("{{{}}}", key);
+        if result.contains(&placeholder) {
+            result = result.replace(&placeholder, value);
+            unused_keys.retain(|&k| k != key);
+        }
     }
+
+    if !unused_keys.is_empty() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            format!("Unused keys in values: {:?}", unused_keys),
+        ));
+    }
+
     result = result.replace(r"\u005c\u007b", "{");
     result = result.replace(r"\u005c\u007d", "}");
 
-    result
+    Ok(result)
 }
 
 pub fn get_prompt(
@@ -113,8 +126,7 @@ pub fn get_prompt(
     values: &HashMap<String, String>,
 ) -> Result<String, std::io::Error> {
     let template = get_template(prompt_name)?;
-    let filled_prompt = fill_prompt(&template, values);
-    Ok(filled_prompt)
+    fill_prompt(&template, values)
 }
 
 #[cfg(test)]
