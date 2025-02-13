@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::error::Error;
 
+use super::upload::SegmentationStrategy;
+
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AzureAnalysisResponse {
@@ -144,20 +146,43 @@ pub struct Figure {
     pub caption: Option<Caption>,
 }
 
+#[derive(Debug, Clone)]
+pub enum DocumentAnalysisFeature {
+    Barcodes,
+    Formulas,
+    KeyValuePairs,
+    Languages,
+    OcrHighResolution,
+    QueryFields,
+    StyleFont,
+}
+
+impl DocumentAnalysisFeature {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Barcodes => "barcodes",
+            Self::Formulas => "formulas",
+            Self::KeyValuePairs => "keyValuePairs",
+            Self::Languages => "languages",
+            Self::OcrHighResolution => "ocrHighResolution",
+            Self::QueryFields => "queryFields",
+            Self::StyleFont => "styleFont",
+        }
+    }
+}
+
 impl AzureAnalysisResponse {
-    pub fn to_chunks(&self) -> Result<Vec<Chunk>, Box<dyn Error>> {
-        let mut all_segments: Vec<Segment> = Vec::new();
+    pub fn to_chunks(
+        &self,
+        segmentation_strategy: SegmentationStrategy,
+    ) -> Result<Vec<Chunk>, Box<dyn Error>> {
+        match segmentation_strategy {
+            SegmentationStrategy::Page => {
+                let mut page_segments = Vec::new();
 
-        if let Some(analyze_result) = &self.analyze_result {
-            if let Some(paragraphs) = &analyze_result.paragraphs {
-                let mut replacements: std::collections::BTreeMap<usize, Vec<Segment>> =
-                    std::collections::BTreeMap::new();
-                let mut skip_paragraphs = std::collections::HashSet::new();
-
-                let page_dimensions = if let Some(pages) = &analyze_result.pages {
-                    pages
-                        .iter()
-                        .map(|page| {
+                if let Some(analyze_result) = &self.analyze_result {
+                    if let Some(pages) = &analyze_result.pages {
+                        for page in pages {
                             let page_number = page.page_number.unwrap_or(1) as u32;
                             let (width, height) = match page.unit.as_deref() {
                                 Some("inch") => (
@@ -166,20 +191,141 @@ impl AzureAnalysisResponse {
                                 ),
                                 _ => (0.0, 0.0),
                             };
-                            (page_number, (width, height))
-                        })
-                        .collect::<std::collections::HashMap<u32, (f32, f32)>>()
-                } else {
-                    std::collections::HashMap::new()
-                };
 
-                if let Some(tables) = &analyze_result.tables {
-                    for table in tables {
-                        let mut min_paragraph_idx = usize::MAX;
+                            let mut ocr_results = Vec::new();
+                            if let Some(words) = &page.words {
+                                for word in words {
+                                    if let (Some(polygon), Some(content), Some(confidence)) =
+                                        (&word.polygon, &word.content, &word.confidence)
+                                    {
+                                        if let Ok(word_bbox) = create_word_bbox(polygon) {
+                                            let ocr_result = OCRResult {
+                                                text: content.clone(),
+                                                confidence: Some(*confidence as f32),
+                                                bbox: word_bbox,
+                                            };
+                                            ocr_results.push(ocr_result);
+                                        }
+                                    }
+                                }
+                            }
+                            let segment = Segment::new_from_segment_ocr(
+                                BoundingBox::new(0.0, 0.0, width, height),
+                                Some(1.0),
+                                ocr_results,
+                                height,
+                                page_number,
+                                width,
+                                SegmentType::Page,
+                            );
 
-                        if let Some(cells) = &table.cells {
-                            for cell in cells {
-                                if let Some(elements) = &cell.elements {
+                            page_segments.push(segment);
+                        }
+                    }
+                }
+
+                Ok(page_segments
+                    .into_iter()
+                    .map(|segment| Chunk::new(vec![segment]))
+                    .collect())
+            }
+            SegmentationStrategy::LayoutAnalysis => {
+                let mut all_segments: Vec<Segment> = Vec::new();
+
+                if let Some(analyze_result) = &self.analyze_result {
+                    if let Some(paragraphs) = &analyze_result.paragraphs {
+                        let mut replacements: std::collections::BTreeMap<usize, Vec<Segment>> =
+                            std::collections::BTreeMap::new();
+                        let mut skip_paragraphs = std::collections::HashSet::new();
+
+                        let page_dimensions = if let Some(pages) = &analyze_result.pages {
+                            pages
+                                .iter()
+                                .map(|page| {
+                                    let page_number = page.page_number.unwrap_or(1) as u32;
+                                    let (width, height) = match page.unit.as_deref() {
+                                        Some("inch") => (
+                                            inches_to_pixels(page.width.unwrap_or(0.0) as f64),
+                                            inches_to_pixels(page.height.unwrap_or(0.0) as f64),
+                                        ),
+                                        _ => (0.0, 0.0),
+                                    };
+                                    (page_number, (width, height))
+                                })
+                                .collect::<std::collections::HashMap<u32, (f32, f32)>>()
+                        } else {
+                            std::collections::HashMap::new()
+                        };
+
+                        if let Some(tables) = &analyze_result.tables {
+                            for table in tables {
+                                let mut min_paragraph_idx = usize::MAX;
+
+                                if let Some(cells) = &table.cells {
+                                    for cell in cells {
+                                        if let Some(elements) = &cell.elements {
+                                            for element in elements {
+                                                if let Some(idx) = extract_paragraph_index(element)
+                                                {
+                                                    min_paragraph_idx = min_paragraph_idx.min(idx);
+                                                    skip_paragraphs.insert(idx);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if let Some(regions) = &table.bounding_regions {
+                                    if let Some(first_region) = regions.first() {
+                                        let page_number =
+                                            first_region.page_number.unwrap_or(1) as u32;
+                                        let (page_width, page_height) = page_dimensions
+                                            .get(&page_number)
+                                            .copied()
+                                            .unwrap_or((0.0, 0.0));
+
+                                        let bbox = create_bounding_box(first_region);
+                                        let segment = Segment {
+                                            bbox,
+                                            confidence: None,
+                                            content: table_to_text(table),
+                                            html: table_to_html(table),
+                                            markdown: table_to_markdown(table),
+                                            image: None,
+                                            llm: None,
+                                            ocr: None,
+                                            page_height,
+                                            page_width,
+                                            page_number,
+                                            segment_id: uuid::Uuid::new_v4().to_string(),
+                                            segment_type: SegmentType::Table,
+                                        };
+
+                                        if min_paragraph_idx != usize::MAX {
+                                            replacements
+                                                .entry(min_paragraph_idx)
+                                                .or_insert_with(Vec::new)
+                                                .push(segment);
+                                        }
+                                    }
+                                }
+
+                                if let Some(caption) = &table.caption {
+                                    process_caption(
+                                        caption,
+                                        &mut replacements,
+                                        &mut skip_paragraphs,
+                                        &page_dimensions,
+                                    );
+                                }
+                            }
+                        }
+
+                        if let Some(figures) = &analyze_result.figures {
+                            for figure in figures {
+                                let mut min_paragraph_idx = usize::MAX;
+
+                                if let Some(elements) = &figure.elements {
                                     for element in elements {
                                         if let Some(idx) = extract_paragraph_index(element) {
                                             min_paragraph_idx = min_paragraph_idx.min(idx);
@@ -187,215 +333,158 @@ impl AzureAnalysisResponse {
                                         }
                                     }
                                 }
-                            }
-                        }
 
-                        if let Some(regions) = &table.bounding_regions {
-                            if let Some(first_region) = regions.first() {
-                                let page_number = first_region.page_number.unwrap_or(1) as u32;
-                                let (page_width, page_height) = page_dimensions
-                                    .get(&page_number)
-                                    .copied()
-                                    .unwrap_or((0.0, 0.0));
+                                if !figure.bounding_regions.is_empty() {
+                                    let first_region = &figure.bounding_regions[0];
+                                    let page_number = first_region.page_number.unwrap_or(1) as u32;
+                                    let (page_width, page_height) = page_dimensions
+                                        .get(&page_number)
+                                        .copied()
+                                        .unwrap_or((0.0, 0.0));
 
-                                let bbox = create_bounding_box(first_region);
-                                let segment = Segment {
-                                    bbox,
-                                    confidence: None,
-                                    content: table_to_text(table),
-                                    html: table_to_html(table),
-                                    markdown: table_to_markdown(table),
-                                    image: None,
-                                    llm: None,
-                                    ocr: None,
-                                    page_height,
-                                    page_width,
-                                    page_number,
-                                    segment_id: uuid::Uuid::new_v4().to_string(),
-                                    segment_type: SegmentType::Table,
-                                };
+                                    let bbox = create_bounding_box(first_region);
+                                    let segment = Segment {
+                                        bbox,
+                                        confidence: None,
+                                        content: String::new(),
+                                        html: String::new(),
+                                        markdown: String::new(),
+                                        image: None,
+                                        llm: None,
+                                        ocr: None,
+                                        page_height,
+                                        page_width,
+                                        page_number,
+                                        segment_id: uuid::Uuid::new_v4().to_string(),
+                                        segment_type: SegmentType::Picture,
+                                    };
 
-                                if min_paragraph_idx != usize::MAX {
-                                    replacements
-                                        .entry(min_paragraph_idx)
-                                        .or_insert_with(Vec::new)
-                                        .push(segment);
+                                    if min_paragraph_idx != usize::MAX {
+                                        replacements
+                                            .entry(min_paragraph_idx)
+                                            .or_insert_with(Vec::new)
+                                            .push(segment);
+                                    }
+                                }
+
+                                if let Some(caption) = &figure.caption {
+                                    process_caption(
+                                        caption,
+                                        &mut replacements,
+                                        &mut skip_paragraphs,
+                                        &page_dimensions,
+                                    );
                                 }
                             }
                         }
 
-                        if let Some(caption) = &table.caption {
-                            process_caption(
-                                caption,
-                                &mut replacements,
-                                &mut skip_paragraphs,
-                                &page_dimensions,
-                            );
-                        }
-                    }
-                }
+                        for (idx, paragraph) in paragraphs.iter().enumerate() {
+                            if skip_paragraphs.contains(&idx) {
+                                if let Some(replacement_segments) = replacements.get(&idx) {
+                                    all_segments.extend(replacement_segments.clone());
+                                }
+                                continue;
+                            }
 
-                if let Some(figures) = &analyze_result.figures {
-                    for figure in figures {
-                        let mut min_paragraph_idx = usize::MAX;
+                            if let Some(regions) = &paragraph.bounding_regions {
+                                if let Some(first_region) = regions.first() {
+                                    let page_number = first_region.page_number.unwrap_or(1) as u32;
+                                    let (page_width, page_height) = page_dimensions
+                                        .get(&page_number)
+                                        .copied()
+                                        .unwrap_or((0.0, 0.0));
 
-                        if let Some(elements) = &figure.elements {
-                            for element in elements {
-                                if let Some(idx) = extract_paragraph_index(element) {
-                                    min_paragraph_idx = min_paragraph_idx.min(idx);
-                                    skip_paragraphs.insert(idx);
+                                    let bbox = create_bounding_box(first_region);
+                                    let segment_type = match paragraph.role.as_deref() {
+                                        Some("title") => SegmentType::Title,
+                                        Some("sectionHeading") => SegmentType::SectionHeader,
+                                        Some("pageHeader") => SegmentType::PageHeader,
+                                        Some("pageNumber") => SegmentType::PageFooter,
+                                        Some("pageFooter") => SegmentType::PageFooter,
+                                        _ => SegmentType::Text,
+                                    };
+
+                                    let segment = Segment {
+                                        bbox,
+                                        confidence: None,
+                                        content: paragraph.content.clone().unwrap_or_default(),
+                                        html: String::new(),
+                                        markdown: String::new(),
+                                        image: None,
+                                        llm: None,
+                                        ocr: None,
+                                        page_height,
+                                        page_width,
+                                        page_number,
+                                        segment_id: uuid::Uuid::new_v4().to_string(),
+                                        segment_type,
+                                    };
+                                    all_segments.push(segment);
                                 }
                             }
                         }
 
-                        if !figure.bounding_regions.is_empty() {
-                            let first_region = &figure.bounding_regions[0];
-                            let page_number = first_region.page_number.unwrap_or(1) as u32;
-                            let (page_width, page_height) = page_dimensions
-                                .get(&page_number)
-                                .copied()
-                                .unwrap_or((0.0, 0.0));
+                        // Assign OCR words to segments based on intersection area
+                        if let Some(pages) = &analyze_result.pages {
+                            for page in pages {
+                                let page_number = page.page_number.unwrap_or(1) as u32;
 
-                            let bbox = create_bounding_box(first_region);
-                            let segment = Segment {
-                                bbox,
-                                confidence: None,
-                                content: String::new(),
-                                html: String::new(),
-                                markdown: String::new(),
-                                image: None,
-                                llm: None,
-                                ocr: None,
-                                page_height,
-                                page_width,
-                                page_number,
-                                segment_id: uuid::Uuid::new_v4().to_string(),
-                                segment_type: SegmentType::Picture,
-                            };
+                                if let Some(words) = &page.words {
+                                    for word in words {
+                                        if let (Some(polygon), Some(content), Some(confidence)) =
+                                            (&word.polygon, &word.content, &word.confidence)
+                                        {
+                                            let word_bbox = create_word_bbox(polygon)?;
+                                            let mut max_area = 0.0;
+                                            let mut best_segment_idx = None;
 
-                            if min_paragraph_idx != usize::MAX {
-                                replacements
-                                    .entry(min_paragraph_idx)
-                                    .or_insert_with(Vec::new)
-                                    .push(segment);
-                            }
-                        }
+                                            for (idx, segment) in all_segments.iter().enumerate() {
+                                                if segment.page_number == page_number {
+                                                    let area =
+                                                        segment.bbox.intersection_area(&word_bbox);
+                                                    if area > max_area {
+                                                        max_area = area;
+                                                        best_segment_idx = Some(idx);
+                                                    }
+                                                }
+                                            }
 
-                        if let Some(caption) = &figure.caption {
-                            process_caption(
-                                caption,
-                                &mut replacements,
-                                &mut skip_paragraphs,
-                                &page_dimensions,
-                            );
-                        }
-                    }
-                }
+                                            if let Some(idx) = best_segment_idx {
+                                                let segment = &all_segments[idx];
+                                                let relative_bbox = BoundingBox::new(
+                                                    word_bbox.left - segment.bbox.left,
+                                                    word_bbox.top - segment.bbox.top,
+                                                    word_bbox.width,
+                                                    word_bbox.height,
+                                                );
 
-                for (idx, paragraph) in paragraphs.iter().enumerate() {
-                    if skip_paragraphs.contains(&idx) {
-                        if let Some(replacement_segments) = replacements.get(&idx) {
-                            all_segments.extend(replacement_segments.clone());
-                        }
-                        continue;
-                    }
+                                                let ocr_result = OCRResult {
+                                                    text: content.clone(),
+                                                    confidence: Some(*confidence as f32),
+                                                    bbox: relative_bbox,
+                                                };
 
-                    if let Some(regions) = &paragraph.bounding_regions {
-                        if let Some(first_region) = regions.first() {
-                            let page_number = first_region.page_number.unwrap_or(1) as u32;
-                            let (page_width, page_height) = page_dimensions
-                                .get(&page_number)
-                                .copied()
-                                .unwrap_or((0.0, 0.0));
-
-                            let bbox = create_bounding_box(first_region);
-                            let segment_type = match paragraph.role.as_deref() {
-                                Some("title") => SegmentType::Title,
-                                Some("sectionHeading") => SegmentType::SectionHeader,
-                                Some("pageHeader") => SegmentType::PageHeader,
-                                Some("pageNumber") => SegmentType::PageFooter,
-                                Some("pageFooter") => SegmentType::PageFooter,
-                                _ => SegmentType::Text,
-                            };
-
-                            let segment = Segment {
-                                bbox,
-                                confidence: None,
-                                content: paragraph.content.clone().unwrap_or_default(),
-                                html: String::new(),
-                                markdown: String::new(),
-                                image: None,
-                                llm: None,
-                                ocr: None,
-                                page_height,
-                                page_width,
-                                page_number,
-                                segment_id: uuid::Uuid::new_v4().to_string(),
-                                segment_type,
-                            };
-                            all_segments.push(segment);
-                        }
-                    }
-                }
-
-                // Assign OCR words to segments based on intersection area
-                if let Some(pages) = &analyze_result.pages {
-                    for page in pages {
-                        let page_number = page.page_number.unwrap_or(1) as u32;
-
-                        if let Some(words) = &page.words {
-                            for word in words {
-                                if let (Some(polygon), Some(content), Some(confidence)) =
-                                    (&word.polygon, &word.content, &word.confidence)
-                                {
-                                    let word_bbox = create_word_bbox(polygon)?;
-                                    let mut max_area = 0.0;
-                                    let mut best_segment_idx = None;
-
-                                    for (idx, segment) in all_segments.iter().enumerate() {
-                                        if segment.page_number == page_number {
-                                            let area = segment.bbox.intersection_area(&word_bbox);
-                                            if area > max_area {
-                                                max_area = area;
-                                                best_segment_idx = Some(idx);
+                                                if all_segments[idx].ocr.is_none() {
+                                                    all_segments[idx].ocr = Some(Vec::new());
+                                                }
+                                                if let Some(ocr_vec) = &mut all_segments[idx].ocr {
+                                                    ocr_vec.push(ocr_result);
+                                                }
                                             }
                                         }
                                     }
-
-                                    if let Some(idx) = best_segment_idx {
-                                        let segment = &all_segments[idx];
-                                        let relative_bbox = BoundingBox::new(
-                                            word_bbox.left - segment.bbox.left,
-                                            word_bbox.top - segment.bbox.top,
-                                            word_bbox.width,
-                                            word_bbox.height,
-                                        );
-
-                                        let ocr_result = OCRResult {
-                                            text: content.clone(),
-                                            confidence: Some(*confidence as f32),
-                                            bbox: relative_bbox,
-                                        };
-
-                                        if all_segments[idx].ocr.is_none() {
-                                            all_segments[idx].ocr = Some(Vec::new());
-                                        }
-                                        if let Some(ocr_vec) = &mut all_segments[idx].ocr {
-                                            ocr_vec.push(ocr_result);
-                                        }
-                                    }
                                 }
                             }
                         }
                     }
                 }
+
+                Ok(all_segments
+                    .into_iter()
+                    .map(|segment| Chunk::new(vec![segment]))
+                    .collect())
             }
         }
-
-        Ok(all_segments
-            .into_iter()
-            .map(|segment| Chunk::new(vec![segment]))
-            .collect())
     }
 }
 

@@ -13,5 +13,4 @@ pub mod throttle_config;
 pub mod user_config;
 pub mod worker_config;
 
-#[cfg(feature = "azure")]
 pub mod azure_config;
