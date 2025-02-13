@@ -183,7 +183,7 @@ async fn generate_content<T: ContentGenerator>(
         GenerationStrategy::Auto => Ok(generator.generate_auto(content)),
     }
 }
-
+// TODO: Get segment rather than its fields
 async fn generate_html(
     segment_type: SegmentType,
     content: String,
