@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added route `POST /task/parse` and `PATCH /task/{task_id}/parse` to parse a task. These routes are exactly the same as the `POST /task` and `PATCH /task/{task_id}` routes, but don't use a multipart request.
 >The old routes are deprecated but will continue to work for the foreseeable future.
-- Batch parallization, so individual tasks can take full advatage of unused GPU resources.
+- Batch parallelization, so individual tasks can take full advantage of unused GPU resources.
 
 ### Changed
 - OCR `All` is now the default strategy
