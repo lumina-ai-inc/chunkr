@@ -183,20 +183,18 @@ async fn generate_content<T: ContentGenerator>(
         GenerationStrategy::Auto => Ok(generator.generate_auto(content)),
     }
 }
-// TODO: Get segment rather than its fields
+
 async fn generate_html(
-    segment_type: SegmentType,
-    content: String,
-    override_content: String,
+    segment: Segment,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let generator = HtmlGenerator { segment_type };
+    let generator = HtmlGenerator { segment_type: segment.segment_type.clone() };
     Ok(html::clean_img_tags(
         &generate_content(
             &generator,
-            &content,
-            override_content,
+            &segment.content,
+            segment.html.clone(),
             segment_image,
             generation_strategy,
         )
@@ -204,19 +202,17 @@ async fn generate_html(
     ))
 }
 
-async fn generate_markdown(
-    segment_type: SegmentType,
-    content: String,
-    override_content: String,
+async fn generate_markdown( 
+    segment: Segment,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let generator = MarkdownGenerator { segment_type };
+    let generator = MarkdownGenerator { segment_type: segment.segment_type.clone() };
     Ok(markdown::clean_img_tags(
         &generate_content(
             &generator,
-            &content,
-            override_content,
+            &segment.content,
+            segment.markdown.clone(),
             segment_image,
             generation_strategy,
         )
@@ -307,16 +303,12 @@ async fn process_segment(
 
     let (html, markdown, llm, segment_type) = futures::try_join!(
         generate_html(
-            segment.segment_type.clone(),
-            segment.content.clone(),
-            segment.html.clone(),
+            segment.clone(),
             segment_image.clone(),
             html_strategy
         ),
         generate_markdown(
-            segment.segment_type.clone(),
-            segment.content.clone(),
-            segment.markdown.clone(),
+            segment.clone(),
             segment_image.clone(),
             markdown_strategy
         ),
