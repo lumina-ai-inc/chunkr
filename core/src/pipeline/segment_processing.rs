@@ -157,7 +157,7 @@ async fn generate_content<T: ContentGenerator>(
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    if !override_content.is_empty() {
+    if !override_content.is_empty() && generation_strategy == &GenerationStrategy::Auto {
         return Ok(override_content);
     }
 

@@ -183,6 +183,19 @@ impl Segment {
             segment_type,
         )
     }
+
+    pub fn scale(&mut self, scaling_factor: f32) {
+        self.bbox.scale(scaling_factor);
+
+        self.page_width *= scaling_factor;
+        self.page_height *= scaling_factor;
+
+        if let Some(ocr_results) = &mut self.ocr {
+            for ocr_result in ocr_results {
+                ocr_result.bbox.scale(scaling_factor);
+            }
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
@@ -231,6 +244,13 @@ impl BoundingBox {
         let y_bottom = (self.top + self.height).min(other.top + other.height);
 
         (x_right - x_left) * (y_bottom - y_top)
+    }
+
+    pub fn scale(&mut self, scaling_factor: f32) {
+        self.left *= scaling_factor;
+        self.top *= scaling_factor;
+        self.width *= scaling_factor;
+        self.height *= scaling_factor;
     }
 }
 

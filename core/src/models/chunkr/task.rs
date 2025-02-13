@@ -688,10 +688,6 @@ pub struct Configuration {
 impl Configuration {
     pub fn get_scaling_factor(&self) -> Result<f32, Box<dyn std::error::Error>> {
         let worker_config = worker_config::Config::from_env()?;
-        #[cfg(feature = "azure")]
-        if self.pipeline == Some(PipelineType::Azure) {
-            return Ok(1.0);
-        }
         if self.high_resolution {
             Ok(worker_config.high_res_scaling_factor)
         } else {
