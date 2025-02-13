@@ -27,12 +27,13 @@ RUN apt-get update -y; \
     ca-certificates \
     libreoffice \
     file \
+    curl \
     ; \
-    mkdir -p /app/tmp
+    mkdir -p /app/tmp && \
+    curl -fsSLO https://subtrace.dev/download/latest/$(uname -s)/$(uname -m)/subtrace && \
+    chmod +x ./subtrace
 
 COPY --from=builder /app/target/release/core /app/core
-
-RUN curl -fsSLO https://subtrace.dev/download/latest/$(uname -s)/$(uname -m)/subtrace && chmod +x ./subtrace
 
 EXPOSE 8000
 ENTRYPOINT ["./subtrace", "run", "--", "/app/core"]
