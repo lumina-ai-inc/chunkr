@@ -243,9 +243,13 @@ async fn generate_llm(
 }
 
 async fn classify_segment_type(
-    segment_type: SegmentType,
+    predicted_segment_type: SegmentType,
     segment_image: Option<Arc<NamedTempFile>>
 ) -> Result<SegmentType, Box<dyn std::error::Error + Send + Sync>> {
+    let mut values = HashMap::new();
+    values.insert("predicted_segment_type".to_string(), predicted_segment_type.to_string());
+    let prompt = get_prompt("segment_classification", &values)?;
+    let segment_type = llm::segment_classification(segment_image.as_ref().unwrap(), prompt).await?;
     Ok(segment_type)
 }
 

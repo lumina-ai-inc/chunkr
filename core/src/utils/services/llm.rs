@@ -5,6 +5,7 @@ use crate::models::chunkr::open_ai::{
 };
 use crate::utils::rate_limit::{LLM_OCR_TIMEOUT, LLM_RATE_LIMITER, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
+use crate::models::chunkr::output::SegmentType;
 use base64::{engine::general_purpose, Engine as _};
 use std::error::Error;
 use std::fmt;
@@ -269,4 +270,31 @@ pub async fn llm_segment(
     prompt: String,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     retry_ocr_with_temperature(temp_file, prompt, None).await
+}
+
+pub async fn segment_classification(
+    temp_file: &NamedTempFile,
+    prompt: String,
+) -> Result<SegmentType, Box<dyn Error + Send + Sync>> {
+    let worker_config = WorkerConfig::from_env().unwrap();
+    let max_retries = worker_config.max_retries;
+
+    for attempt in 0..max_retries {
+        let temperature = (attempt as f32) * 0.2;
+        if temperature > 1.0 {
+            break;
+        }
+        
+        let response = llm_ocr(temp_file, prompt.clone(), Some(temperature), None).await?;
+        if let Some(content) = extract_fenced_content(&response, Some("json")) {
+            if let Ok(segment_type) = serde_json::from_str(&content) {
+                return Ok(segment_type);
+            }
+        }
+    }
+
+    Err(Box::new(LLMError(format!(
+        "Failed to get valid JSON response after {} attempts",
+        max_retries
+    ))))
 }
