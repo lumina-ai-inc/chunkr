@@ -15,7 +15,7 @@ ingress:
     replicas: 2
     image:
       repository: cloudflare/cloudflared
-      tag: "2024.12.1"
+      tag: "2025.2.0"
       pullPolicy: Always
     config:
       tunnelName: "chunkr"
@@ -23,7 +23,6 @@ ingress:
         - name: "server"
         - name: "keycloak"
         - name: "web"
-        - name: "minio"
         - name: "embeddings"
         - name: "reranker"
         - name: "analytics-web"
@@ -37,7 +36,7 @@ services:
     useStandardEnv: true
     image:
       repository: server-azure
-      tag: "14bd2f5e"
+      tag: "63b4b49f"
     imagePullSecrets:
       - name: regcred
     port: 8000
@@ -54,7 +53,7 @@ services:
     useStandardEnv: true
     image:
       repository: task-azure
-      tag: "fa9197dd"
+      tag: "63b4b49f"
     imagePullSecrets:
       - name: regcred
     envFrom:

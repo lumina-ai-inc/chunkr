@@ -18,6 +18,8 @@ RUN cargo build --release --features azure
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
+COPY subtrace.yaml .
+
 RUN apt-get update -y; \
     apt-get install -y \
     pkg-config \
@@ -34,6 +36,6 @@ RUN apt-get update -y; \
     chmod +x ./subtrace
 
 COPY --from=builder /app/target/release/core /app/core
-
+COPY subtrace.yaml .
 EXPOSE 8000
-ENTRYPOINT ["./subtrace", "run", "--", "/app/core"]
+ENTRYPOINT ["./subtrace", "run", "--config=subtrace.yaml", "--", "/app/core"]

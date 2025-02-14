@@ -1,0 +1,3 @@
+rules:
+  - if: request.url == "/consume"
+    then: exclude
