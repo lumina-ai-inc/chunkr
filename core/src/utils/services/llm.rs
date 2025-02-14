@@ -3,13 +3,14 @@ use crate::configs::worker_config::Config as WorkerConfig;
 use crate::models::chunkr::open_ai::{
     ContentPart, ImageUrl, Message, MessageContent, OpenAiRequest, OpenAiResponse,
 };
+use crate::models::chunkr::output::SegmentType;
 use crate::utils::rate_limit::{LLM_OCR_TIMEOUT, LLM_RATE_LIMITER, TOKEN_TIMEOUT};
 use crate::utils::retry::retry_with_backoff;
-use crate::models::chunkr::output::SegmentType;
 use base64::{engine::general_purpose, Engine as _};
 use std::error::Error;
 use std::fmt;
 use std::io::Read;
+use std::str::FromStr;
 use tempfile::NamedTempFile;
 
 #[derive(Debug)]
@@ -284,17 +285,21 @@ pub async fn segment_classification(
         if temperature > 1.0 {
             break;
         }
-        
+
         let response = llm_ocr(temp_file, prompt.clone(), Some(temperature), None).await?;
-        if let Some(content) = extract_fenced_content(&response, Some("json")) {
-            if let Ok(segment_type) = serde_json::from_str(&content) {
-                return Ok(segment_type);
+        if let Some(content) = extract_fenced_content(&response, None) {
+            match SegmentType::from_str(content.trim()) {
+                Ok(segment_type) => return Ok(segment_type),
+                Err(e) => {
+                    println!("Error parsing segment type: {} for content: {}", e, content);
+                    continue;
+                }
             }
         }
     }
 
     Err(Box::new(LLMError(format!(
-        "Failed to get valid JSON response after {} attempts",
+        "Failed to get valid response after {} attempts",
         max_retries
     ))))
 }

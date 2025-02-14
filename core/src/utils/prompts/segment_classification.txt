@@ -4,11 +4,11 @@ Supported segment types:
 - Caption
 - Footnote
 - Formula
-- List Item
-- Page Footer
-- Page Header
+- ListItem
+- PageFooter
+- PageHeader
 - Picture
-- Section Header
+- SectionHeader
 - Table
 - Text
 - Title
@@ -16,5 +16,4 @@ Supported segment types:
 Model's prediction: {predicted_segment_type}
 
 You are given an cropped image of the segment. Return the correct segment type.
-Enclose your output in ```json``` code fences.
-
+your output must only be the segment type, enclosed in ```\{segment_type\}``` code fences.

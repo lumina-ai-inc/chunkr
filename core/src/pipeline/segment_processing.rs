@@ -189,7 +189,9 @@ async fn generate_html(
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let generator = HtmlGenerator { segment_type: segment.segment_type.clone() };
+    let generator = HtmlGenerator {
+        segment_type: segment.segment_type.clone(),
+    };
     Ok(html::clean_img_tags(
         &generate_content(
             &generator,
@@ -202,12 +204,14 @@ async fn generate_html(
     ))
 }
 
-async fn generate_markdown( 
+async fn generate_markdown(
     segment: Segment,
     segment_image: Option<Arc<NamedTempFile>>,
     generation_strategy: &GenerationStrategy,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let generator = MarkdownGenerator { segment_type: segment.segment_type.clone() };
+    let generator = MarkdownGenerator {
+        segment_type: segment.segment_type.clone(),
+    };
     Ok(markdown::clean_img_tags(
         &generate_content(
             &generator,
@@ -240,10 +244,17 @@ async fn generate_llm(
 
 async fn classify_segment_type(
     predicted_segment_type: SegmentType,
-    segment_image: Option<Arc<NamedTempFile>>
+    segment_image: Option<Arc<NamedTempFile>>,
 ) -> Result<SegmentType, Box<dyn std::error::Error + Send + Sync>> {
+    if segment_image.is_none() {
+        return Ok(predicted_segment_type);
+    }
+
     let mut values = HashMap::new();
-    values.insert("predicted_segment_type".to_string(), predicted_segment_type.to_string());
+    values.insert(
+        "predicted_segment_type".to_string(),
+        predicted_segment_type.to_string(),
+    );
     let prompt = get_prompt("segment_classification", &values)?;
     let segment_type = llm::segment_classification(segment_image.as_ref().unwrap(), prompt).await?;
     Ok(segment_type)
@@ -302,25 +313,14 @@ async fn process_segment(
     };
 
     let (html, markdown, llm, segment_type) = futures::try_join!(
-        generate_html(
-            segment.clone(),
-            segment_image.clone(),
-            html_strategy
-        ),
-        generate_markdown(
-            segment.clone(),
-            segment_image.clone(),
-            markdown_strategy
-        ),
+        generate_html(segment.clone(), segment_image.clone(), html_strategy),
+        generate_markdown(segment.clone(), segment_image.clone(), markdown_strategy),
         generate_llm(
             segment.segment_type.clone(),
             segment_image.clone(),
             llm_prompt.clone()
         ),
-        classify_segment_type(
-            segment.segment_type.clone(), 
-            segment_image.clone()
-        )
+        classify_segment_type(segment.segment_type.clone(), segment_image.clone())
     )?;
 
     segment.html = html;

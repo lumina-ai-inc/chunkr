@@ -14,65 +14,67 @@ async fn crop_segment(
     configuration: &Configuration,
     segment: &Segment,
 ) -> Result<Option<NamedTempFile>, Box<dyn Error>> {
-    let should_crop = match segment.segment_type {
-        SegmentType::Table | SegmentType::Formula => {
-            let config = match segment.segment_type {
-                SegmentType::Table => &configuration.segment_processing.table,
-                SegmentType::Formula => &configuration.segment_processing.formula,
-                _ => unreachable!(),
-            };
-            match config {
-                Some(config) => match config.crop_image {
-                    CroppingStrategy::All => true,
-                    CroppingStrategy::Auto => {
-                        config.html == GenerationStrategy::LLM
-                            || config.markdown == GenerationStrategy::LLM
-                            || config.llm.is_some()
-                    }
-                },
-                None => false,
-            }
-        }
-        SegmentType::Picture => {
-            let config = &configuration.segment_processing.picture;
-            match config {
-                Some(config) => match config.crop_image {
-                    PictureCroppingStrategy::All => true,
-                    PictureCroppingStrategy::Auto => {
-                        config.html == GenerationStrategy::LLM
-                            || config.markdown == GenerationStrategy::LLM
-                            || config.llm.is_some()
-                    }
-                },
-                None => false,
-            }
-        }
-        _ => {
-            let config = match segment.segment_type {
-                SegmentType::Title => &configuration.segment_processing.title,
-                SegmentType::SectionHeader => &configuration.segment_processing.section_header,
-                SegmentType::Text => &configuration.segment_processing.text,
-                SegmentType::ListItem => &configuration.segment_processing.list_item,
-                SegmentType::Caption => &configuration.segment_processing.caption,
-                SegmentType::Footnote => &configuration.segment_processing.footnote,
-                SegmentType::PageHeader => &configuration.segment_processing.page_header,
-                SegmentType::PageFooter => &configuration.segment_processing.page_footer,
-                SegmentType::Page => &configuration.segment_processing.page,
-                _ => unreachable!(),
-            };
-            match config {
-                Some(config) => match config.crop_image {
-                    CroppingStrategy::All => true,
-                    CroppingStrategy::Auto => {
-                        config.html == GenerationStrategy::LLM
-                            || config.markdown == GenerationStrategy::LLM
-                            || config.llm.is_some()
-                    }
-                },
-                None => false,
-            }
-        }
-    };
+    // let should_crop = match segment.segment_type {
+    //     SegmentType::Table | SegmentType::Formula => {
+    //         let config = match segment.segment_type {
+    //             SegmentType::Table => &configuration.segment_processing.table,
+    //             SegmentType::Formula => &configuration.segment_processing.formula,
+    //             _ => unreachable!(),
+    //         };
+    //         match config {
+    //             Some(config) => match config.crop_image {
+    //                 CroppingStrategy::All => true,
+    //                 CroppingStrategy::Auto => {
+    //                     config.html == GenerationStrategy::LLM
+    //                         || config.markdown == GenerationStrategy::LLM
+    //                         || config.llm.is_some()
+    //                 }
+    //             },
+    //             None => false,
+    //         }
+    //     }
+    //     SegmentType::Picture => {
+    //         let config = &configuration.segment_processing.picture;
+    //         match config {
+    //             Some(config) => match config.crop_image {
+    //                 PictureCroppingStrategy::All => true,
+    //                 PictureCroppingStrategy::Auto => {
+    //                     config.html == GenerationStrategy::LLM
+    //                         || config.markdown == GenerationStrategy::LLM
+    //                         || config.llm.is_some()
+    //                 }
+    //             },
+    //             None => false,
+    //         }
+    //     }
+    //     _ => {
+    //         let config = match segment.segment_type {
+    //             SegmentType::Title => &configuration.segment_processing.title,
+    //             SegmentType::SectionHeader => &configuration.segment_processing.section_header,
+    //             SegmentType::Text => &configuration.segment_processing.text,
+    //             SegmentType::ListItem => &configuration.segment_processing.list_item,
+    //             SegmentType::Caption => &configuration.segment_processing.caption,
+    //             SegmentType::Footnote => &configuration.segment_processing.footnote,
+    //             SegmentType::PageHeader => &configuration.segment_processing.page_header,
+    //             SegmentType::PageFooter => &configuration.segment_processing.page_footer,
+    //             SegmentType::Page => &configuration.segment_processing.page,
+    //             _ => unreachable!(),
+    //         };
+    //         match config {
+    //             Some(config) => match config.crop_image {
+    //                 CroppingStrategy::All => true,
+    //                 CroppingStrategy::Auto => {
+    //                     config.html == GenerationStrategy::LLM
+    //                         || config.markdown == GenerationStrategy::LLM
+    //                         || config.llm.is_some()
+    //                 }
+    //             },
+    //             None => false,
+    //         }
+    //     }
+    // };
+
+    let should_crop = true;
 
     if should_crop {
         let cropped_image = crop_image(page_image, &segment.bbox)?;
