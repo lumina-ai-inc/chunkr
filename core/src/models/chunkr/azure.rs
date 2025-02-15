@@ -424,6 +424,11 @@ impl AzureAnalysisResponse {
                             }
                         }
 
+                        // Initialize OCR results for all segments
+                        for segment in &mut all_segments {
+                            segment.ocr = Some(Vec::new());
+                        }
+
                         // Assign OCR words to segments based on intersection area
                         if let Some(pages) = &analyze_result.pages {
                             for page in pages {
@@ -464,9 +469,6 @@ impl AzureAnalysisResponse {
                                                     bbox: relative_bbox,
                                                 };
 
-                                                if all_segments[idx].ocr.is_none() {
-                                                    all_segments[idx].ocr = Some(Vec::new());
-                                                }
                                                 if let Some(ocr_vec) = &mut all_segments[idx].ocr {
                                                     ocr_vec.push(ocr_result);
                                                 }
