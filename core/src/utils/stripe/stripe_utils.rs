@@ -237,16 +237,63 @@ pub async fn get_stripe_checkout_session(
     Ok(line_items)
 }
 
+pub async fn create_stripe_portal_configuration(
+    stripe_config: &StripeConfig,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let form_data = vec![
+        ("features[subscription_update][enabled]", "true"),
+        (
+            "features[subscription_update][default_allowed_updates][]",
+            "price",
+        ),
+        (
+            "features[subscription_update][default_allowed_updates][]",
+            "quantity",
+        ),
+        (
+            "features[subscription_update][default_allowed_updates][]",
+            "billing_cycle_anchor",
+        ),
+        (
+            "features[subscription_update][proration_behavior]",
+            "always_invoice",
+        ),
+    ];
+
+    let stripe_response = client
+        .post("https://api.stripe.com/v1/billing_portal/configurations")
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&form_data)
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let err_body = stripe_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to create portal configuration: {}", err_body).into());
+    }
+
+    let config: serde_json::Value = stripe_response.json().await?;
+    Ok(config["id"].as_str().unwrap_or_default().to_string())
+}
+
 pub async fn create_stripe_billing_portal_session(
     customer_id: &str,
     stripe_config: &StripeConfig,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
-    let return_url = format!("{}/dashboard", stripe_config.return_url.trim_end_matches('/'));
+    let config_id = create_stripe_portal_configuration(stripe_config).await?;
+    let return_url = format!(
+        "{}/dashboard",
+        stripe_config.return_url.trim_end_matches('/')
+    );
+
     let form_data = vec![
         ("customer", customer_id),
         ("return_url", &return_url),
+        ("configuration", &config_id),
     ];
 
     let stripe_response = client
