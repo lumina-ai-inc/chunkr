@@ -313,95 +313,119 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                 x if x == stripe_config.growth_price_id => "Growth",
                                 _ => "Free",
                             };
-                            let last_paid_status = match sub.status.as_str() {
-                                "active" | "trialing" => "True",
-                                _ => "False",
-                            };
 
-                            let res_one = client
-                                .execute(
-                                    "WITH sub_upsert AS (
-                                        INSERT INTO subscriptions (
-                                            stripe_subscription_id,
-                                            user_id,
-                                            tier,
-                                            last_paid_status,
-                                            last_paid_date,
-                                            created_at,
-                                            updated_at
+                            let current_usage_row = client
+                                .query_one(
+                                    "SELECT tier, usage, usage_limit 
+                                     FROM monthly_usage 
+                                     WHERE user_id = $1 
+                                     AND year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+                                     AND month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)",
+                                    &[&user_id],
+                                )
+                                .await;
+
+                            if let Ok(row) = current_usage_row {
+                                let current_tier: String = row.get("tier");
+                                let current_usage: i32 = row.get("usage");
+                                let current_limit: i32 = row.get("usage_limit");
+
+                                let is_upgrade = match (current_tier.as_str(), new_tier) {
+                                    ("Free", _) => true,
+                                    ("Starter", "Dev" | "Growth") => true,
+                                    ("Dev", "Growth") => true,
+                                    _ => false,
+                                };
+
+                                let remaining_credits = if is_upgrade {
+                                    current_limit.saturating_sub(current_usage)
+                                } else {
+                                    0
+                                };
+
+                                let last_paid_status = match sub.status.as_str() {
+                                    "active" | "trialing" => "True",
+                                    _ => "False",
+                                };
+
+                                let res_one = client
+                                    .execute(
+                                        "WITH sub_upsert AS (
+                                            INSERT INTO subscriptions (
+                                                stripe_subscription_id,
+                                                user_id,
+                                                tier,
+                                                last_paid_status,
+                                                last_paid_date,
+                                                created_at,
+                                                updated_at
+                                            )
+                                            VALUES ($1, $4, $3, $2, NOW(), NOW(), NOW())
+                                            ON CONFLICT (user_id) DO UPDATE
+                                            SET stripe_subscription_id = $1,
+                                                last_paid_status = $2,
+                                                tier = $3,
+                                                last_paid_date = NOW(),
+                                                updated_at = NOW()
+                                            RETURNING tier
                                         )
-                                        VALUES ($1, $4, $3, $2, NOW(), NOW(), NOW())
-                                        ON CONFLICT (user_id) DO UPDATE
-                                        SET stripe_subscription_id = $1,
-                                            last_paid_status = $2,
-                                            tier = $3,
-                                            last_paid_date = NOW(),
-                                            updated_at = NOW()
-                                        RETURNING tier
+                                        UPDATE users u
+                                        SET tier = s.tier,
+                                            invoice_status = $2
+                                        FROM sub_upsert s
+                                        WHERE u.user_id = $4",
+                                        &[
+                                            &sub.id.to_string(),
+                                            &last_paid_status,
+                                            &new_tier,
+                                            &user_id,
+                                        ],
                                     )
-                                    UPDATE users u
-                                    SET tier = s.tier,
-                                        invoice_status = $2
-                                    FROM sub_upsert s
-                                    WHERE u.user_id = $4",
-                                    &[&sub.id.to_string(), &last_paid_status, &new_tier, &user_id],
-                                )
-                                .await;
+                                    .await;
 
-                            if let Err(e) = res_one {
-                                eprintln!("Error syncing subscriptions/users: {:?}", e);
-                            }
+                                if let Err(e) = res_one {
+                                    eprintln!("Error syncing subscriptions/users: {:?}", e);
+                                }
 
-                            let res_two = client
-                                .execute(
-                                    "WITH new_data AS (
+                                let res_two = client
+                                    .execute(
+                                        "WITH new_limit AS (
+                                            SELECT t.usage_limit + $3 as adjusted_limit
+                                            FROM tiers t
+                                            WHERE t.tier = $2
+                                        )
+                                        INSERT INTO monthly_usage (
+                                            user_id, 
+                                            usage_type,
+                                            usage,
+                                            overage_usage,
+                                            year,
+                                            month,
+                                            tier,
+                                            usage_limit,
+                                            billing_cycle_start,
+                                            billing_cycle_end
+                                        )
                                         SELECT
-                                            $1 as user_id, 
-                                            'Page' as usage_type, 
-                                            0 as usage, 
+                                            $1 as user_id,
+                                            'Page' as usage_type,
+                                            0 as usage,
                                             0 as overage_usage,
-                                            CASE 
-                                                WHEN CURRENT_TIMESTAMP BETWEEN mu.billing_cycle_start AND mu.billing_cycle_end THEN
-                                                    EXTRACT(YEAR FROM mu.billing_cycle_start)
-                                                ELSE 
-                                                    EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
-                                            END as year,
-                                            CASE
-                                                WHEN CURRENT_TIMESTAMP BETWEEN mu.billing_cycle_start AND mu.billing_cycle_end THEN
-                                                    EXTRACT(MONTH FROM mu.billing_cycle_start) 
-                                                ELSE
-                                                    EXTRACT(MONTH FROM CURRENT_TIMESTAMP)
-                                            END as month,
+                                            EXTRACT(YEAR FROM CURRENT_TIMESTAMP) as year,
+                                            EXTRACT(MONTH FROM CURRENT_TIMESTAMP) as month,
                                             $2 as tier,
-                                            t.usage_limit,
-                                            mu.billing_cycle_start,
-                                            mu.billing_cycle_end
-                                        FROM tiers t
-                                        LEFT JOIN monthly_usage mu ON mu.user_id = $1 
-                                            AND mu.year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
-                                            AND mu.month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)
-                                        WHERE t.tier = $2
+                                            adjusted_limit,
+                                            CURRENT_TIMESTAMP as billing_cycle_start,
+                                            CURRENT_TIMESTAMP + INTERVAL '30 days' as billing_cycle_end
+                                        FROM new_limit",
+                                        &[&user_id, &new_tier, &remaining_credits],
                                     )
-                                    INSERT INTO monthly_usage (
-                                        user_id, usage_type, usage, overage_usage,
-                                        year, month, tier, usage_limit,
-                                        billing_cycle_start, billing_cycle_end
-                                    )
-                                    SELECT 
-                                        user_id, usage_type, usage, overage_usage,
-                                        year, month, tier, usage_limit,
-                                        billing_cycle_start, billing_cycle_end
-                                    FROM new_data
-                                    ON CONFLICT (user_id, usage_type, year, month)
-                                    DO UPDATE
-                                    SET tier = EXCLUDED.tier,
-                                        usage_limit = EXCLUDED.usage_limit",
-                                    &[&user_id, &new_tier],
-                                )
-                                .await;
+                                    .await;
 
-                            if let Err(e) = res_two {
-                                eprintln!("Error syncing monthly_usage: {:?}", e);
+                                if let Err(e) = res_two {
+                                    eprintln!("Error creating new monthly_usage: {:?}", e);
+                                }
+                                //insta charge overage
                             }
                         }
                     }
