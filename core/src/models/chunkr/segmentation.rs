@@ -97,14 +97,6 @@ impl Instance {
             })
             .collect()
     }
-
-    pub fn to_segments_batch(&self, ocr_results: Vec<Vec<OCRResult>>) -> Vec<Vec<Segment>> {
-        ocr_results
-            .into_iter()
-            .enumerate()
-            .map(|(page_num, ocr)| self.to_segments(page_num as u32 + 1, ocr))
-            .collect()
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
