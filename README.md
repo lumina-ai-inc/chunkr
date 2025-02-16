@@ -17,6 +17,8 @@
     <a href="https://github.com/lumina-ai-inc/chunkr/issues/new">Report Bug</a>
     ·
     <a href="#connect-with-us">Contact</a>
+    ·
+     <a href="https://discord.gg/XzKWFByKzW">Discord</a>
   </p>
 </div>
 
