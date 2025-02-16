@@ -109,23 +109,38 @@ pub async fn get_monthly_usage_count(
     let client: Client = get_pg_client().await?;
 
     let query = r#"
+        WITH latest_usage AS (
+            SELECT 
+                mu.user_id,
+                mu.created_at,
+                mu.usage,
+                mu.usage_limit,
+                mu.overage_usage,
+                mu.tier,
+                mu.billing_cycle_start,
+                mu.billing_cycle_end,
+                mu.updated_at
+            FROM monthly_usage mu
+            WHERE mu.user_id = $1
+            ORDER BY mu.updated_at DESC
+            LIMIT 1
+        )
         SELECT 
             u.user_id,
             u.email,
             u.invoice_status,
-            to_char(mu.created_at, 'YYYY-MM') as month,
-            mu.usage,
-            mu.usage_limit,
-            CAST(mu.overage_usage * t.overage_rate AS DOUBLE PRECISION) as overage_cost,
-            mu.tier,
-            mu.billing_cycle_start,
-            mu.billing_cycle_end,
+            to_char(lu.created_at, 'YYYY-MM') as month,
+            lu.usage,
+            lu.usage_limit,
+            CAST(lu.overage_usage * t.overage_rate AS DOUBLE PRECISION) as overage_cost,
+            lu.tier,
+            lu.billing_cycle_start,
+            lu.billing_cycle_end,
             CAST(t.price_per_month AS DOUBLE PRECISION) as subscription_cost
         FROM users u
-        LEFT JOIN monthly_usage mu ON u.user_id = mu.user_id
-        LEFT JOIN tiers t ON mu.tier = t.tier
+        JOIN latest_usage lu ON u.user_id = lu.user_id
+        LEFT JOIN tiers t ON lu.tier = t.tier
         WHERE u.user_id = $1
-        ORDER BY mu.billing_cycle_start DESC
     "#;
 
     let rows = client.query(query, &[&user_id]).await?;

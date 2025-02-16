@@ -1,5 +1,6 @@
 use crate::configs::stripe_config::Config as StripeConfig;
 use crate::utils::clients::get_pg_client;
+use log::info;
 use reqwest::Client as ReqwestClient;
 
 pub async fn create_stripe_customer(email: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -236,55 +237,84 @@ pub async fn get_stripe_checkout_session(
     let line_items: serde_json::Value = stripe_response.json().await?;
     Ok(line_items)
 }
+// pub async fn create_stripe_portal_configuration(
+//     stripe_config: &StripeConfig,
+// ) -> Result<String, Box<dyn std::error::Error>> {
+//     let client = ReqwestClient::new();
 
-pub async fn create_stripe_portal_configuration(
-    stripe_config: &StripeConfig,
-) -> Result<String, Box<dyn std::error::Error>> {
-    let client = ReqwestClient::new();
+//     let form_data = vec![
+//         ("features[subscription_update][enabled]", "true"),
+//         ("features[payment_method_update][enabled]", "true"),
+//         (
+//             "features[subscription_update][default_allowed_updates][]",
+//             "price",
+//         ),
+//         ("features[subscription_pause][enabled]", "false"),
+//         ("features[subscription_cancel][enabled]", "true"),
+//         ("features[subscription_cancel][mode]", "immediately"),
+//         (
+//             "features[subscription_update][proration_behavior]",
+//             "always_invoice",
+//         ),
+//         (
+//             "features[subscription_update][products][0][product]",
+//             &stripe_config.starter_product_id,
+//         ),
+//         (
+//             "features[subscription_update][products][0][prices][]",
+//             &stripe_config.starter_price_id,
+//         ),
+//         (
+//             "features[subscription_update][products][1][product]",
+//             &stripe_config.dev_product_id,
+//         ),
+//         (
+//             "features[subscription_update][products][1][prices][]",
+//             &stripe_config.dev_price_id,
+//         ),
+//         (
+//             "features[subscription_update][products][2][product]",
+//             &stripe_config.growth_product_id,
+//         ),
+//         (
+//             "features[subscription_update][products][2][prices][]",
+//             &stripe_config.growth_price_id,
+//         ),
+//     ];
 
-    let form_data = vec![
-        ("features[subscription_update][enabled]", "true"),
-        (
-            "features[subscription_update][default_allowed_updates][]",
-            "price",
-        ),
-        (
-            "features[subscription_update][default_allowed_updates][]",
-            "quantity",
-        ),
-        (
-            "features[subscription_update][default_allowed_updates][]",
-            "billing_cycle_anchor",
-        ),
-        (
-            "features[subscription_update][proration_behavior]",
-            "always_invoice",
-        ),
-    ];
+//     info!(
+//         "Creating Stripe portal configuration with form data: {:?}",
+//         form_data
+//     );
+//     let stripe_response = client
+//         .post("https://api.stripe.com/v1/billing_portal/configurations")
+//         .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+//         .form(&form_data)
+//         .send()
+//         .await?;
 
-    let stripe_response = client
-        .post("https://api.stripe.com/v1/billing_portal/configurations")
-        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
-        .form(&form_data)
-        .send()
-        .await?;
+//     if !stripe_response.status().is_success() {
+//         let err_body = stripe_response.text().await.unwrap_or_default();
+//         return Err(format!("Failed to create portal configuration: {}", err_body).into());
+//     }
 
-    if !stripe_response.status().is_success() {
-        let err_body = stripe_response.text().await.unwrap_or_default();
-        return Err(format!("Failed to create portal configuration: {}", err_body).into());
-    }
-
-    let config: serde_json::Value = stripe_response.json().await?;
-    Ok(config["id"].as_str().unwrap_or_default().to_string())
-}
+//     let config: serde_json::Value = stripe_response.json().await?;
+//     info!("Created portal configuration with ID: {}", config["id"]);
+//     Ok(config["id"].as_str().unwrap_or_default().to_string())
+// }
 
 pub async fn create_stripe_billing_portal_session(
     customer_id: &str,
+    subscription_id: &str,
     stripe_config: &StripeConfig,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let client = ReqwestClient::new();
 
-    let config_id = create_stripe_portal_configuration(stripe_config).await?;
+    // First update the subscription billing cycle
+
+    // Create or retrieve the portal configuration ID
+    // let config_id = create_stripe_portal_configuration(stripe_config).await?;
+
     let return_url = format!(
         "{}/dashboard",
         stripe_config.return_url.trim_end_matches('/')
@@ -293,9 +323,13 @@ pub async fn create_stripe_billing_portal_session(
     let form_data = vec![
         ("customer", customer_id),
         ("return_url", &return_url),
-        ("configuration", &config_id),
+        // ("configuration", &config_id),
     ];
 
+    info!(
+        "Creating billing portal session for customer {}",
+        customer_id
+    );
     let stripe_response = client
         .post("https://api.stripe.com/v1/billing_portal/sessions")
         .header("Authorization", format!("Bearer {}", stripe_config.api_key))
@@ -305,9 +339,44 @@ pub async fn create_stripe_billing_portal_session(
 
     if !stripe_response.status().is_success() {
         let err_body = stripe_response.text().await.unwrap_or_default();
+        info!("Failed to create billing portal session: {}", err_body);
         return Err(format!("Failed to create billing portal session: {}", err_body).into());
     }
 
     let portal_session: serde_json::Value = stripe_response.json().await?;
+    info!(
+        "Created billing portal session with URL: {}",
+        portal_session["url"]
+    );
+
     Ok(portal_session)
+}
+
+pub async fn update_subscription_billing_cycle(
+    subscription_id: &str,
+    stripe_config: &StripeConfig,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let client = ReqwestClient::new();
+
+    let url = format!(
+        "https://api.stripe.com/v1/subscriptions/{}",
+        subscription_id
+    );
+
+    let form_data = vec![("billing_cycle_anchor", "now")];
+
+    let stripe_response = client
+        .post(&url)
+        .header("Authorization", format!("Bearer {}", stripe_config.api_key))
+        .form(&form_data)
+        .send()
+        .await?;
+
+    if !stripe_response.status().is_success() {
+        let err_body = stripe_response.text().await.unwrap_or_default();
+        return Err(format!("Failed to update subscription: {}", err_body).into());
+    }
+
+    let updated_subscription: serde_json::Value = stripe_response.json().await?;
+    Ok(updated_subscription)
 }

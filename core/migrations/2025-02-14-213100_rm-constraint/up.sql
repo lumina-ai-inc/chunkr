@@ -167,28 +167,21 @@ BEGIN
     IF TG_OP = 'UPDATE'
        AND (OLD.status IS DISTINCT FROM NEW.status)
        AND NEW.status = 'Succeeded' THEN
-
         -- Get current billing cycle and calculate usage only for tasks within it
         WITH monthly_cycle AS (
             SELECT 
-                mu.billing_cycle_start AS billing_cycle_start,
-                mu.billing_cycle_end AS billing_cycle_end,
                 mu.usage_limit AS usage_limit,
-                mu.tier AS tier
+                mu.tier AS tier,
+                mu.billing_cycle_end AS billing_cycle_end
             FROM monthly_usage mu
             WHERE mu.user_id = NEW.user_id
-              AND NEW.created_at >= mu.billing_cycle_start
-              AND NEW.created_at < mu.billing_cycle_end + INTERVAL '1 day'
-            ORDER BY mu.billing_cycle_end DESC
+            ORDER BY mu.updated_at DESC
             LIMIT 1
         ),
         current_usage AS (
             SELECT COALESCE(SUM(tl.usage_amount), 0) AS total_pages
             FROM task_ledger tl
-            CROSS JOIN monthly_cycle mc
             WHERE tl.user_id = NEW.user_id
-              AND tl.created_at >= mc.billing_cycle_start
-              AND tl.created_at < mc.billing_cycle_end + INTERVAL '1 day'
               AND tl.task_id != NEW.task_id
         )
         SELECT 
@@ -207,8 +200,12 @@ BEGIN
             overage_usage = GREATEST(0, v_new_usage - v_usage_limit),
             updated_at = CURRENT_TIMESTAMP
         WHERE mu.user_id = NEW.user_id
-          AND NEW.created_at >= mu.billing_cycle_start
-          AND NEW.created_at < mu.billing_cycle_end + INTERVAL '1 day';
+        AND mu.id = (
+            SELECT id FROM monthly_usage 
+            WHERE user_id = NEW.user_id 
+            ORDER BY updated_at DESC 
+            LIMIT 1
+        );
 
         -- Handle overage invoicing if needed
         IF v_new_usage > v_usage_limit THEN
