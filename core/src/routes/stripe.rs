@@ -4,12 +4,14 @@ use crate::models::chunkr::user::InvoiceStatus;
 use crate::utils::clients::get_pg_client;
 use crate::utils::routes::get_user::get_monthly_usage_count;
 use crate::utils::routes::get_user::{get_invoice_information, get_invoices};
+use crate::utils::stripe::invoicer::create_and_send_invoice;
 use crate::utils::stripe::stripe_utils::{
     create_customer_session, create_stripe_billing_portal_session, create_stripe_checkout_session,
     create_stripe_customer, create_stripe_setup_intent, get_stripe_checkout_session,
-    update_invoice_status,
+    update_invoice_status, update_subscription_billing_cycle,
 };
 use actix_web::{web, Error, HttpRequest, HttpResponse};
+use log::info;
 use postgres_types::ToSql;
 use serde::{Deserialize, Serialize};
 use stripe::EventType;
@@ -302,46 +304,39 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
             }
         }
         EventType::CustomerSubscriptionUpdated => {
+            info!("Processing CustomerSubscriptionUpdated event");
             if let stripe::EventObject::Subscription(sub) = event.data.object {
+                info!("Got subscription object with customer: {:?}", sub.customer);
                 let user_id_opt = find_user_id_by_customer(&sub.customer, &client).await;
+                info!("Found user_id: {:?}", user_id_opt);
+
                 if let Some(user_id) = user_id_opt {
                     if let Some(item) = sub.items.data.get(0) {
+                        info!("Found subscription item: {:?}", item);
                         if let Some(price) = &item.price {
+                            info!("Price ID: {:?}", price.id);
                             let new_tier = match price.id.as_str() {
                                 x if x == stripe_config.starter_price_id => "Starter",
                                 x if x == stripe_config.dev_price_id => "Dev",
                                 x if x == stripe_config.growth_price_id => "Growth",
                                 _ => "Free",
                             };
+                            info!("Determined new tier: {}", new_tier);
 
                             let current_usage_row = client
                                 .query_one(
-                                    "SELECT tier, usage, usage_limit 
+                                    "SELECT tier, usage, usage_limit, billing_cycle_end 
                                      FROM monthly_usage 
                                      WHERE user_id = $1 
-                                     AND year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
-                                     AND month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)",
+                                     ORDER BY updated_at DESC
+                                     LIMIT 1",
                                     &[&user_id],
                                 )
                                 .await;
+                            info!("Current usage query result: {:?}", current_usage_row);
 
                             if let Ok(row) = current_usage_row {
                                 let current_tier: String = row.get("tier");
-                                let current_usage: i32 = row.get("usage");
-                                let current_limit: i32 = row.get("usage_limit");
-
-                                let is_upgrade = match (current_tier.as_str(), new_tier) {
-                                    ("Free", _) => true,
-                                    ("Starter", "Dev" | "Growth") => true,
-                                    ("Dev", "Growth") => true,
-                                    _ => false,
-                                };
-
-                                let remaining_credits = if is_upgrade {
-                                    current_limit.saturating_sub(current_usage)
-                                } else {
-                                    0
-                                };
 
                                 let last_paid_status = match sub.status.as_str() {
                                     "active" | "trialing" => "True",
@@ -351,29 +346,29 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                 let res_one = client
                                     .execute(
                                         "WITH sub_upsert AS (
-                                            INSERT INTO subscriptions (
-                                                stripe_subscription_id,
-                                                user_id,
-                                                tier,
-                                                last_paid_status,
-                                                last_paid_date,
-                                                created_at,
-                                                updated_at
+                                                INSERT INTO subscriptions (
+                                                    stripe_subscription_id,
+                                                    user_id,
+                                                    tier,
+                                                    last_paid_status,
+                                                    last_paid_date,
+                                                    created_at,
+                                                    updated_at
+                                                )
+                                                VALUES ($1, $4, $3, $2, NOW(), NOW(), NOW())
+                                                ON CONFLICT (user_id) DO UPDATE
+                                                SET stripe_subscription_id = $1,
+                                                    last_paid_status = $2,
+                                                    tier = $3,
+                                                    last_paid_date = NOW(),
+                                                    updated_at = NOW()
+                                                RETURNING tier
                                             )
-                                            VALUES ($1, $4, $3, $2, NOW(), NOW(), NOW())
-                                            ON CONFLICT (user_id) DO UPDATE
-                                            SET stripe_subscription_id = $1,
-                                                last_paid_status = $2,
-                                                tier = $3,
-                                                last_paid_date = NOW(),
-                                                updated_at = NOW()
-                                            RETURNING tier
-                                        )
-                                        UPDATE users u
-                                        SET tier = s.tier,
-                                            invoice_status = $2
-                                        FROM sub_upsert s
-                                        WHERE u.user_id = $4",
+                                            UPDATE users u
+                                            SET tier = s.tier,
+                                                invoice_status = $2
+                                            FROM sub_upsert s
+                                            WHERE u.user_id = $4",
                                         &[
                                             &sub.id.to_string(),
                                             &last_paid_status,
@@ -386,46 +381,80 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                                 if let Err(e) = res_one {
                                     eprintln!("Error syncing subscriptions/users: {:?}", e);
                                 }
-
                                 let res_two = client
                                     .execute(
                                         "WITH new_limit AS (
-                                            SELECT t.usage_limit + $3 as adjusted_limit
-                                            FROM tiers t
-                                            WHERE t.tier = $2
-                                        )
-                                        INSERT INTO monthly_usage (
-                                            user_id, 
-                                            usage_type,
-                                            usage,
-                                            overage_usage,
-                                            year,
-                                            month,
-                                            tier,
-                                            usage_limit,
-                                            billing_cycle_start,
-                                            billing_cycle_end
-                                        )
-                                        SELECT
-                                            $1 as user_id,
-                                            'Page' as usage_type,
-                                            0 as usage,
-                                            0 as overage_usage,
-                                            EXTRACT(YEAR FROM CURRENT_TIMESTAMP) as year,
-                                            EXTRACT(MONTH FROM CURRENT_TIMESTAMP) as month,
-                                            $2 as tier,
-                                            adjusted_limit,
-                                            CURRENT_TIMESTAMP as billing_cycle_start,
-                                            CURRENT_TIMESTAMP + INTERVAL '30 days' as billing_cycle_end
-                                        FROM new_limit",
-                                        &[&user_id, &new_tier, &remaining_credits],
+                                                SELECT t.usage_limit as adjusted_limit
+                                                FROM tiers t
+                                                WHERE t.tier = $2
+                                            ),
+                                            last_cycle AS (
+                                                SELECT billing_cycle_start, billing_cycle_end
+                                                FROM monthly_usage
+                                                WHERE user_id = $1
+                                                ORDER BY updated_at DESC
+                                                LIMIT 1
+                                            )
+                                            INSERT INTO monthly_usage (
+                                                user_id,
+                                                tier,
+                                                usage_limit,
+                                                usage,
+                                                usage_type,
+                                                overage_usage,
+                                                year,
+                                                month,
+                                                created_at,
+                                                updated_at,
+                                                billing_cycle_start,
+                                                billing_cycle_end
+                                            )
+                                            VALUES (
+                                                $1,
+                                                $2,
+                                                (SELECT adjusted_limit FROM new_limit),
+                                                0,
+                                                'Page',
+                                                0,
+                                                EXTRACT(YEAR FROM NOW())::INT,
+                                                EXTRACT(MONTH FROM NOW())::INT,
+                                                NOW(),
+                                                NOW(),
+                                                (SELECT billing_cycle_start FROM last_cycle),
+                                                (SELECT billing_cycle_end FROM last_cycle)
+                                            )",
+                                        &[&user_id, &new_tier],
                                     )
                                     .await;
 
                                 if let Err(e) = res_two {
                                     eprintln!("Error creating new monthly_usage: {:?}", e);
                                 }
-                                //insta charge overage
+
+                                let ongoing_invoices = client
+                                    .query(
+                                        "SELECT invoice_id 
+                                             FROM invoices 
+                                             WHERE user_id = $1 
+                                             AND invoice_status = 'Ongoing'",
+                                        &[&user_id],
+                                    )
+                                    .await;
+                                if let Ok(invoices) = ongoing_invoices {
+                                    if !invoices.is_empty() {
+                                        for row in invoices {
+                                            let invoice_id: String = row.get("invoice_id");
+                                            if let Err(e) =
+                                                create_and_send_invoice(&invoice_id).await
+                                            {
+                                                eprintln!(
+                                                    "Error charging ongoing invoice {}: {:?}",
+                                                    invoice_id, e
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -436,6 +465,19 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
             if let stripe::EventObject::Subscription(sub) = event.data.object {
                 let user_id_opt = find_user_id_by_customer(&sub.customer, &client).await;
                 if let Some(user_id) = user_id_opt {
+                    let current_tier = client
+                        .query_one("SELECT tier FROM users WHERE user_id = $1", &[&user_id])
+                        .await
+                        .map(|row| row.get::<_, String>("tier"))
+                        .unwrap_or_else(|_| "Free".to_string());
+
+                    let new_tier = match current_tier.as_str() {
+                        "Growth" => "Dev",
+                        "Dev" => "Starter",
+                        "Starter" => "Free",
+                        _ => "Free",
+                    };
+
                     let res_one = client
                         .execute(
                             "UPDATE subscriptions 
@@ -454,9 +496,9 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                         .execute(
                             "UPDATE users 
                              SET invoice_status = 'False', 
-                                 tier = 'Free' 
+                                 tier = $2
                              WHERE user_id = $1",
-                            &[&user_id],
+                            &[&user_id, &new_tier],
                         )
                         .await;
 
@@ -467,12 +509,12 @@ pub async fn stripe_webhook(req: HttpRequest, payload: web::Bytes) -> Result<Htt
                     let res_three = client
                         .execute(
                             "UPDATE monthly_usage
-                             SET tier = 'Free',
-                                 usage_limit = (SELECT usage_limit FROM tiers WHERE tier = 'Free')
+                             SET tier = $2,
+                                 usage_limit = (SELECT usage_limit FROM tiers WHERE tier = $2)
                              WHERE user_id = $1 
                              AND year = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
                              AND month = EXTRACT(MONTH FROM CURRENT_TIMESTAMP)",
-                            &[&user_id],
+                            &[&user_id, &new_tier],
                         )
                         .await;
 
@@ -690,7 +732,10 @@ pub async fn get_billing_portal_session(
 
     let row = client
         .query_opt(
-            "SELECT customer_id FROM users WHERE user_id = $1",
+            "SELECT u.customer_id, s.stripe_subscription_id 
+             FROM users u
+             LEFT JOIN subscriptions s ON u.user_id = s.user_id 
+             WHERE u.user_id = $1",
             &[&user_info.user_id],
         )
         .await
@@ -699,10 +744,17 @@ pub async fn get_billing_portal_session(
             actix_web::error::ErrorInternalServerError("Database error")
         })?;
 
+    let row =
+        row.ok_or_else(|| actix_web::error::ErrorBadRequest("No customer ID found for user"))?;
     let customer_id = row
-        .and_then(|r| r.get::<_, Option<String>>("customer_id"))
+        .get::<_, Option<String>>("customer_id")
         .ok_or_else(|| actix_web::error::ErrorBadRequest("No customer ID found for user"))?;
+    let subscription_id = row
+        .get::<_, Option<String>>("stripe_subscription_id")
+        .ok_or_else(|| actix_web::error::ErrorBadRequest("No subscription ID found for user"))?;
 
-    let session = create_stripe_billing_portal_session(&customer_id, &stripe_config).await?;
+    let session =
+        create_stripe_billing_portal_session(&customer_id, &subscription_id, &stripe_config)
+            .await?;
     Ok(HttpResponse::Ok().json(session))
 }
