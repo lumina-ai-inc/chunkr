@@ -64,7 +64,8 @@ impl Pipeline {
             println!("Task initialized with artifacts");
         } else {
             self.input_file = Some(Arc::new(
-                download_to_tempfile(&task.input_location, None).await?,
+                download_to_tempfile(&task.input_location, None, task.mime_type.as_ref().unwrap())
+                    .await?,
             ));
             self.pdf_file = match task.mime_type.as_ref().unwrap().as_str() {
                 "application/pdf" => Some(self.input_file.clone().unwrap()),
