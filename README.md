@@ -128,6 +128,6 @@ The core of this project is dual-licensed:
 To use Chunkr without complying with the AGPL-3.0 license terms you can [contact us](mailto:mehul@lumina.sh) or visit our [website](https://chunkr.ai).
 
 ## Connect With Us
-- 📧 Email: [mehul@lumina.sh](mailto:mehul@lumina.sh)
+- 📧 Email: [mehul@chunkr.ai](mailto:mehul@chunkr.ai)
 - 📅 Schedule a call: [Book a 30-minute meeting](https://cal.com/mehulc/30min)
 - 🌐 Visit our website: [chunkr.ai](https://chunkr.ai)
