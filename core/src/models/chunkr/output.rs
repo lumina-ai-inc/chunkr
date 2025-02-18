@@ -82,7 +82,7 @@ impl Chunk {
                     }
                 })
                 .collect::<Vec<String>>()
-                .join(" "),
+                .join("\n\n"),
         );
         self.chunk_length = self.embed.as_ref().unwrap().split_whitespace().count() as u32;
     }
